@@ -6,8 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppLayout } from "@/components/AppLayout";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import RelationshipsPage from "./pages/RelationshipsPage";
 import {
-  RelationshipsPage,
   ContentPage,
   MonetizationPage,
   TasksPage,
