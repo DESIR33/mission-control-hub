@@ -12,8 +12,10 @@ import {
   Zap,
   ChevronLeft,
   ChevronRight,
+  LogOut,
 } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/hooks/use-auth";
 
 const navItems = [
   { to: "/", icon: LayoutDashboard, label: "Mission Control" },
@@ -32,6 +34,7 @@ const bottomItems = [
 
 export function AppSidebar() {
   const [collapsed, setCollapsed] = useState(false);
+  const { signOut } = useAuth();
 
   return (
     <aside
@@ -111,6 +114,14 @@ export function AppSidebar() {
               <span className="truncate">Collapse</span>
             </>
           )}
+        </button>
+
+        <button
+          onClick={signOut}
+          className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-destructive/80 hover:bg-destructive/10 hover:text-destructive transition-colors w-full"
+        >
+          <LogOut className="w-4 h-4 shrink-0" />
+          {!collapsed && <span className="truncate">Sign Out</span>}
         </button>
       </div>
     </aside>
