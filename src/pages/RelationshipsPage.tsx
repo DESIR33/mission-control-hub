@@ -39,7 +39,7 @@ function RelationshipsContent() {
   };
 
   return (
-    <div className="p-6 lg:p-8 gradient-mesh min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 gradient-mesh min-h-screen">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-foreground">Relationships</h1>
         <p className="text-sm text-muted-foreground mt-1">

@@ -3,16 +3,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Filter, Building2, Globe, MapPin, Users, Star } from "lucide-react";
+import { Search, Filter, Building2, Globe, MapPin, Users, Star, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Company, VipTier } from "@/types/crm";
 import { formatDistanceToNow } from "date-fns";
 
 const tierIcons: Record<VipTier, string> = {
   none: "",
-  silver: "\u{1F948}",
-  gold: "\u{1F947}",
-  platinum: "\u{1F48E}",
+  silver: "🥈",
+  gold: "🥇",
+  platinum: "💎",
 };
 
 interface CompaniesTableProps {
@@ -43,11 +43,11 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
   return (
     <div className="flex flex-col gap-4">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="relative flex-1 min-w-[200px] max-w-sm">
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="relative flex-1 min-w-[140px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search companies\u2026"
+            placeholder="Search companies…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9 bg-card border-border"
@@ -55,7 +55,7 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
         </div>
 
         <Select value={industryFilter} onValueChange={setIndustryFilter}>
-          <SelectTrigger className="w-[150px] bg-card border-border">
+          <SelectTrigger className="w-[130px] bg-card border-border shrink-0">
             <Filter className="w-3.5 h-3.5 mr-1.5 text-muted-foreground" />
             <SelectValue placeholder="Industry" />
           </SelectTrigger>
@@ -68,7 +68,7 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
         </Select>
 
         <Select value={sizeFilter} onValueChange={setSizeFilter}>
-          <SelectTrigger className="w-[130px] bg-card border-border">
+          <SelectTrigger className="w-[120px] bg-card border-border shrink-0">
             <Users className="w-3.5 h-3.5 mr-1.5 text-muted-foreground" />
             <SelectValue placeholder="Size" />
           </SelectTrigger>
@@ -83,7 +83,7 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
           </SelectContent>
         </Select>
 
-        <div className="ml-auto">
+        <div className="ml-auto shrink-0">
           {addButton}
         </div>
       </div>
@@ -94,8 +94,76 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
         {search || industryFilter !== "all" || sizeFilter !== "all" ? " (filtered)" : ""}
       </p>
 
-      {/* Table */}
-      <div className="rounded-lg border border-border bg-card overflow-hidden">
+      {/* Mobile card list — visible only on small screens */}
+      <div className="md:hidden rounded-lg border border-border bg-card overflow-hidden divide-y divide-border">
+        {filtered.length === 0 ? (
+          <div className="py-12 text-center text-sm text-muted-foreground">
+            No companies found
+          </div>
+        ) : (
+          filtered.map((company) => (
+            <button
+              key={company.id}
+              onClick={() => onSelectCompany(company)}
+              className={cn(
+                "w-full flex items-center gap-3 px-4 py-3 text-left transition-colors",
+                selectedId === company.id
+                  ? "bg-primary/5"
+                  : "hover:bg-accent/50 active:bg-accent/70"
+              )}
+            >
+              {/* Icon */}
+              <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                <Building2 className="w-4 h-4 text-primary" />
+              </div>
+
+              {/* Content */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <p className="text-sm font-medium text-foreground truncate">
+                    {company.name}
+                  </p>
+                  {company.vip_tier !== "none" && (
+                    <span className="text-sm leading-none shrink-0">{tierIcons[company.vip_tier]}</span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                  {company.industry && (
+                    <span className="text-xs text-muted-foreground">{company.industry}</span>
+                  )}
+                  {company.location && (
+                    <span className="text-xs text-muted-foreground flex items-center gap-0.5">
+                      <MapPin className="w-3 h-3 shrink-0" />
+                      {company.location}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-3 mt-1">
+                  {company.size && (
+                    <span className="text-[11px] text-muted-foreground flex items-center gap-0.5">
+                      <Users className="w-3 h-3 shrink-0" />
+                      {company.size}
+                    </span>
+                  )}
+                  <Badge variant="outline" className="text-[10px] shrink-0">
+                    {company.contacts?.length ?? 0} contacts
+                  </Badge>
+                  {company.last_contact_date && (
+                    <span className="text-[11px] text-muted-foreground">
+                      {formatDistanceToNow(new Date(company.last_contact_date), { addSuffix: true })}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+            </button>
+          ))
+        )}
+      </div>
+
+      {/* Desktop table — hidden on small screens */}
+      <div className="hidden md:block rounded-lg border border-border bg-card overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent border-border">
@@ -141,16 +209,16 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
                     </div>
                   </TableCell>
                   <TableCell>
-                    <span className="text-sm text-foreground">{company.industry ?? "\u2014"}</span>
+                    <span className="text-sm text-foreground">{company.industry ?? "—"}</span>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1.5">
                       {company.location && <MapPin className="w-3 h-3 text-muted-foreground shrink-0" />}
-                      <span className="text-sm text-muted-foreground truncate">{company.location ?? "\u2014"}</span>
+                      <span className="text-sm text-muted-foreground truncate">{company.location ?? "—"}</span>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <span className="text-sm text-muted-foreground">{company.size ?? "\u2014"}</span>
+                    <span className="text-sm text-muted-foreground">{company.size ?? "—"}</span>
                   </TableCell>
                   <TableCell>
                     {company.vip_tier !== "none" && (

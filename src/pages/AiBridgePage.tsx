@@ -170,7 +170,7 @@ function AiBridgeContent() {
   ).length;
 
   return (
-    <div className="p-6 lg:p-8 gradient-mesh min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 gradient-mesh min-h-screen">
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-1">
           <Brain className="w-6 h-6 text-primary" />

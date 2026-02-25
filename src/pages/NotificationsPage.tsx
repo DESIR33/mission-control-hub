@@ -103,7 +103,7 @@ function NotificationItem({
             {isUnread && (
               <button
                 onClick={() => onMarkRead(notification.id)}
-                className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
+                className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
                 title="Mark as read"
               >
                 <Check className="w-3.5 h-3.5" />
@@ -143,9 +143,9 @@ export default function NotificationsPage() {
   } = useNotifications();
 
   return (
-    <div className="p-6 lg:p-8 gradient-mesh min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 gradient-mesh min-h-screen">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-foreground flex items-center gap-2.5">
             <Bell className="w-6 h-6" />
@@ -161,7 +161,7 @@ export default function NotificationsPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           {/* Demo: trigger AI proposal notification */}
           <Button
             variant="outline"

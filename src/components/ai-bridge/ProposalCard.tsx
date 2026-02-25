@@ -116,7 +116,7 @@ export function ProposalCard({
       )}
     >
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div className="flex items-start gap-3 min-w-0 flex-1">
           <div
             className={cn(
@@ -169,7 +169,7 @@ export function ProposalCard({
           </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 sm:shrink-0 flex-wrap">
           <Badge
             variant="outline"
             className={cn("text-[10px] uppercase tracking-wider", status.className)}
@@ -214,7 +214,7 @@ export function ProposalCard({
 
       {/* Actions */}
       {proposal.status === "pending" && (
-        <div className="flex items-center gap-2 mt-4 pt-4 border-t border-border">
+        <div className="flex items-center gap-2 mt-4 pt-4 border-t border-border flex-wrap">
           <Button
             size="sm"
             onClick={() => onApprove(proposal.id)}

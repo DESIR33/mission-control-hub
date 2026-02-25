@@ -183,7 +183,7 @@ function IntegrationsContent() {
   const connectedCount = integrations.filter((r) => r.enabled).length;
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 gradient-mesh min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 gradient-mesh min-h-screen">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}
