@@ -14,13 +14,531 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      activities: {
+        Row: {
+          activity_type: string
+          created_at: string
+          description: string | null
+          entity_id: string
+          entity_type: string
+          id: string
+          metadata: Json | null
+          performed_at: string
+          performed_by: string | null
+          title: string | null
+          workspace_id: string
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string
+          description?: string | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          metadata?: Json | null
+          performed_at?: string
+          performed_by?: string | null
+          title?: string | null
+          workspace_id: string
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string
+          description?: string | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          metadata?: Json | null
+          performed_at?: string
+          performed_by?: string | null
+          title?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activities_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      companies: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          description: string | null
+          enrichment_brandfetch: Json | null
+          enrichment_clay: Json | null
+          enrichment_firecrawl: Json | null
+          id: string
+          industry: string | null
+          last_contact_date: string | null
+          location: string | null
+          logo_url: string | null
+          name: string
+          notes: string | null
+          primary_email: string | null
+          response_sla_minutes: number | null
+          revenue: string | null
+          secondary_email: string | null
+          size: string | null
+          social_facebook: string | null
+          social_instagram: string | null
+          social_linkedin: string | null
+          social_producthunt: string | null
+          social_tiktok: string | null
+          social_twitter: string | null
+          social_youtube: string | null
+          updated_at: string
+          vip_tier: string | null
+          website: string | null
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          description?: string | null
+          enrichment_brandfetch?: Json | null
+          enrichment_clay?: Json | null
+          enrichment_firecrawl?: Json | null
+          id?: string
+          industry?: string | null
+          last_contact_date?: string | null
+          location?: string | null
+          logo_url?: string | null
+          name: string
+          notes?: string | null
+          primary_email?: string | null
+          response_sla_minutes?: number | null
+          revenue?: string | null
+          secondary_email?: string | null
+          size?: string | null
+          social_facebook?: string | null
+          social_instagram?: string | null
+          social_linkedin?: string | null
+          social_producthunt?: string | null
+          social_tiktok?: string | null
+          social_twitter?: string | null
+          social_youtube?: string | null
+          updated_at?: string
+          vip_tier?: string | null
+          website?: string | null
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          description?: string | null
+          enrichment_brandfetch?: Json | null
+          enrichment_clay?: Json | null
+          enrichment_firecrawl?: Json | null
+          id?: string
+          industry?: string | null
+          last_contact_date?: string | null
+          location?: string | null
+          logo_url?: string | null
+          name?: string
+          notes?: string | null
+          primary_email?: string | null
+          response_sla_minutes?: number | null
+          revenue?: string | null
+          secondary_email?: string | null
+          size?: string | null
+          social_facebook?: string | null
+          social_instagram?: string | null
+          social_linkedin?: string | null
+          social_producthunt?: string | null
+          social_tiktok?: string | null
+          social_twitter?: string | null
+          social_youtube?: string | null
+          updated_at?: string
+          vip_tier?: string | null
+          website?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "companies_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contacts: {
+        Row: {
+          avatar_url: string | null
+          company_id: string | null
+          created_at: string
+          created_by: string | null
+          custom_fields: Json | null
+          deleted_at: string | null
+          email: string | null
+          enrichment_ai: Json | null
+          enrichment_hunter: Json | null
+          enrichment_youtube: Json | null
+          escalation_owner_id: string | null
+          first_name: string
+          id: string
+          last_contact_date: string | null
+          last_name: string | null
+          notes: string | null
+          owner_id: string | null
+          phone: string | null
+          preferred_channel: string | null
+          response_sla_minutes: number | null
+          role: string | null
+          social_facebook: string | null
+          social_instagram: string | null
+          social_linkedin: string | null
+          social_telegram: string | null
+          social_twitter: string | null
+          social_whatsapp: string | null
+          social_youtube: string | null
+          source: string | null
+          status: string
+          updated_at: string
+          vip_tier: string | null
+          website: string | null
+          workspace_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          company_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          custom_fields?: Json | null
+          deleted_at?: string | null
+          email?: string | null
+          enrichment_ai?: Json | null
+          enrichment_hunter?: Json | null
+          enrichment_youtube?: Json | null
+          escalation_owner_id?: string | null
+          first_name: string
+          id?: string
+          last_contact_date?: string | null
+          last_name?: string | null
+          notes?: string | null
+          owner_id?: string | null
+          phone?: string | null
+          preferred_channel?: string | null
+          response_sla_minutes?: number | null
+          role?: string | null
+          social_facebook?: string | null
+          social_instagram?: string | null
+          social_linkedin?: string | null
+          social_telegram?: string | null
+          social_twitter?: string | null
+          social_whatsapp?: string | null
+          social_youtube?: string | null
+          source?: string | null
+          status?: string
+          updated_at?: string
+          vip_tier?: string | null
+          website?: string | null
+          workspace_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          company_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          custom_fields?: Json | null
+          deleted_at?: string | null
+          email?: string | null
+          enrichment_ai?: Json | null
+          enrichment_hunter?: Json | null
+          enrichment_youtube?: Json | null
+          escalation_owner_id?: string | null
+          first_name?: string
+          id?: string
+          last_contact_date?: string | null
+          last_name?: string | null
+          notes?: string | null
+          owner_id?: string | null
+          phone?: string | null
+          preferred_channel?: string | null
+          response_sla_minutes?: number | null
+          role?: string | null
+          social_facebook?: string | null
+          social_instagram?: string | null
+          social_linkedin?: string | null
+          social_telegram?: string | null
+          social_twitter?: string | null
+          social_whatsapp?: string | null
+          social_youtube?: string | null
+          source?: string | null
+          status?: string
+          updated_at?: string
+          vip_tier?: string | null
+          website?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contacts_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_contacts_company"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deals: {
+        Row: {
+          closed_at: string | null
+          company_id: string | null
+          contact_id: string | null
+          created_at: string
+          created_by: string | null
+          currency: string | null
+          deleted_at: string | null
+          expected_close_date: string | null
+          forecast_category: string | null
+          id: string
+          notes: string | null
+          owner_id: string | null
+          stage: string
+          title: string
+          updated_at: string
+          value: number | null
+          workspace_id: string
+        }
+        Insert: {
+          closed_at?: string | null
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          deleted_at?: string | null
+          expected_close_date?: string | null
+          forecast_category?: string | null
+          id?: string
+          notes?: string | null
+          owner_id?: string | null
+          stage?: string
+          title: string
+          updated_at?: string
+          value?: number | null
+          workspace_id: string
+        }
+        Update: {
+          closed_at?: string | null
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          deleted_at?: string | null
+          expected_close_date?: string | null
+          forecast_category?: string | null
+          id?: string
+          notes?: string | null
+          owner_id?: string | null
+          stage?: string
+          title?: string
+          updated_at?: string
+          value?: number | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deals_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deals_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deals_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      entity_tags: {
+        Row: {
+          created_at: string
+          entity_id: string
+          entity_type: string
+          id: string
+          tag_id: string
+        }
+        Insert: {
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          tag_id: string
+        }
+        Update: {
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entity_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      tags: {
+        Row: {
+          color: string | null
+          created_at: string
+          id: string
+          name: string
+          workspace_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          workspace_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tags_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workspace_members: {
+        Row: {
+          created_at: string
+          id: string
+          role: string
+          user_id: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: string
+          user_id: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: string
+          user_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_members_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workspaces: {
+        Row: {
+          created_at: string
+          id: string
+          logo_url: string | null
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_workspace_role: { Args: { ws_id: string }; Returns: string }
+      is_workspace_member: { Args: { ws_id: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
