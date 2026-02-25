@@ -17,6 +17,8 @@ import {
   TasksPage,
 } from "./pages/SectionPages";
 import MonetizationPage from "./pages/MonetizationPage";
+import NewSponsorship from "./pages/NewSponsorship";
+import EditSponsorship from "./pages/EditSponsorship";
 import AiBridgePage from "./pages/AiBridgePage";
 import SettingsPage from "./pages/SettingsPage";
 import InboxPage from "./pages/InboxPage";
@@ -62,6 +64,8 @@ const App = () => (
               <Route path="/relationships" element={<RelationshipsPage />} />
               <Route path="/content" element={<ContentPage />} />
               <Route path="/monetization" element={<MonetizationPage />} />
+              <Route path="/monetization/new-sponsorship" element={<NewSponsorship />} />
+              <Route path="/monetization/edit-sponsorship/:id" element={<EditSponsorship />} />
               <Route path="/tasks" element={<TasksPage />} />
               <Route path="/ai-bridge" element={<AiBridgePage />} />
               <Route path="/inbox" element={<InboxPage />} />
