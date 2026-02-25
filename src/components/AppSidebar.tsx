@@ -8,6 +8,7 @@ import {
   CheckSquare,
   Brain,
   Bell,
+  Mail,
   Settings,
   Zap,
   ChevronLeft,
@@ -25,6 +26,7 @@ const navItems = [
   { to: "/monetization", icon: DollarSign, label: "Monetization" },
   { to: "/tasks", icon: CheckSquare, label: "Tasks" },
   { to: "/ai-bridge", icon: Brain, label: "AI Bridge" },
+  { to: "/inbox", icon: Mail, label: "Inbox" },
   { to: "/notifications", icon: Bell, label: "Notifications" },
 ];
 
