@@ -13,5 +13,4 @@ export const ContentPage = () => <SectionPage title="Content Pipeline" descripti
 export const MonetizationPage = () => <SectionPage title="Monetization" description="Sponsorships, affiliates, and product revenue" />;
 export const TasksPage = () => <SectionPage title="Tasks" description="Prioritized tasks linked to contacts, deals, and content" />;
 export const AiBridgePage = () => <SectionPage title="AI Bridge" description="Memory, proposals, and the approval queue" />;
-export const IntegrationsPage = () => <SectionPage title="Integrations" description="YouTube, Slack, webhooks, and API keys" />;
 export const SettingsPage = () => <SectionPage title="Settings" description="Workspace, roles, and preferences" />;

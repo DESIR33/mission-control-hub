@@ -573,6 +573,47 @@ export type Database = {
           },
         ]
       }
+      workspace_integrations: {
+        Row: {
+          id: string
+          workspace_id: string
+          integration_key: string
+          enabled: boolean
+          config: Json | null
+          connected_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          workspace_id: string
+          integration_key: string
+          enabled?: boolean
+          config?: Json | null
+          connected_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          workspace_id?: string
+          integration_key?: string
+          enabled?: boolean
+          config?: Json | null
+          connected_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_integrations_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workspace_members: {
         Row: {
           created_at: string

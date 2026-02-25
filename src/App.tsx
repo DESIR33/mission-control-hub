@@ -11,12 +11,12 @@ import AuthPage from "./pages/AuthPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import RelationshipsPage from "./pages/RelationshipsPage";
 import NotificationsPage from "./pages/NotificationsPage";
+import IntegrationsPage from "./pages/IntegrationsPage";
 import {
   ContentPage,
   MonetizationPage,
   TasksPage,
   AiBridgePage,
-  IntegrationsPage,
   SettingsPage,
 } from "./pages/SectionPages";
 
