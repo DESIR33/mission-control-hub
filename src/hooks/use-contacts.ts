@@ -75,6 +75,74 @@ export function useCreateContact() {
   });
 }
 
+export function useUpdateContact() {
+  const { workspaceId } = useWorkspace();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: {
+      id: string;
+      first_name?: string;
+      last_name?: string;
+      email?: string;
+      phone?: string;
+      status?: string;
+      role?: string;
+      source?: string;
+      company_id?: string | null;
+      vip_tier?: string;
+      website?: string;
+      notes?: string;
+      preferred_channel?: string;
+      response_sla_minutes?: number | null;
+      social_twitter?: string;
+      social_linkedin?: string;
+      social_instagram?: string;
+      social_whatsapp?: string;
+    }) => {
+      if (!workspaceId) throw new Error("No workspace");
+
+      const { data, error } = await supabase
+        .from("contacts")
+        .update(updates)
+        .eq("id", id)
+        .eq("workspace_id", workspaceId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["contacts", workspaceId] });
+      queryClient.invalidateQueries({ queryKey: ["company-contacts", workspaceId] });
+    },
+  });
+}
+
+export function useDeleteContact() {
+  const { workspaceId } = useWorkspace();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      if (!workspaceId) throw new Error("No workspace");
+
+      const { error } = await supabase
+        .from("contacts")
+        .delete()
+        .eq("id", id)
+        .eq("workspace_id", workspaceId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["contacts", workspaceId] });
+      queryClient.invalidateQueries({ queryKey: ["company-contacts", workspaceId] });
+    },
+  });
+}
+
 export function useActivities(entityId: string | null, entityType: string = "contact") {
   const { workspaceId } = useWorkspace();
 
