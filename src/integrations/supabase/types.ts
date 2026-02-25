@@ -14,6 +14,132 @@ export type Database = {
   }
   public: {
     Tables: {
+      affiliate_programs: {
+        Row: {
+          id: number
+          workspace_id: string
+          company_id: string
+          dashboard_url: string | null
+          commission_percentage: number
+          payout_frequency: string
+          next_payout_date: string | null
+          affiliate_links: string[]
+          minimum_payout: number
+          payment_methods: string[]
+          notes: string | null
+          status: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          workspace_id: string
+          company_id: string
+          dashboard_url?: string | null
+          commission_percentage?: number
+          payout_frequency?: string
+          next_payout_date?: string | null
+          affiliate_links?: string[]
+          minimum_payout?: number
+          payment_methods?: string[]
+          notes?: string | null
+          status?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          workspace_id?: string
+          company_id?: string
+          dashboard_url?: string | null
+          commission_percentage?: number
+          payout_frequency?: string
+          next_payout_date?: string | null
+          affiliate_links?: string[]
+          minimum_payout?: number
+          payment_methods?: string[]
+          notes?: string | null
+          status?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_programs_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_programs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      affiliate_transactions: {
+        Row: {
+          id: number
+          affiliate_program_id: number
+          workspace_id: string
+          amount: number
+          transaction_date: string
+          approximate_payout_date: string | null
+          is_recurring: boolean
+          recurring_months: number | null
+          status: string
+          is_paid: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          affiliate_program_id: number
+          workspace_id: string
+          amount?: number
+          transaction_date?: string
+          approximate_payout_date?: string | null
+          is_recurring?: boolean
+          recurring_months?: number | null
+          status?: string
+          is_paid?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          affiliate_program_id?: number
+          workspace_id?: string
+          amount?: number
+          transaction_date?: string
+          approximate_payout_date?: string | null
+          is_recurring?: boolean
+          recurring_months?: number | null
+          status?: string
+          is_paid?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_transactions_affiliate_program_id_fkey"
+            columns: ["affiliate_program_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_transactions_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_proposals: {
         Row: {
           id: string

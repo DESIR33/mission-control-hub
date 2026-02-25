@@ -20,6 +20,11 @@ import MonetizationPage from "./pages/MonetizationPage";
 import AiBridgePage from "./pages/AiBridgePage";
 import SettingsPage from "./pages/SettingsPage";
 import InboxPage from "./pages/InboxPage";
+import AffiliateProgramPage from "./pages/AffiliateProgramPage";
+import NewAffiliateProgramPage from "./pages/NewAffiliateProgramPage";
+import EditAffiliateProgramPage from "./pages/EditAffiliateProgramPage";
+import AddTransactionPage from "./pages/AddTransactionPage";
+import EditTransactionPage from "./pages/EditTransactionPage";
 
 const queryClient = new QueryClient();
 
@@ -62,6 +67,11 @@ const App = () => (
               <Route path="/relationships" element={<RelationshipsPage />} />
               <Route path="/content" element={<ContentPage />} />
               <Route path="/monetization" element={<MonetizationPage />} />
+              <Route path="/affiliate-program/new" element={<NewAffiliateProgramPage />} />
+              <Route path="/affiliate-program/:id" element={<AffiliateProgramPage />} />
+              <Route path="/affiliate-program/:id/edit" element={<EditAffiliateProgramPage />} />
+              <Route path="/affiliate-program/:id/add-transaction" element={<AddTransactionPage />} />
+              <Route path="/affiliate-program/:id/edit-transaction" element={<EditTransactionPage />} />
               <Route path="/tasks" element={<TasksPage />} />
               <Route path="/ai-bridge" element={<AiBridgePage />} />
               <Route path="/inbox" element={<InboxPage />} />
