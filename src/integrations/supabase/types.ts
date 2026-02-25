@@ -14,6 +14,65 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_proposals: {
+        Row: {
+          id: string
+          workspace_id: string
+          entity_type: string
+          entity_id: string
+          proposal_type: string
+          title: string
+          summary: string | null
+          proposed_changes: Json
+          status: string
+          confidence: number | null
+          reviewed_by: string | null
+          reviewed_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          workspace_id: string
+          entity_type: string
+          entity_id: string
+          proposal_type: string
+          title: string
+          summary?: string | null
+          proposed_changes?: Json
+          status?: string
+          confidence?: number | null
+          reviewed_by?: string | null
+          reviewed_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          workspace_id?: string
+          entity_type?: string
+          entity_id?: string
+          proposal_type?: string
+          title?: string
+          summary?: string | null
+          proposed_changes?: Json
+          status?: string
+          confidence?: number | null
+          reviewed_by?: string | null
+          reviewed_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_proposals_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           id: string
