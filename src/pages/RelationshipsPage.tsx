@@ -91,6 +91,7 @@ function RelationshipsContent() {
         activities={contactActivities}
         open={contactSheetOpen}
         onOpenChange={setContactSheetOpen}
+        onDeleted={() => setSelectedContact(null)}
       />
 
       <CompanyDetailSheet
