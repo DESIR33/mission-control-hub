@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Plus, Filter, Mail, Phone, Star } from "lucide-react";
+import { Search, Filter, Mail, Phone, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Contact, ContactStatus, VipTier } from "@/types/crm";
 import { formatDistanceToNow } from "date-fns";
@@ -27,9 +27,10 @@ interface ContactsTableProps {
   contacts: Contact[];
   onSelectContact: (contact: Contact) => void;
   selectedId?: string;
+  addButton?: React.ReactNode;
 }
 
-export function ContactsTable({ contacts, onSelectContact, selectedId }: ContactsTableProps) {
+export function ContactsTable({ contacts, onSelectContact, selectedId, addButton }: ContactsTableProps) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [tierFilter, setTierFilter] = useState<string>("all");
@@ -88,10 +89,7 @@ export function ContactsTable({ contacts, onSelectContact, selectedId }: Contact
         </Select>
 
         <div className="ml-auto">
-          <Button size="sm" className="gap-1.5">
-            <Plus className="w-4 h-4" />
-            Add Contact
-          </Button>
+          {addButton}
         </div>
       </div>
 

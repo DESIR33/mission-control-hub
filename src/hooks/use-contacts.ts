@@ -1,0 +1,141 @@
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useWorkspace } from "@/hooks/use-workspace";
+import type { Contact, Activity } from "@/types/crm";
+
+export function useContacts() {
+  const { workspaceId } = useWorkspace();
+
+  return useQuery({
+    queryKey: ["contacts", workspaceId],
+    queryFn: async (): Promise<Contact[]> => {
+      if (!workspaceId) return [];
+
+      const { data, error } = await supabase
+        .from("contacts")
+        .select("*, companies(*)")
+        .eq("workspace_id", workspaceId)
+        .order("updated_at", { ascending: false });
+
+      if (error) throw error;
+
+      return (data ?? []).map((row) => ({
+        ...row,
+        status: row.status as Contact["status"],
+        vip_tier: (row.vip_tier ?? "none") as Contact["vip_tier"],
+        preferred_channel: (row.preferred_channel ?? "email") as Contact["preferred_channel"],
+        custom_fields: (row.custom_fields as Record<string, unknown>) ?? {},
+        enrichment_hunter: row.enrichment_hunter as Record<string, unknown> | null,
+        enrichment_ai: row.enrichment_ai as Record<string, unknown> | null,
+        enrichment_youtube: row.enrichment_youtube as Record<string, unknown> | null,
+        company: row.companies as Contact["company"] ?? null,
+      }));
+    },
+    enabled: !!workspaceId,
+  });
+}
+
+export function useCreateContact() {
+  const { workspaceId } = useWorkspace();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (contact: {
+      first_name: string;
+      last_name?: string;
+      email?: string;
+      phone?: string;
+      status?: string;
+      role?: string;
+      source?: string;
+      company_id?: string;
+      vip_tier?: string;
+      notes?: string;
+    }) => {
+      if (!workspaceId) throw new Error("No workspace");
+
+      const { data: { user } } = await supabase.auth.getUser();
+
+      const { data, error } = await supabase
+        .from("contacts")
+        .insert({
+          ...contact,
+          workspace_id: workspaceId,
+          created_by: user?.id,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["contacts", workspaceId] });
+    },
+  });
+}
+
+export function useActivities(entityId: string | null, entityType: string = "contact") {
+  const { workspaceId } = useWorkspace();
+
+  return useQuery({
+    queryKey: ["activities", workspaceId, entityId, entityType],
+    queryFn: async () => {
+      if (!workspaceId || !entityId) return [];
+
+      const { data, error } = await supabase
+        .from("activities")
+        .select("*")
+        .eq("workspace_id", workspaceId)
+        .eq("entity_id", entityId)
+        .eq("entity_type", entityType)
+        .order("performed_at", { ascending: false })
+        .limit(50);
+
+      if (error) throw error;
+      return (data ?? []).map((row) => ({
+        ...row,
+        entity_type: row.entity_type as Activity["entity_type"],
+        metadata: (row.metadata as Record<string, unknown>) ?? {},
+      }));
+    },
+    enabled: !!workspaceId && !!entityId,
+  });
+}
+
+export function useCreateActivity() {
+  const { workspaceId } = useWorkspace();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (activity: {
+      entity_id: string;
+      entity_type: string;
+      activity_type: string;
+      title?: string;
+      description?: string;
+    }) => {
+      if (!workspaceId) throw new Error("No workspace");
+
+      const { data: { user } } = await supabase.auth.getUser();
+
+      const { data, error } = await supabase
+        .from("activities")
+        .insert({
+          ...activity,
+          workspace_id: workspaceId,
+          performed_by: user?.id,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["activities", workspaceId, variables.entity_id],
+      });
+    },
+  });
+}
