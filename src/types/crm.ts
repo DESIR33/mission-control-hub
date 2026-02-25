@@ -50,12 +50,26 @@ export interface Company {
   location: string | null;
   primary_email: string | null;
   secondary_email: string | null;
+  social_twitter: string | null;
+  social_linkedin: string | null;
+  social_youtube: string | null;
+  social_instagram: string | null;
+  social_facebook: string | null;
+  social_tiktok: string | null;
+  social_producthunt: string | null;
   vip_tier: 'none' | 'silver' | 'gold' | 'platinum';
+  response_sla_minutes: number | null;
+  enrichment_brandfetch: Record<string, unknown> | null;
+  enrichment_clay: Record<string, unknown> | null;
+  enrichment_firecrawl: Record<string, unknown> | null;
   notes: string | null;
   last_contact_date: string | null;
   deleted_at: string | null;
+  created_by: string | null;
   created_at: string;
   updated_at: string;
+  // Joined
+  contacts?: Contact[];
 }
 
 export interface Activity {

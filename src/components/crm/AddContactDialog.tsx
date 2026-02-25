@@ -6,12 +6,15 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateContact } from "@/hooks/use-contacts";
+import { useCompanies } from "@/hooks/use-companies";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Loader2 } from "lucide-react";
 
 export function AddContactDialog() {
   const [open, setOpen] = useState(false);
+  const [companyId, setCompanyId] = useState<string>("");
   const createContact = useCreateContact();
+  const { data: companies = [] } = useCompanies();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -27,10 +30,12 @@ export function AddContactDialog() {
         status: form.get("status") as string,
         role: (form.get("role") as string) || undefined,
         source: (form.get("source") as string) || undefined,
+        company_id: companyId && companyId !== "none" ? companyId : undefined,
         vip_tier: form.get("vip_tier") as string,
         notes: (form.get("notes") as string) || undefined,
       });
       toast({ title: "Contact created" });
+      setCompanyId("");
       setOpen(false);
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -112,6 +117,23 @@ export function AddContactDialog() {
               <Label htmlFor="source">Source</Label>
               <Input id="source" name="source" placeholder="e.g. LinkedIn" className="bg-secondary border-border" />
             </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>Company</Label>
+            <Select value={companyId} onValueChange={setCompanyId}>
+              <SelectTrigger className="bg-secondary border-border">
+                <SelectValue placeholder="Select company" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No Company</SelectItem>
+                {companies.map((company) => (
+                  <SelectItem key={company.id} value={company.id}>
+                    {company.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-1.5">
