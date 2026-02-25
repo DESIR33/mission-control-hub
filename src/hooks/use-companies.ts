@@ -147,6 +147,29 @@ export function useCompanyContacts(companyId: string | null) {
   });
 }
 
+export function useDeleteCompany() {
+  const { workspaceId } = useWorkspace();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      if (!workspaceId) throw new Error("No workspace");
+
+      const { error } = await supabase
+        .from("companies")
+        .update({ deleted_at: new Date().toISOString() })
+        .eq("id", id)
+        .eq("workspace_id", workspaceId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["companies", workspaceId] });
+      queryClient.invalidateQueries({ queryKey: ["company-contacts", workspaceId] });
+    },
+  });
+}
+
 export function useAssociateContact() {
   const { workspaceId } = useWorkspace();
   const queryClient = useQueryClient();
