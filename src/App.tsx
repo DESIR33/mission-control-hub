@@ -19,6 +19,7 @@ import {
 } from "./pages/SectionPages";
 import AiBridgePage from "./pages/AiBridgePage";
 import SettingsPage from "./pages/SettingsPage";
+import InboxPage from "./pages/InboxPage";
 
 const queryClient = new QueryClient();
 
@@ -63,6 +64,8 @@ const App = () => (
               <Route path="/monetization" element={<MonetizationPage />} />
               <Route path="/tasks" element={<TasksPage />} />
               <Route path="/ai-bridge" element={<AiBridgePage />} />
+              <Route path="/inbox" element={<InboxPage />} />
+              <Route path="/inbox/*" element={<InboxPage />} />
               <Route path="/notifications" element={<NotificationsPage />} />
               <Route path="/integrations" element={<IntegrationsPage />} />
               <Route path="/settings" element={<SettingsPage />} />
