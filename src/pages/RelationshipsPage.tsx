@@ -104,6 +104,7 @@ function RelationshipsContent() {
           if (!open) setSelectedCompany(null);
         }}
         onEdit={() => setEditCompanyOpen(true)}
+        onDeleted={() => setSelectedCompany(null)}
       />
 
       <EditCompanyDialog
