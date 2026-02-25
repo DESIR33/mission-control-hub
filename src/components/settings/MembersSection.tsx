@@ -88,8 +88,8 @@ function MemberRow({
     .slice(0, 2);
 
   return (
-    <div className="flex items-center gap-3 py-3 px-1">
-      <Avatar className="h-9 w-9">
+    <div className="flex items-start sm:items-center gap-3 py-3 px-1">
+      <Avatar className="h-9 w-9 shrink-0">
         <AvatarImage src={member.profile?.avatar_url ?? undefined} />
         <AvatarFallback className="text-xs">{initials}</AvatarFallback>
       </Avatar>
@@ -102,33 +102,64 @@ function MemberRow({
           )}
         </p>
         <p className="text-xs text-muted-foreground truncate">{email}</p>
+        {/* Role shown below name on mobile */}
+        <div className="flex items-center gap-2 mt-1.5 sm:hidden">
+          {isCurrentUser ? (
+            <Badge variant={roleBadgeVariant(member.role)} className="capitalize">
+              {member.role}
+            </Badge>
+          ) : (
+            <Select
+              value={member.role}
+              onValueChange={(v) => onRoleChange(member.id, v as MemberRole)}
+              disabled={isUpdating}
+            >
+              <SelectTrigger className="w-[120px] h-7 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {ROLES.map((r) => (
+                  <SelectItem key={r.value} value={r.value}>
+                    <span className="flex items-center gap-1.5 capitalize">
+                      <r.icon className="w-3.5 h-3.5" />
+                      {r.label}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </div>
       </div>
 
-      {isCurrentUser ? (
-        <Badge variant={roleBadgeVariant(member.role)} className="capitalize shrink-0">
-          {member.role}
-        </Badge>
-      ) : (
-        <Select
-          value={member.role}
-          onValueChange={(v) => onRoleChange(member.id, v as MemberRole)}
-          disabled={isUpdating}
-        >
-          <SelectTrigger className="w-[130px] h-8 text-xs shrink-0">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {ROLES.map((r) => (
-              <SelectItem key={r.value} value={r.value}>
-                <span className="flex items-center gap-1.5 capitalize">
-                  <r.icon className="w-3.5 h-3.5" />
-                  {r.label}
-                </span>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )}
+      {/* Role shown inline on desktop */}
+      <div className="hidden sm:flex items-center gap-2 shrink-0">
+        {isCurrentUser ? (
+          <Badge variant={roleBadgeVariant(member.role)} className="capitalize">
+            {member.role}
+          </Badge>
+        ) : (
+          <Select
+            value={member.role}
+            onValueChange={(v) => onRoleChange(member.id, v as MemberRole)}
+            disabled={isUpdating}
+          >
+            <SelectTrigger className="w-[130px] h-8 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {ROLES.map((r) => (
+                <SelectItem key={r.value} value={r.value}>
+                  <span className="flex items-center gap-1.5 capitalize">
+                    <r.icon className="w-3.5 h-3.5" />
+                    {r.label}
+                  </span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      </div>
 
       {!isCurrentUser && (
         <Button
@@ -230,7 +261,7 @@ export function MembersSection() {
     >
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <Users className="w-5 h-5 text-primary" />
               <CardTitle>Members</CardTitle>

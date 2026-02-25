@@ -9,7 +9,7 @@ import { BillingSection } from "@/components/settings/BillingSection";
 
 function SettingsContent() {
   return (
-    <div className="p-6 lg:p-8 space-y-6 gradient-mesh min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 gradient-mesh min-h-screen">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}
@@ -27,11 +27,11 @@ function SettingsContent() {
 
       {/* Tabs */}
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="workspace">Workspace</TabsTrigger>
-          <TabsTrigger value="members">Members</TabsTrigger>
-          <TabsTrigger value="billing">Billing</TabsTrigger>
+        <TabsList className="w-full sm:w-auto overflow-x-auto flex-nowrap">
+          <TabsTrigger value="profile" className="flex-1 sm:flex-none">Profile</TabsTrigger>
+          <TabsTrigger value="workspace" className="flex-1 sm:flex-none">Workspace</TabsTrigger>
+          <TabsTrigger value="members" className="flex-1 sm:flex-none">Members</TabsTrigger>
+          <TabsTrigger value="billing" className="flex-1 sm:flex-none">Billing</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile">
