@@ -14,9 +14,9 @@ import NotificationsPage from "./pages/NotificationsPage";
 import IntegrationsPage from "./pages/IntegrationsPage";
 import {
   ContentPage,
-  MonetizationPage,
   TasksPage,
 } from "./pages/SectionPages";
+import MonetizationPage from "./pages/MonetizationPage";
 import AiBridgePage from "./pages/AiBridgePage";
 import SettingsPage from "./pages/SettingsPage";
 import InboxPage from "./pages/InboxPage";
