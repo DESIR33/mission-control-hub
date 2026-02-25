@@ -44,12 +44,22 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
-const ROLES: { value: MemberRole; label: string; icon: React.ElementType }[] = [
-  { value: "admin", label: "Admin", icon: ShieldCheck },
-  { value: "operator", label: "Operator", icon: Shield },
-  { value: "contributor", label: "Contributor", icon: Pencil },
-  { value: "viewer", label: "Viewer", icon: Eye },
+const ROLES: { value: MemberRole; label: string; description: string; icon: React.ElementType }[] = [
+  { value: "admin", label: "Admin", description: "Full access to all settings and members", icon: ShieldCheck },
+  { value: "operator", label: "Operator", description: "Can manage contacts, deals, and content", icon: Shield },
+  { value: "contributor", label: "Contributor", description: "Can create and edit records", icon: Pencil },
+  { value: "viewer", label: "Viewer", description: "Read-only access to workspace data", icon: Eye },
 ];
 
 const roleBadgeVariant = (role: MemberRole) => {
@@ -75,7 +85,7 @@ function MemberRow({
   member: MemberWithProfile;
   isCurrentUser: boolean;
   onRoleChange: (memberId: string, role: MemberRole) => void;
-  onRemove: (memberId: string) => void;
+  onRemove: (member: MemberWithProfile) => void;
   isUpdating: boolean;
 }) {
   const name = member.profile?.full_name || member.profile?.email || "Unknown";
@@ -166,7 +176,7 @@ function MemberRow({
           variant="ghost"
           size="icon"
           className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
-          onClick={() => onRemove(member.id)}
+          onClick={() => onRemove(member)}
         >
           <Trash2 className="w-4 h-4" />
         </Button>
@@ -187,6 +197,9 @@ export function MembersSection() {
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<MemberRole>("viewer");
 
+  // Remove confirmation
+  const [removeTarget, setRemoveTarget] = useState<MemberWithProfile | null>(null);
+
   const handleRoleChange = (memberId: string, role: MemberRole) => {
     updateRole.mutate(
       { memberId, role },
@@ -197,9 +210,14 @@ export function MembersSection() {
     );
   };
 
-  const handleRemove = (memberId: string) => {
-    removeMember.mutate(memberId, {
-      onSuccess: () => toast.success("Member removed."),
+  const confirmRemove = () => {
+    if (!removeTarget) return;
+    removeMember.mutate(removeTarget.id, {
+      onSuccess: () => {
+        const name = removeTarget.profile?.full_name || removeTarget.profile?.email || "Member";
+        toast.success(`${name} has been removed.`);
+        setRemoveTarget(null);
+      },
       onError: (err) => toast.error(`Failed: ${err.message}`),
     });
   };
@@ -265,6 +283,11 @@ export function MembersSection() {
             <div className="flex items-center gap-2">
               <Users className="w-5 h-5 text-primary" />
               <CardTitle>Members</CardTitle>
+              {members && members.length > 0 && (
+                <Badge variant="secondary" className="ml-1">
+                  {members.length}
+                </Badge>
+              )}
             </div>
             <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
               <DialogTrigger asChild>
@@ -289,6 +312,9 @@ export function MembersSection() {
                       value={inviteEmail}
                       onChange={(e) => setInviteEmail(e.target.value)}
                       placeholder="colleague@example.com"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && inviteEmail.trim()) handleInvite();
+                      }}
                     />
                   </div>
                   <div className="space-y-2">
@@ -311,6 +337,9 @@ export function MembersSection() {
                         ))}
                       </SelectContent>
                     </Select>
+                    <p className="text-xs text-muted-foreground">
+                      {ROLES.find((r) => r.value === inviteRole)?.description}
+                    </p>
                   </div>
                 </div>
                 <DialogFooter>
@@ -345,12 +374,15 @@ export function MembersSection() {
         </CardHeader>
         <CardContent>
           {/* Role legend */}
-          <div className="flex flex-wrap gap-3 mb-4 text-xs text-muted-foreground">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 p-3 rounded-lg bg-muted/50 border border-border">
             {ROLES.map((r) => (
-              <span key={r.value} className="flex items-center gap-1 capitalize">
-                <r.icon className="w-3.5 h-3.5" />
-                {r.label}
-              </span>
+              <div key={r.value} className="flex items-start gap-1.5">
+                <r.icon className="w-3.5 h-3.5 mt-0.5 shrink-0 text-muted-foreground" />
+                <div>
+                  <p className="text-xs font-medium capitalize">{r.label}</p>
+                  <p className="text-[10px] text-muted-foreground leading-tight">{r.description}</p>
+                </div>
+              </div>
             ))}
           </div>
 
@@ -362,19 +394,53 @@ export function MembersSection() {
                 member={m}
                 isCurrentUser={m.user_id === user?.id}
                 onRoleChange={handleRoleChange}
-                onRemove={handleRemove}
+                onRemove={setRemoveTarget}
                 isUpdating={updateRole.isPending}
               />
             ))}
           </div>
 
           {(!members || members.length === 0) && (
-            <p className="text-sm text-muted-foreground text-center py-8">
-              No members found.
-            </p>
+            <div className="text-center py-10">
+              <Users className="w-10 h-10 mx-auto text-muted-foreground/40 mb-3" />
+              <p className="text-sm font-medium text-muted-foreground">No members yet</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Invite team members to start collaborating.
+              </p>
+            </div>
           )}
         </CardContent>
       </Card>
+
+      {/* Remove confirmation dialog */}
+      <AlertDialog open={!!removeTarget} onOpenChange={(open) => !open && setRemoveTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove member</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove{" "}
+              <span className="font-medium text-foreground">
+                {removeTarget?.profile?.full_name || removeTarget?.profile?.email || "this member"}
+              </span>{" "}
+              from the workspace? They will lose access to all workspace data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmRemove}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {removeMember.isPending ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Trash2 className="w-4 h-4 mr-2" />
+              )}
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </motion.div>
   );
 }

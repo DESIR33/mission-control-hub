@@ -2,17 +2,19 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Building2, Save, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { useWorkspaceDetails, useUpdateWorkspace } from "@/hooks/use-settings";
+import { useWorkspaceDetails, useUpdateWorkspace, useUploadLogo } from "@/hooks/use-settings";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ImageUpload } from "./ImageUpload";
 
 export function WorkspaceSection() {
   const { data: workspace, isLoading } = useWorkspaceDetails();
   const update = useUpdateWorkspace();
+  const uploadLogo = useUploadLogo();
 
   const [name, setName] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
@@ -38,6 +40,12 @@ export function WorkspaceSection() {
     );
   };
 
+  const handleLogoUpload = async (file: File) => {
+    const url = await uploadLogo.mutateAsync(file);
+    toast.success("Logo uploaded.");
+    return url;
+  };
+
   const isDirty =
     name !== (workspace?.name ?? "") ||
     logoUrl !== (workspace?.logo_url ?? "");
@@ -54,6 +62,13 @@ export function WorkspaceSection() {
           <Skeleton className="h-4 w-60 mt-1" />
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="flex items-center gap-4">
+            <Skeleton className="h-24 w-24 rounded-lg" />
+            <div className="space-y-2">
+              <Skeleton className="h-8 w-24" />
+              <Skeleton className="h-4 w-32" />
+            </div>
+          </div>
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-10 w-full" />
         </CardContent>
@@ -78,19 +93,22 @@ export function WorkspaceSection() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Logo preview */}
-          <div className="flex items-center gap-4">
-            <Avatar className="h-16 w-16 rounded-lg">
-              <AvatarImage src={logoUrl} className="rounded-lg" />
-              <AvatarFallback className="rounded-lg text-lg bg-primary text-primary-foreground">
+          {/* Logo upload */}
+          <ImageUpload
+            value={logoUrl}
+            onChange={setLogoUrl}
+            onUpload={handleLogoUpload}
+            label="Workspace Logo"
+            shape="rounded"
+            size="lg"
+            fallback={
+              <span className="text-lg font-bold text-primary">
                 {wsInitials}
-              </AvatarFallback>
-            </Avatar>
-            <div className="text-sm text-muted-foreground">
-              <p className="font-medium text-foreground">{name || "Workspace"}</p>
-              <p>Slug: {workspace?.slug}</p>
-            </div>
-          </div>
+              </span>
+            }
+          />
+
+          <Separator />
 
           {/* Fields */}
           <div className="grid gap-4 sm:grid-cols-2">
@@ -106,27 +124,25 @@ export function WorkspaceSection() {
             <div className="space-y-2">
               <Label htmlFor="wsSlug">Slug</Label>
               <Input id="wsSlug" value={workspace?.slug ?? ""} disabled />
+              <p className="text-xs text-muted-foreground">
+                The slug is auto-generated and cannot be changed.
+              </p>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="wsLogo">Logo URL</Label>
-            <Input
-              id="wsLogo"
-              value={logoUrl}
-              onChange={(e) => setLogoUrl(e.target.value)}
-              placeholder="https://example.com/logo.png"
-            />
-          </div>
-
-          <Button onClick={handleSave} disabled={!isDirty || update.isPending}>
-            {update.isPending ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            ) : (
-              <Save className="w-4 h-4 mr-2" />
+          <div className="flex items-center gap-3">
+            <Button onClick={handleSave} disabled={!isDirty || update.isPending}>
+              {update.isPending ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4 mr-2" />
+              )}
+              Save Changes
+            </Button>
+            {isDirty && (
+              <span className="text-xs text-muted-foreground">Unsaved changes</span>
             )}
-            Save Changes
-          </Button>
+          </div>
         </CardContent>
       </Card>
     </motion.div>
