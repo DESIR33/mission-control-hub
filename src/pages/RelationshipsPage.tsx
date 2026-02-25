@@ -3,21 +3,39 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ContactsTable } from "@/components/crm/ContactsTable";
 import { ContactDetailSheet } from "@/components/crm/ContactDetailSheet";
 import { AddContactDialog } from "@/components/crm/AddContactDialog";
+import { CompaniesTable } from "@/components/crm/CompaniesTable";
+import { CompanyDetailSheet } from "@/components/crm/CompanyDetailSheet";
+import { AddCompanyDialog } from "@/components/crm/AddCompanyDialog";
+import { EditCompanyDialog } from "@/components/crm/EditCompanyDialog";
 import { useContacts, useActivities } from "@/hooks/use-contacts";
+import { useCompanies, useCompanyContacts } from "@/hooks/use-companies";
 import { WorkspaceProvider } from "@/hooks/use-workspace";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { Contact } from "@/types/crm";
+import type { Contact, Company } from "@/types/crm";
 
 function RelationshipsContent() {
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
-  const [sheetOpen, setSheetOpen] = useState(false);
+  const [contactSheetOpen, setContactSheetOpen] = useState(false);
 
-  const { data: contacts = [], isLoading } = useContacts();
-  const { data: activities = [] } = useActivities(selectedContact?.id ?? null);
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [companySheetOpen, setCompanySheetOpen] = useState(false);
+  const [editCompanyOpen, setEditCompanyOpen] = useState(false);
+
+  const { data: contacts = [], isLoading: contactsLoading } = useContacts();
+  const { data: contactActivities = [] } = useActivities(selectedContact?.id ?? null);
+
+  const { data: companies = [], isLoading: companiesLoading } = useCompanies();
+  const { data: companyActivities = [] } = useActivities(selectedCompany?.id ?? null, "company");
+  const { data: companyContacts = [] } = useCompanyContacts(selectedCompany?.id ?? null);
 
   const handleSelectContact = (contact: Contact) => {
     setSelectedContact(contact);
-    setSheetOpen(true);
+    setContactSheetOpen(true);
+  };
+
+  const handleSelectCompany = (company: Company) => {
+    setSelectedCompany(company);
+    setCompanySheetOpen(true);
   };
 
   return (
@@ -36,7 +54,7 @@ function RelationshipsContent() {
         </TabsList>
 
         <TabsContent value="contacts" className="mt-4">
-          {isLoading ? (
+          {contactsLoading ? (
             <div className="space-y-3">
               <Skeleton className="h-10 w-full max-w-sm" />
               <Skeleton className="h-64 w-full" />
@@ -52,19 +70,45 @@ function RelationshipsContent() {
         </TabsContent>
 
         <TabsContent value="companies" className="mt-4">
-          <div className="flex items-center justify-center rounded-lg border border-dashed border-border h-64">
-            <p className="text-sm text-muted-foreground">
-              Companies view coming soon
-            </p>
-          </div>
+          {companiesLoading ? (
+            <div className="space-y-3">
+              <Skeleton className="h-10 w-full max-w-sm" />
+              <Skeleton className="h-64 w-full" />
+            </div>
+          ) : (
+            <CompaniesTable
+              companies={companies}
+              onSelectCompany={handleSelectCompany}
+              selectedId={selectedCompany?.id}
+              addButton={<AddCompanyDialog />}
+            />
+          )}
         </TabsContent>
       </Tabs>
 
       <ContactDetailSheet
         contact={selectedContact}
-        activities={activities}
-        open={sheetOpen}
-        onOpenChange={setSheetOpen}
+        activities={contactActivities}
+        open={contactSheetOpen}
+        onOpenChange={setContactSheetOpen}
+      />
+
+      <CompanyDetailSheet
+        company={selectedCompany}
+        activities={companyActivities}
+        companyContacts={companyContacts}
+        open={companySheetOpen}
+        onOpenChange={(open) => {
+          setCompanySheetOpen(open);
+          if (!open) setSelectedCompany(null);
+        }}
+        onEdit={() => setEditCompanyOpen(true)}
+      />
+
+      <EditCompanyDialog
+        company={selectedCompany}
+        open={editCompanyOpen}
+        onOpenChange={setEditCompanyOpen}
       />
     </div>
   );
