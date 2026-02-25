@@ -2,27 +2,26 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ContactsTable } from "@/components/crm/ContactsTable";
 import { ContactDetailSheet } from "@/components/crm/ContactDetailSheet";
-import { mockContacts, mockActivities } from "@/data/mock-contacts";
+import { AddContactDialog } from "@/components/crm/AddContactDialog";
+import { useContacts, useActivities } from "@/hooks/use-contacts";
+import { WorkspaceProvider } from "@/hooks/use-workspace";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { Contact } from "@/types/crm";
 
-export default function RelationshipsPage() {
+function RelationshipsContent() {
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+
+  const { data: contacts = [], isLoading } = useContacts();
+  const { data: activities = [] } = useActivities(selectedContact?.id ?? null);
 
   const handleSelectContact = (contact: Contact) => {
     setSelectedContact(contact);
     setSheetOpen(true);
   };
 
-  const contactActivities = selectedContact
-    ? mockActivities
-        .filter((a) => a.entity_id === selectedContact.id)
-        .sort((a, b) => new Date(b.performed_at).getTime() - new Date(a.performed_at).getTime())
-    : [];
-
   return (
     <div className="p-6 lg:p-8 gradient-mesh min-h-screen">
-      {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-foreground">Relationships</h1>
         <p className="text-sm text-muted-foreground mt-1">
@@ -30,7 +29,6 @@ export default function RelationshipsPage() {
         </p>
       </div>
 
-      {/* Tabs */}
       <Tabs defaultValue="contacts">
         <TabsList>
           <TabsTrigger value="contacts">Contacts</TabsTrigger>
@@ -38,11 +36,19 @@ export default function RelationshipsPage() {
         </TabsList>
 
         <TabsContent value="contacts" className="mt-4">
-          <ContactsTable
-            contacts={mockContacts}
-            onSelectContact={handleSelectContact}
-            selectedId={selectedContact?.id}
-          />
+          {isLoading ? (
+            <div className="space-y-3">
+              <Skeleton className="h-10 w-full max-w-sm" />
+              <Skeleton className="h-64 w-full" />
+            </div>
+          ) : (
+            <ContactsTable
+              contacts={contacts}
+              onSelectContact={handleSelectContact}
+              selectedId={selectedContact?.id}
+              addButton={<AddContactDialog />}
+            />
+          )}
         </TabsContent>
 
         <TabsContent value="companies" className="mt-4">
@@ -54,13 +60,20 @@ export default function RelationshipsPage() {
         </TabsContent>
       </Tabs>
 
-      {/* Detail Sheet */}
       <ContactDetailSheet
         contact={selectedContact}
-        activities={contactActivities}
+        activities={activities}
         open={sheetOpen}
         onOpenChange={setSheetOpen}
       />
     </div>
+  );
+}
+
+export default function RelationshipsPage() {
+  return (
+    <WorkspaceProvider>
+      <RelationshipsContent />
+    </WorkspaceProvider>
   );
 }
