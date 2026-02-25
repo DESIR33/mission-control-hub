@@ -1,25 +1,36 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 
 export default function AuthPage() {
   const [loading, setLoading] = useState(false);
   const [forgotMode, setForgotMode] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [passwordStrength, setPasswordStrength] = useState(0);
   const { toast } = useToast();
 
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    let strength = 0;
+    if (password.length >= 8) strength += 20;
+    if (password.match(/[A-Z]/)) strength += 20;
+    if (password.match(/[0-9]/)) strength += 20;
+    if (password.match(/[!@#$%^&*(),.?":{}|<>]/)) strength += 20;
+    if (password.length >= 12) strength += 20;
+    setPasswordStrength(strength);
+  }, [password]);
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const form = new FormData(e.currentTarget);
-    const email = form.get("email") as string;
-    const password = form.get("password") as string;
-
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       toast({ title: "Login failed", description: error.message, variant: "destructive" });
@@ -27,14 +38,13 @@ export default function AuthPage() {
     setLoading(false);
   };
 
-  const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (password !== confirmPassword) {
+      toast({ title: "Error", description: "Passwords do not match", variant: "destructive" });
+      return;
+    }
     setLoading(true);
-    const form = new FormData(e.currentTarget);
-    const email = form.get("email") as string;
-    const password = form.get("password") as string;
-    const fullName = form.get("full_name") as string;
-
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -43,7 +53,6 @@ export default function AuthPage() {
         data: { full_name: fullName },
       },
     });
-
     if (error) {
       toast({ title: "Signup failed", description: error.message, variant: "destructive" });
     } else {
@@ -52,115 +61,220 @@ export default function AuthPage() {
     setLoading(false);
   };
 
-  const handleForgotPassword = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const form = new FormData(e.currentTarget);
-    const email = form.get("email") as string;
-
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
-
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Check your email", description: "Password reset link sent." });
+      setForgotMode(false);
     }
     setLoading(false);
   };
 
   if (forgotMode) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <Card className="w-full max-w-sm bg-card border-border">
-          <CardHeader className="text-center">
-            <div className="w-10 h-10 rounded-lg bg-foreground flex items-center justify-center mx-auto mb-2">
-              <span className="text-background font-bold text-sm">D</span>
+      <div className="flex min-h-screen flex-1 flex-col justify-center px-4 py-10 lg:px-6">
+        <div className="sm:mx-auto sm:w-full sm:max-w-sm">
+          <div className="flex justify-center mb-6">
+            <div className="w-12 h-12 rounded-xl bg-foreground flex items-center justify-center">
+              <span className="text-background font-bold text-lg">D</span>
             </div>
-            <CardTitle className="text-foreground">Reset Password</CardTitle>
-            <CardDescription>Enter your email to receive a reset link</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleForgotPassword} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="fp-email">Email</Label>
-                <Input id="fp-email" name="email" type="email" required className="bg-secondary border-border" />
-              </div>
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                Send Reset Link
-              </Button>
-              <Button type="button" variant="ghost" className="w-full" onClick={() => setForgotMode(false)}>
-                Back to login
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+          </div>
+          <h3 className="text-center text-2xl font-semibold text-foreground">
+            Reset your password
+          </h3>
+          <p className="text-center text-sm text-muted-foreground mt-2">
+            Enter your email and we'll send you a reset link.
+          </p>
+          <form onSubmit={handleForgotPassword} className="mt-6 space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="fp-email">Email</Label>
+              <Input
+                id="fp-email"
+                type="email"
+                placeholder="john@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+              Send Reset Link
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full text-sm text-muted-foreground"
+              onClick={() => setForgotMode(false)}
+            >
+              Back to login
+            </Button>
+          </form>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-sm bg-card border-border">
-        <CardHeader className="text-center">
-          <div className="w-10 h-10 rounded-lg bg-foreground flex items-center justify-center mx-auto mb-2">
-            <span className="text-background font-bold text-sm">D</span>
+    <div className="flex min-h-screen flex-1 flex-col justify-center px-4 py-10 lg:px-6">
+      <div className="sm:mx-auto sm:w-full sm:max-w-sm">
+        <div className="flex justify-center mb-6">
+          <div className="w-12 h-12 rounded-xl bg-foreground flex items-center justify-center">
+            <span className="text-background font-bold text-lg">D</span>
           </div>
-          <CardTitle className="text-foreground">Desmily Mission Control</CardTitle>
-          <CardDescription>Sign in to your workspace</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="login">
-            <TabsList className="w-full">
-              <TabsTrigger value="login" className="flex-1">Login</TabsTrigger>
-              <TabsTrigger value="signup" className="flex-1">Sign Up</TabsTrigger>
-            </TabsList>
+        </div>
+        <h3 className="text-center text-2xl font-semibold text-foreground">
+          Log in or create account
+        </h3>
 
-            <TabsContent value="login" className="mt-4">
-              <form onSubmit={handleLogin} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="login-email">Email</Label>
-                  <Input id="login-email" name="email" type="email" required className="bg-secondary border-border" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="login-password">Password</Label>
-                  <Input id="login-password" name="password" type="password" required className="bg-secondary border-border" />
-                </div>
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                  Sign In
-                </Button>
-                <Button type="button" variant="link" className="w-full text-xs" onClick={() => setForgotMode(true)}>
-                  Forgot password?
-                </Button>
-              </form>
-            </TabsContent>
+        <Tabs defaultValue="login" className="w-full mt-6">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="login">Login</TabsTrigger>
+            <TabsTrigger value="register">Register</TabsTrigger>
+          </TabsList>
 
-            <TabsContent value="signup" className="mt-4">
-              <form onSubmit={handleSignup} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="signup-name">Full Name</Label>
-                  <Input id="signup-name" name="full_name" required className="bg-secondary border-border" />
+          {/* ── LOGIN ── */}
+          <TabsContent value="login" className="space-y-4 mt-4">
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="login-email">Email</Label>
+                <Input
+                  id="login-email"
+                  type="email"
+                  placeholder="john@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="login-password">Password</Label>
+                <Input
+                  id="login-password"
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                Sign in
+              </Button>
+            </form>
+
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={() => setForgotMode(true)}
+                className="text-sm text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors"
+              >
+                Forgot password?
+              </button>
+            </div>
+
+            <p className="text-sm text-muted-foreground text-center">
+              By signing in, you agree to our{" "}
+              <a href="#" className="underline underline-offset-4 hover:text-foreground transition-colors">
+                terms of service
+              </a>{" "}
+              and{" "}
+              <a href="#" className="underline underline-offset-4 hover:text-foreground transition-colors">
+                privacy policy
+              </a>
+              .
+            </p>
+          </TabsContent>
+
+          {/* ── REGISTER ── */}
+          <TabsContent value="register" className="space-y-4 mt-4">
+            <form onSubmit={handleSignup} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="signup-name">Full Name</Label>
+                <Input
+                  id="signup-name"
+                  type="text"
+                  placeholder="John Doe"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="register-email">Email</Label>
+                <Input
+                  id="register-email"
+                  type="email"
+                  placeholder="john@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="register-password">Password</Label>
+                <Input
+                  id="register-password"
+                  type="password"
+                  placeholder="Create a password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <Progress value={passwordStrength} className="h-1" />
+                <div className="text-xs space-y-1 text-muted-foreground">
+                  <p>Password must:</p>
+                  <ul className="list-disc list-inside space-y-0.5">
+                    <li className={password.length >= 8 ? "text-green-500" : ""}>
+                      Be at least 8 characters
+                    </li>
+                    <li className={/[A-Z]/.test(password) ? "text-green-500" : ""}>
+                      Include an uppercase letter
+                    </li>
+                    <li className={/[0-9]/.test(password) ? "text-green-500" : ""}>
+                      Include a number
+                    </li>
+                    <li className={/[!@#$%^&*(),.?":{}|<>]/.test(password) ? "text-green-500" : ""}>
+                      Include a special character
+                    </li>
+                  </ul>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-email">Email</Label>
-                  <Input id="signup-email" name="email" type="email" required className="bg-secondary border-border" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-password">Password</Label>
-                  <Input id="signup-password" name="password" type="password" required minLength={6} className="bg-secondary border-border" />
-                </div>
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                  Create Account
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirm-password">Confirm Password</Label>
+                <Input
+                  id="confirm-password"
+                  type="password"
+                  placeholder="Confirm your password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={
+                  loading ||
+                  passwordStrength < 80 ||
+                  !confirmPassword ||
+                  password !== confirmPassword
+                }
+              >
+                {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                Create Account
+              </Button>
+            </form>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 }
