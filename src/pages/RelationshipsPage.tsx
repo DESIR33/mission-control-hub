@@ -7,6 +7,8 @@ import { CompaniesTable } from "@/components/crm/CompaniesTable";
 import { CompanyDetailSheet } from "@/components/crm/CompanyDetailSheet";
 import { AddCompanyDialog } from "@/components/crm/AddCompanyDialog";
 import { EditCompanyDialog } from "@/components/crm/EditCompanyDialog";
+import { ImportContactsDialog } from "@/components/crm/ImportContactsDialog";
+import { ImportCompaniesDialog } from "@/components/crm/ImportCompaniesDialog";
 import { useContacts, useActivities } from "@/hooks/use-contacts";
 import { useCompanies, useCompanyContacts } from "@/hooks/use-companies";
 import { WorkspaceProvider } from "@/hooks/use-workspace";
@@ -64,7 +66,12 @@ function RelationshipsContent() {
               contacts={contacts}
               onSelectContact={handleSelectContact}
               selectedId={selectedContact?.id}
-              addButton={<AddContactDialog />}
+              addButton={
+                <div className="flex items-center gap-2">
+                  <ImportContactsDialog />
+                  <AddContactDialog />
+                </div>
+              }
             />
           )}
         </TabsContent>
@@ -80,7 +87,12 @@ function RelationshipsContent() {
               companies={companies}
               onSelectCompany={handleSelectCompany}
               selectedId={selectedCompany?.id}
-              addButton={<AddCompanyDialog />}
+              addButton={
+                <div className="flex items-center gap-2">
+                  <ImportCompaniesDialog />
+                  <AddCompanyDialog />
+                </div>
+              }
             />
           )}
         </TabsContent>
