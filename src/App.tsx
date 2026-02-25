@@ -10,12 +10,12 @@ import NotFound from "./pages/NotFound";
 import AuthPage from "./pages/AuthPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import RelationshipsPage from "./pages/RelationshipsPage";
+import NotificationsPage from "./pages/NotificationsPage";
 import {
   ContentPage,
   MonetizationPage,
   TasksPage,
   AiBridgePage,
-  NotificationsPage,
   IntegrationsPage,
   SettingsPage,
 } from "./pages/SectionPages";

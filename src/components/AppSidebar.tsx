@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
+import { useNotifications } from "@/hooks/use-notifications";
 
 const navItems = [
   { to: "/", icon: LayoutDashboard, label: "Mission Control" },
@@ -35,6 +36,7 @@ const bottomItems = [
 export function AppSidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const { signOut } = useAuth();
+  const { unreadCount } = useNotifications();
 
   return (
     <aside
@@ -62,24 +64,42 @@ export function AppSidebar() {
 
       {/* Nav */}
       <nav className="flex-1 py-3 px-2 space-y-0.5 overflow-y-auto">
-        {navItems.map((item) => (
-          <RouterNavLink
-            key={item.to}
-            to={item.to}
-            end={item.to === "/"}
-            className={({ isActive }) =>
-              cn(
-                "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
-                isActive
-                  ? "bg-sidebar-accent text-sidebar-primary"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-              )
-            }
-          >
-            <item.icon className="w-4 h-4 shrink-0" />
-            {!collapsed && <span className="truncate">{item.label}</span>}
-          </RouterNavLink>
-        ))}
+        {navItems.map((item) => {
+          const isNotifications = item.to === "/notifications";
+          const showBadge = isNotifications && unreadCount > 0;
+          return (
+            <RouterNavLink
+              key={item.to}
+              to={item.to}
+              end={item.to === "/"}
+              className={({ isActive }) =>
+                cn(
+                  "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
+                  isActive
+                    ? "bg-sidebar-accent text-sidebar-primary"
+                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                )
+              }
+            >
+              <div className="relative shrink-0">
+                <item.icon className="w-4 h-4" />
+                {showBadge && (
+                  <span className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center leading-none">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
+              </div>
+              {!collapsed && (
+                <span className="truncate flex-1">{item.label}</span>
+              )}
+              {!collapsed && showBadge && (
+                <span className="ml-auto shrink-0 min-w-[18px] h-[18px] rounded-full bg-primary text-primary-foreground text-[10px] font-semibold flex items-center justify-center px-1">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+              )}
+            </RouterNavLink>
+          );
+        })}
       </nav>
 
       {/* Bottom */}
