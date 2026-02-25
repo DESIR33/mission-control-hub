@@ -72,11 +72,11 @@ export default function AuthPage() {
 
   if (forgotMode) {
     return (
-      <div className="min-h-screen flex items-center justify-center gradient-mesh p-4">
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <Card className="w-full max-w-sm bg-card border-border">
           <CardHeader className="text-center">
-            <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center mx-auto mb-2">
-              <span className="text-primary-foreground font-bold text-sm">D</span>
+            <div className="w-10 h-10 rounded-lg bg-foreground flex items-center justify-center mx-auto mb-2">
+              <span className="text-background font-bold text-sm">D</span>
             </div>
             <CardTitle className="text-foreground">Reset Password</CardTitle>
             <CardDescription>Enter your email to receive a reset link</CardDescription>
@@ -102,11 +102,11 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center gradient-mesh p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-sm bg-card border-border">
         <CardHeader className="text-center">
-          <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center mx-auto mb-2">
-            <span className="text-primary-foreground font-bold text-sm">D</span>
+          <div className="w-10 h-10 rounded-lg bg-foreground flex items-center justify-center mx-auto mb-2">
+            <span className="text-background font-bold text-sm">D</span>
           </div>
           <CardTitle className="text-foreground">Desmily Mission Control</CardTitle>
           <CardDescription>Sign in to your workspace</CardDescription>
