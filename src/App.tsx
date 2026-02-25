@@ -16,9 +16,9 @@ import {
   ContentPage,
   MonetizationPage,
   TasksPage,
-  AiBridgePage,
   SettingsPage,
 } from "./pages/SectionPages";
+import AiBridgePage from "./pages/AiBridgePage";
 
 const queryClient = new QueryClient();
 
