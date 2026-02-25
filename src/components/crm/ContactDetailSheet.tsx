@@ -160,7 +160,7 @@ export function ContactDetailSheet({ contact, activities, open, onOpenChange }: 
           </TabsContent>
 
           <TabsContent value="timeline" className="mt-4">
-            <ActivityTimeline activities={activities} />
+            <ActivityTimeline activities={activities} contactId={contact.id} />
           </TabsContent>
 
           <TabsContent value="enrichment" className="mt-4">
