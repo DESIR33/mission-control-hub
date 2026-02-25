@@ -3,18 +3,20 @@ import { motion } from "framer-motion";
 import { User, Save, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
-import { useProfile, useUpdateProfile } from "@/hooks/use-settings";
+import { useProfile, useUpdateProfile, useUploadAvatar } from "@/hooks/use-settings";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ImageUpload } from "./ImageUpload";
 
 export function ProfileSection() {
   const { user } = useAuth();
   const { data: profile, isLoading } = useProfile();
   const update = useUpdateProfile();
+  const uploadAvatar = useUploadAvatar();
 
   const [fullName, setFullName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
@@ -36,6 +38,12 @@ export function ProfileSection() {
     );
   };
 
+  const handleAvatarUpload = async (file: File) => {
+    const url = await uploadAvatar.mutateAsync(file);
+    toast.success("Avatar uploaded.");
+    return url;
+  };
+
   const initials = fullName
     ? fullName.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2)
     : (user?.email?.[0] ?? "U").toUpperCase();
@@ -52,6 +60,13 @@ export function ProfileSection() {
           <Skeleton className="h-4 w-60 mt-1" />
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="flex items-center gap-4">
+            <Skeleton className="h-24 w-24 rounded-full" />
+            <div className="space-y-2">
+              <Skeleton className="h-8 w-24" />
+              <Skeleton className="h-4 w-32" />
+            </div>
+          </div>
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-10 w-full" />
         </CardContent>
@@ -71,20 +86,25 @@ export function ProfileSection() {
             <User className="w-5 h-5 text-primary" />
             <CardTitle>Profile</CardTitle>
           </div>
-          <CardDescription>Manage your personal information.</CardDescription>
+          <CardDescription>Manage your personal information and avatar.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Avatar preview */}
-          <div className="flex items-center gap-4">
-            <Avatar className="h-16 w-16">
-              <AvatarImage src={avatarUrl} />
-              <AvatarFallback className="text-lg">{initials}</AvatarFallback>
-            </Avatar>
-            <div className="text-sm text-muted-foreground">
-              <p className="font-medium text-foreground">{fullName || "Your Name"}</p>
-              <p>{user?.email}</p>
-            </div>
-          </div>
+          {/* Avatar upload */}
+          <ImageUpload
+            value={avatarUrl}
+            onChange={setAvatarUrl}
+            onUpload={handleAvatarUpload}
+            label="Avatar"
+            shape="circle"
+            size="lg"
+            fallback={
+              <span className="text-lg font-semibold text-muted-foreground">
+                {initials}
+              </span>
+            }
+          />
+
+          <Separator />
 
           {/* Fields */}
           <div className="grid gap-4 sm:grid-cols-2">
@@ -100,27 +120,25 @@ export function ProfileSection() {
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input id="email" value={user?.email ?? ""} disabled />
+              <p className="text-xs text-muted-foreground">
+                Email is managed by your authentication provider.
+              </p>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="avatarUrl">Avatar URL</Label>
-            <Input
-              id="avatarUrl"
-              value={avatarUrl}
-              onChange={(e) => setAvatarUrl(e.target.value)}
-              placeholder="https://example.com/photo.jpg"
-            />
-          </div>
-
-          <Button onClick={handleSave} disabled={!isDirty || update.isPending}>
-            {update.isPending ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            ) : (
-              <Save className="w-4 h-4 mr-2" />
+          <div className="flex items-center gap-3">
+            <Button onClick={handleSave} disabled={!isDirty || update.isPending}>
+              {update.isPending ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4 mr-2" />
+              )}
+              Save Changes
+            </Button>
+            {isDirty && (
+              <span className="text-xs text-muted-foreground">Unsaved changes</span>
             )}
-            Save Changes
-          </Button>
+          </div>
         </CardContent>
       </Card>
     </motion.div>

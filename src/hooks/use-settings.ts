@@ -4,6 +4,44 @@ import { useWorkspace } from "@/hooks/use-workspace";
 import { useAuth } from "@/hooks/use-auth";
 import type { Tables } from "@/integrations/supabase/types";
 
+// ─── Storage Uploads ─────────────────────────────────────────────────────────
+
+async function uploadToStorage(
+  bucket: string,
+  path: string,
+  file: File,
+): Promise<string> {
+  const { error } = await supabase.storage.from(bucket).upload(path, file, {
+    upsert: true,
+    contentType: file.type,
+  });
+  if (error) throw error;
+  const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(path);
+  return urlData.publicUrl;
+}
+
+export function useUploadAvatar() {
+  const { user } = useAuth();
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const ext = file.name.split(".").pop() ?? "png";
+      const path = `${user!.id}/avatar.${ext}`;
+      return uploadToStorage("avatars", path, file);
+    },
+  });
+}
+
+export function useUploadLogo() {
+  const { workspaceId } = useWorkspace();
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const ext = file.name.split(".").pop() ?? "png";
+      const path = `${workspaceId}/logo.${ext}`;
+      return uploadToStorage("logos", path, file);
+    },
+  });
+}
+
 // ─── Profile ─────────────────────────────────────────────────────────────────
 
 export function useProfile() {
