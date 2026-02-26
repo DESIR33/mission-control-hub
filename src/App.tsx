@@ -12,9 +12,7 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import RelationshipsPage from "./pages/RelationshipsPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import IntegrationsPage from "./pages/IntegrationsPage";
-import {
-  TasksPage,
-} from "./pages/SectionPages";
+import Tasks from "./pages/Tasks";
 import MonetizationPage from "./pages/MonetizationPage";
 import VideoQueuePage from "./pages/VideoQueuePage";
 import VideoQueueFormPage from "./pages/VideoQueueFormPage";
@@ -75,7 +73,7 @@ const App = () => (
               <Route path="/affiliate-program/:id/edit" element={<EditAffiliateProgramPage />} />
               <Route path="/affiliate-program/:id/add-transaction" element={<AddTransactionPage />} />
               <Route path="/affiliate-program/:id/edit-transaction" element={<EditTransactionPage />} />
-              <Route path="/tasks" element={<TasksPage />} />
+              <Route path="/tasks" element={<Tasks />} />
               <Route path="/ai-bridge" element={<AiBridgePage />} />
               <Route path="/inbox" element={<InboxPage />} />
               <Route path="/inbox/*" element={<InboxPage />} />
