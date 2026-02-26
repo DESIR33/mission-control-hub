@@ -819,7 +819,7 @@ export default function InboxPage() {
   });
   const { data: pendingAutomationApprovals = [] } = useQuery({
     queryKey: ["/api/inbox/automations/approvals", "pending"],
-    queryFn: async () => { const r = await axios.get("/api/inbox/automations/approvals", { params: { status: "pending" } }); return r.data as InboxAutomationApproval[]; },
+    queryFn: async () => { try { const r = await axios.get("/api/inbox/automations/approvals", { params: { status: "pending" } }); return Array.isArray(r.data) ? r.data as InboxAutomationApproval[] : []; } catch { return []; } },
     refetchInterval: 10_000,
   });
   const { data: founderQueueData, isLoading: founderQueueLoading } = useQuery({
