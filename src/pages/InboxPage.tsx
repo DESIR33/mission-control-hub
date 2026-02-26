@@ -1,6 +1,5 @@
 import { useState, useCallback, useRef, useEffect, type KeyboardEvent, type MutableRefObject } from "react";
 import { useInboxShortcuts } from "@/hooks/useInboxShortcuts";
-import { Helmet } from "react-helmet";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
@@ -1168,12 +1167,12 @@ export default function InboxPage() {
     );
   }
 
+  useEffect(() => {
+    document.title = "Unified Inbox | Desmily CRM";
+  }, []);
+
   return (
     <div className="flex flex-col h-[calc(100vh-64px)] pb-20 sm:pb-0" data-app-sidebar-mode={appSidebarMode}>
-      <Helmet>
-        <title>Unified Inbox | Desmily CRM</title>
-      </Helmet>
-
       {/* Header */}
       <header className="flex-shrink-0 px-4 py-2 border-b border-border bg-card">
         <div className="flex items-center gap-4">
