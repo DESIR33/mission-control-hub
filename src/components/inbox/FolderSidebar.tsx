@@ -40,8 +40,12 @@ export default function FolderSidebar({ selectedFolder, onSelectFolder, onDropEm
   const { data: folders = [] } = useQuery({
     queryKey: ["/api/inbox/folders-list"],
     queryFn: async () => {
-      const response = await axios.get("/api/inbox/folders-list");
-      return response.data as Folder[];
+      try {
+        const response = await axios.get("/api/inbox/folders-list");
+        return Array.isArray(response.data) ? response.data as Folder[] : [];
+      } catch {
+        return [];
+      }
     },
   });
 

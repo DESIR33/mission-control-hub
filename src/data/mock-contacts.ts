@@ -1,4 +1,19 @@
-import type { Contact, Activity } from "@/types/crm";
+import type { Contact, Company, Activity } from "@/types/crm";
+
+const baseCompany = {
+  social_twitter: null,
+  social_linkedin: null,
+  social_youtube: null,
+  social_instagram: null,
+  social_facebook: null,
+  social_tiktok: null,
+  social_producthunt: null,
+  response_sla_minutes: null,
+  enrichment_brandfetch: null,
+  enrichment_clay: null,
+  enrichment_firecrawl: null,
+  created_by: null,
+} satisfies Partial<Company>;
 
 // Mock data for development before auth is wired up
 export const mockContacts: Contact[] = [
@@ -37,7 +52,7 @@ export const mockContacts: Contact[] = [
     created_by: null,
     created_at: "2026-01-15T08:00:00Z",
     updated_at: "2026-02-20T10:00:00Z",
-    company: { id: "c1", workspace_id: "ws1", name: "TechCorp", logo_url: null, industry: "Technology", website: "https://techcorp.io", description: null, size: "500-1000", revenue: "$50M", location: "San Francisco, CA", primary_email: "hello@techcorp.io", secondary_email: null, vip_tier: "gold", notes: null, last_contact_date: null, deleted_at: null, created_at: "2026-01-10T08:00:00Z", updated_at: "2026-01-10T08:00:00Z" },
+    company: { ...baseCompany, id: "c1", workspace_id: "ws1", name: "TechCorp", logo_url: null, industry: "Technology", website: "https://techcorp.io", description: null, size: "500-1000", revenue: "$50M", location: "San Francisco, CA", primary_email: "hello@techcorp.io", secondary_email: null, vip_tier: "gold", notes: null, last_contact_date: null, deleted_at: null, created_at: "2026-01-10T08:00:00Z", updated_at: "2026-01-10T08:00:00Z" },
   },
   {
     id: "2",
@@ -74,7 +89,7 @@ export const mockContacts: Contact[] = [
     created_by: null,
     created_at: "2026-02-01T08:00:00Z",
     updated_at: "2026-02-18T14:30:00Z",
-    company: { id: "c2", workspace_id: "ws1", name: "Brandly", logo_url: null, industry: "Marketing", website: "https://brandly.com", description: null, size: "50-200", revenue: "$10M", location: "Los Angeles, CA", primary_email: "partners@brandly.com", secondary_email: null, vip_tier: "none", notes: null, last_contact_date: null, deleted_at: null, created_at: "2026-02-01T08:00:00Z", updated_at: "2026-02-01T08:00:00Z" },
+    company: { ...baseCompany, id: "c2", workspace_id: "ws1", name: "Brandly", logo_url: null, industry: "Marketing", website: "https://brandly.com", description: null, size: "50-200", revenue: "$10M", location: "Los Angeles, CA", primary_email: "partners@brandly.com", secondary_email: null, vip_tier: "none", notes: null, last_contact_date: null, deleted_at: null, created_at: "2026-02-01T08:00:00Z", updated_at: "2026-02-01T08:00:00Z" },
   },
   {
     id: "3",
@@ -111,7 +126,7 @@ export const mockContacts: Contact[] = [
     created_by: null,
     created_at: "2025-11-01T08:00:00Z",
     updated_at: "2026-02-24T09:00:00Z",
-    company: { id: "c3", workspace_id: "ws1", name: "CreatorHub", logo_url: null, industry: "Creator Economy", website: "https://creatorhub.co", description: null, size: "10-50", revenue: "$5M", location: "New York, NY", primary_email: "aisha@creatorhub.co", secondary_email: null, vip_tier: "platinum", notes: null, last_contact_date: null, deleted_at: null, created_at: "2025-11-01T08:00:00Z", updated_at: "2025-11-01T08:00:00Z" },
+    company: { ...baseCompany, id: "c3", workspace_id: "ws1", name: "CreatorHub", logo_url: null, industry: "Creator Economy", website: "https://creatorhub.co", description: null, size: "10-50", revenue: "$5M", location: "New York, NY", primary_email: "aisha@creatorhub.co", secondary_email: null, vip_tier: "platinum", notes: null, last_contact_date: null, deleted_at: null, created_at: "2025-11-01T08:00:00Z", updated_at: "2025-11-01T08:00:00Z" },
   },
   {
     id: "4",

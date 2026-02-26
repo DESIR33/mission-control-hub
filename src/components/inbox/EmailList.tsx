@@ -214,8 +214,12 @@ export default function EmailList({
   const { data: emails = [], isLoading } = useQuery({
     queryKey: ["/api/inbox/messages", params],
     queryFn: async () => {
-      const response = await axios.get("/api/inbox/messages", { params });
-      return response.data as EmailMessage[];
+      try {
+        const response = await axios.get("/api/inbox/messages", { params });
+        return Array.isArray(response.data) ? response.data as EmailMessage[] : [];
+      } catch {
+        return [];
+      }
     },
   });
 
