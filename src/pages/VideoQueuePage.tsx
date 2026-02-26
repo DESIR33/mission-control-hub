@@ -135,7 +135,7 @@ export default function VideoQueuePage() {
     [videos]
   );
 
-  const handleDeleteVideo = (videoId: number) => {
+  const handleDeleteVideo = (videoId: number | string) => {
     if (
       confirm(
         "Are you sure you want to delete this video? This action cannot be undone."

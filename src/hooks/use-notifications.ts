@@ -1,4 +1,6 @@
-import { useState, useCallback } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useWorkspace } from "@/hooks/use-workspace";
 
 export type NotificationType =
   | "overdue_task"
@@ -18,29 +20,78 @@ export interface Notification {
   created_at: string;
 }
 
-// Stub implementation — notifications table doesn't exist yet.
-// Returns empty state so the sidebar badge and notifications page render without errors.
 export function useNotifications() {
-  const [notifications] = useState<Notification[]>([]);
+  const { workspaceId } = useWorkspace();
+  const qc = useQueryClient();
+  const queryKey = ["notifications", workspaceId];
+
+  const { data: notifications = [], isLoading } = useQuery({
+    queryKey,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("notifications")
+        .select("*")
+        .eq("workspace_id", workspaceId!)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as Notification[];
+    },
+    enabled: !!workspaceId,
+  });
+
   const unreadCount = notifications.filter((n) => !n.read_at).length;
 
-  const markRead = useCallback((_id: string) => {}, []);
-  const markAllRead = useCallback(() => {}, []);
-  const createNotification = useCallback((_payload: {
-    type: NotificationType;
-    title: string;
-    body?: string;
-    entity_type?: string;
-    entity_id?: string;
-  }) => {}, []);
+  const { mutate: markRead } = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from("notifications")
+        .update({ read_at: new Date().toISOString() } as any)
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey }),
+  });
+
+  const { mutate: markAllRead } = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from("notifications")
+        .update({ read_at: new Date().toISOString() } as any)
+        .eq("workspace_id", workspaceId!)
+        .is("read_at", null);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey }),
+  });
+
+  const { mutate: createNotification, isPending: isCreating } = useMutation({
+    mutationFn: async (payload: {
+      type: NotificationType;
+      title: string;
+      body?: string;
+      entity_type?: string;
+      entity_id?: string;
+    }) => {
+      const { error } = await supabase.from("notifications").insert({
+        workspace_id: workspaceId!,
+        type: payload.type,
+        title: payload.title,
+        body: payload.body ?? null,
+        entity_type: payload.entity_type ?? null,
+        entity_id: payload.entity_id ?? null,
+      } as any);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey }),
+  });
 
   return {
     notifications,
     unreadCount,
-    isLoading: false,
+    isLoading,
     markRead,
     markAllRead,
     createNotification,
-    isCreating: false,
+    isCreating,
   };
 }
