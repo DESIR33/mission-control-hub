@@ -9,5 +9,4 @@ const SectionPage = ({ title, description }: { title: string; description: strin
 );
 
 export const RelationshipsPage = () => <SectionPage title="Relationships" description="Contacts, companies, and activity timeline" />;
-export const ContentPage = () => <SectionPage title="Content Pipeline" description="Ideas → Script → Film → Edit → Review → Publish" />;
 export const TasksPage = () => <SectionPage title="Tasks" description="Prioritized tasks linked to contacts, deals, and content" />;
