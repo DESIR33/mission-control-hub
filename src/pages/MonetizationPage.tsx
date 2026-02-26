@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { motion } from "framer-motion";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -437,98 +438,101 @@ export default function MonetizationPage() {
   }, [transactions]);
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="flex-shrink-0 px-4 py-3 border-b border-border bg-card">
-        <div className="mx-auto flex max-w-[1600px] flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-1">
-            <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-              Monetization Dashboard
-            </h1>
-            <p className="text-sm text-muted-foreground sm:text-base max-w-2xl">
-              Manage your revenue streams, track performance metrics, and optimize your monetization strategies across all channels
-            </p>
-          </div>
-          <div className="flex gap-3">
-            <button
-              onClick={() => navigate("/affiliate-program/new")}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-[4px_4px_8px_rgba(0,0,0,0.1),-4px_-4px_8px_rgba(255,255,255,0.05)] transition-all hover:scale-95"
-            >
-              <Plus className="mr-2 h-4 w-4 flex-shrink-0" />
-              New Program
-            </button>
-          </div>
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 gradient-mesh min-h-screen">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+      >
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Monetization</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Revenue streams, performance metrics, and monetization strategies
+          </p>
         </div>
-      </header>
+        <Button
+          onClick={() => navigate("/affiliate-program/new")}
+          size="sm"
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          New Program
+        </Button>
+      </motion.div>
 
-      <div className="container mx-auto p-6 md:p-8 lg:p-10 space-y-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="mb-8 inline-flex flex-wrap gap-2 rounded-xl border border-border bg-muted/30 p-1">
-            <button
-              onClick={() => setActiveTab("overview")}
-              className={cn(
-                "rounded-lg px-4 py-2 text-sm font-medium transition",
-                activeTab === "overview"
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:bg-background/70 hover:text-foreground"
-              )}
-            >
-              Overview
-            </button>
-            <button
-              onClick={() => setActiveTab("affiliate")}
-              className={cn(
-                "rounded-lg px-4 py-2 text-sm font-medium transition",
-                activeTab === "affiliate"
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:bg-background/70 hover:text-foreground"
-              )}
-            >
-              Affiliate Programs
-            </button>
-            <button
-              onClick={() => setActiveTab("sponsorships")}
-              className={cn(
-                "rounded-lg px-4 py-2 text-sm font-medium transition",
-                activeTab === "sponsorships"
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:bg-background/70 hover:text-foreground"
-              )}
-            >
-              Sponsorships
-            </button>
-            <button
-              onClick={() => setActiveTab("products")}
-              className={cn(
-                "rounded-lg px-4 py-2 text-sm font-medium transition",
-                activeTab === "products"
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:bg-background/70 hover:text-foreground"
-              )}
-            >
-              Products
-            </button>
-          </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <div className="inline-flex flex-wrap gap-1 rounded-lg border border-border bg-secondary p-1">
+          <button
+            onClick={() => setActiveTab("overview")}
+            className={cn(
+              "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+              activeTab === "overview"
+                ? "bg-card text-card-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            Overview
+          </button>
+          <button
+            onClick={() => setActiveTab("affiliate")}
+            className={cn(
+              "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+              activeTab === "affiliate"
+                ? "bg-card text-card-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            Affiliate Programs
+          </button>
+          <button
+            onClick={() => setActiveTab("sponsorships")}
+            className={cn(
+              "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+              activeTab === "sponsorships"
+                ? "bg-card text-card-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            Sponsorships
+          </button>
+          <button
+            onClick={() => setActiveTab("products")}
+            className={cn(
+              "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+              activeTab === "products"
+                ? "bg-card text-card-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            Products
+          </button>
+        </div>
 
           {/* Overview Tab */}
           <TabsContent value="overview">
-            <div className="space-y-6">
-              <div className="rounded-3xl bg-background p-6 shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border border-border">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-                  <div className="space-y-2">
-                    <h2 className="text-2xl font-bold">Revenue Metrics</h2>
-                    <p className="text-muted-foreground">Track your performance across all revenue streams</p>
-                  </div>
+            <div className="space-y-4">
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+                className="rounded-lg border border-border bg-card p-5"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-semibold text-card-foreground">
+                    Revenue Metrics
+                  </h3>
                   <Dialog open={isAddingWidget} onOpenChange={setIsAddingWidget}>
                     <DialogTrigger asChild>
-                      <button className="px-6 py-3 rounded-2xl bg-primary text-primary-foreground shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] transition-all duration-300 hover:shadow-[2px_2px_4px_rgba(0,0,0,0.05),-2px_-2px_4px_rgba(255,255,255,0.03)] dark:hover:shadow-[2px_2px_4px_rgba(0,0,0,0.15),-2px_-2px_4px_rgba(255,255,255,0.01)] hover:scale-95 active:scale-90 border border-primary/30 font-medium flex items-center gap-2">
-                        <Plus className="h-4 w-4" />
+                      <Button variant="ghost" size="sm">
+                        <Plus className="mr-1 h-3.5 w-3.5" />
                         Add Widget
-                      </button>
+                      </Button>
                     </DialogTrigger>
-                    <DialogContent className="rounded-3xl bg-background shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border border-border">
-                      <DialogHeader className="space-y-3">
-                        <DialogTitle className="text-2xl font-bold">Add Revenue Widget</DialogTitle>
-                        <DialogDescription className="text-muted-foreground">
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Add Revenue Widget</DialogTitle>
+                        <DialogDescription>
                           Create a new widget to track your revenue metrics
                         </DialogDescription>
                       </DialogHeader>
@@ -602,9 +606,9 @@ export default function MonetizationPage() {
                     </DialogContent>
                   </Dialog>
                 </div>
-                <div className="grid gap-6 md:grid-cols-3">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                   {metrics.map((metric) => (
-                    <div key={metric.id} className="rounded-2xl bg-muted/30 p-4 shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border border-border">
+                    <div key={metric.id} className="rounded-lg border border-border bg-secondary/50 p-4">
                       <RevenueWidget
                         metric={metric}
                         onUpdate={handleUpdateWidget}
@@ -613,105 +617,418 @@ export default function MonetizationPage() {
                     </div>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             </div>
           </TabsContent>
 
           {/* Affiliate Programs Tab */}
           <TabsContent value="affiliate">
-            <div className="space-y-6">
-              <div className="rounded-3xl bg-background p-6 shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border border-border">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="space-y-2">
-                    <h2 className="text-2xl font-bold">Affiliate Programs</h2>
-                    <p className="text-muted-foreground">
-                      Manage your affiliate program relationships and track earnings across platforms
-                    </p>
-                  </div>
-                  <button
+            <div className="space-y-4">
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+                className="rounded-lg border border-border bg-card p-5"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-semibold text-card-foreground">
+                    Affiliate Programs
+                  </h3>
+                  <Button
                     onClick={() => navigate("/affiliate-program/new")}
-                    className="px-6 py-3 rounded-2xl bg-primary text-primary-foreground shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] transition-all duration-300 hover:shadow-[2px_2px_4px_rgba(0,0,0,0.05),-2px_-2px_4px_rgba(255,255,255,0.03)] dark:hover:shadow-[2px_2px_4px_rgba(0,0,0,0.15),-2px_-2px_4px_rgba(255,255,255,0.01)] hover:scale-95 active:scale-90 border border-primary/30 font-medium flex items-center gap-2"
+                    size="sm"
                   >
-                    <Plus className="h-4 w-4" />
+                    <Plus className="mr-1 h-3.5 w-3.5" />
                     Add Program
+                  </Button>
+                </div>
+                <div className="overflow-auto rounded-md border border-border">
+                  <Table className="min-w-[650px]">
+                    <TableHeader>
+                      <TableRow className="border-b border-border">
+                        <TableHead className="w-[200px] cursor-pointer text-xs font-medium text-muted-foreground uppercase tracking-wider" onClick={() => handleSort("company")}>
+                          Company {sortConfig?.key === "company" && <ArrowUpDown className="ml-1 h-3 w-3 inline" />}
+                        </TableHead>
+                        <TableHead className="cursor-pointer text-xs font-medium text-muted-foreground uppercase tracking-wider" onClick={() => handleSort("commission")}>
+                          Commission {sortConfig?.key === "commission" && <ArrowUpDown className="ml-1 h-3 w-3 inline" />}
+                        </TableHead>
+                        <TableHead className="cursor-pointer text-xs font-medium text-muted-foreground uppercase tracking-wider" onClick={() => handleSort("frequency")}>
+                          Frequency {sortConfig?.key === "frequency" && <ArrowUpDown className="ml-1 h-3 w-3 inline" />}
+                        </TableHead>
+                        <TableHead className="cursor-pointer text-xs font-medium text-muted-foreground uppercase tracking-wider" onClick={() => handleSort("nextPayout")}>
+                          Next Payout {sortConfig?.key === "nextPayout" && <ArrowUpDown className="ml-1 h-3 w-3 inline" />}
+                        </TableHead>
+                        <TableHead className="cursor-pointer text-xs font-medium text-muted-foreground uppercase tracking-wider" onClick={() => handleSort("totalRevenue")}>
+                          Revenue {sortConfig?.key === "totalRevenue" && <ArrowUpDown className="ml-1 h-3 w-3 inline" />}
+                        </TableHead>
+                        <TableHead className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {sortedAffiliatePrograms.map((program) => {
+                        const company = companies.find((c) => c.id === program.companyId);
+                        return (
+                          <TableRow
+                            key={program.id}
+                            className="cursor-pointer hover:bg-secondary transition-colors"
+                            onClick={() => handleRowClick(program.id)}
+                          >
+                            <TableCell className="text-sm text-card-foreground">{company?.name || "Unknown Company"}</TableCell>
+                            <TableCell className="text-sm font-mono text-card-foreground">{program.commissionPercentage}%</TableCell>
+                            <TableCell className="text-sm text-muted-foreground">{program.payoutFrequency}</TableCell>
+                            <TableCell className="text-sm text-muted-foreground">
+                              {program.nextPayoutDate
+                                ? format(new Date(program.nextPayoutDate), "MMM d, yyyy")
+                                : "Not set"}
+                            </TableCell>
+                            <TableCell className="text-sm font-mono text-card-foreground">
+                              ${program.totalRevenue?.toLocaleString() || "0"}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7"
+                                  onClick={() => navigate(`/affiliate-program/${program.id}/edit`)}
+                                >
+                                  <Pencil className="h-3.5 w-3.5" />
+                                </Button>
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-7 w-7">
+                                      <Trash2 className="h-3.5 w-3.5" />
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Delete Affiliate Program</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        This will permanently delete this affiliate program and all its associated data.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                      <AlertDialogAction onClick={() => handleDeleteProgram(program.id)}>
+                                        Delete
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+              </motion.div>
+            </div>
+          </TabsContent>
+
+          {/* Sponsorships Tab */}
+          <TabsContent value="sponsorships">
+            <div className="space-y-4">
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+                className="rounded-lg border border-border bg-card p-5"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-semibold text-card-foreground">
+                    Sponsorships
+                  </h3>
+                  <Button
+                    onClick={() => navigate("/monetization/new-sponsorship")}
+                    size="sm"
+                  >
+                    <Plus className="mr-1 h-3.5 w-3.5" />
+                    Add Sponsorship
+                  </Button>
+                </div>
+                <div className="overflow-auto rounded-md border border-border">
+                  <Table className="min-w-[650px]">
+                    <TableHeader>
+                      <TableRow className="border-b border-border">
+                        <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Brand</TableHead>
+                        <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Value</TableHead>
+                        <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Start Date</TableHead>
+                        <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wider">End Date</TableHead>
+                        <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Status</TableHead>
+                        <TableHead className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {sponsorships.map((sponsorship) => {
+                        const company = companies.find((c) => c.id === sponsorship.companyId);
+                        return (
+                          <TableRow key={sponsorship.id} className="cursor-pointer hover:bg-secondary transition-colors">
+                            <TableCell className="text-sm text-card-foreground">{company?.name || "Unknown Company"}</TableCell>
+                            <TableCell className="text-sm font-mono text-card-foreground">${parseFloat(String(sponsorship.value)).toLocaleString()}</TableCell>
+                            <TableCell className="text-sm text-muted-foreground">{format(new Date(sponsorship.startDate), "MMM d, yyyy")}</TableCell>
+                            <TableCell className="text-sm text-muted-foreground">{format(new Date(sponsorship.endDate), "MMM d, yyyy")}</TableCell>
+                            <TableCell>
+                              {new Date(sponsorship.endDate) > new Date() ? (
+                                <span className="text-xs font-mono text-success">Active</span>
+                              ) : (
+                                <span className="text-xs font-mono text-muted-foreground">Completed</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center justify-end gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigate(`/monetization/edit-sponsorship/${sponsorship.id}`);
+                                  }}
+                                >
+                                  <Pencil className="h-3.5 w-3.5" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+              </motion.div>
+            </div>
+          </TabsContent>
+
+          {/* Products Tab */}
+          <TabsContent value="products">
+            <div className="space-y-4">
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+                className="rounded-lg border border-border bg-card p-5"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-semibold text-card-foreground">
+                    Product Management
+                  </h3>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => setIsAddingProduct(true)}
+                      size="sm"
+                    >
+                      <Plus className="mr-1 h-3.5 w-3.5" />
+                      Add Product
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => navigate("/add-transaction")}
+                      size="sm"
+                    >
+                      <Receipt className="mr-1 h-3.5 w-3.5" />
+                      Add Transaction
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="inline-flex gap-1 rounded-lg border border-border bg-secondary p-1 mb-4">
+                  <button
+                    onClick={() => setActiveProductTab("products")}
+                    className={cn(
+                      "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+                      activeProductTab === "products"
+                        ? "bg-card text-card-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    Products
+                  </button>
+                  <button
+                    onClick={() => setActiveProductTab("transactions")}
+                    className={cn(
+                      "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+                      activeProductTab === "transactions"
+                        ? "bg-card text-card-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    Transactions
                   </button>
                 </div>
-                <div className="overflow-auto">
-                  <div className="rounded-2xl bg-muted/30 shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border border-border overflow-hidden">
-                    <Table className="min-w-[650px]">
-                      <TableHeader>
-                        <TableRow className="border-b border-border">
-                          <TableHead className="w-[200px] cursor-pointer py-4 font-semibold" onClick={() => handleSort("company")}>
-                            Company {sortConfig?.key === "company" && <ArrowUpDown className="ml-2 h-4 w-4 inline" />}
-                          </TableHead>
-                          <TableHead className="cursor-pointer py-4 font-semibold" onClick={() => handleSort("commission")}>
-                            <span className="hidden sm:inline">Commission</span>
-                            <span className="inline sm:hidden">Comm %</span>
-                            {sortConfig?.key === "commission" && <ArrowUpDown className="ml-2 h-4 w-4 inline" />}
-                          </TableHead>
-                          <TableHead className="cursor-pointer py-4 font-semibold" onClick={() => handleSort("frequency")}>
-                            <span className="hidden sm:inline">Frequency</span>
-                            <span className="inline sm:hidden">Freq</span>
-                            {sortConfig?.key === "frequency" && <ArrowUpDown className="ml-2 h-4 w-4 inline" />}
-                          </TableHead>
-                          <TableHead className="cursor-pointer py-4 font-semibold" onClick={() => handleSort("nextPayout")}>
-                            <span className="hidden sm:inline">Next Payout</span>
-                            <span className="inline sm:hidden">Next Pay</span>
-                            {sortConfig?.key === "nextPayout" && <ArrowUpDown className="ml-2 h-4 w-4 inline" />}
-                          </TableHead>
-                          <TableHead className="cursor-pointer py-4 font-semibold" onClick={() => handleSort("totalRevenue")}>
-                            <span className="hidden sm:inline">Total Revenue</span>
-                            <span className="inline sm:hidden">Revenue</span>
-                            {sortConfig?.key === "totalRevenue" && <ArrowUpDown className="ml-2 h-4 w-4 inline" />}
-                          </TableHead>
-                          <TableHead className="text-right py-4 font-semibold">Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {sortedAffiliatePrograms.map((program) => {
-                          const company = companies.find((c) => c.id === program.companyId);
-                          return (
+
+                {activeProductTab === "products" && (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="rounded-lg border border-border bg-card p-5">
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Sales by Product</p>
+                        <div className="h-[150px]">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={productSalesData}>
+                              <defs>
+                                <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.1}/>
+                                  <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                                </linearGradient>
+                              </defs>
+                              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                              <XAxis
+                                dataKey="name"
+                                tickLine={false}
+                                axisLine={false}
+                                fontSize={10}
+                                tickFormatter={(value) => value.length > 15 ? `${value.substring(0, 15)}...` : value}
+                                stroke="hsl(var(--muted-foreground))"
+                              />
+                              <YAxis
+                                tickLine={false}
+                                axisLine={false}
+                                fontSize={10}
+                                tickFormatter={(value) => `$${value.toLocaleString()}`}
+                                stroke="hsl(var(--muted-foreground))"
+                              />
+                              <Tooltip
+                                formatter={(value) => [`$${Number(value).toLocaleString()}`, 'Sales']}
+                                contentStyle={{
+                                  background: 'hsl(var(--card))',
+                                  border: '1px solid hsl(var(--border))',
+                                  borderRadius: '6px',
+                                  fontSize: '11px',
+                                }}
+                              />
+                              <Area
+                                type="monotone"
+                                dataKey="total"
+                                stroke="hsl(var(--primary))"
+                                strokeWidth={2}
+                                fill="url(#colorTotal)"
+                                dot={false}
+                                activeDot={{
+                                  r: 3,
+                                  stroke: "hsl(var(--primary))",
+                                  strokeWidth: 2,
+                                  fill: "hsl(var(--card))"
+                                }}
+                              />
+                            </AreaChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </div>
+
+                      <div className="rounded-lg border border-border bg-card p-5">
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Monthly Sales Trend</p>
+                        <div className="h-[150px]">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={salesData}>
+                              <defs>
+                                <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.1}/>
+                                  <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                                </linearGradient>
+                              </defs>
+                              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                              <XAxis
+                                dataKey="month"
+                                tickLine={false}
+                                axisLine={false}
+                                fontSize={10}
+                                stroke="hsl(var(--muted-foreground))"
+                              />
+                              <YAxis
+                                tickLine={false}
+                                axisLine={false}
+                                fontSize={10}
+                                tickFormatter={(value) => `$${value.toLocaleString()}`}
+                                stroke="hsl(var(--muted-foreground))"
+                              />
+                              <Tooltip
+                                formatter={(value) => [`$${Number(value).toLocaleString()}`, 'Revenue']}
+                                contentStyle={{
+                                  background: 'hsl(var(--card))',
+                                  border: '1px solid hsl(var(--border))',
+                                  borderRadius: '6px',
+                                  fontSize: '11px',
+                                }}
+                              />
+                              <Area
+                                type="monotone"
+                                dataKey="total"
+                                stroke="hsl(var(--primary))"
+                                strokeWidth={2}
+                                fill="url(#colorRevenue)"
+                                dot={false}
+                                activeDot={{
+                                  r: 3,
+                                  stroke: "hsl(var(--primary))",
+                                  strokeWidth: 2,
+                                  fill: "hsl(var(--card))"
+                                }}
+                              />
+                            </AreaChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="overflow-auto rounded-md border border-border">
+                      <Table className="min-w-[650px]">
+                        <TableHeader>
+                          <TableRow className="border-b border-border">
+                            <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Name</TableHead>
+                            <TableHead className="hidden md:table-cell text-xs font-medium text-muted-foreground uppercase tracking-wider">Description</TableHead>
+                            <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Price</TableHead>
+                            <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Type</TableHead>
+                            <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Created</TableHead>
+                            <TableHead className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {products.map((product) => (
                             <TableRow
-                              key={program.id}
-                              className="cursor-pointer border-b border-border/50 hover:bg-muted/30 transition-colors py-4"
-                              onClick={() => handleRowClick(program.id)}
+                              key={product.id}
+                              className="cursor-pointer hover:bg-secondary transition-colors"
+                              onClick={() => navigate(`/products/${product.id}`)}
                             >
-                              <TableCell>{company?.name || "Unknown Company"}</TableCell>
-                              <TableCell>{program.commissionPercentage}%</TableCell>
-                              <TableCell>{program.payoutFrequency}</TableCell>
+                              <TableCell className="text-sm text-card-foreground">{product.name}</TableCell>
+                              <TableCell className="hidden md:table-cell text-sm text-muted-foreground">{product.description}</TableCell>
+                              <TableCell className="text-sm font-mono text-card-foreground">${product.price.toLocaleString()}</TableCell>
+                              <TableCell className="text-sm text-muted-foreground">{product.type}</TableCell>
+                              <TableCell className="text-sm text-muted-foreground">{format(new Date(product.createdAt), "MMM d, yyyy")}</TableCell>
                               <TableCell>
-                                {program.nextPayoutDate
-                                  ? format(new Date(program.nextPayoutDate), "MMM d, yyyy")
-                                  : "Not set"}
-                              </TableCell>
-                              <TableCell>
-                                ${program.totalRevenue?.toLocaleString() || "0"}
-                              </TableCell>
-                              <TableCell>
-                                <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+                                <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    onClick={() => navigate(`/affiliate-program/${program.id}/edit`)}
+                                    className="h-7 w-7"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setEditingProduct(product);
+                                    }}
                                   >
-                                    <Pencil className="h-4 w-4" />
+                                    <Pencil className="h-3.5 w-3.5" />
                                   </Button>
                                   <AlertDialog>
                                     <AlertDialogTrigger asChild>
-                                      <Button variant="ghost" size="icon">
-                                        <Trash2 className="h-4 w-4" />
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-7 w-7"
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        <Trash2 className="h-3.5 w-3.5" />
                                       </Button>
                                     </AlertDialogTrigger>
                                     <AlertDialogContent>
                                       <AlertDialogHeader>
-                                        <AlertDialogTitle>Delete Affiliate Program</AlertDialogTitle>
+                                        <AlertDialogTitle>Delete Product</AlertDialogTitle>
                                         <AlertDialogDescription>
-                                          This will permanently delete this affiliate program and all its associated data.
+                                          This will permanently delete this product. This action cannot be undone.
                                         </AlertDialogDescription>
                                       </AlertDialogHeader>
                                       <AlertDialogFooter>
                                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                        <AlertDialogAction onClick={() => handleDeleteProgram(program.id)}>
+                                        <AlertDialogAction onClick={() => handleDeleteProduct(product.id)}>
                                           Delete
                                         </AlertDialogAction>
                                       </AlertDialogFooter>
@@ -720,444 +1037,102 @@ export default function MonetizationPage() {
                                 </div>
                               </TableCell>
                             </TableRow>
-                          );
-                        })}
-                      </TableBody>
-                    </Table>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
                   </div>
-                </div>
-              </div>
-            </div>
-          </TabsContent>
+                )}
 
-          {/* Sponsorships Tab */}
-          <TabsContent value="sponsorships">
-            <div className="space-y-6">
-              <div className="rounded-3xl bg-background p-6 shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border border-border">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="space-y-2">
-                    <h2 className="text-2xl font-bold">Sponsorships</h2>
-                    <p className="text-muted-foreground">
-                      Manage your sponsorship deals and track payment performance
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => navigate("/monetization/new-sponsorship")}
-                    className="px-6 py-3 rounded-2xl bg-primary text-primary-foreground shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] transition-all duration-300 hover:shadow-[2px_2px_4px_rgba(0,0,0,0.05),-2px_-2px_4px_rgba(255,255,255,0.03)] dark:hover:shadow-[2px_2px_4px_rgba(0,0,0,0.15),-2px_-2px_4px_rgba(255,255,255,0.01)] hover:scale-95 active:scale-90 border border-primary/30 font-medium flex items-center gap-2"
-                  >
-                    <Plus className="h-4 w-4" />
-                    Add Sponsorship
-                  </button>
-                </div>
-                <div className="overflow-auto">
-                  <div className="rounded-2xl bg-muted/30 shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border border-border overflow-hidden">
-                    <Table className="min-w-[650px]">
-                      <TableHeader>
-                        <TableRow className="border-b border-border">
-                          <TableHead className="py-4 font-semibold">Brand</TableHead>
-                          <TableHead className="py-4 font-semibold">Value</TableHead>
-                          <TableHead className="py-4 font-semibold">
-                            <span className="hidden sm:inline">Start Date</span>
-                            <span className="inline sm:hidden">Start</span>
-                          </TableHead>
-                          <TableHead className="py-4 font-semibold">
-                            <span className="hidden sm:inline">End Date</span>
-                            <span className="inline sm:hidden">End</span>
-                          </TableHead>
-                          <TableHead className="py-4 font-semibold">Status</TableHead>
-                          <TableHead className="text-right py-4 font-semibold">Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {sponsorships.map((sponsorship) => {
-                          const company = companies.find((c) => c.id === sponsorship.companyId);
-                          return (
-                            <TableRow key={sponsorship.id} className="cursor-pointer border-b border-border/50 hover:bg-muted/30 transition-colors py-4">
-                              <TableCell>{company?.name || "Unknown Company"}</TableCell>
-                              <TableCell>${parseFloat(String(sponsorship.value)).toLocaleString()}</TableCell>
-                              <TableCell>{format(new Date(sponsorship.startDate), "MMM d, yyyy")}</TableCell>
-                              <TableCell>{format(new Date(sponsorship.endDate), "MMM d, yyyy")}</TableCell>
+                {activeProductTab === "transactions" && (
+                  <div className="space-y-4">
+                    <div className="overflow-auto rounded-md border border-border">
+                      <Table className="min-w-[800px]">
+                        <TableHeader>
+                          <TableRow className="border-b border-border">
+                            <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Date</TableHead>
+                            <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Product</TableHead>
+                            <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Platform</TableHead>
+                            <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Qty</TableHead>
+                            <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Total</TableHead>
+                            <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Commission</TableHead>
+                            <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Net</TableHead>
+                            <TableHead className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {transactions.map((transaction) => (
+                            <TableRow
+                              key={transaction.id}
+                              className="hover:bg-secondary transition-colors cursor-pointer"
+                              onClick={() => setEditingTransaction(transaction)}
+                            >
+                              <TableCell className="text-sm text-muted-foreground">{format(new Date(transaction.transactionDate), "MMM d, yyyy")}</TableCell>
+                              <TableCell className="text-sm text-card-foreground">{transaction.productName}</TableCell>
+                              <TableCell className="text-sm text-muted-foreground">{transaction.platform}</TableCell>
+                              <TableCell className="text-sm font-mono text-card-foreground">{transaction.quantity}</TableCell>
+                              <TableCell className="text-sm font-mono text-card-foreground">${parseFloat(String(transaction.totalAmount)).toLocaleString()}</TableCell>
+                              <TableCell className="text-sm font-mono text-muted-foreground">${parseFloat(String(transaction.commission)).toLocaleString()}</TableCell>
+                              <TableCell className="text-sm font-mono text-card-foreground">${parseFloat(String(transaction.netAmount)).toLocaleString()}</TableCell>
                               <TableCell>
-                                {new Date(sponsorship.endDate) > new Date() ? (
-                                  <Badge variant="default" className="bg-green-500">Active</Badge>
-                                ) : (
-                                  <Badge variant="secondary">Completed</Badge>
-                                )}
-                              </TableCell>
-                              <TableCell>
-                                <div className="flex items-center justify-end gap-2">
+                                <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                                   <Button
                                     variant="ghost"
                                     size="icon"
+                                    className="h-7 w-7"
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      navigate(`/monetization/edit-sponsorship/${sponsorship.id}`);
+                                      setEditingTransaction(transaction);
                                     }}
                                   >
-                                    <Pencil className="h-4 w-4" />
+                                    <Pencil className="h-3.5 w-3.5" />
                                   </Button>
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-7 w-7"
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        <Trash2 className="h-3.5 w-3.5" />
+                                      </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>Delete Transaction</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          This will permanently delete this transaction. This action cannot be undone.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => handleDeleteTransaction(transaction.id)}>
+                                          Delete
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
                                 </div>
                               </TableCell>
                             </TableRow>
-                          );
-                        })}
-                      </TableBody>
-                    </Table>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
                   </div>
-                </div>
-              </div>
+                )}
+              </motion.div>
             </div>
           </TabsContent>
-
-          {/* Products Tab */}
-          <TabsContent value="products">
-            <div className="space-y-6">
-              <div className="rounded-3xl bg-background p-6 shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border border-border">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="space-y-2">
-                    <h2 className="text-2xl font-bold">Product Management</h2>
-                    <p className="text-muted-foreground">
-                      Manage your digital products and track sales performance
-                    </p>
-                  </div>
-                  <div className="flex gap-3 flex-wrap">
-                    <button
-                      onClick={() => setIsAddingProduct(true)}
-                      className="px-6 py-3 rounded-2xl bg-primary text-primary-foreground shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] transition-all duration-300 hover:shadow-[2px_2px_4px_rgba(0,0,0,0.05),-2px_-2px_4px_rgba(255,255,255,0.03)] dark:hover:shadow-[2px_2px_4px_rgba(0,0,0,0.15),-2px_-2px_4px_rgba(255,255,255,0.01)] hover:scale-95 active:scale-90 border border-primary/30 font-medium flex items-center gap-2"
-                    >
-                      <Plus className="h-4 w-4" />
-                      Add Product
-                    </button>
-                    <button
-                      onClick={() => navigate("/add-transaction")}
-                      className="px-6 py-3 rounded-2xl bg-background text-foreground shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] transition-all duration-300 hover:shadow-[2px_2px_4px_rgba(0,0,0,0.05),-2px_-2px_4px_rgba(255,255,255,0.03)] dark:hover:shadow-[2px_2px_4px_rgba(0,0,0,0.15),-2px_-2px_4px_rgba(255,255,255,0.01)] hover:scale-95 active:scale-90 border border-border font-medium flex items-center gap-2"
-                    >
-                      <Receipt className="h-4 w-4" />
-                      Add Transaction
-                    </button>
-                  </div>
-                </div>
-                <div className="p-4 rounded-2xl bg-muted/30 shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border border-border">
-                  <div className="flex gap-3 mb-6 p-2 rounded-3xl bg-background shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.05)] dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.2),inset_-2px_-2px_4px_rgba(255,255,255,0.02)] border border-border">
-                    <button
-                      onClick={() => setActiveProductTab("products")}
-                      className={cn(
-                        "px-6 py-3 rounded-2xl font-medium transition-all duration-300 border flex-1",
-                        activeProductTab === "products"
-                          ? "bg-primary text-primary-foreground shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border-primary/30 scale-95"
-                          : "bg-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30 border-transparent hover:shadow-[2px_2px_4px_rgba(0,0,0,0.05),-2px_-2px_4px_rgba(255,255,255,0.03)] dark:hover:shadow-[2px_2px_4px_rgba(0,0,0,0.1),-2px_-2px_4px_rgba(255,255,255,0.01)] hover:scale-95"
-                      )}
-                    >
-                      Products
-                    </button>
-                    <button
-                      onClick={() => setActiveProductTab("transactions")}
-                      className={cn(
-                        "px-6 py-3 rounded-2xl font-medium transition-all duration-300 border flex-1",
-                        activeProductTab === "transactions"
-                          ? "bg-primary text-primary-foreground shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border-primary/30 scale-95"
-                          : "bg-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30 border-transparent hover:shadow-[2px_2px_4px_rgba(0,0,0,0.05),-2px_-2px_4px_rgba(255,255,255,0.03)] dark:hover:shadow-[2px_2px_4px_rgba(0,0,0,0.1),-2px_-2px_4px_rgba(255,255,255,0.01)] hover:scale-95"
-                      )}
-                    >
-                      Transactions
-                    </button>
-                  </div>
-
-                  <div>
-                    {activeProductTab === "products" && (
-                      <div className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                          <div className="w-full rounded-2xl bg-background p-6 shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border border-border">
-                            <div className="mb-4">
-                              <h3 className="text-lg font-semibold">Sales by Product</h3>
-                            </div>
-                            <div className="h-[150px]">
-                              <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={productSalesData}>
-                                  <defs>
-                                    <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.1}/>
-                                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                                    </linearGradient>
-                                  </defs>
-                                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                                  <XAxis
-                                    dataKey="name"
-                                    tickLine={false}
-                                    axisLine={false}
-                                    fontSize={12}
-                                    tickFormatter={(value) => value.length > 15 ? `${value.substring(0, 15)}...` : value}
-                                    stroke="hsl(var(--muted-foreground))"
-                                  />
-                                  <YAxis
-                                    tickLine={false}
-                                    axisLine={false}
-                                    fontSize={12}
-                                    tickFormatter={(value) => `$${value.toLocaleString()}`}
-                                    stroke="hsl(var(--muted-foreground))"
-                                  />
-                                  <Tooltip
-                                    formatter={(value) => [`$${Number(value).toLocaleString()}`, 'Sales']}
-                                    contentStyle={{
-                                      background: 'hsl(var(--background))',
-                                      border: '1px solid hsl(var(--border))',
-                                      borderRadius: '6px',
-                                      fontSize: '12px',
-                                    }}
-                                  />
-                                  <Area
-                                    type="monotone"
-                                    dataKey="total"
-                                    stroke="hsl(var(--primary))"
-                                    strokeWidth={2}
-                                    fill="url(#colorTotal)"
-                                    dot={false}
-                                    activeDot={{
-                                      r: 4,
-                                      stroke: "hsl(var(--primary))",
-                                      strokeWidth: 2,
-                                      fill: "hsl(var(--background))"
-                                    }}
-                                  />
-                                </AreaChart>
-                              </ResponsiveContainer>
-                            </div>
-                          </div>
-
-                          <div className="w-full rounded-2xl bg-background p-6 shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border border-border">
-                            <div className="mb-4">
-                              <h3 className="text-lg font-semibold">Monthly Sales Trend</h3>
-                            </div>
-                            <div className="h-[150px]">
-                              <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={salesData}>
-                                  <defs>
-                                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.1}/>
-                                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                                    </linearGradient>
-                                  </defs>
-                                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                                  <XAxis
-                                    dataKey="month"
-                                    tickLine={false}
-                                    axisLine={false}
-                                    fontSize={12}
-                                    stroke="hsl(var(--muted-foreground))"
-                                  />
-                                  <YAxis
-                                    tickLine={false}
-                                    axisLine={false}
-                                    fontSize={12}
-                                    tickFormatter={(value) => `$${value.toLocaleString()}`}
-                                    stroke="hsl(var(--muted-foreground))"
-                                  />
-                                  <Tooltip
-                                    formatter={(value) => [`$${Number(value).toLocaleString()}`, 'Revenue']}
-                                    contentStyle={{
-                                      background: 'hsl(var(--background))',
-                                      border: '1px solid hsl(var(--border))',
-                                      borderRadius: '6px',
-                                      fontSize: '12px',
-                                    }}
-                                  />
-                                  <Area
-                                    type="monotone"
-                                    dataKey="total"
-                                    stroke="hsl(var(--primary))"
-                                    strokeWidth={2}
-                                    fill="url(#colorRevenue)"
-                                    dot={false}
-                                    activeDot={{
-                                      r: 4,
-                                      stroke: "hsl(var(--primary))",
-                                      strokeWidth: 2,
-                                      fill: "hsl(var(--background))"
-                                    }}
-                                  />
-                                </AreaChart>
-                              </ResponsiveContainer>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="overflow-auto">
-                          <div className="rounded-2xl bg-background shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border border-border overflow-hidden">
-                            <Table className="min-w-[650px]">
-                              <TableHeader>
-                                <TableRow className="border-b border-border">
-                                  <TableHead className="py-4 font-semibold">Name</TableHead>
-                                  <TableHead className="hidden md:table-cell py-4 font-semibold">Description</TableHead>
-                                  <TableHead className="py-4 font-semibold">Price</TableHead>
-                                  <TableHead className="py-4 font-semibold">Type</TableHead>
-                                  <TableHead className="py-4 font-semibold">
-                                    <span className="hidden sm:inline">Created</span>
-                                    <span className="inline sm:hidden">Date</span>
-                                  </TableHead>
-                                  <TableHead className="text-right py-4 font-semibold">Actions</TableHead>
-                                </TableRow>
-                              </TableHeader>
-                              <TableBody>
-                                {products.map((product) => (
-                                  <TableRow
-                                    key={product.id}
-                                    className="cursor-pointer border-b border-border/50 hover:bg-muted/30 transition-colors py-4"
-                                    onClick={() => navigate(`/products/${product.id}`)}
-                                  >
-                                    <TableCell>{product.name}</TableCell>
-                                    <TableCell className="hidden md:table-cell">{product.description}</TableCell>
-                                    <TableCell>${product.price.toLocaleString()}</TableCell>
-                                    <TableCell>{product.type}</TableCell>
-                                    <TableCell>{format(new Date(product.createdAt), "MMM d, yyyy")}</TableCell>
-                                    <TableCell>
-                                      <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
-                                        <Button
-                                          variant="ghost"
-                                          size="icon"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            setEditingProduct(product);
-                                          }}
-                                        >
-                                          <Pencil className="h-4 w-4" />
-                                        </Button>
-                                        <AlertDialog>
-                                          <AlertDialogTrigger asChild>
-                                            <Button
-                                              variant="ghost"
-                                              size="icon"
-                                              onClick={(e) => e.stopPropagation()}
-                                            >
-                                              <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                          </AlertDialogTrigger>
-                                          <AlertDialogContent>
-                                            <AlertDialogHeader>
-                                              <AlertDialogTitle>Delete Product</AlertDialogTitle>
-                                              <AlertDialogDescription>
-                                                This will permanently delete this product. This action cannot be undone.
-                                              </AlertDialogDescription>
-                                            </AlertDialogHeader>
-                                            <AlertDialogFooter>
-                                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                              <AlertDialogAction onClick={() => handleDeleteProduct(product.id)}>
-                                                Delete
-                                              </AlertDialogAction>
-                                            </AlertDialogFooter>
-                                          </AlertDialogContent>
-                                        </AlertDialog>
-                                      </div>
-                                    </TableCell>
-                                  </TableRow>
-                                ))}
-                              </TableBody>
-                            </Table>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {activeProductTab === "transactions" && (
-                      <div className="space-y-6">
-                        <div className="overflow-auto">
-                          <div className="rounded-2xl bg-background shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border border-border overflow-hidden">
-                            <Table className="min-w-[800px]">
-                              <TableHeader>
-                                <TableRow className="border-b border-border">
-                                  <TableHead className="py-4 font-semibold">Date</TableHead>
-                                  <TableHead className="py-4 font-semibold">Product</TableHead>
-                                  <TableHead className="py-4 font-semibold">Platform</TableHead>
-                                  <TableHead className="py-4 font-semibold">Qty</TableHead>
-                                  <TableHead className="py-4 font-semibold">
-                                    <span className="hidden sm:inline">Total Amount</span>
-                                    <span className="inline sm:hidden">Total</span>
-                                  </TableHead>
-                                  <TableHead className="py-4 font-semibold">
-                                    <span className="hidden sm:inline">Commission</span>
-                                    <span className="inline sm:hidden">Comm</span>
-                                  </TableHead>
-                                  <TableHead className="py-4 font-semibold">
-                                    <span className="hidden sm:inline">Net Amount</span>
-                                    <span className="inline sm:hidden">Net</span>
-                                  </TableHead>
-                                  <TableHead className="text-right py-4 font-semibold">Actions</TableHead>
-                                </TableRow>
-                              </TableHeader>
-                              <TableBody>
-                                {transactions.map((transaction) => (
-                                  <TableRow
-                                    key={transaction.id}
-                                    className="border-b border-border/50 hover:bg-muted/30 transition-colors py-4 cursor-pointer"
-                                    onClick={() => setEditingTransaction(transaction)}
-                                  >
-                                    <TableCell>{format(new Date(transaction.transactionDate), "MMM d, yyyy")}</TableCell>
-                                    <TableCell>{transaction.productName}</TableCell>
-                                    <TableCell>{transaction.platform}</TableCell>
-                                    <TableCell>{transaction.quantity}</TableCell>
-                                    <TableCell>${parseFloat(String(transaction.totalAmount)).toLocaleString()}</TableCell>
-                                    <TableCell>${parseFloat(String(transaction.commission)).toLocaleString()}</TableCell>
-                                    <TableCell>${parseFloat(String(transaction.netAmount)).toLocaleString()}</TableCell>
-                                    <TableCell>
-                                      <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
-                                        <Button
-                                          variant="ghost"
-                                          size="icon"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            setEditingTransaction(transaction);
-                                          }}
-                                        >
-                                          <Pencil className="h-4 w-4" />
-                                        </Button>
-                                        <AlertDialog>
-                                          <AlertDialogTrigger asChild>
-                                            <Button
-                                              variant="ghost"
-                                              size="icon"
-                                              onClick={(e) => e.stopPropagation()}
-                                            >
-                                              <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                          </AlertDialogTrigger>
-                                          <AlertDialogContent>
-                                            <AlertDialogHeader>
-                                              <AlertDialogTitle>Delete Transaction</AlertDialogTitle>
-                                              <AlertDialogDescription>
-                                                This will permanently delete this transaction. This action cannot be undone.
-                                              </AlertDialogDescription>
-                                            </AlertDialogHeader>
-                                            <AlertDialogFooter>
-                                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                              <AlertDialogAction onClick={() => handleDeleteTransaction(transaction.id)}>
-                                                Delete
-                                              </AlertDialogAction>
-                                            </AlertDialogFooter>
-                                          </AlertDialogContent>
-                                        </AlertDialog>
-                                      </div>
-                                    </TableCell>
-                                  </TableRow>
-                                ))}
-                              </TableBody>
-                            </Table>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-        </Tabs>
 
         {/* Add Product Dialog */}
         <Dialog open={isAddingProduct} onOpenChange={setIsAddingProduct}>
-          <DialogContent className="sm:max-w-[425px] rounded-3xl bg-background shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border border-border">
-            <DialogHeader className="space-y-3">
-              <DialogTitle className="text-2xl font-bold">Add New Product</DialogTitle>
-              <DialogDescription className="text-muted-foreground">
-                Add a new product to your catalog to track sales and performance
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Add New Product</DialogTitle>
+              <DialogDescription>
+                Add a new product to your catalog
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={(e) => {
@@ -1246,11 +1221,11 @@ export default function MonetizationPage() {
         <Dialog open={!!editingTransaction} onOpenChange={(open) => {
           if (!open) setEditingTransaction(null);
         }}>
-          <DialogContent className="sm:max-w-[500px] rounded-3xl bg-background shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border border-border">
-            <DialogHeader className="space-y-3">
-              <DialogTitle className="text-2xl font-bold">Edit Transaction</DialogTitle>
-              <DialogDescription className="text-muted-foreground">
-                Update transaction details and financial information
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Edit Transaction</DialogTitle>
+              <DialogDescription>
+                Update transaction details
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={async (e) => {
@@ -1365,7 +1340,7 @@ export default function MonetizationPage() {
             </form>
           </DialogContent>
         </Dialog>
-      </div>
+      </Tabs>
     </div>
   );
 }
