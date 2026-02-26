@@ -13,10 +13,11 @@ import RelationshipsPage from "./pages/RelationshipsPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import IntegrationsPage from "./pages/IntegrationsPage";
 import {
-  ContentPage,
   TasksPage,
 } from "./pages/SectionPages";
 import MonetizationPage from "./pages/MonetizationPage";
+import VideoQueuePage from "./pages/VideoQueuePage";
+import VideoQueueFormPage from "./pages/VideoQueueFormPage";
 import AiBridgePage from "./pages/AiBridgePage";
 import SettingsPage from "./pages/SettingsPage";
 import InboxPage from "./pages/InboxPage";
@@ -65,7 +66,9 @@ const App = () => (
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route path="/" element={<Index />} />
               <Route path="/relationships" element={<RelationshipsPage />} />
-              <Route path="/content" element={<ContentPage />} />
+              <Route path="/content" element={<VideoQueuePage />} />
+              <Route path="/content/create" element={<VideoQueueFormPage />} />
+              <Route path="/content/:id/edit" element={<VideoQueueFormPage />} />
               <Route path="/monetization" element={<MonetizationPage />} />
               <Route path="/affiliate-program/new" element={<NewAffiliateProgramPage />} />
               <Route path="/affiliate-program/:id" element={<AffiliateProgramPage />} />

@@ -858,6 +858,114 @@ export type Database = {
         }
         Relationships: []
       }
+      video_queue: {
+        Row: {
+          id: number
+          workspace_id: string
+          title: string
+          description: string | null
+          status: string
+          priority: string
+          target_publish_date: string | null
+          platforms: string[]
+          is_sponsored: boolean
+          company_id: string | null
+          sponsoring_company_id: string | null
+          assigned_to: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          workspace_id: string
+          title: string
+          description?: string | null
+          status?: string
+          priority?: string
+          target_publish_date?: string | null
+          platforms?: string[]
+          is_sponsored?: boolean
+          company_id?: string | null
+          sponsoring_company_id?: string | null
+          assigned_to?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          workspace_id?: string
+          title?: string
+          description?: string | null
+          status?: string
+          priority?: string
+          target_publish_date?: string | null
+          platforms?: string[]
+          is_sponsored?: boolean
+          company_id?: string | null
+          sponsoring_company_id?: string | null
+          assigned_to?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_queue_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_queue_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_queue_sponsoring_company_id_fkey"
+            columns: ["sponsoring_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      video_queue_checklists: {
+        Row: {
+          id: number
+          video_queue_id: number
+          label: string
+          completed: boolean
+          sort_order: number
+          created_at: string
+        }
+        Insert: {
+          id?: number
+          video_queue_id: number
+          label: string
+          completed?: boolean
+          sort_order?: number
+          created_at?: string
+        }
+        Update: {
+          id?: number
+          video_queue_id?: number
+          label?: string
+          completed?: boolean
+          sort_order?: number
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_queue_checklists_video_queue_id_fkey"
+            columns: ["video_queue_id"]
+            isOneToOne: false
+            referencedRelation: "video_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
