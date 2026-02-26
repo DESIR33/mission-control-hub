@@ -786,10 +786,17 @@ export default function InboxPage() {
   });
   const { data: automationRuns = [] } = useQuery({
     queryKey: ["/api/inbox/automations/runs"],
-    queryFn: async () => { const r = await axios.get("/api/inbox/automations/runs"); return r.data as InboxAutomationRun[]; },
+    queryFn: async () => {
+      try {
+        const r = await axios.get("/api/inbox/automations/runs");
+        return Array.isArray(r.data) ? (r.data as InboxAutomationRun[]) : [];
+      } catch {
+        return [];
+      }
+    },
     refetchInterval: (query) => {
-      const runs = query.state.data as InboxAutomationRun[] | undefined;
-      if (runs?.some((run) => run.status === "queued" || run.status === "running")) return 2000;
+      const runs = query.state.data;
+      if (Array.isArray(runs) && runs.some((run) => run.status === "queued" || run.status === "running")) return 2000;
       return false;
     },
   });
