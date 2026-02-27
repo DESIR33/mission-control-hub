@@ -112,6 +112,7 @@ export function useCreateVideo() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (input: CreateVideoInput) => {
+      if (!workspaceId) throw new Error("Workspace not ready");
       const metadata: Record<string, unknown> = {};
       if (input.platforms) metadata.platforms = input.platforms;
       if (input.isSponsored != null) metadata.isSponsored = input.isSponsored;
