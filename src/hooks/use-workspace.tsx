@@ -25,10 +25,21 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    ensureWorkspace(user.id, user.email ?? "user")
-      .then((id) => setWorkspaceId(id))
-      .catch((err) => console.error("Workspace init failed:", err))
-      .finally(() => setIsLoading(false));
+    let cancelled = false;
+    const init = async (retries = 3) => {
+      for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+          const id = await ensureWorkspace(user.id, user.email ?? "user");
+          if (!cancelled) setWorkspaceId(id);
+          return;
+        } catch (err) {
+          console.error(`Workspace init attempt ${attempt}/${retries} failed:`, err);
+          if (attempt < retries) await new Promise((r) => setTimeout(r, 1000 * attempt));
+        }
+      }
+    };
+    init().finally(() => { if (!cancelled) setIsLoading(false); });
+    return () => { cancelled = true; };
   }, [user]);
 
   return (
