@@ -16,6 +16,7 @@ import {
   type VideoQueueItem,
 } from "@/hooks/use-video-queue";
 import { useCompanies } from "@/hooks/use-companies";
+import { useWorkspace } from "@/hooks/use-workspace";
 
 const ALL_PLATFORMS = [
   "YouTube",
@@ -48,6 +49,7 @@ export default function VideoQueueFormPage() {
     isEditing ? Number(id) : null
   );
   const { data: companies = [] } = useCompanies();
+  const { workspaceId, isLoading: workspaceLoading } = useWorkspace();
   const createVideo = useCreateVideo();
   const updateVideo = useUpdateVideo();
 
@@ -130,10 +132,10 @@ export default function VideoQueueFormPage() {
             toast({ title: "Success", description: "Video updated." });
             navigate("/content");
           },
-          onError: () => {
+          onError: (err: Error) => {
             toast({
               title: "Error",
-              description: "Failed to update video.",
+              description: err.message || "Failed to update video.",
               variant: "destructive",
             });
           },
@@ -158,10 +160,10 @@ export default function VideoQueueFormPage() {
             toast({ title: "Success", description: "Video created." });
             navigate("/content");
           },
-          onError: () => {
+          onError: (err: Error) => {
             toast({
               title: "Error",
-              description: "Failed to create video.",
+              description: err.message || "Failed to create video.",
               variant: "destructive",
             });
           },
@@ -411,14 +413,16 @@ export default function VideoQueueFormPage() {
         <div className="flex items-center gap-3 pt-2">
           <button
             type="submit"
-            disabled={createVideo.isPending || updateVideo.isPending}
+            disabled={createVideo.isPending || updateVideo.isPending || (!workspaceId && !workspaceLoading)}
             className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-5 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
           >
-            {createVideo.isPending || updateVideo.isPending
-              ? "Saving..."
-              : isEditing
-                ? "Update Video"
-                : "Create Video"}
+            {workspaceLoading
+              ? "Loading..."
+              : createVideo.isPending || updateVideo.isPending
+                ? "Saving..."
+                : isEditing
+                  ? "Update Video"
+                  : "Create Video"}
           </button>
           <button
             type="button"

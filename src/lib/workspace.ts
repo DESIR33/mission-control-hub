@@ -5,6 +5,10 @@ import { supabase } from "@/integrations/supabase/client";
  * Returns the workspace_id.
  */
 export async function ensureWorkspace(userId: string, email: string): Promise<string> {
+  // Ensure we have a valid session before making RLS-protected calls
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) throw new Error("No active session");
+
   // Check existing membership first (fast path)
   const { data: membership } = await supabase
     .from("workspace_members")
@@ -23,7 +27,8 @@ export async function ensureWorkspace(userId: string, email: string): Promise<st
     ws_slug: slug,
   });
 
-  if (error || !data) throw new Error("Failed to bootstrap workspace: " + error?.message);
+  if (error) throw new Error("Bootstrap workspace RPC failed: " + error.message);
+  if (!data) throw new Error("Bootstrap workspace returned no data");
 
   return data as string;
 }
