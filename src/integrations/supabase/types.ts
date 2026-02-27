@@ -757,6 +757,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      bootstrap_workspace: {
+        Args: { ws_name: string; ws_slug: string }
+        Returns: string
+      }
       get_workspace_role: { Args: { ws_id: string }; Returns: string }
       is_workspace_member: { Args: { ws_id: string }; Returns: boolean }
     }
