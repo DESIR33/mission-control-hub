@@ -124,7 +124,7 @@ export default function AddContactForm({ onSuccess }: AddContactFormProps) {
         return;
       }
       const data = await createRole.mutateAsync(newRoleName.trim());
-      form.setValue("roleId", data.id);
+      form.setValue("roleId", (data as any).id);
       setShowNewRoleDialog(false);
       setNewRoleName("");
       toast({ title: "Role created" });

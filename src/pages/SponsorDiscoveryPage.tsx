@@ -78,9 +78,8 @@ function SponsorDiscoveryContent() {
     try {
       const companyResult = await createCompany.mutateAsync({
         name: sponsor.name,
-        source: "sponsor_discovery",
         notes: `Discovered via sponsor discovery. Mentioned ${sponsor.mentions} time(s) in: ${sponsor.sources.join(", ")}`,
-      });
+      } as any);
 
       if (companyResult?.id) {
         await createDeal.mutateAsync({

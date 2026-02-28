@@ -47,13 +47,13 @@ export function useYouTubeChannelStats(limit = 30) {
     queryKey: ["youtube-channel-stats", workspaceId, limit],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("youtube_channel_stats")
+        .from("youtube_channel_stats" as any)
         .select("*")
         .eq("workspace_id", workspaceId!)
         .order("fetched_at", { ascending: false })
         .limit(limit);
       if (error) throw error;
-      return (data ?? []) as YouTubeChannelStats[];
+      return (data ?? []) as unknown as YouTubeChannelStats[];
     },
     enabled: !!workspaceId,
   });
@@ -69,7 +69,7 @@ export function useChannelStats() {
       if (!workspaceId) return null;
 
       const { data, error } = await supabase
-        .from("youtube_channel_stats")
+        .from("youtube_channel_stats" as any)
         .select("*")
         .eq("workspace_id", workspaceId)
         .order("fetched_at", { ascending: false })
@@ -81,7 +81,7 @@ export function useChannelStats() {
         return null;
       }
 
-      return data as YouTubeChannelStats | null;
+      return data as unknown as YouTubeChannelStats | null;
     },
     enabled: !!workspaceId,
   });
@@ -96,7 +96,7 @@ export function useGrowthGoal() {
       if (!workspaceId) return null;
 
       const { data, error } = await supabase
-        .from("growth_goals")
+        .from("growth_goals" as any)
         .select("*")
         .eq("workspace_id", workspaceId)
         .eq("status", "active")
@@ -109,7 +109,7 @@ export function useGrowthGoal() {
         return null;
       }
 
-      return data as GrowthGoal | null;
+      return data as unknown as GrowthGoal | null;
     },
     enabled: !!workspaceId,
   });
@@ -122,13 +122,13 @@ export function useYouTubeVideoStats(limit = 50) {
     queryKey: ["youtube-video-stats", workspaceId, limit],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("youtube_video_stats")
+        .from("youtube_video_stats" as any)
         .select("*")
         .eq("workspace_id", workspaceId!)
         .order("fetched_at", { ascending: false })
         .limit(limit);
       if (error) throw error;
-      return (data ?? []) as YouTubeVideoStats[];
+      return (data ?? []) as unknown as YouTubeVideoStats[];
     },
     enabled: !!workspaceId,
   });

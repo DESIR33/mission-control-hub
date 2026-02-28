@@ -123,7 +123,7 @@ function RelationshipsContent() {
             <RelationshipGraph
               contacts={contacts}
               companies={companies}
-              deals={deals}
+              deals={deals as any}
               onSelectContact={handleSelectContact}
               onSelectCompany={handleSelectCompany}
             />
