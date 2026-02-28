@@ -143,7 +143,7 @@ export function VideoQueueDetails({
 
   const handleToggleChecklist = (checklistId: number, completed: boolean) => {
     toggleChecklist.mutate(
-      { checklistId, completed: !completed },
+      { videoId: video.id, checklistId, completed: !completed },
       {
         onSuccess: () => onUpdate(),
         onError: () => {
@@ -178,16 +178,19 @@ export function VideoQueueDetails({
   };
 
   const handleDeleteChecklist = (checklistId: number) => {
-    deleteChecklist.mutate(checklistId, {
-      onSuccess: () => onUpdate(),
-      onError: () => {
-        toast({
-          title: "Error",
-          description: "Failed to delete checklist item.",
-          variant: "destructive",
-        });
-      },
-    });
+    deleteChecklist.mutate(
+      { videoId: video.id, checklistId },
+      {
+        onSuccess: () => onUpdate(),
+        onError: () => {
+          toast({
+            title: "Error",
+            description: "Failed to delete checklist item.",
+            variant: "destructive",
+          });
+        },
+      }
+    );
   };
 
   return (

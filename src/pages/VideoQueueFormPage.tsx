@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Film, Plus, Trash2, X } from "lucide-react";
+import { ArrowLeft, CalendarIcon, Film, Plus, X } from "lucide-react";
+import { format, parseISO } from "date-fns";
 import {
   Select,
   SelectContent,
@@ -8,6 +9,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
 import {
   useCreateVideo,
@@ -17,6 +24,7 @@ import {
 } from "@/hooks/use-video-queue";
 import { useCompanies } from "@/hooks/use-companies";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { cn } from "@/lib/utils";
 
 const ALL_PLATFORMS = [
   "YouTube",
@@ -57,13 +65,16 @@ export default function VideoQueueFormPage() {
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState<VideoQueueItem["status"]>("idea");
   const [priority, setPriority] = useState<VideoQueueItem["priority"]>("medium");
-  const [targetPublishDate, setTargetPublishDate] = useState("");
+  const [targetPublishDate, setTargetPublishDate] = useState<Date | undefined>(
+    undefined
+  );
   const [platforms, setPlatforms] = useState<string[]>([]);
   const [isSponsored, setIsSponsored] = useState(false);
   const [companyId, setCompanyId] = useState<string>("");
   const [sponsoringCompanyId, setSponsoringCompanyId] = useState<string>("");
   const [checklistItems, setChecklistItems] = useState<string[]>([]);
   const [newChecklistItem, setNewChecklistItem] = useState("");
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
 
   useEffect(() => {
     if (existingVideo && isEditing) {
@@ -73,8 +84,8 @@ export default function VideoQueueFormPage() {
       setPriority(existingVideo.priority);
       setTargetPublishDate(
         existingVideo.targetPublishDate
-          ? existingVideo.targetPublishDate.slice(0, 10)
-          : ""
+          ? parseISO(existingVideo.targetPublishDate)
+          : undefined
       );
       setPlatforms(existingVideo.platforms);
       setIsSponsored(existingVideo.isSponsored);
@@ -101,6 +112,9 @@ export default function VideoQueueFormPage() {
     setChecklistItems((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const getCompanyById = (cId: string) =>
+    companies.find((c) => c.id === cId) ?? null;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -113,6 +127,14 @@ export default function VideoQueueFormPage() {
       return;
     }
 
+    const dateStr = targetPublishDate
+      ? targetPublishDate.toISOString()
+      : null;
+    const company = companyId ? getCompanyById(companyId) : null;
+    const sponsor = sponsoringCompanyId
+      ? getCompanyById(sponsoringCompanyId)
+      : null;
+
     if (isEditing) {
       updateVideo.mutate(
         {
@@ -121,11 +143,15 @@ export default function VideoQueueFormPage() {
           description: description.trim() || null,
           status,
           priority,
-          targetPublishDate: targetPublishDate || null,
+          targetPublishDate: dateStr,
           platforms,
           isSponsored,
           companyId: companyId || null,
+          companyName: company?.name ?? null,
+          companyLogo: company?.logo ?? null,
           sponsoringCompanyId: sponsoringCompanyId || null,
+          sponsoringCompanyName: sponsor?.name ?? null,
+          sponsoringCompanyLogo: sponsor?.logo ?? null,
         },
         {
           onSuccess: () => {
@@ -148,11 +174,15 @@ export default function VideoQueueFormPage() {
           description: description.trim() || undefined,
           status,
           priority,
-          targetPublishDate: targetPublishDate || null,
+          targetPublishDate: dateStr,
           platforms,
           isSponsored,
           companyId: companyId || null,
+          companyName: company?.name ?? null,
+          companyLogo: company?.logo ?? null,
           sponsoringCompanyId: sponsoringCompanyId || null,
+          sponsoringCompanyName: sponsor?.name ?? null,
+          sponsoringCompanyLogo: sponsor?.logo ?? null,
           checklists: checklistItems.map((label) => ({ label })),
         },
         {
@@ -269,12 +299,47 @@ export default function VideoQueueFormPage() {
           <label className="mb-1.5 block text-sm font-medium text-foreground">
             Target Publish Date
           </label>
-          <input
-            type="date"
-            value={targetPublishDate}
-            onChange={(e) => setTargetPublishDate(e.target.value)}
-            className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
-          />
+          <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                className={cn(
+                  "h-10 w-full rounded-xl border border-border bg-background px-3 text-left text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 inline-flex items-center gap-2",
+                  targetPublishDate ? "text-foreground" : "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="h-4 w-4 shrink-0" />
+                {targetPublishDate
+                  ? format(targetPublishDate, "MMM d, yyyy")
+                  : "Pick a date"}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={targetPublishDate}
+                onSelect={(date) => {
+                  setTargetPublishDate(date);
+                  setDatePickerOpen(false);
+                }}
+                initialFocus
+              />
+              {targetPublishDate && (
+                <div className="border-t border-border px-3 py-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTargetPublishDate(undefined);
+                      setDatePickerOpen(false);
+                    }}
+                    className="text-xs text-muted-foreground hover:text-destructive"
+                  >
+                    Clear date
+                  </button>
+                </div>
+              )}
+            </PopoverContent>
+          </Popover>
         </div>
 
         {/* Platforms */}

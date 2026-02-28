@@ -32,7 +32,11 @@ export interface CreateVideoInput {
   platforms?: string[];
   isSponsored?: boolean;
   companyId?: string | null;
+  companyName?: string | null;
+  companyLogo?: string | null;
   sponsoringCompanyId?: string | null;
+  sponsoringCompanyName?: string | null;
+  sponsoringCompanyLogo?: string | null;
   checklists?: Array<{ label: string; completed?: boolean }>;
 }
 
@@ -46,7 +50,11 @@ export interface UpdateVideoInput {
   platforms?: string[];
   isSponsored?: boolean;
   companyId?: string | null;
+  companyName?: string | null;
+  companyLogo?: string | null;
   sponsoringCompanyId?: string | null;
+  sponsoringCompanyName?: string | null;
+  sponsoringCompanyLogo?: string | null;
 }
 
 function mapRow(row: any): VideoQueueItem {
@@ -114,11 +122,35 @@ export function useCreateVideo() {
     mutationFn: async (input: CreateVideoInput) => {
       if (!workspaceId) throw new Error("Workspace not ready");
       const metadata: Record<string, unknown> = {};
-      if (input.platforms) metadata.platforms = input.platforms;
-      if (input.isSponsored != null) metadata.isSponsored = input.isSponsored;
-      if (input.checklists) metadata.checklists = input.checklists.map((c, i) => ({ id: i + 1, label: c.label, completed: c.completed ?? false, sortOrder: i }));
+      metadata.platforms = input.platforms ?? [];
+      metadata.isSponsored = input.isSponsored ?? false;
+
+      if (input.companyId) {
+        metadata.company = {
+          id: input.companyId,
+          name: input.companyName ?? "",
+          logo: input.companyLogo ?? null,
+        };
+      }
+      if (input.sponsoringCompanyId) {
+        metadata.sponsoringCompany = {
+          id: input.sponsoringCompanyId,
+          name: input.sponsoringCompanyName ?? "",
+          logo: input.sponsoringCompanyLogo ?? null,
+        };
+      }
+
+      if (input.checklists && input.checklists.length > 0) {
+        metadata.checklists = input.checklists.map((c, i) => ({
+          id: Date.now() + i,
+          label: c.label,
+          completed: c.completed ?? false,
+          sortOrder: i,
+        }));
+      }
+
       const { error } = await supabase.from("video_queue").insert({
-        workspace_id: workspaceId!,
+        workspace_id: workspaceId,
         title: input.title,
         description: input.description ?? null,
         status: input.status ?? "idea",
@@ -137,12 +169,54 @@ export function useUpdateVideo() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (input: UpdateVideoInput) => {
+      // First fetch existing row to merge metadata
+      const { data: existing, error: fetchError } = await supabase
+        .from("video_queue")
+        .select("metadata")
+        .eq("id", String(input.id))
+        .single();
+      if (fetchError) throw fetchError;
+
+      const existingMeta = (existing?.metadata as Record<string, unknown>) ?? {};
       const update: Record<string, unknown> = {};
+
       if (input.title !== undefined) update.title = input.title;
       if (input.description !== undefined) update.description = input.description;
       if (input.status !== undefined) update.status = input.status;
       if (input.priority !== undefined) update.priority = input.priority;
       if (input.targetPublishDate !== undefined) update.scheduled_date = input.targetPublishDate;
+
+      // Build updated metadata by merging with existing
+      const newMeta = { ...existingMeta };
+      if (input.platforms !== undefined) newMeta.platforms = input.platforms;
+      if (input.isSponsored !== undefined) newMeta.isSponsored = input.isSponsored;
+
+      if (input.companyId !== undefined) {
+        if (input.companyId) {
+          newMeta.company = {
+            id: input.companyId,
+            name: input.companyName ?? "",
+            logo: input.companyLogo ?? null,
+          };
+        } else {
+          newMeta.company = null;
+        }
+      }
+
+      if (input.sponsoringCompanyId !== undefined) {
+        if (input.sponsoringCompanyId) {
+          newMeta.sponsoringCompany = {
+            id: input.sponsoringCompanyId,
+            name: input.sponsoringCompanyName ?? "",
+            logo: input.sponsoringCompanyLogo ?? null,
+          };
+        } else {
+          newMeta.sponsoringCompany = null;
+        }
+      }
+
+      update.metadata = newMeta;
+
       const { error } = await supabase
         .from("video_queue")
         .update(update as any)
@@ -169,7 +243,26 @@ export function useToggleChecklist() {
   const qc = useQueryClient();
   const { workspaceId } = useWorkspace();
   return useMutation({
-    mutationFn: async (_args: { checklistId: number; completed: boolean }) => {},
+    mutationFn: async (args: { videoId: string | number; checklistId: number; completed: boolean }) => {
+      const { data: existing, error: fetchError } = await supabase
+        .from("video_queue")
+        .select("metadata")
+        .eq("id", String(args.videoId))
+        .single();
+      if (fetchError) throw fetchError;
+
+      const meta = (existing?.metadata as Record<string, unknown>) ?? {};
+      const checklists = (meta.checklists as Array<{ id: number; label: string; completed: boolean; sortOrder: number }>) ?? [];
+      const updated = checklists.map((c) =>
+        c.id === args.checklistId ? { ...c, completed: args.completed } : c
+      );
+
+      const { error } = await supabase
+        .from("video_queue")
+        .update({ metadata: { ...meta, checklists: updated } } as any)
+        .eq("id", String(args.videoId));
+      if (error) throw error;
+    },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["video-queue", workspaceId] }),
   });
 }
@@ -178,7 +271,29 @@ export function useAddChecklist() {
   const qc = useQueryClient();
   const { workspaceId } = useWorkspace();
   return useMutation({
-    mutationFn: async (_args: { videoId: number | string; label: string }) => {},
+    mutationFn: async (args: { videoId: number | string; label: string }) => {
+      const { data: existing, error: fetchError } = await supabase
+        .from("video_queue")
+        .select("metadata")
+        .eq("id", String(args.videoId))
+        .single();
+      if (fetchError) throw fetchError;
+
+      const meta = (existing?.metadata as Record<string, unknown>) ?? {};
+      const checklists = (meta.checklists as Array<{ id: number; label: string; completed: boolean; sortOrder: number }>) ?? [];
+      const newItem = {
+        id: Date.now(),
+        label: args.label,
+        completed: false,
+        sortOrder: checklists.length,
+      };
+
+      const { error } = await supabase
+        .from("video_queue")
+        .update({ metadata: { ...meta, checklists: [...checklists, newItem] } } as any)
+        .eq("id", String(args.videoId));
+      if (error) throw error;
+    },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["video-queue", workspaceId] }),
   });
 }
@@ -187,7 +302,24 @@ export function useDeleteChecklist() {
   const qc = useQueryClient();
   const { workspaceId } = useWorkspace();
   return useMutation({
-    mutationFn: async (_id: number) => {},
+    mutationFn: async (args: { videoId: string | number; checklistId: number }) => {
+      const { data: existing, error: fetchError } = await supabase
+        .from("video_queue")
+        .select("metadata")
+        .eq("id", String(args.videoId))
+        .single();
+      if (fetchError) throw fetchError;
+
+      const meta = (existing?.metadata as Record<string, unknown>) ?? {};
+      const checklists = (meta.checklists as Array<{ id: number; label: string; completed: boolean; sortOrder: number }>) ?? [];
+      const filtered = checklists.filter((c) => c.id !== args.checklistId);
+
+      const { error } = await supabase
+        .from("video_queue")
+        .update({ metadata: { ...meta, checklists: filtered } } as any)
+        .eq("id", String(args.videoId));
+      if (error) throw error;
+    },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["video-queue", workspaceId] }),
   });
 }
