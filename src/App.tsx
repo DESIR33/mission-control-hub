@@ -13,6 +13,7 @@ import RelationshipsPage from "./pages/RelationshipsPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import IntegrationsPage from "./pages/IntegrationsPage";
 import Tasks from "./pages/Tasks";
+import ProjectsPage from "./pages/ProjectsPage";
 import MonetizationPage from "./pages/MonetizationPage";
 import VideoQueuePage from "./pages/VideoQueuePage";
 import VideoQueueFormPage from "./pages/VideoQueueFormPage";
@@ -80,6 +81,7 @@ const App = () => (
               <Route path="/affiliate-program/:id/edit-transaction" element={<EditTransactionPage />} />
               <Route path="/add-transaction" element={<AddProductTransactionPage />} />
               <Route path="/add-transaction/:id" element={<AddProductTransactionPage />} />
+              <Route path="/projects" element={<ProjectsPage />} />
               <Route path="/tasks" element={<Tasks />} />
               <Route path="/ai-bridge" element={<AiBridgePage />} />
               <Route path="/inbox" element={<InboxPage />} />
