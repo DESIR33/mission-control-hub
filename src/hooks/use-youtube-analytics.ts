@@ -36,6 +36,7 @@ export interface YouTubeVideoStats {
   comments: number;
   watch_time_minutes: number;
   ctr_percent: number;
+  avg_view_duration_seconds: number | null;
   published_at: string | null;
   fetched_at: string;
 }

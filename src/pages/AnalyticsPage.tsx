@@ -1,45 +1,170 @@
-import { useMemo } from "react";
-import { BarChart3, TrendingUp, Eye, ThumbsUp, MessageSquare, Clock, ArrowUpRight, ArrowDownRight } from "lucide-react";
-import { useWorkspace, WorkspaceProvider } from "@/hooks/use-workspace";
-import { useYouTubeChannelStats, useYouTubeVideoStats, useGrowthGoal } from "@/hooks/use-youtube-analytics";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useMemo, useState } from "react";
 import {
-  LineChart, Line, BarChart, Bar, ScatterChart, Scatter,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
+  BarChart3, TrendingUp, TrendingDown, Eye, ThumbsUp, MessageSquare,
+  Clock, Users, Play, Calendar, ArrowUpRight, ArrowDownRight,
+  Zap, Award, Target, RefreshCw, ChevronDown,
+} from "lucide-react";
+import { useWorkspace, WorkspaceProvider } from "@/hooks/use-workspace";
+import {
+  useYouTubeChannelStats, useYouTubeVideoStats, useGrowthGoal, useSyncYouTube,
+} from "@/hooks/use-youtube-analytics";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { toast } from "sonner";
+import {
+  LineChart, Line, BarChart, Bar, AreaChart, Area, ScatterChart, Scatter,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend,
 } from "recharts";
-import { format } from "date-fns";
+import { format, differenceInDays, subDays, parseISO } from "date-fns";
+
+type TimeRange = "7d" | "30d" | "90d";
+
+const fmtCount = (n: number) => {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+  return String(n);
+};
+
+const fmtDuration = (seconds: number) => {
+  if (seconds >= 3600) return `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
+  if (seconds >= 60) return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
+  return `${seconds}s`;
+};
 
 function AnalyticsContent() {
+  const [timeRange, setTimeRange] = useState<TimeRange>("30d");
   const { isLoading: workspaceLoading } = useWorkspace();
   const { data: channelSnapshots = [], isLoading: loadingChannel } = useYouTubeChannelStats(90);
   const { data: videoStats = [], isLoading: loadingVideos } = useYouTubeVideoStats(50);
   const { data: goal } = useGrowthGoal();
+  const syncYouTube = useSyncYouTube();
 
   const isLoading = workspaceLoading || loadingChannel || loadingVideos;
 
-  // Channel overview data for line chart
+  const daysForRange = timeRange === "7d" ? 7 : timeRange === "30d" ? 30 : 90;
+
+  // Filter snapshots by time range
+  const filteredSnapshots = useMemo(() => {
+    const cutoff = subDays(new Date(), daysForRange);
+    return channelSnapshots
+      .filter((s) => new Date(s.fetched_at) >= cutoff)
+      .slice()
+      .sort((a, b) => new Date(a.fetched_at).getTime() - new Date(b.fetched_at).getTime());
+  }, [channelSnapshots, daysForRange]);
+
+  // Subscriber trend data for chart
   const subscriberTrend = useMemo(
     () =>
-      channelSnapshots
-        .slice()
-        .sort((a, b) => new Date(a.fetched_at).getTime() - new Date(b.fetched_at).getTime())
-        .map((s) => ({
-          date: format(new Date(s.fetched_at), "MMM d"),
-          subscribers: s.subscriber_count,
-          views: s.total_view_count,
-          videos: s.video_count,
-        })),
-    [channelSnapshots]
+      filteredSnapshots.map((s) => ({
+        date: format(new Date(s.fetched_at), "MMM d"),
+        subscribers: s.subscriber_count,
+        views: s.total_view_count,
+        videos: s.video_count,
+      })),
+    [filteredSnapshots]
   );
 
-  // Sorted video table data
+  // Period-over-period subscriber growth
+  const subGrowthMetrics = useMemo(() => {
+    if (filteredSnapshots.length < 2) return null;
+    const first = filteredSnapshots[0];
+    const last = filteredSnapshots[filteredSnapshots.length - 1];
+    const subsGained = last.subscriber_count - first.subscriber_count;
+    const viewsGained = last.total_view_count - first.total_view_count;
+    const videosPublished = last.video_count - first.video_count;
+    const daysCovered = Math.max(
+      differenceInDays(new Date(last.fetched_at), new Date(first.fetched_at)),
+      1
+    );
+    const dailyGrowthRate = subsGained / daysCovered;
+    const growthPercent = first.subscriber_count > 0
+      ? ((subsGained / first.subscriber_count) * 100)
+      : 0;
+
+    // Projection: at current rate, when will goal be reached?
+    const target = goal?.target_value ?? 50000;
+    const remaining = target - last.subscriber_count;
+    const daysToGoal = dailyGrowthRate > 0 ? Math.ceil(remaining / dailyGrowthRate) : null;
+
+    return {
+      subsGained,
+      viewsGained,
+      videosPublished,
+      dailyGrowthRate,
+      growthPercent,
+      daysToGoal,
+      currentSubs: last.subscriber_count,
+      currentViews: last.total_view_count,
+      currentVideos: last.video_count,
+      subsPerVideo: videosPublished > 0 ? Math.round(subsGained / videosPublished) : null,
+      viewsPerVideo: videosPublished > 0 ? Math.round(viewsGained / videosPublished) : null,
+    };
+  }, [filteredSnapshots, goal]);
+
+  // Video engagement metrics
+  const videoEngagement = useMemo(() => {
+    if (videoStats.length === 0) return null;
+    const totalViews = videoStats.reduce((sum, v) => sum + (v.views ?? 0), 0);
+    const totalLikes = videoStats.reduce((sum, v) => sum + (v.likes ?? 0), 0);
+    const totalComments = videoStats.reduce((sum, v) => sum + (v.comments ?? 0), 0);
+    const totalWatchTime = videoStats.reduce((sum, v) => sum + (v.watch_time_minutes ?? 0), 0);
+    const engagementRate = totalViews > 0
+      ? (((totalLikes + totalComments) / totalViews) * 100)
+      : 0;
+    const likesToViewsRatio = totalViews > 0 ? ((totalLikes / totalViews) * 100) : 0;
+
+    const durationsWithData = videoStats.filter((v) => v.avg_view_duration_seconds != null);
+    const avgDuration = durationsWithData.length > 0
+      ? Math.round(durationsWithData.reduce((sum, v) => sum + (v.avg_view_duration_seconds ?? 0), 0) / durationsWithData.length)
+      : null;
+
+    const ctrData = videoStats.filter((v) => v.ctr_percent != null);
+    const avgCtr = ctrData.length > 0
+      ? +(ctrData.reduce((sum, v) => sum + (v.ctr_percent ?? 0), 0) / ctrData.length).toFixed(1)
+      : null;
+
+    return {
+      totalViews,
+      totalLikes,
+      totalComments,
+      totalWatchTime,
+      engagementRate: +engagementRate.toFixed(2),
+      likesToViewsRatio: +likesToViewsRatio.toFixed(2),
+      avgDuration,
+      avgCtr,
+      videoCount: videoStats.length,
+    };
+  }, [videoStats]);
+
+  // Sorted video table data with engagement score
   const sortedVideos = useMemo(
     () =>
       videoStats
         .slice()
+        .map((v) => {
+          const engRate = (v.views ?? 0) > 0
+            ? (((v.likes ?? 0) + (v.comments ?? 0)) / (v.views ?? 1)) * 100
+            : 0;
+          return { ...v, engagementRate: +engRate.toFixed(2) };
+        })
         .sort((a, b) => (b.views ?? 0) - (a.views ?? 0)),
     [videoStats]
   );
+
+  // Top 5 performing videos by engagement score
+  const topVideos = useMemo(() => {
+    return sortedVideos
+      .slice()
+      .sort((a, b) => {
+        // Composite score: normalized views + engagement rate + CTR
+        const maxViews = Math.max(...sortedVideos.map((v) => v.views ?? 0), 1);
+        const scoreA = ((a.views ?? 0) / maxViews) * 40 + (a.engagementRate ?? 0) * 3 + (a.ctr_percent ?? 0) * 2;
+        const scoreB = ((b.views ?? 0) / maxViews) * 40 + (b.engagementRate ?? 0) * 3 + (b.ctr_percent ?? 0) * 2;
+        return scoreB - scoreA;
+      })
+      .slice(0, 5);
+  }, [sortedVideos]);
 
   // Scatter data: Views vs CTR
   const scatterData = useMemo(
@@ -54,17 +179,6 @@ function AnalyticsContent() {
     [videoStats]
   );
 
-  // Growth velocity: subscribers gained per video
-  const growthVelocity = useMemo(() => {
-    if (channelSnapshots.length < 2) return null;
-    const sorted = channelSnapshots.slice().sort((a, b) => new Date(a.fetched_at).getTime() - new Date(b.fetched_at).getTime());
-    const first = sorted[0];
-    const last = sorted[sorted.length - 1];
-    const subGain = last.subscriber_count - first.subscriber_count;
-    const videoGain = last.video_count - first.video_count;
-    return videoGain > 0 ? Math.round(subGain / videoGain) : null;
-  }, [channelSnapshots]);
-
   // Content format analysis
   const formatAnalysis = useMemo(() => {
     const patterns: Record<string, { label: string; regex: RegExp }> = {
@@ -75,17 +189,19 @@ function AnalyticsContent() {
       other: { label: "Other", regex: /.*/ },
     };
 
-    const groups: Record<string, { count: number; totalViews: number; totalLikes: number; avgCtr: number; ctrCount: number }> = {};
+    const groups: Record<string, { count: number; totalViews: number; totalLikes: number; totalComments: number; avgCtr: number; ctrCount: number; totalWatchTime: number }> = {};
 
     for (const video of videoStats) {
       let matched = false;
       for (const [key, { regex }] of Object.entries(patterns)) {
         if (key === "other") continue;
         if (regex.test(video.title ?? "")) {
-          if (!groups[key]) groups[key] = { count: 0, totalViews: 0, totalLikes: 0, avgCtr: 0, ctrCount: 0 };
+          if (!groups[key]) groups[key] = { count: 0, totalViews: 0, totalLikes: 0, totalComments: 0, avgCtr: 0, ctrCount: 0, totalWatchTime: 0 };
           groups[key].count++;
           groups[key].totalViews += video.views ?? 0;
           groups[key].totalLikes += video.likes ?? 0;
+          groups[key].totalComments += video.comments ?? 0;
+          groups[key].totalWatchTime += video.watch_time_minutes ?? 0;
           if (video.ctr_percent != null) {
             groups[key].avgCtr += video.ctr_percent;
             groups[key].ctrCount++;
@@ -95,10 +211,12 @@ function AnalyticsContent() {
         }
       }
       if (!matched) {
-        if (!groups.other) groups.other = { count: 0, totalViews: 0, totalLikes: 0, avgCtr: 0, ctrCount: 0 };
+        if (!groups.other) groups.other = { count: 0, totalViews: 0, totalLikes: 0, totalComments: 0, avgCtr: 0, ctrCount: 0, totalWatchTime: 0 };
         groups.other.count++;
         groups.other.totalViews += video.views ?? 0;
         groups.other.totalLikes += video.likes ?? 0;
+        groups.other.totalComments += video.comments ?? 0;
+        groups.other.totalWatchTime += video.watch_time_minutes ?? 0;
         if (video.ctr_percent != null) {
           groups.other.avgCtr += video.ctr_percent;
           groups.other.ctrCount++;
@@ -106,18 +224,73 @@ function AnalyticsContent() {
       }
     }
 
-    return Object.entries(groups).map(([key, data]) => ({
-      format: patterns[key]?.label ?? key,
-      count: data.count,
-      avgViews: data.count > 0 ? Math.round(data.totalViews / data.count) : 0,
-      avgLikes: data.count > 0 ? Math.round(data.totalLikes / data.count) : 0,
-      avgCtr: data.ctrCount > 0 ? +((data.avgCtr / data.ctrCount)).toFixed(1) : 0,
-    })).sort((a, b) => b.avgViews - a.avgViews);
+    return Object.entries(groups).map(([key, data]) => {
+      const engRate = data.totalViews > 0
+        ? +(((data.totalLikes + data.totalComments) / data.totalViews) * 100).toFixed(2)
+        : 0;
+      return {
+        format: patterns[key]?.label ?? key,
+        count: data.count,
+        avgViews: data.count > 0 ? Math.round(data.totalViews / data.count) : 0,
+        avgLikes: data.count > 0 ? Math.round(data.totalLikes / data.count) : 0,
+        avgCtr: data.ctrCount > 0 ? +((data.avgCtr / data.ctrCount)).toFixed(1) : 0,
+        engagementRate: engRate,
+        totalWatchTime: data.totalWatchTime,
+      };
+    }).sort((a, b) => b.avgViews - a.avgViews);
   }, [videoStats]);
+
+  // Publish frequency data (videos per week)
+  const publishFrequency = useMemo(() => {
+    const published = videoStats
+      .filter((v) => v.published_at)
+      .sort((a, b) => new Date(a.published_at!).getTime() - new Date(b.published_at!).getTime());
+
+    if (published.length < 2) return null;
+
+    // Group by week
+    const weeks: Record<string, number> = {};
+    for (const v of published) {
+      const date = new Date(v.published_at!);
+      const weekStart = new Date(date);
+      weekStart.setDate(date.getDate() - date.getDay());
+      const key = format(weekStart, "MMM d");
+      weeks[key] = (weeks[key] ?? 0) + 1;
+    }
+
+    const entries = Object.entries(weeks).map(([week, count]) => ({ week, videos: count }));
+    const avgPerWeek = published.length > 0
+      ? +(published.length / Math.max(Object.keys(weeks).length, 1)).toFixed(1)
+      : 0;
+
+    // Average gap between publishes
+    const gaps: number[] = [];
+    for (let i = 1; i < published.length; i++) {
+      gaps.push(differenceInDays(new Date(published[i].published_at!), new Date(published[i - 1].published_at!)));
+    }
+    const avgGap = gaps.length > 0 ? +(gaps.reduce((a, b) => a + b, 0) / gaps.length).toFixed(1) : null;
+
+    return { entries, avgPerWeek, avgGap };
+  }, [videoStats]);
+
+  // Views trend (area chart showing views over time from video stats)
+  const viewsTrend = useMemo(() => {
+    return filteredSnapshots.map((s) => ({
+      date: format(new Date(s.fetched_at), "MMM d"),
+      views: s.total_view_count,
+    }));
+  }, [filteredSnapshots]);
 
   const latestSnapshot = channelSnapshots.length > 0
     ? channelSnapshots.reduce((a, b) => new Date(a.fetched_at) > new Date(b.fetched_at) ? a : b)
     : null;
+
+  const handleSync = () => {
+    syncYouTube.mutate(undefined, {
+      onSuccess: () => toast.success("YouTube data synced successfully!"),
+      onError: (err: Error) => toast.error(`Sync failed: ${err.message}`),
+    });
+  };
 
   if (isLoading) {
     return (
@@ -125,8 +298,12 @@ function AnalyticsContent() {
         <Skeleton className="h-8 w-48" />
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-24 rounded-lg" />
+            <Skeleton key={i} className="h-28 rounded-lg" />
           ))}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <Skeleton className="h-72 rounded-lg" />
+          <Skeleton className="h-72 rounded-lg" />
         </div>
         <Skeleton className="h-64 rounded-lg" />
         <Skeleton className="h-64 rounded-lg" />
@@ -137,90 +314,370 @@ function AnalyticsContent() {
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 gradient-mesh min-h-screen">
       {/* Header */}
-      <div>
-        <div className="flex items-center gap-2">
-          <BarChart3 className="w-5 h-5 text-primary" />
-          <h1 className="text-2xl font-bold text-foreground">Analytics</h1>
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <div className="flex items-center gap-2">
+            <BarChart3 className="w-5 h-5 text-primary" />
+            <h1 className="text-2xl font-bold text-foreground">Analytics</h1>
+          </div>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Subscriber growth, video performance, and content strategy insights.
+          </p>
         </div>
-        <p className="text-sm text-muted-foreground mt-0.5">
-          Video performance, growth metrics, and content strategy insights.
-        </p>
+        <div className="flex items-center gap-2">
+          {/* Time range selector */}
+          <div className="flex rounded-md border border-border overflow-hidden">
+            {(["7d", "30d", "90d"] as TimeRange[]).map((range) => (
+              <button
+                key={range}
+                onClick={() => setTimeRange(range)}
+                className={`px-3 py-1.5 text-xs font-medium transition-colors ${
+                  timeRange === range
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-card text-muted-foreground hover:bg-muted"
+                }`}
+              >
+                {range}
+              </button>
+            ))}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleSync}
+            disabled={syncYouTube.isPending}
+          >
+            <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${syncYouTube.isPending ? "animate-spin" : ""}`} />
+            Sync
+          </Button>
+        </div>
       </div>
 
-      {/* KPI Cards */}
+      {/* Subscriber Growth KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="rounded-lg border border-border bg-card p-4">
-          <p className="text-xs text-muted-foreground uppercase tracking-wider">Subscribers</p>
-          <p className="text-2xl font-bold text-foreground mt-1">
+          <div className="flex items-center gap-1.5 mb-2">
+            <Users className="w-3.5 h-3.5 text-red-500" />
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Subscribers</p>
+          </div>
+          <p className="text-2xl font-bold text-foreground font-mono">
             {latestSnapshot ? latestSnapshot.subscriber_count.toLocaleString() : "--"}
           </p>
+          {subGrowthMetrics && (
+            <div className="flex items-center gap-1 mt-1">
+              {subGrowthMetrics.subsGained >= 0 ? (
+                <ArrowUpRight className="w-3 h-3 text-green-500" />
+              ) : (
+                <ArrowDownRight className="w-3 h-3 text-red-500" />
+              )}
+              <span className={`text-xs font-mono ${subGrowthMetrics.subsGained >= 0 ? "text-green-500" : "text-red-500"}`}>
+                {subGrowthMetrics.subsGained >= 0 ? "+" : ""}{subGrowthMetrics.subsGained.toLocaleString()}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                ({subGrowthMetrics.growthPercent >= 0 ? "+" : ""}{subGrowthMetrics.growthPercent.toFixed(1)}%)
+              </span>
+            </div>
+          )}
           {goal && (
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-[10px] text-muted-foreground mt-1">
               Goal: {goal.target_value.toLocaleString()}
             </p>
           )}
         </div>
+
         <div className="rounded-lg border border-border bg-card p-4">
-          <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Views</p>
-          <p className="text-2xl font-bold text-foreground mt-1">
-            {latestSnapshot ? latestSnapshot.total_view_count.toLocaleString() : "--"}
+          <div className="flex items-center gap-1.5 mb-2">
+            <Eye className="w-3.5 h-3.5 text-blue-500" />
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Views</p>
+          </div>
+          <p className="text-2xl font-bold text-foreground font-mono">
+            {latestSnapshot ? fmtCount(latestSnapshot.total_view_count) : "--"}
           </p>
+          {subGrowthMetrics && subGrowthMetrics.viewsGained > 0 && (
+            <div className="flex items-center gap-1 mt-1">
+              <ArrowUpRight className="w-3 h-3 text-green-500" />
+              <span className="text-xs font-mono text-green-500">
+                +{fmtCount(subGrowthMetrics.viewsGained)}
+              </span>
+              <span className="text-xs text-muted-foreground">in {daysForRange}d</span>
+            </div>
+          )}
         </div>
+
         <div className="rounded-lg border border-border bg-card p-4">
-          <p className="text-xs text-muted-foreground uppercase tracking-wider">Videos</p>
-          <p className="text-2xl font-bold text-foreground mt-1">
-            {latestSnapshot ? latestSnapshot.video_count.toLocaleString() : "--"}
+          <div className="flex items-center gap-1.5 mb-2">
+            <TrendingUp className="w-3.5 h-3.5 text-green-500" />
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Daily Growth</p>
+          </div>
+          <p className="text-2xl font-bold text-foreground font-mono">
+            {subGrowthMetrics
+              ? `+${Math.round(subGrowthMetrics.dailyGrowthRate)}/d`
+              : "--"}
           </p>
+          {subGrowthMetrics?.daysToGoal && (
+            <p className="text-[10px] text-muted-foreground mt-1">
+              ~{subGrowthMetrics.daysToGoal}d to goal at this rate
+            </p>
+          )}
         </div>
+
         <div className="rounded-lg border border-border bg-card p-4">
-          <p className="text-xs text-muted-foreground uppercase tracking-wider">Subs/Video</p>
-          <p className="text-2xl font-bold text-foreground mt-1">
-            {growthVelocity != null ? `+${growthVelocity}` : "--"}
+          <div className="flex items-center gap-1.5 mb-2">
+            <Zap className="w-3.5 h-3.5 text-yellow-500" />
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Subs/Video</p>
+          </div>
+          <p className="text-2xl font-bold text-foreground font-mono">
+            {subGrowthMetrics?.subsPerVideo != null ? `+${subGrowthMetrics.subsPerVideo}` : "--"}
           </p>
-          <p className="text-xs text-muted-foreground mt-1">Growth velocity</p>
+          <p className="text-[10px] text-muted-foreground mt-1">Growth velocity</p>
         </div>
       </div>
 
-      {/* Subscriber Trend Chart */}
-      {subscriberTrend.length > 1 && (
+      {/* Goal Progress Bar */}
+      {goal && latestSnapshot && (
         <div className="rounded-lg border border-border bg-card p-4">
-          <h2 className="text-sm font-semibold text-foreground mb-4">Subscriber Growth Over Time</h2>
-          <ResponsiveContainer width="100%" height={280}>
-            <LineChart data={subscriberTrend}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-              <XAxis dataKey="date" tick={{ fontSize: 11 }} className="text-muted-foreground" />
-              <YAxis tick={{ fontSize: 11 }} className="text-muted-foreground" />
-              <Tooltip
-                contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }}
-                labelStyle={{ color: "hsl(var(--foreground))" }}
-              />
-              <Line type="monotone" dataKey="subscribers" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <Target className="w-4 h-4 text-primary" />
+              <h2 className="text-sm font-semibold text-foreground">{goal.title}</h2>
+            </div>
+            <span className="text-xs text-muted-foreground font-mono">
+              {latestSnapshot.subscriber_count.toLocaleString()} / {goal.target_value.toLocaleString()}
+            </span>
+          </div>
+          <Progress
+            value={Math.min((latestSnapshot.subscriber_count / goal.target_value) * 100, 100)}
+            className="h-2.5"
+          />
+          <div className="flex items-center justify-between mt-1.5">
+            <span className="text-[10px] text-muted-foreground font-mono">
+              {((latestSnapshot.subscriber_count / goal.target_value) * 100).toFixed(1)}% complete
+            </span>
+            <span className="text-[10px] text-muted-foreground font-mono">
+              {(goal.target_value - latestSnapshot.subscriber_count).toLocaleString()} to go
+            </span>
+          </div>
         </div>
       )}
 
-      {/* Performance Quadrant: Views vs CTR */}
-      {scatterData.length > 0 && (
+      {/* Charts Row: Subscriber Growth + Views Trend */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Subscriber Growth Chart */}
+        {subscriberTrend.length > 1 && (
+          <div className="rounded-lg border border-border bg-card p-4">
+            <h2 className="text-sm font-semibold text-foreground mb-4">Subscriber Growth</h2>
+            <ResponsiveContainer width="100%" height={260}>
+              <AreaChart data={subscriberTrend}>
+                <defs>
+                  <linearGradient id="subGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                <XAxis dataKey="date" tick={{ fontSize: 10 }} className="text-muted-foreground" />
+                <YAxis tick={{ fontSize: 10 }} className="text-muted-foreground" tickFormatter={fmtCount} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
+                  labelStyle={{ color: "hsl(var(--foreground))" }}
+                  formatter={(value: number) => [value.toLocaleString(), "Subscribers"]}
+                />
+                <Area type="monotone" dataKey="subscribers" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#subGradient)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+
+        {/* Total Views Trend */}
+        {viewsTrend.length > 1 && (
+          <div className="rounded-lg border border-border bg-card p-4">
+            <h2 className="text-sm font-semibold text-foreground mb-4">Total Views Over Time</h2>
+            <ResponsiveContainer width="100%" height={260}>
+              <AreaChart data={viewsTrend}>
+                <defs>
+                  <linearGradient id="viewsGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                <XAxis dataKey="date" tick={{ fontSize: 10 }} className="text-muted-foreground" />
+                <YAxis tick={{ fontSize: 10 }} className="text-muted-foreground" tickFormatter={fmtCount} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
+                  labelStyle={{ color: "hsl(var(--foreground))" }}
+                  formatter={(value: number) => [value.toLocaleString(), "Total Views"]}
+                />
+                <Area type="monotone" dataKey="views" stroke="#3b82f6" strokeWidth={2} fill="url(#viewsGradient)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+      </div>
+
+      {/* Video Engagement KPI Cards */}
+      {videoEngagement && (
+        <>
+          <div>
+            <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <Play className="w-4 h-4 text-primary" />
+              Video Engagement Metrics
+            </h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Aggregated from {videoEngagement.videoCount} tracked videos
+            </p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            <div className="rounded-lg border border-border bg-card p-3">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Engagement Rate</p>
+              <p className="text-lg font-bold text-foreground font-mono mt-0.5">
+                {videoEngagement.engagementRate}%
+              </p>
+              <p className="text-[10px] text-muted-foreground">(likes+comments)/views</p>
+            </div>
+            <div className="rounded-lg border border-border bg-card p-3">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Avg CTR</p>
+              <p className="text-lg font-bold text-foreground font-mono mt-0.5">
+                {videoEngagement.avgCtr != null ? `${videoEngagement.avgCtr}%` : "--"}
+              </p>
+              <p className="text-[10px] text-muted-foreground">click-through rate</p>
+            </div>
+            <div className="rounded-lg border border-border bg-card p-3">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Avg Duration</p>
+              <p className="text-lg font-bold text-foreground font-mono mt-0.5">
+                {videoEngagement.avgDuration != null ? fmtDuration(videoEngagement.avgDuration) : "--"}
+              </p>
+              <p className="text-[10px] text-muted-foreground">view duration</p>
+            </div>
+            <div className="rounded-lg border border-border bg-card p-3">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Like Ratio</p>
+              <p className="text-lg font-bold text-foreground font-mono mt-0.5">
+                {videoEngagement.likesToViewsRatio}%
+              </p>
+              <p className="text-[10px] text-muted-foreground">likes/views</p>
+            </div>
+            <div className="rounded-lg border border-border bg-card p-3">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Total Watch Time</p>
+              <p className="text-lg font-bold text-foreground font-mono mt-0.5">
+                {videoEngagement.totalWatchTime >= 60
+                  ? `${Math.round(videoEngagement.totalWatchTime / 60)}h`
+                  : `${videoEngagement.totalWatchTime}m`}
+              </p>
+              <p className="text-[10px] text-muted-foreground">across all videos</p>
+            </div>
+            <div className="rounded-lg border border-border bg-card p-3">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Total Comments</p>
+              <p className="text-lg font-bold text-foreground font-mono mt-0.5">
+                {videoEngagement.totalComments.toLocaleString()}
+              </p>
+              <p className="text-[10px] text-muted-foreground">community signals</p>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Top Performing Videos */}
+      {topVideos.length > 0 && (
         <div className="rounded-lg border border-border bg-card p-4">
-          <h2 className="text-sm font-semibold text-foreground mb-1">Performance Quadrant</h2>
-          <p className="text-xs text-muted-foreground mb-4">
-            Views vs Click-Through Rate — top-right quadrant = subscriber magnets
-          </p>
-          <ResponsiveContainer width="100%" height={300}>
-            <ScatterChart>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-              <XAxis dataKey="views" name="Views" tick={{ fontSize: 11 }} label={{ value: "Views", position: "insideBottom", offset: -5, fontSize: 11 }} />
-              <YAxis dataKey="ctr" name="CTR %" tick={{ fontSize: 11 }} label={{ value: "CTR %", angle: -90, position: "insideLeft", fontSize: 11 }} />
-              <Tooltip
-                contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }}
-                formatter={(value: number, name: string) => [name === "views" ? value.toLocaleString() : `${value}%`, name === "views" ? "Views" : "CTR"]}
-              />
-              <Scatter data={scatterData} fill="hsl(var(--primary))" fillOpacity={0.7} />
-            </ScatterChart>
-          </ResponsiveContainer>
+          <div className="flex items-center gap-2 mb-4">
+            <Award className="w-4 h-4 text-yellow-500" />
+            <h2 className="text-sm font-semibold text-foreground">Top Performing Videos</h2>
+          </div>
+          <div className="space-y-3">
+            {topVideos.map((v, i) => (
+              <div key={v.id} className="flex items-center gap-3 p-2 rounded-md hover:bg-muted/30 transition-colors">
+                <span className="text-lg font-bold text-muted-foreground font-mono w-6 text-center">
+                  {i + 1}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate" title={v.title ?? ""}>
+                    {v.title}
+                  </p>
+                  <div className="flex items-center gap-3 mt-0.5">
+                    <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                      <Eye className="w-2.5 h-2.5" /> {(v.views ?? 0).toLocaleString()}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                      <ThumbsUp className="w-2.5 h-2.5" /> {(v.likes ?? 0).toLocaleString()}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                      <MessageSquare className="w-2.5 h-2.5" /> {(v.comments ?? 0).toLocaleString()}
+                    </span>
+                    {v.ctr_percent != null && (
+                      <span className="text-[10px] text-muted-foreground">
+                        CTR: {v.ctr_percent.toFixed(1)}%
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className="text-xs font-mono font-semibold text-primary">{v.engagementRate}%</span>
+                  <p className="text-[10px] text-muted-foreground">engagement</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
+
+      {/* Publish Cadence + Performance Quadrant Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Publish Frequency */}
+        {publishFrequency && publishFrequency.entries.length > 1 && (
+          <div className="rounded-lg border border-border bg-card p-4">
+            <div className="flex items-center justify-between mb-1">
+              <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-primary" />
+                Publish Cadence
+              </h2>
+              <div className="flex gap-3">
+                <span className="text-[10px] text-muted-foreground">
+                  Avg: <span className="font-mono font-semibold text-foreground">{publishFrequency.avgPerWeek}</span>/week
+                </span>
+                {publishFrequency.avgGap != null && (
+                  <span className="text-[10px] text-muted-foreground">
+                    Gap: <span className="font-mono font-semibold text-foreground">{publishFrequency.avgGap}</span> days
+                  </span>
+                )}
+              </div>
+            </div>
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={publishFrequency.entries}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                <XAxis dataKey="week" tick={{ fontSize: 10 }} className="text-muted-foreground" />
+                <YAxis tick={{ fontSize: 10 }} className="text-muted-foreground" allowDecimals={false} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
+                  formatter={(value: number) => [value, "Videos"]}
+                />
+                <Bar dataKey="videos" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+
+        {/* Performance Quadrant: Views vs CTR */}
+        {scatterData.length > 0 && (
+          <div className="rounded-lg border border-border bg-card p-4">
+            <h2 className="text-sm font-semibold text-foreground mb-1">Performance Quadrant</h2>
+            <p className="text-xs text-muted-foreground mb-3">
+              Views vs CTR — top-right = subscriber magnets
+            </p>
+            <ResponsiveContainer width="100%" height={200}>
+              <ScatterChart>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                <XAxis dataKey="views" name="Views" tick={{ fontSize: 10 }} label={{ value: "Views", position: "insideBottom", offset: -5, fontSize: 10 }} />
+                <YAxis dataKey="ctr" name="CTR %" tick={{ fontSize: 10 }} label={{ value: "CTR %", angle: -90, position: "insideLeft", fontSize: 10 }} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
+                  formatter={(value: number, name: string) => [name === "views" ? value.toLocaleString() : `${value}%`, name === "views" ? "Views" : "CTR"]}
+                />
+                <Scatter data={scatterData} fill="hsl(var(--primary))" fillOpacity={0.7} />
+              </ScatterChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+      </div>
 
       {/* Content Format Analysis */}
       {formatAnalysis.length > 0 && (
@@ -235,6 +692,8 @@ function AnalyticsContent() {
                   <th className="text-right py-2 px-2 text-xs text-muted-foreground font-medium">Avg Views</th>
                   <th className="text-right py-2 px-2 text-xs text-muted-foreground font-medium">Avg Likes</th>
                   <th className="text-right py-2 px-2 text-xs text-muted-foreground font-medium">Avg CTR</th>
+                  <th className="text-right py-2 px-2 text-xs text-muted-foreground font-medium">Eng. Rate</th>
+                  <th className="text-right py-2 px-2 text-xs text-muted-foreground font-medium">Watch Time</th>
                 </tr>
               </thead>
               <tbody>
@@ -242,9 +701,15 @@ function AnalyticsContent() {
                   <tr key={row.format} className="border-b border-border/50">
                     <td className="py-2 px-2 font-medium text-foreground">{row.format}</td>
                     <td className="py-2 px-2 text-right text-muted-foreground">{row.count}</td>
-                    <td className="py-2 px-2 text-right text-foreground">{row.avgViews.toLocaleString()}</td>
-                    <td className="py-2 px-2 text-right text-foreground">{row.avgLikes.toLocaleString()}</td>
-                    <td className="py-2 px-2 text-right text-foreground">{row.avgCtr}%</td>
+                    <td className="py-2 px-2 text-right text-foreground font-mono">{row.avgViews.toLocaleString()}</td>
+                    <td className="py-2 px-2 text-right text-foreground font-mono">{row.avgLikes.toLocaleString()}</td>
+                    <td className="py-2 px-2 text-right text-foreground font-mono">{row.avgCtr}%</td>
+                    <td className="py-2 px-2 text-right text-foreground font-mono">{row.engagementRate}%</td>
+                    <td className="py-2 px-2 text-right text-muted-foreground font-mono">
+                      {row.totalWatchTime >= 60
+                        ? `${Math.round(row.totalWatchTime / 60)}h`
+                        : `${row.totalWatchTime}m`}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -253,10 +718,12 @@ function AnalyticsContent() {
         </div>
       )}
 
-      {/* Video Performance Table */}
+      {/* Full Video Performance Table */}
       {sortedVideos.length > 0 && (
         <div className="rounded-lg border border-border bg-card p-4">
-          <h2 className="text-sm font-semibold text-foreground mb-4">Video Performance</h2>
+          <h2 className="text-sm font-semibold text-foreground mb-4">
+            All Videos ({sortedVideos.length})
+          </h2>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -272,6 +739,7 @@ function AnalyticsContent() {
                     <MessageSquare className="inline h-3 w-3" /> Comments
                   </th>
                   <th className="text-right py-2 px-2 text-xs text-muted-foreground font-medium">CTR %</th>
+                  <th className="text-right py-2 px-2 text-xs text-muted-foreground font-medium">Eng. %</th>
                   <th className="text-right py-2 px-2 text-xs text-muted-foreground font-medium">
                     <Clock className="inline h-3 w-3" /> Watch Time
                   </th>
@@ -295,6 +763,9 @@ function AnalyticsContent() {
                     </td>
                     <td className="py-2 px-2 text-right text-foreground font-mono">
                       {v.ctr_percent != null ? `${v.ctr_percent.toFixed(1)}%` : "--"}
+                    </td>
+                    <td className="py-2 px-2 text-right text-foreground font-mono">
+                      {v.engagementRate}%
                     </td>
                     <td className="py-2 px-2 text-right text-muted-foreground font-mono">
                       {v.watch_time_minutes != null
