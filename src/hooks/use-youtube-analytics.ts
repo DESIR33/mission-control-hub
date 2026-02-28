@@ -1,8 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 
-export interface ChannelStats {
 export interface YouTubeChannelStats {
   id: string;
   workspace_id: string;
@@ -25,33 +24,6 @@ export interface GrowthGoal {
   status: "active" | "achieved" | "paused";
   created_at: string;
   updated_at: string;
-}
-
-export function useChannelStats() {
-  const { workspaceId } = useWorkspace();
-
-  return useQuery({
-    queryKey: ["youtube_channel_stats", workspaceId],
-    queryFn: async (): Promise<ChannelStats | null> => {
-      if (!workspaceId) return null;
-
-      const { data, error } = await supabase
-        .from("youtube_channel_stats" as any)
-        .select("*")
-        .eq("workspace_id", workspaceId)
-        .order("fetched_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (error) {
-        // Table may not exist yet if migration hasn't run
-        console.warn("youtube_channel_stats query failed:", error.message);
-        return null;
-      }
-
-      return data as ChannelStats | null;
-  view_count: number;
-  fetched_at: string;
 }
 
 export interface YouTubeVideoStats {
@@ -87,27 +59,29 @@ export function useYouTubeChannelStats(limit = 30) {
   });
 }
 
-export function useChannelStatsHistory() {
+/** Alias — returns the single latest snapshot or null. */
+export function useChannelStats() {
   const { workspaceId } = useWorkspace();
 
   return useQuery({
-    queryKey: ["youtube_channel_stats_history", workspaceId],
-    queryFn: async (): Promise<ChannelStats[]> => {
-      if (!workspaceId) return [];
+    queryKey: ["youtube_channel_stats", workspaceId],
+    queryFn: async (): Promise<YouTubeChannelStats | null> => {
+      if (!workspaceId) return null;
 
       const { data, error } = await supabase
-        .from("youtube_channel_stats" as any)
+        .from("youtube_channel_stats")
         .select("*")
         .eq("workspace_id", workspaceId)
-        .order("fetched_at", { ascending: true })
-        .limit(30);
+        .order("fetched_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
       if (error) {
-        console.warn("youtube_channel_stats history query failed:", error.message);
-        return [];
+        console.warn("youtube_channel_stats query failed:", error.message);
+        return null;
       }
 
-      return (data ?? []) as ChannelStats[];
+      return data as YouTubeChannelStats | null;
     },
     enabled: !!workspaceId,
   });
@@ -122,7 +96,7 @@ export function useGrowthGoal() {
       if (!workspaceId) return null;
 
       const { data, error } = await supabase
-        .from("growth_goals" as any)
+        .from("growth_goals")
         .select("*")
         .eq("workspace_id", workspaceId)
         .eq("status", "active")
@@ -136,8 +110,13 @@ export function useGrowthGoal() {
       }
 
       return data as GrowthGoal | null;
+    },
+    enabled: !!workspaceId,
+  });
+}
+
 /** Fetches the latest video stats for the workspace. */
-export function useYouTubeVideoStats(limit = 20) {
+export function useYouTubeVideoStats(limit = 50) {
   const { workspaceId } = useWorkspace();
   return useQuery({
     queryKey: ["youtube-video-stats", workspaceId, limit],
@@ -152,5 +131,30 @@ export function useYouTubeVideoStats(limit = 20) {
       return (data ?? []) as YouTubeVideoStats[];
     },
     enabled: !!workspaceId,
+  });
+}
+
+/** Triggers a YouTube sync via the Edge Function. */
+export function useSyncYouTube() {
+  const { workspaceId } = useWorkspace();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      if (!workspaceId) throw new Error("No workspace");
+
+      const { data, error } = await supabase.functions.invoke("youtube-sync", {
+        body: { workspace_id: workspaceId },
+      });
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["youtube-channel-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["youtube_channel_stats"] });
+      queryClient.invalidateQueries({ queryKey: ["youtube-video-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["growth_goals"] });
+    },
   });
 }

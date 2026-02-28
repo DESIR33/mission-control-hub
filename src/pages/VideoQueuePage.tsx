@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Calendar,
+  CalendarDays,
   CheckCircle2,
   Circle,
   Edit3,
@@ -14,6 +15,7 @@ import {
   Search,
   Trash2,
 } from "lucide-react";
+import { ContentCalendar } from "@/components/video-queue/ContentCalendar";
 import { format } from "date-fns";
 import {
   SiFacebook,
@@ -93,7 +95,7 @@ export default function VideoQueuePage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [priorityFilter, setPriorityFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [currentView, setCurrentView] = useState<"list" | "cards">("list");
+  const [currentView, setCurrentView] = useState<"list" | "cards" | "calendar">("list");
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -277,6 +279,18 @@ export default function VideoQueuePage() {
             >
               <LayoutGrid className="h-3.5 w-3.5" />
             </button>
+            <button
+              className={cn(
+                "rounded-lg p-2",
+                currentView === "calendar"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-accent"
+              )}
+              onClick={() => setCurrentView("calendar")}
+              title="Calendar view"
+            >
+              <CalendarDays className="h-3.5 w-3.5" />
+            </button>
           </div>
         </div>
       </div>
@@ -301,6 +315,11 @@ export default function VideoQueuePage() {
                 : "No videos in your queue yet."}
             </p>
           </div>
+        ) : currentView === "calendar" ? (
+          <ContentCalendar
+            videos={filteredVideos}
+            onSelectVideo={setSelectedVideo}
+          />
         ) : currentView === "list" ? (
           <div className="space-y-3">
             {filteredVideos.map((video) => {

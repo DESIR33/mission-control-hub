@@ -1,13 +1,6 @@
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { AlertCircle, ArrowRight, Clock, User } from "lucide-react";
-
-export interface AttentionItem {
-  title: string;
-  subtitle: string;
-  type: "overdue" | "follow-up" | "approval" | "deadline";
-  urgency: "high" | "medium" | "low";
-}
 import type { AttentionItem } from "@/hooks/use-dashboard-stats";
 
 const urgencyStyles = {
@@ -28,10 +21,6 @@ interface NeedsAttentionProps {
 }
 
 export function NeedsAttention({ items = [] }: NeedsAttentionProps) {
-  items: AttentionItem[];
-}
-
-export function NeedsAttention({ items }: NeedsAttentionProps) {
   const urgentCount = items.filter((i) => i.urgency === "high").length;
 
   return (
@@ -59,18 +48,10 @@ export function NeedsAttention({ items }: NeedsAttentionProps) {
       ) : (
         <div className="space-y-1">
           {items.map((item, i) => {
-            const Icon = typeIcons[item.type];
-            return (
-              <button
-                key={i}
-        <p className="text-sm text-muted-foreground py-4 text-center">All clear! Nothing needs attention.</p>
-      ) : (
-        <div className="space-y-1">
-          {items.slice(0, 8).map((item) => {
             const Icon = typeIcons[item.type] || AlertCircle;
             return (
               <button
-                key={item.id}
+                key={i}
                 className={cn(
                   "w-full flex items-center gap-3 px-3 py-2.5 rounded-md border-l-2 text-left transition-colors hover:bg-secondary",
                   urgencyStyles[item.urgency]

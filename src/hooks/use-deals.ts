@@ -24,6 +24,7 @@ export interface Deal {
   expected_close_date: string | null;
   closed_at: string | null;
   notes: string | null;
+  video_queue_id: string | null;
   deleted_at: string | null;
   created_by: string | null;
   created_at: string;
@@ -32,7 +33,6 @@ export interface Deal {
   contact?: { id: string; first_name: string; last_name: string | null; email: string | null } | null;
   company?: { id: string; name: string; logo_url: string | null } | null;
 }
-import type { Deal, DealStage } from "@/types/crm";
 
 export function useDeals() {
   const { workspaceId } = useWorkspace();
@@ -45,7 +45,6 @@ export function useDeals() {
       const { data, error } = await supabase
         .from("deals")
         .select("*, contacts(id, first_name, last_name, email), companies(id, name, logo_url)")
-        .select("*, contacts(id, first_name, last_name, email, role, status), companies(id, name, logo_url, industry)")
         .eq("workspace_id", workspaceId)
         .is("deleted_at", null)
         .order("updated_at", { ascending: false });
@@ -73,16 +72,11 @@ export function useCreateDeal() {
       value?: number | null;
       currency?: string;
       stage?: string;
+      forecast_category?: string;
       contact_id?: string | null;
       company_id?: string | null;
       expected_close_date?: string | null;
-      value?: number;
-      currency?: string;
-      stage?: string;
-      forecast_category?: string;
-      contact_id?: string;
-      company_id?: string;
-      expected_close_date?: string;
+      video_queue_id?: string | null;
       notes?: string;
     }) => {
       if (!workspaceId) throw new Error("No workspace");
@@ -104,6 +98,8 @@ export function useCreateDeal() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["deals", workspaceId] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["pipeline-health"] });
     },
   });
 }
@@ -125,9 +121,7 @@ export function useUpdateDeal() {
       owner_id?: string | null;
       expected_close_date?: string | null;
       closed_at?: string | null;
-      notes?: string;
-      expected_close_date?: string | null;
-      closed_at?: string | null;
+      video_queue_id?: string | null;
       notes?: string | null;
     }) => {
       if (!workspaceId) throw new Error("No workspace");
@@ -145,6 +139,11 @@ export function useUpdateDeal() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["deals", workspaceId] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["pipeline-health"] });
+      queryClient.invalidateQueries({ queryKey: ["revenue-data"] });
+      queryClient.invalidateQueries({ queryKey: ["needs-attention"] });
+      queryClient.invalidateQueries({ queryKey: ["ai-briefing"] });
     },
   });
 }
@@ -167,6 +166,8 @@ export function useDeleteDeal() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["deals", workspaceId] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["pipeline-health"] });
     },
   });
 }

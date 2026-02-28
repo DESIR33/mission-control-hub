@@ -5,7 +5,8 @@ export type ProposalType =
   | "outreach"
   | "deal_update"
   | "score_update"
-  | "tag_suggestion";
+  | "tag_suggestion"
+  | "content_suggestion";
 
 export interface AiProposal {
   id: string;
@@ -22,6 +23,5 @@ export interface AiProposal {
   reviewed_at: string | null;
   created_at: string;
   updated_at: string;
-  // Joined entity name for display
   entity_name?: string;
 }

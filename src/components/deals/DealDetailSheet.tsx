@@ -1,35 +1,3 @@
-import { format } from "date-fns";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
-import { Building2, Calendar, DollarSign, Trash2, User2 } from "lucide-react";
-import { useUpdateDeal, useDeleteDeal, type Deal, type DealStage } from "@/hooks/use-deals";
-import { useActivities } from "@/hooks/use-contacts";
-import { ActivityTimeline } from "@/components/crm/ActivityTimeline";
-import { useToast } from "@/hooks/use-toast";
-
-export { STAGE_CONFIG };
-
-const STAGE_CONFIG: Record<DealStage, { label: string; color: string }> = {
-  prospecting: { label: "Prospecting", color: "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300" },
-  qualification: { label: "Qualification", color: "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300" },
-  proposal: { label: "Proposal", color: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300" },
-  negotiation: { label: "Negotiation", color: "bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300" },
-  closed_won: { label: "Closed Won", color: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300" },
-  closed_lost: { label: "Closed Lost", color: "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300" },
 import { useState, useEffect } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
@@ -37,7 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -51,13 +25,17 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { ActivityTimeline } from "@/components/crm/ActivityTimeline";
-import { useUpdateDeal, useDeleteDeal } from "@/hooks/use-deals";
+import { ComposeEmailDialog } from "@/components/inbox/ComposeEmailDialog";
+import { useUpdateDeal, useDeleteDeal, type Deal } from "@/hooks/use-deals";
+import { useActivities } from "@/hooks/use-contacts";
 import { useContacts } from "@/hooks/use-contacts";
 import { useCompanies } from "@/hooks/use-companies";
 import { useToast } from "@/hooks/use-toast";
-import { DollarSign, Calendar, Building2, User2, ArrowRightLeft, Pencil, Trash2, Loader2 } from "lucide-react";
+import {
+  DollarSign, Calendar, Building2, User2, ArrowRightLeft,
+  Pencil, Trash2, Loader2, Mail, Film,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Deal, Activity } from "@/types/crm";
 import { format } from "date-fns";
 
 const stageConfig: Record<string, { label: string; color: string }> = {
@@ -69,169 +47,14 @@ const stageConfig: Record<string, { label: string; color: string }> = {
   closed_lost: { label: "Closed Lost", color: "bg-destructive/15 text-destructive border-destructive/30" },
 };
 
+export { stageConfig as STAGE_CONFIG };
+
 const forecastLabels: Record<string, string> = {
   pipeline: "Pipeline",
   best_case: "Best Case",
   commit: "Commit",
   closed: "Closed",
 };
-
-interface DealDetailSheetProps {
-  deal: Deal | null;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
-export function DealDetailSheet({ deal, open, onOpenChange }: DealDetailSheetProps) {
-  const updateDeal = useUpdateDeal();
-  const deleteDeal = useDeleteDeal();
-  const { toast } = useToast();
-  const { data: activities = [] } = useActivities(deal?.id ?? null, "deal");
-
-  if (!deal) return null;
-
-  const cfg = STAGE_CONFIG[deal.stage];
-
-  const handleStageChange = (stage: string) => {
-    const closedAt = stage === "closed_won" || stage === "closed_lost" ? new Date().toISOString() : null;
-    updateDeal.mutate(
-      { id: deal.id, stage, closed_at: closedAt },
-      {
-        onSuccess: () => toast({ title: `Deal moved to ${STAGE_CONFIG[stage as DealStage]?.label ?? stage}` }),
-        onError: (err) => toast({ title: "Update failed", description: err.message, variant: "destructive" }),
-      }
-    );
-  };
-
-  const handleDelete = () => {
-    deleteDeal.mutate(deal.id, {
-      onSuccess: () => {
-        toast({ title: "Deal deleted" });
-        onOpenChange(false);
-      },
-      onError: (err) => toast({ title: "Delete failed", description: err.message, variant: "destructive" }),
-    });
-  };
-
-  return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="sm:max-w-lg overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle className="text-lg">{deal.title}</SheetTitle>
-        </SheetHeader>
-
-        <div className="mt-4 space-y-5">
-          {/* Stage + Value */}
-          <div className="flex items-center gap-3 flex-wrap">
-            <Badge className={cfg.color}>{cfg.label}</Badge>
-            {deal.value != null && (
-              <span className="text-lg font-mono font-bold text-foreground flex items-center gap-1">
-                <DollarSign className="h-4 w-4" />
-                {deal.value.toLocaleString()}
-                {deal.currency && <span className="text-xs text-muted-foreground ml-1">{deal.currency}</span>}
-              </span>
-            )}
-          </div>
-
-          {/* Move Stage */}
-          <div className="space-y-1.5">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Move to stage</p>
-            <Select value={deal.stage} onValueChange={handleStageChange}>
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(STAGE_CONFIG).map(([key, { label }]) => (
-                  <SelectItem key={key} value={key}>{label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <Separator />
-
-          {/* Details */}
-          <div className="space-y-3">
-            {deal.company && (
-              <div className="flex items-center gap-2 text-sm">
-                <Building2 className="h-4 w-4 text-muted-foreground" />
-                <span className="text-foreground">{deal.company.name}</span>
-              </div>
-            )}
-            {deal.contact && (
-              <div className="flex items-center gap-2 text-sm">
-                <User2 className="h-4 w-4 text-muted-foreground" />
-                <span className="text-foreground">
-                  {deal.contact.first_name} {deal.contact.last_name ?? ""}
-                  {deal.contact.email && (
-                    <span className="text-muted-foreground ml-1">({deal.contact.email})</span>
-                  )}
-                </span>
-              </div>
-            )}
-            {deal.expected_close_date && (
-              <div className="flex items-center gap-2 text-sm">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span className="text-foreground">
-                  Expected close: {format(new Date(deal.expected_close_date), "MMM d, yyyy")}
-                </span>
-              </div>
-            )}
-            {deal.closed_at && (
-              <div className="flex items-center gap-2 text-sm">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span className="text-foreground">
-                  Closed: {format(new Date(deal.closed_at), "MMM d, yyyy")}
-                </span>
-              </div>
-            )}
-          </div>
-
-          {deal.notes && (
-            <>
-              <Separator />
-              <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5">Notes</p>
-                <p className="text-sm text-foreground whitespace-pre-wrap">{deal.notes}</p>
-              </div>
-            </>
-          )}
-
-          <Separator />
-
-          {/* Activity Timeline */}
-          <div>
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Activity</p>
-            <ActivityTimeline activities={activities} contactId={deal.id} entityType="deal" />
-          </div>
-
-          <Separator />
-
-          {/* Metadata */}
-          <div className="text-[10px] text-muted-foreground space-y-0.5">
-            <p>Created {format(new Date(deal.created_at), "MMM d, yyyy 'at' h:mm a")}</p>
-            <p>Updated {format(new Date(deal.updated_at), "MMM d, yyyy 'at' h:mm a")}</p>
-          </div>
-
-          {/* Delete */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-destructive hover:text-destructive hover:bg-destructive/10 w-full"
-            onClick={handleDelete}
-            disabled={deleteDeal.isPending}
-          >
-            <Trash2 className="h-4 w-4 mr-2" />
-            {deleteDeal.isPending ? "Deleting..." : "Delete Deal"}
-          </Button>
-        </div>
-      </SheetContent>
-    </Sheet>
-  activities: Activity[];
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onDeleted?: () => void;
-}
 
 function DetailRow({ icon: Icon, label, value }: { icon: typeof DollarSign; label: string; value: string | null | undefined }) {
   if (!value) return null;
@@ -246,9 +69,17 @@ function DetailRow({ icon: Icon, label, value }: { icon: typeof DollarSign; labe
   );
 }
 
-export function DealDetailSheet({ deal, activities, open, onOpenChange, onDeleted }: DealDetailSheetProps) {
+interface DealDetailSheetProps {
+  deal: Deal | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onDeleted?: () => void;
+}
+
+export function DealDetailSheet({ deal, open, onOpenChange, onDeleted }: DealDetailSheetProps) {
   const [editing, setEditing] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [emailOpen, setEmailOpen] = useState(false);
   const [stage, setStage] = useState("prospecting");
   const [forecastCategory, setForecastCategory] = useState("");
   const [contactId, setContactId] = useState("");
@@ -258,6 +89,7 @@ export function DealDetailSheet({ deal, activities, open, onOpenChange, onDelete
   const deleteDeal = useDeleteDeal();
   const { data: contacts = [] } = useContacts();
   const { data: companies = [] } = useCompanies();
+  const { data: activities = [] } = useActivities(deal?.id ?? null, "deal");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -348,6 +180,11 @@ export function DealDetailSheet({ deal, activities, open, onOpenChange, onDelete
                 )}
               </div>
               <div className="flex items-center gap-1 shrink-0">
+                {deal.contact?.email && (
+                  <Button variant="ghost" size="icon" onClick={() => setEmailOpen(true)} title="Send email">
+                    <Mail className="w-4 h-4" />
+                  </Button>
+                )}
                 <Button variant="ghost" size="icon" onClick={() => setEditing(!editing)}>
                   <Pencil className="w-4 h-4" />
                 </Button>
@@ -433,38 +270,39 @@ export function DealDetailSheet({ deal, activities, open, onOpenChange, onDelete
                     <Input id="edit_close_date" name="expected_close_date" type="date" defaultValue={deal.expected_close_date ?? ""} className="bg-secondary border-border" />
                   </div>
 
-                  <div className="space-y-1.5">
-                    <Label>Contact</Label>
-                    <Select value={contactId || "none"} onValueChange={setContactId}>
-                      <SelectTrigger className="bg-secondary border-border">
-                        <SelectValue placeholder="Select contact" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">No Contact</SelectItem>
-                        {contacts.map((c) => (
-                          <SelectItem key={c.id} value={c.id}>
-                            {c.first_name} {c.last_name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <Label>Company</Label>
-                    <Select value={companyId || "none"} onValueChange={setCompanyId}>
-                      <SelectTrigger className="bg-secondary border-border">
-                        <SelectValue placeholder="Select company" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">No Company</SelectItem>
-                        {companies.map((c) => (
-                          <SelectItem key={c.id} value={c.id}>
-                            {c.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label>Contact</Label>
+                      <Select value={contactId || "none"} onValueChange={setContactId}>
+                        <SelectTrigger className="bg-secondary border-border">
+                          <SelectValue placeholder="Select contact" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">No Contact</SelectItem>
+                          {contacts.map((c) => (
+                            <SelectItem key={c.id} value={c.id}>
+                              {c.first_name} {c.last_name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label>Company</Label>
+                      <Select value={companyId || "none"} onValueChange={setCompanyId}>
+                        <SelectTrigger className="bg-secondary border-border">
+                          <SelectValue placeholder="Select company" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">No Company</SelectItem>
+                          {companies.map((c) => (
+                            <SelectItem key={c.id} value={c.id}>
+                              {c.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
 
                   <div className="space-y-1.5">
@@ -482,7 +320,6 @@ export function DealDetailSheet({ deal, activities, open, onOpenChange, onDelete
                 </form>
               ) : (
                 <>
-                  {/* Deal Info */}
                   <div>
                     <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Deal Info</h4>
                     <div className="space-y-0.5">
@@ -492,12 +329,14 @@ export function DealDetailSheet({ deal, activities, open, onOpenChange, onDelete
                         <DetailRow icon={Calendar} label="Closed At" value={format(new Date(deal.closed_at), "MMM d, yyyy")} />
                       )}
                       <DetailRow icon={ArrowRightLeft} label="Forecast" value={deal.forecast_category ? (forecastLabels[deal.forecast_category] ?? deal.forecast_category) : null} />
+                      {deal.video_queue_id && (
+                        <DetailRow icon={Film} label="Linked Video" value={deal.video_queue_id} />
+                      )}
                     </div>
                   </div>
 
                   <Separator className="bg-border" />
 
-                  {/* Contact */}
                   {deal.contact && (
                     <>
                       <div>
@@ -510,7 +349,6 @@ export function DealDetailSheet({ deal, activities, open, onOpenChange, onDelete
                     </>
                   )}
 
-                  {/* Company */}
                   {deal.company && (
                     <>
                       <div>
@@ -523,7 +361,6 @@ export function DealDetailSheet({ deal, activities, open, onOpenChange, onDelete
                     </>
                   )}
 
-                  {/* Notes */}
                   {deal.notes && (
                     <>
                       <div>
@@ -534,7 +371,6 @@ export function DealDetailSheet({ deal, activities, open, onOpenChange, onDelete
                     </>
                   )}
 
-                  {/* Meta */}
                   <div className="text-[10px] text-muted-foreground space-y-1">
                     <p>Created: {format(new Date(deal.created_at), "MMM d, yyyy")}</p>
                     <p>Updated: {format(new Date(deal.updated_at), "MMM d, yyyy")}</p>
@@ -605,6 +441,15 @@ export function DealDetailSheet({ deal, activities, open, onOpenChange, onDelete
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <ComposeEmailDialog
+        open={emailOpen}
+        onOpenChange={setEmailOpen}
+        prefillTo={deal.contact?.email ?? ""}
+        prefillSubject={`Re: ${deal.title}`}
+        contactId={deal.contact_id ?? undefined}
+        dealId={deal.id}
+      />
     </>
   );
 }

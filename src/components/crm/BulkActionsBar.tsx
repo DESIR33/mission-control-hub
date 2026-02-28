@@ -11,9 +11,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { X, Trash2, UserCheck, Tag } from "lucide-react";
+import { X, Trash2, UserCheck, Tag, Sparkles, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useUpdateContact, useDeleteContact } from "@/hooks/use-contacts";
+import { useWorkspace } from "@/hooks/use-workspace";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 interface BulkActionsBarProps {
@@ -27,9 +29,32 @@ export function BulkActionsBar({ selectedCount, selectedIds, onClearSelection, e
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [statusValue, setStatusValue] = useState("");
   const [vipValue, setVipValue] = useState("");
+  const [isEnriching, setIsEnriching] = useState(false);
   const updateContact = useUpdateContact();
   const deleteContact = useDeleteContact();
   const { toast } = useToast();
+  const { workspaceId } = useWorkspace();
+
+  const handleBulkEnrich = async () => {
+    if (!workspaceId) return;
+    setIsEnriching(true);
+    const fnName = entityType === "contact" ? "enrich-contact" : "enrich-company";
+    const bodyKey = entityType === "contact" ? "contact_id" : "company_id";
+    let successCount = 0;
+    for (const id of selectedIds) {
+      try {
+        await supabase.functions.invoke(fnName, {
+          body: { workspace_id: workspaceId, [bodyKey]: id },
+        });
+        successCount++;
+      } catch {
+        // continue
+      }
+    }
+    toast({ title: `Enriched ${successCount} ${entityType}${successCount !== 1 ? "s" : ""}` });
+    setIsEnriching(false);
+    onClearSelection();
+  };
 
   if (selectedCount === 0) return null;
 
@@ -116,6 +141,11 @@ export function BulkActionsBar({ selectedCount, selectedIds, onClearSelection, e
             </Select>
           </>
         )}
+
+        <Button variant="outline" size="sm" className="h-8 text-xs gap-1" onClick={handleBulkEnrich} disabled={isEnriching}>
+          {isEnriching ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+          {isEnriching ? "Enriching..." : "Enrich"}
+        </Button>
 
         <Button variant="destructive" size="sm" className="h-8 text-xs gap-1" onClick={() => setDeleteOpen(true)}>
           <Trash2 className="w-3.5 h-3.5" />

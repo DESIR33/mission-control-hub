@@ -20,9 +20,11 @@ import { useDeleteCompany } from "@/hooks/use-companies";
 import { useToast } from "@/hooks/use-toast";
 import {
   Mail, Globe, Linkedin, Twitter, Instagram, MapPin, Building2,
-  Users, DollarSign, Clock, Pencil, Trash2, Loader2,
+  Users, DollarSign, Clock, Pencil, Trash2, Loader2, Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useWorkspace } from "@/hooks/use-workspace";
+import { supabase } from "@/integrations/supabase/client";
 import type { Company, Activity, Contact } from "@/types/crm";
 import { format } from "date-fns";
 
@@ -71,8 +73,10 @@ const statusColors: Record<string, string> = {
 
 export function CompanyDetailSheet({ company, activities, companyContacts, open, onOpenChange, onEdit, onDeleted }: CompanyDetailSheetProps) {
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [isEnriching, setIsEnriching] = useState(false);
   const deleteCompany = useDeleteCompany();
   const { toast } = useToast();
+  const { workspaceId } = useWorkspace();
 
   if (!company) return null;
 
@@ -91,6 +95,22 @@ export function CompanyDetailSheet({ company, activities, companyContacts, open,
   };
 
   const hasEnrichment = company.enrichment_brandfetch || company.enrichment_clay || company.enrichment_firecrawl;
+
+  const handleEnrich = async () => {
+    if (!workspaceId) return;
+    setIsEnriching(true);
+    try {
+      const { error } = await supabase.functions.invoke("enrich-company", {
+        body: { workspace_id: workspaceId, company_id: company.id },
+      });
+      if (error) throw error;
+      toast({ title: "Company enriched", description: "Enrichment data has been updated." });
+    } catch (err: any) {
+      toast({ title: "Enrichment failed", description: err.message, variant: "destructive" });
+    } finally {
+      setIsEnriching(false);
+    }
+  };
 
   return (
     <>
@@ -261,6 +281,20 @@ export function CompanyDetailSheet({ company, activities, companyContacts, open,
             </TabsContent>
 
             <TabsContent value="enrichment" className="mt-4 space-y-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleEnrich}
+                disabled={isEnriching}
+                className="w-full"
+              >
+                {isEnriching ? (
+                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                ) : (
+                  <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+                )}
+                {isEnriching ? "Enriching..." : "Enrich Company"}
+              </Button>
               {hasEnrichment ? (
                 <>
                   {company.enrichment_brandfetch && (

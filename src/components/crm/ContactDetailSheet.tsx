@@ -21,8 +21,11 @@ import {
 import { ActivityTimeline } from "./ActivityTimeline";
 import { useUpdateContact, useDeleteContact } from "@/hooks/use-contacts";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Phone, Globe, Linkedin, Twitter, Instagram, MessageSquare, Building2, Clock, Shield, Pencil, Trash2, Loader2 } from "lucide-react";
+import { Mail, Phone, Globe, Linkedin, Twitter, Instagram, MessageSquare, Building2, Clock, Shield, Pencil, Trash2, Loader2, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useWorkspace } from "@/hooks/use-workspace";
+import { supabase } from "@/integrations/supabase/client";
+import { ComposeEmailDialog } from "@/components/inbox/ComposeEmailDialog";
 import type { Contact, Activity } from "@/types/crm";
 import { format } from "date-fns";
 
@@ -70,6 +73,8 @@ function DetailRow({ icon: Icon, label, value, href }: { icon: typeof Mail; labe
 export function ContactDetailSheet({ contact, activities, open, onOpenChange, onDeleted }: ContactDetailSheetProps) {
   const [editing, setEditing] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [emailOpen, setEmailOpen] = useState(false);
+  const [isEnriching, setIsEnriching] = useState(false);
   const [status, setStatus] = useState("active");
   const [vipTier, setVipTier] = useState("none");
   const [preferredChannel, setPreferredChannel] = useState("email");
@@ -77,6 +82,23 @@ export function ContactDetailSheet({ contact, activities, open, onOpenChange, on
   const updateContact = useUpdateContact();
   const deleteContact = useDeleteContact();
   const { toast } = useToast();
+  const { workspaceId } = useWorkspace();
+
+  const handleEnrich = async () => {
+    if (!workspaceId || !contact) return;
+    setIsEnriching(true);
+    try {
+      const { error } = await supabase.functions.invoke("enrich-contact", {
+        body: { workspace_id: workspaceId, contact_id: contact.id },
+      });
+      if (error) throw error;
+      toast({ title: "Contact enriched", description: "Enrichment data has been updated." });
+    } catch (err: any) {
+      toast({ title: "Enrichment failed", description: err.message, variant: "destructive" });
+    } finally {
+      setIsEnriching(false);
+    }
+  };
 
   useEffect(() => {
     if (contact) {
@@ -160,6 +182,11 @@ export function ContactDetailSheet({ contact, activities, open, onOpenChange, on
                 )}
               </div>
               <div className="flex items-center gap-1 shrink-0">
+                {contact.email && (
+                  <Button variant="ghost" size="icon" onClick={() => setEmailOpen(true)} title="Send email">
+                    <Mail className="w-4 h-4" />
+                  </Button>
+                )}
                 <Button variant="ghost" size="icon" onClick={() => setEditing(!editing)}>
                   <Pencil className="w-4 h-4" />
                 </Button>
@@ -415,7 +442,21 @@ export function ContactDetailSheet({ contact, activities, open, onOpenChange, on
               <ActivityTimeline activities={activities} contactId={contact.id} />
             </TabsContent>
 
-            <TabsContent value="enrichment" className="mt-4">
+            <TabsContent value="enrichment" className="mt-4 space-y-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleEnrich}
+                disabled={isEnriching}
+                className="w-full"
+              >
+                {isEnriching ? (
+                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                ) : (
+                  <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+                )}
+                {isEnriching ? "Enriching..." : "Enrich Contact"}
+              </Button>
               {contact.enrichment_ai ? (
                 <div className="space-y-3">
                   <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">AI Insights</h4>
@@ -456,6 +497,14 @@ export function ContactDetailSheet({ contact, activities, open, onOpenChange, on
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <ComposeEmailDialog
+        open={emailOpen}
+        onOpenChange={setEmailOpen}
+        prefillTo={contact.email ?? ""}
+        prefillSubject=""
+        contactId={contact.id}
+      />
     </>
   );
 }
