@@ -29,6 +29,7 @@ import AddCompanyPage from "./pages/AddCompanyPage";
 import AddContactPage from "./pages/AddContactPage";
 import AddProductTransactionPage from "./pages/AddProductTransactionPage";
 import NewSponsorshipPage from "./pages/NewSponsorshipPage";
+import DealsPage from "./pages/DealsPage";
 
 const queryClient = new QueryClient();
 
@@ -83,6 +84,7 @@ const App = () => (
               <Route path="/sponsorship/new" element={<NewSponsorshipPage />} />
               <Route path="/add-transaction" element={<AddProductTransactionPage />} />
               <Route path="/add-transaction/:id" element={<AddProductTransactionPage />} />
+              <Route path="/deals" element={<DealsPage />} />
               <Route path="/projects" element={<ProjectsPage />} />
               <Route path="/tasks" element={<Tasks />} />
               <Route path="/ai-bridge" element={<AiBridgePage />} />

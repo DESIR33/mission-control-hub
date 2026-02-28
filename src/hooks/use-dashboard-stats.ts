@@ -1,0 +1,419 @@
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useWorkspace } from "@/hooks/use-workspace";
+import { subDays, subMonths, startOfMonth, format } from "date-fns";
+
+export interface DashboardStats {
+  contactCount: number;
+  activeContactCount: number;
+  pipelineValue: number;
+  closingThisWeek: number;
+  contentInPipeline: number;
+  contentInEditing: number;
+  pendingProposals: number;
+  totalDeals: number;
+}
+
+export interface RevenueDataPoint {
+  month: string;
+  amount: number;
+}
+
+export interface PipelineStage {
+  label: string;
+  count: number;
+  color: string;
+}
+
+export interface AttentionItem {
+  title: string;
+  subtitle: string;
+  type: "overdue" | "follow-up" | "approval" | "deadline";
+  urgency: "high" | "medium" | "low";
+}
+
+export interface BriefingItem {
+  type: "insight" | "action";
+  text: string;
+}
+
+export function useDashboardStats() {
+  const { workspaceId } = useWorkspace();
+
+  return useQuery({
+    queryKey: ["dashboard-stats", workspaceId],
+    queryFn: async (): Promise<DashboardStats> => {
+      if (!workspaceId) {
+        return {
+          contactCount: 0,
+          activeContactCount: 0,
+          pipelineValue: 0,
+          closingThisWeek: 0,
+          contentInPipeline: 0,
+          contentInEditing: 0,
+          pendingProposals: 0,
+          totalDeals: 0,
+        };
+      }
+
+      // Run all queries in parallel
+      const [contactsRes, dealsRes, videosRes, proposalsRes] = await Promise.all([
+        supabase
+          .from("contacts")
+          .select("id, status", { count: "exact", head: false })
+          .eq("workspace_id", workspaceId)
+          .is("deleted_at", null),
+        supabase
+          .from("deals")
+          .select("id, value, stage, expected_close_date")
+          .eq("workspace_id", workspaceId)
+          .is("deleted_at", null),
+        supabase
+          .from("video_queue")
+          .select("id, status")
+          .eq("workspace_id", workspaceId),
+        supabase
+          .from("ai_proposals")
+          .select("id", { count: "exact", head: true })
+          .eq("workspace_id", workspaceId)
+          .eq("status", "pending"),
+      ]);
+
+      const contacts = contactsRes.data ?? [];
+      const deals = dealsRes.data ?? [];
+      const videos = videosRes.data ?? [];
+
+      const openStages = ["prospecting", "qualification", "proposal", "negotiation"];
+      const pipelineValue = deals
+        .filter((d) => openStages.includes(d.stage))
+        .reduce((sum, d) => sum + (d.value ?? 0), 0);
+
+      const nextWeek = new Date();
+      nextWeek.setDate(nextWeek.getDate() + 7);
+      const closingThisWeek = deals.filter(
+        (d) =>
+          openStages.includes(d.stage) &&
+          d.expected_close_date &&
+          new Date(d.expected_close_date) <= nextWeek
+      ).length;
+
+      const editingStatuses = ["editing", "review"];
+      const contentInEditing = videos.filter((v) =>
+        editingStatuses.includes(v.status)
+      ).length;
+
+      const pipelineStatuses = ["idea", "scripting", "recording", "editing", "review", "scheduled"];
+      const contentInPipeline = videos.filter((v) =>
+        pipelineStatuses.includes(v.status)
+      ).length;
+
+      return {
+        contactCount: contacts.length,
+        activeContactCount: contacts.filter((c) => c.status === "active").length,
+        pipelineValue,
+        closingThisWeek,
+        contentInPipeline,
+        contentInEditing,
+        pendingProposals: proposalsRes.count ?? 0,
+        totalDeals: deals.length,
+      };
+    },
+    enabled: !!workspaceId,
+    refetchInterval: 60_000, // Refresh every minute
+  });
+}
+
+export function usePipelineHealth() {
+  const { workspaceId } = useWorkspace();
+
+  return useQuery({
+    queryKey: ["pipeline-health", workspaceId],
+    queryFn: async () => {
+      if (!workspaceId) {
+        return { contacts: [], content: [], deals: [] };
+      }
+
+      const [contactsRes, videosRes, dealsRes] = await Promise.all([
+        supabase
+          .from("contacts")
+          .select("status")
+          .eq("workspace_id", workspaceId)
+          .is("deleted_at", null),
+        supabase
+          .from("video_queue")
+          .select("status")
+          .eq("workspace_id", workspaceId),
+        supabase
+          .from("deals")
+          .select("stage")
+          .eq("workspace_id", workspaceId)
+          .is("deleted_at", null),
+      ]);
+
+      const contacts = contactsRes.data ?? [];
+      const videos = videosRes.data ?? [];
+      const deals = dealsRes.data ?? [];
+
+      const countBy = <T extends Record<string, unknown>>(arr: T[], key: keyof T) => {
+        const counts: Record<string, number> = {};
+        for (const item of arr) {
+          const val = String(item[key]);
+          counts[val] = (counts[val] ?? 0) + 1;
+        }
+        return counts;
+      };
+
+      const contactCounts = countBy(contacts, "status");
+      const videoCounts = countBy(videos, "status");
+      const dealCounts = countBy(deals, "stage");
+
+      const contactsPipeline: PipelineStage[] = [
+        { label: "Lead", count: contactCounts["lead"] ?? 0, color: "bg-primary" },
+        { label: "Active", count: contactCounts["active"] ?? 0, color: "bg-success" },
+        { label: "Customer", count: contactCounts["customer"] ?? 0, color: "bg-warning" },
+        { label: "Inactive", count: contactCounts["inactive"] ?? 0, color: "bg-destructive" },
+      ];
+
+      const contentPipeline: PipelineStage[] = [
+        { label: "Idea", count: videoCounts["idea"] ?? 0, color: "bg-muted-foreground" },
+        { label: "Script", count: videoCounts["scripting"] ?? 0, color: "bg-primary" },
+        { label: "Recording", count: videoCounts["recording"] ?? 0, color: "bg-warning" },
+        { label: "Editing", count: videoCounts["editing"] ?? 0, color: "bg-success" },
+        { label: "Scheduled", count: videoCounts["scheduled"] ?? 0, color: "bg-primary" },
+      ];
+
+      const dealsPipeline: PipelineStage[] = [
+        { label: "Prospect", count: dealCounts["prospecting"] ?? 0, color: "bg-muted-foreground" },
+        { label: "Qualified", count: dealCounts["qualification"] ?? 0, color: "bg-primary" },
+        { label: "Proposal", count: dealCounts["proposal"] ?? 0, color: "bg-primary" },
+        { label: "Negotiation", count: dealCounts["negotiation"] ?? 0, color: "bg-warning" },
+        { label: "Won", count: dealCounts["closed_won"] ?? 0, color: "bg-success" },
+      ];
+
+      return { contacts: contactsPipeline, content: contentPipeline, deals: dealsPipeline };
+    },
+    enabled: !!workspaceId,
+  });
+}
+
+export function useRevenueData() {
+  const { workspaceId } = useWorkspace();
+
+  return useQuery({
+    queryKey: ["revenue-data", workspaceId],
+    queryFn: async (): Promise<{ monthly: RevenueDataPoint[]; sponsors: number; affiliates: number; products: number }> => {
+      if (!workspaceId) {
+        return { monthly: [], sponsors: 0, affiliates: 0, products: 0 };
+      }
+
+      // Get deals with closed_won to calculate sponsor revenue
+      const { data: wonDeals } = await supabase
+        .from("deals")
+        .select("value, closed_at")
+        .eq("workspace_id", workspaceId)
+        .eq("stage", "closed_won")
+        .is("deleted_at", null);
+
+      // Get affiliate transactions
+      const { data: affiliateTx } = await supabase
+        .from("affiliate_transactions" as any)
+        .select("amount, transaction_date")
+        .eq("workspace_id", workspaceId);
+
+      const deals = wonDeals ?? [];
+      const transactions = (affiliateTx ?? []) as Array<{ amount: number; transaction_date: string }>;
+
+      // Build last 6 months
+      const months: RevenueDataPoint[] = [];
+      for (let i = 5; i >= 0; i--) {
+        const monthStart = startOfMonth(subMonths(new Date(), i));
+        const monthLabel = format(monthStart, "MMM");
+        const monthStr = format(monthStart, "yyyy-MM");
+
+        let amount = 0;
+        // Add deal revenue
+        for (const d of deals) {
+          if (d.closed_at && d.closed_at.startsWith(monthStr)) {
+            amount += d.value ?? 0;
+          }
+        }
+        // Add affiliate revenue
+        for (const t of transactions) {
+          if (t.transaction_date && t.transaction_date.startsWith(monthStr)) {
+            amount += t.amount ?? 0;
+          }
+        }
+
+        months.push({ month: monthLabel, amount });
+      }
+
+      const sponsorTotal = deals.reduce((s, d) => s + (d.value ?? 0), 0);
+      const affiliateTotal = transactions.reduce((s, t) => s + (t.amount ?? 0), 0);
+
+      return {
+        monthly: months,
+        sponsors: sponsorTotal,
+        affiliates: affiliateTotal,
+        products: 0, // Product transactions not yet tracked in schema
+      };
+    },
+    enabled: !!workspaceId,
+  });
+}
+
+export function useNeedsAttention() {
+  const { workspaceId } = useWorkspace();
+
+  return useQuery({
+    queryKey: ["needs-attention", workspaceId],
+    queryFn: async (): Promise<AttentionItem[]> => {
+      if (!workspaceId) return [];
+
+      const items: AttentionItem[] = [];
+      const sevenDaysAgo = subDays(new Date(), 7).toISOString();
+
+      // Stale contacts (no contact in 7+ days)
+      const { data: staleContacts } = await supabase
+        .from("contacts")
+        .select("first_name, last_name, last_contact_date")
+        .eq("workspace_id", workspaceId)
+        .is("deleted_at", null)
+        .not("last_contact_date", "is", null)
+        .lt("last_contact_date", sevenDaysAgo)
+        .limit(3);
+
+      for (const c of staleContacts ?? []) {
+        const daysSince = c.last_contact_date
+          ? Math.floor((Date.now() - new Date(c.last_contact_date).getTime()) / (1000 * 60 * 60 * 24))
+          : 0;
+        items.push({
+          title: `${c.first_name} ${c.last_name ?? ""}`.trim(),
+          subtitle: `No contact in ${daysSince} days`,
+          type: "follow-up",
+          urgency: daysSince > 14 ? "high" : "medium",
+        });
+      }
+
+      // Pending AI proposals
+      const { data: pendingProposals } = await supabase
+        .from("ai_proposals")
+        .select("title")
+        .eq("workspace_id", workspaceId)
+        .eq("status", "pending")
+        .limit(3);
+
+      for (const p of pendingProposals ?? []) {
+        items.push({
+          title: p.title,
+          subtitle: "Awaiting your approval",
+          type: "approval",
+          urgency: "medium",
+        });
+      }
+
+      // Deals closing soon
+      const nextWeek = new Date();
+      nextWeek.setDate(nextWeek.getDate() + 7);
+      const { data: urgentDeals } = await supabase
+        .from("deals")
+        .select("title, expected_close_date")
+        .eq("workspace_id", workspaceId)
+        .is("deleted_at", null)
+        .in("stage", ["prospecting", "qualification", "proposal", "negotiation"])
+        .lte("expected_close_date", nextWeek.toISOString().split("T")[0])
+        .limit(3);
+
+      for (const d of urgentDeals ?? []) {
+        items.push({
+          title: d.title,
+          subtitle: `Close date: ${format(new Date(d.expected_close_date!), "MMM d")}`,
+          type: "deadline",
+          urgency: "high",
+        });
+      }
+
+      return items.slice(0, 5); // Max 5 items
+    },
+    enabled: !!workspaceId,
+  });
+}
+
+export function useAiBriefing() {
+  const { workspaceId } = useWorkspace();
+
+  return useQuery({
+    queryKey: ["ai-briefing", workspaceId],
+    queryFn: async (): Promise<BriefingItem[]> => {
+      if (!workspaceId) return [];
+
+      const items: BriefingItem[] = [];
+      const sevenDaysAgo = subDays(new Date(), 7).toISOString();
+
+      // Count stale contacts
+      const { count: staleCount } = await supabase
+        .from("contacts")
+        .select("id", { count: "exact", head: true })
+        .eq("workspace_id", workspaceId)
+        .is("deleted_at", null)
+        .not("last_contact_date", "is", null)
+        .lt("last_contact_date", sevenDaysAgo);
+
+      if (staleCount && staleCount > 0) {
+        items.push({
+          type: "insight",
+          text: `${staleCount} contact${staleCount > 1 ? "s" : ""} haven't been followed up in 7+ days — potential revenue at risk.`,
+        });
+      }
+
+      // Pending proposals
+      const { data: proposals } = await supabase
+        .from("ai_proposals")
+        .select("title, type")
+        .eq("workspace_id", workspaceId)
+        .eq("status", "pending")
+        .limit(2);
+
+      for (const p of proposals ?? []) {
+        items.push({
+          type: "action",
+          text: `Review AI proposal: "${p.title}". Awaiting your approval.`,
+        });
+      }
+
+      // Deals in negotiation
+      const { data: negDeals } = await supabase
+        .from("deals")
+        .select("title, value")
+        .eq("workspace_id", workspaceId)
+        .eq("stage", "negotiation")
+        .is("deleted_at", null)
+        .limit(2);
+
+      for (const d of negDeals ?? []) {
+        items.push({
+          type: "insight",
+          text: `"${d.title}" is in negotiation${d.value ? ` (value: $${d.value.toLocaleString()})` : ""}. Consider scheduling a follow-up.`,
+        });
+      }
+
+      // Content ready for review
+      const { count: reviewCount } = await supabase
+        .from("video_queue")
+        .select("id", { count: "exact", head: true })
+        .eq("workspace_id", workspaceId)
+        .in("status", ["editing", "review"]);
+
+      if (reviewCount && reviewCount > 0) {
+        items.push({
+          type: "action",
+          text: `${reviewCount} video${reviewCount > 1 ? "s" : ""} in editing/review — ready for your sign-off.`,
+        });
+      }
+
+      return items.length > 0
+        ? items
+        : [{ type: "insight", text: "All caught up! No urgent items right now." }];
+    },
+    enabled: !!workspaceId,
+  });
+}
