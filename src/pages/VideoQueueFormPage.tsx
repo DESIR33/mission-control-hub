@@ -54,7 +54,7 @@ export default function VideoQueueFormPage() {
   const { toast } = useToast();
 
   const { data: existingVideo, isLoading: loadingVideo } = useVideoQueueItem(
-    isEditing ? Number(id) : null
+    id ?? null
   );
   const { data: companies = [] } = useCompanies();
   const { workspaceId, isLoading: workspaceLoading, error: workspaceError, retry: retryWorkspace } = useWorkspace();
@@ -138,7 +138,7 @@ export default function VideoQueueFormPage() {
     if (isEditing) {
       updateVideo.mutate(
         {
-          id: Number(id),
+          id: id!,
           title: title.trim(),
           description: description.trim() || null,
           status,
