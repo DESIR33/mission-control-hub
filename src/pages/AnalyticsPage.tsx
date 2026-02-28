@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { BarChart3, TrendingUp, Eye, ThumbsUp, MessageSquare, Clock, ArrowUpRight, ArrowDownRight } from "lucide-react";
-import { WorkspaceProvider } from "@/hooks/use-workspace";
+import { useWorkspace } from "@/hooks/use-workspace";
 import { useYouTubeChannelStats, useYouTubeVideoStats, useGrowthGoal } from "@/hooks/use-youtube-analytics";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -10,11 +10,12 @@ import {
 import { format } from "date-fns";
 
 function AnalyticsContent() {
+  const { isLoading: workspaceLoading } = useWorkspace();
   const { data: channelSnapshots = [], isLoading: loadingChannel } = useYouTubeChannelStats(90);
   const { data: videoStats = [], isLoading: loadingVideos } = useYouTubeVideoStats(50);
   const { data: goal } = useGrowthGoal();
 
-  const isLoading = loadingChannel || loadingVideos;
+  const isLoading = workspaceLoading || loadingChannel || loadingVideos;
 
   // Channel overview data for line chart
   const subscriberTrend = useMemo(
@@ -328,9 +329,5 @@ function AnalyticsContent() {
 }
 
 export default function AnalyticsPage() {
-  return (
-    <WorkspaceProvider>
-      <AnalyticsContent />
-    </WorkspaceProvider>
-  );
+  return <AnalyticsContent />;
 }
