@@ -113,8 +113,12 @@ export function ContactDetailSheet({ contact, activities, open, onOpenChange, on
         response_sla_minutes: form.get("response_sla_minutes") ? Number(form.get("response_sla_minutes")) : null,
         social_twitter: (form.get("social_twitter") as string) || undefined,
         social_linkedin: (form.get("social_linkedin") as string) || undefined,
+        social_facebook: (form.get("social_facebook") as string) || undefined,
         social_instagram: (form.get("social_instagram") as string) || undefined,
+        social_telegram: (form.get("social_telegram") as string) || undefined,
         social_whatsapp: (form.get("social_whatsapp") as string) || undefined,
+        social_discord: (form.get("social_discord") as string) || undefined,
+        social_youtube: (form.get("social_youtube") as string) || undefined,
         notes: (form.get("notes") as string) || undefined,
       });
       toast({ title: "Contact updated" });
@@ -286,12 +290,32 @@ export function ContactDetailSheet({ contact, activities, open, onOpenChange, on
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1.5">
+                      <Label htmlFor="edit_facebook">Facebook</Label>
+                      <Input id="edit_facebook" name="social_facebook" defaultValue={contact.social_facebook ?? ""} className="bg-secondary border-border" />
+                    </div>
+                    <div className="space-y-1.5">
                       <Label htmlFor="edit_instagram">Instagram</Label>
                       <Input id="edit_instagram" name="social_instagram" defaultValue={contact.social_instagram ?? ""} className="bg-secondary border-border" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="edit_telegram">Telegram</Label>
+                      <Input id="edit_telegram" name="social_telegram" defaultValue={contact.social_telegram ?? ""} className="bg-secondary border-border" />
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="edit_whatsapp">WhatsApp</Label>
                       <Input id="edit_whatsapp" name="social_whatsapp" defaultValue={contact.social_whatsapp ?? ""} className="bg-secondary border-border" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="edit_discord">Discord</Label>
+                      <Input id="edit_discord" name="social_discord" defaultValue={contact.social_discord ?? ""} className="bg-secondary border-border" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="edit_youtube">YouTube</Label>
+                      <Input id="edit_youtube" name="social_youtube" defaultValue={contact.social_youtube ?? ""} className="bg-secondary border-border" />
                     </div>
                   </div>
 
@@ -345,8 +369,12 @@ export function ContactDetailSheet({ contact, activities, open, onOpenChange, on
                     <div className="space-y-0.5">
                       <DetailRow icon={Twitter} label="Twitter / X" value={contact.social_twitter} href={contact.social_twitter ? `https://x.com/${contact.social_twitter.replace("@", "")}` : undefined} />
                       <DetailRow icon={Linkedin} label="LinkedIn" value={contact.social_linkedin} href={contact.social_linkedin ? `https://linkedin.com/in/${contact.social_linkedin}` : undefined} />
+                      <DetailRow icon={Globe} label="Facebook" value={contact.social_facebook} href={contact.social_facebook ? `https://facebook.com/${contact.social_facebook}` : undefined} />
                       <DetailRow icon={Instagram} label="Instagram" value={contact.social_instagram} href={contact.social_instagram ? `https://instagram.com/${contact.social_instagram.replace("@", "")}` : undefined} />
+                      <DetailRow icon={MessageSquare} label="Telegram" value={contact.social_telegram} href={contact.social_telegram ? `https://t.me/${contact.social_telegram.replace("@", "")}` : undefined} />
                       <DetailRow icon={MessageSquare} label="WhatsApp" value={contact.social_whatsapp} />
+                      <DetailRow icon={MessageSquare} label="Discord" value={contact.social_discord} />
+                      <DetailRow icon={Globe} label="YouTube" value={contact.social_youtube} href={contact.social_youtube ? `https://youtube.com/${contact.social_youtube}` : undefined} />
                     </div>
                   </div>
 

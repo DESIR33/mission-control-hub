@@ -47,7 +47,15 @@ export function useCreateCompany() {
       revenue?: string;
       location?: string;
       primary_email?: string;
+      secondary_email?: string;
       vip_tier?: string;
+      social_twitter?: string;
+      social_linkedin?: string;
+      social_youtube?: string;
+      social_instagram?: string;
+      social_facebook?: string;
+      social_tiktok?: string;
+      social_producthunt?: string;
       notes?: string;
     }) => {
       if (!workspaceId) throw new Error("No workspace");
@@ -91,6 +99,11 @@ export function useUpdateCompany() {
       secondary_email?: string;
       social_twitter?: string;
       social_linkedin?: string;
+      social_youtube?: string;
+      social_instagram?: string;
+      social_facebook?: string;
+      social_tiktok?: string;
+      social_producthunt?: string;
       vip_tier?: string;
       response_sla_minutes?: number | null;
       notes?: string;

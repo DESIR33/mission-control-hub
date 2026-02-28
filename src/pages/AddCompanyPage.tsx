@@ -1,19 +1,22 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Building2, Loader2 } from "lucide-react";
+import { ArrowLeft, Building2, Loader2, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useCreateCompany } from "@/hooks/use-companies";
 import { useToast } from "@/hooks/use-toast";
 import { WorkspaceProvider } from "@/hooks/use-workspace";
+import { cn } from "@/lib/utils";
 
 function AddCompanyForm() {
   const navigate = useNavigate();
   const createCompany = useCreateCompany();
   const { toast } = useToast();
+  const [socialOpen, setSocialOpen] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -30,6 +33,13 @@ function AddCompanyForm() {
         revenue: (form.get("revenue") as string) || undefined,
         vip_tier: form.get("vip_tier") as string,
         description: (form.get("description") as string) || undefined,
+        social_twitter: (form.get("social_twitter") as string) || undefined,
+        social_linkedin: (form.get("social_linkedin") as string) || undefined,
+        social_youtube: (form.get("social_youtube") as string) || undefined,
+        social_instagram: (form.get("social_instagram") as string) || undefined,
+        social_facebook: (form.get("social_facebook") as string) || undefined,
+        social_tiktok: (form.get("social_tiktok") as string) || undefined,
+        social_producthunt: (form.get("social_producthunt") as string) || undefined,
         notes: (form.get("notes") as string) || undefined,
       });
       toast({ title: "Company created" });
@@ -125,6 +135,52 @@ function AddCompanyForm() {
             <Label htmlFor="description">Description</Label>
             <Textarea id="description" name="description" rows={2} className="bg-secondary border-border" />
           </div>
+
+          {/* Social Media - Collapsible */}
+          <Collapsible open={socialOpen} onOpenChange={setSocialOpen}>
+            <CollapsibleTrigger asChild>
+              <Button type="button" variant="ghost" size="sm" className="w-full justify-between px-0 font-medium text-sm">
+                Social Media Profiles
+                <ChevronDown className={cn("h-4 w-4 transition-transform", socialOpen && "rotate-180")} />
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="space-y-3 pt-2">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="social_twitter" className="text-xs">Twitter / X</Label>
+                  <Input id="social_twitter" name="social_twitter" placeholder="@handle" className="bg-secondary border-border" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="social_linkedin" className="text-xs">LinkedIn</Label>
+                  <Input id="social_linkedin" name="social_linkedin" placeholder="linkedin.com/company/..." className="bg-secondary border-border" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="social_facebook" className="text-xs">Facebook</Label>
+                  <Input id="social_facebook" name="social_facebook" placeholder="facebook.com/..." className="bg-secondary border-border" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="social_instagram" className="text-xs">Instagram</Label>
+                  <Input id="social_instagram" name="social_instagram" placeholder="@handle" className="bg-secondary border-border" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="social_youtube" className="text-xs">YouTube</Label>
+                  <Input id="social_youtube" name="social_youtube" placeholder="youtube.com/@..." className="bg-secondary border-border" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="social_tiktok" className="text-xs">TikTok</Label>
+                  <Input id="social_tiktok" name="social_tiktok" placeholder="@handle" className="bg-secondary border-border" />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="social_producthunt" className="text-xs">Product Hunt</Label>
+                <Input id="social_producthunt" name="social_producthunt" placeholder="producthunt.com/products/..." className="bg-secondary border-border" />
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
 
           <div className="space-y-1.5">
             <Label htmlFor="notes">Notes</Label>

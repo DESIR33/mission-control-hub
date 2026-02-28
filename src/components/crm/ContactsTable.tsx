@@ -3,10 +3,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Search, Filter, Mail, Phone, Star, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Contact, ContactStatus, VipTier } from "@/types/crm";
 import { formatDistanceToNow } from "date-fns";
+import { BulkActionsBar } from "./BulkActionsBar";
 
 const statusColors: Record<ContactStatus, string> = {
   active: "bg-success/15 text-success border-success/30",
@@ -33,6 +35,25 @@ export function ContactsTable({ contacts, onSelectContact, selectedId, addButton
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [tierFilter, setTierFilter] = useState<string>("all");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  const toggleSelect = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === filtered.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filtered.map((c) => c.id)));
+    }
+  };
 
   const filtered = contacts.filter((c) => {
     const matchesSearch =
@@ -97,6 +118,14 @@ export function ContactsTable({ contacts, onSelectContact, selectedId, addButton
         {filtered.length} contact{filtered.length !== 1 ? "s" : ""}
         {search || statusFilter !== "all" || tierFilter !== "all" ? " (filtered)" : ""}
       </p>
+
+      {/* Bulk Actions */}
+      <BulkActionsBar
+        selectedCount={selectedIds.size}
+        selectedIds={selectedIds}
+        onClearSelection={() => setSelectedIds(new Set())}
+        entityType="contact"
+      />
 
       {/* Mobile card list — visible only on small screens */}
       <div className="md:hidden rounded-lg border border-border bg-card overflow-hidden divide-y divide-border">
@@ -169,6 +198,12 @@ export function ContactsTable({ contacts, onSelectContact, selectedId, addButton
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent border-border">
+              <TableHead className="w-[40px]">
+                <Checkbox
+                  checked={filtered.length > 0 && selectedIds.size === filtered.length}
+                  onCheckedChange={toggleSelectAll}
+                />
+              </TableHead>
               <TableHead className="text-muted-foreground font-semibold">Name</TableHead>
               <TableHead className="text-muted-foreground font-semibold">Company</TableHead>
               <TableHead className="text-muted-foreground font-semibold">Status</TableHead>
@@ -181,7 +216,7 @@ export function ContactsTable({ contacts, onSelectContact, selectedId, addButton
           <TableBody>
             {filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">
+                <TableCell colSpan={8} className="text-center py-12 text-muted-foreground">
                   No contacts found
                 </TableCell>
               </TableRow>
@@ -192,11 +227,25 @@ export function ContactsTable({ contacts, onSelectContact, selectedId, addButton
                   onClick={() => onSelectContact(contact)}
                   className={cn(
                     "cursor-pointer border-border transition-colors",
+                    selectedIds.has(contact.id) && "bg-primary/5",
                     selectedId === contact.id
                       ? "bg-primary/5 border-l-2 border-l-primary"
                       : "hover:bg-accent/50"
                   )}
                 >
+                  <TableCell className="w-[40px]" onClick={(e) => e.stopPropagation()}>
+                    <Checkbox
+                      checked={selectedIds.has(contact.id)}
+                      onCheckedChange={() => {
+                        setSelectedIds((prev) => {
+                          const next = new Set(prev);
+                          if (next.has(contact.id)) next.delete(contact.id);
+                          else next.add(contact.id);
+                          return next;
+                        });
+                      }}
+                    />
+                  </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">

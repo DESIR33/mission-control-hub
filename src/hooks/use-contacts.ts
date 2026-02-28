@@ -47,9 +47,22 @@ export function useCreateContact() {
       phone?: string;
       status?: string;
       role?: string;
+      role_id?: string;
       source?: string;
       company_id?: string;
       vip_tier?: string;
+      website?: string;
+      social_twitter?: string;
+      social_linkedin?: string;
+      social_youtube?: string;
+      social_instagram?: string;
+      social_facebook?: string;
+      social_telegram?: string;
+      social_whatsapp?: string;
+      social_discord?: string;
+      city?: string;
+      state?: string;
+      country?: string;
       notes?: string;
     }) => {
       if (!workspaceId) throw new Error("No workspace");
@@ -88,6 +101,7 @@ export function useUpdateContact() {
       phone?: string;
       status?: string;
       role?: string;
+      role_id?: string | null;
       source?: string;
       company_id?: string | null;
       vip_tier?: string;
@@ -97,8 +111,12 @@ export function useUpdateContact() {
       response_sla_minutes?: number | null;
       social_twitter?: string;
       social_linkedin?: string;
+      social_youtube?: string;
       social_instagram?: string;
+      social_facebook?: string;
+      social_telegram?: string;
       social_whatsapp?: string;
+      social_discord?: string;
     }) => {
       if (!workspaceId) throw new Error("No workspace");
 
@@ -168,6 +186,57 @@ export function useActivities(entityId: string | null, entityType: string = "con
       }));
     },
     enabled: !!workspaceId && !!entityId,
+  });
+}
+
+export interface ContactRole {
+  id: string;
+  workspace_id: string;
+  name: string;
+  created_at: string;
+}
+
+export function useContactRoles() {
+  const { workspaceId } = useWorkspace();
+
+  return useQuery({
+    queryKey: ["contact-roles", workspaceId],
+    queryFn: async (): Promise<ContactRole[]> => {
+      if (!workspaceId) return [];
+
+      const { data, error } = await supabase
+        .from("contact_roles")
+        .select("*")
+        .eq("workspace_id", workspaceId)
+        .order("name");
+
+      if (error) throw error;
+      return data ?? [];
+    },
+    enabled: !!workspaceId,
+  });
+}
+
+export function useCreateContactRole() {
+  const { workspaceId } = useWorkspace();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (name: string) => {
+      if (!workspaceId) throw new Error("No workspace");
+
+      const { data, error } = await supabase
+        .from("contact_roles")
+        .insert({ workspace_id: workspaceId, name })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["contact-roles", workspaceId] });
+    },
   });
 }
 

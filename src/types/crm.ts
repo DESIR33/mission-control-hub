@@ -22,6 +22,11 @@ export interface Contact {
   social_facebook: string | null;
   social_telegram: string | null;
   social_whatsapp: string | null;
+  social_discord: string | null;
+  role_id: string | null;
+  city: string | null;
+  state: string | null;
+  country: string | null;
   enrichment_hunter: Record<string, unknown> | null;
   enrichment_ai: Record<string, unknown> | null;
   enrichment_youtube: Record<string, unknown> | null;
