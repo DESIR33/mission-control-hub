@@ -6,30 +6,51 @@ interface PipelineStage {
   color: string;
 }
 
-const contactsPipeline: PipelineStage[] = [
-  { label: "New", count: 12, color: "bg-primary" },
-  { label: "Active", count: 34, color: "bg-success" },
-  { label: "Follow-up", count: 8, color: "bg-warning" },
-  { label: "Stale", count: 5, color: "bg-destructive" },
-];
+const statusColorMap: Record<string, string> = {
+  // contacts
+  lead: "bg-muted-foreground",
+  active: "bg-success",
+  customer: "bg-primary",
+  inactive: "bg-destructive",
+  // video
+  idea: "bg-muted-foreground",
+  scripting: "bg-primary",
+  recording: "bg-warning",
+  editing: "bg-success",
+  scheduled: "bg-primary",
+  published: "bg-success",
+  // deals
+  prospecting: "bg-muted-foreground",
+  outreach: "bg-primary",
+  proposal: "bg-primary",
+  negotiation: "bg-warning",
+  closed_won: "bg-success",
+  closed_lost: "bg-destructive",
+};
 
-const contentPipeline: PipelineStage[] = [
-  { label: "Idea", count: 6, color: "bg-muted-foreground" },
-  { label: "Script", count: 3, color: "bg-primary" },
-  { label: "Filming", count: 1, color: "bg-warning" },
-  { label: "Edit", count: 2, color: "bg-success" },
-  { label: "Review", count: 1, color: "bg-primary" },
-];
-
-const dealsPipeline: PipelineStage[] = [
-  { label: "Prospect", count: 4, color: "bg-muted-foreground" },
-  { label: "Outreach", count: 3, color: "bg-primary" },
-  { label: "Negotiation", count: 2, color: "bg-warning" },
-  { label: "Closed", count: 7, color: "bg-success" },
-];
+function toStages(data: Record<string, number>): PipelineStage[] {
+  return Object.entries(data)
+    .filter(([, count]) => count > 0)
+    .map(([label, count]) => ({
+      label: label.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+      count,
+      color: statusColorMap[label] || "bg-muted-foreground",
+    }));
+}
 
 function PipelineBar({ stages, title }: { stages: PipelineStage[]; title: string }) {
   const total = stages.reduce((s, st) => s + st.count, 0);
+  if (total === 0) {
+    return (
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{title}</p>
+          <p className="text-xs font-mono text-muted-foreground">0 total</p>
+        </div>
+        <div className="h-2 rounded-full bg-secondary" />
+      </div>
+    );
+  }
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
@@ -60,7 +81,13 @@ function PipelineBar({ stages, title }: { stages: PipelineStage[]; title: string
   );
 }
 
-export function PipelineHealth() {
+interface PipelineHealthProps {
+  contactsByStatus: Record<string, number>;
+  videosByStatus: Record<string, number>;
+  dealsByStage: Record<string, number>;
+}
+
+export function PipelineHealth({ contactsByStatus, videosByStatus, dealsByStage }: PipelineHealthProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -69,9 +96,9 @@ export function PipelineHealth() {
       className="rounded-lg border border-border bg-card p-5 space-y-5"
     >
       <h3 className="text-sm font-semibold text-card-foreground">Pipeline Health</h3>
-      <PipelineBar stages={contactsPipeline} title="Contacts" />
-      <PipelineBar stages={contentPipeline} title="Content" />
-      <PipelineBar stages={dealsPipeline} title="Deals" />
+      <PipelineBar stages={toStages(contactsByStatus)} title="Contacts" />
+      <PipelineBar stages={toStages(videosByStatus)} title="Content" />
+      <PipelineBar stages={toStages(dealsByStage)} title="Deals" />
     </motion.div>
   );
 }

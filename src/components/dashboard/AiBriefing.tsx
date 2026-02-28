@@ -1,26 +1,13 @@
 import { motion } from "framer-motion";
 import { Brain, Sparkles } from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { BriefingItem } from "@/hooks/use-dashboard-stats";
 
-const briefingItems = [
-  {
-    type: "insight" as const,
-    text: "3 sponsor threads haven't been followed up in 5+ days — potential revenue at risk.",
-  },
-  {
-    type: "action" as const,
-    text: "Draft follow-up email to NordVPN (deal value: $12,000). Awaiting your approval.",
-  },
-  {
-    type: "insight" as const,
-    text: "Your last 3 videos had 18% higher watch time when published on Tuesdays.",
-  },
-  {
-    type: "action" as const,
-    text: "Reschedule 'AI Tools Review' to Tuesday based on performance data?",
-  },
-];
+interface AiBriefingProps {
+  items: BriefingItem[];
+}
 
-export function AiBriefing() {
+export function AiBriefing({ items }: AiBriefingProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -42,33 +29,24 @@ export function AiBriefing() {
       </div>
 
       <div className="space-y-3">
-        {briefingItems.map((item, i) => (
-          <div
-            key={i}
-            className="flex items-start gap-3 text-sm"
-          >
+        {items.map((item, i) => (
+          <div key={i} className="flex items-start gap-3 text-sm">
             <div
               className={cn(
                 "mt-1 w-1.5 h-1.5 rounded-full shrink-0",
                 item.type === "action" ? "bg-warning" : "bg-primary"
               )}
             />
-            <p className="text-muted-foreground leading-relaxed">
-              {item.text}
-            </p>
+            <p className="text-muted-foreground leading-relaxed">{item.text}</p>
           </div>
         ))}
       </div>
 
       <div className="mt-4 pt-3 border-t border-border flex items-center gap-2">
-        <button className="text-xs font-medium text-primary hover:underline">
+        <a href="/ai-bridge" className="text-xs font-medium text-primary hover:underline">
           View all proposals →
-        </button>
+        </a>
       </div>
     </motion.div>
   );
-}
-
-function cn(...classes: (string | boolean | undefined)[]) {
-  return classes.filter(Boolean).join(" ");
 }
