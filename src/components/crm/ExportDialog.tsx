@@ -59,11 +59,11 @@ function escapeCsv(value: string | null | undefined): string {
 
 function getContactValue(contact: Contact, key: string): string {
   if (key === "company_name") return contact.company?.name ?? "";
-  return String((contact as Record<string, unknown>)[key] ?? "");
+  return String((contact as unknown as Record<string, unknown>)[key] ?? "");
 }
 
 function getCompanyValue(company: Company, key: string): string {
-  return String((company as Record<string, unknown>)[key] ?? "");
+  return String((company as unknown as Record<string, unknown>)[key] ?? "");
 }
 
 function downloadCsv(filename: string, csvContent: string) {

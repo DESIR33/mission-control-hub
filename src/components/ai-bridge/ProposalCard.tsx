@@ -77,6 +77,11 @@ const proposalTypeConfig: Record<
     label: "Tag Suggestion",
     className: "bg-chart-5/10 text-chart-5",
   },
+  content_suggestion: {
+    icon: Sparkles,
+    label: "Content",
+    className: "bg-chart-3/10 text-chart-3",
+  },
 };
 
 interface ProposalCardProps {

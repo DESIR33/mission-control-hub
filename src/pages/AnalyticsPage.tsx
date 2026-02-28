@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { BarChart3, TrendingUp, Eye, ThumbsUp, MessageSquare, Clock, ArrowUpRight, ArrowDownRight } from "lucide-react";
-import { useWorkspace } from "@/hooks/use-workspace";
+import { useWorkspace, WorkspaceProvider } from "@/hooks/use-workspace";
 import { useYouTubeChannelStats, useYouTubeVideoStats, useGrowthGoal } from "@/hooks/use-youtube-analytics";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -329,5 +329,9 @@ function AnalyticsContent() {
 }
 
 export default function AnalyticsPage() {
-  return <AnalyticsContent />;
+  return (
+    <WorkspaceProvider>
+      <AnalyticsContent />
+    </WorkspaceProvider>
+  );
 }

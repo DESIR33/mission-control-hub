@@ -53,7 +53,7 @@ const sources: EnrichmentSourceConfig[] = [
       if (data.twitter) fields.push({ label: "Twitter", value: String(data.twitter) });
       if (data.linkedin_url) fields.push({ label: "LinkedIn", value: String(data.linkedin_url) });
       if (data.phone_number) fields.push({ label: "Phone", value: String(data.phone_number) });
-      if (data.verification?.status) fields.push({ label: "Verification Status", value: String(data.verification.status) });
+      if ((data as any).verification?.status) fields.push({ label: "Verification Status", value: String((data as any).verification.status) });
       if ((data.sources as unknown[])?.length) fields.push({ label: "Sources Found", value: String((data.sources as unknown[]).length) });
       return fields;
     },

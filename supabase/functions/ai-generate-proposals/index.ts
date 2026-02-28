@@ -163,9 +163,9 @@ Return ONLY a JSON array of proposals. No markdown, no explanation, just the arr
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
-  } catch (error) {
+  } catch (error: unknown) {
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ success: false, error: error instanceof Error ? error.message : String(error) }),
       {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

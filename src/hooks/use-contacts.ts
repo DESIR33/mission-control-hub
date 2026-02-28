@@ -205,13 +205,13 @@ export function useContactRoles() {
       if (!workspaceId) return [];
 
       const { data, error } = await supabase
-        .from("contact_roles")
+        .from("contact_roles" as any)
         .select("*")
         .eq("workspace_id", workspaceId)
         .order("name");
 
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as unknown as ContactRole[];
     },
     enabled: !!workspaceId,
   });
@@ -226,7 +226,7 @@ export function useCreateContactRole() {
       if (!workspaceId) throw new Error("No workspace");
 
       const { data, error } = await supabase
-        .from("contact_roles")
+        .from("contact_roles" as any)
         .insert({ workspace_id: workspaceId, name })
         .select()
         .single();

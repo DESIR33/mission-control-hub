@@ -218,7 +218,7 @@ export function useRevenueData() {
         .eq("workspace_id", workspaceId);
 
       const deals = wonDeals ?? [];
-      const transactions = (affiliateTx ?? []) as Array<{ amount: number; transaction_date: string }>;
+      const transactions = (affiliateTx ?? []) as unknown as Array<{ amount: number; transaction_date: string }>;
 
       const months: RevenueDataPoint[] = [];
       for (let i = 5; i >= 0; i--) {

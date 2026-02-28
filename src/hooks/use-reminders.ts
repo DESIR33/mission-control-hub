@@ -25,7 +25,7 @@ export function useReminders(entityId?: string, entityType?: string) {
       if (!workspaceId) return [];
 
       let query = supabase
-        .from("follow_up_reminders")
+        .from("follow_up_reminders" as any)
         .select("*")
         .eq("workspace_id", workspaceId)
         .order("due_date", { ascending: true });
@@ -62,7 +62,7 @@ export function useUpcomingReminders() {
       const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
       const { data, error } = await supabase
-        .from("follow_up_reminders")
+        .from("follow_up_reminders" as any)
         .select("*")
         .eq("workspace_id", workspaceId)
         .is("completed_at", null)
@@ -98,7 +98,7 @@ export function useCreateReminder() {
       const { data: { user } } = await supabase.auth.getUser();
 
       const { data, error } = await supabase
-        .from("follow_up_reminders")
+        .from("follow_up_reminders" as any)
         .insert({
           ...reminder,
           workspace_id: workspaceId,
@@ -126,7 +126,7 @@ export function useCompleteReminder() {
       if (!workspaceId) throw new Error("No workspace");
 
       const { data, error } = await supabase
-        .from("follow_up_reminders")
+        .from("follow_up_reminders" as any)
         .update({ completed_at: new Date().toISOString() } as any)
         .eq("id", id)
         .select()
@@ -151,7 +151,7 @@ export function useDeleteReminder() {
       if (!workspaceId) throw new Error("No workspace");
 
       const { error } = await supabase
-        .from("follow_up_reminders")
+        .from("follow_up_reminders" as any)
         .delete()
         .eq("id", id);
 
