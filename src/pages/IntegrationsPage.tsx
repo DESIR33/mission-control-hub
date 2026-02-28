@@ -13,8 +13,6 @@ import { IntegrationCard } from "@/components/integrations/IntegrationCard";
 import { ConnectDialog } from "@/components/integrations/ConnectDialog";
 import { Skeleton } from "@/components/ui/skeleton";
 
-// ─── Types exported for child components ──────────────────────────────────────
-
 export interface FieldDef {
   name: string;
   label: string;
@@ -28,16 +26,14 @@ export interface IntegrationDef {
   key: IntegrationKey;
   name: string;
   description: string;
-  icon: string;           // emoji / text icon
-  iconBg: string;         // CSS background value
+  icon: string;
+  iconBg: string;
   docsUrl?: string;
   usedFor?: string;
   connectHint?: string;
   warningNote?: string;
   fields: FieldDef[];
 }
-
-// ─── Integration catalogue ────────────────────────────────────────────────────
 
 const INTEGRATIONS: IntegrationDef[] = [
   {
@@ -139,13 +135,6 @@ const INTEGRATIONS: IntegrationDef[] = [
     key: "youtube",
     name: "YouTube",
     description:
-      "Pull channel analytics, subscriber count, and video performance data from YouTube.",
-    icon: "▶",
-    iconBg: "linear-gradient(135deg, #FF0000 0%, #CC0000 100%)",
-    docsUrl: "https://developers.google.com/youtube/v3",
-    usedFor: "Used for: subscriber tracking · video analytics · growth metrics",
-    connectHint:
-      "Provide your YouTube Data API v3 key from Google Cloud Console.",
       "Pull channel stats, video analytics, and subscriber data from the YouTube Data API.",
     icon: "▶",
     iconBg: "linear-gradient(135deg, #ff0000 0%, #cc0000 100%)",
@@ -168,13 +157,39 @@ const INTEGRATIONS: IntegrationDef[] = [
         placeholder: "UC…",
         required: true,
         hint: "Your YouTube channel ID (starts with UC). Find it at youtube.com/account_advanced.",
-        hint: "Google Cloud Console → APIs & Services → Credentials → API Keys.",
+      },
+    ],
+  },
+  {
+    key: "resend" as IntegrationKey,
+    name: "Resend",
+    description:
+      "Send transactional emails for brand outreach, follow-ups, and notifications.",
+    icon: "✉️",
+    iconBg: "linear-gradient(135deg, #000000 0%, #333333 100%)",
+    docsUrl: "https://resend.com/docs",
+    usedFor: "Used for: brand deal outreach · follow-up emails · notifications",
+    connectHint:
+      "Paste your Resend API key and configure your sending email address.",
+    fields: [
+      {
+        name: "api_key",
+        label: "Resend API Key",
+        placeholder: "re_••••••••••••••••••••••••••••••••",
+        secret: true,
+        required: true,
+        hint: "Found at resend.com → API Keys.",
+      },
+      {
+        name: "from_email",
+        label: "From Email",
+        placeholder: "you@yourdomain.com",
+        required: true,
+        hint: "The verified email/domain you want to send from.",
       },
     ],
   },
 ];
-
-// ─── Inner page (needs workspace context) ────────────────────────────────────
 
 function IntegrationsContent() {
   const { data: integrations = [], isLoading } = useIntegrations();
@@ -221,7 +236,6 @@ function IntegrationsContent() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 gradient-mesh min-h-screen">
-      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -241,7 +255,6 @@ function IntegrationsContent() {
         </p>
       </motion.div>
 
-      {/* Cards grid */}
       {isLoading ? (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {INTEGRATIONS.map((d) => (
@@ -272,7 +285,6 @@ function IntegrationsContent() {
         </div>
       )}
 
-      {/* Connect dialog */}
       <ConnectDialog
         open={dialogKey !== null}
         def={activeDef}
@@ -283,8 +295,6 @@ function IntegrationsContent() {
     </div>
   );
 }
-
-// ─── Public export (wraps with WorkspaceProvider) ────────────────────────────
 
 export default function IntegrationsPage() {
   return (

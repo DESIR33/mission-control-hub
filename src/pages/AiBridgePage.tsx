@@ -9,8 +9,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, Filter, Brain } from "lucide-react";
-import { WorkspaceProvider } from "@/hooks/use-workspace";
+import { Button } from "@/components/ui/button";
+import { Search, Filter, Brain, Sparkles, Loader2 } from "lucide-react";
+import { WorkspaceProvider, useWorkspace } from "@/hooks/use-workspace";
+import { supabase } from "@/integrations/supabase/client";
 import { useProposals, useUpdateProposalStatus, useUpdateProposal } from "@/hooks/use-proposals";
 import { ProposalCard } from "@/components/ai-bridge/ProposalCard";
 import { ProposalStats } from "@/components/ai-bridge/ProposalStats";
@@ -23,11 +25,32 @@ function AiBridgeContent() {
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [editingProposal, setEditingProposal] = useState<AiProposal | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
+  const { workspaceId } = useWorkspace();
   const { data: proposals = [], isLoading } = useProposals();
   const updateStatus = useUpdateProposalStatus();
   const updateProposal = useUpdateProposal();
   const { toast } = useToast();
+
+  const handleGenerate = async () => {
+    if (!workspaceId) return;
+    setIsGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("ai-generate-proposals", {
+        body: { workspace_id: workspaceId },
+      });
+      if (error) throw error;
+      toast({
+        title: "Proposals generated",
+        description: `${data?.inserted ?? 0} new AI proposals created.`,
+      });
+    } catch (err: any) {
+      toast({ title: "Generation failed", description: err.message, variant: "destructive" });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   // Local state for optimistic updates on mock data
   const [localStatuses, setLocalStatuses] = useState<
@@ -172,9 +195,19 @@ function AiBridgeContent() {
   return (
     <div className="p-4 sm:p-6 lg:p-8 gradient-mesh min-h-screen">
       <div className="mb-6">
-        <div className="flex items-center gap-3 mb-1">
-          <Brain className="w-6 h-6 text-primary" />
-          <h1 className="text-2xl font-bold text-foreground">AI Bridge</h1>
+        <div className="flex items-center justify-between gap-3 mb-1">
+          <div className="flex items-center gap-3">
+            <Brain className="w-6 h-6 text-primary" />
+            <h1 className="text-2xl font-bold text-foreground">AI Bridge</h1>
+          </div>
+          <Button onClick={handleGenerate} disabled={isGenerating} size="sm">
+            {isGenerating ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Sparkles className="w-4 h-4 mr-2" />
+            )}
+            {isGenerating ? "Generating..." : "Generate Proposals"}
+          </Button>
         </div>
         <p className="text-sm text-muted-foreground">
           Review AI-generated proposals for your contacts, deals, and companies.
@@ -235,6 +268,7 @@ function AiBridgeContent() {
                   <SelectItem value="deal_update">Deal Update</SelectItem>
                   <SelectItem value="score_update">Score Update</SelectItem>
                   <SelectItem value="tag_suggestion">Tag Suggestion</SelectItem>
+                  <SelectItem value="content_suggestion">Content Suggestion</SelectItem>
                 </SelectContent>
               </Select>
             </div>

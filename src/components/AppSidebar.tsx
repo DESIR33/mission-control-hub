@@ -7,7 +7,6 @@ import {
   DollarSign,
   Handshake,
   CheckSquare,
-  Handshake,
   FolderKanban,
   Brain,
   Bell,
@@ -17,6 +16,8 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
+  BarChart3,
+  Compass,
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
@@ -26,9 +27,10 @@ const navItems = [
   { to: "/", icon: LayoutDashboard, label: "Mission Control" },
   { to: "/relationships", icon: Users, label: "Relationships" },
   { to: "/content", icon: Film, label: "Content Pipeline" },
+  { to: "/analytics", icon: BarChart3, label: "Analytics" },
   { to: "/monetization", icon: DollarSign, label: "Monetization" },
-  { to: "/deals", icon: Handshake, label: "Deals" },
   { to: "/deals", icon: Handshake, label: "Deals Pipeline" },
+  { to: "/discover", icon: Compass, label: "Discover" },
   { to: "/projects", icon: FolderKanban, label: "Projects" },
   { to: "/tasks", icon: CheckSquare, label: "Tasks" },
   { to: "/ai-bridge", icon: Brain, label: "AI Bridge" },
@@ -77,7 +79,7 @@ export function AppSidebar() {
           const showBadge = isNotifications && unreadCount > 0;
           return (
             <RouterNavLink
-              key={item.to}
+              key={item.to + item.label}
               to={item.to}
               end={item.to === "/"}
               className={({ isActive }) =>

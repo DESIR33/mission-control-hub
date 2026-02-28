@@ -30,6 +30,8 @@ import AddContactPage from "./pages/AddContactPage";
 import AddProductTransactionPage from "./pages/AddProductTransactionPage";
 import NewSponsorshipPage from "./pages/NewSponsorshipPage";
 import DealsPage from "./pages/DealsPage";
+import AnalyticsPage from "./pages/AnalyticsPage";
+import SponsorDiscoveryPage from "./pages/SponsorDiscoveryPage";
 
 const queryClient = new QueryClient();
 
@@ -75,8 +77,10 @@ const App = () => (
               <Route path="/content" element={<VideoQueuePage />} />
               <Route path="/content/create" element={<VideoQueueFormPage />} />
               <Route path="/content/:id/edit" element={<VideoQueueFormPage />} />
+              <Route path="/analytics" element={<AnalyticsPage />} />
               <Route path="/monetization" element={<MonetizationPage />} />
               <Route path="/deals" element={<DealsPage />} />
+              <Route path="/discover" element={<SponsorDiscoveryPage />} />
               <Route path="/affiliate-program/new" element={<NewAffiliateProgramPage />} />
               <Route path="/affiliate-program/:id" element={<AffiliateProgramPage />} />
               <Route path="/affiliate-program/:id/edit" element={<EditAffiliateProgramPage />} />
@@ -85,7 +89,6 @@ const App = () => (
               <Route path="/sponsorship/new" element={<NewSponsorshipPage />} />
               <Route path="/add-transaction" element={<AddProductTransactionPage />} />
               <Route path="/add-transaction/:id" element={<AddProductTransactionPage />} />
-              <Route path="/deals" element={<DealsPage />} />
               <Route path="/projects" element={<ProjectsPage />} />
               <Route path="/tasks" element={<Tasks />} />
               <Route path="/ai-bridge" element={<AiBridgePage />} />
