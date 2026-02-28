@@ -139,6 +139,13 @@ const INTEGRATIONS: IntegrationDef[] = [
     key: "youtube",
     name: "YouTube",
     description:
+      "Pull channel analytics, subscriber count, and video performance data from YouTube.",
+    icon: "▶",
+    iconBg: "linear-gradient(135deg, #FF0000 0%, #CC0000 100%)",
+    docsUrl: "https://developers.google.com/youtube/v3",
+    usedFor: "Used for: subscriber tracking · video analytics · growth metrics",
+    connectHint:
+      "Provide your YouTube Data API v3 key from Google Cloud Console.",
       "Pull channel stats, video analytics, and subscriber data from the YouTube Data API.",
     icon: "▶",
     iconBg: "linear-gradient(135deg, #ff0000 0%, #cc0000 100%)",
@@ -153,6 +160,14 @@ const INTEGRATIONS: IntegrationDef[] = [
         placeholder: "AIza…",
         secret: true,
         required: true,
+        hint: "Google Cloud Console → APIs & Services → Credentials → API Key.",
+      },
+      {
+        name: "channel_id",
+        label: "Channel ID",
+        placeholder: "UC…",
+        required: true,
+        hint: "Your YouTube channel ID (starts with UC). Find it at youtube.com/account_advanced.",
         hint: "Google Cloud Console → APIs & Services → Credentials → API Keys.",
       },
     ],

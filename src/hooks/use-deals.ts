@@ -1,6 +1,37 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+
+export type DealStage =
+  | "prospecting"
+  | "qualification"
+  | "proposal"
+  | "negotiation"
+  | "closed_won"
+  | "closed_lost";
+
+export interface Deal {
+  id: string;
+  workspace_id: string;
+  title: string;
+  value: number | null;
+  currency: string | null;
+  stage: DealStage;
+  forecast_category: string | null;
+  contact_id: string | null;
+  company_id: string | null;
+  owner_id: string | null;
+  expected_close_date: string | null;
+  closed_at: string | null;
+  notes: string | null;
+  deleted_at: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+  // Joined
+  contact?: { id: string; first_name: string; last_name: string | null; email: string | null } | null;
+  company?: { id: string; name: string; logo_url: string | null } | null;
+}
 import type { Deal, DealStage } from "@/types/crm";
 
 export function useDeals() {
@@ -13,6 +44,7 @@ export function useDeals() {
 
       const { data, error } = await supabase
         .from("deals")
+        .select("*, contacts(id, first_name, last_name, email), companies(id, name, logo_url)")
         .select("*, contacts(id, first_name, last_name, email, role, status), companies(id, name, logo_url, industry)")
         .eq("workspace_id", workspaceId)
         .is("deleted_at", null)
@@ -38,6 +70,12 @@ export function useCreateDeal() {
   return useMutation({
     mutationFn: async (deal: {
       title: string;
+      value?: number | null;
+      currency?: string;
+      stage?: string;
+      contact_id?: string | null;
+      company_id?: string | null;
+      expected_close_date?: string | null;
       value?: number;
       currency?: string;
       stage?: string;
@@ -84,6 +122,10 @@ export function useUpdateDeal() {
       forecast_category?: string | null;
       contact_id?: string | null;
       company_id?: string | null;
+      owner_id?: string | null;
+      expected_close_date?: string | null;
+      closed_at?: string | null;
+      notes?: string;
       expected_close_date?: string | null;
       closed_at?: string | null;
       notes?: string | null;

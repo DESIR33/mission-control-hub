@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 
-interface PipelineStage {
+export interface PipelineStage {
   label: string;
   count: number;
   color: string;
@@ -48,6 +48,7 @@ function PipelineBar({ stages, title }: { stages: PipelineStage[]; title: string
           <p className="text-xs font-mono text-muted-foreground">0 total</p>
         </div>
         <div className="h-2 rounded-full bg-secondary" />
+        <p className="text-[11px] text-muted-foreground">No data yet</p>
       </div>
     );
   }
@@ -82,6 +83,12 @@ function PipelineBar({ stages, title }: { stages: PipelineStage[]; title: string
 }
 
 interface PipelineHealthProps {
+  contacts?: PipelineStage[];
+  content?: PipelineStage[];
+  deals?: PipelineStage[];
+}
+
+export function PipelineHealth({ contacts = [], content = [], deals = [] }: PipelineHealthProps) {
   contactsByStatus: Record<string, number>;
   videosByStatus: Record<string, number>;
   dealsByStage: Record<string, number>;
@@ -96,6 +103,9 @@ export function PipelineHealth({ contactsByStatus, videosByStatus, dealsByStage 
       className="rounded-lg border border-border bg-card p-5 space-y-5"
     >
       <h3 className="text-sm font-semibold text-card-foreground">Pipeline Health</h3>
+      <PipelineBar stages={contacts} title="Contacts" />
+      <PipelineBar stages={content} title="Content" />
+      <PipelineBar stages={deals} title="Deals" />
       <PipelineBar stages={toStages(contactsByStatus)} title="Contacts" />
       <PipelineBar stages={toStages(videosByStatus)} title="Content" />
       <PipelineBar stages={toStages(dealsByStage)} title="Deals" />

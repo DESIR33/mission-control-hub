@@ -1,6 +1,18 @@
 import { motion } from "framer-motion";
 import { Brain, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Link } from "react-router-dom";
+
+export interface BriefingItem {
+  type: "insight" | "action";
+  text: string;
+}
+
+interface AiBriefingProps {
+  items?: BriefingItem[];
+}
+
+export function AiBriefing({ items = [] }: AiBriefingProps) {
 import type { BriefingItem } from "@/hooks/use-dashboard-stats";
 
 interface AiBriefingProps {
@@ -28,6 +40,30 @@ export function AiBriefing({ items }: AiBriefingProps) {
         </div>
       </div>
 
+      {items.length === 0 ? (
+        <p className="text-sm text-muted-foreground">
+          All caught up! No urgent items right now.
+        </p>
+      ) : (
+        <div className="space-y-3">
+          {items.map((item, i) => (
+            <div key={i} className="flex items-start gap-3 text-sm">
+              <div
+                className={cn(
+                  "mt-1 w-1.5 h-1.5 rounded-full shrink-0",
+                  item.type === "action" ? "bg-warning" : "bg-primary"
+                )}
+              />
+              <p className="text-muted-foreground leading-relaxed">{item.text}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="mt-4 pt-3 border-t border-border flex items-center gap-2">
+        <Link to="/ai-bridge" className="text-xs font-medium text-primary hover:underline">
+          View all proposals →
+        </Link>
       <div className="space-y-3">
         {items.map((item, i) => (
           <div key={i} className="flex items-start gap-3 text-sm">

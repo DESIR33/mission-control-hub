@@ -85,6 +85,7 @@ const App = () => (
               <Route path="/sponsorship/new" element={<NewSponsorshipPage />} />
               <Route path="/add-transaction" element={<AddProductTransactionPage />} />
               <Route path="/add-transaction/:id" element={<AddProductTransactionPage />} />
+              <Route path="/deals" element={<DealsPage />} />
               <Route path="/projects" element={<ProjectsPage />} />
               <Route path="/tasks" element={<Tasks />} />
               <Route path="/ai-bridge" element={<AiBridgePage />} />
