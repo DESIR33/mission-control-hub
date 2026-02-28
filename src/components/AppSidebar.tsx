@@ -1,47 +1,10 @@
 import { NavLink as RouterNavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import {
-  LayoutDashboard,
-  Users,
-  Film,
-  DollarSign,
-  Handshake,
-  CheckSquare,
-  FolderKanban,
-  Brain,
-  Bell,
-  Mail,
-  Settings,
-  Zap,
-  ChevronLeft,
-  ChevronRight,
-  LogOut,
-  BarChart3,
-  Compass,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, LogOut } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useNotifications } from "@/hooks/use-notifications";
-
-const navItems = [
-  { to: "/", icon: LayoutDashboard, label: "Mission Control" },
-  { to: "/relationships", icon: Users, label: "Relationships" },
-  { to: "/content", icon: Film, label: "Content Pipeline" },
-  { to: "/analytics", icon: BarChart3, label: "Analytics" },
-  { to: "/monetization", icon: DollarSign, label: "Monetization" },
-  { to: "/deals", icon: Handshake, label: "Deals Pipeline" },
-  { to: "/discover", icon: Compass, label: "Discover" },
-  { to: "/projects", icon: FolderKanban, label: "Projects" },
-  { to: "/tasks", icon: CheckSquare, label: "Tasks" },
-  { to: "/ai-bridge", icon: Brain, label: "AI Bridge" },
-  { to: "/inbox", icon: Mail, label: "Inbox" },
-  { to: "/notifications", icon: Bell, label: "Notifications" },
-];
-
-const bottomItems = [
-  { to: "/integrations", icon: Zap, label: "Integrations" },
-  { to: "/settings", icon: Settings, label: "Settings" },
-];
+import { navItems, bottomItems } from "@/config/navigation";
 
 export function AppSidebar() {
   const [collapsed, setCollapsed] = useState(false);
