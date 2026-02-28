@@ -21,9 +21,9 @@ function AnalyticsContent() {
     () =>
       channelSnapshots
         .slice()
-        .sort((a, b) => new Date(a.snapshot_date).getTime() - new Date(b.snapshot_date).getTime())
+        .sort((a, b) => new Date(a.fetched_at).getTime() - new Date(b.fetched_at).getTime())
         .map((s) => ({
-          date: format(new Date(s.snapshot_date), "MMM d"),
+          date: format(new Date(s.fetched_at), "MMM d"),
           subscribers: s.subscriber_count,
           views: s.total_view_count,
           videos: s.video_count,
@@ -36,7 +36,7 @@ function AnalyticsContent() {
     () =>
       videoStats
         .slice()
-        .sort((a, b) => (b.view_count ?? 0) - (a.view_count ?? 0)),
+        .sort((a, b) => (b.views ?? 0) - (a.views ?? 0)),
     [videoStats]
   );
 
@@ -44,11 +44,11 @@ function AnalyticsContent() {
   const scatterData = useMemo(
     () =>
       videoStats
-        .filter((v) => v.view_count != null && v.click_through_rate != null)
+        .filter((v) => v.views != null && v.ctr_percent != null)
         .map((v) => ({
           title: v.title,
-          views: v.view_count!,
-          ctr: +(v.click_through_rate! * 100).toFixed(1),
+          views: v.views!,
+          ctr: +(v.ctr_percent!).toFixed(1),
         })),
     [videoStats]
   );
@@ -56,7 +56,7 @@ function AnalyticsContent() {
   // Growth velocity: subscribers gained per video
   const growthVelocity = useMemo(() => {
     if (channelSnapshots.length < 2) return null;
-    const sorted = channelSnapshots.slice().sort((a, b) => new Date(a.snapshot_date).getTime() - new Date(b.snapshot_date).getTime());
+    const sorted = channelSnapshots.slice().sort((a, b) => new Date(a.fetched_at).getTime() - new Date(b.fetched_at).getTime());
     const first = sorted[0];
     const last = sorted[sorted.length - 1];
     const subGain = last.subscriber_count - first.subscriber_count;
@@ -83,10 +83,10 @@ function AnalyticsContent() {
         if (regex.test(video.title ?? "")) {
           if (!groups[key]) groups[key] = { count: 0, totalViews: 0, totalLikes: 0, avgCtr: 0, ctrCount: 0 };
           groups[key].count++;
-          groups[key].totalViews += video.view_count ?? 0;
-          groups[key].totalLikes += video.like_count ?? 0;
-          if (video.click_through_rate != null) {
-            groups[key].avgCtr += video.click_through_rate;
+          groups[key].totalViews += video.views ?? 0;
+          groups[key].totalLikes += video.likes ?? 0;
+          if (video.ctr_percent != null) {
+            groups[key].avgCtr += video.ctr_percent;
             groups[key].ctrCount++;
           }
           matched = true;
@@ -96,10 +96,10 @@ function AnalyticsContent() {
       if (!matched) {
         if (!groups.other) groups.other = { count: 0, totalViews: 0, totalLikes: 0, avgCtr: 0, ctrCount: 0 };
         groups.other.count++;
-        groups.other.totalViews += video.view_count ?? 0;
-        groups.other.totalLikes += video.like_count ?? 0;
-        if (video.click_through_rate != null) {
-          groups.other.avgCtr += video.click_through_rate;
+        groups.other.totalViews += video.views ?? 0;
+        groups.other.totalLikes += video.likes ?? 0;
+        if (video.ctr_percent != null) {
+          groups.other.avgCtr += video.ctr_percent;
           groups.other.ctrCount++;
         }
       }
@@ -110,12 +110,12 @@ function AnalyticsContent() {
       count: data.count,
       avgViews: data.count > 0 ? Math.round(data.totalViews / data.count) : 0,
       avgLikes: data.count > 0 ? Math.round(data.totalLikes / data.count) : 0,
-      avgCtr: data.ctrCount > 0 ? +((data.avgCtr / data.ctrCount) * 100).toFixed(1) : 0,
+      avgCtr: data.ctrCount > 0 ? +((data.avgCtr / data.ctrCount)).toFixed(1) : 0,
     })).sort((a, b) => b.avgViews - a.avgViews);
   }, [videoStats]);
 
   const latestSnapshot = channelSnapshots.length > 0
-    ? channelSnapshots.reduce((a, b) => new Date(a.snapshot_date) > new Date(b.snapshot_date) ? a : b)
+    ? channelSnapshots.reduce((a, b) => new Date(a.fetched_at) > new Date(b.fetched_at) ? a : b)
     : null;
 
   if (isLoading) {
@@ -284,20 +284,22 @@ function AnalyticsContent() {
                       {v.title}
                     </td>
                     <td className="py-2 px-2 text-right text-foreground font-mono">
-                      {(v.view_count ?? 0).toLocaleString()}
+                      {(v.views ?? 0).toLocaleString()}
                     </td>
                     <td className="py-2 px-2 text-right text-foreground font-mono">
-                      {(v.like_count ?? 0).toLocaleString()}
+                      {(v.likes ?? 0).toLocaleString()}
                     </td>
                     <td className="py-2 px-2 text-right text-foreground font-mono">
-                      {(v.comment_count ?? 0).toLocaleString()}
+                      {(v.comments ?? 0).toLocaleString()}
                     </td>
                     <td className="py-2 px-2 text-right text-foreground font-mono">
-                      {v.click_through_rate != null ? `${(v.click_through_rate * 100).toFixed(1)}%` : "--"}
+                      {v.ctr_percent != null ? `${v.ctr_percent.toFixed(1)}%` : "--"}
                     </td>
                     <td className="py-2 px-2 text-right text-muted-foreground font-mono">
-                      {v.average_watch_time_seconds != null
-                        ? `${Math.floor(v.average_watch_time_seconds / 60)}m ${v.average_watch_time_seconds % 60}s`
+                      {v.watch_time_minutes != null
+                        ? v.watch_time_minutes >= 60
+                          ? `${Math.floor(v.watch_time_minutes / 60)}h ${v.watch_time_minutes % 60}m`
+                          : `${v.watch_time_minutes}m`
                         : "--"}
                     </td>
                     <td className="py-2 px-2 text-right text-muted-foreground">

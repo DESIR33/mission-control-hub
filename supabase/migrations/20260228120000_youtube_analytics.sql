@@ -1,6 +1,5 @@
 -- ============================================
 -- YOUTUBE ANALYTICS TABLES
--- Cache YouTube channel and video metrics
 -- Stores YouTube channel and video statistics
 -- ============================================
 
@@ -29,26 +28,6 @@ CREATE POLICY "Operators+ can insert youtube_channel_stats"
   WITH CHECK (public.get_workspace_role(workspace_id) IN ('admin', 'operator', 'contributor'));
 
 CREATE POLICY "Admins can delete youtube_channel_stats"
-  video_count BIGINT NOT NULL DEFAULT 0,
-  view_count BIGINT NOT NULL DEFAULT 0,
-  fetched_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
-CREATE INDEX idx_youtube_channel_stats_ws ON public.youtube_channel_stats(workspace_id);
-CREATE INDEX idx_youtube_channel_stats_fetched ON public.youtube_channel_stats(workspace_id, fetched_at DESC);
-
--- RLS
-ALTER TABLE public.youtube_channel_stats ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Members can view youtube channel stats"
-  ON public.youtube_channel_stats FOR SELECT
-  USING (public.is_workspace_member(workspace_id));
-
-CREATE POLICY "Admins can insert youtube channel stats"
-  ON public.youtube_channel_stats FOR INSERT
-  WITH CHECK (public.get_workspace_role(workspace_id) = 'admin');
-
-CREATE POLICY "Admins can delete youtube channel stats"
   ON public.youtube_channel_stats FOR DELETE
   USING (public.get_workspace_role(workspace_id) = 'admin');
 
@@ -66,11 +45,11 @@ CREATE TABLE public.youtube_video_stats (
   avg_view_duration_seconds INTEGER,
   published_at TIMESTAMPTZ,
   fetched_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (workspace_id, youtube_video_id)
 );
 
 CREATE INDEX idx_yt_video_stats_workspace ON public.youtube_video_stats(workspace_id);
-CREATE INDEX idx_yt_video_stats_video ON public.youtube_video_stats(workspace_id, youtube_video_id);
 
 ALTER TABLE public.youtube_video_stats ENABLE ROW LEVEL SECURITY;
 
@@ -123,31 +102,4 @@ CREATE POLICY "Operators+ can update growth_goals"
 
 CREATE POLICY "Admins can delete growth_goals"
   ON public.growth_goals FOR DELETE
-  USING (public.get_workspace_role(workspace_id) = 'admin');
-  title TEXT NOT NULL DEFAULT '',
-  views BIGINT NOT NULL DEFAULT 0,
-  likes BIGINT NOT NULL DEFAULT 0,
-  comments BIGINT NOT NULL DEFAULT 0,
-  watch_time_minutes NUMERIC NOT NULL DEFAULT 0,
-  ctr_percent NUMERIC NOT NULL DEFAULT 0,
-  published_at TIMESTAMPTZ,
-  fetched_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
-CREATE INDEX idx_youtube_video_stats_ws ON public.youtube_video_stats(workspace_id);
-CREATE INDEX idx_youtube_video_stats_fetched ON public.youtube_video_stats(workspace_id, fetched_at DESC);
-
--- RLS
-ALTER TABLE public.youtube_video_stats ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Members can view youtube video stats"
-  ON public.youtube_video_stats FOR SELECT
-  USING (public.is_workspace_member(workspace_id));
-
-CREATE POLICY "Admins can insert youtube video stats"
-  ON public.youtube_video_stats FOR INSERT
-  WITH CHECK (public.get_workspace_role(workspace_id) = 'admin');
-
-CREATE POLICY "Admins can delete youtube video stats"
-  ON public.youtube_video_stats FOR DELETE
   USING (public.get_workspace_role(workspace_id) = 'admin');
