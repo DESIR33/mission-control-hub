@@ -1,11 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { ContactsTable } from "@/components/crm/ContactsTable";
 import { ContactDetailSheet } from "@/components/crm/ContactDetailSheet";
-import { AddContactDialog } from "@/components/crm/AddContactDialog";
 import { CompaniesTable } from "@/components/crm/CompaniesTable";
 import { CompanyDetailSheet } from "@/components/crm/CompanyDetailSheet";
-import { AddCompanyDialog } from "@/components/crm/AddCompanyDialog";
 import { EditCompanyDialog } from "@/components/crm/EditCompanyDialog";
 import { ImportContactsDialog } from "@/components/crm/ImportContactsDialog";
 import { ImportCompaniesDialog } from "@/components/crm/ImportCompaniesDialog";
@@ -13,9 +13,11 @@ import { useContacts, useActivities } from "@/hooks/use-contacts";
 import { useCompanies, useCompanyContacts } from "@/hooks/use-companies";
 import { WorkspaceProvider } from "@/hooks/use-workspace";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Plus } from "lucide-react";
 import type { Contact, Company } from "@/types/crm";
 
 function RelationshipsContent() {
+  const navigate = useNavigate();
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [contactSheetOpen, setContactSheetOpen] = useState(false);
 
@@ -69,7 +71,10 @@ function RelationshipsContent() {
               addButton={
                 <div className="flex items-center gap-2">
                   <ImportContactsDialog />
-                  <AddContactDialog />
+                  <Button size="sm" className="gap-1.5" onClick={() => navigate("/relationships/new-contact")}>
+                    <Plus className="w-4 h-4" />
+                    Add Contact
+                  </Button>
                 </div>
               }
             />
@@ -90,7 +95,10 @@ function RelationshipsContent() {
               addButton={
                 <div className="flex items-center gap-2">
                   <ImportCompaniesDialog />
-                  <AddCompanyDialog />
+                  <Button size="sm" className="gap-1.5" onClick={() => navigate("/relationships/new-company")}>
+                    <Plus className="w-4 h-4" />
+                    Add Company
+                  </Button>
                 </div>
               }
             />

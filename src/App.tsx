@@ -24,6 +24,8 @@ import NewAffiliateProgramPage from "./pages/NewAffiliateProgramPage";
 import EditAffiliateProgramPage from "./pages/EditAffiliateProgramPage";
 import AddTransactionPage from "./pages/AddTransactionPage";
 import EditTransactionPage from "./pages/EditTransactionPage";
+import AddCompanyPage from "./pages/AddCompanyPage";
+import AddContactPage from "./pages/AddContactPage";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +66,8 @@ const App = () => (
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route path="/" element={<Index />} />
               <Route path="/relationships" element={<RelationshipsPage />} />
+              <Route path="/relationships/new-company" element={<AddCompanyPage />} />
+              <Route path="/relationships/new-contact" element={<AddContactPage />} />
               <Route path="/content" element={<VideoQueuePage />} />
               <Route path="/content/create" element={<VideoQueueFormPage />} />
               <Route path="/content/:id/edit" element={<VideoQueueFormPage />} />
