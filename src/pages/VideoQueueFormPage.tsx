@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, CalendarIcon, Film, Plus, X } from "lucide-react";
+import { AlertCircle, ArrowLeft, CalendarIcon, Film, Plus, RefreshCw, X } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import {
   Select,
@@ -57,7 +57,7 @@ export default function VideoQueueFormPage() {
     isEditing ? Number(id) : null
   );
   const { data: companies = [] } = useCompanies();
-  const { workspaceId, isLoading: workspaceLoading } = useWorkspace();
+  const { workspaceId, isLoading: workspaceLoading, error: workspaceError, retry: retryWorkspace } = useWorkspace();
   const createVideo = useCreateVideo();
   const updateVideo = useUpdateVideo();
 
@@ -226,6 +226,29 @@ export default function VideoQueueFormPage() {
           {isEditing ? "Edit Video" : "Add Video"}
         </h1>
       </div>
+
+      {workspaceError && (
+        <div className="mb-4 flex items-center gap-3 rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3">
+          <AlertCircle className="h-5 w-5 shrink-0 text-destructive" />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-destructive">
+              Unable to load workspace
+            </p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {workspaceError}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={retryWorkspace}
+            disabled={workspaceLoading}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground hover:bg-accent disabled:opacity-50"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${workspaceLoading ? "animate-spin" : ""}`} />
+            Retry
+          </button>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Title */}
@@ -482,12 +505,14 @@ export default function VideoQueueFormPage() {
             className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-5 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
           >
             {workspaceLoading
-              ? "Loading..."
-              : createVideo.isPending || updateVideo.isPending
-                ? "Saving..."
-                : isEditing
-                  ? "Update Video"
-                  : "Create Video"}
+              ? "Loading workspace..."
+              : workspaceError
+                ? "Workspace unavailable"
+                : createVideo.isPending || updateVideo.isPending
+                  ? "Saving..."
+                  : isEditing
+                    ? "Update Video"
+                    : "Create Video"}
           </button>
           <button
             type="button"
