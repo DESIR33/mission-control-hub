@@ -135,6 +135,28 @@ const INTEGRATIONS: IntegrationDef[] = [
       },
     ],
   },
+  {
+    key: "youtube",
+    name: "YouTube",
+    description:
+      "Pull channel stats, video analytics, and subscriber data from the YouTube Data API.",
+    icon: "▶",
+    iconBg: "linear-gradient(135deg, #ff0000 0%, #cc0000 100%)",
+    docsUrl: "https://developers.google.com/youtube/v3",
+    usedFor: "Used for: channel analytics · video stats · subscriber growth",
+    connectHint:
+      "Provide your YouTube Data API v3 key from the Google Cloud Console.",
+    fields: [
+      {
+        name: "api_key",
+        label: "YouTube Data API Key",
+        placeholder: "AIza…",
+        secret: true,
+        required: true,
+        hint: "Google Cloud Console → APIs & Services → Credentials → API Keys.",
+      },
+    ],
+  },
 ];
 
 // ─── Inner page (needs workspace context) ────────────────────────────────────

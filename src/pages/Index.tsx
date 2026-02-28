@@ -5,6 +5,7 @@ import { AiBriefing } from "@/components/dashboard/AiBriefing";
 import { NeedsAttention } from "@/components/dashboard/NeedsAttention";
 import { PipelineHealth } from "@/components/dashboard/PipelineHealth";
 import { RevenueChart } from "@/components/dashboard/RevenueChart";
+import { YouTubeGrowth } from "@/components/dashboard/YouTubeGrowth";
 import { useDashboardStats } from "@/hooks/use-dashboard-stats";
 
 const Index = () => {
@@ -103,6 +104,7 @@ const Index = () => {
         <div className="space-y-4">
           <NeedsAttention items={stats.attentionItems} />
           <RevenueChart months={stats.revenueByMonth} />
+          <YouTubeGrowth />
         </div>
       </div>
     </div>
