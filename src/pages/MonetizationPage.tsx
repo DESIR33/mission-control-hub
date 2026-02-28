@@ -824,7 +824,7 @@ export default function MonetizationPage() {
                     </Button>
                     <Button
                       variant="outline"
-                      onClick={() => navigate("/add-transaction")}
+                      onClick={() => navigate("/add-transaction?from=monetization")}
                       size="sm"
                     >
                       <Receipt className="mr-1 h-3.5 w-3.5" />

@@ -26,6 +26,7 @@ import AddTransactionPage from "./pages/AddTransactionPage";
 import EditTransactionPage from "./pages/EditTransactionPage";
 import AddCompanyPage from "./pages/AddCompanyPage";
 import AddContactPage from "./pages/AddContactPage";
+import AddProductTransactionPage from "./pages/AddProductTransactionPage";
 
 const queryClient = new QueryClient();
 
@@ -77,6 +78,8 @@ const App = () => (
               <Route path="/affiliate-program/:id/edit" element={<EditAffiliateProgramPage />} />
               <Route path="/affiliate-program/:id/add-transaction" element={<AddTransactionPage />} />
               <Route path="/affiliate-program/:id/edit-transaction" element={<EditTransactionPage />} />
+              <Route path="/add-transaction" element={<AddProductTransactionPage />} />
+              <Route path="/add-transaction/:id" element={<AddProductTransactionPage />} />
               <Route path="/tasks" element={<Tasks />} />
               <Route path="/ai-bridge" element={<AiBridgePage />} />
               <Route path="/inbox" element={<InboxPage />} />
