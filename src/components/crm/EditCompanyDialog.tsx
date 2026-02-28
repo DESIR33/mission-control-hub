@@ -49,6 +49,11 @@ export function EditCompanyDialog({ company, open, onOpenChange }: EditCompanyDi
         vip_tier: vipTier,
         social_twitter: (form.get("social_twitter") as string) || undefined,
         social_linkedin: (form.get("social_linkedin") as string) || undefined,
+        social_youtube: (form.get("social_youtube") as string) || undefined,
+        social_instagram: (form.get("social_instagram") as string) || undefined,
+        social_facebook: (form.get("social_facebook") as string) || undefined,
+        social_tiktok: (form.get("social_tiktok") as string) || undefined,
+        social_producthunt: (form.get("social_producthunt") as string) || undefined,
         notes: (form.get("notes") as string) || undefined,
       });
       toast({ title: "Company updated" });
@@ -60,7 +65,7 @@ export function EditCompanyDialog({ company, open, onOpenChange }: EditCompanyDi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-card border-border sm:max-w-md">
+      <DialogContent className="bg-card border-border sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-foreground">Edit Company</DialogTitle>
         </DialogHeader>
@@ -145,6 +150,30 @@ export function EditCompanyDialog({ company, open, onOpenChange }: EditCompanyDi
               <Label htmlFor="edit_social_linkedin">LinkedIn</Label>
               <Input id="edit_social_linkedin" name="social_linkedin" defaultValue={company.social_linkedin ?? ""} className="bg-secondary border-border" />
             </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="edit_social_facebook">Facebook</Label>
+              <Input id="edit_social_facebook" name="social_facebook" defaultValue={company.social_facebook ?? ""} className="bg-secondary border-border" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit_social_instagram">Instagram</Label>
+              <Input id="edit_social_instagram" name="social_instagram" defaultValue={company.social_instagram ?? ""} className="bg-secondary border-border" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="edit_social_youtube">YouTube</Label>
+              <Input id="edit_social_youtube" name="social_youtube" defaultValue={company.social_youtube ?? ""} className="bg-secondary border-border" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit_social_tiktok">TikTok</Label>
+              <Input id="edit_social_tiktok" name="social_tiktok" defaultValue={company.social_tiktok ?? ""} className="bg-secondary border-border" />
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="edit_social_producthunt">Product Hunt</Label>
+            <Input id="edit_social_producthunt" name="social_producthunt" defaultValue={company.social_producthunt ?? ""} className="bg-secondary border-border" />
           </div>
 
           <div className="space-y-1.5">

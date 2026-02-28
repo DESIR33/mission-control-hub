@@ -9,8 +9,11 @@ import { CompanyDetailSheet } from "@/components/crm/CompanyDetailSheet";
 import { EditCompanyDialog } from "@/components/crm/EditCompanyDialog";
 import { ImportContactsDialog } from "@/components/crm/ImportContactsDialog";
 import { ImportCompaniesDialog } from "@/components/crm/ImportCompaniesDialog";
+import { ExportContactsDialog, ExportCompaniesDialog } from "@/components/crm/ExportDialog";
+import { RelationshipGraph } from "@/components/crm/RelationshipGraph";
 import { useContacts, useActivities } from "@/hooks/use-contacts";
 import { useCompanies, useCompanyContacts } from "@/hooks/use-companies";
+import { useDeals } from "@/hooks/use-deals";
 import { WorkspaceProvider } from "@/hooks/use-workspace";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus } from "lucide-react";
@@ -31,6 +34,8 @@ function RelationshipsContent() {
   const { data: companies = [], isLoading: companiesLoading } = useCompanies();
   const { data: companyActivities = [] } = useActivities(selectedCompany?.id ?? null, "company");
   const { data: companyContacts = [] } = useCompanyContacts(selectedCompany?.id ?? null);
+
+  const { data: deals = [] } = useDeals();
 
   const handleSelectContact = (contact: Contact) => {
     setSelectedContact(contact);
@@ -55,6 +60,7 @@ function RelationshipsContent() {
         <TabsList>
           <TabsTrigger value="contacts">Contacts</TabsTrigger>
           <TabsTrigger value="companies">Companies</TabsTrigger>
+          <TabsTrigger value="graph">Relationships</TabsTrigger>
         </TabsList>
 
         <TabsContent value="contacts" className="mt-4">
@@ -70,6 +76,7 @@ function RelationshipsContent() {
               selectedId={selectedContact?.id}
               addButton={
                 <div className="flex items-center gap-2">
+                  <ExportContactsDialog contacts={contacts} />
                   <ImportContactsDialog />
                   <Button size="sm" className="gap-1.5" onClick={() => navigate("/relationships/new-contact")}>
                     <Plus className="w-4 h-4" />
@@ -94,6 +101,7 @@ function RelationshipsContent() {
               selectedId={selectedCompany?.id}
               addButton={
                 <div className="flex items-center gap-2">
+                  <ExportCompaniesDialog companies={companies} />
                   <ImportCompaniesDialog />
                   <Button size="sm" className="gap-1.5" onClick={() => navigate("/relationships/new-company")}>
                     <Plus className="w-4 h-4" />
@@ -101,6 +109,23 @@ function RelationshipsContent() {
                   </Button>
                 </div>
               }
+            />
+          )}
+        </TabsContent>
+
+        <TabsContent value="graph" className="mt-4">
+          {contactsLoading || companiesLoading ? (
+            <div className="space-y-3">
+              <Skeleton className="h-24 w-full" />
+              <Skeleton className="h-64 w-full" />
+            </div>
+          ) : (
+            <RelationshipGraph
+              contacts={contacts}
+              companies={companies}
+              deals={deals}
+              onSelectContact={handleSelectContact}
+              onSelectCompany={handleSelectCompany}
             />
           )}
         </TabsContent>
