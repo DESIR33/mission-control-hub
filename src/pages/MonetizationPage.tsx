@@ -741,7 +741,7 @@ export default function MonetizationPage() {
                     Sponsorships
                   </h3>
                   <Button
-                    onClick={() => navigate("/monetization/new-sponsorship")}
+                    onClick={() => navigate("/sponsorship/new")}
                     size="sm"
                   >
                     <Plus className="mr-1 h-3.5 w-3.5" />
