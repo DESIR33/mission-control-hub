@@ -247,41 +247,10 @@ export type Database = {
           },
         ]
       }
-      contact_roles: {
-        Row: {
-          id: string
-          workspace_id: string
-          name: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          workspace_id: string
-          name: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          workspace_id?: string
-          name?: string
-          created_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "contact_roles_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       contacts: {
         Row: {
           avatar_url: string | null
-          city: string | null
           company_id: string | null
-          country: string | null
           created_at: string
           created_by: string | null
           custom_fields: Json | null
@@ -301,7 +270,6 @@ export type Database = {
           preferred_channel: string | null
           response_sla_minutes: number | null
           role: string | null
-          role_id: string | null
           social_facebook: string | null
           social_instagram: string | null
           social_linkedin: string | null
@@ -310,7 +278,6 @@ export type Database = {
           social_whatsapp: string | null
           social_youtube: string | null
           source: string | null
-          state: string | null
           status: string
           updated_at: string
           vip_tier: string | null
@@ -319,9 +286,7 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
-          city?: string | null
           company_id?: string | null
-          country?: string | null
           created_at?: string
           created_by?: string | null
           custom_fields?: Json | null
@@ -341,7 +306,6 @@ export type Database = {
           preferred_channel?: string | null
           response_sla_minutes?: number | null
           role?: string | null
-          role_id?: string | null
           social_facebook?: string | null
           social_instagram?: string | null
           social_linkedin?: string | null
@@ -350,7 +314,6 @@ export type Database = {
           social_whatsapp?: string | null
           social_youtube?: string | null
           source?: string | null
-          state?: string | null
           status?: string
           updated_at?: string
           vip_tier?: string | null
@@ -359,9 +322,7 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
-          city?: string | null
           company_id?: string | null
-          country?: string | null
           created_at?: string
           created_by?: string | null
           custom_fields?: Json | null
@@ -381,7 +342,6 @@ export type Database = {
           preferred_channel?: string | null
           response_sla_minutes?: number | null
           role?: string | null
-          role_id?: string | null
           social_facebook?: string | null
           social_instagram?: string | null
           social_linkedin?: string | null
@@ -390,7 +350,6 @@ export type Database = {
           social_whatsapp?: string | null
           social_youtube?: string | null
           source?: string | null
-          state?: string | null
           status?: string
           updated_at?: string
           vip_tier?: string | null
@@ -410,13 +369,6 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_contacts_role"
-            columns: ["role_id"]
-            isOneToOne: false
-            referencedRelation: "contact_roles"
             referencedColumns: ["id"]
           },
         ]

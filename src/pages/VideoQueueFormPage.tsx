@@ -148,10 +148,10 @@ export default function VideoQueueFormPage() {
           isSponsored,
           companyId: companyId || null,
           companyName: company?.name ?? null,
-          companyLogo: company?.logo ?? null,
+          companyLogo: company?.logo_url ?? null,
           sponsoringCompanyId: sponsoringCompanyId || null,
           sponsoringCompanyName: sponsor?.name ?? null,
-          sponsoringCompanyLogo: sponsor?.logo ?? null,
+          sponsoringCompanyLogo: sponsor?.logo_url ?? null,
         },
         {
           onSuccess: () => {
@@ -179,10 +179,10 @@ export default function VideoQueueFormPage() {
           isSponsored,
           companyId: companyId || null,
           companyName: company?.name ?? null,
-          companyLogo: company?.logo ?? null,
+          companyLogo: company?.logo_url ?? null,
           sponsoringCompanyId: sponsoringCompanyId || null,
           sponsoringCompanyName: sponsor?.name ?? null,
-          sponsoringCompanyLogo: sponsor?.logo ?? null,
+          sponsoringCompanyLogo: sponsor?.logo_url ?? null,
           checklists: checklistItems.map((label) => ({ label })),
         },
         {
