@@ -6,6 +6,38 @@ export interface PipelineStage {
   color: string;
 }
 
+const statusColorMap: Record<string, string> = {
+  // contacts
+  lead: "bg-muted-foreground",
+  active: "bg-success",
+  customer: "bg-primary",
+  inactive: "bg-destructive",
+  // video
+  idea: "bg-muted-foreground",
+  scripting: "bg-primary",
+  recording: "bg-warning",
+  editing: "bg-success",
+  scheduled: "bg-primary",
+  published: "bg-success",
+  // deals
+  prospecting: "bg-muted-foreground",
+  outreach: "bg-primary",
+  proposal: "bg-primary",
+  negotiation: "bg-warning",
+  closed_won: "bg-success",
+  closed_lost: "bg-destructive",
+};
+
+function toStages(data: Record<string, number>): PipelineStage[] {
+  return Object.entries(data)
+    .filter(([, count]) => count > 0)
+    .map(([label, count]) => ({
+      label: label.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+      count,
+      color: statusColorMap[label] || "bg-muted-foreground",
+    }));
+}
+
 function PipelineBar({ stages, title }: { stages: PipelineStage[]; title: string }) {
   const total = stages.reduce((s, st) => s + st.count, 0);
   if (total === 0) {
@@ -57,6 +89,12 @@ interface PipelineHealthProps {
 }
 
 export function PipelineHealth({ contacts = [], content = [], deals = [] }: PipelineHealthProps) {
+  contactsByStatus: Record<string, number>;
+  videosByStatus: Record<string, number>;
+  dealsByStage: Record<string, number>;
+}
+
+export function PipelineHealth({ contactsByStatus, videosByStatus, dealsByStage }: PipelineHealthProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -68,6 +106,9 @@ export function PipelineHealth({ contacts = [], content = [], deals = [] }: Pipe
       <PipelineBar stages={contacts} title="Contacts" />
       <PipelineBar stages={content} title="Content" />
       <PipelineBar stages={deals} title="Deals" />
+      <PipelineBar stages={toStages(contactsByStatus)} title="Contacts" />
+      <PipelineBar stages={toStages(videosByStatus)} title="Content" />
+      <PipelineBar stages={toStages(dealsByStage)} title="Deals" />
     </motion.div>
   );
 }

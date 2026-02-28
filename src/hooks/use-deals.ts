@@ -32,6 +32,7 @@ export interface Deal {
   contact?: { id: string; first_name: string; last_name: string | null; email: string | null } | null;
   company?: { id: string; name: string; logo_url: string | null } | null;
 }
+import type { Deal, DealStage } from "@/types/crm";
 
 export function useDeals() {
   const { workspaceId } = useWorkspace();
@@ -44,6 +45,7 @@ export function useDeals() {
       const { data, error } = await supabase
         .from("deals")
         .select("*, contacts(id, first_name, last_name, email), companies(id, name, logo_url)")
+        .select("*, contacts(id, first_name, last_name, email, role, status), companies(id, name, logo_url, industry)")
         .eq("workspace_id", workspaceId)
         .is("deleted_at", null)
         .order("updated_at", { ascending: false });
@@ -74,6 +76,13 @@ export function useCreateDeal() {
       contact_id?: string | null;
       company_id?: string | null;
       expected_close_date?: string | null;
+      value?: number;
+      currency?: string;
+      stage?: string;
+      forecast_category?: string;
+      contact_id?: string;
+      company_id?: string;
+      expected_close_date?: string;
       notes?: string;
     }) => {
       if (!workspaceId) throw new Error("No workspace");
@@ -117,6 +126,9 @@ export function useUpdateDeal() {
       expected_close_date?: string | null;
       closed_at?: string | null;
       notes?: string;
+      expected_close_date?: string | null;
+      closed_at?: string | null;
+      notes?: string | null;
     }) => {
       if (!workspaceId) throw new Error("No workspace");
 

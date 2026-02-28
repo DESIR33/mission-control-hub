@@ -146,6 +146,13 @@ const INTEGRATIONS: IntegrationDef[] = [
     usedFor: "Used for: subscriber tracking · video analytics · growth metrics",
     connectHint:
       "Provide your YouTube Data API v3 key from Google Cloud Console.",
+      "Pull channel stats, video analytics, and subscriber data from the YouTube Data API.",
+    icon: "▶",
+    iconBg: "linear-gradient(135deg, #ff0000 0%, #cc0000 100%)",
+    docsUrl: "https://developers.google.com/youtube/v3",
+    usedFor: "Used for: channel analytics · video stats · subscriber growth",
+    connectHint:
+      "Provide your YouTube Data API v3 key from the Google Cloud Console.",
     fields: [
       {
         name: "api_key",
@@ -161,6 +168,7 @@ const INTEGRATIONS: IntegrationDef[] = [
         placeholder: "UC…",
         required: true,
         hint: "Your YouTube channel ID (starts with UC). Find it at youtube.com/account_advanced.",
+        hint: "Google Cloud Console → APIs & Services → Credentials → API Keys.",
       },
     ],
   },

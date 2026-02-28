@@ -8,6 +8,7 @@ export interface AttentionItem {
   type: "overdue" | "follow-up" | "approval" | "deadline";
   urgency: "high" | "medium" | "low";
 }
+import type { AttentionItem } from "@/hooks/use-dashboard-stats";
 
 const urgencyStyles = {
   high: "border-l-destructive",
@@ -27,6 +28,10 @@ interface NeedsAttentionProps {
 }
 
 export function NeedsAttention({ items = [] }: NeedsAttentionProps) {
+  items: AttentionItem[];
+}
+
+export function NeedsAttention({ items }: NeedsAttentionProps) {
   const urgentCount = items.filter((i) => i.urgency === "high").length;
 
   return (
@@ -58,6 +63,14 @@ export function NeedsAttention({ items = [] }: NeedsAttentionProps) {
             return (
               <button
                 key={i}
+        <p className="text-sm text-muted-foreground py-4 text-center">All clear! Nothing needs attention.</p>
+      ) : (
+        <div className="space-y-1">
+          {items.slice(0, 8).map((item) => {
+            const Icon = typeIcons[item.type] || AlertCircle;
+            return (
+              <button
+                key={item.id}
                 className={cn(
                   "w-full flex items-center gap-3 px-3 py-2.5 rounded-md border-l-2 text-left transition-colors hover:bg-secondary",
                   urgencyStyles[item.urgency]
