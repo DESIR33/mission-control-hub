@@ -94,5 +94,30 @@ export interface Tag {
   created_at: string;
 }
 
+export type DealStage = 'prospecting' | 'qualification' | 'proposal' | 'negotiation' | 'closed_won' | 'closed_lost';
+
+export interface Deal {
+  id: string;
+  workspace_id: string;
+  title: string;
+  value: number | null;
+  currency: string | null;
+  stage: DealStage;
+  forecast_category: string | null;
+  contact_id: string | null;
+  company_id: string | null;
+  owner_id: string | null;
+  expected_close_date: string | null;
+  closed_at: string | null;
+  notes: string | null;
+  deleted_at: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+  // Joined
+  contact?: Contact | null;
+  company?: Company | null;
+}
+
 export type ContactStatus = 'active' | 'inactive' | 'lead' | 'customer';
 export type VipTier = 'none' | 'silver' | 'gold' | 'platinum';
