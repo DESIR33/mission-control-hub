@@ -791,18 +791,65 @@ function AnalyticsContent() {
           .slice()
           .sort((a, b) => new Date(a.fetched_at).getTime() - new Date(b.fetched_at).getTime());
 
-        const subscriberImpact = videoStats
+        // Sort videos by publish date for non-overlapping attribution windows
+        const publishedVideos = videoStats
           .filter((v) => v.published_at)
-          .map((video) => {
-            const pubDate = new Date(video.published_at!);
-            const sevenDaysAfter = new Date(pubDate.getTime() + 7 * 24 * 60 * 60 * 1000);
-            const before = sortedSnapshots.filter((s) => new Date(s.fetched_at) <= pubDate);
-            const after = sortedSnapshots.filter(
-              (s) => new Date(s.fetched_at) >= pubDate && new Date(s.fetched_at) <= sevenDaysAfter
-            );
-            const subsBefore = before.length > 0 ? before[before.length - 1].subscriber_count : 0;
-            const subsAfter = after.length > 0 ? after[after.length - 1].subscriber_count : subsBefore;
-            return {
+          .slice()
+          .sort((a, b) => new Date(a.published_at!).getTime() - new Date(b.published_at!).getTime());
+
+        // Group videos published on the same day to split their delta equally
+        const videoGroups: { date: Date; dateKey: string; videos: typeof publishedVideos }[] = [];
+        for (const video of publishedVideos) {
+          const pubDate = new Date(video.published_at!);
+          const dateKey = format(pubDate, "yyyy-MM-dd");
+          const lastGroup = videoGroups[videoGroups.length - 1];
+          if (lastGroup && lastGroup.dateKey === dateKey) {
+            lastGroup.videos.push(video);
+          } else {
+            videoGroups.push({ date: pubDate, dateKey, videos: [video] });
+          }
+        }
+
+        const subscriberImpact: Array<{
+          title: string;
+          published_at: string | null;
+          views: number;
+          ctr: number | null;
+          engagementRate: number;
+          subscriberDelta: number;
+        }> = [];
+
+        for (let i = 0; i < videoGroups.length; i++) {
+          const group = videoGroups[i];
+          const pubDate = group.date;
+          const sevenDaysAfter = new Date(pubDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+          // Cap window at next group's publish date to prevent overlapping attribution
+          const nextGroupDate = i < videoGroups.length - 1 ? videoGroups[i + 1].date : null;
+          const windowEnd = nextGroupDate && nextGroupDate < sevenDaysAfter
+            ? nextGroupDate
+            : sevenDaysAfter;
+
+          // Find closest snapshot on or before publish date
+          const snapshotsBefore = sortedSnapshots.filter((s) => new Date(s.fetched_at) <= pubDate);
+          const snapshotBefore = snapshotsBefore.length > 0 ? snapshotsBefore[snapshotsBefore.length - 1] : null;
+
+          // Find closest snapshot to end of attribution window
+          const snapshotsInWindow = sortedSnapshots.filter(
+            (s) => new Date(s.fetched_at) > pubDate && new Date(s.fetched_at) <= windowEnd
+          );
+          const snapshotAfter = snapshotsInWindow.length > 0 ? snapshotsInWindow[snapshotsInWindow.length - 1] : null;
+
+          // Only calculate delta when we have snapshots on both sides
+          const totalDelta = snapshotBefore && snapshotAfter
+            ? snapshotAfter.subscriber_count - snapshotBefore.subscriber_count
+            : 0;
+          const perVideoDelta = group.videos.length > 0
+            ? Math.round(totalDelta / group.videos.length)
+            : 0;
+
+          for (const video of group.videos) {
+            subscriberImpact.push({
               title: video.title,
               published_at: video.published_at,
               views: video.views ?? 0,
@@ -811,10 +858,12 @@ function AnalyticsContent() {
                 (video.views ?? 0) > 0
                   ? +((((video.likes ?? 0) + (video.comments ?? 0)) / (video.views ?? 1)) * 100).toFixed(2)
                   : 0,
-              subscriberDelta: subsAfter - subsBefore,
-            };
-          })
-          .sort((a, b) => b.subscriberDelta - a.subscriberDelta);
+              subscriberDelta: perVideoDelta,
+            });
+          }
+        }
+
+        subscriberImpact.sort((a, b) => b.subscriberDelta - a.subscriberDelta);
 
         const bestFormat = (() => {
           const patterns: Record<string, { regex: RegExp; label: string }> = {
