@@ -15,6 +15,7 @@ import {
   Compass,
   Send,
   FileText,
+  Rocket,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -35,6 +36,7 @@ export const navItems: NavItem[] = [
   { to: "/relationships", icon: Users, label: "Relationships" },
   { to: "/content", icon: Film, label: "Content Pipeline" },
   { to: "/analytics", icon: BarChart3, label: "Analytics" },
+  { to: "/command-center", icon: Rocket, label: "Command Center" },
   { to: "/monetization", icon: DollarSign, label: "Monetization" },
   { to: "/deals", icon: Handshake, label: "Deals Pipeline" },
   { to: "/discover", icon: Compass, label: "Discover" },
@@ -77,6 +79,7 @@ export const navGroups: NavGroup[] = [
     label: "Insights",
     items: [
       { to: "/analytics", icon: BarChart3, label: "Analytics" },
+      { to: "/command-center", icon: Rocket, label: "Command Center" },
       { to: "/ai-bridge", icon: Brain, label: "AI Bridge" },
       { to: "/reports", icon: FileText, label: "Weekly Reports" },
     ],
