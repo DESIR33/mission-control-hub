@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   BarChart3, TrendingUp, TrendingDown, Eye, ThumbsUp, MessageSquare,
   Clock, Users, Play, Calendar, ArrowUpRight, ArrowDownRight,
   Zap, Award, Target, RefreshCw, ChevronDown,
-  Globe, Route, Monitor, DollarSign, Tv,
+  Globe, Route, Monitor, DollarSign, Tv, ExternalLink,
 } from "lucide-react";
 import { useWorkspace, WorkspaceProvider } from "@/hooks/use-workspace";
 import {
@@ -64,18 +65,18 @@ function AnalyticsContent() {
   const { data: goal } = useGrowthGoal();
   const syncYouTube = useSyncYouTube();
 
-  // New Analytics API hooks
-  const { data: channelAnalytics = [], isLoading: loadingAnalytics } = useChannelAnalytics(90);
-  const { data: videoAnalytics = [], isLoading: loadingVideoAnalytics } = useVideoAnalytics(50);
+  const daysForRange = timeRange === "7d" ? 7 : timeRange === "30d" ? 30 : 90;
+
+  // New Analytics API hooks — fetch 2x range for period-over-period comparisons
+  const { data: channelAnalytics = [], isLoading: loadingAnalytics } = useChannelAnalytics(daysForRange * 2);
+  const { data: videoAnalytics = [], isLoading: loadingVideoAnalytics } = useVideoAnalytics(daysForRange);
   const { data: demographics = [], isLoading: loadingDemographics } = useDemographics();
-  const { data: trafficSources = [], isLoading: loadingTraffic } = useTrafficSources();
+  const { data: trafficSources = [], isLoading: loadingTraffic } = useTrafficSources(daysForRange * 2);
   const { data: geography = [], isLoading: loadingGeo } = useGeography();
   const { data: deviceTypes = [], isLoading: loadingDevices } = useDeviceTypes();
   const syncAnalytics = useSyncYouTubeAnalytics();
 
   const isLoading = workspaceLoading || loadingChannel || loadingVideos;
-
-  const daysForRange = timeRange === "7d" ? 7 : timeRange === "30d" ? 30 : 90;
 
   // Filter snapshots by time range
   const filteredSnapshots = useMemo(() => {
@@ -350,11 +351,11 @@ function AnalyticsContent() {
       )}
 
       {activeTab === "channel" && (
-        <ChannelOverview data={channelAnalytics} daysRange={daysForRange} />
+        <ChannelOverview data={channelAnalytics} daysRange={daysForRange} currentSubscribers={latestSnapshot?.subscriber_count} />
       )}
 
       {activeTab === "videos" && (
-        <VideoDeepDive data={videoAnalytics} />
+        <VideoDeepDive data={videoAnalytics} daysRange={daysForRange} />
       )}
 
       {activeTab === "audience" && (
@@ -362,7 +363,7 @@ function AnalyticsContent() {
       )}
 
       {activeTab === "traffic" && (
-        <TrafficSources data={trafficSources} />
+        <TrafficSources data={trafficSources} daysRange={daysForRange} />
       )}
 
       {activeTab === "geography" && (
@@ -402,6 +403,7 @@ function OverviewTab({
   viewsTrend, topVideos, goal, daysForRange, analyticsSummary, sortedVideos,
   channelSnapshots, videoStats,
 }: OverviewTabProps) {
+  const navigate = useNavigate();
   const tooltipStyle = {
     backgroundColor: "hsl(var(--card))",
     border: "1px solid hsl(var(--border))",
@@ -768,12 +770,16 @@ function OverviewTab({
           </div>
           <div className="space-y-3">
             {topVideos.map((v: any, i: number) => (
-              <div key={v.id} className="flex items-center gap-3 p-2 rounded-md hover:bg-muted/30 transition-colors">
+              <div
+                key={v.id}
+                onClick={() => navigate(`/analytics/videos/${v.youtube_video_id}`)}
+                className="flex items-center gap-3 p-2 rounded-md hover:bg-muted/30 transition-colors cursor-pointer group"
+              >
                 <span className="text-lg font-bold text-muted-foreground font-mono w-6 text-center">
                   {i + 1}
                 </span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate" title={v.title ?? ""}>
+                  <p className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors" title={v.title ?? ""}>
                     {v.title}
                   </p>
                   <div className="flex items-center gap-3 mt-0.5">
@@ -797,6 +803,7 @@ function OverviewTab({
                   <span className="text-xs font-mono font-semibold text-primary">{v.engagementRate}%</span>
                   <p className="text-[10px] text-muted-foreground">engagement</p>
                 </div>
+                <ExternalLink className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
               </div>
             ))}
           </div>
@@ -929,8 +936,12 @@ function OverviewTab({
               </thead>
               <tbody>
                 {sortedVideos.map((v: any) => (
-                  <tr key={v.id} className="border-b border-border/50 hover:bg-muted/20">
-                    <td className="py-2 px-2 text-foreground max-w-[250px] truncate" title={v.title ?? ""}>
+                  <tr
+                    key={v.id}
+                    onClick={() => navigate(`/analytics/videos/${v.youtube_video_id}`)}
+                    className="border-b border-border/50 hover:bg-muted/20 cursor-pointer"
+                  >
+                    <td className="py-2 px-2 text-foreground max-w-[250px] truncate hover:text-primary transition-colors" title={v.title ?? ""}>
                       {v.title}
                     </td>
                     <td className="py-2 px-2 text-right text-foreground font-mono">

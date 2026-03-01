@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { subDays } from "date-fns";
 
 // ── Types ─────────────────────────────────────────────────────────────
 
@@ -106,18 +107,19 @@ export interface DeviceType {
 
 // ── Hooks ─────────────────────────────────────────────────────────────
 
-/** Fetches daily channel analytics for the given period. */
-export function useChannelAnalytics(limit = 90) {
+/** Fetches daily channel analytics. Accepts days to fetch (defaults to 180 for period-over-period). */
+export function useChannelAnalytics(days = 180) {
   const { workspaceId } = useWorkspace();
   return useQuery({
-    queryKey: ["youtube-channel-analytics", workspaceId, limit],
+    queryKey: ["youtube-channel-analytics", workspaceId, days],
     queryFn: async () => {
+      const cutoff = subDays(new Date(), days).toISOString().split("T")[0];
       const { data, error } = await supabase
         .from("youtube_channel_analytics" as any)
         .select("*")
         .eq("workspace_id", workspaceId!)
-        .order("date", { ascending: false })
-        .limit(limit);
+        .gte("date", cutoff)
+        .order("date", { ascending: false });
       if (error) throw error;
       return (data ?? []) as unknown as ChannelAnalytics[];
     },
@@ -125,18 +127,20 @@ export function useChannelAnalytics(limit = 90) {
   });
 }
 
-/** Fetches per-video analytics (latest date per video, top by views). */
-export function useVideoAnalytics(limit = 50) {
+/** Fetches per-video analytics, filtered by date range. */
+export function useVideoAnalytics(daysRange = 90) {
   const { workspaceId } = useWorkspace();
   return useQuery({
-    queryKey: ["youtube-video-analytics", workspaceId, limit],
+    queryKey: ["youtube-video-analytics", workspaceId, daysRange],
     queryFn: async () => {
+      const cutoff = subDays(new Date(), daysRange).toISOString().split("T")[0];
       const { data, error } = await supabase
         .from("youtube_video_analytics" as any)
         .select("*")
         .eq("workspace_id", workspaceId!)
+        .gte("date", cutoff)
         .order("views", { ascending: false })
-        .limit(limit);
+        .limit(5000);
       if (error) throw error;
       return (data ?? []) as unknown as VideoAnalytics[];
     },
@@ -173,27 +177,39 @@ export function useDemographics() {
   });
 }
 
-/** Fetches the most recent traffic source data. */
-export function useTrafficSources() {
+/** Fetches traffic source data for the given date range. */
+export function useTrafficSources(daysRange = 90) {
   const { workspaceId } = useWorkspace();
   return useQuery({
-    queryKey: ["youtube-traffic-sources", workspaceId],
+    queryKey: ["youtube-traffic-sources", workspaceId, daysRange],
     queryFn: async () => {
-      const { data: latest } = await supabase
-        .from("youtube_traffic_sources" as any)
-        .select("date")
-        .eq("workspace_id", workspaceId!)
-        .order("date", { ascending: false })
-        .limit(1);
-
-      if (!latest?.length) return [];
-
-      const latestDate = (latest[0] as any).date;
+      const cutoff = subDays(new Date(), daysRange).toISOString().split("T")[0];
       const { data, error } = await supabase
         .from("youtube_traffic_sources" as any)
         .select("*")
         .eq("workspace_id", workspaceId!)
-        .eq("date", latestDate);
+        .gte("date", cutoff)
+        .order("date", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as unknown as TrafficSource[];
+    },
+    enabled: !!workspaceId,
+  });
+}
+
+/** Fetches traffic source data for double the range (for period-over-period comparison). */
+export function useTrafficSourcesWithPrevious(daysRange = 90) {
+  const { workspaceId } = useWorkspace();
+  return useQuery({
+    queryKey: ["youtube-traffic-sources-prev", workspaceId, daysRange],
+    queryFn: async () => {
+      const cutoff = subDays(new Date(), daysRange * 2).toISOString().split("T")[0];
+      const { data, error } = await supabase
+        .from("youtube_traffic_sources" as any)
+        .select("*")
+        .eq("workspace_id", workspaceId!)
+        .gte("date", cutoff)
+        .order("date", { ascending: false });
       if (error) throw error;
       return (data ?? []) as unknown as TrafficSource[];
     },

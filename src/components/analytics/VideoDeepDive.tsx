@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Play, Eye, ThumbsUp, MessageSquare, Share2, Clock,
   MousePointerClick, Users, TrendingUp, DollarSign,
-  ChevronDown, ChevronUp, ArrowUpRight, FileText,
+  ChevronDown, ChevronUp, ArrowUpRight, FileText, Search,
 } from "lucide-react";
 import {
   BarChart, Bar, ScatterChart, Scatter,
@@ -40,23 +40,97 @@ type SortField = "views" | "impressions" | "ctr" | "avgDuration" | "subsGained" 
 
 interface Props {
   data: VideoAnalytics[];
+  daysRange?: number;
 }
 
-export function VideoDeepDive({ data }: Props) {
+export function VideoDeepDive({ data, daysRange }: Props) {
   const navigate = useNavigate();
   const [sortField, setSortField] = useState<SortField>("views");
   const [expandedVideo, setExpandedVideo] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const { data: notesSet } = useVideoNotesCheck();
+
+  // Feature 2: Aggregation — group rows by youtube_video_id
+  const aggregated = useMemo(() => {
+    const grouped = new Map<string, VideoAnalytics[]>();
+    for (const row of data) {
+      const existing = grouped.get(row.youtube_video_id);
+      if (existing) {
+        existing.push(row);
+      } else {
+        grouped.set(row.youtube_video_id, [row]);
+      }
+    }
+
+    const results: VideoAnalytics[] = [];
+    for (const [videoId, rows] of grouped) {
+      // Find the latest row by date for title and metadata
+      const latest = rows.reduce((a, b) => (a.date >= b.date ? a : b));
+
+      // Sum fields
+      const views = rows.reduce((s, r) => s + r.views, 0);
+      const likes = rows.reduce((s, r) => s + r.likes, 0);
+      const dislikes = rows.reduce((s, r) => s + r.dislikes, 0);
+      const comments = rows.reduce((s, r) => s + r.comments, 0);
+      const shares = rows.reduce((s, r) => s + r.shares, 0);
+      const estimated_minutes_watched = rows.reduce((s, r) => s + r.estimated_minutes_watched, 0);
+      const subscribers_gained = rows.reduce((s, r) => s + r.subscribers_gained, 0);
+      const subscribers_lost = rows.reduce((s, r) => s + r.subscribers_lost, 0);
+      const impressions = rows.reduce((s, r) => s + r.impressions, 0);
+      const estimated_revenue = rows.reduce((s, r) => s + r.estimated_revenue, 0);
+      const card_clicks = rows.reduce((s, r) => s + r.card_clicks, 0);
+      const card_impressions = rows.reduce((s, r) => s + r.card_impressions, 0);
+      const end_screen_element_clicks = rows.reduce((s, r) => s + r.end_screen_element_clicks, 0);
+      const end_screen_element_impressions = rows.reduce((s, r) => s + r.end_screen_element_impressions, 0);
+
+      // Weighted averages by views
+      const totalViews = views;
+      const average_view_duration_seconds = totalViews > 0
+        ? rows.reduce((s, r) => s + r.average_view_duration_seconds * r.views, 0) / totalViews
+        : 0;
+      const average_view_percentage = totalViews > 0
+        ? rows.reduce((s, r) => s + r.average_view_percentage * r.views, 0) / totalViews
+        : 0;
+
+      // Recompute CTR
+      const impressions_ctr = impressions > 0 ? (views / impressions) * 100 : 0;
+
+      results.push({
+        ...latest,
+        youtube_video_id: videoId,
+        title: latest.title,
+        date: latest.date,
+        views,
+        likes,
+        dislikes,
+        comments,
+        shares,
+        estimated_minutes_watched,
+        subscribers_gained,
+        subscribers_lost,
+        impressions,
+        estimated_revenue,
+        card_clicks,
+        card_impressions,
+        end_screen_element_clicks,
+        end_screen_element_impressions,
+        average_view_duration_seconds,
+        average_view_percentage,
+        impressions_ctr,
+      });
+    }
+    return results;
+  }, [data]);
 
   const enriched = useMemo(
     () =>
-      data.map((v) => {
+      aggregated.map((v) => {
         const engagementRate = v.views > 0
           ? +(((v.likes + v.comments + v.shares) / v.views) * 100).toFixed(2)
           : 0;
         return { ...v, engagementRate };
       }),
-    [data]
+    [aggregated]
   );
 
   const sorted = useMemo(() => {
@@ -73,6 +147,13 @@ export function VideoDeepDive({ data }: Props) {
       }
     });
   }, [enriched, sortField]);
+
+  // Feature 10: Video Search — filter sorted videos by title
+  const filteredVideos = useMemo(() => {
+    if (!searchQuery.trim()) return sorted;
+    const q = searchQuery.toLowerCase();
+    return sorted.filter((v) => (v.title || v.youtube_video_id).toLowerCase().includes(q));
+  }, [sorted, searchQuery]);
 
   // Top 5 by views for overview
   const top5 = useMemo(() => sorted.slice(0, 5), [sorted]);
@@ -110,6 +191,48 @@ export function VideoDeepDive({ data }: Props) {
       { views: 0, watchTime: 0, likes: 0, comments: 0, shares: 0, subsGained: 0, subsLost: 0, impressions: 0, revenue: 0, cardClicks: 0, endScreenClicks: 0 }
     );
   }, [enriched]);
+
+  // Feature 11: CTR Outlier Analysis (Thumbnail Intelligence)
+  const ctrAnalysis = useMemo(() => {
+    const videosWithImpressions = enriched.filter((v) => v.impressions > 0);
+    const channelAvgCTR = videosWithImpressions.length > 0
+      ? videosWithImpressions.reduce((s, v) => s + v.impressions_ctr, 0) / videosWithImpressions.length
+      : 0;
+
+    const topCTRPerformers = videosWithImpressions
+      .filter((v) => v.impressions_ctr > channelAvgCTR * 1.3)
+      .sort((a, b) => b.impressions_ctr - a.impressions_ctr)
+      .slice(0, 5);
+
+    const thumbnailOpportunities = videosWithImpressions
+      .filter((v) => v.impressions > 1000 && v.impressions_ctr < channelAvgCTR * 0.7)
+      .sort((a, b) => b.impressions - a.impressions)
+      .slice(0, 5);
+
+    return { channelAvgCTR, topCTRPerformers, thumbnailOpportunities };
+  }, [enriched]);
+
+  // Feature 12: Video Performance Benchmarks
+  const channelBenchmarks = useMemo(() => {
+    if (enriched.length === 0) return { avgViews: 0, avgCTR: 0, avgDuration: 0, avgEngagement: 0 };
+    const avgViews = enriched.reduce((s, v) => s + v.views, 0) / enriched.length;
+    const withImpressions = enriched.filter((v) => v.impressions > 0);
+    const avgCTR = withImpressions.length > 0
+      ? withImpressions.reduce((s, v) => s + v.impressions_ctr, 0) / withImpressions.length
+      : 0;
+    const avgDuration = enriched.reduce((s, v) => s + v.average_view_duration_seconds, 0) / enriched.length;
+    const avgEngagement = enriched.reduce((s, v) => s + v.engagementRate, 0) / enriched.length;
+    return { avgViews, avgCTR, avgDuration, avgEngagement };
+  }, [enriched]);
+
+  const getAboveAvgCount = (v: typeof enriched[0]) => {
+    let count = 0;
+    if (v.views > channelBenchmarks.avgViews) count++;
+    if (v.impressions > 0 && v.impressions_ctr > channelBenchmarks.avgCTR) count++;
+    if (v.average_view_duration_seconds > channelBenchmarks.avgDuration) count++;
+    if (v.engagementRate > channelBenchmarks.avgEngagement) count++;
+    return count;
+  };
 
   if (data.length === 0) {
     return (
@@ -176,6 +299,79 @@ export function VideoDeepDive({ data }: Props) {
         </div>
       )}
 
+      {/* Feature 11: CTR Outlier Analysis (Thumbnail Intelligence) */}
+      {(ctrAnalysis.topCTRPerformers.length > 0 || ctrAnalysis.thumbnailOpportunities.length > 0) && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-foreground">Thumbnail Intelligence</h3>
+            <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+              Channel Avg CTR: {ctrAnalysis.channelAvgCTR.toFixed(2)}%
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            {/* Top CTR Performers */}
+            {ctrAnalysis.topCTRPerformers.length > 0 && (
+              <div className="rounded-lg border-2 border-green-500/50 bg-card p-4">
+                <h4 className="text-xs font-semibold text-green-600 dark:text-green-400 mb-2 flex items-center gap-1">
+                  <TrendingUp className="w-3.5 h-3.5" />
+                  Top CTR Performers
+                </h4>
+                <div className="space-y-1.5">
+                  {ctrAnalysis.topCTRPerformers.map((v) => (
+                    <div key={v.youtube_video_id} className="flex items-center gap-2">
+                      <span className="text-xs font-mono font-semibold text-green-600 dark:text-green-400 shrink-0 w-14 text-right">
+                        {v.impressions_ctr.toFixed(1)}%
+                      </span>
+                      <span className="text-xs text-foreground truncate">
+                        {v.title || v.youtube_video_id}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Thumbnail Opportunities */}
+            {ctrAnalysis.thumbnailOpportunities.length > 0 && (
+              <div className="rounded-lg border-2 border-amber-500/50 bg-card p-4">
+                <h4 className="text-xs font-semibold text-amber-600 dark:text-amber-400 mb-2 flex items-center gap-1">
+                  <MousePointerClick className="w-3.5 h-3.5" />
+                  Thumbnail Opportunities
+                </h4>
+                <div className="space-y-1.5">
+                  {ctrAnalysis.thumbnailOpportunities.map((v) => (
+                    <div key={v.youtube_video_id} className="flex items-center gap-2">
+                      <span className="text-xs font-mono font-semibold text-amber-600 dark:text-amber-400 shrink-0 w-14 text-right">
+                        {v.impressions_ctr.toFixed(1)}%
+                      </span>
+                      <span className="text-xs text-muted-foreground shrink-0">
+                        ({fmtCount(v.impressions)} imp.)
+                      </span>
+                      <span className="text-xs text-foreground truncate">
+                        {v.title || v.youtube_video_id}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Feature 10: Search input */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <input
+          type="text"
+          placeholder="Search videos by title..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full pl-9 pr-3 py-2 text-sm rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+        />
+      </div>
+
       {/* Sort controls */}
       <div className="flex items-center gap-2 flex-wrap">
         <span className="text-xs text-muted-foreground">Sort by:</span>
@@ -205,12 +401,15 @@ export function VideoDeepDive({ data }: Props) {
       {/* Video table */}
       <div className="rounded-lg border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-foreground mb-3">
-          All Videos ({sorted.length})
+          {searchQuery.trim()
+            ? `Showing ${filteredVideos.length} of ${sorted.length} videos`
+            : `All Videos (${sorted.length})`}
         </h3>
         <div className="space-y-1">
-          {sorted.map((v) => {
+          {filteredVideos.map((v) => {
             const isExpanded = expandedVideo === v.youtube_video_id;
             const netSubs = v.subscribers_gained - v.subscribers_lost;
+            const aboveAvgCount = getAboveAvgCount(v);
             return (
               <div key={v.youtube_video_id} className="border-b border-border/50">
                 <div className="w-full flex items-center gap-3 py-2.5 px-2 hover:bg-muted/20 rounded transition-colors text-left">
@@ -249,6 +448,18 @@ export function VideoDeepDive({ data }: Props) {
                       )}
                     </div>
                   </button>
+                  {/* Feature 12: Above-average badge */}
+                  <div className="shrink-0">
+                    <span className={`inline-flex items-center justify-center text-[10px] font-bold rounded-full w-6 h-6 ${
+                      aboveAvgCount >= 3
+                        ? "bg-green-500/20 text-green-600 dark:text-green-400"
+                        : aboveAvgCount >= 2
+                        ? "bg-blue-500/20 text-blue-600 dark:text-blue-400"
+                        : "bg-muted text-muted-foreground"
+                    }`}>
+                      {aboveAvgCount}/4
+                    </span>
+                  </div>
                   <div className="text-right shrink-0">
                     <span className="text-xs font-mono font-semibold text-primary">{v.engagementRate}%</span>
                     <p className="text-[10px] text-muted-foreground">engagement</p>
@@ -270,8 +481,16 @@ export function VideoDeepDive({ data }: Props) {
                     <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2">
                       <DetailStat label="Views" value={v.views.toLocaleString()} />
                       <DetailStat label="Impressions" value={fmtCount(v.impressions)} />
-                      <DetailStat label="Impressions CTR" value={`${v.impressions_ctr.toFixed(2)}%`} />
-                      <DetailStat label="Avg View Duration" value={fmtDuration(v.average_view_duration_seconds)} />
+                      <DetailStat
+                        label="Impressions CTR"
+                        value={`${v.impressions_ctr.toFixed(2)}%`}
+                        benchmark={v.impressions > 0 ? (v.impressions_ctr > channelBenchmarks.avgCTR ? "above" : "below") : undefined}
+                      />
+                      <DetailStat
+                        label="Avg View Duration"
+                        value={fmtDuration(v.average_view_duration_seconds)}
+                        benchmark={v.average_view_duration_seconds > channelBenchmarks.avgDuration ? "above" : "below"}
+                      />
                       <DetailStat label="Avg View %" value={`${v.average_view_percentage.toFixed(1)}%`} />
                       <DetailStat label="Watch Time" value={v.estimated_minutes_watched >= 60 ? `${Math.round(v.estimated_minutes_watched / 60)}h` : `${v.estimated_minutes_watched}m`} />
                       <DetailStat label="Likes" value={v.likes.toLocaleString()} />
@@ -287,7 +506,11 @@ export function VideoDeepDive({ data }: Props) {
                       {v.estimated_revenue > 0 && (
                         <DetailStat label="Revenue" value={fmtMoney(v.estimated_revenue)} />
                       )}
-                      <DetailStat label="Engagement Rate" value={`${v.engagementRate}%`} />
+                      <DetailStat
+                        label="Engagement Rate"
+                        value={`${v.engagementRate}%`}
+                        benchmark={v.engagementRate > channelBenchmarks.avgEngagement ? "above" : "below"}
+                      />
                     </div>
                   </div>
                 )}
@@ -309,15 +532,22 @@ function MiniKpi({ label, value }: { label: string; value: string }) {
   );
 }
 
-function DetailStat({ label, value, positive, negative }: {
-  label: string; value: string; positive?: boolean; negative?: boolean;
+function DetailStat({ label, value, positive, negative, benchmark }: {
+  label: string; value: string; positive?: boolean; negative?: boolean; benchmark?: "above" | "below";
 }) {
   return (
     <div className="bg-muted/30 rounded px-2 py-1.5">
       <p className="text-[9px] text-muted-foreground uppercase tracking-wider">{label}</p>
-      <p className={`text-xs font-mono font-semibold mt-0.5 ${
-        positive ? "text-green-500" : negative ? "text-red-500" : "text-foreground"
-      }`}>{value}</p>
+      <div className="flex items-center gap-1 mt-0.5">
+        {benchmark && (
+          <span className={`inline-block w-2 h-2 rounded-full shrink-0 ${
+            benchmark === "above" ? "bg-green-500" : "bg-red-500"
+          }`} />
+        )}
+        <p className={`text-xs font-mono font-semibold ${
+          positive ? "text-green-500" : negative ? "text-red-500" : "text-foreground"
+        }`}>{value}</p>
+      </div>
     </div>
   );
 }
