@@ -70,21 +70,16 @@ function mapRow(row: any): VideoQueueItem {
     description: row.description,
     status: row.status,
     priority: row.priority,
-    targetPublishDate: row.scheduled_date ?? row.target_publish_date ?? null,
-    // Read from relational columns first, fall back to metadata for backward compat
-    platforms: row.platforms ?? meta.platforms ?? [],
-    isSponsored: row.is_sponsored ?? meta.isSponsored ?? false,
-    company: row.company_id
-      ? { id: row.company_id, name: meta.company?.name ?? "", logo: meta.company?.logo ?? null }
-      : (meta.company ?? null),
-    sponsoringCompany: row.sponsoring_company_id
-      ? { id: row.sponsoring_company_id, name: meta.sponsoringCompany?.name ?? "", logo: meta.sponsoringCompany?.logo ?? null }
-      : (meta.sponsoringCompany ?? null),
+    targetPublishDate: row.scheduled_date ?? null,
+    platforms: meta.platforms ?? [],
+    isSponsored: meta.isSponsored ?? false,
+    company: meta.company ?? null,
+    sponsoringCompany: meta.sponsoringCompany ?? null,
     assignedTo: meta.assignedTo ?? null,
     checklists: meta.checklists ?? [],
     notes: row.notes,
-    youtubeVideoId: row.youtube_video_id ?? null,
-    scriptContent: row.script_content ?? null,
+    youtubeVideoId: meta.youtubeVideoId ?? null,
+    scriptContent: meta.scriptContent ?? null,
     metadata: meta,
     created_by: row.created_by,
     created_at: row.created_at,
@@ -151,6 +146,13 @@ export function useCreateVideo() {
         metadata.sponsoringCompany = { id: input.sponsoringCompanyId, name: input.sponsoringCompanyName ?? "", logo: input.sponsoringCompanyLogo ?? null };
       }
 
+      // Store fields that don't have dedicated columns in the metadata JSONB
+      metadata.platforms = input.platforms ?? [];
+      metadata.isSponsored = input.isSponsored ?? false;
+      metadata.companyId = input.companyId ?? null;
+      metadata.sponsoringCompanyId = input.sponsoringCompanyId ?? null;
+      metadata.scriptContent = input.scriptContent ?? null;
+
       const { error } = await supabase.from("video_queue").insert({
         workspace_id: workspaceId,
         title: input.title,
@@ -158,14 +160,8 @@ export function useCreateVideo() {
         status: input.status ?? "idea",
         priority: input.priority ?? "medium",
         scheduled_date: input.targetPublishDate ?? null,
-        // Write to relational columns
-        platforms: input.platforms ?? [],
-        is_sponsored: input.isSponsored ?? false,
-        company_id: input.companyId ?? null,
-        sponsoring_company_id: input.sponsoringCompanyId ?? null,
-        script_content: input.scriptContent ?? null,
         metadata,
-      } as any);
+      });
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["video-queue", workspaceId] }),
@@ -194,28 +190,22 @@ export function useUpdateVideo() {
       if (input.status !== undefined) update.status = input.status;
       if (input.priority !== undefined) update.priority = input.priority;
       if (input.targetPublishDate !== undefined) update.scheduled_date = input.targetPublishDate;
-      if (input.youtubeVideoId !== undefined) update.youtube_video_id = input.youtubeVideoId;
-      if (input.scriptContent !== undefined) update.script_content = input.scriptContent;
 
-      // Write to relational columns
-      if (input.platforms !== undefined) update.platforms = input.platforms;
-      if (input.isSponsored !== undefined) update.is_sponsored = input.isSponsored;
-
-      if (input.companyId !== undefined) {
-        update.company_id = input.companyId || null;
-      }
-      if (input.sponsoringCompanyId !== undefined) {
-        update.sponsoring_company_id = input.sponsoringCompanyId || null;
-      }
-
-      // Update metadata for display info (company names/logos) and preserve checklists
+      // Update metadata for all extended fields (company, sponsors, platforms, etc.)
       const newMeta = { ...existingMeta };
+      if (input.youtubeVideoId !== undefined) newMeta.youtubeVideoId = input.youtubeVideoId;
+      if (input.scriptContent !== undefined) newMeta.scriptContent = input.scriptContent;
+      if (input.platforms !== undefined) newMeta.platforms = input.platforms;
+      if (input.isSponsored !== undefined) newMeta.isSponsored = input.isSponsored;
+
       if (input.companyId !== undefined) {
+        newMeta.companyId = input.companyId || null;
         newMeta.company = input.companyId
           ? { id: input.companyId, name: input.companyName ?? "", logo: input.companyLogo ?? null }
           : null;
       }
       if (input.sponsoringCompanyId !== undefined) {
+        newMeta.sponsoringCompanyId = input.sponsoringCompanyId || null;
         newMeta.sponsoringCompany = input.sponsoringCompanyId
           ? { id: input.sponsoringCompanyId, name: input.sponsoringCompanyName ?? "", logo: input.sponsoringCompanyLogo ?? null }
           : null;
@@ -224,7 +214,7 @@ export function useUpdateVideo() {
 
       const { error } = await supabase
         .from("video_queue")
-        .update(update as any)
+        .update(update)
         .eq("id", String(input.id));
       if (error) throw error;
     },
