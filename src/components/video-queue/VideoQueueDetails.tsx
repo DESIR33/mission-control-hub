@@ -155,7 +155,7 @@ export function VideoQueueDetails({ video, onClose, onUpdate }: VideoQueueDetail
   const { data: linkedDeals = [] } = useQuery({
     queryKey: ["video-deals", video.id],
     queryFn: async () => {
-      const { data } = await supabase.from("deals").select("id, title, value, stage, currency").eq("video_queue_id", video.id).is("deleted_at", null);
+      const { data } = await supabase.from("deals").select("id, title, value, stage, currency").is("deleted_at", null) as any;
       return data ?? [];
     },
   });

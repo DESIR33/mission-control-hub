@@ -28,15 +28,15 @@ function TopEarningVideos() {
         .from("deals")
         .select("video_queue_id, value, currency")
         .eq("stage", "closed_won")
-        .not("video_queue_id", "is", null)
         .is("deleted_at", null);
 
       if (!deals?.length) return [];
 
       const revenueByVideo: Record<string, number> = {};
-      for (const d of deals) {
-        if (d.video_queue_id) {
-          revenueByVideo[d.video_queue_id] = (revenueByVideo[d.video_queue_id] ?? 0) + (d.value ?? 0);
+      for (const d of (deals as any[])) {
+        const vqId = (d as any).video_queue_id;
+        if (vqId) {
+          revenueByVideo[vqId] = (revenueByVideo[vqId] ?? 0) + ((d as any).value ?? 0);
         }
       }
 

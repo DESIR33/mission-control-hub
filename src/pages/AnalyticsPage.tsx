@@ -240,16 +240,8 @@ function AnalyticsContent() {
     });
   };
 
-  const handleAnalyticsSync = () => {
-    syncAnalytics.mutate(undefined, {
-      onSuccess: () => toast.success("YouTube Analytics synced!"),
-      onError: (err: Error) => toast.error(`Analytics sync failed: ${err.message}`),
-    });
-  };
-
   const handleSyncAll = () => {
     handleSync();
-    handleAnalyticsSync();
   };
 
   if (isLoading) {
@@ -305,9 +297,9 @@ function AnalyticsContent() {
             variant="outline"
             size="sm"
             onClick={handleSyncAll}
-            disabled={syncYouTube.isPending || syncAnalytics.isPending}
+            disabled={syncYouTube.isPending}
           >
-            <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${(syncYouTube.isPending || syncAnalytics.isPending) ? "animate-spin" : ""}`} />
+            <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${syncYouTube.isPending ? "animate-spin" : ""}`} />
             Sync All
           </Button>
         </div>
