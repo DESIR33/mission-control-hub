@@ -35,12 +35,20 @@ const tooltipStyle = {
   fontSize: 12,
 };
 
+/** Compute percentage change between two numbers. Returns null if previous is 0. */
+const pctChange = (current: number, previous: number): number | null => {
+  if (previous === 0) return current > 0 ? 100 : null;
+  return +((current - previous) / Math.abs(previous) * 100).toFixed(1);
+};
+
 interface Props {
   data: ChannelAnalytics[];
   daysRange: number;
+  currentSubscribers?: number;
 }
 
-export function ChannelOverview({ data, daysRange }: Props) {
+export function ChannelOverview({ data, daysRange, currentSubscribers }: Props) {
+  // Current period: last `daysRange` days
   const filtered = useMemo(() => {
     const cutoff = subDays(new Date(), daysRange);
     return data
@@ -48,9 +56,20 @@ export function ChannelOverview({ data, daysRange }: Props) {
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }, [data, daysRange]);
 
-  const totals = useMemo(() => {
-    if (filtered.length === 0) return null;
-    return filtered.reduce(
+  // Previous period: the `daysRange` days before the current period
+  const prevFiltered = useMemo(() => {
+    const currentCutoff = subDays(new Date(), daysRange);
+    const prevCutoff = subDays(new Date(), daysRange * 2);
+    return data
+      .filter((d) => {
+        const dt = new Date(d.date);
+        return dt >= prevCutoff && dt < currentCutoff;
+      })
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  }, [data, daysRange]);
+
+  const sumPeriod = (items: ChannelAnalytics[]) =>
+    items.reduce(
       (acc, d) => ({
         views: acc.views + d.views,
         watchTime: acc.watchTime + d.estimated_minutes_watched,
@@ -72,7 +91,36 @@ export function ChannelOverview({ data, daysRange }: Props) {
         revenue: 0, cardClicks: 0, endScreenClicks: 0,
       }
     );
+
+  const totals = useMemo(() => {
+    if (filtered.length === 0) return null;
+    return sumPeriod(filtered);
   }, [filtered]);
+
+  const prevTotals = useMemo(() => {
+    if (prevFiltered.length === 0) return null;
+    return sumPeriod(prevFiltered);
+  }, [prevFiltered]);
+
+  // Period-over-period deltas
+  const deltas = useMemo(() => {
+    if (!totals || !prevTotals) return null;
+    return {
+      views: pctChange(totals.views, prevTotals.views),
+      watchTime: pctChange(totals.watchTime, prevTotals.watchTime),
+      netSubs: pctChange(totals.netSubs, prevTotals.netSubs),
+      impressions: pctChange(totals.impressions, prevTotals.impressions),
+      likes: pctChange(totals.likes, prevTotals.likes),
+      comments: pctChange(totals.comments, prevTotals.comments),
+      cardClicks: pctChange(totals.cardClicks, prevTotals.cardClicks),
+      endScreenClicks: pctChange(totals.endScreenClicks, prevTotals.endScreenClicks),
+      revenue: pctChange(totals.revenue, prevTotals.revenue),
+      engagement: pctChange(
+        totals.likes + totals.comments + totals.shares,
+        prevTotals.likes + prevTotals.comments + prevTotals.shares
+      ),
+    };
+  }, [totals, prevTotals]);
 
   const avgCtr = useMemo(() => {
     const withImpressions = filtered.filter((d) => d.impressions > 0);
@@ -103,9 +151,24 @@ export function ChannelOverview({ data, daysRange }: Props) {
         revenue: d.estimated_revenue,
         likes: d.likes,
         shares: d.shares,
+        engagementRate:
+          d.views > 0
+            ? +((d.likes + d.comments + d.shares) / d.views * 100).toFixed(2)
+            : 0,
+        subsVelocity:
+          d.views > 0
+            ? +((d.net_subscribers / d.views) * 1000).toFixed(2)
+            : 0,
       })),
     [filtered]
   );
+
+  // Average subscriber velocity for the period
+  const avgSubsVelocity = useMemo(() => {
+    if (chartData.length === 0) return 0;
+    const sum = chartData.reduce((acc, d) => acc + d.subsVelocity, 0);
+    return +(sum / chartData.length).toFixed(2);
+  }, [chartData]);
 
   if (!totals || filtered.length === 0) {
     return (
@@ -127,12 +190,16 @@ export function ChannelOverview({ data, daysRange }: Props) {
           label="Views"
           value={fmtCount(totals.views)}
           sub={`${daysRange}d total`}
+          change={deltas?.views ?? undefined}
+          daysRange={daysRange}
         />
         <KpiCard
           icon={<Clock className="w-3.5 h-3.5 text-purple-500" />}
           label="Watch Time"
           value={totals.watchTime >= 60 ? `${Math.round(totals.watchTime / 60)}h` : `${totals.watchTime}m`}
           sub="estimated"
+          change={deltas?.watchTime ?? undefined}
+          daysRange={daysRange}
         />
         <KpiCard
           icon={<Users className="w-3.5 h-3.5 text-green-500" />}
@@ -140,12 +207,16 @@ export function ChannelOverview({ data, daysRange }: Props) {
           value={`${totals.netSubs >= 0 ? "+" : ""}${fmtCount(totals.netSubs)}`}
           sub={`+${fmtCount(totals.subsGained)} / -${fmtCount(totals.subsLost)}`}
           positive={totals.netSubs >= 0}
+          change={deltas?.netSubs ?? undefined}
+          daysRange={daysRange}
         />
         <KpiCard
           icon={<MousePointerClick className="w-3.5 h-3.5 text-orange-500" />}
           label="Impressions"
           value={fmtCount(totals.impressions)}
           sub={`${avgCtr}% CTR`}
+          change={deltas?.impressions ?? undefined}
+          daysRange={daysRange}
         />
         <KpiCard
           icon={<Zap className="w-3.5 h-3.5 text-yellow-500" />}
@@ -158,6 +229,8 @@ export function ChannelOverview({ data, daysRange }: Props) {
           label="Engagement"
           value={fmtCount(totals.likes + totals.comments + totals.shares)}
           sub={`${fmtCount(totals.likes)} likes · ${fmtCount(totals.shares)} shares`}
+          change={deltas?.engagement ?? undefined}
+          daysRange={daysRange}
         />
       </div>
 
@@ -204,7 +277,7 @@ export function ChannelOverview({ data, daysRange }: Props) {
         </div>
       )}
 
-      {/* Subscribers + CTR Chart */}
+      {/* Subscribers + CTR + Engagement Rate Chart */}
       {chartData.length > 1 && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="rounded-lg border border-border bg-card p-4">
@@ -233,6 +306,43 @@ export function ChannelOverview({ data, daysRange }: Props) {
                 <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => `${v}%`} />
                 <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => [`${v}%`, "CTR"]} />
                 <Line type="monotone" dataKey="ctr" stroke="#f59e0b" strokeWidth={2} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
+      {/* Feature 14: Engagement Rate Trend Chart */}
+      {chartData.length > 1 && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="rounded-lg border border-border bg-card p-4">
+            <h3 className="text-sm font-semibold text-foreground mb-3">Engagement Rate %</h3>
+            <ResponsiveContainer width="100%" height={220}>
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                <XAxis dataKey="date" tick={{ fontSize: 10 }} />
+                <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => `${v}%`} />
+                <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => [`${v}%`, "Engagement Rate"]} />
+                <Line type="monotone" dataKey="engagementRate" stroke="#06b6d4" strokeWidth={2} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Feature 15: Subscriber Velocity Chart */}
+          <div className="rounded-lg border border-border bg-card p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-foreground">Subscriber Velocity</h3>
+              <span className="text-[10px] text-muted-foreground">
+                Avg: {avgSubsVelocity} subs/1K views
+              </span>
+            </div>
+            <ResponsiveContainer width="100%" height={220}>
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                <XAxis dataKey="date" tick={{ fontSize: 10 }} />
+                <YAxis tick={{ fontSize: 10 }} />
+                <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => [v, "Subs per 1K views"]} />
+                <Line type="monotone" dataKey="subsVelocity" stroke="#22c55e" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -270,21 +380,29 @@ export function ChannelOverview({ data, daysRange }: Props) {
           icon={<ThumbsUp className="w-3.5 h-3.5 text-blue-500" />}
           label="Total Likes"
           value={fmtCount(totals.likes)}
+          change={deltas?.likes ?? undefined}
+          daysRange={daysRange}
         />
         <KpiCard
           icon={<MessageSquare className="w-3.5 h-3.5 text-green-500" />}
           label="Total Comments"
           value={fmtCount(totals.comments)}
+          change={deltas?.comments ?? undefined}
+          daysRange={daysRange}
         />
         <KpiCard
           icon={<MousePointerClick className="w-3.5 h-3.5 text-orange-500" />}
           label="Card Clicks"
           value={fmtCount(totals.cardClicks)}
+          change={deltas?.cardClicks ?? undefined}
+          daysRange={daysRange}
         />
         <KpiCard
           icon={<ArrowUpRight className="w-3.5 h-3.5 text-purple-500" />}
           label="End Screen Clicks"
           value={fmtCount(totals.endScreenClicks)}
+          change={deltas?.endScreenClicks ?? undefined}
+          daysRange={daysRange}
         />
       </div>
     </div>
@@ -292,13 +410,15 @@ export function ChannelOverview({ data, daysRange }: Props) {
 }
 
 function KpiCard({
-  icon, label, value, sub, positive,
+  icon, label, value, sub, positive, change, daysRange,
 }: {
   icon: React.ReactNode;
   label: string;
   value: string;
   sub?: string;
   positive?: boolean;
+  change?: number;
+  daysRange?: number;
 }) {
   return (
     <div className="rounded-lg border border-border bg-card p-3">
@@ -312,6 +432,18 @@ function KpiCard({
         {value}
       </p>
       {sub && <p className="text-[10px] text-muted-foreground">{sub}</p>}
+      {change !== undefined && change !== null && (
+        <div className={`flex items-center gap-0.5 mt-1 ${change >= 0 ? "text-green-500" : "text-red-500"}`}>
+          {change >= 0 ? (
+            <ArrowUpRight className="w-3 h-3" />
+          ) : (
+            <ArrowDownRight className="w-3 h-3" />
+          )}
+          <span className="text-[10px] font-medium">
+            {change >= 0 ? "+" : ""}{change}%{daysRange ? ` vs prev ${daysRange}d` : ""}
+          </span>
+        </div>
+      )}
     </div>
   );
 }
