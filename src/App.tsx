@@ -32,6 +32,8 @@ import NewSponsorshipPage from "./pages/NewSponsorshipPage";
 import DealsPage from "./pages/DealsPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import SponsorDiscoveryPage from "./pages/SponsorDiscoveryPage";
+import EmailSequencesPage from "./pages/EmailSequencesPage";
+import WeeklyReportPage from "./pages/WeeklyReportPage";
 
 const queryClient = new QueryClient();
 
@@ -81,6 +83,8 @@ const App = () => (
               <Route path="/monetization" element={<MonetizationPage />} />
               <Route path="/deals" element={<DealsPage />} />
               <Route path="/discover" element={<SponsorDiscoveryPage />} />
+              <Route path="/sequences" element={<EmailSequencesPage />} />
+              <Route path="/reports" element={<WeeklyReportPage />} />
               <Route path="/affiliate-program/new" element={<NewAffiliateProgramPage />} />
               <Route path="/affiliate-program/:id" element={<AffiliateProgramPage />} />
               <Route path="/affiliate-program/:id/edit" element={<EditAffiliateProgramPage />} />

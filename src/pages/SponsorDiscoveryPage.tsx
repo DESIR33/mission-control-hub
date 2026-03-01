@@ -1,12 +1,35 @@
-import { useState } from "react";
-import { Compass, Plus, Search, Loader2, Building2, ExternalLink, TrendingUp, X } from "lucide-react";
+import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Compass,
+  Plus,
+  Search,
+  Loader2,
+  Building2,
+  ExternalLink,
+  TrendingUp,
+  X,
+  Mail,
+  Copy,
+  CheckSquare,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { WorkspaceProvider, useWorkspace } from "@/hooks/use-workspace";
-import { useCreateCompany } from "@/hooks/use-companies";
+import { useCreateCompany, useCompanies } from "@/hooks/use-companies";
 import { useCreateDeal } from "@/hooks/use-deals";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 interface DiscoveredSponsor {
@@ -16,16 +39,68 @@ interface DiscoveredSponsor {
   addedToCrm?: boolean;
 }
 
+function generateOutreachTemplate(companyName: string): string {
+  return `Hi {{company_name}} Team,
+
+I hope this message finds you well! My name is [Your Name], and I run [Your Channel Name] -- a YouTube channel focused on [Your Niche] with [{{subscriber_count}}] subscribers and an average of [{{avg_views}}] views per video.
+
+I noticed that ${companyName} has been actively partnering with creators in our space, and I believe there's a fantastic opportunity for us to collaborate.
+
+Here's a quick snapshot of my channel stats:
+- Subscribers: {{subscriber_count}}
+- Average views per video: {{avg_views}}
+- Audience demographic: {{audience_demographic}}
+- Engagement rate: {{engagement_rate}}
+
+I'd love to discuss how a sponsorship with ${companyName} could look -- whether that's a dedicated video, an integrated segment, or a series partnership.
+
+Would you be open to a quick call this week to explore this further?
+
+Looking forward to hearing from you!
+
+Best regards,
+[Your Name]
+[Your Channel Name]
+[Your Email]`;
+}
+
 function SponsorDiscoveryContent() {
   const { workspaceId } = useWorkspace();
-  const { toast } = useToast();
+  const navigate = useNavigate();
   const createCompany = useCreateCompany();
   const createDeal = useCreateDeal();
+  const { data: existingCompanies = [] } = useCompanies();
 
   const [channelUrls, setChannelUrls] = useState<string[]>([""]);
   const [sponsors, setSponsors] = useState<DiscoveredSponsor[]>([]);
   const [isDiscovering, setIsDiscovering] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+
+  // Feature 9: Outreach template state
+  const [outreachDialogOpen, setOutreachDialogOpen] = useState(false);
+  const [outreachSponsorName, setOutreachSponsorName] = useState("");
+  const [outreachBody, setOutreachBody] = useState("");
+
+  // Feature 14: Bulk import state
+  const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
+  const [isBulkImporting, setIsBulkImporting] = useState(false);
+
+  const allSelected = useMemo(
+    () => sponsors.length > 0 && selectedIndices.size === sponsors.length,
+    [sponsors.length, selectedIndices.size]
+  );
+
+  const someSelected = useMemo(
+    () => selectedIndices.size > 0 && selectedIndices.size < sponsors.length,
+    [sponsors.length, selectedIndices.size]
+  );
+
+  const selectableCount = useMemo(
+    () => sponsors.filter((s) => !s.addedToCrm).length,
+    [sponsors]
+  );
+
+  const selectedCount = selectedIndices.size;
 
   const addUrlField = () => {
     if (channelUrls.length < 5) {
@@ -46,12 +121,13 @@ function SponsorDiscoveryContent() {
   const handleDiscover = async () => {
     const validUrls = channelUrls.filter((u) => u.trim());
     if (!validUrls.length || !workspaceId) {
-      toast({ title: "Enter at least one channel URL", variant: "destructive" });
+      toast.error("Enter at least one channel URL");
       return;
     }
 
     setIsDiscovering(true);
     setHasSearched(true);
+    setSelectedIndices(new Set());
 
     try {
       const { data, error } = await supabase.functions.invoke("discover-sponsors", {
@@ -62,13 +138,13 @@ function SponsorDiscoveryContent() {
 
       if (data?.sponsors) {
         setSponsors(data.sponsors.map((s: any) => ({ ...s, addedToCrm: false })));
-        toast({ title: `Found ${data.sponsors.length} potential sponsors` });
+        toast.success(`Found ${data.sponsors.length} potential sponsors`);
       } else {
         setSponsors([]);
-        toast({ title: "No sponsors found in those channels" });
+        toast.info("No sponsors found in those channels");
       }
     } catch (err: any) {
-      toast({ title: "Discovery failed", description: err.message, variant: "destructive" });
+      toast.error("Discovery failed", { description: err.message });
     } finally {
       setIsDiscovering(false);
     }
@@ -94,9 +170,151 @@ function SponsorDiscoveryContent() {
       updated[index] = { ...sponsor, addedToCrm: true };
       setSponsors(updated);
 
-      toast({ title: `${sponsor.name} added to CRM with prospecting deal` });
+      // Remove from selection if selected
+      setSelectedIndices((prev) => {
+        const next = new Set(prev);
+        next.delete(index);
+        return next;
+      });
+
+      toast.success(`${sponsor.name} added to CRM with prospecting deal`);
     } catch (err: any) {
-      toast({ title: "Failed to add to CRM", description: err.message, variant: "destructive" });
+      toast.error("Failed to add to CRM", { description: err.message });
+    }
+  };
+
+  // Feature 9: Draft Outreach
+  const handleDraftOutreach = (sponsor: DiscoveredSponsor) => {
+    setOutreachSponsorName(sponsor.name);
+    setOutreachBody(generateOutreachTemplate(sponsor.name));
+    setOutreachDialogOpen(true);
+  };
+
+  const handleCopyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(outreachBody);
+      toast.success("Email template copied to clipboard");
+    } catch {
+      toast.error("Failed to copy to clipboard");
+    }
+  };
+
+  const handleOpenInInbox = () => {
+    setOutreachDialogOpen(false);
+    navigate("/inbox");
+  };
+
+  // Feature 14: Bulk selection
+  const toggleSelectAll = () => {
+    if (allSelected || someSelected) {
+      setSelectedIndices(new Set());
+    } else {
+      const all = new Set<number>();
+      sponsors.forEach((_, i) => all.add(i));
+      setSelectedIndices(all);
+    }
+  };
+
+  const toggleSelect = (index: number) => {
+    setSelectedIndices((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
+  };
+
+  // Feature 14: Bulk import
+  const handleBulkImport = async () => {
+    const toImport = Array.from(selectedIndices)
+      .map((i) => ({ sponsor: sponsors[i], index: i }))
+      .filter(({ sponsor }) => !sponsor.addedToCrm);
+
+    if (toImport.length === 0) {
+      toast.info("All selected sponsors have already been added to CRM");
+      return;
+    }
+
+    setIsBulkImporting(true);
+
+    const existingNames = new Set(
+      existingCompanies.map((c) => c.name.toLowerCase())
+    );
+
+    let successCount = 0;
+    let skipCount = 0;
+    let failCount = 0;
+
+    const toastId = toast.loading(
+      `Importing 0/${toImport.length} sponsors to CRM...`
+    );
+
+    for (let idx = 0; idx < toImport.length; idx++) {
+      const { sponsor, index } = toImport[idx];
+
+      // Skip if company already exists in CRM
+      if (existingNames.has(sponsor.name.toLowerCase())) {
+        skipCount++;
+        const updated = [...sponsors];
+        updated[index] = { ...updated[index], addedToCrm: true };
+        setSponsors(updated);
+        toast.loading(
+          `Importing ${idx + 1}/${toImport.length} sponsors to CRM...`,
+          { id: toastId }
+        );
+        continue;
+      }
+
+      try {
+        const companyResult = await createCompany.mutateAsync({
+          name: sponsor.name,
+          notes: `Discovered via sponsor discovery. Mentioned ${sponsor.mentions} time(s) in: ${sponsor.sources.join(", ")}`,
+        } as any);
+
+        if (companyResult?.id) {
+          await createDeal.mutateAsync({
+            title: `${sponsor.name} Sponsorship`,
+            stage: "prospecting",
+            company_id: companyResult.id,
+            notes: `Auto-created from sponsor discovery (bulk import). ${sponsor.mentions} mention(s) found.`,
+          });
+        }
+
+        existingNames.add(sponsor.name.toLowerCase());
+
+        const updated = [...sponsors];
+        updated[index] = { ...updated[index], addedToCrm: true };
+        setSponsors(updated);
+        successCount++;
+      } catch {
+        failCount++;
+      }
+
+      toast.loading(
+        `Importing ${idx + 1}/${toImport.length} sponsors to CRM...`,
+        { id: toastId }
+      );
+    }
+
+    setIsBulkImporting(false);
+    setSelectedIndices(new Set());
+
+    const parts: string[] = [];
+    if (successCount > 0) parts.push(`${successCount} added`);
+    if (skipCount > 0) parts.push(`${skipCount} already existed`);
+    if (failCount > 0) parts.push(`${failCount} failed`);
+
+    if (failCount > 0) {
+      toast.warning(`Bulk import complete: ${parts.join(", ")}`, {
+        id: toastId,
+      });
+    } else {
+      toast.success(`Bulk import complete: ${parts.join(", ")}`, {
+        id: toastId,
+      });
     }
   };
 
@@ -164,18 +382,63 @@ function SponsorDiscoveryContent() {
       {/* Results */}
       {sponsors.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-sm font-semibold text-foreground">
-            Discovered Sponsors ({sponsors.length})
-          </h2>
+          {/* Results header with Select All and Bulk Import */}
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-3">
+              <Checkbox
+                checked={allSelected ? true : someSelected ? "indeterminate" : false}
+                onCheckedChange={toggleSelectAll}
+                aria-label="Select all sponsors"
+              />
+              <h2 className="text-sm font-semibold text-foreground">
+                Discovered Sponsors ({sponsors.length})
+              </h2>
+              {selectedCount > 0 && (
+                <Badge variant="secondary" className="text-xs">
+                  {selectedCount} selected
+                </Badge>
+              )}
+            </div>
+
+            {selectedCount > 0 && (
+              <Button
+                size="sm"
+                onClick={handleBulkImport}
+                disabled={isBulkImporting}
+              >
+                {isBulkImporting ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" />
+                    Importing...
+                  </>
+                ) : (
+                  <>
+                    <CheckSquare className="w-3.5 h-3.5 mr-1" />
+                    Bulk Import to CRM ({selectedCount})
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {sponsors.map((sponsor, i) => (
               <div
                 key={`${sponsor.name}-${i}`}
-                className="rounded-lg border border-border bg-card p-4 space-y-3"
+                className={`rounded-lg border bg-card p-4 space-y-3 ${
+                  selectedIndices.has(i)
+                    ? "border-primary ring-1 ring-primary/30"
+                    : "border-border"
+                }`}
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2">
+                    <Checkbox
+                      checked={selectedIndices.has(i)}
+                      onCheckedChange={() => toggleSelect(i)}
+                      aria-label={`Select ${sponsor.name}`}
+                      className="mt-0.5"
+                    />
                     <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                       <Building2 className="w-4 h-4 text-primary" />
                     </div>
@@ -205,22 +468,36 @@ function SponsorDiscoveryContent() {
                   </div>
                 )}
 
-                <Button
-                  size="sm"
-                  variant={sponsor.addedToCrm ? "outline" : "default"}
-                  className="w-full text-xs"
-                  disabled={sponsor.addedToCrm}
-                  onClick={() => handleAddToCrm(sponsor, i)}
-                >
-                  {sponsor.addedToCrm ? (
-                    "Added to CRM"
-                  ) : (
-                    <>
-                      <Plus className="w-3.5 h-3.5 mr-1" />
-                      Add to CRM
-                    </>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant={sponsor.addedToCrm ? "outline" : "default"}
+                    className="flex-1 text-xs"
+                    disabled={sponsor.addedToCrm}
+                    onClick={() => handleAddToCrm(sponsor, i)}
+                  >
+                    {sponsor.addedToCrm ? (
+                      "Added to CRM"
+                    ) : (
+                      <>
+                        <Plus className="w-3.5 h-3.5 mr-1" />
+                        Add to CRM
+                      </>
+                    )}
+                  </Button>
+
+                  {sponsor.addedToCrm && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="text-xs"
+                      onClick={() => handleDraftOutreach(sponsor)}
+                    >
+                      <Mail className="w-3.5 h-3.5 mr-1" />
+                      Draft Outreach
+                    </Button>
                   )}
-                </Button>
+                </div>
               </div>
             ))}
           </div>
@@ -237,6 +514,56 @@ function SponsorDiscoveryContent() {
           </p>
         </div>
       )}
+
+      {/* Feature 9: Outreach Email Template Dialog */}
+      <Dialog open={outreachDialogOpen} onOpenChange={setOutreachDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Draft Outreach: {outreachSponsorName}</DialogTitle>
+            <DialogDescription>
+              Edit the email template below. Replace merge tags like {"{{company_name}}"} and
+              placeholders in [brackets] with your actual details before sending.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3">
+            <div className="flex flex-wrap gap-1.5">
+              <Badge variant="secondary" className="text-[10px]">
+                {"{{company_name}}"}
+              </Badge>
+              <Badge variant="secondary" className="text-[10px]">
+                {"{{subscriber_count}}"}
+              </Badge>
+              <Badge variant="secondary" className="text-[10px]">
+                {"{{avg_views}}"}
+              </Badge>
+              <Badge variant="secondary" className="text-[10px]">
+                {"{{audience_demographic}}"}
+              </Badge>
+              <Badge variant="secondary" className="text-[10px]">
+                {"{{engagement_rate}}"}
+              </Badge>
+            </div>
+
+            <Textarea
+              value={outreachBody}
+              onChange={(e) => setOutreachBody(e.target.value)}
+              className="min-h-[350px] font-mono text-sm bg-secondary border-border"
+            />
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={handleCopyToClipboard}>
+              <Copy className="w-3.5 h-3.5 mr-1" />
+              Copy to Clipboard
+            </Button>
+            <Button onClick={handleOpenInInbox}>
+              <ExternalLink className="w-3.5 h-3.5 mr-1" />
+              Open in Inbox
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
