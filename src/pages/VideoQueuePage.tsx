@@ -95,7 +95,16 @@ export default function VideoQueuePage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [priorityFilter, setPriorityFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [currentView, setCurrentView] = useState<"list" | "cards" | "calendar">("list");
+  const [currentView, setCurrentView] = useState<"list" | "cards" | "calendar">(() => {
+    const saved = localStorage.getItem("video-queue-view");
+    if (saved === "list" || saved === "cards" || saved === "calendar") return saved;
+    return "list";
+  });
+
+  const handleViewChange = (view: "list" | "cards" | "calendar") => {
+    setCurrentView(view);
+    localStorage.setItem("video-queue-view", view);
+  };
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -262,7 +271,7 @@ export default function VideoQueuePage() {
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:bg-accent"
               )}
-              onClick={() => setCurrentView("list")}
+              onClick={() => handleViewChange("list")}
               title="List view"
             >
               <List className="h-3.5 w-3.5" />
@@ -274,7 +283,7 @@ export default function VideoQueuePage() {
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:bg-accent"
               )}
-              onClick={() => setCurrentView("cards")}
+              onClick={() => handleViewChange("cards")}
               title="Card view"
             >
               <LayoutGrid className="h-3.5 w-3.5" />
@@ -286,7 +295,7 @@ export default function VideoQueuePage() {
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:bg-accent"
               )}
-              onClick={() => setCurrentView("calendar")}
+              onClick={() => handleViewChange("calendar")}
               title="Calendar view"
             >
               <CalendarDays className="h-3.5 w-3.5" />
