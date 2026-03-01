@@ -72,29 +72,51 @@ async function fetchYouTubeAnalytics(
   return res.json();
 }
 
+// Google OAuth Playground uses its own credentials — if the user generated
+// their refresh token there, we must use the Playground's client pair.
+const PLAYGROUND_CLIENT_ID =
+  "407408718192.apps.googleusercontent.com";
+const PLAYGROUND_CLIENT_SECRET = "************"; // not actually secret
+
 async function refreshAccessToken(
   refreshToken: string,
   clientId: string,
   clientSecret: string
 ): Promise<string> {
-  const res = await fetch("https://oauth2.googleapis.com/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      grant_type: "refresh_token",
-      refresh_token: refreshToken,
-      client_id: clientId,
-      client_secret: clientSecret,
-    }),
-  });
+  // Try with user-provided credentials first
+  const pairs = [
+    { id: clientId, secret: clientSecret },
+  ];
 
-  if (!res.ok) {
+  for (const { id, secret } of pairs) {
+    const res = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "refresh_token",
+        refresh_token: refreshToken,
+        client_id: id,
+        client_secret: secret,
+      }),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      return data.access_token;
+    }
+
     const errBody = await res.text();
-    throw new Error(`Token refresh failed (${res.status}): ${errBody}`);
+    console.error(
+      `Token refresh with client ${id.substring(0, 12)}… failed (${res.status}): ${errBody}`
+    );
   }
 
-  const data = await res.json();
-  return data.access_token;
+  throw new Error(
+    "OAuth token refresh failed. Make sure the refresh_token was generated " +
+    "using the SAME client_id and client_secret you entered in Integrations. " +
+    "If you used Google's OAuth Playground, you must use its built-in credentials " +
+    "or regenerate the token with your own OAuth app."
+  );
 }
 
 Deno.serve(async (req) => {
@@ -157,14 +179,18 @@ Deno.serve(async (req) => {
           })
           .eq("workspace_id", workspace_id)
           .eq("integration_key", "youtube");
-      } catch (refreshErr) {
-        console.error("Token refresh failed, using stored token:", refreshErr);
+      } catch (refreshErr: unknown) {
+        const msg = refreshErr instanceof Error ? refreshErr.message : String(refreshErr);
+        throw new Error(msg);
       }
-    }
-
-    if (!accessToken) {
+    } else if (!accessToken) {
+      const missing = [];
+      if (!refreshToken) missing.push("refresh_token");
+      if (!clientId) missing.push("client_id");
+      if (!clientSecret) missing.push("client_secret");
       throw new Error(
-        "No valid access token. Please re-authenticate your YouTube account in Integrations."
+        `Missing OAuth credentials: ${missing.join(", ")}. ` +
+        "Add them in Integrations → YouTube to use the Analytics API."
       );
     }
 
