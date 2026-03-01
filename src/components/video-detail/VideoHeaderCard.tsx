@@ -1,4 +1,4 @@
-import { Eye, Clock, ThumbsUp, MessageSquare, Users, MousePointerClick, Share2, AlertCircle } from "lucide-react";
+import { Eye, Clock, ThumbsUp, MessageSquare, Users, MousePointerClick, Share2 } from "lucide-react";
 
 interface Props {
   title: string;
@@ -57,10 +57,9 @@ export function VideoHeaderCard({
             </p>
           )}
           {!hasAnalyticsData && (
-            <div className="flex items-center gap-1.5 mt-2 text-xs text-amber-500">
-              <AlertCircle className="w-3.5 h-3.5" />
-              Analytics API data not available. Using Data API stats only.
-            </div>
+            <p className="text-[10px] text-muted-foreground mt-2">
+              Showing Data API stats. Sync Analytics for richer metrics.
+            </p>
           )}
         </div>
       </div>
