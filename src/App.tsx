@@ -34,6 +34,7 @@ import AnalyticsPage from "./pages/AnalyticsPage";
 import SponsorDiscoveryPage from "./pages/SponsorDiscoveryPage";
 import EmailSequencesPage from "./pages/EmailSequencesPage";
 import WeeklyReportPage from "./pages/WeeklyReportPage";
+import VideoDetailPage from "./pages/VideoDetailPage";
 
 const queryClient = new QueryClient();
 
@@ -80,6 +81,7 @@ const App = () => (
               <Route path="/content/create" element={<VideoQueueFormPage />} />
               <Route path="/content/:id/edit" element={<VideoQueueFormPage />} />
               <Route path="/analytics" element={<AnalyticsPage />} />
+              <Route path="/analytics/videos/:youtubeVideoId" element={<VideoDetailPage />} />
               <Route path="/monetization" element={<MonetizationPage />} />
               <Route path="/deals" element={<DealsPage />} />
               <Route path="/discover" element={<SponsorDiscoveryPage />} />
