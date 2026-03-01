@@ -121,7 +121,15 @@ export function useChannelAnalytics(days = 180) {
         .gte("date", cutoff)
         .order("date", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as unknown as ChannelAnalytics[];
+      // YouTube Analytics API returns CTR/rate fields as ratios (0-1); convert to percentages
+      return ((data ?? []) as unknown as ChannelAnalytics[]).map((row) => ({
+        ...row,
+        impressions_ctr: Number(row.impressions_ctr) * 100,
+        card_ctr: Number(row.card_ctr) * 100,
+        end_screen_element_ctr: Number(row.end_screen_element_ctr) * 100,
+        estimated_revenue: Number(row.estimated_revenue),
+        average_view_percentage: Number(row.average_view_percentage),
+      }));
     },
     enabled: !!workspaceId,
   });
@@ -142,7 +150,14 @@ export function useVideoAnalytics(daysRange = 90) {
         .order("views", { ascending: false })
         .limit(5000);
       if (error) throw error;
-      return (data ?? []) as unknown as VideoAnalytics[];
+      // YouTube Analytics API returns CTR/rate fields as ratios (0-1); convert to percentages
+      return ((data ?? []) as unknown as VideoAnalytics[]).map((row) => ({
+        ...row,
+        impressions_ctr: Number(row.impressions_ctr) * 100,
+        annotation_click_through_rate: Number(row.annotation_click_through_rate) * 100,
+        average_view_percentage: Number(row.average_view_percentage),
+        estimated_revenue: Number(row.estimated_revenue),
+      }));
     },
     enabled: !!workspaceId,
   });

@@ -170,19 +170,36 @@ function AnalyticsContent() {
     };
   }, [videoStats]);
 
-  // Sorted video table data with engagement score
+  // Sorted video table data with engagement score, enriched with Analytics API data
   const sortedVideos = useMemo(
-    () =>
-      videoStats
+    () => {
+      // Build a lookup of analytics data by video ID (latest entry per video)
+      const analyticsMap = new Map<string, (typeof videoAnalytics)[0]>();
+      for (const va of videoAnalytics) {
+        const existing = analyticsMap.get(va.youtube_video_id);
+        if (!existing || va.date > existing.date) {
+          analyticsMap.set(va.youtube_video_id, va);
+        }
+      }
+
+      return videoStats
         .slice()
         .map((v) => {
+          const analytics = analyticsMap.get(v.youtube_video_id);
           const engRate = (v.views ?? 0) > 0
             ? (((v.likes ?? 0) + (v.comments ?? 0)) / (v.views ?? 1)) * 100
             : 0;
-          return { ...v, engagementRate: +engRate.toFixed(2) };
+          return {
+            ...v,
+            // Merge Analytics API data when available (CTR already converted to % in hook)
+            ctr_percent: analytics?.impressions_ctr ?? v.ctr_percent ?? 0,
+            watch_time_minutes: analytics?.estimated_minutes_watched ?? v.watch_time_minutes ?? 0,
+            engagementRate: +engRate.toFixed(2),
+          };
         })
-        .sort((a, b) => (b.views ?? 0) - (a.views ?? 0)),
-    [videoStats]
+        .sort((a, b) => (b.views ?? 0) - (a.views ?? 0));
+    },
+    [videoStats, videoAnalytics]
   );
 
   // Fallback: convert Data API video stats to VideoAnalytics shape for the Videos tab
@@ -1017,17 +1034,17 @@ function OverviewTab({
                       {(v.comments ?? 0).toLocaleString()}
                     </td>
                     <td className="py-2 px-2 text-right text-foreground font-mono">
-                      {v.ctr_percent != null ? `${v.ctr_percent.toFixed(1)}%` : "--"}
+                      {v.ctr_percent > 0 ? `${Number(v.ctr_percent).toFixed(1)}%` : "—"}
                     </td>
                     <td className="py-2 px-2 text-right text-foreground font-mono">
                       {v.engagementRate}%
                     </td>
                     <td className="py-2 px-2 text-right text-muted-foreground font-mono">
-                      {v.watch_time_minutes != null
+                      {v.watch_time_minutes > 0
                         ? v.watch_time_minutes >= 60
                           ? `${Math.floor(v.watch_time_minutes / 60)}h ${v.watch_time_minutes % 60}m`
                           : `${v.watch_time_minutes}m`
-                        : "--"}
+                        : "—"}
                     </td>
                     <td className="py-2 px-2 text-right text-muted-foreground">
                       {v.published_at ? format(new Date(v.published_at), "MMM d") : "--"}
