@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   BarChart3, TrendingUp, TrendingDown, Eye, ThumbsUp, MessageSquare,
   Clock, Users, Play, Calendar, ArrowUpRight, ArrowDownRight,
-  Zap, Award, Target, RefreshCw, ChevronDown,
+  Zap, Award, Target, RefreshCw, ChevronDown, ChevronUp, ArrowUpDown,
   Globe, Route, Monitor, DollarSign, Tv, ExternalLink,
 } from "lucide-react";
 import { useWorkspace, WorkspaceProvider } from "@/hooks/use-workspace";
@@ -185,6 +185,36 @@ function AnalyticsContent() {
     [videoStats]
   );
 
+  // Fallback: convert Data API video stats to VideoAnalytics shape for the Videos tab
+  const videoStatsAsAnalytics = useMemo(() => {
+    return videoStats.map((v): import("@/hooks/use-youtube-analytics-api").VideoAnalytics => ({
+      id: v.id,
+      workspace_id: v.workspace_id,
+      youtube_video_id: v.youtube_video_id,
+      title: v.title,
+      date: v.fetched_at,
+      views: v.views ?? 0,
+      estimated_minutes_watched: v.watch_time_minutes ?? 0,
+      average_view_duration_seconds: v.avg_view_duration_seconds ?? 0,
+      average_view_percentage: 0,
+      subscribers_gained: 0,
+      subscribers_lost: 0,
+      likes: v.likes ?? 0,
+      dislikes: 0,
+      comments: v.comments ?? 0,
+      shares: 0,
+      impressions: 0,
+      impressions_ctr: v.ctr_percent ?? 0,
+      card_clicks: 0,
+      card_impressions: 0,
+      end_screen_element_clicks: 0,
+      end_screen_element_impressions: 0,
+      annotation_click_through_rate: 0,
+      estimated_revenue: 0,
+      fetched_at: v.fetched_at,
+    }));
+  }, [videoStats]);
+
   // Top 5 performing videos by engagement score
   const topVideos = useMemo(() => {
     return sortedVideos
@@ -355,7 +385,7 @@ function AnalyticsContent() {
       )}
 
       {activeTab === "videos" && (
-        <VideoDeepDive data={videoAnalytics} daysRange={daysForRange} />
+        <VideoDeepDive data={videoAnalytics.length > 0 ? videoAnalytics : videoStatsAsAnalytics} daysRange={daysForRange} />
       )}
 
       {activeTab === "audience" && (
@@ -398,12 +428,53 @@ interface OverviewTabProps {
   videoStats: any[];
 }
 
+type OverviewSortField = "title" | "views" | "likes" | "comments" | "ctr" | "engagement" | "watchTime" | "published";
+type SortDir = "asc" | "desc";
+
 function OverviewTab({
   latestSnapshot, subGrowthMetrics, videoEngagement, subscriberTrend,
   viewsTrend, topVideos, goal, daysForRange, analyticsSummary, sortedVideos,
   channelSnapshots, videoStats,
 }: OverviewTabProps) {
   const navigate = useNavigate();
+  const [tableSortField, setTableSortField] = useState<OverviewSortField>("views");
+  const [tableSortDir, setTableSortDir] = useState<SortDir>("desc");
+
+  const handleTableSort = (field: OverviewSortField) => {
+    if (tableSortField === field) {
+      setTableSortDir((d) => (d === "desc" ? "asc" : "desc"));
+    } else {
+      setTableSortField(field);
+      setTableSortDir(field === "title" ? "asc" : "desc");
+    }
+  };
+
+  const tableSortedVideos = useMemo(() => {
+    const dir = tableSortDir === "asc" ? 1 : -1;
+    return [...sortedVideos].sort((a: any, b: any) => {
+      switch (tableSortField) {
+        case "title":
+          return dir * (a.title ?? "").localeCompare(b.title ?? "");
+        case "views":
+          return dir * ((a.views ?? 0) - (b.views ?? 0));
+        case "likes":
+          return dir * ((a.likes ?? 0) - (b.likes ?? 0));
+        case "comments":
+          return dir * ((a.comments ?? 0) - (b.comments ?? 0));
+        case "ctr":
+          return dir * ((a.ctr_percent ?? 0) - (b.ctr_percent ?? 0));
+        case "engagement":
+          return dir * ((a.engagementRate ?? 0) - (b.engagementRate ?? 0));
+        case "watchTime":
+          return dir * ((a.watch_time_minutes ?? 0) - (b.watch_time_minutes ?? 0));
+        case "published":
+          return dir * (new Date(a.published_at ?? 0).getTime() - new Date(b.published_at ?? 0).getTime());
+        default:
+          return dir * ((b.views ?? 0) - (a.views ?? 0));
+      }
+    });
+  }, [sortedVideos, tableSortField, tableSortDir]);
+
   const tooltipStyle = {
     backgroundColor: "hsl(var(--card))",
     border: "1px solid hsl(var(--border))",
@@ -916,26 +987,18 @@ function OverviewTab({
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="text-left py-2 px-2 text-xs text-muted-foreground font-medium">Title</th>
-                  <th className="text-right py-2 px-2 text-xs text-muted-foreground font-medium">
-                    <Eye className="inline h-3 w-3" /> Views
-                  </th>
-                  <th className="text-right py-2 px-2 text-xs text-muted-foreground font-medium">
-                    <ThumbsUp className="inline h-3 w-3" /> Likes
-                  </th>
-                  <th className="text-right py-2 px-2 text-xs text-muted-foreground font-medium">
-                    <MessageSquare className="inline h-3 w-3" /> Comments
-                  </th>
-                  <th className="text-right py-2 px-2 text-xs text-muted-foreground font-medium">CTR %</th>
-                  <th className="text-right py-2 px-2 text-xs text-muted-foreground font-medium">Eng. %</th>
-                  <th className="text-right py-2 px-2 text-xs text-muted-foreground font-medium">
-                    <Clock className="inline h-3 w-3" /> Watch Time
-                  </th>
-                  <th className="text-right py-2 px-2 text-xs text-muted-foreground font-medium">Published</th>
+                  <SortableTh field="title" label="Title" align="left" currentField={tableSortField} currentDir={tableSortDir} onSort={handleTableSort} />
+                  <SortableTh field="views" label="Views" icon={<Eye className="inline h-3 w-3" />} currentField={tableSortField} currentDir={tableSortDir} onSort={handleTableSort} />
+                  <SortableTh field="likes" label="Likes" icon={<ThumbsUp className="inline h-3 w-3" />} currentField={tableSortField} currentDir={tableSortDir} onSort={handleTableSort} />
+                  <SortableTh field="comments" label="Comments" icon={<MessageSquare className="inline h-3 w-3" />} currentField={tableSortField} currentDir={tableSortDir} onSort={handleTableSort} />
+                  <SortableTh field="ctr" label="CTR %" currentField={tableSortField} currentDir={tableSortDir} onSort={handleTableSort} />
+                  <SortableTh field="engagement" label="Eng. %" currentField={tableSortField} currentDir={tableSortDir} onSort={handleTableSort} />
+                  <SortableTh field="watchTime" label="Watch Time" icon={<Clock className="inline h-3 w-3" />} currentField={tableSortField} currentDir={tableSortDir} onSort={handleTableSort} />
+                  <SortableTh field="published" label="Published" currentField={tableSortField} currentDir={tableSortDir} onSort={handleTableSort} />
                 </tr>
               </thead>
               <tbody>
-                {sortedVideos.map((v: any) => (
+                {tableSortedVideos.map((v: any) => (
                   <tr
                     key={v.id}
                     onClick={() => navigate(`/analytics/videos/${v.youtube_video_id}`)}
@@ -997,6 +1060,38 @@ function MiniStat({ label, value }: { label: string; value: string }) {
       <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</p>
       <p className="text-sm font-bold font-mono text-foreground">{value}</p>
     </div>
+  );
+}
+
+function SortableTh({
+  field, label, icon, align = "right", currentField, currentDir, onSort,
+}: {
+  field: OverviewSortField;
+  label: string;
+  icon?: React.ReactNode;
+  align?: "left" | "right";
+  currentField: OverviewSortField;
+  currentDir: SortDir;
+  onSort: (f: OverviewSortField) => void;
+}) {
+  const isActive = currentField === field;
+  return (
+    <th
+      onClick={() => onSort(field)}
+      className={`${align === "left" ? "text-left" : "text-right"} py-2 px-2 text-xs font-medium cursor-pointer select-none hover:text-foreground transition-colors ${
+        isActive ? "text-foreground" : "text-muted-foreground"
+      }`}
+    >
+      <span className="inline-flex items-center gap-1">
+        {icon}
+        {label}
+        {isActive ? (
+          currentDir === "asc" ? <ChevronUp className="inline h-3 w-3" /> : <ChevronDown className="inline h-3 w-3" />
+        ) : (
+          <ArrowUpDown className="inline h-3 w-3 opacity-40" />
+        )}
+      </span>
+    </th>
   );
 }
 
