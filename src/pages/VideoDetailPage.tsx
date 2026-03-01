@@ -144,7 +144,7 @@ function VideoDetailContent() {
             <SummaryCard label="Engagement Rate" value={detail.views > 0 ? `${(((detail.likes + detail.comments) / detail.views) * 100).toFixed(2)}%` : "—"} />
             <SummaryCard label="Like Ratio" value={detail.views > 0 ? `${((detail.likes / detail.views) * 100).toFixed(2)}%` : "—"} />
             <SummaryCard label="Sub Conversion" value={detail.views > 0 && detail.subscribers_gained > 0 ? `${((detail.subscribers_gained / detail.views) * 100).toFixed(3)}%` : "—"} />
-            <SummaryCard label="Shares" value={fmtCount(detail.shares)} />
+            <SummaryCard label="Shares" value={detail.shares > 0 ? fmtCount(detail.shares) : "—"} />
           </div>
 
           {/* Trend chart */}
@@ -241,10 +241,16 @@ function VideoDetailContent() {
 
         {/* Revenue */}
         <TabsContent value="revenue" className="space-y-4 mt-4">
-          {detail.estimated_revenue > 0 && (
+          {detail.estimated_revenue > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               <SummaryCard label="Estimated Revenue" value={`$${detail.estimated_revenue.toFixed(2)}`} />
               <SummaryCard label="RPM" value={detail.views > 0 ? `$${((detail.estimated_revenue / detail.views) * 1000).toFixed(2)}` : "—"} />
+              <SummaryCard label="Views" value={fmtCount(detail.views)} />
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <SummaryCard label="Estimated Revenue" value="—" />
+              <SummaryCard label="RPM" value="—" />
               <SummaryCard label="Views" value={fmtCount(detail.views)} />
             </div>
           )}

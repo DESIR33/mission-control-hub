@@ -60,6 +60,9 @@ export function useVideoDetail(youtubeVideoId: string | undefined) {
 
       if (!analytics && !stats) return null;
 
+      // YouTube Analytics API returns impressionsCtr as a ratio (0-1); convert to percentage
+      const rawCtr = Number(analytics?.impressions_ctr ?? 0);
+
       return {
         youtube_video_id: youtubeVideoId,
         title: analytics?.title || stats?.title || youtubeVideoId,
@@ -67,11 +70,11 @@ export function useVideoDetail(youtubeVideoId: string | undefined) {
         likes: analytics?.likes ?? stats?.likes ?? 0,
         comments: analytics?.comments ?? stats?.comments ?? 0,
         watch_time_minutes: analytics?.estimated_minutes_watched ?? stats?.watch_time_minutes ?? 0,
-        ctr_percent: analytics?.impressions_ctr ?? stats?.ctr_percent ?? 0,
+        ctr_percent: rawCtr * 100 || Number(stats?.ctr_percent ?? 0),
         published_at: stats?.published_at ?? null,
         impressions: analytics?.impressions ?? 0,
-        average_view_duration_seconds: analytics?.average_view_duration_seconds ?? 0,
-        average_view_percentage: analytics?.average_view_percentage ?? 0,
+        average_view_duration_seconds: analytics?.average_view_duration_seconds ?? stats?.avg_view_duration_seconds ?? 0,
+        average_view_percentage: Number(analytics?.average_view_percentage ?? 0),
         subscribers_gained: analytics?.subscribers_gained ?? 0,
         subscribers_lost: analytics?.subscribers_lost ?? 0,
         dislikes: analytics?.dislikes ?? 0,
@@ -80,7 +83,7 @@ export function useVideoDetail(youtubeVideoId: string | undefined) {
         card_impressions: analytics?.card_impressions ?? 0,
         end_screen_element_clicks: analytics?.end_screen_element_clicks ?? 0,
         end_screen_element_impressions: analytics?.end_screen_element_impressions ?? 0,
-        estimated_revenue: analytics?.estimated_revenue ?? 0,
+        estimated_revenue: Number(analytics?.estimated_revenue ?? 0),
         hasAnalyticsData: !!analytics,
       };
     },

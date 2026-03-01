@@ -86,13 +86,13 @@ export function VideoDeepDive({ data, daysRange }: Props) {
       // Weighted averages by views
       const totalViews = views;
       const average_view_duration_seconds = totalViews > 0
-        ? rows.reduce((s, r) => s + r.average_view_duration_seconds * r.views, 0) / totalViews
+        ? rows.reduce((s, r) => s + Number(r.average_view_duration_seconds) * r.views, 0) / totalViews
         : 0;
       const average_view_percentage = totalViews > 0
-        ? rows.reduce((s, r) => s + r.average_view_percentage * r.views, 0) / totalViews
+        ? rows.reduce((s, r) => s + Number(r.average_view_percentage) * r.views, 0) / totalViews
         : 0;
 
-      // Recompute CTR
+      // Recompute CTR from views/impressions (already converted to % in hook)
       const impressions_ctr = impressions > 0 ? (views / impressions) * 100 : 0;
 
       results.push({
