@@ -643,6 +643,150 @@ export type Database = {
           },
         ]
       }
+      video_experiments: {
+        Row: {
+          created_at: string
+          created_by: string
+          ctr_after: number | null
+          ctr_before: number | null
+          ended_at: string | null
+          experiment_type: string
+          id: string
+          notes: string | null
+          started_at: string | null
+          updated_at: string
+          variant_a: string
+          variant_b: string
+          winner: string | null
+          workspace_id: string
+          youtube_video_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          ctr_after?: number | null
+          ctr_before?: number | null
+          ended_at?: string | null
+          experiment_type?: string
+          id?: string
+          notes?: string | null
+          started_at?: string | null
+          updated_at?: string
+          variant_a?: string
+          variant_b?: string
+          winner?: string | null
+          workspace_id: string
+          youtube_video_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          ctr_after?: number | null
+          ctr_before?: number | null
+          ended_at?: string | null
+          experiment_type?: string
+          id?: string
+          notes?: string | null
+          started_at?: string | null
+          updated_at?: string
+          variant_a?: string
+          variant_b?: string
+          winner?: string | null
+          workspace_id?: string
+          youtube_video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_experiments_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      video_note_entries: {
+        Row: {
+          body_md: string
+          created_at: string
+          created_by: string
+          id: string
+          timestamp_seconds: number | null
+          workspace_id: string
+          youtube_video_id: string
+        }
+        Insert: {
+          body_md?: string
+          created_at?: string
+          created_by: string
+          id?: string
+          timestamp_seconds?: number | null
+          workspace_id: string
+          youtube_video_id: string
+        }
+        Update: {
+          body_md?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          timestamp_seconds?: number | null
+          workspace_id?: string
+          youtube_video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_note_entries_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      video_notes: {
+        Row: {
+          content_md: string
+          created_at: string
+          created_by: string
+          id: string
+          post_mortem_json: Json
+          title: string
+          updated_at: string
+          workspace_id: string
+          youtube_video_id: string
+        }
+        Insert: {
+          content_md?: string
+          created_at?: string
+          created_by: string
+          id?: string
+          post_mortem_json?: Json
+          title?: string
+          updated_at?: string
+          workspace_id: string
+          youtube_video_id: string
+        }
+        Update: {
+          content_md?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          post_mortem_json?: Json
+          title?: string
+          updated_at?: string
+          workspace_id?: string
+          youtube_video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_notes_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       video_queue: {
         Row: {
           created_at: string
@@ -695,6 +839,59 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "video_queue_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      video_repurposes: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          notes: string | null
+          published_at: string | null
+          repurpose_type: string
+          status: string
+          updated_at: string
+          url: string | null
+          views: number | null
+          workspace_id: string
+          youtube_video_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          notes?: string | null
+          published_at?: string | null
+          repurpose_type?: string
+          status?: string
+          updated_at?: string
+          url?: string | null
+          views?: number | null
+          workspace_id: string
+          youtube_video_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          notes?: string | null
+          published_at?: string | null
+          repurpose_type?: string
+          status?: string
+          updated_at?: string
+          url?: string | null
+          views?: number | null
+          workspace_id?: string
+          youtube_video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_repurposes_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"

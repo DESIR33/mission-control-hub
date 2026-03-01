@@ -1,14 +1,16 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Play, Eye, ThumbsUp, MessageSquare, Share2, Clock,
   MousePointerClick, Users, TrendingUp, DollarSign,
-  ChevronDown, ChevronUp, ArrowUpRight,
+  ChevronDown, ChevronUp, ArrowUpRight, FileText,
 } from "lucide-react";
 import {
   BarChart, Bar, ScatterChart, Scatter,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
 } from "recharts";
 import type { VideoAnalytics } from "@/hooks/use-youtube-analytics-api";
+import { useVideoNotesCheck } from "@/hooks/use-video-notes";
 
 const fmtCount = (n: number) => {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
@@ -41,8 +43,10 @@ interface Props {
 }
 
 export function VideoDeepDive({ data }: Props) {
+  const navigate = useNavigate();
   const [sortField, setSortField] = useState<SortField>("views");
   const [expandedVideo, setExpandedVideo] = useState<string | null>(null);
+  const { data: notesSet } = useVideoNotesCheck();
 
   const enriched = useMemo(
     () =>
@@ -209,12 +213,12 @@ export function VideoDeepDive({ data }: Props) {
             const netSubs = v.subscribers_gained - v.subscribers_lost;
             return (
               <div key={v.youtube_video_id} className="border-b border-border/50">
-                <button
-                  onClick={() => setExpandedVideo(isExpanded ? null : v.youtube_video_id)}
-                  className="w-full flex items-center gap-3 py-2.5 px-2 hover:bg-muted/20 rounded transition-colors text-left"
-                >
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">{v.title || v.youtube_video_id}</p>
+                <div className="w-full flex items-center gap-3 py-2.5 px-2 hover:bg-muted/20 rounded transition-colors text-left">
+                  <button
+                    onClick={() => navigate(`/analytics/videos/${v.youtube_video_id}`)}
+                    className="flex-1 min-w-0 text-left"
+                  >
+                    <p className="text-sm font-medium text-foreground truncate hover:text-primary transition-colors">{v.title || v.youtube_video_id}</p>
                     <div className="flex items-center gap-3 mt-0.5 flex-wrap">
                       <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
                         <Eye className="w-2.5 h-2.5" /> {fmtCount(v.views)}
@@ -233,18 +237,33 @@ export function VideoDeepDive({ data }: Props) {
                           <Users className="w-2.5 h-2.5" /> {netSubs > 0 ? "+" : ""}{netSubs} subs
                         </span>
                       )}
+                      {notesSet?.has(v.youtube_video_id) && (
+                        <span className="text-[10px] text-primary flex items-center gap-0.5">
+                          <FileText className="w-2.5 h-2.5" /> Notes
+                        </span>
+                      )}
+                      {v.estimated_revenue > 0 && (
+                        <span className="text-[10px] text-green-500 flex items-center gap-0.5">
+                          <DollarSign className="w-2.5 h-2.5" /> ${v.estimated_revenue.toFixed(0)}
+                        </span>
+                      )}
                     </div>
-                  </div>
+                  </button>
                   <div className="text-right shrink-0">
                     <span className="text-xs font-mono font-semibold text-primary">{v.engagementRate}%</span>
                     <p className="text-[10px] text-muted-foreground">engagement</p>
                   </div>
-                  {isExpanded ? (
-                    <ChevronUp className="w-4 h-4 text-muted-foreground shrink-0" />
-                  ) : (
-                    <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
-                  )}
-                </button>
+                  <button
+                    onClick={() => setExpandedVideo(isExpanded ? null : v.youtube_video_id)}
+                    className="shrink-0 p-1 hover:bg-muted rounded"
+                  >
+                    {isExpanded ? (
+                      <ChevronUp className="w-4 h-4 text-muted-foreground" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                    )}
+                  </button>
+                </div>
 
                 {isExpanded && (
                   <div className="px-4 pb-3 pt-1">
