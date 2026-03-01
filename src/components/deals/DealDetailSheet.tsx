@@ -384,6 +384,26 @@ export function DealDetailSheet({ deal, open, onOpenChange, onDeleted }: DealDet
             </TabsContent>
 
             <TabsContent value="stage" className="mt-4 space-y-4">
+              {/* Stage History */}
+              {activities.filter((a) => a.activity_type === "stage_change" || a.activity_type === "status_change").length > 0 && (
+                <div className="space-y-2 mb-4">
+                  <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Stage History</h4>
+                  <div className="relative pl-4 border-l-2 border-border space-y-3">
+                    {activities
+                      .filter((a) => a.activity_type === "stage_change" || a.activity_type === "status_change")
+                      .map((a) => (
+                        <div key={a.id} className="relative">
+                          <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-primary border-2 border-background" />
+                          <p className="text-sm text-foreground">{a.description || "Stage changed"}</p>
+                          <p className="text-[10px] text-muted-foreground">
+                            {format(new Date(a.created_at), "MMM d, yyyy 'at' h:mm a")}
+                          </p>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
+
               <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Move to Stage</h4>
               <div className="space-y-2">
                 {Object.entries(stageConfig).map(([key, config]) => (

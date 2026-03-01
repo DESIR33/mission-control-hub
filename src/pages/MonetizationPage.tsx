@@ -11,13 +11,83 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Pencil, Receipt, ArrowUpDown } from "lucide-react";
+import { Plus, Trash2, Pencil, Receipt, ArrowUpDown, Film, Trophy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { RevenueWidget, type RevenueMetric } from "@/components/revenue/RevenueWidget";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Area, AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { supabase } from "@/integrations/supabase/client";
+
+function TopEarningVideos() {
+  const { data: topVideos = [] } = useQuery({
+    queryKey: ["top-earning-videos"],
+    queryFn: async () => {
+      const { data: deals } = await supabase
+        .from("deals")
+        .select("video_queue_id, value, currency")
+        .eq("stage", "closed_won")
+        .not("video_queue_id", "is", null)
+        .is("deleted_at", null);
+
+      if (!deals?.length) return [];
+
+      const revenueByVideo: Record<string, number> = {};
+      for (const d of deals) {
+        if (d.video_queue_id) {
+          revenueByVideo[d.video_queue_id] = (revenueByVideo[d.video_queue_id] ?? 0) + (d.value ?? 0);
+        }
+      }
+
+      const videoIds = Object.keys(revenueByVideo);
+      if (!videoIds.length) return [];
+
+      const { data: videos } = await supabase
+        .from("video_queue")
+        .select("id, title, status")
+        .in("id", videoIds);
+
+      return (videos ?? [])
+        .map((v) => ({ ...v, revenue: revenueByVideo[v.id] ?? 0 }))
+        .sort((a, b) => b.revenue - a.revenue)
+        .slice(0, 10);
+    },
+  });
+
+  if (topVideos.length === 0) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: 0.1 }}
+      className="rounded-lg border border-border bg-card p-5"
+    >
+      <div className="flex items-center gap-2 mb-4">
+        <Trophy className="w-4 h-4 text-warning" />
+        <h3 className="text-sm font-semibold text-card-foreground">Top Earning Videos</h3>
+      </div>
+      <div className="space-y-2">
+        {topVideos.map((video, i) => (
+          <div key={video.id} className="flex items-center gap-3 py-2 border-b border-border last:border-0">
+            <span className={cn(
+              "w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0",
+              i === 0 ? "bg-warning/20 text-warning" : i === 1 ? "bg-muted text-muted-foreground" : i === 2 ? "bg-orange-100 text-orange-600" : "bg-secondary text-muted-foreground"
+            )}>
+              {i + 1}
+            </span>
+            <Film className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+            <span className="text-sm text-foreground truncate flex-1">{video.title}</span>
+            <span className="text-sm font-mono font-semibold text-success shrink-0">
+              ${video.revenue.toLocaleString()}
+            </span>
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
 
 // Interface definitions
 interface Sponsorship {
@@ -618,6 +688,9 @@ export default function MonetizationPage() {
                   ))}
                 </div>
               </motion.div>
+
+              {/* Top Earning Videos */}
+              <TopEarningVideos />
             </div>
           </TabsContent>
 

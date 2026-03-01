@@ -47,7 +47,8 @@ Deno.serve(async (req) => {
     }
 
     const apiKey = ytIntegration.config.api_key;
-    const sponsorMap: Record<string, { count: number; sources: string[] }> = {};
+    const sponsorMap: Record<string, { count: number; sources: string[]; descriptions: string[] }> = {};
+    const allDescriptions: string[] = [];
 
     for (const channelUrl of channel_urls.slice(0, 5)) {
       // Extract channel ID or handle
@@ -68,7 +69,7 @@ Deno.serve(async (req) => {
 
       // Get recent videos
       const searchRes = await fetch(
-        `https://www.googleapis.com/youtube/v3/search?part=id&channelId=${channelId}&type=video&order=date&maxResults=10&key=${apiKey}`
+        `https://www.googleapis.com/youtube/v3/search?part=id&channelId=${channelId}&type=video&order=date&maxResults=15&key=${apiKey}`
       );
       const searchData = await searchRes.json();
 
@@ -84,7 +85,14 @@ Deno.serve(async (req) => {
 
       for (const video of videosData.items || []) {
         const desc = video.snippet?.description || "";
+        const source = `${video.snippet?.channelTitle}: ${video.snippet?.title}`;
 
+        // Collect descriptions for AI analysis
+        if (desc.length > 50) {
+          allDescriptions.push(`[${source}]\n${desc.slice(0, 1500)}`);
+        }
+
+        // Regex-based extraction
         for (const pattern of SPONSOR_PATTERNS) {
           pattern.lastIndex = 0;
           let match;
@@ -93,15 +101,69 @@ Deno.serve(async (req) => {
             if (name.length < 3) continue;
 
             if (!sponsorMap[name]) {
-              sponsorMap[name] = { count: 0, sources: [] };
+              sponsorMap[name] = { count: 0, sources: [], descriptions: [] };
             }
             sponsorMap[name].count++;
-            const source = `${video.snippet?.channelTitle}: ${video.snippet?.title}`;
             if (!sponsorMap[name].sources.includes(source)) {
               sponsorMap[name].sources.push(source);
             }
           }
         }
+      }
+    }
+
+    // AI-enhanced analysis using Anthropic API
+    const anthropicKey = Deno.env.get("ANTHROPIC_API_KEY");
+    if (anthropicKey && allDescriptions.length > 0) {
+      try {
+        const descriptionsText = allDescriptions.slice(0, 10).join("\n---\n");
+        const aiRes = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
+          headers: {
+            "x-api-key": anthropicKey,
+            "anthropic-version": "2023-06-01",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "claude-sonnet-4-20250514",
+            max_tokens: 1024,
+            messages: [
+              {
+                role: "user",
+                content: `Analyze these YouTube video descriptions and extract ALL sponsor/brand mentions, affiliate links, and paid partnerships. Include companies mentioned with discount codes, referral links, or sponsorship disclosures. Return ONLY a JSON array of objects with "name" (company name, clean and normalized) and "type" (one of: "sponsor", "affiliate", "product_placement"). Do not include the video creator's own brand.\n\nDescriptions:\n${descriptionsText}`,
+              },
+            ],
+          }),
+        });
+
+        if (aiRes.ok) {
+          const aiData = await aiRes.json();
+          const text = aiData.content?.[0]?.text || "";
+
+          // Extract JSON array from response
+          const jsonMatch = text.match(/\[[\s\S]*\]/);
+          if (jsonMatch) {
+            try {
+              const aiSponsors = JSON.parse(jsonMatch[0]);
+              for (const s of aiSponsors) {
+                if (!s.name || s.name.length < 2) continue;
+                const name = s.name.trim();
+                if (!sponsorMap[name]) {
+                  sponsorMap[name] = { count: 0, sources: [], descriptions: [] };
+                }
+                // Only add if not already detected by regex
+                if (sponsorMap[name].count === 0) {
+                  sponsorMap[name].count = 1;
+                  sponsorMap[name].sources.push(`AI detected (${s.type || "sponsor"})`);
+                }
+              }
+            } catch {
+              // JSON parse failed — continue with regex results only
+            }
+          }
+        }
+      } catch {
+        // AI analysis failed — continue with regex results only
       }
     }
 

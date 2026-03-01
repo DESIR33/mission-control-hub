@@ -3,12 +3,15 @@ import {
   Calendar,
   CheckCircle2,
   Circle,
+  DollarSign,
   Film,
   Plus,
   Trash2,
   X,
 } from "lucide-react";
 import { format } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import {
   SiFacebook,
   SiInstagram,
@@ -98,6 +101,23 @@ export function VideoQueueDetails({
   const addChecklist = useAddChecklist();
   const deleteChecklist = useDeleteChecklist();
   const [newChecklistLabel, setNewChecklistLabel] = useState("");
+
+  // Fetch linked deals for revenue attribution
+  const { data: linkedDeals = [] } = useQuery({
+    queryKey: ["video-deals", video.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("deals")
+        .select("id, title, value, stage, currency")
+        .eq("video_queue_id", video.id)
+        .is("deleted_at", null);
+      return data ?? [];
+    },
+  });
+
+  const totalRevenue = linkedDeals
+    .filter((d) => d.stage === "closed_won")
+    .reduce((sum, d) => sum + (d.value ?? 0), 0);
 
   const completedCount = video.checklists.filter((c) => c.completed).length;
   const totalCount = video.checklists.length;
@@ -285,6 +305,42 @@ export function VideoQueueDetails({
           </div>
         )}
       </div>
+
+      {/* Revenue Attribution */}
+      {linkedDeals.length > 0 && (
+        <div>
+          <label className="mb-2 block text-xs font-medium text-muted-foreground">
+            Revenue
+          </label>
+          <div className="space-y-1.5">
+            {linkedDeals.map((deal) => (
+              <div
+                key={deal.id}
+                className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2"
+              >
+                <DollarSign className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <span className="flex-1 text-sm text-foreground truncate">{deal.title}</span>
+                <span className={`text-xs font-mono font-medium ${deal.stage === "closed_won" ? "text-emerald-600" : "text-muted-foreground"}`}>
+                  {deal.value != null
+                    ? new Intl.NumberFormat("en-US", { style: "currency", currency: deal.currency ?? "USD" }).format(deal.value)
+                    : "$0"}
+                </span>
+                <span className={`rounded-full px-1.5 py-0.5 text-[10px] capitalize ${deal.stage === "closed_won" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600"}`}>
+                  {deal.stage.replace("_", " ")}
+                </span>
+              </div>
+            ))}
+            {totalRevenue > 0 && (
+              <div className="flex items-center justify-between pt-1.5 border-t border-border">
+                <span className="text-xs font-medium text-muted-foreground">Total Earned</span>
+                <span className="text-sm font-mono font-bold text-emerald-600">
+                  {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(totalRevenue)}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Platforms */}
       {video.platforms.length > 0 && (
