@@ -3,11 +3,16 @@ import {
   BarChart3, TrendingUp, TrendingDown, Eye, ThumbsUp, MessageSquare,
   Clock, Users, Play, Calendar, ArrowUpRight, ArrowDownRight,
   Zap, Award, Target, RefreshCw, ChevronDown,
+  Globe, Route, Monitor, DollarSign, Tv,
 } from "lucide-react";
 import { useWorkspace, WorkspaceProvider } from "@/hooks/use-workspace";
 import {
   useYouTubeChannelStats, useYouTubeVideoStats, useGrowthGoal, useSyncYouTube,
 } from "@/hooks/use-youtube-analytics";
+import {
+  useChannelAnalytics, useVideoAnalytics, useDemographics,
+  useTrafficSources, useGeography, useDeviceTypes, useSyncYouTubeAnalytics,
+} from "@/hooks/use-youtube-analytics-api";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -17,8 +22,13 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend,
 } from "recharts";
 import { format, differenceInDays, subDays, parseISO } from "date-fns";
+import {
+  ChannelOverview, AudienceDemographics, TrafficSources,
+  GeographyBreakdown, DeviceBreakdown, VideoDeepDive, RevenueAnalytics,
+} from "@/components/analytics";
 
 type TimeRange = "7d" | "30d" | "90d";
+type AnalyticsTab = "overview" | "channel" | "videos" | "audience" | "traffic" | "geography" | "devices" | "revenue";
 
 const fmtCount = (n: number) => {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
@@ -32,13 +42,36 @@ const fmtDuration = (seconds: number) => {
   return `${seconds}s`;
 };
 
+const TABS: { key: AnalyticsTab; label: string; icon: React.ReactNode }[] = [
+  { key: "overview", label: "Overview", icon: <BarChart3 className="w-3.5 h-3.5" /> },
+  { key: "channel", label: "Channel", icon: <Tv className="w-3.5 h-3.5" /> },
+  { key: "videos", label: "Videos", icon: <Play className="w-3.5 h-3.5" /> },
+  { key: "audience", label: "Audience", icon: <Users className="w-3.5 h-3.5" /> },
+  { key: "traffic", label: "Traffic Sources", icon: <Route className="w-3.5 h-3.5" /> },
+  { key: "geography", label: "Geography", icon: <Globe className="w-3.5 h-3.5" /> },
+  { key: "devices", label: "Devices", icon: <Monitor className="w-3.5 h-3.5" /> },
+  { key: "revenue", label: "Revenue", icon: <DollarSign className="w-3.5 h-3.5" /> },
+];
+
 function AnalyticsContent() {
   const [timeRange, setTimeRange] = useState<TimeRange>("30d");
+  const [activeTab, setActiveTab] = useState<AnalyticsTab>("overview");
   const { isLoading: workspaceLoading } = useWorkspace();
+
+  // Existing Data API hooks
   const { data: channelSnapshots = [], isLoading: loadingChannel } = useYouTubeChannelStats(90);
   const { data: videoStats = [], isLoading: loadingVideos } = useYouTubeVideoStats(50);
   const { data: goal } = useGrowthGoal();
   const syncYouTube = useSyncYouTube();
+
+  // New Analytics API hooks
+  const { data: channelAnalytics = [], isLoading: loadingAnalytics } = useChannelAnalytics(90);
+  const { data: videoAnalytics = [], isLoading: loadingVideoAnalytics } = useVideoAnalytics(50);
+  const { data: demographics = [], isLoading: loadingDemographics } = useDemographics();
+  const { data: trafficSources = [], isLoading: loadingTraffic } = useTrafficSources();
+  const { data: geography = [], isLoading: loadingGeo } = useGeography();
+  const { data: deviceTypes = [], isLoading: loadingDevices } = useDeviceTypes();
+  const syncAnalytics = useSyncYouTubeAnalytics();
 
   const isLoading = workspaceLoading || loadingChannel || loadingVideos;
 
@@ -82,7 +115,6 @@ function AnalyticsContent() {
       ? ((subsGained / first.subscriber_count) * 100)
       : 0;
 
-    // Projection: at current rate, when will goal be reached?
     const target = goal?.target_value ?? 50000;
     const remaining = target - last.subscriber_count;
     const daysToGoal = dailyGrowthRate > 0 ? Math.ceil(remaining / dailyGrowthRate) : null;
@@ -157,7 +189,6 @@ function AnalyticsContent() {
     return sortedVideos
       .slice()
       .sort((a, b) => {
-        // Composite score: normalized views + engagement rate + CTR
         const maxViews = Math.max(...sortedVideos.map((v) => v.views ?? 0), 1);
         const scoreA = ((a.views ?? 0) / maxViews) * 40 + (a.engagementRate ?? 0) * 3 + (a.ctr_percent ?? 0) * 2;
         const scoreB = ((b.views ?? 0) / maxViews) * 40 + (b.engagementRate ?? 0) * 3 + (b.ctr_percent ?? 0) * 2;
@@ -166,18 +197,217 @@ function AnalyticsContent() {
       .slice(0, 5);
   }, [sortedVideos]);
 
-  // Scatter data: Views vs CTR
-  const scatterData = useMemo(
-    () =>
-      videoStats
-        .filter((v) => v.views != null && v.ctr_percent != null)
-        .map((v) => ({
-          title: v.title,
-          views: v.views!,
-          ctr: +(v.ctr_percent!).toFixed(1),
-        })),
-    [videoStats]
+  // Views trend
+  const viewsTrend = useMemo(() => {
+    return filteredSnapshots.map((s) => ({
+      date: format(new Date(s.fetched_at), "MMM d"),
+      views: s.total_view_count,
+    }));
+  }, [filteredSnapshots]);
+
+  const latestSnapshot = channelSnapshots.length > 0
+    ? channelSnapshots.reduce((a, b) => new Date(a.fetched_at) > new Date(b.fetched_at) ? a : b)
+    : null;
+
+  // Analytics API summary for overview tab
+  const analyticsSummary = useMemo(() => {
+    if (channelAnalytics.length === 0) return null;
+    const cutoff = subDays(new Date(), daysForRange);
+    const filtered = channelAnalytics
+      .filter((d) => new Date(d.date) >= cutoff);
+    if (filtered.length === 0) return null;
+
+    return filtered.reduce(
+      (acc, d) => ({
+        views: acc.views + d.views,
+        watchTime: acc.watchTime + d.estimated_minutes_watched,
+        subsGained: acc.subsGained + d.subscribers_gained,
+        subsLost: acc.subsLost + d.subscribers_lost,
+        impressions: acc.impressions + d.impressions,
+        likes: acc.likes + d.likes,
+        comments: acc.comments + d.comments,
+        shares: acc.shares + d.shares,
+        revenue: acc.revenue + d.estimated_revenue,
+      }),
+      { views: 0, watchTime: 0, subsGained: 0, subsLost: 0, impressions: 0, likes: 0, comments: 0, shares: 0, revenue: 0 }
+    );
+  }, [channelAnalytics, daysForRange]);
+
+  const handleSync = () => {
+    syncYouTube.mutate(undefined, {
+      onSuccess: () => toast.success("YouTube data synced successfully!"),
+      onError: (err: Error) => toast.error(`Sync failed: ${err.message}`),
+    });
+  };
+
+  const handleAnalyticsSync = () => {
+    syncAnalytics.mutate(undefined, {
+      onSuccess: () => toast.success("YouTube Analytics synced!"),
+      onError: (err: Error) => toast.error(`Analytics sync failed: ${err.message}`),
+    });
+  };
+
+  const handleSyncAll = () => {
+    handleSync();
+    handleAnalyticsSync();
+  };
+
+  if (isLoading) {
+    return (
+      <div className="p-4 sm:p-6 lg:p-8 space-y-6 gradient-mesh min-h-screen">
+        <Skeleton className="h-8 w-48" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-28 rounded-lg" />
+          ))}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <Skeleton className="h-72 rounded-lg" />
+          <Skeleton className="h-72 rounded-lg" />
+        </div>
+        <Skeleton className="h-64 rounded-lg" />
+        <Skeleton className="h-64 rounded-lg" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 gradient-mesh min-h-screen">
+      {/* Header */}
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <div className="flex items-center gap-2">
+            <BarChart3 className="w-5 h-5 text-primary" />
+            <h1 className="text-2xl font-bold text-foreground">Analytics</h1>
+          </div>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Channel performance, audience insights, traffic sources, and revenue data.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          {/* Time range selector */}
+          <div className="flex rounded-md border border-border overflow-hidden">
+            {(["7d", "30d", "90d"] as TimeRange[]).map((range) => (
+              <button
+                key={range}
+                onClick={() => setTimeRange(range)}
+                className={`px-3 py-1.5 text-xs font-medium transition-colors ${
+                  timeRange === range
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-card text-muted-foreground hover:bg-muted"
+                }`}
+              >
+                {range}
+              </button>
+            ))}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleSyncAll}
+            disabled={syncYouTube.isPending || syncAnalytics.isPending}
+          >
+            <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${(syncYouTube.isPending || syncAnalytics.isPending) ? "animate-spin" : ""}`} />
+            Sync All
+          </Button>
+        </div>
+      </div>
+
+      {/* Tab Navigation */}
+      <div className="flex items-center gap-1 overflow-x-auto pb-1 border-b border-border">
+        {TABS.map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-t-md transition-colors whitespace-nowrap ${
+              activeTab === tab.key
+                ? "bg-card text-foreground border border-border border-b-transparent -mb-px"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            }`}
+          >
+            {tab.icon}
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === "overview" && (
+        <OverviewTab
+          latestSnapshot={latestSnapshot}
+          subGrowthMetrics={subGrowthMetrics}
+          videoEngagement={videoEngagement}
+          subscriberTrend={subscriberTrend}
+          viewsTrend={viewsTrend}
+          topVideos={topVideos}
+          goal={goal}
+          daysForRange={daysForRange}
+          analyticsSummary={analyticsSummary}
+          sortedVideos={sortedVideos}
+          channelSnapshots={channelSnapshots}
+          videoStats={videoStats}
+        />
+      )}
+
+      {activeTab === "channel" && (
+        <ChannelOverview data={channelAnalytics} daysRange={daysForRange} />
+      )}
+
+      {activeTab === "videos" && (
+        <VideoDeepDive data={videoAnalytics} />
+      )}
+
+      {activeTab === "audience" && (
+        <AudienceDemographics data={demographics} />
+      )}
+
+      {activeTab === "traffic" && (
+        <TrafficSources data={trafficSources} />
+      )}
+
+      {activeTab === "geography" && (
+        <GeographyBreakdown data={geography} />
+      )}
+
+      {activeTab === "devices" && (
+        <DeviceBreakdown data={deviceTypes} />
+      )}
+
+      {activeTab === "revenue" && (
+        <RevenueAnalytics channelData={channelAnalytics} videoData={videoAnalytics} daysRange={daysForRange} />
+      )}
+    </div>
   );
+}
+
+// ── Overview Tab (preserves existing analytics + adds Analytics API summary) ──
+
+interface OverviewTabProps {
+  latestSnapshot: any;
+  subGrowthMetrics: any;
+  videoEngagement: any;
+  subscriberTrend: any[];
+  viewsTrend: any[];
+  topVideos: any[];
+  goal: any;
+  daysForRange: number;
+  analyticsSummary: any;
+  sortedVideos: any[];
+  channelSnapshots: any[];
+  videoStats: any[];
+}
+
+function OverviewTab({
+  latestSnapshot, subGrowthMetrics, videoEngagement, subscriberTrend,
+  viewsTrend, topVideos, goal, daysForRange, analyticsSummary, sortedVideos,
+  channelSnapshots, videoStats,
+}: OverviewTabProps) {
+  const tooltipStyle = {
+    backgroundColor: "hsl(var(--card))",
+    border: "1px solid hsl(var(--border))",
+    borderRadius: 8,
+    fontSize: 12,
+  };
 
   // Content format analysis
   const formatAnalysis = useMemo(() => {
@@ -240,15 +470,14 @@ function AnalyticsContent() {
     }).sort((a, b) => b.avgViews - a.avgViews);
   }, [videoStats]);
 
-  // Publish frequency data (videos per week)
+  // Publish frequency data
   const publishFrequency = useMemo(() => {
     const published = videoStats
-      .filter((v) => v.published_at)
-      .sort((a, b) => new Date(a.published_at!).getTime() - new Date(b.published_at!).getTime());
+      .filter((v: any) => v.published_at)
+      .sort((a: any, b: any) => new Date(a.published_at!).getTime() - new Date(b.published_at!).getTime());
 
     if (published.length < 2) return null;
 
-    // Group by week
     const weeks: Record<string, number> = {};
     for (const v of published) {
       const date = new Date(v.published_at!);
@@ -263,95 +492,51 @@ function AnalyticsContent() {
       ? +(published.length / Math.max(Object.keys(weeks).length, 1)).toFixed(1)
       : 0;
 
-    // Average gap between publishes
     const gaps: number[] = [];
     for (let i = 1; i < published.length; i++) {
       gaps.push(differenceInDays(new Date(published[i].published_at!), new Date(published[i - 1].published_at!)));
     }
-    const avgGap = gaps.length > 0 ? +(gaps.reduce((a, b) => a + b, 0) / gaps.length).toFixed(1) : null;
+    const avgGap = gaps.length > 0 ? +(gaps.reduce((a: number, b: number) => a + b, 0) / gaps.length).toFixed(1) : null;
 
     return { entries, avgPerWeek, avgGap };
   }, [videoStats]);
 
-  // Views trend (area chart showing views over time from video stats)
-  const viewsTrend = useMemo(() => {
-    return filteredSnapshots.map((s) => ({
-      date: format(new Date(s.fetched_at), "MMM d"),
-      views: s.total_view_count,
-    }));
-  }, [filteredSnapshots]);
-
-  const latestSnapshot = channelSnapshots.length > 0
-    ? channelSnapshots.reduce((a, b) => new Date(a.fetched_at) > new Date(b.fetched_at) ? a : b)
-    : null;
-
-  const handleSync = () => {
-    syncYouTube.mutate(undefined, {
-      onSuccess: () => toast.success("YouTube data synced successfully!"),
-      onError: (err: Error) => toast.error(`Sync failed: ${err.message}`),
-    });
-  };
-
-  if (isLoading) {
-    return (
-      <div className="p-4 sm:p-6 lg:p-8 space-y-6 gradient-mesh min-h-screen">
-        <Skeleton className="h-8 w-48" />
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-28 rounded-lg" />
-          ))}
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <Skeleton className="h-72 rounded-lg" />
-          <Skeleton className="h-72 rounded-lg" />
-        </div>
-        <Skeleton className="h-64 rounded-lg" />
-        <Skeleton className="h-64 rounded-lg" />
-      </div>
-    );
-  }
+  // Scatter data
+  const scatterData = useMemo(
+    () =>
+      videoStats
+        .filter((v: any) => v.views != null && v.ctr_percent != null)
+        .map((v: any) => ({
+          title: v.title,
+          views: v.views!,
+          ctr: +(v.ctr_percent!).toFixed(1),
+        })),
+    [videoStats]
+  );
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 gradient-mesh min-h-screen">
-      {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <div className="flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-primary" />
-            <h1 className="text-2xl font-bold text-foreground">Analytics</h1>
+    <>
+      {/* Analytics API Enhanced KPIs (if available) */}
+      {analyticsSummary && (
+        <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 mb-2">
+          <div className="flex items-center gap-2 mb-3">
+            <Zap className="w-4 h-4 text-primary" />
+            <h2 className="text-sm font-semibold text-foreground">YouTube Analytics API — {daysForRange} Day Summary</h2>
           </div>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            Subscriber growth, video performance, and content strategy insights.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          {/* Time range selector */}
-          <div className="flex rounded-md border border-border overflow-hidden">
-            {(["7d", "30d", "90d"] as TimeRange[]).map((range) => (
-              <button
-                key={range}
-                onClick={() => setTimeRange(range)}
-                className={`px-3 py-1.5 text-xs font-medium transition-colors ${
-                  timeRange === range
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-card text-muted-foreground hover:bg-muted"
-                }`}
-              >
-                {range}
-              </button>
-            ))}
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+            <MiniStat label="Views" value={fmtCount(analyticsSummary.views)} />
+            <MiniStat label="Watch Time" value={analyticsSummary.watchTime >= 60 ? `${Math.round(analyticsSummary.watchTime / 60)}h` : `${analyticsSummary.watchTime}m`} />
+            <MiniStat label="Subs Gained" value={`+${fmtCount(analyticsSummary.subsGained)}`} />
+            <MiniStat label="Subs Lost" value={`-${fmtCount(analyticsSummary.subsLost)}`} />
+            <MiniStat label="Impressions" value={fmtCount(analyticsSummary.impressions)} />
+            <MiniStat label="Likes" value={fmtCount(analyticsSummary.likes)} />
+            <MiniStat label="Shares" value={fmtCount(analyticsSummary.shares)} />
+            {analyticsSummary.revenue > 0 && (
+              <MiniStat label="Revenue" value={`$${analyticsSummary.revenue.toFixed(2)}`} />
+            )}
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleSync}
-            disabled={syncYouTube.isPending}
-          >
-            <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${syncYouTube.isPending ? "animate-spin" : ""}`} />
-            Sync
-          </Button>
         </div>
-      </div>
+      )}
 
       {/* Subscriber Growth KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -460,9 +645,8 @@ function AnalyticsContent() {
         </div>
       )}
 
-      {/* Charts Row: Subscriber Growth + Views Trend */}
+      {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Subscriber Growth Chart */}
         {subscriberTrend.length > 1 && (
           <div className="rounded-lg border border-border bg-card p-4">
             <h2 className="text-sm font-semibold text-foreground mb-4">Subscriber Growth</h2>
@@ -478,7 +662,7 @@ function AnalyticsContent() {
                 <XAxis dataKey="date" tick={{ fontSize: 10 }} className="text-muted-foreground" />
                 <YAxis tick={{ fontSize: 10 }} className="text-muted-foreground" tickFormatter={fmtCount} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
+                  contentStyle={tooltipStyle}
                   labelStyle={{ color: "hsl(var(--foreground))" }}
                   formatter={(value: number) => [value.toLocaleString(), "Subscribers"]}
                 />
@@ -488,7 +672,6 @@ function AnalyticsContent() {
           </div>
         )}
 
-        {/* Total Views Trend */}
         {viewsTrend.length > 1 && (
           <div className="rounded-lg border border-border bg-card p-4">
             <h2 className="text-sm font-semibold text-foreground mb-4">Total Views Over Time</h2>
@@ -504,7 +687,7 @@ function AnalyticsContent() {
                 <XAxis dataKey="date" tick={{ fontSize: 10 }} className="text-muted-foreground" />
                 <YAxis tick={{ fontSize: 10 }} className="text-muted-foreground" tickFormatter={fmtCount} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
+                  contentStyle={tooltipStyle}
                   labelStyle={{ color: "hsl(var(--foreground))" }}
                   formatter={(value: number) => [value.toLocaleString(), "Total Views"]}
                 />
@@ -584,7 +767,7 @@ function AnalyticsContent() {
             <h2 className="text-sm font-semibold text-foreground">Top Performing Videos</h2>
           </div>
           <div className="space-y-3">
-            {topVideos.map((v, i) => (
+            {topVideos.map((v: any, i: number) => (
               <div key={v.id} className="flex items-center gap-3 p-2 rounded-md hover:bg-muted/30 transition-colors">
                 <span className="text-lg font-bold text-muted-foreground font-mono w-6 text-center">
                   {i + 1}
@@ -620,9 +803,8 @@ function AnalyticsContent() {
         </div>
       )}
 
-      {/* Publish Cadence + Performance Quadrant Row */}
+      {/* Publish Cadence + Performance Quadrant */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Publish Frequency */}
         {publishFrequency && publishFrequency.entries.length > 1 && (
           <div className="rounded-lg border border-border bg-card p-4">
             <div className="flex items-center justify-between mb-1">
@@ -647,7 +829,7 @@ function AnalyticsContent() {
                 <XAxis dataKey="week" tick={{ fontSize: 10 }} className="text-muted-foreground" />
                 <YAxis tick={{ fontSize: 10 }} className="text-muted-foreground" allowDecimals={false} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
+                  contentStyle={tooltipStyle}
                   formatter={(value: number) => [value, "Videos"]}
                 />
                 <Bar dataKey="videos" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
@@ -656,7 +838,6 @@ function AnalyticsContent() {
           </div>
         )}
 
-        {/* Performance Quadrant: Views vs CTR */}
         {scatterData.length > 0 && (
           <div className="rounded-lg border border-border bg-card p-4">
             <h2 className="text-sm font-semibold text-foreground mb-1">Performance Quadrant</h2>
@@ -669,7 +850,7 @@ function AnalyticsContent() {
                 <XAxis dataKey="views" name="Views" tick={{ fontSize: 10 }} label={{ value: "Views", position: "insideBottom", offset: -5, fontSize: 10 }} />
                 <YAxis dataKey="ctr" name="CTR %" tick={{ fontSize: 10 }} label={{ value: "CTR %", angle: -90, position: "insideLeft", fontSize: 10 }} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
+                  contentStyle={tooltipStyle}
                   formatter={(value: number, name: string) => [name === "views" ? value.toLocaleString() : `${value}%`, name === "views" ? "Views" : "CTR"]}
                 />
                 <Scatter data={scatterData} fill="hsl(var(--primary))" fillOpacity={0.7} />
@@ -697,7 +878,7 @@ function AnalyticsContent() {
                 </tr>
               </thead>
               <tbody>
-                {formatAnalysis.map((row) => (
+                {formatAnalysis.map((row: any) => (
                   <tr key={row.format} className="border-b border-border/50">
                     <td className="py-2 px-2 font-medium text-foreground">{row.format}</td>
                     <td className="py-2 px-2 text-right text-muted-foreground">{row.count}</td>
@@ -718,7 +899,7 @@ function AnalyticsContent() {
         </div>
       )}
 
-      {/* Full Video Performance Table */}
+      {/* All Videos Table */}
       {sortedVideos.length > 0 && (
         <div className="rounded-lg border border-border bg-card p-4">
           <h2 className="text-sm font-semibold text-foreground mb-4">
@@ -747,7 +928,7 @@ function AnalyticsContent() {
                 </tr>
               </thead>
               <tbody>
-                {sortedVideos.map((v) => (
+                {sortedVideos.map((v: any) => (
                   <tr key={v.id} className="border-b border-border/50 hover:bg-muted/20">
                     <td className="py-2 px-2 text-foreground max-w-[250px] truncate" title={v.title ?? ""}>
                       {v.title}
@@ -785,179 +966,6 @@ function AnalyticsContent() {
         </div>
       )}
 
-      {/* Content-to-Subscriber Correlation (Feature 12) */}
-      {videoStats.length > 0 && channelSnapshots.length > 1 && (() => {
-        const sortedSnapshots = channelSnapshots
-          .slice()
-          .sort((a, b) => new Date(a.fetched_at).getTime() - new Date(b.fetched_at).getTime());
-
-        // Sort videos by publish date for non-overlapping attribution windows
-        const publishedVideos = videoStats
-          .filter((v) => v.published_at)
-          .slice()
-          .sort((a, b) => new Date(a.published_at!).getTime() - new Date(b.published_at!).getTime());
-
-        // Group videos published on the same day to split their delta equally
-        const videoGroups: { date: Date; dateKey: string; videos: typeof publishedVideos }[] = [];
-        for (const video of publishedVideos) {
-          const pubDate = new Date(video.published_at!);
-          const dateKey = format(pubDate, "yyyy-MM-dd");
-          const lastGroup = videoGroups[videoGroups.length - 1];
-          if (lastGroup && lastGroup.dateKey === dateKey) {
-            lastGroup.videos.push(video);
-          } else {
-            videoGroups.push({ date: pubDate, dateKey, videos: [video] });
-          }
-        }
-
-        const subscriberImpact: Array<{
-          title: string;
-          published_at: string | null;
-          views: number;
-          ctr: number | null;
-          engagementRate: number;
-          subscriberDelta: number;
-        }> = [];
-
-        for (let i = 0; i < videoGroups.length; i++) {
-          const group = videoGroups[i];
-          const pubDate = group.date;
-          const sevenDaysAfter = new Date(pubDate.getTime() + 7 * 24 * 60 * 60 * 1000);
-
-          // Cap window at next group's publish date to prevent overlapping attribution
-          const nextGroupDate = i < videoGroups.length - 1 ? videoGroups[i + 1].date : null;
-          const windowEnd = nextGroupDate && nextGroupDate < sevenDaysAfter
-            ? nextGroupDate
-            : sevenDaysAfter;
-
-          // Find closest snapshot on or before publish date
-          const snapshotsBefore = sortedSnapshots.filter((s) => new Date(s.fetched_at) <= pubDate);
-          const snapshotBefore = snapshotsBefore.length > 0 ? snapshotsBefore[snapshotsBefore.length - 1] : null;
-
-          // Find closest snapshot to end of attribution window
-          const snapshotsInWindow = sortedSnapshots.filter(
-            (s) => new Date(s.fetched_at) > pubDate && new Date(s.fetched_at) <= windowEnd
-          );
-          const snapshotAfter = snapshotsInWindow.length > 0 ? snapshotsInWindow[snapshotsInWindow.length - 1] : null;
-
-          // Only calculate delta when we have snapshots on both sides
-          const totalDelta = snapshotBefore && snapshotAfter
-            ? snapshotAfter.subscriber_count - snapshotBefore.subscriber_count
-            : 0;
-          const perVideoDelta = group.videos.length > 0
-            ? Math.round(totalDelta / group.videos.length)
-            : 0;
-
-          for (const video of group.videos) {
-            subscriberImpact.push({
-              title: video.title,
-              published_at: video.published_at,
-              views: video.views ?? 0,
-              ctr: video.ctr_percent,
-              engagementRate:
-                (video.views ?? 0) > 0
-                  ? +((((video.likes ?? 0) + (video.comments ?? 0)) / (video.views ?? 1)) * 100).toFixed(2)
-                  : 0,
-              subscriberDelta: perVideoDelta,
-            });
-          }
-        }
-
-        subscriberImpact.sort((a, b) => b.subscriberDelta - a.subscriberDelta);
-
-        const bestFormat = (() => {
-          const patterns: Record<string, { regex: RegExp; label: string }> = {
-            tutorial: { regex: /tutorial|how to|guide|learn/i, label: "Tutorials" },
-            review: { regex: /review|unbox|hands.on/i, label: "Reviews" },
-            vlog: { regex: /vlog|day in|behind/i, label: "Vlogs" },
-          };
-          const groups: Record<string, { totalDelta: number; count: number }> = {};
-          for (const v of subscriberImpact) {
-            let matched = false;
-            for (const [key, { regex }] of Object.entries(patterns)) {
-              if (regex.test(v.title ?? "")) {
-                if (!groups[key]) groups[key] = { totalDelta: 0, count: 0 };
-                groups[key].totalDelta += v.subscriberDelta;
-                groups[key].count++;
-                matched = true;
-                break;
-              }
-            }
-            if (!matched) {
-              if (!groups.other) groups.other = { totalDelta: 0, count: 0 };
-              groups.other.totalDelta += v.subscriberDelta;
-              groups.other.count++;
-            }
-          }
-          let best = { key: "", avg: 0 };
-          for (const [key, data] of Object.entries(groups)) {
-            const avg = data.count > 0 ? data.totalDelta / data.count : 0;
-            if (avg > best.avg) best = { key, avg };
-          }
-          return best.key ? `${patterns[best.key]?.label ?? "Other"} (+${Math.round(best.avg)} subs/video avg)` : null;
-        })();
-
-        if (subscriberImpact.length === 0) return null;
-
-        return (
-          <div className="rounded-lg border border-border bg-card p-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                <Users className="w-4 h-4 text-primary" />
-                Subscriber Impact by Video
-              </h2>
-              {bestFormat && (
-                <span className="text-xs text-muted-foreground">
-                  Best format: <span className="font-semibold text-foreground">{bestFormat}</span>
-                </span>
-              )}
-            </div>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={subscriberImpact.slice(0, 15)}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis dataKey="title" tick={{ fontSize: 8 }} interval={0} angle={-20} textAnchor="end" height={60} />
-                <YAxis tick={{ fontSize: 10 }} />
-                <Tooltip
-                  contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
-                  formatter={(value: number) => [`+${value}`, "Subscriber Delta"]}
-                />
-                <Bar dataKey="subscriberDelta" radius={[4, 4, 0, 0]}>
-                  {subscriberImpact.slice(0, 15).map((entry, index) => (
-                    <Cell key={index} fill={entry.subscriberDelta >= 0 ? "hsl(var(--primary))" : "hsl(var(--destructive))"} fillOpacity={0.8} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-            <div className="mt-4 overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-2 px-2 text-xs text-muted-foreground font-medium">Video</th>
-                    <th className="text-right py-2 px-2 text-xs text-muted-foreground font-medium">Views</th>
-                    <th className="text-right py-2 px-2 text-xs text-muted-foreground font-medium">Sub Delta</th>
-                    <th className="text-right py-2 px-2 text-xs text-muted-foreground font-medium">CTR</th>
-                    <th className="text-right py-2 px-2 text-xs text-muted-foreground font-medium">Eng %</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {subscriberImpact.slice(0, 10).map((v, i) => (
-                    <tr key={i} className="border-b border-border/50">
-                      <td className="py-2 px-2 text-foreground max-w-[200px] truncate">{v.title}</td>
-                      <td className="py-2 px-2 text-right font-mono">{v.views.toLocaleString()}</td>
-                      <td className={`py-2 px-2 text-right font-mono font-semibold ${v.subscriberDelta >= 0 ? "text-green-500" : "text-red-500"}`}>
-                        {v.subscriberDelta >= 0 ? "+" : ""}{v.subscriberDelta}
-                      </td>
-                      <td className="py-2 px-2 text-right font-mono">{v.ctr != null ? `${v.ctr.toFixed(1)}%` : "--"}</td>
-                      <td className="py-2 px-2 text-right font-mono">{v.engagementRate}%</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        );
-      })()}
-
       {/* Empty state */}
       {videoStats.length === 0 && channelSnapshots.length === 0 && (
         <div className="rounded-lg border border-dashed border-border bg-card p-12 text-center">
@@ -968,6 +976,15 @@ function AnalyticsContent() {
           </p>
         </div>
       )}
+    </>
+  );
+}
+
+function MiniStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="text-center">
+      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</p>
+      <p className="text-sm font-bold font-mono text-foreground">{value}</p>
     </div>
   );
 }

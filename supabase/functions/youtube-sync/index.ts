@@ -90,8 +90,8 @@ Deno.serve(async (req) => {
         .eq("id", activeGoal.id);
     }
 
-    // Fetch recent videos
-    const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=id&channelId=${channelId}&type=video&order=date&maxResults=20&key=${apiKey}`;
+    // Fetch recent videos (up to 50)
+    const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=id&channelId=${channelId}&type=video&order=date&maxResults=50&key=${apiKey}`;
     const searchRes = await fetch(searchUrl);
     const searchData = await searchRes.json();
 
@@ -111,6 +111,27 @@ Deno.serve(async (req) => {
         if (videosRes.ok && videosData.items?.length) {
           for (const video of videosData.items) {
             const videoStats = video.statistics;
+            const contentDetails = video.contentDetails;
+
+            // Parse ISO 8601 duration (PT#H#M#S) to seconds
+            let durationSeconds: number | null = null;
+            if (contentDetails?.duration) {
+              const match = contentDetails.duration.match(
+                /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/
+              );
+              if (match) {
+                durationSeconds =
+                  (parseInt(match[1] || "0", 10) * 3600) +
+                  (parseInt(match[2] || "0", 10) * 60) +
+                  parseInt(match[3] || "0", 10);
+              }
+            }
+
+            // Extract thumbnail URL (prefer medium, fallback to default)
+            const thumbnailUrl =
+              video.snippet?.thumbnails?.medium?.url ||
+              video.snippet?.thumbnails?.default?.url ||
+              null;
 
             const { error: upsertError } = await supabase
               .from("youtube_video_stats")
@@ -124,6 +145,8 @@ Deno.serve(async (req) => {
                   comments: parseInt(videoStats.commentCount, 10) || 0,
                   watch_time_minutes: 0,
                   ctr_percent: 0,
+                  avg_view_duration_seconds: durationSeconds,
+                  thumbnail_url: thumbnailUrl,
                   published_at: video.snippet?.publishedAt || null,
                   fetched_at: new Date().toISOString(),
                 },
