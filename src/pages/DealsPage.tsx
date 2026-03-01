@@ -26,6 +26,7 @@ import { WorkspaceProvider } from "@/hooks/use-workspace";
 import { useDeals, useUpdateDeal, type Deal, type DealStage } from "@/hooks/use-deals";
 import { AddDealDialog } from "@/components/deals/AddDealDialog";
 import { DealDetailSheet } from "@/components/deals/DealDetailSheet";
+import { PipelineVelocity } from "@/components/deals/PipelineVelocity";
 import { useToast } from "@/hooks/use-toast";
 
 const STAGES: { id: DealStage; label: string; color: string; weight: number }[] = [
@@ -207,6 +208,11 @@ function DealsContent() {
             Based on stage probability
           </p>
         </div>
+      </div>
+
+      {/* Pipeline Velocity */}
+      <div className="mb-6">
+        <PipelineVelocity />
       </div>
 
       {/* Kanban View */}

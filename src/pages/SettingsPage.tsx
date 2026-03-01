@@ -6,6 +6,7 @@ import { ProfileSection } from "@/components/settings/ProfileSection";
 import { WorkspaceSection } from "@/components/settings/WorkspaceSection";
 import { MembersSection } from "@/components/settings/MembersSection";
 import { BillingSection } from "@/components/settings/BillingSection";
+import { AutomationSection } from "@/components/settings/AutomationSection";
 
 function SettingsContent() {
   return (
@@ -32,6 +33,7 @@ function SettingsContent() {
           <TabsTrigger value="workspace" className="flex-1 sm:flex-none">Workspace</TabsTrigger>
           <TabsTrigger value="members" className="flex-1 sm:flex-none">Members</TabsTrigger>
           <TabsTrigger value="billing" className="flex-1 sm:flex-none">Billing</TabsTrigger>
+          <TabsTrigger value="automation" className="flex-1 sm:flex-none">Automation</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile">
@@ -48,6 +50,10 @@ function SettingsContent() {
 
         <TabsContent value="billing">
           <BillingSection />
+        </TabsContent>
+
+        <TabsContent value="automation">
+          <AutomationSection />
         </TabsContent>
       </Tabs>
     </div>

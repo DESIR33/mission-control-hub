@@ -16,6 +16,8 @@ export interface VideoQueueItem {
   assignedTo: { firstName: string | null; lastName: string | null } | null;
   checklists: Array<{ id: number; label: string; completed: boolean; sortOrder: number }>;
   notes: string | null;
+  youtubeVideoId: string | null;
+  scriptContent: string | null;
   metadata: Record<string, unknown>;
   created_by: string | null;
   created_at: string;
@@ -38,6 +40,7 @@ export interface CreateVideoInput {
   sponsoringCompanyName?: string | null;
   sponsoringCompanyLogo?: string | null;
   checklists?: Array<{ label: string; completed?: boolean }>;
+  scriptContent?: string | null;
 }
 
 export interface UpdateVideoInput {
@@ -55,6 +58,8 @@ export interface UpdateVideoInput {
   sponsoringCompanyId?: string | null;
   sponsoringCompanyName?: string | null;
   sponsoringCompanyLogo?: string | null;
+  youtubeVideoId?: string | null;
+  scriptContent?: string | null;
 }
 
 function mapRow(row: any): VideoQueueItem {
@@ -65,14 +70,21 @@ function mapRow(row: any): VideoQueueItem {
     description: row.description,
     status: row.status,
     priority: row.priority,
-    targetPublishDate: row.scheduled_date,
-    platforms: meta.platforms ?? [],
-    isSponsored: meta.isSponsored ?? false,
-    company: meta.company ?? null,
-    sponsoringCompany: meta.sponsoringCompany ?? null,
+    targetPublishDate: row.scheduled_date ?? row.target_publish_date ?? null,
+    // Read from relational columns first, fall back to metadata for backward compat
+    platforms: row.platforms ?? meta.platforms ?? [],
+    isSponsored: row.is_sponsored ?? meta.isSponsored ?? false,
+    company: row.company_id
+      ? { id: row.company_id, name: meta.company?.name ?? "", logo: meta.company?.logo ?? null }
+      : (meta.company ?? null),
+    sponsoringCompany: row.sponsoring_company_id
+      ? { id: row.sponsoring_company_id, name: meta.sponsoringCompany?.name ?? "", logo: meta.sponsoringCompany?.logo ?? null }
+      : (meta.sponsoringCompany ?? null),
     assignedTo: meta.assignedTo ?? null,
     checklists: meta.checklists ?? [],
     notes: row.notes,
+    youtubeVideoId: row.youtube_video_id ?? null,
+    scriptContent: row.script_content ?? null,
     metadata: meta,
     created_by: row.created_by,
     created_at: row.created_at,
@@ -121,32 +133,22 @@ export function useCreateVideo() {
   return useMutation({
     mutationFn: async (input: CreateVideoInput) => {
       if (!workspaceId) throw new Error("Workspace not ready");
-      const metadata: Record<string, unknown> = {};
-      metadata.platforms = input.platforms ?? [];
-      metadata.isSponsored = input.isSponsored ?? false;
 
+      // Build checklists for metadata (still stored there alongside relational columns)
+      const checklists = (input.checklists ?? []).map((c, i) => ({
+        id: Date.now() + i,
+        label: c.label,
+        completed: c.completed ?? false,
+        sortOrder: i,
+      }));
+
+      // Company display info stored in metadata for easy retrieval
+      const metadata: Record<string, unknown> = { checklists };
       if (input.companyId) {
-        metadata.company = {
-          id: input.companyId,
-          name: input.companyName ?? "",
-          logo: input.companyLogo ?? null,
-        };
+        metadata.company = { id: input.companyId, name: input.companyName ?? "", logo: input.companyLogo ?? null };
       }
       if (input.sponsoringCompanyId) {
-        metadata.sponsoringCompany = {
-          id: input.sponsoringCompanyId,
-          name: input.sponsoringCompanyName ?? "",
-          logo: input.sponsoringCompanyLogo ?? null,
-        };
-      }
-
-      if (input.checklists && input.checklists.length > 0) {
-        metadata.checklists = input.checklists.map((c, i) => ({
-          id: Date.now() + i,
-          label: c.label,
-          completed: c.completed ?? false,
-          sortOrder: i,
-        }));
+        metadata.sponsoringCompany = { id: input.sponsoringCompanyId, name: input.sponsoringCompanyName ?? "", logo: input.sponsoringCompanyLogo ?? null };
       }
 
       const { error } = await supabase.from("video_queue").insert({
@@ -156,6 +158,12 @@ export function useCreateVideo() {
         status: input.status ?? "idea",
         priority: input.priority ?? "medium",
         scheduled_date: input.targetPublishDate ?? null,
+        // Write to relational columns
+        platforms: input.platforms ?? [],
+        is_sponsored: input.isSponsored ?? false,
+        company_id: input.companyId ?? null,
+        sponsoring_company_id: input.sponsoringCompanyId ?? null,
+        script_content: input.scriptContent ?? null,
         metadata,
       } as any);
       if (error) throw error;
@@ -169,7 +177,7 @@ export function useUpdateVideo() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (input: UpdateVideoInput) => {
-      // First fetch existing row to merge metadata
+      // Fetch existing row to merge metadata
       const { data: existing, error: fetchError } = await supabase
         .from("video_queue")
         .select("metadata")
@@ -180,41 +188,38 @@ export function useUpdateVideo() {
       const existingMeta = (existing?.metadata as Record<string, unknown>) ?? {};
       const update: Record<string, unknown> = {};
 
+      // Direct column updates
       if (input.title !== undefined) update.title = input.title;
       if (input.description !== undefined) update.description = input.description;
       if (input.status !== undefined) update.status = input.status;
       if (input.priority !== undefined) update.priority = input.priority;
       if (input.targetPublishDate !== undefined) update.scheduled_date = input.targetPublishDate;
+      if (input.youtubeVideoId !== undefined) update.youtube_video_id = input.youtubeVideoId;
+      if (input.scriptContent !== undefined) update.script_content = input.scriptContent;
 
-      // Build updated metadata by merging with existing
-      const newMeta = { ...existingMeta };
-      if (input.platforms !== undefined) newMeta.platforms = input.platforms;
-      if (input.isSponsored !== undefined) newMeta.isSponsored = input.isSponsored;
+      // Write to relational columns
+      if (input.platforms !== undefined) update.platforms = input.platforms;
+      if (input.isSponsored !== undefined) update.is_sponsored = input.isSponsored;
 
       if (input.companyId !== undefined) {
-        if (input.companyId) {
-          newMeta.company = {
-            id: input.companyId,
-            name: input.companyName ?? "",
-            logo: input.companyLogo ?? null,
-          };
-        } else {
-          newMeta.company = null;
-        }
+        update.company_id = input.companyId || null;
       }
-
       if (input.sponsoringCompanyId !== undefined) {
-        if (input.sponsoringCompanyId) {
-          newMeta.sponsoringCompany = {
-            id: input.sponsoringCompanyId,
-            name: input.sponsoringCompanyName ?? "",
-            logo: input.sponsoringCompanyLogo ?? null,
-          };
-        } else {
-          newMeta.sponsoringCompany = null;
-        }
+        update.sponsoring_company_id = input.sponsoringCompanyId || null;
       }
 
+      // Update metadata for display info (company names/logos) and preserve checklists
+      const newMeta = { ...existingMeta };
+      if (input.companyId !== undefined) {
+        newMeta.company = input.companyId
+          ? { id: input.companyId, name: input.companyName ?? "", logo: input.companyLogo ?? null }
+          : null;
+      }
+      if (input.sponsoringCompanyId !== undefined) {
+        newMeta.sponsoringCompany = input.sponsoringCompanyId
+          ? { id: input.sponsoringCompanyId, name: input.sponsoringCompanyName ?? "", logo: input.sponsoringCompanyLogo ?? null }
+          : null;
+      }
       update.metadata = newMeta;
 
       const { error } = await supabase

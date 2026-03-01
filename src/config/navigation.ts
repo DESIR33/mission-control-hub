@@ -13,6 +13,8 @@ import {
   Zap,
   BarChart3,
   Compass,
+  Send,
+  FileText,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -36,9 +38,11 @@ export const navItems: NavItem[] = [
   { to: "/monetization", icon: DollarSign, label: "Monetization" },
   { to: "/deals", icon: Handshake, label: "Deals Pipeline" },
   { to: "/discover", icon: Compass, label: "Discover" },
+  { to: "/sequences", icon: Send, label: "Email Sequences" },
   { to: "/projects", icon: FolderKanban, label: "Projects" },
   { to: "/tasks", icon: CheckSquare, label: "Tasks" },
   { to: "/ai-bridge", icon: Brain, label: "AI Bridge" },
+  { to: "/reports", icon: FileText, label: "Weekly Reports" },
   { to: "/inbox", icon: Mail, label: "Inbox" },
   { to: "/notifications", icon: Bell, label: "Notifications" },
 ];
@@ -58,6 +62,7 @@ export const navGroups: NavGroup[] = [
       { to: "/deals", icon: Handshake, label: "Deals Pipeline" },
       { to: "/monetization", icon: DollarSign, label: "Monetization" },
       { to: "/discover", icon: Compass, label: "Discover" },
+      { to: "/sequences", icon: Send, label: "Email Sequences" },
     ],
   },
   {
@@ -73,6 +78,7 @@ export const navGroups: NavGroup[] = [
     items: [
       { to: "/analytics", icon: BarChart3, label: "Analytics" },
       { to: "/ai-bridge", icon: Brain, label: "AI Bridge" },
+      { to: "/reports", icon: FileText, label: "Weekly Reports" },
     ],
   },
   {

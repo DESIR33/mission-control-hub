@@ -785,6 +785,130 @@ function AnalyticsContent() {
         </div>
       )}
 
+      {/* Content-to-Subscriber Correlation (Feature 12) */}
+      {videoStats.length > 0 && channelSnapshots.length > 1 && (() => {
+        const sortedSnapshots = channelSnapshots
+          .slice()
+          .sort((a, b) => new Date(a.fetched_at).getTime() - new Date(b.fetched_at).getTime());
+
+        const subscriberImpact = videoStats
+          .filter((v) => v.published_at)
+          .map((video) => {
+            const pubDate = new Date(video.published_at!);
+            const sevenDaysAfter = new Date(pubDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+            const before = sortedSnapshots.filter((s) => new Date(s.fetched_at) <= pubDate);
+            const after = sortedSnapshots.filter(
+              (s) => new Date(s.fetched_at) >= pubDate && new Date(s.fetched_at) <= sevenDaysAfter
+            );
+            const subsBefore = before.length > 0 ? before[before.length - 1].subscriber_count : 0;
+            const subsAfter = after.length > 0 ? after[after.length - 1].subscriber_count : subsBefore;
+            return {
+              title: video.title,
+              published_at: video.published_at,
+              views: video.views ?? 0,
+              ctr: video.ctr_percent,
+              engagementRate:
+                (video.views ?? 0) > 0
+                  ? +((((video.likes ?? 0) + (video.comments ?? 0)) / (video.views ?? 1)) * 100).toFixed(2)
+                  : 0,
+              subscriberDelta: subsAfter - subsBefore,
+            };
+          })
+          .sort((a, b) => b.subscriberDelta - a.subscriberDelta);
+
+        const bestFormat = (() => {
+          const patterns: Record<string, { regex: RegExp; label: string }> = {
+            tutorial: { regex: /tutorial|how to|guide|learn/i, label: "Tutorials" },
+            review: { regex: /review|unbox|hands.on/i, label: "Reviews" },
+            vlog: { regex: /vlog|day in|behind/i, label: "Vlogs" },
+          };
+          const groups: Record<string, { totalDelta: number; count: number }> = {};
+          for (const v of subscriberImpact) {
+            let matched = false;
+            for (const [key, { regex }] of Object.entries(patterns)) {
+              if (regex.test(v.title ?? "")) {
+                if (!groups[key]) groups[key] = { totalDelta: 0, count: 0 };
+                groups[key].totalDelta += v.subscriberDelta;
+                groups[key].count++;
+                matched = true;
+                break;
+              }
+            }
+            if (!matched) {
+              if (!groups.other) groups.other = { totalDelta: 0, count: 0 };
+              groups.other.totalDelta += v.subscriberDelta;
+              groups.other.count++;
+            }
+          }
+          let best = { key: "", avg: 0 };
+          for (const [key, data] of Object.entries(groups)) {
+            const avg = data.count > 0 ? data.totalDelta / data.count : 0;
+            if (avg > best.avg) best = { key, avg };
+          }
+          return best.key ? `${patterns[best.key]?.label ?? "Other"} (+${Math.round(best.avg)} subs/video avg)` : null;
+        })();
+
+        if (subscriberImpact.length === 0) return null;
+
+        return (
+          <div className="rounded-lg border border-border bg-card p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <Users className="w-4 h-4 text-primary" />
+                Subscriber Impact by Video
+              </h2>
+              {bestFormat && (
+                <span className="text-xs text-muted-foreground">
+                  Best format: <span className="font-semibold text-foreground">{bestFormat}</span>
+                </span>
+              )}
+            </div>
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={subscriberImpact.slice(0, 15)}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                <XAxis dataKey="title" tick={{ fontSize: 8 }} interval={0} angle={-20} textAnchor="end" height={60} />
+                <YAxis tick={{ fontSize: 10 }} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
+                  formatter={(value: number) => [`+${value}`, "Subscriber Delta"]}
+                />
+                <Bar dataKey="subscriberDelta" radius={[4, 4, 0, 0]}>
+                  {subscriberImpact.slice(0, 15).map((entry, index) => (
+                    <Cell key={index} fill={entry.subscriberDelta >= 0 ? "hsl(var(--primary))" : "hsl(var(--destructive))"} fillOpacity={0.8} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+            <div className="mt-4 overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-2 px-2 text-xs text-muted-foreground font-medium">Video</th>
+                    <th className="text-right py-2 px-2 text-xs text-muted-foreground font-medium">Views</th>
+                    <th className="text-right py-2 px-2 text-xs text-muted-foreground font-medium">Sub Delta</th>
+                    <th className="text-right py-2 px-2 text-xs text-muted-foreground font-medium">CTR</th>
+                    <th className="text-right py-2 px-2 text-xs text-muted-foreground font-medium">Eng %</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {subscriberImpact.slice(0, 10).map((v, i) => (
+                    <tr key={i} className="border-b border-border/50">
+                      <td className="py-2 px-2 text-foreground max-w-[200px] truncate">{v.title}</td>
+                      <td className="py-2 px-2 text-right font-mono">{v.views.toLocaleString()}</td>
+                      <td className={`py-2 px-2 text-right font-mono font-semibold ${v.subscriberDelta >= 0 ? "text-green-500" : "text-red-500"}`}>
+                        {v.subscriberDelta >= 0 ? "+" : ""}{v.subscriberDelta}
+                      </td>
+                      <td className="py-2 px-2 text-right font-mono">{v.ctr != null ? `${v.ctr.toFixed(1)}%` : "--"}</td>
+                      <td className="py-2 px-2 text-right font-mono">{v.engagementRate}%</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Empty state */}
       {videoStats.length === 0 && channelSnapshots.length === 0 && (
         <div className="rounded-lg border border-dashed border-border bg-card p-12 text-center">

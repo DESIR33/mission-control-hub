@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import type { Contact, ContactStatus, VipTier } from "@/types/crm";
 import { formatDistanceToNow } from "date-fns";
 import { BulkActionsBar } from "./BulkActionsBar";
+import { EngagementBadge } from "./EngagementBadge";
 
 const statusColors: Record<ContactStatus, string> = {
   active: "bg-success/15 text-success border-success/30",
@@ -209,6 +210,7 @@ export function ContactsTable({ contacts, onSelectContact, selectedId, addButton
               <TableHead className="text-muted-foreground font-semibold">Status</TableHead>
               <TableHead className="text-muted-foreground font-semibold">VIP</TableHead>
               <TableHead className="text-muted-foreground font-semibold">Source</TableHead>
+              <TableHead className="text-muted-foreground font-semibold">Engagement</TableHead>
               <TableHead className="text-muted-foreground font-semibold">Last Contact</TableHead>
               <TableHead className="text-muted-foreground font-semibold w-[80px]">Channels</TableHead>
             </TableRow>
@@ -216,7 +218,7 @@ export function ContactsTable({ contacts, onSelectContact, selectedId, addButton
           <TableBody>
             {filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-12 text-muted-foreground">
+                <TableCell colSpan={9} className="text-center py-12 text-muted-foreground">
                   No contacts found
                 </TableCell>
               </TableRow>
@@ -284,6 +286,9 @@ export function ContactsTable({ contacts, onSelectContact, selectedId, addButton
                   </TableCell>
                   <TableCell>
                     <span className="text-sm text-muted-foreground">{contact.source ?? "—"}</span>
+                  </TableCell>
+                  <TableCell>
+                    <EngagementBadge contact={contact} />
                   </TableCell>
                   <TableCell>
                     <span className="text-xs text-muted-foreground">
