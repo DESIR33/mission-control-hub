@@ -1,1 +1,28 @@
 project_id = "xoucztvrwwixujgwmbzm"
+
+[functions.youtube-analytics-sync]
+verify_jwt = false
+
+[functions.youtube-sync]
+verify_jwt = false
+
+[functions.ai-generate-proposals]
+verify_jwt = false
+
+[functions.discover-sponsors]
+verify_jwt = false
+
+[functions.enrich-company]
+verify_jwt = false
+
+[functions.enrich-contact]
+verify_jwt = false
+
+[functions.send-email]
+verify_jwt = false
+
+[functions.stale-deal-check]
+verify_jwt = false
+
+[functions.weekly-report]
+verify_jwt = false

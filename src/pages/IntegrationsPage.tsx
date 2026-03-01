@@ -135,13 +135,13 @@ const INTEGRATIONS: IntegrationDef[] = [
     key: "youtube",
     name: "YouTube",
     description:
-      "Pull channel stats, video analytics, and subscriber data from the YouTube Data API.",
+      "Pull channel stats, video analytics, demographics, traffic sources, and revenue data.",
     icon: "▶",
     iconBg: "linear-gradient(135deg, #ff0000 0%, #cc0000 100%)",
     docsUrl: "https://developers.google.com/youtube/v3",
-    usedFor: "Used for: channel analytics · video stats · subscriber growth",
+    usedFor: "Used for: channel analytics · video stats · subscriber growth · audience demographics · revenue",
     connectHint:
-      "Provide your YouTube Data API v3 key from the Google Cloud Console.",
+      "Provide your YouTube Data API key and channel ID. For advanced analytics (demographics, traffic, revenue), also add OAuth2 credentials.",
     fields: [
       {
         name: "api_key",
@@ -157,6 +157,30 @@ const INTEGRATIONS: IntegrationDef[] = [
         placeholder: "UC…",
         required: true,
         hint: "Your YouTube channel ID (starts with UC). Find it at youtube.com/account_advanced.",
+      },
+      {
+        name: "client_id",
+        label: "OAuth Client ID (optional – for Analytics API)",
+        placeholder: "123456789.apps.googleusercontent.com",
+        secret: false,
+        required: false,
+        hint: "Google Cloud Console → APIs & Services → Credentials → OAuth 2.0 Client ID.",
+      },
+      {
+        name: "client_secret",
+        label: "OAuth Client Secret (optional)",
+        placeholder: "GOCSPX-…",
+        secret: true,
+        required: false,
+        hint: "The client secret for your OAuth 2.0 app.",
+      },
+      {
+        name: "refresh_token",
+        label: "OAuth Refresh Token (optional)",
+        placeholder: "1//0…",
+        secret: true,
+        required: false,
+        hint: "Generate via OAuth Playground or your own consent flow with yt-analytics.readonly scope.",
       },
     ],
   },

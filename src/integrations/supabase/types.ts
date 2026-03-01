@@ -802,6 +802,119 @@ export type Database = {
         }
         Relationships: []
       }
+      youtube_channel_analytics: {
+        Row: {
+          ad_impressions: number
+          average_view_duration_seconds: number
+          average_view_percentage: number
+          card_clicks: number
+          card_ctr: number
+          card_impressions: number
+          comments: number
+          cpm: number
+          date: string
+          dislikes: number
+          end_screen_element_clicks: number
+          end_screen_element_ctr: number
+          end_screen_element_impressions: number
+          estimated_ad_revenue: number
+          estimated_minutes_watched: number
+          estimated_red_partner_revenue: number
+          estimated_revenue: number
+          fetched_at: string
+          gross_revenue: number
+          id: string
+          impressions: number
+          impressions_ctr: number
+          likes: number
+          monetized_playbacks: number
+          net_subscribers: number
+          playback_based_cpm: number
+          shares: number
+          subscribers_gained: number
+          subscribers_lost: number
+          unique_viewers: number
+          views: number
+          workspace_id: string
+        }
+        Insert: {
+          ad_impressions?: number
+          average_view_duration_seconds?: number
+          average_view_percentage?: number
+          card_clicks?: number
+          card_ctr?: number
+          card_impressions?: number
+          comments?: number
+          cpm?: number
+          date: string
+          dislikes?: number
+          end_screen_element_clicks?: number
+          end_screen_element_ctr?: number
+          end_screen_element_impressions?: number
+          estimated_ad_revenue?: number
+          estimated_minutes_watched?: number
+          estimated_red_partner_revenue?: number
+          estimated_revenue?: number
+          fetched_at?: string
+          gross_revenue?: number
+          id?: string
+          impressions?: number
+          impressions_ctr?: number
+          likes?: number
+          monetized_playbacks?: number
+          net_subscribers?: number
+          playback_based_cpm?: number
+          shares?: number
+          subscribers_gained?: number
+          subscribers_lost?: number
+          unique_viewers?: number
+          views?: number
+          workspace_id: string
+        }
+        Update: {
+          ad_impressions?: number
+          average_view_duration_seconds?: number
+          average_view_percentage?: number
+          card_clicks?: number
+          card_ctr?: number
+          card_impressions?: number
+          comments?: number
+          cpm?: number
+          date?: string
+          dislikes?: number
+          end_screen_element_clicks?: number
+          end_screen_element_ctr?: number
+          end_screen_element_impressions?: number
+          estimated_ad_revenue?: number
+          estimated_minutes_watched?: number
+          estimated_red_partner_revenue?: number
+          estimated_revenue?: number
+          fetched_at?: string
+          gross_revenue?: number
+          id?: string
+          impressions?: number
+          impressions_ctr?: number
+          likes?: number
+          monetized_playbacks?: number
+          net_subscribers?: number
+          playback_based_cpm?: number
+          shares?: number
+          subscribers_gained?: number
+          subscribers_lost?: number
+          unique_viewers?: number
+          views?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "youtube_channel_analytics_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       youtube_channel_stats: {
         Row: {
           created_at: string
@@ -833,6 +946,253 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "youtube_channel_stats_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      youtube_demographics: {
+        Row: {
+          age_group: string
+          date: string
+          fetched_at: string
+          gender: string
+          id: string
+          viewer_percentage: number
+          workspace_id: string
+        }
+        Insert: {
+          age_group: string
+          date: string
+          fetched_at?: string
+          gender: string
+          id?: string
+          viewer_percentage?: number
+          workspace_id: string
+        }
+        Update: {
+          age_group?: string
+          date?: string
+          fetched_at?: string
+          gender?: string
+          id?: string
+          viewer_percentage?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "youtube_demographics_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      youtube_device_types: {
+        Row: {
+          date: string
+          device_type: string
+          estimated_minutes_watched: number
+          fetched_at: string
+          id: string
+          views: number
+          workspace_id: string
+        }
+        Insert: {
+          date: string
+          device_type: string
+          estimated_minutes_watched?: number
+          fetched_at?: string
+          id?: string
+          views?: number
+          workspace_id: string
+        }
+        Update: {
+          date?: string
+          device_type?: string
+          estimated_minutes_watched?: number
+          fetched_at?: string
+          id?: string
+          views?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "youtube_device_types_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      youtube_geography: {
+        Row: {
+          average_view_duration_seconds: number
+          country: string
+          date: string
+          estimated_minutes_watched: number
+          fetched_at: string
+          id: string
+          subscribers_gained: number
+          views: number
+          workspace_id: string
+        }
+        Insert: {
+          average_view_duration_seconds?: number
+          country: string
+          date: string
+          estimated_minutes_watched?: number
+          fetched_at?: string
+          id?: string
+          subscribers_gained?: number
+          views?: number
+          workspace_id: string
+        }
+        Update: {
+          average_view_duration_seconds?: number
+          country?: string
+          date?: string
+          estimated_minutes_watched?: number
+          fetched_at?: string
+          id?: string
+          subscribers_gained?: number
+          views?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "youtube_geography_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      youtube_traffic_sources: {
+        Row: {
+          date: string
+          estimated_minutes_watched: number
+          fetched_at: string
+          id: string
+          source_type: string
+          views: number
+          workspace_id: string
+        }
+        Insert: {
+          date: string
+          estimated_minutes_watched?: number
+          fetched_at?: string
+          id?: string
+          source_type: string
+          views?: number
+          workspace_id: string
+        }
+        Update: {
+          date?: string
+          estimated_minutes_watched?: number
+          fetched_at?: string
+          id?: string
+          source_type?: string
+          views?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "youtube_traffic_sources_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      youtube_video_analytics: {
+        Row: {
+          annotation_click_through_rate: number
+          average_view_duration_seconds: number
+          average_view_percentage: number
+          card_clicks: number
+          card_impressions: number
+          comments: number
+          date: string
+          dislikes: number
+          end_screen_element_clicks: number
+          end_screen_element_impressions: number
+          estimated_minutes_watched: number
+          estimated_revenue: number
+          fetched_at: string
+          id: string
+          impressions: number
+          impressions_ctr: number
+          likes: number
+          shares: number
+          subscribers_gained: number
+          subscribers_lost: number
+          title: string
+          views: number
+          workspace_id: string
+          youtube_video_id: string
+        }
+        Insert: {
+          annotation_click_through_rate?: number
+          average_view_duration_seconds?: number
+          average_view_percentage?: number
+          card_clicks?: number
+          card_impressions?: number
+          comments?: number
+          date: string
+          dislikes?: number
+          end_screen_element_clicks?: number
+          end_screen_element_impressions?: number
+          estimated_minutes_watched?: number
+          estimated_revenue?: number
+          fetched_at?: string
+          id?: string
+          impressions?: number
+          impressions_ctr?: number
+          likes?: number
+          shares?: number
+          subscribers_gained?: number
+          subscribers_lost?: number
+          title?: string
+          views?: number
+          workspace_id: string
+          youtube_video_id: string
+        }
+        Update: {
+          annotation_click_through_rate?: number
+          average_view_duration_seconds?: number
+          average_view_percentage?: number
+          card_clicks?: number
+          card_impressions?: number
+          comments?: number
+          date?: string
+          dislikes?: number
+          end_screen_element_clicks?: number
+          end_screen_element_impressions?: number
+          estimated_minutes_watched?: number
+          estimated_revenue?: number
+          fetched_at?: string
+          id?: string
+          impressions?: number
+          impressions_ctr?: number
+          likes?: number
+          shares?: number
+          subscribers_gained?: number
+          subscribers_lost?: number
+          title?: string
+          views?: number
+          workspace_id?: string
+          youtube_video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "youtube_video_analytics_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
