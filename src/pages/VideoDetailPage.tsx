@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useCallback, useMemo } from "react";
-import { ArrowLeft, TrendingUp, Lightbulb, AlertCircle } from "lucide-react";
+import { ArrowLeft, TrendingUp, Lightbulb, AlertCircle, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -15,6 +15,7 @@ import { useVideoExperiments } from "@/hooks/use-video-experiments";
 import { useVideoRepurposes } from "@/hooks/use-video-repurposes";
 import { useVideoDeals } from "@/hooks/use-video-deals";
 import { useDemographics, useTrafficSources } from "@/hooks/use-youtube-analytics-api";
+import { useVideoRevenueLookup } from "@/hooks/use-video-revenue-lookup";
 import { VideoHeaderCard } from "@/components/video-detail/VideoHeaderCard";
 import { NotesEditor } from "@/components/video-detail/NotesEditor";
 import { ExperimentsTable } from "@/components/video-detail/ExperimentsTable";
@@ -34,6 +35,11 @@ const fmtCount = (n: number) => {
   return String(n);
 };
 
+const fmtMoney = (n: number) => {
+  if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}K`;
+  return `$${n.toFixed(2)}`;
+};
+
 function VideoDetailContent() {
   const { youtubeVideoId } = useParams<{ youtubeVideoId: string }>();
   const navigate = useNavigate();
@@ -46,6 +52,10 @@ function VideoDetailContent() {
   const { data: deals = [], isLoading: loadingDeals } = useVideoDeals(youtubeVideoId);
   const { data: demographics = [] } = useDemographics();
   const { data: trafficSources = [] } = useTrafficSources();
+  const { lookup: revenueLookup } = useVideoRevenueLookup();
+
+  // Get combined revenue data for this video
+  const videoRevenue = youtubeVideoId ? revenueLookup.get(youtubeVideoId) : undefined;
 
   const handleSaveNotes = useCallback((updates: any) => {
     upsert.mutate(updates);
@@ -73,7 +83,13 @@ function VideoDetailContent() {
       date: format(new Date(d.date), "MMM d"),
       views: d.views,
       ctr: d.impressions_ctr,
+      revenue: d.estimated_revenue ?? 0,
     }));
+  }, [trend]);
+
+  // Cumulative revenue from trend data
+  const cumulativeAdRevenue = useMemo(() => {
+    return trend.reduce((s: number, d: any) => s + (Number(d.estimated_revenue) || 0), 0);
   }, [trend]);
 
   if (loadingDetail) {
@@ -103,6 +119,9 @@ function VideoDetailContent() {
     );
   }
 
+  const totalCombinedRevenue = (videoRevenue?.totalRevenue ?? 0) || detail.estimated_revenue;
+  const rpm = detail.views > 0 ? (totalCombinedRevenue / detail.views) * 1000 : 0;
+
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 gradient-mesh min-h-screen">
       <Button variant="ghost" size="sm" onClick={() => navigate("/analytics")} className="-ml-2">
@@ -122,6 +141,8 @@ function VideoDetailContent() {
         comments={detail.comments}
         subsGained={detail.subscribers_gained}
         hasAnalyticsData={detail.hasAnalyticsData}
+        totalRevenue={totalCombinedRevenue}
+        rpm={rpm}
       />
 
       <Tabs defaultValue="overview" className="w-full">
@@ -239,21 +260,51 @@ function VideoDetailContent() {
           )}
         </TabsContent>
 
-        {/* Revenue */}
+        {/* Revenue — Enhanced with combined revenue (Feature 1 + 7 + 10) */}
         <TabsContent value="revenue" className="space-y-4 mt-4">
-          {detail.estimated_revenue > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              <SummaryCard label="Estimated Revenue" value={`$${detail.estimated_revenue.toFixed(2)}`} />
-              <SummaryCard label="RPM" value={detail.views > 0 ? `$${((detail.estimated_revenue / detail.views) * 1000).toFixed(2)}` : "—"} />
-              <SummaryCard label="Views" value={fmtCount(detail.views)} />
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              <SummaryCard label="Estimated Revenue" value="—" />
-              <SummaryCard label="RPM" value="—" />
-              <SummaryCard label="Views" value={fmtCount(detail.views)} />
+          {/* Total Combined Revenue */}
+          {totalCombinedRevenue > 0 && (
+            <div className="rounded-lg border-2 border-green-500/30 bg-green-500/5 p-4">
+              <div className="flex items-center gap-2 mb-1">
+                <DollarSign className="w-5 h-5 text-green-500" />
+                <h3 className="text-sm font-semibold text-foreground">Total Combined Revenue</h3>
+              </div>
+              <p className="text-2xl font-bold font-mono text-green-500">{fmtMoney(totalCombinedRevenue)}</p>
+              <p className="text-[10px] text-muted-foreground mt-1">Ad + Sponsorship + Affiliate revenue combined</p>
             </div>
           )}
+
+          {/* Revenue breakdown cards */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            <SummaryCard label="Ad Revenue" value={videoRevenue?.adRevenue ? fmtMoney(videoRevenue.adRevenue) : (detail.estimated_revenue > 0 ? fmtMoney(detail.estimated_revenue) : "—")} />
+            <SummaryCard label="Deal Revenue" value={videoRevenue?.dealRevenue ? fmtMoney(videoRevenue.dealRevenue) : "—"} />
+            <SummaryCard label="Affiliate Revenue" value={videoRevenue?.affiliateRevenue ? fmtMoney(videoRevenue.affiliateRevenue) : "—"} />
+            <SummaryCard label="Total Revenue" value={totalCombinedRevenue > 0 ? fmtMoney(totalCombinedRevenue) : "—"} />
+            <SummaryCard label="RPM" value={rpm > 0 ? fmtMoney(rpm) : "—"} />
+            <SummaryCard label="Revenue/View" value={videoRevenue?.revenuePerView ? `$${videoRevenue.revenuePerView.toFixed(4)}` : (detail.views > 0 && detail.estimated_revenue > 0 ? `$${(detail.estimated_revenue / detail.views).toFixed(4)}` : "—")} />
+          </div>
+
+          {/* Cumulative Ad Revenue */}
+          {cumulativeAdRevenue > 0 && (
+            <SummaryCard label="Cumulative Ad Revenue (Trend Period)" value={fmtMoney(cumulativeAdRevenue)} />
+          )}
+
+          {/* Revenue Trend Chart (Feature 7) */}
+          {trendChart.some((d) => d.revenue > 0) && (
+            <div className="rounded-lg border border-border bg-card p-4">
+              <h3 className="text-sm font-semibold text-foreground mb-3">Daily Ad Revenue Trend</h3>
+              <ResponsiveContainer width="100%" height={180}>
+                <LineChart data={trendChart}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                  <XAxis dataKey="date" tick={{ fontSize: 10 }} />
+                  <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => `$${v}`} />
+                  <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => [`$${Number(v).toFixed(2)}`, "Revenue"]} />
+                  <Line type="monotone" dataKey="revenue" stroke="#22c55e" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+
           <DealsAttributionPanel deals={deals} isLoading={loadingDeals} />
         </TabsContent>
 

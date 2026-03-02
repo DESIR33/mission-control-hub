@@ -21,6 +21,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { WeeklyRevenueSection } from "@/components/weekly-report/WeeklyRevenueSection";
+import { useGrowthAlerts, type GrowthAlert } from "@/hooks/use-growth-alerts";
 
 const fmtCurrency = (value: number) =>
   new Intl.NumberFormat("en-US", {
@@ -258,6 +260,35 @@ function ReportCard({
   );
 }
 
+function GrowthMilestonesSection() {
+  const { alerts } = useGrowthAlerts();
+  const milestones = alerts.filter((a) => a.severity === "celebration" || a.type === "milestone_reached");
+  if (milestones.length === 0) return null;
+
+  return (
+    <div className="rounded-lg border border-border bg-card p-4 space-y-3">
+      <div className="flex items-center gap-2">
+        <Target className="w-4 h-4 text-primary" />
+        <h2 className="text-sm font-semibold text-foreground">Growth Milestones</h2>
+      </div>
+      <div className="space-y-2">
+        {milestones.map((alert) => (
+          <div
+            key={alert.id}
+            className="flex items-center gap-3 rounded-md border border-green-500/20 bg-green-500/5 px-3 py-2"
+          >
+            <span className="text-green-500 text-sm">&#x1F389;</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-foreground">{alert.title}</p>
+              <p className="text-xs text-muted-foreground">{alert.message}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function WeeklyReportsContent() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const { isLoading: workspaceLoading } = useWorkspace();
@@ -323,6 +354,12 @@ function WeeklyReportsContent() {
           </p>
         </div>
       )}
+
+      {/* Weekly Revenue Section */}
+      <WeeklyRevenueSection />
+
+      {/* Growth Milestones */}
+      <GrowthMilestonesSection />
 
       {/* Report cards */}
       {reports.length > 0 && (

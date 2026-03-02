@@ -3,7 +3,7 @@ import {
   Rocket, TrendingUp, Award, DollarSign, Clock,
   Eye, MousePointerClick, Search, Handshake, Trophy,
   MessageSquare, ListVideo, BarChart3, Users,
-  Calendar, Zap, ChevronLeft, ChevronRight,
+  Calendar, Zap, ChevronLeft, ChevronRight, Calculator, UserCheck,
 } from "lucide-react";
 import { useWorkspace, WorkspaceProvider } from "@/hooks/use-workspace";
 import {
@@ -12,6 +12,7 @@ import {
   ContentGapFinder, CollaborationTracker, MilestoneCountdown,
   CommentSentiment, PlaylistOptimizer, RevenueForecast,
   CompetitorBenchmark, ContentCalendar, ViralPredictor,
+  ContentROICalculator, SubscriberImpact,
 } from "@/components/command-center";
 
 type Tab =
@@ -29,13 +30,16 @@ type Tab =
   | "revenue_forecast"
   | "competitors"
   | "calendar"
-  | "viral";
+  | "viral"
+  | "roi_calculator"
+  | "subscriber_impact";
 
 const TABS: { key: Tab; label: string; icon: React.ReactNode; group: string }[] = [
   // Growth
   { key: "forecast", label: "Growth Forecast", icon: <TrendingUp className="w-3.5 h-3.5" />, group: "Growth" },
   { key: "milestones", label: "Milestones", icon: <Trophy className="w-3.5 h-3.5" />, group: "Growth" },
   { key: "competitors", label: "Competitors", icon: <Users className="w-3.5 h-3.5" />, group: "Growth" },
+  { key: "subscriber_impact", label: "Sub Impact", icon: <UserCheck className="w-3.5 h-3.5" />, group: "Growth" },
   // Content
   { key: "scorecard", label: "Video Scorecard", icon: <Award className="w-3.5 h-3.5" />, group: "Content" },
   { key: "retention", label: "Retention", icon: <Eye className="w-3.5 h-3.5" />, group: "Content" },
@@ -45,6 +49,7 @@ const TABS: { key: Tab; label: string; icon: React.ReactNode; group: string }[] 
   // Revenue
   { key: "revenue_link", label: "Content → Revenue", icon: <DollarSign className="w-3.5 h-3.5" />, group: "Revenue" },
   { key: "revenue_forecast", label: "Revenue Forecast", icon: <BarChart3 className="w-3.5 h-3.5" />, group: "Revenue" },
+  { key: "roi_calculator", label: "ROI Calculator", icon: <Calculator className="w-3.5 h-3.5" />, group: "Revenue" },
   // Planning
   { key: "calendar", label: "Content Calendar", icon: <Calendar className="w-3.5 h-3.5" />, group: "Planning" },
   { key: "content_gaps", label: "Content Gaps", icon: <Search className="w-3.5 h-3.5" />, group: "Planning" },
@@ -70,6 +75,8 @@ const TAB_COMPONENTS: Record<Tab, React.ComponentType> = {
   competitors: CompetitorBenchmark,
   calendar: ContentCalendar,
   viral: ViralPredictor,
+  roi_calculator: ContentROICalculator,
+  subscriber_impact: SubscriberImpact,
 };
 
 function CommandCenterContent() {

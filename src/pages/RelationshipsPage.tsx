@@ -11,6 +11,8 @@ import { ImportContactsDialog } from "@/components/crm/ImportContactsDialog";
 import { ImportCompaniesDialog } from "@/components/crm/ImportCompaniesDialog";
 import { ExportContactsDialog, ExportCompaniesDialog } from "@/components/crm/ExportDialog";
 import { RelationshipGraph } from "@/components/crm/RelationshipGraph";
+import { SponsorAttributionPanel } from "@/components/crm/SponsorAttributionPanel";
+import { PartnershipPipeline } from "@/components/crm/PartnershipPipeline";
 import { useContacts, useActivities } from "@/hooks/use-contacts";
 import { useCompanies, useCompanyContacts } from "@/hooks/use-companies";
 import { useDeals } from "@/hooks/use-deals";
@@ -61,6 +63,10 @@ function RelationshipsContent() {
           <TabsTrigger value="contacts">Contacts</TabsTrigger>
           <TabsTrigger value="companies">Companies</TabsTrigger>
           <TabsTrigger value="graph">Relationships</TabsTrigger>
+          <TabsTrigger value="sponsors">Sponsors</TabsTrigger>
+          <TabsTrigger value="sponsor_pipeline">Sponsor Pipeline</TabsTrigger>
+          <TabsTrigger value="affiliate_pipeline">Affiliate Pipeline</TabsTrigger>
+          <TabsTrigger value="collab_pipeline">Collaborator Pipeline</TabsTrigger>
         </TabsList>
 
         <TabsContent value="contacts" className="mt-4">
@@ -128,6 +134,21 @@ function RelationshipsContent() {
               onSelectCompany={handleSelectCompany}
             />
           )}
+        </TabsContent>
+        <TabsContent value="sponsors" className="mt-4">
+          <SponsorAttributionPanel />
+        </TabsContent>
+
+        <TabsContent value="sponsor_pipeline" className="mt-4">
+          <PartnershipPipeline partnershipType="sponsor" />
+        </TabsContent>
+
+        <TabsContent value="affiliate_pipeline" className="mt-4">
+          <PartnershipPipeline partnershipType="affiliate" />
+        </TabsContent>
+
+        <TabsContent value="collab_pipeline" className="mt-4">
+          <PartnershipPipeline partnershipType="collaborator" />
         </TabsContent>
       </Tabs>
 

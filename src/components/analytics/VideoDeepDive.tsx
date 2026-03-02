@@ -11,6 +11,7 @@ import {
 } from "recharts";
 import type { VideoAnalytics } from "@/hooks/use-youtube-analytics-api";
 import { useVideoNotesCheck } from "@/hooks/use-video-notes";
+import { useVideoRevenueLookup } from "@/hooks/use-video-revenue-lookup";
 
 const fmtCount = (n: number) => {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
@@ -49,6 +50,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
   const [expandedVideo, setExpandedVideo] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const { data: notesSet } = useVideoNotesCheck();
+  const { lookup: revenueLookup } = useVideoRevenueLookup();
 
   // Feature 2: Aggregation — group rows by youtube_video_id
   const aggregated = useMemo(() => {
@@ -441,11 +443,15 @@ export function VideoDeepDive({ data, daysRange }: Props) {
                           <FileText className="w-2.5 h-2.5" /> Notes
                         </span>
                       )}
-                      {v.estimated_revenue > 0 && (
-                        <span className="text-[10px] text-green-500 flex items-center gap-0.5">
-                          <DollarSign className="w-2.5 h-2.5" /> ${v.estimated_revenue.toFixed(0)}
-                        </span>
-                      )}
+                      {(() => {
+                        const combinedRev = revenueLookup.get(v.youtube_video_id);
+                        const totalRev = combinedRev?.totalRevenue ?? (v.estimated_revenue > 0 ? v.estimated_revenue : 0);
+                        return totalRev > 0 ? (
+                          <span className="text-[10px] text-green-500 flex items-center gap-0.5">
+                            <DollarSign className="w-2.5 h-2.5" /> ${totalRev.toFixed(0)}{combinedRev ? " total" : ""}
+                          </span>
+                        ) : null;
+                      })()}
                     </div>
                   </button>
                   {/* Feature 12: Above-average badge */}
@@ -503,9 +509,20 @@ export function VideoDeepDive({ data, daysRange }: Props) {
                       <DetailStat label="Card Impressions" value={v.card_impressions.toLocaleString()} />
                       <DetailStat label="End Screen Clicks" value={v.end_screen_element_clicks.toLocaleString()} />
                       <DetailStat label="End Screen Imp." value={v.end_screen_element_impressions.toLocaleString()} />
-                      {v.estimated_revenue > 0 && (
-                        <DetailStat label="Revenue" value={fmtMoney(v.estimated_revenue)} />
-                      )}
+                      {(() => {
+                        const combinedRev = revenueLookup.get(v.youtube_video_id);
+                        if (combinedRev && combinedRev.totalRevenue > 0) {
+                          return (
+                            <>
+                              <DetailStat label="Total Revenue" value={fmtMoney(combinedRev.totalRevenue)} />
+                              {combinedRev.adRevenue > 0 && <DetailStat label="Ad Revenue" value={fmtMoney(combinedRev.adRevenue)} />}
+                              {combinedRev.dealRevenue > 0 && <DetailStat label="Deal Revenue" value={fmtMoney(combinedRev.dealRevenue)} />}
+                              {combinedRev.affiliateRevenue > 0 && <DetailStat label="Affiliate Revenue" value={fmtMoney(combinedRev.affiliateRevenue)} />}
+                            </>
+                          );
+                        }
+                        return v.estimated_revenue > 0 ? <DetailStat label="Revenue" value={fmtMoney(v.estimated_revenue)} /> : null;
+                      })()}
                       <DetailStat
                         label="Engagement Rate"
                         value={`${v.engagementRate}%`}

@@ -7,6 +7,8 @@ import { NeedsAttention } from "@/components/dashboard/NeedsAttention";
 import { PipelineHealth } from "@/components/dashboard/PipelineHealth";
 import { RevenueChart } from "@/components/dashboard/RevenueChart";
 import { YouTubeGrowth } from "@/components/dashboard/YouTubeGrowth";
+import { TopContentRevenue } from "@/components/dashboard/TopContentRevenue";
+import { GrowthAlertBanner } from "@/components/dashboard/GrowthAlertBanner";
 import { WorkspaceProvider } from "@/hooks/use-workspace";
 import {
   useDashboardStats,
@@ -49,6 +51,9 @@ function DashboardContent() {
           {format(new Date(), "EEEE, MMM d")} · {greeting}
         </p>
       </motion.div>
+
+      {/* Growth Alerts (Feature 6) */}
+      <GrowthAlertBanner />
 
       {/* YouTube Growth Widget */}
       <YouTubeGrowth />
@@ -133,6 +138,7 @@ function DashboardContent() {
         {/* Right column */}
         <div className="space-y-4">
           <NeedsAttention items={attentionItems} />
+          <TopContentRevenue />
           <RevenueChart
             monthly={revenue?.monthly}
             sponsors={revenue?.sponsors}

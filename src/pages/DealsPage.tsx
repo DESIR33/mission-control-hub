@@ -27,6 +27,7 @@ import { useDeals, useUpdateDeal, type Deal, type DealStage } from "@/hooks/use-
 import { AddDealDialog } from "@/components/deals/AddDealDialog";
 import { DealDetailSheet } from "@/components/deals/DealDetailSheet";
 import { PipelineVelocity } from "@/components/deals/PipelineVelocity";
+import { useSponsorMatchScore } from "@/hooks/use-sponsor-match-score";
 import { useToast } from "@/hooks/use-toast";
 
 const STAGES: { id: DealStage; label: string; color: string; weight: number }[] = [
@@ -54,6 +55,7 @@ function DealsContent() {
 
   const { data: deals = [], isLoading } = useDeals();
   const updateDeal = useUpdateDeal();
+  const { data: matchScores = [] } = useSponsorMatchScore();
   const { toast } = useToast();
 
   const handleSelectDeal = (deal: Deal) => {
@@ -252,9 +254,17 @@ function DealsContent() {
                       onClick={() => handleSelectDeal(deal)}
                       className="p-2.5 rounded-lg border bg-card hover:border-primary cursor-pointer transition-colors"
                     >
-                      <h4 className="text-xs font-medium leading-tight mb-1 line-clamp-2">
-                        {deal.title}
-                      </h4>
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <h4 className="text-xs font-medium leading-tight line-clamp-2 flex-1">
+                          {deal.title}
+                        </h4>
+                        {deal.stage === "prospecting" && deal.company && (() => {
+                          const match = matchScores.find((m) => m.companyId === deal.company!.id);
+                          if (!match) return null;
+                          const color = match.matchScore >= 70 ? "bg-green-500/15 text-green-600 border-green-500/30" : match.matchScore >= 40 ? "bg-amber-500/15 text-amber-600 border-amber-500/30" : "bg-gray-500/15 text-gray-500 border-gray-500/30";
+                          return <Badge variant="outline" className={`text-[9px] shrink-0 ${color}`}>{match.matchScore}pt</Badge>;
+                        })()}
+                      </div>
                       {deal.value != null && (
                         <p className="text-xs font-semibold text-primary mb-1.5">
                           {formatCurrency(deal.value, deal.currency)}

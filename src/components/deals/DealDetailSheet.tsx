@@ -30,6 +30,7 @@ import { useUpdateDeal, useDeleteDeal, type Deal } from "@/hooks/use-deals";
 import { useActivities } from "@/hooks/use-contacts";
 import { useContacts } from "@/hooks/use-contacts";
 import { useCompanies } from "@/hooks/use-companies";
+import { useVideoQueue } from "@/hooks/use-video-queue";
 import { useToast } from "@/hooks/use-toast";
 import {
   DollarSign, Calendar, Building2, User2, ArrowRightLeft,
@@ -90,6 +91,7 @@ export function DealDetailSheet({ deal, open, onOpenChange, onDeleted }: DealDet
   const { data: contacts = [] } = useContacts();
   const { data: companies = [] } = useCompanies();
   const { data: activities = [] } = useActivities(deal?.id ?? null, "deal");
+  const { data: videos = [] } = useVideoQueue();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -329,10 +331,54 @@ export function DealDetailSheet({ deal, open, onOpenChange, onDeleted }: DealDet
                         <DetailRow icon={Calendar} label="Closed At" value={format(new Date(deal.closed_at), "MMM d, yyyy")} />
                       )}
                       <DetailRow icon={ArrowRightLeft} label="Forecast" value={deal.forecast_category ? (forecastLabels[deal.forecast_category] ?? deal.forecast_category) : null} />
-                      {deal.video_queue_id && (
-                        <DetailRow icon={Film} label="Linked Video" value={deal.video_queue_id} />
-                      )}
                     </div>
+                  </div>
+
+                  {/* Linked Video */}
+                  <Separator className="bg-border" />
+                  <div>
+                    <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Linked Video</h4>
+                    {deal.video_queue_id ? (
+                      <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/30 px-3 py-2">
+                        <Film className="w-3.5 h-3.5 text-primary shrink-0" />
+                        <span className="text-sm text-foreground truncate flex-1">
+                          {videos.find((v) => String(v.id) === String(deal.video_queue_id))?.title ?? `Video #${deal.video_queue_id}`}
+                        </span>
+                        <button
+                          onClick={async () => {
+                            try {
+                              await updateDeal.mutateAsync({ id: deal.id, video_queue_id: null } as any);
+                              toast({ title: "Video unlinked" });
+                            } catch {}
+                          }}
+                          className="text-xs text-muted-foreground hover:text-destructive"
+                        >
+                          Unlink
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-1.5 max-h-40 overflow-y-auto">
+                        {videos.slice(0, 20).map((v) => (
+                          <button
+                            key={v.id}
+                            onClick={async () => {
+                              try {
+                                await updateDeal.mutateAsync({ id: deal.id, video_queue_id: v.id } as any);
+                                toast({ title: "Video linked", description: v.title });
+                              } catch {}
+                            }}
+                            className="w-full text-left flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-1.5 hover:bg-muted/50 transition-colors"
+                          >
+                            <Film className="w-3 h-3 text-muted-foreground shrink-0" />
+                            <span className="text-xs text-foreground truncate flex-1">{v.title}</span>
+                            <span className="text-[10px] text-muted-foreground capitalize shrink-0">{v.status}</span>
+                          </button>
+                        ))}
+                        {videos.length === 0 && (
+                          <p className="text-xs text-muted-foreground">No videos in queue.</p>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <Separator className="bg-border" />

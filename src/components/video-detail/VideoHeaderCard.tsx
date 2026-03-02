@@ -1,4 +1,4 @@
-import { Eye, Clock, ThumbsUp, MessageSquare, Users, MousePointerClick, Share2 } from "lucide-react";
+import { Eye, Clock, ThumbsUp, MessageSquare, Users, MousePointerClick, Share2, DollarSign } from "lucide-react";
 
 interface Props {
   title: string;
@@ -13,6 +13,8 @@ interface Props {
   comments: number;
   subsGained: number;
   hasAnalyticsData: boolean;
+  totalRevenue?: number;
+  rpm?: number;
 }
 
 const fmtCount = (n: number) => {
@@ -27,10 +29,15 @@ const fmtDuration = (seconds: number) => {
   return `${Math.round(seconds)}s`;
 };
 
+const fmtMoney = (n: number) => {
+  if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}K`;
+  return `$${n.toFixed(2)}`;
+};
+
 export function VideoHeaderCard({
   title, youtubeVideoId, publishedAt, views, watchTimeMinutes,
   avgViewDurationSeconds, ctrPercent, impressions, likes, comments,
-  subsGained, hasAnalyticsData,
+  subsGained, hasAnalyticsData, totalRevenue, rpm,
 }: Props) {
   const thumbnailUrl = `https://img.youtube.com/vi/${youtubeVideoId}/mqdefault.jpg`;
 
@@ -73,6 +80,8 @@ export function VideoHeaderCard({
         <KpiChip icon={<ThumbsUp className="w-3 h-3" />} label="Likes" value={fmtCount(likes)} />
         <KpiChip icon={<MessageSquare className="w-3 h-3" />} label="Comments" value={fmtCount(comments)} />
         <KpiChip icon={<Users className="w-3 h-3" />} label="Subs Gained" value={subsGained > 0 ? `+${fmtCount(subsGained)}` : "—"} />
+        <KpiChip icon={<DollarSign className="w-3 h-3" />} label="Total Revenue" value={totalRevenue && totalRevenue > 0 ? fmtMoney(totalRevenue) : "—"} />
+        <KpiChip icon={<DollarSign className="w-3 h-3" />} label="RPM" value={rpm && rpm > 0 ? fmtMoney(rpm) : "—"} />
       </div>
     </div>
   );

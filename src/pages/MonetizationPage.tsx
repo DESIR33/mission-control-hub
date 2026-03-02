@@ -19,41 +19,18 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Area, AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { supabase } from "@/integrations/supabase/client";
+import { useContentRevenue } from "@/hooks/use-content-revenue";
 
 function TopEarningVideos() {
-  const { data: topVideos = [] } = useQuery({
-    queryKey: ["top-earning-videos"],
-    queryFn: async () => {
-      const { data: deals } = await supabase
-        .from("deals")
-        .select("video_queue_id, value, currency")
-        .eq("stage", "closed_won")
-        .is("deleted_at", null);
-
-      if (!deals?.length) return [];
-
-      const revenueByVideo: Record<string, number> = {};
-      for (const d of (deals as any[])) {
-        const vqId = (d as any).video_queue_id;
-        if (vqId) {
-          revenueByVideo[vqId] = (revenueByVideo[vqId] ?? 0) + ((d as any).value ?? 0);
-        }
-      }
-
-      const videoIds = Object.keys(revenueByVideo);
-      if (!videoIds.length) return [];
-
-      const { data: videos } = await supabase
-        .from("video_queue")
-        .select("id, title, status")
-        .in("id", videoIds);
-
-      return (videos ?? [])
-        .map((v) => ({ ...v, revenue: revenueByVideo[v.id] ?? 0 }))
-        .sort((a, b) => b.revenue - a.revenue)
-        .slice(0, 10);
-    },
-  });
+  const { data: revSummary } = useContentRevenue();
+  const topVideos = useMemo(() => {
+    if (!revSummary?.links) return [];
+    return [...revSummary.links]
+      .filter((l) => l.totalRevenue > 0)
+      .sort((a, b) => b.totalRevenue - a.totalRevenue)
+      .slice(0, 10)
+      .map((l) => ({ id: l.videoQueueId, title: l.videoTitle, revenue: l.totalRevenue }));
+  }, [revSummary]);
 
   if (topVideos.length === 0) return null;
 
