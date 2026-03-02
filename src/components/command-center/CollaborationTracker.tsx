@@ -1,11 +1,12 @@
 import { useState } from "react";
 import {
   Users, Plus, Handshake, TrendingUp, ExternalLink,
-  Trash2, UserPlus, Calendar,
+  Trash2, UserPlus, Calendar, Eye, DollarSign,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCollaborations, useCreateCollaboration, useUpdateCollaboration, useDeleteCollaboration } from "@/hooks/use-collaborations";
+import { useCollaborationROI } from "@/hooks/use-collaboration-roi";
 import { toast } from "sonner";
 
 const statusSteps = ["prospect", "contacted", "negotiating", "confirmed", "published"];
@@ -38,6 +39,8 @@ export function CollaborationTracker() {
   const createCollab = useCreateCollaboration();
   const updateCollab = useUpdateCollaboration();
   const deleteCollab = useDeleteCollaboration();
+  const { data: roiData } = useCollaborationROI();
+  const roiMap = new Map(roiData?.items.map((r) => [r.id, r]) ?? []);
 
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({
@@ -117,6 +120,24 @@ export function CollaborationTracker() {
           <p className="text-lg font-bold font-mono text-foreground">{fmtCount(totalActualSubs)}</p>
         </div>
       </div>
+
+      {/* ROI Summary */}
+      {roiData && roiData.totalSubsFromCollabs > 0 && (
+        <div className="grid grid-cols-3 gap-3">
+          <div className="rounded-lg border border-border bg-card p-3">
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Total Subs from Collabs</p>
+            <p className="text-lg font-bold font-mono text-green-500">{fmtCount(roiData.totalSubsFromCollabs)}</p>
+          </div>
+          <div className="rounded-lg border border-border bg-card p-3">
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Best Collab ROI</p>
+            <p className="text-sm font-bold text-foreground truncate">{roiData.bestCollabROI?.partnerName ?? "--"}</p>
+          </div>
+          <div className="rounded-lg border border-border bg-card p-3">
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Avg Sub Gain</p>
+            <p className="text-lg font-bold font-mono text-foreground">{fmtCount(roiData.avgSubGainPerCollab)}</p>
+          </div>
+        </div>
+      )}
 
       {/* Pipeline */}
       <div className="rounded-lg border border-border bg-card p-4">
@@ -214,6 +235,30 @@ export function CollaborationTracker() {
                   )}
                 </div>
               </div>
+              {/* ROI results for published collabs */}
+              {collab.status === "published" && (() => {
+                const roi = roiMap.get(collab.id);
+                if (!roi || (roi.viewsGenerated === 0 && roi.actualSubGain === 0)) return null;
+                return (
+                  <div className="flex items-center gap-2 text-[10px]">
+                    {roi.viewsGenerated > 0 && (
+                      <span className="flex items-center gap-0.5 text-blue-500">
+                        <Eye className="w-2.5 h-2.5" />{fmtCount(roi.viewsGenerated)}
+                      </span>
+                    )}
+                    {roi.actualSubGain > 0 && (
+                      <span className="flex items-center gap-0.5 text-green-500">
+                        <UserPlus className="w-2.5 h-2.5" />{fmtCount(roi.actualSubGain)}
+                      </span>
+                    )}
+                    {roi.revenueGenerated > 0 && (
+                      <span className="flex items-center gap-0.5 text-emerald-500">
+                        <DollarSign className="w-2.5 h-2.5" />${roi.revenueGenerated.toFixed(0)}
+                      </span>
+                    )}
+                  </div>
+                );
+              })()}
               <select
                 className="bg-muted/50 rounded px-2 py-1 text-[10px] text-foreground border border-border outline-none"
                 value={collab.status}

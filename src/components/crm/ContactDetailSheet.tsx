@@ -21,13 +21,14 @@ import {
 import { ActivityTimeline } from "./ActivityTimeline";
 import { useUpdateContact, useDeleteContact } from "@/hooks/use-contacts";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Phone, Globe, Linkedin, Twitter, Instagram, MessageSquare, Building2, Clock, Shield, Pencil, Trash2, Loader2, Sparkles } from "lucide-react";
+import { Mail, Phone, Globe, Linkedin, Twitter, Instagram, MessageSquare, Building2, Clock, Shield, Pencil, Trash2, Loader2, Sparkles, Film, DollarSign } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { supabase } from "@/integrations/supabase/client";
 import { ComposeEmailDialog } from "@/components/inbox/ComposeEmailDialog";
 import type { Contact, Activity } from "@/types/crm";
 import { format } from "date-fns";
+import { useSponsorAttribution } from "@/hooks/use-sponsor-attribution";
 
 const statusColors: Record<string, string> = {
   active: "bg-success/15 text-success border-success/30",
@@ -83,6 +84,7 @@ export function ContactDetailSheet({ contact, activities, open, onOpenChange, on
   const deleteContact = useDeleteContact();
   const { toast } = useToast();
   const { workspaceId } = useWorkspace();
+  const { data: sponsorData } = useSponsorAttribution();
 
   const handleEnrich = async () => {
     if (!workspaceId || !contact) return;
@@ -426,6 +428,52 @@ export function ContactDetailSheet({ contact, activities, open, onOpenChange, on
                       </div>
                     </>
                   )}
+
+                  {/* Partnership Type */}
+                  {(contact as any).custom_fields?.partnership_type && (
+                    <>
+                      <Separator className="bg-border" />
+                      <div>
+                        <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Partnership Type</h4>
+                        <Badge variant="outline" className="capitalize">{(contact as any).custom_fields.partnership_type}</Badge>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Sponsored Videos */}
+                  {(() => {
+                    const contactSponsor = sponsorData?.sponsors.find(
+                      (s) => s.contactId === contact.id || s.companyId === contact.company?.id
+                    );
+                    if (!contactSponsor || contactSponsor.videosSponsored === 0) return null;
+                    return (
+                      <>
+                        <Separator className="bg-border" />
+                        <div>
+                          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Sponsored Videos</h4>
+                          <div className="grid grid-cols-2 gap-2 mb-2">
+                            <div className="rounded-md border border-border bg-muted/30 p-2">
+                              <p className="text-[10px] text-muted-foreground">Videos</p>
+                              <p className="text-sm font-bold font-mono text-foreground">{contactSponsor.videosSponsored}</p>
+                            </div>
+                            <div className="rounded-md border border-border bg-muted/30 p-2">
+                              <p className="text-[10px] text-muted-foreground">Total Value</p>
+                              <p className="text-sm font-bold font-mono text-green-500">${contactSponsor.totalDealValue.toLocaleString()}</p>
+                            </div>
+                          </div>
+                          <div className="space-y-1">
+                            {contactSponsor.videoLinks.slice(0, 5).map((d, idx) => (
+                              <div key={idx} className="flex items-center gap-2 text-xs">
+                                <Film className="w-3 h-3 text-muted-foreground shrink-0" />
+                                <span className="truncate text-foreground">{d.videoTitle}</span>
+                                <span className="ml-auto font-mono text-green-500 shrink-0">${d.dealValue.toLocaleString()}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </>
+                    );
+                  })()}
 
                   {/* Meta */}
                   <Separator className="bg-border" />

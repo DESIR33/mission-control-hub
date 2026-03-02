@@ -29,6 +29,7 @@ import {
 import { WorkspaceProvider, useWorkspace } from "@/hooks/use-workspace";
 import { useCreateCompany, useCompanies } from "@/hooks/use-companies";
 import { useCreateDeal } from "@/hooks/use-deals";
+import { useSponsorMatchScore } from "@/hooks/use-sponsor-match-score";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -70,6 +71,7 @@ function SponsorDiscoveryContent() {
   const createCompany = useCreateCompany();
   const createDeal = useCreateDeal();
   const { data: existingCompanies = [] } = useCompanies();
+  const { data: matchScores = [] } = useSponsorMatchScore();
 
   const [channelUrls, setChannelUrls] = useState<string[]>([""]);
   const [sponsors, setSponsors] = useState<DiscoveredSponsor[]>([]);
@@ -452,6 +454,12 @@ function SponsorDiscoveryContent() {
                       </div>
                     </div>
                   </div>
+                  {(() => {
+                    const match = matchScores.find((m) => m.companyName.toLowerCase() === sponsor.name.toLowerCase());
+                    if (!match) return null;
+                    const color = match.matchScore >= 70 ? "bg-green-500/15 text-green-600 border-green-500/30" : match.matchScore >= 40 ? "bg-amber-500/15 text-amber-600 border-amber-500/30" : "bg-gray-500/15 text-gray-500 border-gray-500/30";
+                    return <Badge variant="outline" className={`text-[10px] shrink-0 ${color}`}>{match.matchScore}pts</Badge>;
+                  })()}
                   <Badge variant="outline" className="text-[10px] shrink-0">
                     {sponsor.mentions}x
                   </Badge>

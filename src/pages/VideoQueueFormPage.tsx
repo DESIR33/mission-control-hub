@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { AlertCircle, ArrowLeft, CalendarIcon, Film, Plus, RefreshCw, X } from "lucide-react";
+import { AlertCircle, ArrowLeft, CalendarIcon, DollarSign, Film, Plus, RefreshCw, X } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import {
   Select,
@@ -74,6 +74,7 @@ export default function VideoQueueFormPage() {
   const [sponsoringCompanyId, setSponsoringCompanyId] = useState<string>("");
   const [checklistItems, setChecklistItems] = useState<string[]>([]);
   const [newChecklistItem, setNewChecklistItem] = useState("");
+  const [productionCost, setProductionCost] = useState("");
   const [datePickerOpen, setDatePickerOpen] = useState(false);
 
   useEffect(() => {
@@ -91,6 +92,7 @@ export default function VideoQueueFormPage() {
       setIsSponsored(existingVideo.isSponsored);
       setCompanyId(existingVideo.company?.id ?? "");
       setSponsoringCompanyId(existingVideo.sponsoringCompany?.id ?? "");
+      setProductionCost(existingVideo.productionCost != null ? String(existingVideo.productionCost) : "");
     }
   }, [existingVideo, isEditing]);
 
@@ -152,6 +154,7 @@ export default function VideoQueueFormPage() {
           sponsoringCompanyId: sponsoringCompanyId || null,
           sponsoringCompanyName: sponsor?.name ?? null,
           sponsoringCompanyLogo: sponsor?.logo_url ?? null,
+          productionCost: productionCost ? Number(productionCost) : null,
         },
         {
           onSuccess: () => {
@@ -183,6 +186,7 @@ export default function VideoQueueFormPage() {
           sponsoringCompanyId: sponsoringCompanyId || null,
           sponsoringCompanyName: sponsor?.name ?? null,
           sponsoringCompanyLogo: sponsor?.logo_url ?? null,
+          productionCost: productionCost ? Number(productionCost) : null,
           checklists: checklistItems.map((label) => ({ label })),
         },
         {
@@ -386,6 +390,26 @@ export default function VideoQueueFormPage() {
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Production Cost */}
+        <div>
+          <label className="mb-1.5 block text-sm font-medium text-foreground">
+            Production Cost ($)
+          </label>
+          <div className="relative">
+            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={productionCost}
+              onChange={(e) => setProductionCost(e.target.value)}
+              placeholder="0.00"
+              className="h-10 w-full rounded-xl border border-border bg-background pl-9 pr-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">Used for ROI calculations in the Command Center.</p>
         </div>
 
         {/* Sponsorship */}

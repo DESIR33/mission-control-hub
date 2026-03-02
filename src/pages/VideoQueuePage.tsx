@@ -43,6 +43,7 @@ import {
   useDeleteVideo,
   type VideoQueueItem,
 } from "@/hooks/use-video-queue";
+import { useVideoRevenueLookup } from "@/hooks/use-video-revenue-lookup";
 
 const statusTone: Record<VideoQueueItem["status"], string> = {
   idea: "bg-slate-100 text-slate-700 border-slate-200",
@@ -110,6 +111,7 @@ export default function VideoQueuePage() {
   const queryClient = useQueryClient();
   const { data: videos = [], isLoading } = useVideoQueue();
   const deleteVideoMutation = useDeleteVideo();
+  const { lookup: revenueLookup } = useVideoRevenueLookup();
 
   const handleRefresh = async () => {
     await queryClient.invalidateQueries({ queryKey: ["video-queue"] });
@@ -389,6 +391,11 @@ export default function VideoQueuePage() {
                             Brand: {video.company.name}
                           </span>
                         )}
+                        {video.status === "published" && video.youtubeVideoId && revenueLookup.get(video.youtubeVideoId) && (
+                          <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
+                            ${revenueLookup.get(video.youtubeVideoId)!.totalRevenue.toFixed(0)} rev
+                          </span>
+                        )}
                         <span className="inline-flex items-center gap-1">
                           <Circle className="h-3.5 w-3.5" />
                           Owner: {nameFromUser(video.assignedTo)}
@@ -506,6 +513,11 @@ export default function VideoQueuePage() {
                   <p className="mt-1 text-xs text-muted-foreground">
                     Owner: {nameFromUser(video.assignedTo)}
                   </p>
+                  {video.status === "published" && video.youtubeVideoId && revenueLookup.get(video.youtubeVideoId) && (
+                    <span className="mt-1 inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
+                      ${revenueLookup.get(video.youtubeVideoId)!.totalRevenue.toFixed(0)} rev
+                    </span>
+                  )}
 
                   <div className="mt-4 flex items-center gap-1 border-t border-border pt-3">
                     <button

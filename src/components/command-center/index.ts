@@ -13,3 +13,5 @@ export { RevenueForecast } from "./RevenueForecast";
 export { CompetitorBenchmark } from "./CompetitorBenchmark";
 export { ContentCalendar } from "./ContentCalendar";
 export { ViralPredictor } from "./ViralPredictor";
+export { ContentROICalculator } from "./ContentROICalculator";
+export { SubscriberImpact } from "./SubscriberImpact";

@@ -18,6 +18,7 @@ export interface VideoQueueItem {
   notes: string | null;
   youtubeVideoId: string | null;
   scriptContent: string | null;
+  productionCost: number | null;
   metadata: Record<string, unknown>;
   created_by: string | null;
   created_at: string;
@@ -41,6 +42,7 @@ export interface CreateVideoInput {
   sponsoringCompanyLogo?: string | null;
   checklists?: Array<{ label: string; completed?: boolean }>;
   scriptContent?: string | null;
+  productionCost?: number | null;
 }
 
 export interface UpdateVideoInput {
@@ -60,6 +62,7 @@ export interface UpdateVideoInput {
   sponsoringCompanyLogo?: string | null;
   youtubeVideoId?: string | null;
   scriptContent?: string | null;
+  productionCost?: number | null;
 }
 
 function mapRow(row: any): VideoQueueItem {
@@ -80,6 +83,7 @@ function mapRow(row: any): VideoQueueItem {
     notes: row.notes,
     youtubeVideoId: meta.youtubeVideoId ?? null,
     scriptContent: meta.scriptContent ?? null,
+    productionCost: typeof meta.productionCost === "number" ? meta.productionCost : null,
     metadata: meta,
     created_by: row.created_by,
     created_at: row.created_at,
@@ -152,6 +156,7 @@ export function useCreateVideo() {
       metadata.companyId = input.companyId ?? null;
       metadata.sponsoringCompanyId = input.sponsoringCompanyId ?? null;
       metadata.scriptContent = input.scriptContent ?? null;
+      if (input.productionCost != null) metadata.productionCost = input.productionCost;
 
       const { error } = await supabase.from("video_queue").insert({
         workspace_id: workspaceId,
@@ -195,6 +200,7 @@ export function useUpdateVideo() {
       const newMeta = { ...existingMeta };
       if (input.youtubeVideoId !== undefined) newMeta.youtubeVideoId = input.youtubeVideoId;
       if (input.scriptContent !== undefined) newMeta.scriptContent = input.scriptContent;
+      if (input.productionCost !== undefined) newMeta.productionCost = input.productionCost;
       if (input.platforms !== undefined) newMeta.platforms = input.platforms;
       if (input.isSponsored !== undefined) newMeta.isSponsored = input.isSponsored;
 

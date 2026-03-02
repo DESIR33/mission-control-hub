@@ -397,8 +397,76 @@ export function useAiBriefing() {
         });
       }
 
+      // Feature 13: YouTube Performance Intelligence
+      const fourteenDaysAgo = subDays(new Date(), 14).toISOString().split("T")[0];
+      const fiveDaysAgo = subDays(new Date(), 5).toISOString();
+
+      // CTR alert for latest video
+      const { data: recentVideos } = await supabase
+        .from("youtube_video_analytics" as any)
+        .select("title, impressions_ctr, views, subscribers_gained, estimated_revenue, youtube_video_id")
+        .eq("workspace_id", workspaceId)
+        .gte("date", fourteenDaysAgo)
+        .order("date", { ascending: false })
+        .limit(5);
+
+      if (recentVideos && recentVideos.length > 0) {
+        const latest = recentVideos[0] as any;
+        if (latest.impressions_ctr > 0 && latest.impressions_ctr < 0.04) {
+          items.push({
+            type: "action",
+            text: `Your latest video has ${(latest.impressions_ctr * 100).toFixed(1)}% CTR — below average. Test a new thumbnail today.`,
+          });
+        }
+
+        // Subscriber conversion highlight
+        const bestSubVideo = recentVideos.reduce((best: any, v: any) =>
+          (v.subscribers_gained > (best?.subscribers_gained ?? 0)) ? v : best, null);
+        if (bestSubVideo && bestSubVideo.subscribers_gained > 100) {
+          items.push({
+            type: "insight",
+            text: `"${bestSubVideo.title}" converted ${bestSubVideo.subscribers_gained} subscribers — study what made this effective.`,
+          });
+        }
+      }
+
+      // Monthly ad revenue milestone
+      const thirtyDaysAgo = subDays(new Date(), 30).toISOString().split("T")[0];
+      const { data: monthlyAdData } = await supabase
+        .from("youtube_video_analytics" as any)
+        .select("estimated_revenue")
+        .eq("workspace_id", workspaceId)
+        .gte("date", thirtyDaysAgo);
+
+      if (monthlyAdData) {
+        const monthlyRevenue = monthlyAdData.reduce((s: number, r: any) => s + (Number(r.estimated_revenue) || 0), 0);
+        if (monthlyRevenue >= 1000) {
+          items.push({ type: "insight", text: `YouTube ad revenue hit $${monthlyRevenue.toFixed(0)} this month!` });
+        } else if (monthlyRevenue >= 500) {
+          items.push({ type: "insight", text: `YouTube ad revenue at $${monthlyRevenue.toFixed(0)} this month — on track!` });
+        }
+      }
+
+      // Stale sponsor follow-up
+      const { data: staleDeals } = await supabase
+        .from("deals")
+        .select("title, updated_at")
+        .eq("workspace_id", workspaceId)
+        .in("stage", ["proposal", "negotiation"])
+        .is("deleted_at", null)
+        .lt("updated_at", fiveDaysAgo)
+        .limit(2);
+
+      for (const d of staleDeals ?? []) {
+        const daysSince = Math.floor((Date.now() - new Date(d.updated_at).getTime()) / (1000 * 60 * 60 * 24));
+        items.push({
+          type: "action",
+          text: `Deal "${d.title}" hasn't been updated in ${daysSince} days — follow up before it goes cold.`,
+        });
+      }
+
       return items.length > 0
-        ? items
+        ? items.slice(0, 7)
         : [{ type: "insight", text: "All caught up! No urgent items right now." }];
     },
     enabled: !!workspaceId,

@@ -17,6 +17,7 @@ import {
   type Notification,
   type NotificationType,
 } from "@/hooks/use-notifications";
+import { useGrowthAlerts } from "@/hooks/use-growth-alerts";
 
 const TYPE_CONFIG: Record<
   NotificationType,
@@ -47,6 +48,44 @@ const TYPE_CONFIG: Record<
     label: "AI Proposal",
   },
 };
+
+const SEVERITY_STYLE: Record<string, { icon: React.ElementType; border: string; bg: string; text: string }> = {
+  celebration: { icon: TrendingUp, border: "border-green-500/30", bg: "bg-green-500/5", text: "text-green-500" },
+  warning: { icon: Clock, border: "border-amber-500/30", bg: "bg-amber-500/5", text: "text-amber-500" },
+  info: { icon: Bell, border: "border-blue-500/30", bg: "bg-blue-500/5", text: "text-blue-500" },
+};
+
+function GrowthAlertsSection() {
+  const { alerts } = useGrowthAlerts();
+  if (alerts.length === 0) return null;
+
+  return (
+    <div className="rounded-lg border border-border bg-card p-4 space-y-3">
+      <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+        <TrendingUp className="w-4 h-4 text-primary" />
+        Growth Alerts
+      </h3>
+      <div className="space-y-2">
+        {alerts.map((alert) => {
+          const style = SEVERITY_STYLE[alert.severity] ?? SEVERITY_STYLE.info;
+          const Icon = style.icon;
+          return (
+            <div
+              key={alert.id}
+              className={cn("flex items-start gap-3 rounded-md border px-3 py-2", style.border, style.bg)}
+            >
+              <Icon className={cn("w-4 h-4 mt-0.5 shrink-0", style.text)} />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-foreground">{alert.title}</p>
+                <p className="text-xs text-muted-foreground">{alert.message}</p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 function NotificationItem({
   notification,
@@ -197,6 +236,9 @@ export default function NotificationsPage() {
           )}
         </div>
       </div>
+
+      {/* Growth Alerts */}
+      <GrowthAlertsSection />
 
       {/* Notification list */}
       <div className="rounded-lg border border-border overflow-hidden bg-card">

@@ -46,6 +46,8 @@ import {
   type EmailSequence,
   type SequenceEnrollment,
 } from "@/hooks/use-email-sequences";
+import { useSequenceTracking, useLogSequenceEvent } from "@/hooks/use-sequence-tracking";
+import { BarChart3, Send } from "lucide-react";
 
 const statusColors: Record<string, string> = {
   active: "bg-emerald-500/15 text-emerald-600 border-emerald-500/30",
@@ -67,6 +69,105 @@ function emptyStep(stepNumber: number): SequenceStep {
     subject_template: "",
     body_template: "",
   };
+}
+
+// ---------- Sequence Analytics ----------
+
+function SequenceAnalyticsSection({
+  sequenceId,
+  steps,
+  enrollments,
+}: {
+  sequenceId: string;
+  steps: SequenceStep[];
+  enrollments: SequenceEnrollment[];
+}) {
+  const { data: tracking } = useSequenceTracking(sequenceId);
+  const logEvent = useLogSequenceEvent();
+
+  const handleLogEvent = async (enrollmentId: string, stepNumber: number, eventType: string) => {
+    try {
+      await logEvent.mutateAsync({ enrollmentId, stepNumber, eventType: eventType as any });
+      toast.success(`Logged "${eventType}" event`);
+    } catch {
+      toast.error("Failed to log event");
+    }
+  };
+
+  const eventTypes = ["sent", "delivered", "opened", "replied", "bounced"];
+
+  return (
+    <div>
+      <h4 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
+        <BarChart3 className="w-3.5 h-3.5" />
+        Analytics
+      </h4>
+      {tracking && tracking.totalSent > 0 ? (
+        <div className="space-y-3">
+          {/* Funnel KPIs */}
+          <div className="grid grid-cols-3 gap-2">
+            <div className="rounded-md border border-border bg-muted/30 p-2 text-center">
+              <p className="text-[10px] text-muted-foreground">Sent</p>
+              <p className="text-sm font-bold font-mono text-blue-500">{tracking.totalSent}</p>
+            </div>
+            <div className="rounded-md border border-border bg-muted/30 p-2 text-center">
+              <p className="text-[10px] text-muted-foreground">Open Rate</p>
+              <p className="text-sm font-bold font-mono text-green-500">{tracking.openRate.toFixed(1)}%</p>
+            </div>
+            <div className="rounded-md border border-border bg-muted/30 p-2 text-center">
+              <p className="text-[10px] text-muted-foreground">Reply Rate</p>
+              <p className="text-sm font-bold font-mono text-purple-500">{tracking.replyRate.toFixed(1)}%</p>
+            </div>
+          </div>
+          {/* Rates */}
+          <div className="flex gap-4 text-xs text-muted-foreground">
+            <span>Delivery: <span className="font-mono text-foreground">{tracking.deliveryRate.toFixed(1)}%</span></span>
+            <span>Bounce: <span className="font-mono text-foreground">{tracking.bounceRate.toFixed(1)}%</span></span>
+          </div>
+          {/* Per-step breakdown */}
+          {tracking.stepMetrics.length > 0 && (
+            <div className="space-y-1">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Per Step</p>
+              {tracking.stepMetrics.map((step) => (
+                <div key={step.stepNumber} className="flex items-center gap-3 text-xs rounded-md bg-muted/20 px-2 py-1">
+                  <span className="font-mono text-muted-foreground w-8">#{step.stepNumber}</span>
+                  <span className="text-foreground">{step.sent}s</span>
+                  <span className="text-green-500">{step.opened}o</span>
+                  <span className="text-purple-500">{step.replied}r</span>
+                  <span className="ml-auto text-muted-foreground">
+                    {step.openRate.toFixed(0)}% open
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="rounded-md border border-dashed border-border p-4 text-center">
+          <p className="text-xs text-muted-foreground mb-2">No tracking events yet.</p>
+          {enrollments.length > 0 && (
+            <div className="space-y-1">
+              <p className="text-[10px] text-muted-foreground">Log events manually for enrolled contacts:</p>
+              {enrollments.slice(0, 3).map((enrollment) => (
+                <div key={enrollment.id} className="flex items-center gap-1 justify-center flex-wrap">
+                  <span className="text-[10px] font-mono text-foreground">{enrollment.contact_id.slice(0, 8)}...</span>
+                  {eventTypes.map((type) => (
+                    <button
+                      key={type}
+                      onClick={() => handleLogEvent(enrollment.id, enrollment.current_step, type)}
+                      className="text-[10px] px-1.5 py-0.5 rounded border border-border bg-background hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {type}
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
 
 // ---------- Sequence Detail (expanded card) ----------
@@ -140,6 +241,9 @@ function SequenceDetail({
           ))}
         </div>
       </div>
+
+      {/* Analytics */}
+      <SequenceAnalyticsSection sequenceId={sequence.id} steps={sequence.steps} enrollments={enrollments} />
 
       {/* Enrollments */}
       <div>
