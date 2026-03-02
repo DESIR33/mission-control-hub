@@ -16,6 +16,7 @@ import {
   Send,
   FileText,
   Rocket,
+  Target,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -43,6 +44,7 @@ export const navItems: NavItem[] = [
   { to: "/sequences", icon: Send, label: "Email Sequences" },
   { to: "/projects", icon: FolderKanban, label: "Projects" },
   { to: "/tasks", icon: CheckSquare, label: "Tasks" },
+  { to: "/sprints", icon: Target, label: "Growth Sprints" },
   { to: "/ai-bridge", icon: Brain, label: "AI Bridge" },
   { to: "/reports", icon: FileText, label: "Weekly Reports" },
   { to: "/inbox", icon: Mail, label: "Inbox" },
@@ -71,6 +73,7 @@ export const navGroups: NavGroup[] = [
     label: "Content & Work",
     items: [
       { to: "/content", icon: Film, label: "Content Pipeline" },
+      { to: "/sprints", icon: Target, label: "Growth Sprints" },
       { to: "/projects", icon: FolderKanban, label: "Projects" },
       { to: "/tasks", icon: CheckSquare, label: "Tasks" },
     ],

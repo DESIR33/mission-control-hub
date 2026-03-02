@@ -49,3 +49,18 @@ export function useUpdateProposal() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["ai_proposals", workspaceId] }),
   });
 }
+
+export function useExecuteProposal() {
+  const { workspaceId } = useWorkspace();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (proposalId: string) => {
+      const { data, error } = await supabase.functions.invoke("execute-proposal", {
+        body: { proposal_id: proposalId, workspace_id: workspaceId },
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["ai_proposals", workspaceId] }),
+  });
+}

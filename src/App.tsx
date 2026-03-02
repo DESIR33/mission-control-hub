@@ -36,6 +36,7 @@ import EmailSequencesPage from "./pages/EmailSequencesPage";
 import WeeklyReportPage from "./pages/WeeklyReportPage";
 import VideoDetailPage from "./pages/VideoDetailPage";
 import YouTubeCommandCenterPage from "./pages/YouTubeCommandCenterPage";
+import WeeklySprintPage from "./pages/WeeklySprintPage";
 
 const queryClient = new QueryClient();
 
@@ -99,6 +100,7 @@ const App = () => (
               <Route path="/add-transaction/:id" element={<AddProductTransactionPage />} />
               <Route path="/projects" element={<ProjectsPage />} />
               <Route path="/tasks" element={<Tasks />} />
+              <Route path="/sprints" element={<WeeklySprintPage />} />
               <Route path="/ai-bridge" element={<AiBridgePage />} />
               <Route path="/inbox" element={<InboxPage />} />
               <Route path="/inbox/*" element={<InboxPage />} />

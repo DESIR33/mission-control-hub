@@ -20,6 +20,8 @@ import { cn } from "@/lib/utils";
 import { Area, AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { supabase } from "@/integrations/supabase/client";
 import { useContentRevenue } from "@/hooks/use-content-revenue";
+import { RateCardCalculator } from "@/components/crm/RateCardCalculator";
+import { RevenueOverview } from "@/components/monetization/RevenueOverview";
 
 function TopEarningVideos() {
   const { data: revSummary } = useContentRevenue();
@@ -136,7 +138,7 @@ export default function MonetizationPage() {
   // Parse the tab from the URL query parameter once during initialization
   const getInitialTab = useMemo(() => {
     const tabParam = searchParams.get('tab');
-    return tabParam === 'products' || tabParam === 'affiliates' || tabParam === 'sponsorships'
+    return tabParam === 'products' || tabParam === 'affiliates' || tabParam === 'sponsorships' || tabParam === 'revenue-overview' || tabParam === 'rate-card'
       ? tabParam
       : "overview";
   }, []);
@@ -553,6 +555,28 @@ export default function MonetizationPage() {
             )}
           >
             Products
+          </button>
+          <button
+            onClick={() => setActiveTab("revenue-overview")}
+            className={cn(
+              "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+              activeTab === "revenue-overview"
+                ? "bg-card text-card-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            Revenue Overview
+          </button>
+          <button
+            onClick={() => setActiveTab("rate-card")}
+            className={cn(
+              "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+              activeTab === "rate-card"
+                ? "bg-card text-card-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            Rate Card
           </button>
         </div>
 
@@ -1172,6 +1196,32 @@ export default function MonetizationPage() {
                     </div>
                   </div>
                 )}
+              </motion.div>
+            </div>
+          </TabsContent>
+
+          {/* Revenue Overview Tab */}
+          <TabsContent value="revenue-overview">
+            <div className="space-y-4">
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+              >
+                <RevenueOverview />
+              </motion.div>
+            </div>
+          </TabsContent>
+
+          {/* Rate Card Tab */}
+          <TabsContent value="rate-card">
+            <div className="space-y-4">
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+              >
+                <RateCardCalculator />
               </motion.div>
             </div>
           </TabsContent>

@@ -11,7 +11,9 @@ import { Button } from "@/components/ui/button";
 import {
   useCompetitorBenchmark, useCreateCompetitor, useDeleteCompetitor,
 } from "@/hooks/use-competitor-benchmarking";
+import { useSyncCompetitors } from "@/hooks/use-competitor-benchmarking";
 import { toast } from "sonner";
+import { formatDistanceToNow } from "date-fns";
 
 const tooltipStyle = {
   backgroundColor: "hsl(var(--card))",
@@ -41,6 +43,7 @@ export function CompetitorBenchmark() {
   const { data: benchmark, isLoading } = useCompetitorBenchmark();
   const createCompetitor = useCreateCompetitor();
   const deleteCompetitor = useDeleteCompetitor();
+  const syncCompetitors = useSyncCompetitors();
 
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({
@@ -107,6 +110,23 @@ export function CompetitorBenchmark() {
 
   return (
     <div className="space-y-4">
+      {/* Sync Controls */}
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-muted-foreground">
+          {benchmark.competitors[0]?.last_synced_at
+            ? `Last synced: ${formatDistanceToNow(new Date(benchmark.competitors[0].last_synced_at), { addSuffix: true })}`
+            : "Never synced"}
+        </p>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => syncCompetitors.mutate(undefined, { onSuccess: () => toast.success("Competitors synced!") })}
+          disabled={syncCompetitors.isPending}
+        >
+          {syncCompetitors.isPending ? "Syncing..." : "Sync from YouTube"}
+        </Button>
+      </div>
+
       {/* Comparisons */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {benchmark.comparisons.map((comp) => {

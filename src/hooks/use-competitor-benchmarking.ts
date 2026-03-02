@@ -175,3 +175,18 @@ export function useDeleteCompetitor() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["competitor-channels"] }),
   });
 }
+
+export function useSyncCompetitors() {
+  const { workspaceId } = useWorkspace();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke("sync-competitor-stats", {
+        body: { workspace_id: workspaceId },
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["competitor-channels"] }),
+  });
+}

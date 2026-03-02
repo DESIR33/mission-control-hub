@@ -4,6 +4,7 @@ import {
   Eye, MousePointerClick, Search, Handshake, Trophy,
   MessageSquare, ListVideo, BarChart3, Users,
   Calendar, Zap, ChevronLeft, ChevronRight, Calculator, UserCheck,
+  UserPlus, MessageCircle,
 } from "lucide-react";
 import { useWorkspace, WorkspaceProvider } from "@/hooks/use-workspace";
 import {
@@ -13,6 +14,7 @@ import {
   CommentSentiment, PlaylistOptimizer, RevenueForecast,
   CompetitorBenchmark, ContentCalendar, ViralPredictor,
   ContentROICalculator, SubscriberImpact,
+  SubGrowthAttribution, CohortAnalysis, CommentInbox,
 } from "@/components/command-center";
 
 type Tab =
@@ -32,7 +34,10 @@ type Tab =
   | "calendar"
   | "viral"
   | "roi_calculator"
-  | "subscriber_impact";
+  | "subscriber_impact"
+  | "sub_attribution"
+  | "cohorts"
+  | "comment_inbox";
 
 const TABS: { key: Tab; label: string; icon: React.ReactNode; group: string }[] = [
   // Growth
@@ -40,6 +45,8 @@ const TABS: { key: Tab; label: string; icon: React.ReactNode; group: string }[] 
   { key: "milestones", label: "Milestones", icon: <Trophy className="w-3.5 h-3.5" />, group: "Growth" },
   { key: "competitors", label: "Competitors", icon: <Users className="w-3.5 h-3.5" />, group: "Growth" },
   { key: "subscriber_impact", label: "Sub Impact", icon: <UserCheck className="w-3.5 h-3.5" />, group: "Growth" },
+  { key: "sub_attribution", label: "Sub Attribution", icon: <UserPlus className="w-3.5 h-3.5" />, group: "Growth" },
+  { key: "cohorts", label: "Cohort Analysis", icon: <BarChart3 className="w-3.5 h-3.5" />, group: "Growth" },
   // Content
   { key: "scorecard", label: "Video Scorecard", icon: <Award className="w-3.5 h-3.5" />, group: "Content" },
   { key: "retention", label: "Retention", icon: <Eye className="w-3.5 h-3.5" />, group: "Content" },
@@ -57,6 +64,7 @@ const TABS: { key: Tab; label: string; icon: React.ReactNode; group: string }[] 
   // Audience
   { key: "sentiment", label: "Comment Sentiment", icon: <MessageSquare className="w-3.5 h-3.5" />, group: "Audience" },
   { key: "playlists", label: "Playlists", icon: <ListVideo className="w-3.5 h-3.5" />, group: "Audience" },
+  { key: "comment_inbox", label: "Comment Inbox", icon: <MessageCircle className="w-3.5 h-3.5" />, group: "Audience" },
 ];
 
 const TAB_COMPONENTS: Record<Tab, React.ComponentType> = {
@@ -77,6 +85,9 @@ const TAB_COMPONENTS: Record<Tab, React.ComponentType> = {
   viral: ViralPredictor,
   roi_calculator: ContentROICalculator,
   subscriber_impact: SubscriberImpact,
+  sub_attribution: SubGrowthAttribution,
+  cohorts: CohortAnalysis,
+  comment_inbox: CommentInbox,
 };
 
 function CommandCenterContent() {
