@@ -73,7 +73,7 @@ export function VideoHeaderCard({
 
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
         <KpiChip icon={<Eye className="w-3 h-3" />} label="Views" value={fmtCount(views)} />
-        <KpiChip icon={<Clock className="w-3 h-3" />} label="Watch Time" value={watchTimeMinutes >= 60 ? `${Math.round(watchTimeMinutes / 60)}h` : `${watchTimeMinutes}m`} />
+        <KpiChip icon={<Clock className="w-3 h-3" />} label="Watch Time" value={watchTimeMinutes > 0 ? (watchTimeMinutes >= 60 ? `${Math.round(watchTimeMinutes / 60)}h` : `${watchTimeMinutes}m`) : "—"} />
         <KpiChip icon={<Clock className="w-3 h-3" />} label="Avg Duration" value={avgViewDurationSeconds > 0 ? fmtDuration(avgViewDurationSeconds) : "—"} />
         <KpiChip icon={<MousePointerClick className="w-3 h-3" />} label="CTR" value={ctrPercent > 0 ? `${ctrPercent.toFixed(1)}%` : "—"} />
         <KpiChip icon={<Eye className="w-3 h-3" />} label="Impressions" value={impressions > 0 ? fmtCount(impressions) : "—"} />

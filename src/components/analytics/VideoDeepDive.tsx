@@ -433,6 +433,14 @@ export function VideoDeepDive({ data, daysRange }: Props) {
                       <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
                         <Clock className="w-2.5 h-2.5" /> {fmtDuration(v.average_view_duration_seconds)}
                       </span>
+                      {v.estimated_minutes_watched > 0 && (
+                        <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                          <Clock className="w-2.5 h-2.5" />
+                          {v.estimated_minutes_watched >= 60
+                            ? `${Math.round(v.estimated_minutes_watched / 60)}h`
+                            : `${v.estimated_minutes_watched}m`} watched
+                        </span>
+                      )}
                       {netSubs !== 0 && (
                         <span className={`text-[10px] flex items-center gap-0.5 ${netSubs > 0 ? "text-green-500" : "text-red-500"}`}>
                           <Users className="w-2.5 h-2.5" /> {netSubs > 0 ? "+" : ""}{netSubs} subs
