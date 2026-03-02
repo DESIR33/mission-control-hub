@@ -32,6 +32,7 @@ import { useCreateDeal } from "@/hooks/use-deals";
 import { useSponsorMatchScore } from "@/hooks/use-sponsor-match-score";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { OutreachPipelineDialog } from "@/components/crm/OutreachPipelineDialog";
 
 interface DiscoveredSponsor {
   name: string;
@@ -323,14 +324,17 @@ function SponsorDiscoveryContent() {
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 gradient-mesh min-h-screen">
       {/* Header */}
-      <div>
-        <div className="flex items-center gap-2">
-          <Compass className="w-5 h-5 text-primary" />
-          <h1 className="text-2xl font-bold text-foreground">Sponsor Discovery</h1>
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <div className="flex items-center gap-2">
+            <Compass className="w-5 h-5 text-primary" />
+            <h1 className="text-2xl font-bold text-foreground">Sponsor Discovery</h1>
+          </div>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Paste competitor YouTube channel URLs to discover their sponsors. Found sponsors can be added to your CRM instantly.
+          </p>
         </div>
-        <p className="text-sm text-muted-foreground mt-0.5">
-          Paste competitor YouTube channel URLs to discover their sponsors. Found sponsors can be added to your CRM instantly.
-        </p>
+        <OutreachPipelineDialog />
       </div>
 
       {/* Channel URL Input */}

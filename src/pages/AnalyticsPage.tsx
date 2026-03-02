@@ -26,10 +26,11 @@ import { format, differenceInDays, subDays, parseISO } from "date-fns";
 import {
   ChannelOverview, AudienceDemographics, TrafficSources,
   GeographyBreakdown, DeviceBreakdown, VideoDeepDive, RevenueAnalytics,
+  SyncStatusBar, SubscriberFunnel,
 } from "@/components/analytics";
 
 type TimeRange = "7d" | "30d" | "90d";
-type AnalyticsTab = "overview" | "channel" | "videos" | "audience" | "traffic" | "geography" | "devices" | "revenue";
+type AnalyticsTab = "overview" | "channel" | "videos" | "audience" | "traffic" | "geography" | "devices" | "revenue" | "growth_funnel";
 
 const fmtCount = (n: number) => {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
@@ -52,6 +53,7 @@ const TABS: { key: AnalyticsTab; label: string; icon: React.ReactNode }[] = [
   { key: "geography", label: "Geography", icon: <Globe className="w-3.5 h-3.5" /> },
   { key: "devices", label: "Devices", icon: <Monitor className="w-3.5 h-3.5" /> },
   { key: "revenue", label: "Revenue", icon: <DollarSign className="w-3.5 h-3.5" /> },
+  { key: "growth_funnel", label: "Growth Funnel", icon: <Target className="w-3.5 h-3.5" /> },
 ];
 
 function AnalyticsContent() {
@@ -321,6 +323,9 @@ function AnalyticsContent() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 gradient-mesh min-h-screen">
+      {/* Sync Status Bar */}
+      <SyncStatusBar />
+
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
@@ -423,6 +428,10 @@ function AnalyticsContent() {
 
       {activeTab === "revenue" && (
         <RevenueAnalytics channelData={channelAnalytics} videoData={videoAnalytics} daysRange={daysForRange} />
+      )}
+
+      {activeTab === "growth_funnel" && (
+        <SubscriberFunnel />
       )}
     </div>
   );

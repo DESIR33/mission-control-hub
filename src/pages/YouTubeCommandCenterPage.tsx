@@ -4,7 +4,7 @@ import {
   Eye, MousePointerClick, Search, Handshake, Trophy,
   MessageSquare, ListVideo, BarChart3, Users,
   Calendar, Zap, ChevronLeft, ChevronRight, Calculator, UserCheck,
-  UserPlus, MessageCircle,
+  UserPlus, MessageCircle, Brain, FlaskConical, Crosshair, Banknote, Upload,
 } from "lucide-react";
 import { useWorkspace, WorkspaceProvider } from "@/hooks/use-workspace";
 import {
@@ -15,14 +15,19 @@ import {
   CompetitorBenchmark, ContentCalendar, ViralPredictor,
   ContentROICalculator, SubscriberImpact,
   SubGrowthAttribution, CohortAnalysis, CommentInbox,
+  ContentStrategist, RetentionLab, EnhancedScorecard,
+  CompetitorIntelligence, RevenueIntelligence, UploadScheduler,
 } from "@/components/command-center";
 
 type Tab =
   | "forecast"
   | "scorecard"
+  | "enhanced_scorecard"
   | "revenue_link"
   | "upload_time"
+  | "upload_scheduler"
   | "retention"
+  | "retention_lab"
   | "ctr"
   | "content_gaps"
   | "collaborations"
@@ -30,32 +35,41 @@ type Tab =
   | "sentiment"
   | "playlists"
   | "revenue_forecast"
+  | "revenue_intel"
   | "competitors"
+  | "competitor_intel"
   | "calendar"
   | "viral"
   | "roi_calculator"
   | "subscriber_impact"
   | "sub_attribution"
   | "cohorts"
-  | "comment_inbox";
+  | "comment_inbox"
+  | "content_strategist";
 
 const TABS: { key: Tab; label: string; icon: React.ReactNode; group: string }[] = [
   // Growth
   { key: "forecast", label: "Growth Forecast", icon: <TrendingUp className="w-3.5 h-3.5" />, group: "Growth" },
   { key: "milestones", label: "Milestones", icon: <Trophy className="w-3.5 h-3.5" />, group: "Growth" },
   { key: "competitors", label: "Competitors", icon: <Users className="w-3.5 h-3.5" />, group: "Growth" },
+  { key: "competitor_intel", label: "Competitor Intel", icon: <Crosshair className="w-3.5 h-3.5" />, group: "Growth" },
   { key: "subscriber_impact", label: "Sub Impact", icon: <UserCheck className="w-3.5 h-3.5" />, group: "Growth" },
   { key: "sub_attribution", label: "Sub Attribution", icon: <UserPlus className="w-3.5 h-3.5" />, group: "Growth" },
   { key: "cohorts", label: "Cohort Analysis", icon: <BarChart3 className="w-3.5 h-3.5" />, group: "Growth" },
   // Content
   { key: "scorecard", label: "Video Scorecard", icon: <Award className="w-3.5 h-3.5" />, group: "Content" },
+  { key: "enhanced_scorecard", label: "Enhanced Scorecard", icon: <FlaskConical className="w-3.5 h-3.5" />, group: "Content" },
+  { key: "content_strategist", label: "AI Strategist", icon: <Brain className="w-3.5 h-3.5" />, group: "Content" },
   { key: "retention", label: "Retention", icon: <Eye className="w-3.5 h-3.5" />, group: "Content" },
+  { key: "retention_lab", label: "Retention Lab", icon: <FlaskConical className="w-3.5 h-3.5" />, group: "Content" },
   { key: "ctr", label: "CTR Optimizer", icon: <MousePointerClick className="w-3.5 h-3.5" />, group: "Content" },
   { key: "viral", label: "Viral Predictor", icon: <Zap className="w-3.5 h-3.5" />, group: "Content" },
   { key: "upload_time", label: "Upload Time", icon: <Clock className="w-3.5 h-3.5" />, group: "Content" },
+  { key: "upload_scheduler", label: "Upload Scheduler", icon: <Upload className="w-3.5 h-3.5" />, group: "Content" },
   // Revenue
   { key: "revenue_link", label: "Content → Revenue", icon: <DollarSign className="w-3.5 h-3.5" />, group: "Revenue" },
   { key: "revenue_forecast", label: "Revenue Forecast", icon: <BarChart3 className="w-3.5 h-3.5" />, group: "Revenue" },
+  { key: "revenue_intel", label: "Revenue Intel", icon: <Banknote className="w-3.5 h-3.5" />, group: "Revenue" },
   { key: "roi_calculator", label: "ROI Calculator", icon: <Calculator className="w-3.5 h-3.5" />, group: "Revenue" },
   // Planning
   { key: "calendar", label: "Content Calendar", icon: <Calendar className="w-3.5 h-3.5" />, group: "Planning" },
@@ -70,9 +84,12 @@ const TABS: { key: Tab; label: string; icon: React.ReactNode; group: string }[] 
 const TAB_COMPONENTS: Record<Tab, React.ComponentType> = {
   forecast: GrowthForecast,
   scorecard: VideoScorecard,
+  enhanced_scorecard: EnhancedScorecard,
   revenue_link: ContentRevenueLinker,
   upload_time: UploadTimeAnalyzer,
+  upload_scheduler: UploadScheduler,
   retention: RetentionAnalyzer,
+  retention_lab: RetentionLab,
   ctr: CtrOptimizer,
   content_gaps: ContentGapFinder,
   collaborations: CollaborationTracker,
@@ -80,7 +97,9 @@ const TAB_COMPONENTS: Record<Tab, React.ComponentType> = {
   sentiment: CommentSentiment,
   playlists: PlaylistOptimizer,
   revenue_forecast: RevenueForecast,
+  revenue_intel: RevenueIntelligence,
   competitors: CompetitorBenchmark,
+  competitor_intel: CompetitorIntelligence,
   calendar: ContentCalendar,
   viral: ViralPredictor,
   roi_calculator: ContentROICalculator,
@@ -88,6 +107,7 @@ const TAB_COMPONENTS: Record<Tab, React.ComponentType> = {
   sub_attribution: SubGrowthAttribution,
   cohorts: CohortAnalysis,
   comment_inbox: CommentInbox,
+  content_strategist: ContentStrategist,
 };
 
 function CommandCenterContent() {
