@@ -13,6 +13,9 @@ import { ExportContactsDialog, ExportCompaniesDialog } from "@/components/crm/Ex
 import { RelationshipGraph } from "@/components/crm/RelationshipGraph";
 import { SponsorAttributionPanel } from "@/components/crm/SponsorAttributionPanel";
 import { PartnershipPipeline } from "@/components/crm/PartnershipPipeline";
+import { YouTubeLeadInbox } from "@/components/crm/YouTubeLeadInbox";
+import { EngagementScorePanel } from "@/components/crm/EngagementScorePanel";
+import { BulkImportWizard } from "@/components/crm/BulkImportWizard";
 import { useContacts, useActivities } from "@/hooks/use-contacts";
 import { useCompanies, useCompanyContacts } from "@/hooks/use-companies";
 import { useDeals } from "@/hooks/use-deals";
@@ -67,6 +70,8 @@ function RelationshipsContent() {
           <TabsTrigger value="sponsor_pipeline">Sponsor Pipeline</TabsTrigger>
           <TabsTrigger value="affiliate_pipeline">Affiliate Pipeline</TabsTrigger>
           <TabsTrigger value="collab_pipeline">Collaborator Pipeline</TabsTrigger>
+          <TabsTrigger value="yt_leads">YouTube Leads</TabsTrigger>
+          <TabsTrigger value="engagement">Engagement</TabsTrigger>
         </TabsList>
 
         <TabsContent value="contacts" className="mt-4">
@@ -83,6 +88,7 @@ function RelationshipsContent() {
               addButton={
                 <div className="flex items-center gap-2">
                   <ExportContactsDialog contacts={contacts} />
+                  <BulkImportWizard />
                   <ImportContactsDialog />
                   <Button size="sm" className="gap-1.5" onClick={() => navigate("/relationships/new-contact")}>
                     <Plus className="w-4 h-4" />
@@ -149,6 +155,14 @@ function RelationshipsContent() {
 
         <TabsContent value="collab_pipeline" className="mt-4">
           <PartnershipPipeline partnershipType="collaborator" />
+        </TabsContent>
+
+        <TabsContent value="yt_leads" className="mt-4">
+          <YouTubeLeadInbox />
+        </TabsContent>
+
+        <TabsContent value="engagement" className="mt-4">
+          <EngagementScorePanel />
         </TabsContent>
       </Tabs>
 

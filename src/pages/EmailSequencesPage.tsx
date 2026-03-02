@@ -47,7 +47,8 @@ import {
   type SequenceEnrollment,
 } from "@/hooks/use-email-sequences";
 import { useSequenceTracking, useLogSequenceEvent } from "@/hooks/use-sequence-tracking";
-import { BarChart3, Send } from "lucide-react";
+import { BarChart3, Send, FlaskConical } from "lucide-react";
+import { SequenceABPanel } from "@/components/crm/SequenceABPanel";
 
 const statusColors: Record<string, string> = {
   active: "bg-emerald-500/15 text-emerald-600 border-emerald-500/30",
@@ -773,6 +774,11 @@ function EmailSequencesContent() {
           initialData={editingSequence}
         />
       )}
+
+      {/* A/B Testing Panel */}
+      <div className="mt-8 rounded-lg border border-border bg-card p-4">
+        <SequenceABPanel />
+      </div>
 
       {/* Delete Confirmation Dialog */}
       <Dialog

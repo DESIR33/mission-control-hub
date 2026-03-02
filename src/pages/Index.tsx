@@ -12,6 +12,7 @@ import { GrowthAlertBanner } from "@/components/dashboard/GrowthAlertBanner";
 import { AlertsPanel } from "@/components/dashboard/AlertsPanel";
 import { SprintWidget } from "@/components/dashboard/SprintWidget";
 import { GoalPaceWidget } from "@/components/dashboard/GoalPaceWidget";
+import { GrowthCommandWidget } from "@/components/dashboard/GrowthCommandWidget";
 import { WorkspaceProvider } from "@/hooks/use-workspace";
 import {
   useDashboardStats,
@@ -60,6 +61,9 @@ function DashboardContent() {
 
       {/* Performance Alerts */}
       <AlertsPanel />
+
+      {/* Growth Command Widget */}
+      <GrowthCommandWidget />
 
       {/* YouTube Growth Widget */}
       <YouTubeGrowth />

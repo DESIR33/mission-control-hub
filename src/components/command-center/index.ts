@@ -1,5 +1,6 @@
 export { GrowthForecast } from "./GrowthForecast";
 export { VideoScorecard } from "./VideoScorecard";
+export { EnhancedScorecard } from "./EnhancedScorecard";
 export { ContentRevenueLinker } from "./ContentRevenueLinker";
 export { UploadTimeAnalyzer } from "./UploadTimeAnalyzer";
 export { RetentionAnalyzer } from "./RetentionAnalyzer";
@@ -18,3 +19,8 @@ export { SubscriberImpact } from "./SubscriberImpact";
 export { SubGrowthAttribution } from "./SubGrowthAttribution";
 export { CohortAnalysis } from "./CohortAnalysis";
 export { CommentInbox } from "./CommentInbox";
+export { ContentStrategist } from "./ContentStrategist";
+export { RetentionLab } from "./RetentionLab";
+export { CompetitorIntelligence } from "./CompetitorIntelligence";
+export { RevenueIntelligence } from "./RevenueIntelligence";
+export { UploadScheduler } from "./UploadScheduler";
