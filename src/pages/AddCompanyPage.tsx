@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Building2, Loader2, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,8 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ImageUpload } from "@/components/settings/ImageUpload";
 import { useCreateCompany } from "@/hooks/use-companies";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { WorkspaceProvider } from "@/hooks/use-workspace";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +19,16 @@ function AddCompanyForm() {
   const createCompany = useCreateCompany();
   const { toast } = useToast();
   const [socialOpen, setSocialOpen] = useState(false);
+  const [logoUrl, setLogoUrl] = useState("");
+
+  const handleLogoUpload = useCallback(async (file: File): Promise<string> => {
+    const fileExt = file.name.split(".").pop() ?? "png";
+    const filePath = `${crypto.randomUUID()}.${fileExt}`;
+    const { error } = await supabase.storage.from("logos").upload(filePath, file, { upsert: true });
+    if (error) throw error;
+    const { data } = supabase.storage.from("logos").getPublicUrl(filePath);
+    return data.publicUrl;
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -25,6 +37,7 @@ function AddCompanyForm() {
     try {
       await createCompany.mutateAsync({
         name: form.get("name") as string,
+        logo_url: logoUrl || undefined,
         industry: (form.get("industry") as string) || undefined,
         website: (form.get("website") as string) || undefined,
         size: (form.get("size") as string) || undefined,
@@ -66,6 +79,15 @@ function AddCompanyForm() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
+          <ImageUpload
+            value={logoUrl}
+            onChange={setLogoUrl}
+            onUpload={handleLogoUpload}
+            label="Company Logo"
+            shape="rounded"
+            size="lg"
+          />
+
           <div className="space-y-1.5">
             <Label htmlFor="name">Company Name *</Label>
             <Input id="name" name="name" required className="bg-secondary border-border" />
@@ -136,7 +158,6 @@ function AddCompanyForm() {
             <Textarea id="description" name="description" rows={2} className="bg-secondary border-border" />
           </div>
 
-          {/* Social Media - Collapsible */}
           <Collapsible open={socialOpen} onOpenChange={setSocialOpen}>
             <CollapsibleTrigger asChild>
               <Button type="button" variant="ghost" size="sm" className="w-full justify-between px-0 font-medium text-sm">

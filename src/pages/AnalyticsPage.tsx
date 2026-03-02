@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   BarChart3, TrendingUp, TrendingDown, Eye, ThumbsUp, MessageSquare,
@@ -77,6 +77,15 @@ function AnalyticsContent() {
   const { data: geography = [], isLoading: loadingGeo } = useGeography();
   const { data: deviceTypes = [], isLoading: loadingDevices } = useDeviceTypes();
   const syncAnalytics = useSyncYouTubeAnalytics();
+
+  // Auto-sync YouTube data and analytics on page load
+  const hasSynced = useRef(false);
+  useEffect(() => {
+    if (hasSynced.current || workspaceLoading) return;
+    hasSynced.current = true;
+    syncYouTube.mutate();
+    syncAnalytics.mutate();
+  }, [workspaceLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const isLoading = workspaceLoading || loadingChannel || loadingVideos;
 
