@@ -173,7 +173,7 @@ export default function VideoQueuePage() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-64px)] flex-col pb-20 sm:pb-0">
+    <div className="flex flex-col pb-20 sm:pb-0 sm:h-[calc(100vh-64px)]">
       <header className="flex-shrink-0 border-b border-border bg-card px-4 py-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
@@ -306,7 +306,7 @@ export default function VideoQueuePage() {
         </div>
       </div>
 
-      <main className="min-h-0 flex-1 overflow-y-auto bg-muted/10 p-4">
+      <main className="flex-1 bg-muted/10 p-4 sm:min-h-0 sm:overflow-y-auto">
         {isLoading ? (
           <div className="flex h-56 items-center justify-center rounded-2xl border border-border bg-card">
             <div className="text-center">

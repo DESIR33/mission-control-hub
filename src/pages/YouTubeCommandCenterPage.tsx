@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Rocket, TrendingUp, Award, DollarSign, Clock,
   Eye, MousePointerClick, Search, Handshake, Trophy,
@@ -7,6 +7,8 @@ import {
   UserPlus, MessageCircle, Brain, FlaskConical, Crosshair, Banknote, Upload,
 } from "lucide-react";
 import { useWorkspace, WorkspaceProvider } from "@/hooks/use-workspace";
+import { useSyncYouTube } from "@/hooks/use-youtube-analytics";
+import { useSyncYouTubeAnalytics } from "@/hooks/use-youtube-analytics-api";
 import {
   GrowthForecast, VideoScorecard, ContentRevenueLinker,
   UploadTimeAnalyzer, RetentionAnalyzer, CtrOptimizer,
@@ -114,6 +116,17 @@ function CommandCenterContent() {
   const [activeTab, setActiveTab] = useState<Tab>("forecast");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { isLoading: workspaceLoading } = useWorkspace();
+  const syncYouTube = useSyncYouTube();
+  const syncAnalytics = useSyncYouTubeAnalytics();
+
+  // Auto-sync YouTube data on page load
+  const hasSynced = useRef(false);
+  useEffect(() => {
+    if (hasSynced.current || workspaceLoading) return;
+    hasSynced.current = true;
+    syncYouTube.mutate();
+    syncAnalytics.mutate();
+  }, [workspaceLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (workspaceLoading) {
     return (

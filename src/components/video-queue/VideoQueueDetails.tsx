@@ -135,6 +135,9 @@ export function VideoQueueDetails({ video, onClose, onUpdate }: VideoQueueDetail
     winner: "" as "" | "a" | "b" | "inconclusive",
   });
 
+  // YouTube linking prompt when status changes to published
+  const [showYouTubeLinkPrompt, setShowYouTubeLinkPrompt] = useState(false);
+
   // Feature 13: Script
   const [scriptContent, setScriptContent] = useState(video.scriptContent ?? "");
   const scriptTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -185,7 +188,15 @@ export function VideoQueueDetails({ video, onClose, onUpdate }: VideoQueueDetail
 
   const handleStatusChange = (status: string) => {
     updateVideo.mutate({ id: video.id, status: status as VideoQueueItem["status"] }, {
-      onSuccess: () => { toast({ title: "Updated", description: "Status updated." }); onUpdate(); },
+      onSuccess: () => {
+        toast({ title: "Updated", description: "Status updated." });
+        // Prompt to link YouTube video when status changes to published
+        if (status === "published" && !youtubeVideoId) {
+          setShowYouTubeLinkPrompt(true);
+        } else {
+          onUpdate();
+        }
+      },
       onError: () => { toast({ title: "Error", description: "Failed to update status.", variant: "destructive" }); },
     });
   };
@@ -688,6 +699,48 @@ export function VideoQueueDetails({ video, onClose, onUpdate }: VideoQueueDetail
           ) : (
             <p className="text-xs text-muted-foreground">Video must be published before linking to YouTube stats.</p>
           )}
+        </div>
+      )}
+      {/* YouTube Link Prompt Dialog - shown when status changes to published */}
+      {showYouTubeLinkPrompt && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="w-full max-w-md mx-4 rounded-xl border border-border bg-card p-6 shadow-lg">
+            <div className="flex items-center gap-2 mb-3">
+              <SiYoutube className="h-5 w-5 text-red-600" />
+              <h3 className="text-base font-semibold text-foreground">Link YouTube Video</h3>
+            </div>
+            <p className="text-sm text-muted-foreground mb-4">
+              This video is now published. Would you like to link it to a YouTube video to track performance?
+            </p>
+            <div className="max-h-52 overflow-y-auto space-y-1 mb-4">
+              {ytVideos.map((yt) => (
+                <button
+                  key={yt.id}
+                  onClick={() => {
+                    handleLinkYouTube(yt.youtube_video_id);
+                    setShowYouTubeLinkPrompt(false);
+                    onUpdate();
+                  }}
+                  className="w-full text-left flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 hover:bg-muted/50 transition-colors"
+                >
+                  <SiYoutube className="h-3.5 w-3.5 text-red-600 shrink-0" />
+                  <span className="flex-1 text-xs text-foreground truncate">{yt.title}</span>
+                  <span className="text-[10px] text-muted-foreground font-mono">{(yt.views ?? 0).toLocaleString()} views</span>
+                </button>
+              ))}
+              {ytVideos.length === 0 && (
+                <p className="text-xs text-muted-foreground p-4 text-center">No YouTube videos found. Sync your YouTube data first.</p>
+              )}
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => { setShowYouTubeLinkPrompt(false); onUpdate(); }}
+                className="rounded-lg border border-border px-4 py-2 text-sm text-muted-foreground hover:bg-accent transition-colors"
+              >
+                Skip for now
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -1,12 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { ImageUpload } from "@/components/settings/ImageUpload";
 import { useUpdateCompany } from "@/hooks/use-companies";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import type { Company } from "@/types/crm";
 
@@ -21,13 +23,24 @@ export function EditCompanyDialog({ company, open, onOpenChange }: EditCompanyDi
   const { toast } = useToast();
   const [vipTier, setVipTier] = useState("none");
   const [size, setSize] = useState("");
+  const [logoUrl, setLogoUrl] = useState("");
 
   useEffect(() => {
     if (company) {
       setVipTier(company.vip_tier);
       setSize(company.size ?? "");
+      setLogoUrl(company.logo_url ?? "");
     }
   }, [company]);
+
+  const handleLogoUpload = useCallback(async (file: File): Promise<string> => {
+    const fileExt = file.name.split(".").pop() ?? "png";
+    const filePath = `${crypto.randomUUID()}.${fileExt}`;
+    const { error } = await supabase.storage.from("logos").upload(filePath, file, { upsert: true });
+    if (error) throw error;
+    const { data } = supabase.storage.from("logos").getPublicUrl(filePath);
+    return data.publicUrl;
+  }, []);
 
   if (!company) return null;
 
@@ -39,6 +52,7 @@ export function EditCompanyDialog({ company, open, onOpenChange }: EditCompanyDi
       await updateCompany.mutateAsync({
         id: company.id,
         name: form.get("name") as string,
+        logo_url: logoUrl || undefined,
         industry: (form.get("industry") as string) || undefined,
         website: (form.get("website") as string) || undefined,
         size: size || undefined,
@@ -70,6 +84,15 @@ export function EditCompanyDialog({ company, open, onOpenChange }: EditCompanyDi
           <DialogTitle className="text-foreground">Edit Company</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
+          <ImageUpload
+            value={logoUrl}
+            onChange={setLogoUrl}
+            onUpload={handleLogoUpload}
+            label="Company Logo"
+            shape="rounded"
+            size="lg"
+          />
+
           <div className="space-y-1.5">
             <Label htmlFor="edit_name">Company Name *</Label>
             <Input id="edit_name" name="name" required defaultValue={company.name} className="bg-secondary border-border" />

@@ -40,6 +40,7 @@ export function useCreateCompany() {
   return useMutation({
     mutationFn: async (company: {
       name: string;
+      logo_url?: string;
       industry?: string;
       website?: string;
       description?: string;
@@ -89,6 +90,7 @@ export function useUpdateCompany() {
     mutationFn: async ({ id, ...updates }: {
       id: string;
       name?: string;
+      logo_url?: string;
       industry?: string;
       website?: string;
       description?: string;
