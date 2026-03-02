@@ -2,9 +2,11 @@ import {
   Trophy, TrendingUp, Flame, Calendar, ArrowUpRight,
   Zap, Target, CheckCircle2, Circle,
 } from "lucide-react";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useMilestoneCountdown } from "@/hooks/use-milestone-countdown";
+import { useGoalPace } from "@/hooks/use-goal-pace";
 
 const fmtCount = (n: number) => {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
@@ -20,6 +22,7 @@ const momentumConfig: Record<string, { label: string; color: string; icon: any }
 
 export function MilestoneCountdown() {
   const { data: countdown, isLoading } = useMilestoneCountdown();
+  const { data: pace } = useGoalPace();
 
   if (isLoading) {
     return <div className="rounded-lg border border-border bg-card p-6 animate-pulse h-96" />;
@@ -102,6 +105,50 @@ export function MilestoneCountdown() {
           </div>
         )}
       </div>
+
+      {/* Pace Tracking */}
+      {pace && (
+        <div className="rounded-lg border border-border bg-card p-4">
+          <h3 className="text-sm font-semibold text-foreground mb-3">Growth Pace to 50K</h3>
+          <div className="grid grid-cols-3 gap-3 mb-4">
+            <div className="text-center">
+              <p className="text-[10px] text-muted-foreground">Required/Week</p>
+              <p className="text-sm font-bold font-mono text-foreground">+{Math.round(pace.requiredWeeklyRate)}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-[10px] text-muted-foreground">Actual/Week</p>
+              <p className={`text-sm font-bold font-mono ${pace.paceZone === "green" ? "text-green-400" : pace.paceZone === "yellow" ? "text-yellow-400" : "text-red-400"}`}>
+                +{Math.round(pace.actualWeeklyRate)}
+              </p>
+            </div>
+            <div className="text-center">
+              <p className="text-[10px] text-muted-foreground">Weeks {pace.weeksAheadBehind >= 0 ? "Ahead" : "Behind"}</p>
+              <p className={`text-sm font-bold font-mono ${pace.weeksAheadBehind >= 0 ? "text-green-400" : "text-red-400"}`}>
+                {pace.weeksAheadBehind >= 0 ? "+" : ""}{pace.weeksAheadBehind.toFixed(1)}
+              </p>
+            </div>
+          </div>
+          {pace.microTargets.length > 0 && (
+            <ResponsiveContainer width="100%" height={200}>
+              <AreaChart data={pace.microTargets.slice(-12)}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                <XAxis dataKey="week" tick={{ fontSize: 9 }} />
+                <YAxis tick={{ fontSize: 10 }} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "hsl(var(--card))",
+                    border: "1px solid hsl(var(--border))",
+                    borderRadius: 8,
+                    fontSize: 12,
+                  }}
+                />
+                <Area type="monotone" dataKey="target" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.1} name="Target" strokeDasharray="5 5" />
+                <Area type="monotone" dataKey="actual" stroke="#22c55e" fill="#22c55e" fillOpacity={0.2} name="Actual" />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
+        </div>
+      )}
 
       {/* All Milestones */}
       <div className="rounded-lg border border-border bg-card p-4">

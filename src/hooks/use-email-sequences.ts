@@ -155,3 +155,22 @@ export function useUpdateEnrollment() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["sequence-enrollments", workspaceId] }),
   });
 }
+
+export function useSequenceSendLog(sequenceId?: string) {
+  const { workspaceId } = useWorkspace();
+  return useQuery({
+    queryKey: ["sequence-send-log", workspaceId, sequenceId],
+    queryFn: async () => {
+      let query = supabase
+        .from("sequence_send_log" as any)
+        .select("*")
+        .eq("workspace_id", workspaceId!)
+        .order("sent_at", { ascending: false });
+      if (sequenceId) query = query.eq("sequence_id", sequenceId);
+      const { data, error } = await query;
+      if (error) throw error;
+      return (data ?? []) as any[];
+    },
+    enabled: !!workspaceId,
+  });
+}

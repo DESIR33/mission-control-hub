@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import {
   useContentCalendar, useCreateCalendarEntry, useUpdateCalendarEntry, useDeleteCalendarEntry,
 } from "@/hooks/use-content-calendar";
+import { useSmartCalendar } from "@/hooks/use-smart-calendar";
 import { toast } from "sonner";
 
 const statusColors: Record<string, string> = {
@@ -38,6 +39,7 @@ export function ContentCalendar() {
   const createEntry = useCreateCalendarEntry();
   const updateEntry = useUpdateCalendarEntry();
   const deleteEntry = useDeleteCalendarEntry();
+  const { data: smartData } = useSmartCalendar();
 
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({
@@ -105,6 +107,32 @@ export function ContentCalendar() {
           </div>
         ))}
       </div>
+
+      {/* Smart Insights */}
+      {smartData && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-3">
+            <div className="flex items-center gap-1.5 mb-1">
+              <Zap className="w-3.5 h-3.5 text-green-500" />
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Pub Streak</p>
+            </div>
+            <p className="text-lg font-bold font-mono text-foreground">{smartData.streakWeeks}</p>
+            <p className="text-[10px] text-muted-foreground">consecutive weeks</p>
+          </div>
+          {smartData.contentMix.length > 0 && (
+            <div className="rounded-lg border border-border bg-card p-3 col-span-1 sm:col-span-2">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5">Content Mix This Month</p>
+              <div className="flex flex-wrap gap-1.5">
+                {smartData.contentMix.map((mix) => (
+                  <Badge key={mix.type} variant="outline" className="text-[9px]">
+                    {mix.type}: {mix.actual}{mix.ideal > 0 ? `/${mix.ideal}` : ""}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Add Entry */}
       <div className="rounded-lg border border-border bg-card p-4">

@@ -253,12 +253,29 @@ export function ProposalCard({
 
       {/* Reviewed info */}
       {proposal.status !== "pending" && proposal.reviewed_at && (
-        <p className="text-[11px] text-muted-foreground mt-3 pt-3 border-t border-border/50">
-          {proposal.status === "approved" ? "Approved" : "Rejected"}{" "}
-          {formatDistanceToNow(new Date(proposal.reviewed_at), {
-            addSuffix: true,
-          })}
-        </p>
+        <div className="mt-3 pt-3 border-t border-border/50 flex items-center justify-between">
+          <p className="text-[11px] text-muted-foreground">
+            {proposal.status === "approved" ? "Approved" : "Rejected"}{" "}
+            {formatDistanceToNow(new Date(proposal.reviewed_at), {
+              addSuffix: true,
+            })}
+          </p>
+          {proposal.status === "approved" && (() => {
+            const execStatus = (proposal as any).execution_status;
+            if (!execStatus || execStatus === "none") return null;
+            const execColors: Record<string, string> = {
+              pending: "bg-warning/15 text-warning border-warning/30",
+              executing: "bg-primary/15 text-primary border-primary/30",
+              completed: "bg-success/15 text-success border-success/30",
+              failed: "bg-destructive/15 text-destructive border-destructive/30",
+            };
+            return (
+              <Badge variant="outline" className={cn("text-[9px] uppercase tracking-wider", execColors[execStatus] ?? "")}>
+                {execStatus === "executing" ? "Executing..." : execStatus}
+              </Badge>
+            );
+          })()}
+        </div>
       )}
     </Card>
   );

@@ -42,6 +42,7 @@ export function CollaborationTracker() {
   const { data: roiData } = useCollaborationROI();
   const roiMap = new Map(roiData?.items.map((r) => [r.id, r]) ?? []);
 
+  const [viewMode, setViewMode] = useState<"list" | "board">("list");
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({
     creator_name: "",
@@ -139,22 +140,160 @@ export function CollaborationTracker() {
         </div>
       )}
 
-      {/* Pipeline */}
-      <div className="rounded-lg border border-border bg-card p-4">
-        <h3 className="text-sm font-semibold text-foreground mb-3">Collaboration Pipeline</h3>
-        <div className="flex items-center gap-1 mb-4 overflow-x-auto">
-          {statusSteps.map((step, i) => (
-            <div key={step} className="flex items-center gap-1">
-              <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-muted/50">
-                <div className={`w-2 h-2 rounded-full ${statusColors[step]}`} />
-                <span className="text-[10px] text-foreground capitalize whitespace-nowrap">{step}</span>
-                <span className="text-[10px] font-mono text-muted-foreground">({byStatus[step]?.length ?? 0})</span>
+      {/* View Toggle */}
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => setViewMode("list")}
+          className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${viewMode === "list" ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:text-foreground"}`}
+        >
+          List View
+        </button>
+        <button
+          onClick={() => setViewMode("board")}
+          className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${viewMode === "board" ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:text-foreground"}`}
+        >
+          Board View
+        </button>
+      </div>
+
+      {viewMode === "list" ? (
+        <>
+          {/* Pipeline */}
+          <div className="rounded-lg border border-border bg-card p-4">
+            <h3 className="text-sm font-semibold text-foreground mb-3">Collaboration Pipeline</h3>
+            <div className="flex items-center gap-1 mb-4 overflow-x-auto">
+              {statusSteps.map((step, i) => (
+                <div key={step} className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-muted/50">
+                    <div className={`w-2 h-2 rounded-full ${statusColors[step]}`} />
+                    <span className="text-[10px] text-foreground capitalize whitespace-nowrap">{step}</span>
+                    <span className="text-[10px] font-mono text-muted-foreground">({byStatus[step]?.length ?? 0})</span>
+                  </div>
+                  {i < statusSteps.length - 1 && <span className="text-muted-foreground text-xs">→</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Collaboration List */}
+          <div className="space-y-2">
+            {collabs.map((collab) => (
+              <div key={collab.id} className="rounded-lg border border-border bg-card p-3">
+                <div className="flex items-center gap-3">
+                  <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${statusColors[collab.status]}`} />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium text-foreground">{collab.creator_name}</p>
+                      {collab.subscriber_count && (
+                        <span className="text-[10px] text-muted-foreground">{fmtCount(collab.subscriber_count)} subs</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      {collab.collab_type && (
+                        <span className="text-[10px] text-muted-foreground">{collabTypeLabels[collab.collab_type] ?? collab.collab_type}</span>
+                      )}
+                      {collab.niche && <span className="text-[10px] text-muted-foreground">· {collab.niche}</span>}
+                      {collab.scheduled_date && (
+                        <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                          <Calendar className="w-2.5 h-2.5" /> {collab.scheduled_date}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  {/* ROI results for published collabs */}
+                  {collab.status === "published" && (() => {
+                    const roi = roiMap.get(collab.id);
+                    if (!roi || (roi.viewsGenerated === 0 && roi.actualSubGain === 0)) return null;
+                    return (
+                      <div className="flex items-center gap-2 text-[10px]">
+                        {roi.viewsGenerated > 0 && (
+                          <span className="flex items-center gap-0.5 text-blue-500">
+                            <Eye className="w-2.5 h-2.5" />{fmtCount(roi.viewsGenerated)}
+                          </span>
+                        )}
+                        {roi.actualSubGain > 0 && (
+                          <span className="flex items-center gap-0.5 text-green-500">
+                            <UserPlus className="w-2.5 h-2.5" />{fmtCount(roi.actualSubGain)}
+                          </span>
+                        )}
+                        {roi.revenueGenerated > 0 && (
+                          <span className="flex items-center gap-0.5 text-emerald-500">
+                            <DollarSign className="w-2.5 h-2.5" />${roi.revenueGenerated.toFixed(0)}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })()}
+                  <select
+                    className="bg-muted/50 rounded px-2 py-1 text-[10px] text-foreground border border-border outline-none"
+                    value={collab.status}
+                    onChange={(e) =>
+                      updateCollab.mutate({ id: collab.id, status: e.target.value as any })
+                    }
+                  >
+                    {statusSteps.map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                    <option value="declined">declined</option>
+                  </select>
+                  {collab.channel_url && (
+                    <a href={collab.channel_url} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-blue-400">
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  )}
+                  <button
+                    className="text-muted-foreground hover:text-red-500 transition-colors"
+                    onClick={() => deleteCollab.mutate(collab.id, { onSuccess: () => toast.success("Removed") })}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
-              {i < statusSteps.length - 1 && <span className="text-muted-foreground text-xs">→</span>}
+            ))}
+
+            {collabs.length === 0 && (
+              <div className="text-center text-muted-foreground text-sm py-8">
+                <Users className="w-6 h-6 mx-auto mb-2 opacity-50" />
+                <p>No collaborations tracked yet. Start adding potential collab partners!</p>
+              </div>
+            )}
+          </div>
+        </>
+      ) : (
+        /* Board view */
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+          {statusSteps.map((step) => (
+            <div key={step} className="space-y-2">
+              <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-muted/30 border border-border">
+                <div className={`w-2 h-2 rounded-full ${statusColors[step]}`} />
+                <span className="text-[10px] font-semibold text-foreground capitalize">{step}</span>
+                <span className="text-[10px] font-mono text-muted-foreground ml-auto">({byStatus[step]?.length ?? 0})</span>
+              </div>
+              {(byStatus[step] ?? []).map((collab) => (
+                <div key={collab.id} className="rounded-lg border border-border bg-card p-2.5 space-y-1.5">
+                  <p className="text-xs font-medium text-foreground truncate">{collab.creator_name}</p>
+                  {collab.subscriber_count && (
+                    <p className="text-[10px] text-muted-foreground">{fmtCount(collab.subscriber_count)} subs</p>
+                  )}
+                  {collab.collab_type && (
+                    <Badge variant="outline" className="text-[8px]">
+                      {collabTypeLabels[collab.collab_type] ?? collab.collab_type}
+                    </Badge>
+                  )}
+                  <select
+                    className="w-full bg-muted/50 rounded px-1.5 py-0.5 text-[9px] text-foreground border border-border outline-none"
+                    value={collab.status}
+                    onChange={(e) => updateCollab.mutate({ id: collab.id, status: e.target.value as any })}
+                  >
+                    {statusSteps.map((s) => (<option key={s} value={s}>{s}</option>))}
+                    <option value="declined">declined</option>
+                  </select>
+                </div>
+              ))}
             </div>
           ))}
         </div>
-      </div>
+      )}
 
       {/* Add Form */}
       <div className="rounded-lg border border-border bg-card p-4">
@@ -207,90 +346,6 @@ export function CollaborationTracker() {
             <Plus className="w-4 h-4 mr-2" />
             Add Collaboration
           </Button>
-        )}
-      </div>
-
-      {/* Collaboration List */}
-      <div className="space-y-2">
-        {collabs.map((collab) => (
-          <div key={collab.id} className="rounded-lg border border-border bg-card p-3">
-            <div className="flex items-center gap-3">
-              <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${statusColors[collab.status]}`} />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className="text-sm font-medium text-foreground">{collab.creator_name}</p>
-                  {collab.subscriber_count && (
-                    <span className="text-[10px] text-muted-foreground">{fmtCount(collab.subscriber_count)} subs</span>
-                  )}
-                </div>
-                <div className="flex items-center gap-2 mt-0.5">
-                  {collab.collab_type && (
-                    <span className="text-[10px] text-muted-foreground">{collabTypeLabels[collab.collab_type] ?? collab.collab_type}</span>
-                  )}
-                  {collab.niche && <span className="text-[10px] text-muted-foreground">· {collab.niche}</span>}
-                  {collab.scheduled_date && (
-                    <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
-                      <Calendar className="w-2.5 h-2.5" /> {collab.scheduled_date}
-                    </span>
-                  )}
-                </div>
-              </div>
-              {/* ROI results for published collabs */}
-              {collab.status === "published" && (() => {
-                const roi = roiMap.get(collab.id);
-                if (!roi || (roi.viewsGenerated === 0 && roi.actualSubGain === 0)) return null;
-                return (
-                  <div className="flex items-center gap-2 text-[10px]">
-                    {roi.viewsGenerated > 0 && (
-                      <span className="flex items-center gap-0.5 text-blue-500">
-                        <Eye className="w-2.5 h-2.5" />{fmtCount(roi.viewsGenerated)}
-                      </span>
-                    )}
-                    {roi.actualSubGain > 0 && (
-                      <span className="flex items-center gap-0.5 text-green-500">
-                        <UserPlus className="w-2.5 h-2.5" />{fmtCount(roi.actualSubGain)}
-                      </span>
-                    )}
-                    {roi.revenueGenerated > 0 && (
-                      <span className="flex items-center gap-0.5 text-emerald-500">
-                        <DollarSign className="w-2.5 h-2.5" />${roi.revenueGenerated.toFixed(0)}
-                      </span>
-                    )}
-                  </div>
-                );
-              })()}
-              <select
-                className="bg-muted/50 rounded px-2 py-1 text-[10px] text-foreground border border-border outline-none"
-                value={collab.status}
-                onChange={(e) =>
-                  updateCollab.mutate({ id: collab.id, status: e.target.value as any })
-                }
-              >
-                {statusSteps.map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-                <option value="declined">declined</option>
-              </select>
-              {collab.channel_url && (
-                <a href={collab.channel_url} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-blue-400">
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
-              )}
-              <button
-                className="text-muted-foreground hover:text-red-500 transition-colors"
-                onClick={() => deleteCollab.mutate(collab.id, { onSuccess: () => toast.success("Removed") })}
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
-        ))}
-
-        {collabs.length === 0 && (
-          <div className="text-center text-muted-foreground text-sm py-8">
-            <Users className="w-6 h-6 mx-auto mb-2 opacity-50" />
-            <p>No collaborations tracked yet. Start adding potential collab partners!</p>
-          </div>
         )}
       </div>
     </div>

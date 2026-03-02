@@ -29,6 +29,7 @@ import { ComposeEmailDialog } from "@/components/inbox/ComposeEmailDialog";
 import type { Contact, Activity } from "@/types/crm";
 import { format } from "date-fns";
 import { useSponsorAttribution } from "@/hooks/use-sponsor-attribution";
+import { ContactImpactReport } from "./ContactImpactReport";
 
 const statusColors: Record<string, string> = {
   active: "bg-success/15 text-success border-success/30",
@@ -211,6 +212,7 @@ export function ContactDetailSheet({ contact, activities, open, onOpenChange, on
             <TabsList className="w-full">
               <TabsTrigger value="details" className="flex-1">Details</TabsTrigger>
               <TabsTrigger value="timeline" className="flex-1">Timeline</TabsTrigger>
+              <TabsTrigger value="impact" className="flex-1">Impact</TabsTrigger>
               <TabsTrigger value="enrichment" className="flex-1">Enrichment</TabsTrigger>
             </TabsList>
 
@@ -517,6 +519,10 @@ export function ContactDetailSheet({ contact, activities, open, onOpenChange, on
                   No enrichment data available
                 </div>
               )}
+            </TabsContent>
+
+            <TabsContent value="impact" className="mt-4">
+              <ContactImpactReport contactId={contact.id} />
             </TabsContent>
           </Tabs>
         </SheetContent>

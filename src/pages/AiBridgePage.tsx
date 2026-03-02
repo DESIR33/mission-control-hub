@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Search, Filter, Brain, Sparkles, Loader2 } from "lucide-react";
+import { Search, Filter, Brain, Sparkles, Loader2, Check } from "lucide-react";
 import { WorkspaceProvider, useWorkspace } from "@/hooks/use-workspace";
 import { supabase } from "@/integrations/supabase/client";
 import { useProposals, useUpdateProposalStatus, useUpdateProposal } from "@/hooks/use-proposals";
@@ -200,14 +200,31 @@ function AiBridgeContent() {
             <Brain className="w-6 h-6 text-primary" />
             <h1 className="text-2xl font-bold text-foreground">AI Bridge</h1>
           </div>
-          <Button onClick={handleGenerate} disabled={isGenerating} size="sm">
-            {isGenerating ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            ) : (
-              <Sparkles className="w-4 h-4 mr-2" />
+          <div className="flex items-center gap-2">
+            {pendingCount > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  effectiveProposals
+                    .filter((p) => p.status === "pending")
+                    .forEach((p) => handleApprove(p.id));
+                }}
+                disabled={updateStatus.isPending}
+              >
+                <Check className="w-4 h-4 mr-2" />
+                Approve All ({pendingCount})
+              </Button>
             )}
-            {isGenerating ? "Generating..." : "Generate Proposals"}
-          </Button>
+            <Button onClick={handleGenerate} disabled={isGenerating} size="sm">
+              {isGenerating ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Sparkles className="w-4 h-4 mr-2" />
+              )}
+              {isGenerating ? "Generating..." : "Generate Proposals"}
+            </Button>
+          </div>
         </div>
         <p className="text-sm text-muted-foreground">
           Review AI-generated proposals for your contacts, deals, and companies.

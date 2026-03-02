@@ -9,6 +9,9 @@ import { RevenueChart } from "@/components/dashboard/RevenueChart";
 import { YouTubeGrowth } from "@/components/dashboard/YouTubeGrowth";
 import { TopContentRevenue } from "@/components/dashboard/TopContentRevenue";
 import { GrowthAlertBanner } from "@/components/dashboard/GrowthAlertBanner";
+import { AlertsPanel } from "@/components/dashboard/AlertsPanel";
+import { SprintWidget } from "@/components/dashboard/SprintWidget";
+import { GoalPaceWidget } from "@/components/dashboard/GoalPaceWidget";
 import { WorkspaceProvider } from "@/hooks/use-workspace";
 import {
   useDashboardStats,
@@ -52,11 +55,20 @@ function DashboardContent() {
         </p>
       </motion.div>
 
-      {/* Growth Alerts (Feature 6) */}
+      {/* Growth Alerts */}
       <GrowthAlertBanner />
+
+      {/* Performance Alerts */}
+      <AlertsPanel />
 
       {/* YouTube Growth Widget */}
       <YouTubeGrowth />
+
+      {/* Sprint + Goal Pace Widgets */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <SprintWidget />
+        <GoalPaceWidget />
+      </div>
 
       {/* KPI Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-3">

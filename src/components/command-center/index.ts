@@ -15,3 +15,6 @@ export { ContentCalendar } from "./ContentCalendar";
 export { ViralPredictor } from "./ViralPredictor";
 export { ContentROICalculator } from "./ContentROICalculator";
 export { SubscriberImpact } from "./SubscriberImpact";
+export { SubGrowthAttribution } from "./SubGrowthAttribution";
+export { CohortAnalysis } from "./CohortAnalysis";
+export { CommentInbox } from "./CommentInbox";
