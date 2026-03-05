@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useState, useMemo } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,229 +10,162 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CircleDollarSign, Calendar, BarChart3, Check, X } from "lucide-react";
-import {Badge} from "@/components/ui/badge";
-
-interface Transaction {
-  id: number;
-  affiliateProgramId: number;
-  transactionDate: string;
-  commission: number;
-  approximatePayoutDate: string;
-  isRecurring: boolean;
-  recurringMonths: number | null;
-  status?: string;
-  isPaid?: boolean;
-}
-
-interface AffiliateProgram {
-  id: number;
-  companyId: number;
-  dashboardUrl: string;
-  commissionPercentage: number;
-  payoutFrequency: string;
-  nextPayoutDate: string;
-  affiliateLinks: string[];
-  minimumPayout: number;
-  paymentMethods: string[];
-  notes: string;
-}
-
-interface Company {
-  id: number;
-  name: string;
-}
+import { CircleDollarSign, Calendar, BarChart3, Check, X, ArrowLeft } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
+import { useWorkspace } from "@/hooks/use-workspace";
+import { useCompanies } from "@/hooks/use-companies";
+import {
+  useAffiliateTransactions,
+  useCreateAffiliateTransaction,
+  useUpdateAffiliateTransaction,
+  type AffiliateTransaction,
+} from "@/hooks/use-affiliate-transactions";
 
 export default function AffiliateProgramPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [isAddingTransaction, setIsAddingTransaction] = useState(false);
-  const [transactionData, setTransactionData] = useState({
-    transactionDate: new Date().toISOString().split('T')[0],
-    commission: 0,
-    approximatePayoutDate: '',
-    isRecurring: false,
-    recurringMonths: 0
-  });
-
+  const { workspaceId } = useWorkspace();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: program } = useQuery<AffiliateProgram>({
-    queryKey: [`/api/affiliate-programs/${id}`],
+  const [isAddingTransaction, setIsAddingTransaction] = useState(false);
+  const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
+  const [transactionData, setTransactionData] = useState({
+    transactionDate: new Date().toISOString().split("T")[0],
+    commission: 0,
+    approximatePayoutDate: "",
+    isRecurring: false,
+    recurringMonths: 0,
   });
 
-  const { data: company } = useQuery<Company>({
-    queryKey: [`/api/companies/${program?.companyId}`],
-    enabled: !!program?.companyId,
-  });
-
-  const { data: transactions = [] } = useQuery<Transaction[]>({
-    queryKey: [`/api/affiliate-programs/${id}/transactions`],
+  // Fetch the affiliate program
+  const { data: program, isLoading: programLoading } = useQuery({
+    queryKey: ["affiliate-program", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("affiliate_programs")
+        .select("*")
+        .eq("id", id!)
+        .single();
+      if (error) throw error;
+      return data;
+    },
     enabled: !!id,
   });
 
-  const [editingTransactionId, setEditingTransactionId] = useState<number | null>(null);
+  // Get company name
+  const { data: companies = [] } = useCompanies();
+  const company = useMemo(
+    () => companies.find((c) => c.id === program?.company_id),
+    [companies, program?.company_id]
+  );
 
-  const updateTransaction = useMutation({
-    mutationFn: async ({ transactionId, data }: { transactionId: number, data: Omit<Transaction, 'id'> }) => {
-      const csrfResponse = await fetch('/api/csrf/token');
-      if (!csrfResponse.ok) throw new Error("Failed to get CSRF token");
-      const { csrfToken } = await csrfResponse.json();
+  // Fetch transactions for this program
+  const { data: allTransactions = [] } = useAffiliateTransactions();
+  const transactions = useMemo(
+    () => allTransactions.filter((t) => t.affiliate_program_id === id),
+    [allTransactions, id]
+  );
 
-      const response = await fetch(`/api/affiliate-programs/${id}/transactions/${transactionId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': csrfToken
-        },
-        body: JSON.stringify({
-          amount: parseFloat(data.commission.toString()),
-          transactionDate: data.transactionDate,
-          approximatePayoutDate: data.approximatePayoutDate || null,
-          isRecurring: data.isRecurring,
-          recurringMonths: data.isRecurring ? data.recurringMonths : null,
-          status: data.status || 'pending'
-        }),
-        credentials: 'include'
-      });
+  const createTx = useCreateAffiliateTransaction();
+  const updateTx = useUpdateAffiliateTransaction();
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Error updating transaction:', errorText);
-        throw new Error(errorText);
-      }
-
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/affiliate-programs/${id}/transactions`] });
-      setIsAddingTransaction(false);
-      toast({
-        title: "Success",
-        description: "Transaction updated successfully",
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const createTransaction = useMutation({
-    mutationFn: async (data: Omit<Transaction, 'id'>) => {
-      const csrfResponse = await fetch('/api/csrf/token');
-      if (!csrfResponse.ok) throw new Error("Failed to get CSRF token");
-      const { csrfToken } = await csrfResponse.json();
-
-      const response = await fetch(`/api/affiliate-programs/${id}/transactions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': csrfToken
-        },
-        body: JSON.stringify({
-          ...data,
-          commission: parseFloat(data.commission.toString()),
-          affiliateProgramId: parseInt(id!),
-          recurringMonths: data.isRecurring ? data.recurringMonths : null,
-          status: 'pending'
-        }),
-        credentials: 'include'
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText);
-      }
-
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/affiliate-programs/${id}/transactions`] });
-      setIsAddingTransaction(false);
-      toast({
-        title: "Success",
-        description: "Transaction added successfully",
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
+  // Mark as paid
   const markAsPaid = useMutation({
-    mutationFn: async (transactionId: number) => {
-      const csrfResponse = await fetch('/api/csrf/token');
-      if (!csrfResponse.ok) throw new Error("Failed to get CSRF token");
-      const { csrfToken } = await csrfResponse.json();
-
-      const response = await fetch(`/api/affiliate-programs/${id}/transactions/${transactionId}/paid`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-          "X-CSRF-Token": csrfToken
-        },
-        credentials: 'include'
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        let errorMessage = 'Failed to mark as paid';
-
-        try {
-          const errorData = JSON.parse(errorText);
-          errorMessage = errorData.message || errorData.error || errorMessage;
-        } catch {
-          console.error('Error parsing response:', errorText);
-          errorMessage = 'Server error occurred. Please try again.';
-        }
-
-        throw new Error(errorMessage);
-      }
-
-      return response.json();
+    mutationFn: async (txId: string) => {
+      const { error } = await supabase
+        .from("affiliate_transactions" as any)
+        .update({ status: "paid" })
+        .eq("id", txId);
+      if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/affiliate-programs/${id}/transactions`] });
-      queryClient.invalidateQueries({ queryKey: [`/api/affiliate-programs/${id}`] });
-      toast({
-        title: "Success",
-        description: "Transaction marked as paid",
-      });
+      queryClient.invalidateQueries({ queryKey: ["affiliate-transactions"] });
+      toast({ title: "Success", description: "Transaction marked as paid" });
     },
-    onError: (error: Error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+    onError: (e: Error) => {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
     },
   });
 
+  const handleSubmitTransaction = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const payload: Partial<AffiliateTransaction> = {
+      affiliate_program_id: id!,
+      amount: transactionData.commission,
+      transaction_date: transactionData.transactionDate,
+      status: "pending",
+      description: transactionData.isRecurring
+        ? `Recurring (${transactionData.recurringMonths} months)`
+        : null,
+      metadata: {
+        approximate_payout_date: transactionData.approximatePayoutDate || null,
+        is_recurring: transactionData.isRecurring,
+        recurring_months: transactionData.isRecurring ? transactionData.recurringMonths : null,
+      } as any,
+    };
 
-  const totalSales = Array.isArray(transactions) ? transactions.length : 0;
-  const totalRevenue = Array.isArray(transactions) ?
-    transactions.reduce((sum, t) => sum + (parseFloat(t.commission as any) || 0), 0) : 0;
-  const pendingPayouts = Array.isArray(transactions) ?
-    transactions
-      .filter(t => t.approximatePayoutDate && new Date(t.approximatePayoutDate) > new Date())
-      .reduce((sum, t) => sum + (parseFloat(t.commission as any) || 0), 0) : 0;
+    if (editingTransactionId) {
+      await updateTx.mutateAsync({ id: editingTransactionId, ...payload });
+    } else {
+      await createTx.mutateAsync(payload);
+    }
+    setIsAddingTransaction(false);
+    setEditingTransactionId(null);
+    setTransactionData({
+      transactionDate: new Date().toISOString().split("T")[0],
+      commission: 0,
+      approximatePayoutDate: "",
+      isRecurring: false,
+      recurringMonths: 0,
+    });
+  };
 
-  if (!program || !company) {
+  const openEditTransaction = (tx: AffiliateTransaction) => {
+    const meta = (tx.metadata || {}) as Record<string, any>;
+    setEditingTransactionId(tx.id);
+    setTransactionData({
+      transactionDate: tx.transaction_date || new Date().toISOString().split("T")[0],
+      commission: tx.amount,
+      approximatePayoutDate: meta.approximate_payout_date || "",
+      isRecurring: meta.is_recurring || false,
+      recurringMonths: meta.recurring_months || 0,
+    });
+    setIsAddingTransaction(true);
+  };
+
+  // Stats
+  const totalSales = transactions.length;
+  const totalRevenue = transactions.reduce((sum, t) => sum + (t.amount || 0), 0);
+  const pendingPayouts = transactions
+    .filter((t) => {
+      const meta = (t.metadata || {}) as Record<string, any>;
+      return meta.approximate_payout_date && new Date(meta.approximate_payout_date) > new Date();
+    })
+    .reduce((sum, t) => sum + (t.amount || 0), 0);
+
+  // Parse JSON fields from program
+  const affiliateLinks = useMemo(() => {
+    if (!program?.affiliate_links) return [];
+    const raw = program.affiliate_links;
+    if (Array.isArray(raw)) return raw as string[];
+    return [];
+  }, [program?.affiliate_links]);
+
+  const paymentMethods = useMemo(() => {
+    if (!program?.payment_methods) return [];
+    const raw = program.payment_methods;
+    if (Array.isArray(raw)) return raw as string[];
+    return [];
+  }, [program?.payment_methods]);
+
+  if (programLoading || !program) {
     return (
       <div className="p-8">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 w-1/3 bg-muted rounded"></div>
-          <div className="h-32 bg-muted rounded"></div>
+          <div className="h-8 w-1/3 bg-muted rounded" />
+          <div className="h-32 bg-muted rounded" />
         </div>
       </div>
     );
@@ -240,328 +173,322 @@ export default function AffiliateProgramPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Section with Neumorphic Design */}
-      <div className="bg-gray-900 border-b border-gray-800">
+      {/* Header */}
+      <div className="border-b border-border bg-card">
         <div className="container px-4 md:px-8 py-8">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <div className="flex items-center gap-2 mb-4">
-                <button
-                  onClick={() => navigate(-1)}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-800 text-gray-300 shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border border-gray-700 transition-all duration-300 hover:shadow-[8px_8px_16px_rgba(0,0,0,0.15),-8px_-8px_16px_rgba(255,255,255,0.08)] dark:hover:shadow-[8px_8px_16px_rgba(0,0,0,0.3),-8px_-8px_16px_rgba(255,255,255,0.04)] hover:scale-95 active:scale-90 font-medium"
-                >
-                  ← Back to Programs
-                </button>
-              </div>
-              <h1 className="text-4xl font-bold text-white">{company.name}</h1>
-              <p className="text-gray-400 text-lg">Affiliate Program Details</p>
+              <button
+                onClick={() => navigate("/monetization?tab=affiliate")}
+                className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back to Programs
+              </button>
+              <h1 className="text-3xl font-bold text-foreground">
+                {company?.name || "Affiliate Program"}
+              </h1>
+              <p className="text-muted-foreground text-lg">Affiliate Program Details</p>
             </div>
           </div>
         </div>
       </div>
 
       <div className="container px-4 md:px-8 py-8 space-y-8">
-
+        {/* Stats */}
         <div className="grid gap-6 md:grid-cols-3">
-          <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-6 shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border border-border/50 transition-all duration-300 hover:shadow-[8px_8px_16px_rgba(0,0,0,0.15),-8px_-8px_16px_rgba(255,255,255,0.08)] dark:hover:shadow-[8px_8px_16px_rgba(0,0,0,0.3),-8px_-8px_16px_rgba(255,255,255,0.04)] hover:scale-[1.02] group">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-medium text-muted-foreground">Total Revenue</h3>
-              <div className="p-2 rounded-xl bg-green-500/10 border border-green-500/20 transition-all duration-300 group-hover:scale-110">
-                <CircleDollarSign className="h-4 w-4 text-green-500" />
-              </div>
-            </div>
-            <div className="text-3xl font-bold text-foreground">${totalRevenue.toFixed(2)}</div>
-          </div>
-
-          <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-6 shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border border-border/50 transition-all duration-300 hover:shadow-[8px_8px_16px_rgba(0,0,0,0.15),-8px_-8px_16px_rgba(255,255,255,0.08)] dark:hover:shadow-[8px_8px_16px_rgba(0,0,0,0.3),-8px_-8px_16px_rgba(255,255,255,0.04)] hover:scale-[1.02] group">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-medium text-muted-foreground">Pending Payouts</h3>
-              <div className="p-2 rounded-xl bg-orange-500/10 border border-orange-500/20 transition-all duration-300 group-hover:scale-110">
-                <Calendar className="h-4 w-4 text-orange-500" />
-              </div>
-            </div>
-            <div className="text-3xl font-bold text-foreground">${pendingPayouts.toFixed(2)}</div>
-          </div>
-
-          <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-6 shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border border-border/50 transition-all duration-300 hover:shadow-[8px_8px_16px_rgba(0,0,0,0.15),-8px_-8px_16px_rgba(255,255,255,0.08)] dark:hover:shadow-[8px_8px_16px_rgba(0,0,0,0.3),-8px_-8px_16px_rgba(255,255,255,0.04)] hover:scale-[1.02] group">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-medium text-muted-foreground">Total Sales</h3>
-              <div className="p-2 rounded-xl bg-blue-500/10 border border-blue-500/20 transition-all duration-300 group-hover:scale-110">
-                <BarChart3 className="h-4 w-4 text-blue-500" />
-              </div>
-            </div>
-            <div className="text-3xl font-bold text-foreground">{totalSales}</div>
-          </div>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total Revenue</CardTitle>
+              <CircleDollarSign className="h-4 w-4 text-green-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">${totalRevenue.toFixed(2)}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Pending Payouts</CardTitle>
+              <Calendar className="h-4 w-4 text-orange-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">${pendingPayouts.toFixed(2)}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total Sales</CardTitle>
+              <BarChart3 className="h-4 w-4 text-blue-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">{totalSales}</div>
+            </CardContent>
+          </Card>
         </div>
 
+        {/* Tabs */}
         <Tabs defaultValue="details" className="space-y-6">
-          <TabsList className="bg-gray-800 p-1 rounded-2xl inline-flex gap-1 shadow-[inset_6px_6px_12px_rgba(0,0,0,0.1),inset_-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[inset_6px_6px_12px_rgba(0,0,0,0.2),inset_-6px_-6px_12px_rgba(255,255,255,0.02)] border border-gray-700">
-            <TabsTrigger
-              value="details"
-              className="px-6 py-3 rounded-xl text-sm font-medium transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] data-[state=active]:dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] text-gray-400 hover:text-white active:scale-95"
-            >
-              Program Details
-            </TabsTrigger>
-            <TabsTrigger
-              value="transactions"
-              className="px-6 py-3 rounded-xl text-sm font-medium transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] data-[state=active]:dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] text-gray-400 hover:text-white active:scale-95"
-            >
-              Transactions
-            </TabsTrigger>
+          <TabsList>
+            <TabsTrigger value="details">Program Details</TabsTrigger>
+            <TabsTrigger value="transactions">Transactions</TabsTrigger>
           </TabsList>
 
           <TabsContent value="details">
-            <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-6 shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border border-border/50 transition-all duration-300 hover:shadow-[8px_8px_16px_rgba(0,0,0,0.15),-8px_-8px_16px_rgba(255,255,255,0.08)] dark:hover:shadow-[8px_8px_16px_rgba(0,0,0,0.3),-8px_-8px_16px_rgba(255,255,255,0.04)]">
-              <div className="space-y-6">
-              <div className="space-y-1">
-                <Label className="text-sm text-muted-foreground">Dashboard</Label>
-                <p>
-                  <a
-                    href={program.dashboardUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline"
-                  >
-                    {program.dashboardUrl}
-                  </a>
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <Label className="text-sm text-muted-foreground">Commission Rate</Label>
-                  <p>{program.commissionPercentage}%</p>
-                </div>
-
-                <div className="space-y-1">
-                  <Label className="text-sm text-muted-foreground">Payout Frequency</Label>
-                  <p className="capitalize">{program.payoutFrequency}</p>
-                </div>
-
-                <div className="space-y-1">
-                  <Label className="text-sm text-muted-foreground">Next Payout</Label>
-                  <p>{program.nextPayoutDate ? new Date(program.nextPayoutDate).toLocaleDateString() : 'Not set'}</p>
-                </div>
-
-                <div className="space-y-1">
-                  <Label className="text-sm text-muted-foreground">Minimum Payout</Label>
-                  <p>${program.minimumPayout}</p>
-                </div>
-              </div>
-
-              {program.affiliateLinks && program.affiliateLinks.length > 0 && (
-                <div className="space-y-2">
-                  <Label className="text-sm text-muted-foreground">Affiliate Links</Label>
+            <Card>
+              <CardContent className="p-6 space-y-6">
+                {program.dashboard_url && (
                   <div className="space-y-1">
-                    {program.affiliateLinks.map((link, index) => (
+                    <Label className="text-sm text-muted-foreground">Dashboard</Label>
+                    <p>
                       <a
-                        key={index}
-                        href={link}
+                        href={program.dashboard_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="block text-primary hover:underline"
+                        className="text-primary hover:underline"
                       >
-                        {link}
+                        {program.dashboard_url}
                       </a>
-                    ))}
+                    </p>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <Label className="text-sm text-muted-foreground">Commission Rate</Label>
+                    <p className="text-foreground">{program.commission_percentage}%</p>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-sm text-muted-foreground">Payout Frequency</Label>
+                    <p className="capitalize text-foreground">{program.payout_frequency}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-sm text-muted-foreground">Next Payout</Label>
+                    <p className="text-foreground">
+                      {program.next_payout_date
+                        ? new Date(program.next_payout_date).toLocaleDateString()
+                        : "Not set"}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-sm text-muted-foreground">Minimum Payout</Label>
+                    <p className="text-foreground">${program.minimum_payout}</p>
                   </div>
                 </div>
-              )}
 
-              {program.paymentMethods && program.paymentMethods.length > 0 && (
-                <div className="space-y-1">
-                  <Label className="text-sm text-muted-foreground">Payment Methods</Label>
-                  <p>{program.paymentMethods.join(', ')}</p>
-                </div>
-              )}
+                {affiliateLinks.length > 0 && (
+                  <div className="space-y-2">
+                    <Label className="text-sm text-muted-foreground">Affiliate Links</Label>
+                    <div className="space-y-1">
+                      {affiliateLinks.map((link, i) => (
+                        <a
+                          key={i}
+                          href={String(link)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block text-primary hover:underline"
+                        >
+                          {String(link)}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-              {program.notes && (
-                <div className="space-y-1">
-                  <Label className="text-sm text-muted-foreground">Notes</Label>
-                  <p>{program.notes}</p>
-                </div>
-              )}
-              </div>
-            </div>
+                {paymentMethods.length > 0 && (
+                  <div className="space-y-1">
+                    <Label className="text-sm text-muted-foreground">Payment Methods</Label>
+                    <p className="text-foreground">{paymentMethods.join(", ")}</p>
+                  </div>
+                )}
+
+                {program.notes && (
+                  <div className="space-y-1">
+                    <Label className="text-sm text-muted-foreground">Notes</Label>
+                    <p className="text-foreground">{program.notes}</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="transactions">
-            <div className="bg-card/50 backdrop-blur-sm rounded-2xl shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border border-border/50 transition-all duration-300 hover:shadow-[8px_8px_16px_rgba(0,0,0,0.15),-8px_-8px_16px_rgba(255,255,255,0.08)] dark:hover:shadow-[8px_8px_16px_rgba(0,0,0,0.3),-8px_-8px_16px_rgba(255,255,255,0.04)]">
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h2 className="text-2xl font-bold text-foreground">Transactions</h2>
-                    <p className="text-muted-foreground">Track commissions and payouts</p>
-                  </div>
-                  <button
-                    onClick={() => navigate(`/affiliate-program/${id}/add-transaction`)}
-                    className="px-6 py-3 rounded-xl bg-primary text-primary-foreground shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border border-primary/30 transition-all duration-300 hover:shadow-[8px_8px_16px_rgba(0,0,0,0.15),-8px_-8px_16px_rgba(255,255,255,0.08)] dark:hover:shadow-[8px_8px_16px_rgba(0,0,0,0.3),-8px_-8px_16px_rgba(255,255,255,0.04)] hover:scale-95 active:scale-90 font-medium"
-                  >
-                    Add Transaction
-                  </button>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Transactions</CardTitle>
+                  <CardDescription>Track commissions and payouts</CardDescription>
                 </div>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Commission</TableHead>
-                    <TableHead>Payout Date</TableHead>
-                    <TableHead>Recurring</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {transactions.map((transaction) => (
-                    <TableRow key={transaction.id}>
-                      <TableCell>{new Date(transaction.transactionDate).toLocaleDateString()}</TableCell>
-                      <TableCell>${transaction.commission}</TableCell>
-                      <TableCell>{transaction.approximatePayoutDate ? new Date(transaction.approximatePayoutDate).toLocaleDateString() : '-'}</TableCell>
-                      <TableCell>
-                        {transaction.isRecurring ?
-                          `Yes (${transaction.recurringMonths} months)` :
-                          'No'
-                        }
-                      </TableCell>
-                      <TableCell>
-                        {transaction.status === 'paid' ? (
-                          <Badge className="bg-green-100 text-green-800">
-                            <Check className="w-3 h-3 mr-1" /> Paid
-                          </Badge>
-                        ) : (
-                          <Badge variant="secondary">
-                            <X className="w-3 h-3 mr-1" /> Unpaid
-                          </Badge>
-                        )}
-                      </TableCell>
-                      <TableCell className="space-x-2">
-                        {transaction.status !== 'paid' && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => markAsPaid.mutateAsync(transaction.id)}
-                            disabled={markAsPaid.isPending}
-                          >
-                            Mark as Paid
-                          </Button>
-                        )}
-                        <Button variant="ghost" size="sm" asChild>
-                          <Link to={`/affiliate-program/${id}/edit-transaction?editId=${transaction.id}`}>
-                            Edit
-                          </Link>
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {transactions.length === 0 && (
+                <Button onClick={() => navigate(`/affiliate-program/${id}/add-transaction`)}>
+                  Add Transaction
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center text-muted-foreground py-4">
-                        No transactions recorded
-                      </TableCell>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Commission</TableHead>
+                      <TableHead>Payout Date</TableHead>
+                      <TableHead>Recurring</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Actions</TableHead>
                     </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-              </div>
-            </div>
-
-          <Dialog open={isAddingTransaction} onOpenChange={setIsAddingTransaction}>
-            <DialogContent className="bg-card/95 backdrop-blur-sm border border-border/50 shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] rounded-2xl">
-              <DialogHeader>
-                <DialogTitle>Add Transaction</DialogTitle>
-                <DialogDescription>
-                  Record a new commission transaction for this affiliate program
-                </DialogDescription>
-              </DialogHeader>
-              <form onSubmit={async (e) => {
-                e.preventDefault();
-                const data = {
-                  ...transactionData,
-                  affiliateProgramId: parseInt(id!),
-                  recurringMonths: transactionData.isRecurring ? transactionData.recurringMonths : null,
-                };
-
-                if (editingTransactionId) {
-                  await updateTransaction.mutateAsync({ transactionId: editingTransactionId, data });
-                } else {
-                  await createTransaction.mutateAsync(data);
-                }
-                setEditingTransactionId(null);
-              }} className="space-y-4">
-                <div className="grid gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="transactionDate">Transaction Date</Label>
-                    <Input
-                      id="transactionDate"
-                      type="date"
-                      value={transactionData.transactionDate}
-                      onChange={e => setTransactionData({ ...transactionData, transactionDate: e.target.value })}
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="commission">Commission Amount ($)</Label>
-                    <Input
-                      id="commission"
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={transactionData.commission}
-                      onChange={e => setTransactionData({ ...transactionData, commission: parseFloat(e.target.value) })}
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="approximatePayoutDate">Approximate Payout Date</Label>
-                    <Input
-                      id="approximatePayoutDate"
-                      type="date"
-                      value={transactionData.approximatePayoutDate}
-                      onChange={e => setTransactionData({ ...transactionData, approximatePayoutDate: e.target.value })}
-                      required
-                    />
-                  </div>
-
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      id="isRecurring"
-                      checked={transactionData.isRecurring}
-                      onCheckedChange={checked => setTransactionData({ ...transactionData, isRecurring: checked })}
-                    />
-                    <Label htmlFor="isRecurring">Recurring Transaction</Label>
-                  </div>
-
-                  {transactionData.isRecurring && (
-                    <div className="space-y-2">
-                      <Label htmlFor="recurringMonths">Number of Months</Label>
-                      <Input
-                        id="recurringMonths"
-                        type="number"
-                        min="1"
-                        value={transactionData.recurringMonths}
-                        onChange={e => setTransactionData({ ...transactionData, recurringMonths: parseInt(e.target.value) })}
-                        required
-                      />
-                    </div>
-                  )}
-                </div>
-                <DialogFooter>
-                  <button
-                    type="submit"
-                    disabled={createTransaction.isPending}
-                    className="px-6 py-3 rounded-xl bg-primary text-primary-foreground shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border border-primary/30 transition-all duration-300 hover:shadow-[8px_8px_16px_rgba(0,0,0,0.15),-8px_-8px_16px_rgba(255,255,255,0.08)] dark:hover:shadow-[8px_8px_16px_rgba(0,0,0,0.3),-8px_-8px_16px_rgba(255,255,255,0.04)] hover:scale-95 active:scale-90 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {createTransaction.isPending ? "Adding..." : "Add Transaction"}
-                  </button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </TabsContent>
-      </Tabs>
+                  </TableHeader>
+                  <TableBody>
+                    {transactions.map((tx) => {
+                      const meta = (tx.metadata || {}) as Record<string, any>;
+                      return (
+                        <TableRow key={tx.id}>
+                          <TableCell>
+                            {tx.transaction_date
+                              ? new Date(tx.transaction_date).toLocaleDateString()
+                              : "-"}
+                          </TableCell>
+                          <TableCell>${tx.amount.toFixed(2)}</TableCell>
+                          <TableCell>
+                            {meta.approximate_payout_date
+                              ? new Date(meta.approximate_payout_date).toLocaleDateString()
+                              : "-"}
+                          </TableCell>
+                          <TableCell>
+                            {meta.is_recurring
+                              ? `Yes (${meta.recurring_months} months)`
+                              : "No"}
+                          </TableCell>
+                          <TableCell>
+                            {tx.status === "paid" ? (
+                              <Badge variant="default" className="gap-1">
+                                <Check className="h-3 w-3" /> Paid
+                              </Badge>
+                            ) : (
+                              <Badge variant="secondary" className="gap-1">
+                                <X className="h-3 w-3" /> Unpaid
+                              </Badge>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              {tx.status !== "paid" && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => markAsPaid.mutateAsync(tx.id)}
+                                  disabled={markAsPaid.isPending}
+                                >
+                                  Mark as Paid
+                                </Button>
+                              )}
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => openEditTransaction(tx)}
+                              >
+                                Edit
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                    {transactions.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                          No transactions recorded
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
+
+      {/* Add/Edit Transaction Dialog */}
+      <Dialog open={isAddingTransaction} onOpenChange={setIsAddingTransaction}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editingTransactionId ? "Edit" : "Add"} Transaction</DialogTitle>
+            <DialogDescription>
+              Record a commission transaction for this affiliate program
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSubmitTransaction} className="space-y-4">
+            <div className="space-y-2">
+              <Label>Transaction Date</Label>
+              <Input
+                type="date"
+                value={transactionData.transactionDate}
+                onChange={(e) =>
+                  setTransactionData({ ...transactionData, transactionDate: e.target.value })
+                }
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Commission Amount ($)</Label>
+              <Input
+                type="number"
+                min="0"
+                step="0.01"
+                value={transactionData.commission}
+                onChange={(e) =>
+                  setTransactionData({
+                    ...transactionData,
+                    commission: parseFloat(e.target.value),
+                  })
+                }
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Approximate Payout Date</Label>
+              <Input
+                type="date"
+                value={transactionData.approximatePayoutDate}
+                onChange={(e) =>
+                  setTransactionData({
+                    ...transactionData,
+                    approximatePayoutDate: e.target.value,
+                  })
+                }
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={transactionData.isRecurring}
+                onCheckedChange={(checked) =>
+                  setTransactionData({ ...transactionData, isRecurring: checked })
+                }
+              />
+              <Label>Recurring Transaction</Label>
+            </div>
+            {transactionData.isRecurring && (
+              <div className="space-y-2">
+                <Label>Number of Months</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  value={transactionData.recurringMonths}
+                  onChange={(e) =>
+                    setTransactionData({
+                      ...transactionData,
+                      recurringMonths: parseInt(e.target.value),
+                    })
+                  }
+                  required
+                />
+              </div>
+            )}
+            <DialogFooter>
+              <Button type="submit" disabled={createTx.isPending || updateTx.isPending}>
+                {editingTransactionId ? "Update" : "Add"} Transaction
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
