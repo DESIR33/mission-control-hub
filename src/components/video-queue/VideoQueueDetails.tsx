@@ -25,11 +25,11 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { SiFacebook } from "react-icons/si";
 import { SiInstagram } from "react-icons/si";
-import { SiLinkedin } from "react-icons/si";
 import { SiTiktok } from "react-icons/si";
 import { SiTwitch } from "react-icons/si";
 import { SiX } from "react-icons/si";
 import { SiYoutube } from "react-icons/si";
+import { Linkedin as SiLinkedin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   useUpdateVideo,
