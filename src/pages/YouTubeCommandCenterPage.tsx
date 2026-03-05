@@ -5,10 +5,13 @@ import {
   MessageSquare, ListVideo, BarChart3, Users,
   Calendar, Zap, ChevronLeft, ChevronRight, Calculator, UserCheck,
   UserPlus, MessageCircle, Brain, FlaskConical, Crosshair, Banknote, Upload, ImageIcon,
+  Menu,
 } from "lucide-react";
 import { useWorkspace, WorkspaceProvider } from "@/hooks/use-workspace";
 import { useSyncYouTube } from "@/hooks/use-youtube-analytics";
 import { useSyncYouTubeAnalytics } from "@/hooks/use-youtube-analytics-api";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import {
   GrowthForecast, VideoScorecard, ContentRevenueLinker,
   UploadTimeAnalyzer, RetentionAnalyzer, CtrOptimizer,
@@ -116,9 +119,73 @@ const TAB_COMPONENTS: Record<Tab, React.ComponentType> = {
   thumbnail_lab: ThumbnailLab,
 };
 
+function SidebarNav({
+  activeTab,
+  setActiveTab,
+  sidebarCollapsed,
+  setSidebarCollapsed,
+  onSelect,
+}: {
+  activeTab: Tab;
+  setActiveTab: (t: Tab) => void;
+  sidebarCollapsed: boolean;
+  setSidebarCollapsed: (v: boolean) => void;
+  onSelect?: () => void;
+}) {
+  const groups = Array.from(new Set(TABS.map((t) => t.group)));
+
+  return (
+    <div className="flex flex-col h-full">
+      <div className="flex items-center justify-between p-3 border-b border-border">
+        {!sidebarCollapsed && (
+          <div className="flex items-center gap-2">
+            <Rocket className="w-4 h-4 text-destructive" />
+            <span className="text-xs font-semibold text-foreground">Command Center</span>
+          </div>
+        )}
+        <button
+          onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+          className="p-1 rounded hover:bg-muted transition-colors text-muted-foreground hidden md:block"
+        >
+          {sidebarCollapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
+        </button>
+      </div>
+
+      <nav className="p-2 space-y-3 overflow-y-auto flex-1">
+        {groups.map((group) => (
+          <div key={group}>
+            {!sidebarCollapsed && (
+              <p className="text-[9px] text-muted-foreground uppercase tracking-wider px-2 mb-1">{group}</p>
+            )}
+            <div className="space-y-0.5">
+              {TABS.filter((t) => t.group === group).map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => { setActiveTab(tab.key); onSelect?.(); }}
+                  className={`w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs transition-colors ${
+                    activeTab === tab.key
+                      ? "bg-primary/10 text-primary font-medium"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  }`}
+                  title={sidebarCollapsed ? tab.label : undefined}
+                >
+                  {tab.icon}
+                  {!sidebarCollapsed && <span>{tab.label}</span>}
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </nav>
+    </div>
+  );
+}
+
 function CommandCenterContent() {
   const [activeTab, setActiveTab] = useState<Tab>("forecast");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const isMobile = useIsMobile();
   const { isLoading: workspaceLoading } = useWorkspace();
   const syncYouTube = useSyncYouTube();
   const syncAnalytics = useSyncYouTubeAnalytics();
@@ -143,67 +210,55 @@ function CommandCenterContent() {
   const ActiveComponent = TAB_COMPONENTS[activeTab];
   const activeTabInfo = TABS.find((t) => t.key === activeTab)!;
 
-  // Group tabs
-  const groups = Array.from(new Set(TABS.map((t) => t.group)));
-
   return (
     <div className="flex h-full">
-      {/* Sidebar */}
-      <div
-        className={`shrink-0 border-r border-border bg-card/50 transition-all duration-200 ${
-          sidebarCollapsed ? "w-12" : "w-56"
-        }`}
-      >
-        <div className="flex items-center justify-between p-3 border-b border-border">
-          {!sidebarCollapsed && (
-            <div className="flex items-center gap-2">
-              <Rocket className="w-4 h-4 text-red-500" />
-              <span className="text-xs font-semibold text-foreground">Command Center</span>
-            </div>
-          )}
-          <button
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="p-1 rounded hover:bg-muted transition-colors text-muted-foreground"
-          >
-            {sidebarCollapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
-          </button>
+      {/* Desktop Sidebar */}
+      {!isMobile && (
+        <div
+          className={`shrink-0 border-r border-border bg-card/50 transition-all duration-200 ${
+            sidebarCollapsed ? "w-12" : "w-56"
+          }`}
+        >
+          <SidebarNav
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            sidebarCollapsed={sidebarCollapsed}
+            setSidebarCollapsed={setSidebarCollapsed}
+          />
         </div>
+      )}
 
-        <nav className="p-2 space-y-3 overflow-y-auto" style={{ maxHeight: "calc(100vh - 120px)" }}>
-          {groups.map((group) => (
-            <div key={group}>
-              {!sidebarCollapsed && (
-                <p className="text-[9px] text-muted-foreground uppercase tracking-wider px-2 mb-1">{group}</p>
-              )}
-              <div className="space-y-0.5">
-                {TABS.filter((t) => t.group === group).map((tab) => (
-                  <button
-                    key={tab.key}
-                    onClick={() => setActiveTab(tab.key)}
-                    className={`w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs transition-colors ${
-                      activeTab === tab.key
-                        ? "bg-primary/10 text-primary font-medium"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                    }`}
-                    title={sidebarCollapsed ? tab.label : undefined}
-                  >
-                    {tab.icon}
-                    {!sidebarCollapsed && <span>{tab.label}</span>}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ))}
-        </nav>
-      </div>
+      {/* Mobile Nav Sheet */}
+      {isMobile && (
+        <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
+          <SheetContent side="left" className="p-0 w-64 bg-card border-border">
+            <SidebarNav
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              sidebarCollapsed={false}
+              setSidebarCollapsed={() => {}}
+              onSelect={() => setMobileNavOpen(false)}
+            />
+          </SheetContent>
+        </Sheet>
+      )}
 
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto">
-        <div className="p-6">
-          <div className="flex items-center gap-3 mb-6">
+        <div className="p-4 md:p-6">
+          <div className="flex items-center gap-3 mb-4 md:mb-6">
+            {isMobile && (
+              <button
+                onClick={() => setMobileNavOpen(true)}
+                className="p-1.5 rounded-md hover:bg-muted transition-colors text-muted-foreground shrink-0"
+                aria-label="Open command center menu"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+            )}
             {activeTabInfo.icon}
-            <div>
-              <h1 className="text-lg font-bold text-foreground">{activeTabInfo.label}</h1>
+            <div className="min-w-0">
+              <h1 className="text-base md:text-lg font-bold text-foreground truncate">{activeTabInfo.label}</h1>
               <p className="text-xs text-muted-foreground">YouTube Command Center</p>
             </div>
           </div>
