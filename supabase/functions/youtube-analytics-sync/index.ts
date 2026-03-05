@@ -190,7 +190,8 @@ Deno.serve(async (req) => {
     // metric identifiers and cause 400 errors.
     // ═══════════════════════════════════════════════════════════════
     try {
-      const channelMetrics = [
+      // Core metrics that are always available
+      const coreChannelMetrics = [
         "views",
         "estimatedMinutesWatched",
         "averageViewDuration",
@@ -201,8 +202,6 @@ Deno.serve(async (req) => {
         "dislikes",
         "comments",
         "shares",
-        "impressions",
-        "impressionClickThroughRate",
         "cardClicks",
         "cardImpressions",
         "cardClickRate",
@@ -221,7 +220,7 @@ Deno.serve(async (req) => {
         startDate,
         endDate,
         dimensions: "day",
-        metrics: channelMetrics.join(","),
+        metrics: coreChannelMetrics.join(","),
         sort: "day",
       });
 
@@ -230,7 +229,6 @@ Deno.serve(async (req) => {
           const [
             day, views, minutesWatched, avgDuration, avgPercentage,
             subsGained, subsLost, likes, dislikes, comments, shares,
-            impressions, impressionCtr,
             cardClicks, cardImpressions, cardCtr,
             estRevenue, estAdRevenue, estRedRevenue, grossRevenue,
             cpmVal, adImpressions, monetizedPlaybacks, playbackCpm,
@@ -250,8 +248,8 @@ Deno.serve(async (req) => {
             dislikes: dislikes || 0,
             comments: comments || 0,
             shares: shares || 0,
-            impressions: impressions || 0,
-            impressions_ctr: impressionCtr || 0, // 0-1 ratio from API
+            impressions: 0,
+            impressions_ctr: 0,
             unique_viewers: 0,
             card_clicks: cardClicks || 0,
             card_impressions: cardImpressions || 0,
@@ -273,7 +271,7 @@ Deno.serve(async (req) => {
           if (syncResult.channelRowsUpserted === 0) {
             syncResult.sampleChannelRow = {
               day, views, minutesWatched, avgDuration, avgPercentage,
-              impressions, impressionCtr, estRevenue,
+              estRevenue,
             };
             console.log("[YT Analytics] Sample channel row:", JSON.stringify(syncResult.sampleChannelRow));
           }
@@ -312,8 +310,6 @@ Deno.serve(async (req) => {
         "dislikes",
         "comments",
         "shares",
-        "impressions",
-        "impressionClickThroughRate",
         "cardClicks",
         "cardImpressions",
         "annotationClickThroughRate",
@@ -335,7 +331,6 @@ Deno.serve(async (req) => {
           const [
             videoId, views, minutesWatched, avgDuration, avgPercentage,
             subsGained, subsLost, likes, dislikes, comments, shares,
-            impressions, impressionCtr,
             cardClicks, cardImpressions,
             annotationCtr, estRevenue,
           ] = row;
@@ -355,7 +350,7 @@ Deno.serve(async (req) => {
           if (syncResult.videoRowsUpserted === 0) {
             syncResult.sampleVideoRow = {
               videoId, views, minutesWatched, avgDuration, avgPercentage,
-              impressions, impressionCtr, estRevenue,
+              estRevenue,
             };
             console.log("[YT Analytics] Sample video row:", JSON.stringify(syncResult.sampleVideoRow));
           }
@@ -378,8 +373,8 @@ Deno.serve(async (req) => {
                 dislikes: dislikes || 0,
                 comments: comments || 0,
                 shares: shares || 0,
-                impressions: impressions || 0,
-                impressions_ctr: impressionCtr || 0,
+                impressions: 0,
+                impressions_ctr: 0,
                 card_clicks: cardClicks || 0,
                 card_impressions: cardImpressions || 0,
                 end_screen_element_clicks: 0,
