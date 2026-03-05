@@ -46,6 +46,9 @@ export const MODEL_OPTIONS = [
   { group: "Moonshot", models: [
     { id: "moonshotai/kimi-k2.5", label: "Kimi K2.5" },
   ]},
+  { group: "MiniMax", models: [
+    { id: "minimax/minimax-m2.5", label: "MiniMax M2.5" },
+  ]},
 ];
 
 const DEFAULT_MODEL = "anthropic/claude-sonnet-4-20250514";
