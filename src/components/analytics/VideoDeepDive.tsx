@@ -94,8 +94,10 @@ export function VideoDeepDive({ data, daysRange }: Props) {
         ? rows.reduce((s, r) => s + Number(r.average_view_percentage) * r.views, 0) / totalViews
         : 0;
 
-      // Recompute CTR from views/impressions (already converted to % in hook)
-      const impressions_ctr = impressions > 0 ? (views / impressions) * 100 : 0;
+      // Weighted average CTR across daily rows
+      const impressions_ctr = impressions > 0
+        ? rows.reduce((s, r) => s + r.impressions_ctr * r.impressions, 0) / impressions
+        : 0;
 
       results.push({
         ...latest,

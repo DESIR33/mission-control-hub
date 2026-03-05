@@ -114,7 +114,7 @@ export function TrafficSources({ data, daysRange }: Props) {
       ([sourceType, cur]) => {
         const prev = previousAgg.get(sourceType);
         const prevViews = prev?.views ?? 0;
-        const prevMinutes = prev?.prevMinutesWatched ?? prev?.minutes ?? 0;
+        const prevMinutes = prev?.minutes ?? 0;
         const isNew = !prev;
         const changePercent =
           isNew || prevViews === 0

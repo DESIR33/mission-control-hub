@@ -165,8 +165,8 @@ export function useCreateVideo() {
         status: input.status ?? "idea",
         priority: input.priority ?? "medium",
         scheduled_date: input.targetPublishDate ?? null,
-        metadata,
-      });
+        metadata: metadata as any,
+      } as any);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["video-queue", workspaceId] }),

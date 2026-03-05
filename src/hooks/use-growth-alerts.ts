@@ -132,5 +132,5 @@ export function useGrowthAlerts() {
     return items;
   }, [goal, channelStats, snapshots]);
 
-  return { data: alerts };
+  return { data: alerts, alerts };
 }

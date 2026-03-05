@@ -50,10 +50,10 @@ export function useVideoDeals(youtubeVideoId: string | undefined) {
         const vqId = vqRows[0].id;
         const { data: fkDeals } = await supabase
           .from("deals")
-          .select("id, title, value, currency, stage, expected_close_date, companies(id, name, logo_url)")
+          .select("id, title, value, currency, stage, expected_close_date")
           .eq("workspace_id", workspaceId)
-          .eq("video_queue_id", vqId)
-          .is("deleted_at", null);
+          .is("deleted_at", null)
+          .ilike("notes", `%${vqId}%`);
 
         for (const d of fkDeals ?? []) {
           dealMap.set(d.id, mapDeal(d));
@@ -63,7 +63,7 @@ export function useVideoDeals(youtubeVideoId: string | undefined) {
       // Path 2: Search deals whose notes mention this video ID (legacy approach)
       const { data: noteDeals } = await supabase
         .from("deals")
-        .select("id, title, value, currency, stage, expected_close_date, companies(id, name, logo_url)")
+        .select("id, title, value, currency, stage, expected_close_date")
         .eq("workspace_id", workspaceId)
         .is("deleted_at", null)
         .ilike("notes", `%${youtubeVideoId}%`);

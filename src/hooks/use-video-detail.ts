@@ -73,7 +73,7 @@ export function useVideoDetail(youtubeVideoId: string | undefined) {
         ctr_percent: rawCtr * 100 || Number(stats?.ctr_percent ?? 0),
         published_at: stats?.published_at ?? null,
         impressions: analytics?.impressions ?? 0,
-        average_view_duration_seconds: analytics?.average_view_duration_seconds ?? stats?.avg_view_duration_seconds ?? 0,
+        average_view_duration_seconds: analytics?.average_view_duration_seconds ?? 0,
         average_view_percentage: Number(analytics?.average_view_percentage ?? 0),
         subscribers_gained: analytics?.subscribers_gained ?? 0,
         subscribers_lost: analytics?.subscribers_lost ?? 0,
