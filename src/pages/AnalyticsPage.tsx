@@ -26,7 +26,7 @@ import { format, differenceInDays, subDays, parseISO } from "date-fns";
 import {
   ChannelOverview, AudienceDemographics, TrafficSources,
   GeographyBreakdown, DeviceBreakdown, VideoDeepDive, RevenueAnalytics,
-  SyncStatusBar, SubscriberFunnel,
+  SyncStatusBar, SubscriberFunnel, SyncDebugPanel,
 } from "@/components/analytics";
 
 type TimeRange = "7d" | "30d" | "90d";
@@ -334,6 +334,7 @@ function AnalyticsContent() {
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 gradient-mesh min-h-screen">
       {/* Sync Status Bar */}
       <SyncStatusBar />
+      <SyncDebugPanel />
 
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
