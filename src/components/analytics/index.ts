@@ -7,3 +7,4 @@ export { VideoDeepDive } from "./VideoDeepDive";
 export { RevenueAnalytics } from "./RevenueAnalytics";
 export { SyncStatusBar } from "./SyncStatusBar";
 export { SubscriberFunnel } from "./SubscriberFunnel";
+export { SyncDebugPanel } from "./SyncDebugPanel";
