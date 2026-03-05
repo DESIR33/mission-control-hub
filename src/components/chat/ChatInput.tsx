@@ -43,6 +43,9 @@ export const MODEL_OPTIONS = [
     { id: "deepseek/deepseek-chat-v3-0324", label: "DeepSeek V3" },
     { id: "deepseek/deepseek-r1", label: "DeepSeek R1" },
   ]},
+  { group: "Moonshot", models: [
+    { id: "moonshotai/kimi-k2.5", label: "Kimi K2.5" },
+  ]},
 ];
 
 const DEFAULT_MODEL = "anthropic/claude-sonnet-4-20250514";
