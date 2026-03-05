@@ -1,16 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-
-interface Company {
-  id: number;
-  name: string;
-}
+import { useCompanies } from "@/hooks/use-companies";
 
 export default function NewAffiliateProgramPage() {
   const navigate = useNavigate();
@@ -29,9 +25,7 @@ export default function NewAffiliateProgramPage() {
     notes: "",
   });
 
-  const { data: companies = [] } = useQuery<Company[]>({
-    queryKey: ["/api/companies"],
-  });
+  const { data: companies = [] } = useCompanies();
 
   const createProgram = useMutation({
     mutationFn: async () => {
@@ -138,7 +132,7 @@ export default function NewAffiliateProgramPage() {
                   {companies.map((company) => (
                     <SelectItem
                       key={company.id}
-                      value={company.id.toString()}
+                      value={company.id}
                     >
                       {company.name}
                     </SelectItem>
