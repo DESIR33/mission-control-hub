@@ -6,98 +6,118 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
+const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
+
+const DEFAULT_MODEL = "anthropic/claude-sonnet-4-20250514";
 
 const toolDefinitions = [
   {
-    name: "memory_search",
-    description:
-      "Search long-term memory using hybrid vector + keyword search. Call before answering questions about past context, decisions, or observations.",
-    input_schema: {
-      type: "object",
-      properties: {
-        query: { type: "string", description: "Search query" },
-        origin_filter: {
-          type: "string",
-          enum: ["youtube", "crm", "email", "strategy", "preference", "manual", "any"],
-          default: "any",
+    type: "function",
+    function: {
+      name: "memory_search",
+      description:
+        "Search long-term memory using hybrid vector + keyword search. Call before answering questions about past context, decisions, or observations.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string", description: "Search query" },
+          origin_filter: {
+            type: "string",
+            enum: ["youtube", "crm", "email", "strategy", "preference", "manual", "any"],
+            default: "any",
+          },
         },
+        required: ["query"],
       },
-      required: ["query"],
     },
   },
   {
-    name: "save_memory",
-    description:
-      "Save an important fact, observation, or decision to long-term memory.",
-    input_schema: {
-      type: "object",
-      properties: {
-        content: { type: "string" },
-        origin: {
-          type: "string",
-          enum: ["youtube", "crm", "email", "strategy", "preference", "manual"],
+    type: "function",
+    function: {
+      name: "save_memory",
+      description:
+        "Save an important fact, observation, or decision to long-term memory.",
+      parameters: {
+        type: "object",
+        properties: {
+          content: { type: "string" },
+          origin: {
+            type: "string",
+            enum: ["youtube", "crm", "email", "strategy", "preference", "manual"],
+          },
+          tags: { type: "array", items: { type: "string" } },
         },
-        tags: { type: "array", items: { type: "string" } },
+        required: ["content", "origin"],
       },
-      required: ["content", "origin"],
     },
   },
   {
-    name: "save_daily_log",
-    description:
-      "Append a note to today's log. Call after reviewing service data or completing a task.",
-    input_schema: {
-      type: "object",
-      properties: {
-        content: { type: "string" },
-        source: {
-          type: "string",
-          enum: ["youtube", "crm", "email", "chat", "manual"],
+    type: "function",
+    function: {
+      name: "save_daily_log",
+      description:
+        "Append a note to today's log. Call after reviewing service data or completing a task.",
+      parameters: {
+        type: "object",
+        properties: {
+          content: { type: "string" },
+          source: {
+            type: "string",
+            enum: ["youtube", "crm", "email", "chat", "manual"],
+          },
         },
+        required: ["content", "source"],
       },
-      required: ["content", "source"],
     },
   },
   {
-    name: "save_service_snapshot",
-    description: "Save a summary snapshot of a service's current state.",
-    input_schema: {
-      type: "object",
-      properties: {
-        service: { type: "string", enum: ["youtube", "crm", "email"] },
-        summary: { type: "string" },
-        raw_data: { type: "object" },
-      },
-      required: ["service", "summary"],
-    },
-  },
-  {
-    name: "get_service_snapshot",
-    description: "Retrieve the most recent saved snapshot for a service.",
-    input_schema: {
-      type: "object",
-      properties: {
-        service: { type: "string", enum: ["youtube", "crm", "email"] },
-      },
-      required: ["service"],
-    },
-  },
-  {
-    name: "get_daily_logs",
-    description: "Retrieve daily logs for a date range.",
-    input_schema: {
-      type: "object",
-      properties: {
-        start_date: { type: "string", description: "YYYY-MM-DD" },
-        end_date: { type: "string", description: "YYYY-MM-DD, optional" },
-        source_filter: {
-          type: "string",
-          enum: ["youtube", "crm", "email", "chat", "manual", "all"],
-          default: "all",
+    type: "function",
+    function: {
+      name: "save_service_snapshot",
+      description: "Save a summary snapshot of a service's current state.",
+      parameters: {
+        type: "object",
+        properties: {
+          service: { type: "string", enum: ["youtube", "crm", "email"] },
+          summary: { type: "string" },
+          raw_data: { type: "object" },
         },
+        required: ["service", "summary"],
       },
-      required: ["start_date"],
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_service_snapshot",
+      description: "Retrieve the most recent saved snapshot for a service.",
+      parameters: {
+        type: "object",
+        properties: {
+          service: { type: "string", enum: ["youtube", "crm", "email"] },
+        },
+        required: ["service"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_daily_logs",
+      description: "Retrieve daily logs for a date range.",
+      parameters: {
+        type: "object",
+        properties: {
+          start_date: { type: "string", description: "YYYY-MM-DD" },
+          end_date: { type: "string", description: "YYYY-MM-DD, optional" },
+          source_filter: {
+            type: "string",
+            enum: ["youtube", "crm", "email", "chat", "manual", "all"],
+            default: "all",
+          },
+        },
+        required: ["start_date"],
+      },
     },
   },
 ];
@@ -317,7 +337,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { session_id, message, workspace_id } = await req.json();
+    const { session_id, message, workspace_id, model } = await req.json();
     if (!session_id || !message || !workspace_id) {
       return new Response(
         JSON.stringify({ error: "Missing required fields" }),
@@ -325,14 +345,15 @@ Deno.serve(async (req) => {
       );
     }
 
-    const anthropicKey = Deno.env.get("ANTHROPIC_API_KEY");
-    if (!anthropicKey) {
+    const openrouterKey = Deno.env.get("OPENROUTER_API_KEY");
+    if (!openrouterKey) {
       return new Response(
-        JSON.stringify({ error: "ANTHROPIC_API_KEY not configured" }),
+        JSON.stringify({ error: "OPENROUTER_API_KEY not configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
+    const selectedModel = model || DEFAULT_MODEL;
     const supabase = getSupabaseAdmin();
 
     // Save user message
@@ -359,13 +380,16 @@ Deno.serve(async (req) => {
       .order("created_at", { ascending: true })
       .limit(20);
 
-    const claudeMessages = (history || []).map((msg: any) => ({
-      role: msg.role,
-      content: msg.content,
-    }));
+    const openrouterMessages = [
+      { role: "system", content: systemPrompt },
+      ...(history || []).map((msg: any) => ({
+        role: msg.role,
+        content: msg.content,
+      })),
+    ];
 
     // Tool call loop
-    let messages = claudeMessages;
+    let messages = openrouterMessages;
     let finalResponse = "";
     let toolCallsMade: string[] = [];
     let iterations = 0;
@@ -374,67 +398,66 @@ Deno.serve(async (req) => {
     while (iterations < MAX_ITERATIONS) {
       iterations++;
 
-      const claudeRes = await fetch(ANTHROPIC_API_URL, {
+      const apiRes = await fetch(OPENROUTER_API_URL, {
         method: "POST",
         headers: {
-          "x-api-key": anthropicKey,
-          "anthropic-version": "2023-06-01",
-          "content-type": "application/json",
+          Authorization: `Bearer ${openrouterKey}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": Deno.env.get("SUPABASE_URL") || "https://localhost",
+          "X-Title": "AI Assistant",
         },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
+          model: selectedModel,
           max_tokens: 4096,
-          system: systemPrompt,
-          tools: toolDefinitions,
           messages,
+          tools: toolDefinitions,
         }),
       });
 
-      if (!claudeRes.ok) {
-        const errText = await claudeRes.text();
-        console.error("Claude API error:", errText);
-        throw new Error(`Claude API error: ${claudeRes.status}`);
+      if (!apiRes.ok) {
+        const errText = await apiRes.text();
+        console.error("OpenRouter API error:", errText);
+        throw new Error(`OpenRouter API error: ${apiRes.status}`);
       }
 
-      const claudeData = await claudeRes.json();
-      const toolUseBlocks = claudeData.content.filter(
-        (b: any) => b.type === "tool_use"
-      );
-      const textBlocks = claudeData.content.filter(
-        (b: any) => b.type === "text"
-      );
+      const data = await apiRes.json();
+      const choice = data.choices?.[0];
+      if (!choice) throw new Error("No response from model");
 
-      if (textBlocks.length > 0) {
-        finalResponse = textBlocks.map((b: any) => b.text).join("");
+      const assistantMessage = choice.message;
+
+      if (assistantMessage.content) {
+        finalResponse = assistantMessage.content;
       }
 
-      if (claudeData.stop_reason === "end_turn" || toolUseBlocks.length === 0) {
+      const toolCalls = assistantMessage.tool_calls;
+      if (choice.finish_reason !== "tool_calls" || !toolCalls?.length) {
         break;
       }
 
       // Execute tool calls
-      const toolResults: any[] = [];
-      for (const toolBlock of toolUseBlocks) {
+      messages = [
+        ...messages,
+        assistantMessage,
+      ];
+
+      for (const tc of toolCalls) {
+        const args = typeof tc.function.arguments === "string"
+          ? JSON.parse(tc.function.arguments)
+          : tc.function.arguments;
         const result = await handleToolCall(
-          toolBlock.name,
-          toolBlock.input,
+          tc.function.name,
+          args,
           workspace_id,
           supabase
         );
-        toolCallsMade.push(toolBlock.name);
-        toolResults.push({
-          type: "tool_result",
-          tool_use_id: toolBlock.id,
+        toolCallsMade.push(tc.function.name);
+        messages.push({
+          role: "tool",
+          tool_call_id: tc.id,
           content: JSON.stringify(result),
         });
       }
-
-      // Continue conversation with tool results
-      messages = [
-        ...messages,
-        { role: "assistant", content: claudeData.content },
-        { role: "user", content: toolResults },
-      ];
     }
 
     // Save assistant response
@@ -446,6 +469,7 @@ Deno.serve(async (req) => {
       metadata: {
         memories_used: memoriesUsed.length,
         tools_called: toolCallsMade,
+        model: selectedModel,
       },
     });
 
@@ -455,6 +479,7 @@ Deno.serve(async (req) => {
         memories_used: memoriesUsed,
         tools_called: toolCallsMade,
         session_id,
+        model: selectedModel,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );

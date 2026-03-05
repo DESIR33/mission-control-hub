@@ -68,7 +68,7 @@ export function useChat() {
   }, []);
 
   const sendMessage = useCallback(
-    async (content: string) => {
+    async (content: string, model?: string) => {
       if (!workspaceId || !content.trim()) return;
       setIsLoading(true);
 
@@ -87,6 +87,7 @@ export function useChat() {
               session_id: sessionId,
               message: content,
               workspace_id: workspaceId,
+              model,
             },
           }
         );
