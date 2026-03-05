@@ -709,6 +709,62 @@ export type Database = {
           },
         ]
       }
+      thumbnail_assessments: {
+        Row: {
+          assessment_json: Json | null
+          competitor_thumbnails: Json | null
+          created_at: string
+          created_by: string | null
+          current_thumbnail_url: string | null
+          generated_thumbnails: Json | null
+          id: string
+          selected_variant: string | null
+          status: string
+          updated_at: string
+          video_title: string
+          workspace_id: string
+          youtube_video_id: string
+        }
+        Insert: {
+          assessment_json?: Json | null
+          competitor_thumbnails?: Json | null
+          created_at?: string
+          created_by?: string | null
+          current_thumbnail_url?: string | null
+          generated_thumbnails?: Json | null
+          id?: string
+          selected_variant?: string | null
+          status?: string
+          updated_at?: string
+          video_title?: string
+          workspace_id: string
+          youtube_video_id: string
+        }
+        Update: {
+          assessment_json?: Json | null
+          competitor_thumbnails?: Json | null
+          created_at?: string
+          created_by?: string | null
+          current_thumbnail_url?: string | null
+          generated_thumbnails?: Json | null
+          id?: string
+          selected_variant?: string | null
+          status?: string
+          updated_at?: string
+          video_title?: string
+          workspace_id?: string
+          youtube_video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "thumbnail_assessments_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       video_companies: {
         Row: {
           company_id: string
