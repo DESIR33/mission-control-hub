@@ -122,21 +122,23 @@ export function ChannelOverview({ data, daysRange, currentSubscribers }: Props) 
     };
   }, [totals, prevTotals]);
 
+  // Weighted average CTR: sum(ctr * views) / sum(views) — since impressions aren't available
+  // from the YouTube Analytics API, we use the stored impressions_ctr (already converted to %)
   const avgCtr = useMemo(() => {
-    const withImpressions = filtered.filter((d) => d.impressions > 0);
-    if (withImpressions.length === 0) return 0;
-    return +(
-      withImpressions.reduce((sum, d) => sum + d.impressions_ctr, 0) /
-      withImpressions.length
-    ).toFixed(2);
+    const withViews = filtered.filter((d) => d.views > 0);
+    if (withViews.length === 0) return 0;
+    const totalViews = withViews.reduce((s, d) => s + d.views, 0);
+    const weightedSum = withViews.reduce((s, d) => s + d.impressions_ctr * d.views, 0);
+    return totalViews > 0 ? +(weightedSum / totalViews).toFixed(2) : 0;
   }, [filtered]);
 
+  // Weighted average duration: sum(avgDuration * views) / sum(views)
   const avgDuration = useMemo(() => {
-    if (filtered.length === 0) return 0;
-    return Math.round(
-      filtered.reduce((sum, d) => sum + d.average_view_duration_seconds, 0) /
-        filtered.length
-    );
+    const withViews = filtered.filter((d) => d.views > 0);
+    if (withViews.length === 0) return 0;
+    const totalViews = withViews.reduce((s, d) => s + d.views, 0);
+    const weightedSum = withViews.reduce((s, d) => s + d.average_view_duration_seconds * d.views, 0);
+    return totalViews > 0 ? Math.round(weightedSum / totalViews) : 0;
   }, [filtered]);
 
   const chartData = useMemo(
