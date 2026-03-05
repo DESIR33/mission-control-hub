@@ -17,6 +17,8 @@ import {
   FileText,
   Rocket,
   Target,
+  MessageSquare,
+  BookOpen,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -46,6 +48,8 @@ export const navItems: NavItem[] = [
   { to: "/tasks", icon: CheckSquare, label: "Tasks" },
   { to: "/sprints", icon: Target, label: "Growth Sprints" },
   { to: "/ai-bridge", icon: Brain, label: "AI Bridge" },
+  { to: "/chat", icon: MessageSquare, label: "AI Chat" },
+  { to: "/memory", icon: BookOpen, label: "Memory" },
   { to: "/reports", icon: FileText, label: "Weekly Reports" },
   { to: "/inbox", icon: Mail, label: "Inbox" },
   { to: "/notifications", icon: Bell, label: "Notifications" },
@@ -84,6 +88,8 @@ export const navGroups: NavGroup[] = [
       { to: "/analytics", icon: BarChart3, label: "Analytics" },
       { to: "/command-center", icon: Rocket, label: "Command Center" },
       { to: "/ai-bridge", icon: Brain, label: "AI Bridge" },
+      { to: "/chat", icon: MessageSquare, label: "AI Chat" },
+      { to: "/memory", icon: BookOpen, label: "Memory" },
       { to: "/reports", icon: FileText, label: "Weekly Reports" },
     ],
   },
