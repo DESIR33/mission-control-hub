@@ -138,7 +138,7 @@ Deno.serve(async (req) => {
     const { workspace_id } = body;
     if (!workspace_id) throw new Error("Missing workspace_id");
 
-    const startDate = body.start_date ?? daysAgo(28);
+    const startDate = body.start_date ?? daysAgo(90);
     const endDate = body.end_date ?? daysAgo(1);
     syncResult.period = { start_date: startDate, end_date: endDate };
 

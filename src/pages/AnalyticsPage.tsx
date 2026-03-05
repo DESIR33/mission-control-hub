@@ -78,13 +78,13 @@ function AnalyticsContent() {
   const { data: deviceTypes = [], isLoading: loadingDevices } = useDeviceTypes();
   const syncAnalytics = useSyncYouTubeAnalytics();
 
-  // Auto-sync YouTube data and analytics on page load
+  // Auto-sync YouTube data and analytics on page load (fetch 90 days for all time ranges)
   const hasSynced = useRef(false);
   useEffect(() => {
     if (hasSynced.current || workspaceLoading) return;
     hasSynced.current = true;
     syncYouTube.mutate();
-    syncAnalytics.mutate({});
+    syncAnalytics.mutate({ start_date: subDays(new Date(), 90).toISOString().split("T")[0] });
   }, [workspaceLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const isLoading = workspaceLoading || loadingChannel || loadingVideos;
