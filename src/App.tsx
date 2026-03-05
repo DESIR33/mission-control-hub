@@ -38,6 +38,8 @@ import VideoDetailPage from "./pages/VideoDetailPage";
 import YouTubeCommandCenterPage from "./pages/YouTubeCommandCenterPage";
 import WeeklySprintPage from "./pages/WeeklySprintPage";
 import CompanyProfilePage from "./pages/CompanyProfilePage";
+import ChatPage from "./pages/ChatPage";
+import MemoryPage from "./pages/MemoryPage";
 
 const queryClient = new QueryClient();
 
@@ -109,6 +111,8 @@ const App = () => (
               <Route path="/notifications" element={<NotificationsPage />} />
               <Route path="/integrations" element={<IntegrationsPage />} />
               <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/chat" element={<ChatPage />} />
+              <Route path="/memory" element={<MemoryPage />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -206,6 +206,164 @@ export type Database = {
           },
         ]
       }
+      assistant_conversations: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          role: string
+          session_id: string
+          tool_name: string | null
+          tool_result: Json | null
+          workspace_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          role: string
+          session_id: string
+          tool_name?: string | null
+          tool_result?: Json | null
+          workspace_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          role?: string
+          session_id?: string
+          tool_name?: string | null
+          tool_result?: Json | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assistant_conversations_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assistant_daily_logs: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          log_date: string
+          source: string
+          workspace_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          log_date?: string
+          source?: string
+          workspace_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          log_date?: string
+          source?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assistant_daily_logs_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assistant_memory: {
+        Row: {
+          content: string
+          created_at: string
+          embedding: string | null
+          id: string
+          origin: string
+          tags: string[] | null
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          embedding?: string | null
+          id?: string
+          origin?: string
+          tags?: string[] | null
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          embedding?: string | null
+          id?: string
+          origin?: string
+          tags?: string[] | null
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assistant_memory_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assistant_service_snapshots: {
+        Row: {
+          created_at: string
+          id: string
+          raw_data: Json | null
+          service: string
+          snapshot_date: string
+          summary: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          raw_data?: Json | null
+          service: string
+          snapshot_date?: string
+          summary: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          raw_data?: Json | null
+          service?: string
+          snapshot_date?: string
+          summary?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assistant_service_snapshots_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           created_at: string
@@ -1662,6 +1820,22 @@ export type Database = {
         Returns: string
       }
       get_workspace_role: { Args: { ws_id: string }; Returns: string }
+      hybrid_memory_search: {
+        Args: {
+          match_count?: number
+          origin_filter?: string
+          query_embedding: string
+          query_text: string
+          ws_id: string
+        }
+        Returns: {
+          content: string
+          id: string
+          origin: string
+          rrf_score: number
+          tags: string[]
+        }[]
+      }
       is_workspace_member: { Args: { ws_id: string }; Returns: boolean }
     }
     Enums: {
