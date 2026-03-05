@@ -1,9 +1,13 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle2, Circle, ExternalLink, Loader2 } from "lucide-react";
+import { CheckCircle2, Circle, ExternalLink, Loader2, FlaskConical, Settings } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { useWorkspace } from "@/hooks/use-workspace";
+import { useToast } from "@/hooks/use-toast";
 import type { IntegrationKey, WorkspaceIntegration } from "@/hooks/use-integrations";
 import type { IntegrationDef } from "@/pages/IntegrationsPage";
 
@@ -23,6 +27,32 @@ export function IntegrationCard({
   isDisconnecting,
 }: IntegrationCardProps) {
   const isConnected = record?.enabled ?? false;
+  const { workspaceId } = useWorkspace();
+  const { toast } = useToast();
+  const [isTesting, setIsTesting] = useState(false);
+  const [testResult, setTestResult] = useState<any>(null);
+
+  const handleTest = async () => {
+    if (!workspaceId || def.key !== "youtube") return;
+    setIsTesting(true);
+    setTestResult(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("youtube-sync", {
+        body: { workspace_id: workspaceId, action: "test" },
+      });
+      if (error) throw error;
+      setTestResult(data.test);
+      if (data.test?.api_key_valid && data.test?.channel_found) {
+        toast({ title: `✅ Connected to ${data.test.channel_name || "YouTube"}` });
+      } else {
+        toast({ title: "Connection issues found", description: data.test?.errors?.[0], variant: "destructive" });
+      }
+    } catch (err: any) {
+      toast({ title: "Test failed", description: err.message, variant: "destructive" });
+    } finally {
+      setIsTesting(false);
+    }
+  };
 
   return (
     <motion.div
@@ -114,20 +144,47 @@ export function IntegrationCard({
           )}
 
           {/* Actions */}
-          <div className="flex gap-2 pt-1">
+          <div className="flex flex-wrap gap-2 pt-1">
             {isConnected ? (
-              <Button
-                size="sm"
-                variant="outline"
-                className="text-destructive/80 border-destructive/30 hover:bg-destructive/10 hover:text-destructive h-7 text-xs"
-                onClick={() => onDisconnect(def.key)}
-                disabled={isDisconnecting}
-              >
-                {isDisconnecting ? (
-                  <Loader2 className="w-3 h-3 animate-spin mr-1" />
-                ) : null}
-                Disconnect
-              </Button>
+              <>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="h-7 text-xs"
+                  onClick={() => onConnect(def.key)}
+                >
+                  <Settings className="w-3 h-3 mr-1" />
+                  Update
+                </Button>
+                {def.key === "youtube" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-xs"
+                    onClick={handleTest}
+                    disabled={isTesting}
+                  >
+                    {isTesting ? (
+                      <Loader2 className="w-3 h-3 animate-spin mr-1" />
+                    ) : (
+                      <FlaskConical className="w-3 h-3 mr-1" />
+                    )}
+                    Test
+                  </Button>
+                )}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-destructive/80 border-destructive/30 hover:bg-destructive/10 hover:text-destructive h-7 text-xs"
+                  onClick={() => onDisconnect(def.key)}
+                  disabled={isDisconnecting}
+                >
+                  {isDisconnecting ? (
+                    <Loader2 className="w-3 h-3 animate-spin mr-1" />
+                  ) : null}
+                  Disconnect
+                </Button>
+              </>
             ) : (
               <Button
                 size="sm"
@@ -139,6 +196,39 @@ export function IntegrationCard({
               </Button>
             )}
           </div>
+
+          {/* Test Results */}
+          {testResult && def.key === "youtube" && (
+            <div className="rounded-lg border border-border p-3 space-y-2 text-xs">
+              <div className="flex items-center gap-2">
+                <span className={testResult.api_key_valid ? "text-green-500" : "text-destructive"}>
+                  {testResult.api_key_valid ? "✓" : "✗"} API Key
+                </span>
+                <span className={testResult.channel_found ? "text-green-500" : "text-destructive"}>
+                  {testResult.channel_found ? "✓" : "✗"} Channel
+                  {testResult.channel_name && ` (${testResult.channel_name})`}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={testResult.oauth_configured ? (testResult.oauth_valid ? "text-green-500" : "text-destructive") : "text-muted-foreground"}>
+                  {testResult.oauth_configured ? (testResult.oauth_valid ? "✓" : "✗") : "○"} OAuth
+                  {!testResult.oauth_configured && " (not configured)"}
+                </span>
+              </div>
+              {testResult.oauth_scopes && (
+                <p className="text-[10px] text-muted-foreground break-all">
+                  Scopes: {testResult.oauth_scopes}
+                </p>
+              )}
+              {testResult.errors?.length > 0 && (
+                <div className="space-y-1">
+                  {testResult.errors.map((err: string, i: number) => (
+                    <p key={i} className="text-[10px] text-amber-400">⚠ {err}</p>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
     </motion.div>
