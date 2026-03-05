@@ -296,7 +296,10 @@ Deno.serve(async (req) => {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // 2. Per-video analytics (top 50 by views)
+    // 2. Per-video analytics (top 200 by views, LIFETIME range)
+    // Use full channel lifetime so revenue/views reflect totals,
+    // not just the sync window. YouTube Analytics API allows dates
+    // back to 2005-01-01.
     // ═══════════════════════════════════════════════════════════════
     try {
       const videoMetrics = [
@@ -316,14 +319,18 @@ Deno.serve(async (req) => {
         "estimatedRevenue",
       ];
 
+      // Always query full lifetime for per-video aggregates so
+      // revenue totals match what YouTube Studio reports.
+      const videoLifetimeStart = body.start_date ?? "2005-01-01";
+
       const videoData = await fetchYouTubeAnalytics(accessToken, {
         ids,
-        startDate,
+        startDate: videoLifetimeStart,
         endDate,
         dimensions: "video",
         metrics: videoMetrics.join(","),
         sort: "-views",
-        maxResults: 50,
+        maxResults: 200,
       });
 
       if (videoData.rows) {
