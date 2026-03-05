@@ -15,12 +15,14 @@ import { useVideoExperiments } from "@/hooks/use-video-experiments";
 import { useVideoRepurposes } from "@/hooks/use-video-repurposes";
 import { useVideoDeals } from "@/hooks/use-video-deals";
 import { useDemographics, useTrafficSources } from "@/hooks/use-youtube-analytics-api";
+import { useVideoRetention } from "@/hooks/use-video-retention";
 import { useVideoRevenueLookup } from "@/hooks/use-video-revenue-lookup";
 import { VideoHeaderCard } from "@/components/video-detail/VideoHeaderCard";
 import { NotesEditor } from "@/components/video-detail/NotesEditor";
 import { ExperimentsTable } from "@/components/video-detail/ExperimentsTable";
 import { RepurposingTable } from "@/components/video-detail/RepurposingTable";
 import { DealsAttributionPanel } from "@/components/video-detail/DealsAttributionPanel";
+import { RetentionCurve } from "@/components/video-detail/RetentionCurve";
 
 const tooltipStyle = {
   backgroundColor: "hsl(var(--card))",
@@ -52,6 +54,7 @@ function VideoDetailContent() {
   const { data: deals = [], isLoading: loadingDeals } = useVideoDeals(youtubeVideoId);
   const { data: demographics = [] } = useDemographics();
   const { data: trafficSources = [] } = useTrafficSources();
+  const { data: retentionData = [] } = useVideoRetention(youtubeVideoId);
   const { lookup: revenueLookup } = useVideoRevenueLookup();
 
   // Get combined revenue data for this video
@@ -212,8 +215,19 @@ function VideoDetailContent() {
             <SummaryCard label="Card Clicks" value={fmtCount(detail.card_clicks)} />
             <SummaryCard label="End Screen Clicks" value={fmtCount(detail.end_screen_element_clicks)} />
           </div>
-          <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-            Retention curve and top moments will appear here when data is available.
+          {/* Retention Curve */}
+          <RetentionCurve
+            data={retentionData}
+            avgViewPercentage={detail.average_view_percentage}
+            videoDurationSeconds={detail.average_view_duration_seconds > 0
+              ? Math.round(detail.average_view_duration_seconds / (detail.average_view_percentage / 100 || 1))
+              : 0
+            }
+          />
+
+          {/* Benchmarks vs channel median placeholder */}
+          <div className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+            Top moments and publish-time analysis will appear here when more data is available.
           </div>
         </TabsContent>
 

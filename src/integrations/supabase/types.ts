@@ -1397,6 +1397,41 @@ export type Database = {
           },
         ]
       }
+      youtube_video_retention: {
+        Row: {
+          audience_retention: number
+          elapsed_ratio: number
+          fetched_at: string
+          id: string
+          workspace_id: string
+          youtube_video_id: string
+        }
+        Insert: {
+          audience_retention?: number
+          elapsed_ratio: number
+          fetched_at?: string
+          id?: string
+          workspace_id: string
+          youtube_video_id: string
+        }
+        Update: {
+          audience_retention?: number
+          elapsed_ratio?: number
+          fetched_at?: string
+          id?: string
+          workspace_id?: string
+          youtube_video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "youtube_video_retention_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       youtube_video_stats: {
         Row: {
           comments: number

@@ -204,6 +204,7 @@ Deno.serve(async (req) => {
       traffic_sources: 0,
       geography: 0,
       devices: 0,
+      retention_videos: 0,
     };
 
     // 1. Channel daily analytics
@@ -554,6 +555,60 @@ Deno.serve(async (req) => {
       }
     } catch (e) {
       console.error("Device types fetch error:", e);
+    }
+
+    // 7. Per-video audience retention (top 10 videos by views)
+    try {
+      // Get top video IDs from the video analytics we just synced
+      const { data: topVideos } = await supabase
+        .from("youtube_video_analytics")
+        .select("youtube_video_id")
+        .eq("workspace_id", workspace_id)
+        .order("views", { ascending: false })
+        .limit(10);
+
+      const videoIds = (topVideos ?? []).map((v: any) => v.youtube_video_id);
+
+      for (const videoId of videoIds) {
+        try {
+          const retentionData = await fetchYouTubeAnalytics(accessToken, {
+            ids,
+            startDate,
+            endDate,
+            dimensions: "elapsedVideoTimeRatio",
+            metrics: "audienceWatchRatio",
+            filters: `video==${videoId}`,
+          });
+
+          if (retentionData.rows && retentionData.rows.length > 0) {
+            // Delete old retention data for this video, then insert fresh
+            await supabase
+              .from("youtube_video_retention")
+              .delete()
+              .eq("workspace_id", workspace_id)
+              .eq("youtube_video_id", videoId);
+
+            const retentionRows = retentionData.rows.map((row: any) => ({
+              workspace_id,
+              youtube_video_id: videoId,
+              elapsed_ratio: row[0] || 0,
+              audience_retention: row[1] || 0,
+              fetched_at: new Date().toISOString(),
+            }));
+
+            if (retentionRows.length > 0) {
+              await supabase
+                .from("youtube_video_retention")
+                .insert(retentionRows);
+              results.retention_videos++;
+            }
+          }
+        } catch (retErr) {
+          console.error(`Retention fetch error for ${videoId}:`, retErr);
+        }
+      }
+    } catch (e) {
+      console.error("Retention sync error:", e);
     }
 
     return new Response(
