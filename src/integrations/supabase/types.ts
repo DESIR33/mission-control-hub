@@ -64,6 +64,72 @@ export type Database = {
           },
         ]
       }
+      affiliate_programs: {
+        Row: {
+          affiliate_links: Json | null
+          commission_percentage: number
+          company_id: string | null
+          created_at: string
+          created_by: string | null
+          dashboard_url: string | null
+          id: string
+          minimum_payout: number
+          next_payout_date: string | null
+          notes: string | null
+          payment_methods: Json | null
+          payout_frequency: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          affiliate_links?: Json | null
+          commission_percentage?: number
+          company_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          dashboard_url?: string | null
+          id?: string
+          minimum_payout?: number
+          next_payout_date?: string | null
+          notes?: string | null
+          payment_methods?: Json | null
+          payout_frequency?: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          affiliate_links?: Json | null
+          commission_percentage?: number
+          company_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          dashboard_url?: string | null
+          id?: string
+          minimum_payout?: number
+          next_payout_date?: string | null
+          notes?: string | null
+          payment_methods?: Json | null
+          payout_frequency?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_programs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_programs_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_proposals: {
         Row: {
           company_id: string | null
