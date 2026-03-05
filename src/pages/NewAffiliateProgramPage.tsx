@@ -10,12 +10,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useCompanies } from "@/hooks/use-companies";
+import { supabase } from "@/integrations/supabase/client";
+import { useWorkspace } from "@/hooks/use-workspace";
 
 export default function NewAffiliateProgramPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-
+  const { workspaceId } = useWorkspace();
   const [formData, setFormData] = useState({
     companyId: "",
     dashboardUrl: "",
@@ -32,43 +34,37 @@ export default function NewAffiliateProgramPage() {
 
   const createProgram = useMutation({
     mutationFn: async () => {
-      const csrfResponse = await fetch("/api/csrf/token");
-      if (!csrfResponse.ok) throw new Error("Failed to get CSRF token");
-      const { csrfToken } = await csrfResponse.json();
+      if (!workspaceId) throw new Error("No workspace selected");
 
-      const response = await fetch("/api/affiliate-programs", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRF-Token": csrfToken,
-        },
-        body: JSON.stringify({
-          companyId: formData.companyId,
-          dashboardUrl: formData.dashboardUrl,
-          commissionPercentage: parseFloat(formData.commissionPercentage.toString()),
-          payoutFrequency: formData.payoutFrequency,
-          nextPayoutDate: formData.nextPayoutDate || null,
-          affiliateLinks: formData.affiliateLinks
+      const { data: { user } } = await supabase.auth.getUser();
+
+      const { data, error } = await supabase
+        .from("affiliate_programs")
+        .insert({
+          workspace_id: workspaceId,
+          company_id: formData.companyId || null,
+          dashboard_url: formData.dashboardUrl || null,
+          commission_percentage: parseFloat(formData.commissionPercentage.toString()) || 0,
+          payout_frequency: formData.payoutFrequency,
+          next_payout_date: formData.nextPayoutDate || null,
+          affiliate_links: formData.affiliateLinks
             ? formData.affiliateLinks.split("\n").filter((l) => l.trim())
             : [],
-          minimumPayout: parseFloat(formData.minimumPayout.toString()),
-          paymentMethods: formData.paymentMethods
+          minimum_payout: parseFloat(formData.minimumPayout.toString()) || 0,
+          payment_methods: formData.paymentMethods
             ? formData.paymentMethods.split(",").map((m) => m.trim()).filter(Boolean)
             : [],
           notes: formData.notes || null,
-        }),
-        credentials: "include",
-      });
+          created_by: user?.id ?? null,
+        })
+        .select()
+        .single();
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText);
-      }
-
-      return response.json();
+      if (error) throw error;
+      return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/affiliate-programs"] });
+      queryClient.invalidateQueries({ queryKey: ["affiliate-programs"] });
       toast({ title: "Success", description: "Affiliate program created successfully" });
       navigate("/monetization");
     },
