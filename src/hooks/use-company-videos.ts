@@ -54,14 +54,27 @@ export function useCompanyLinkedVideos(companyId: string | null | undefined) {
       }
 
       // 3. Fetch aggregated ad revenue from youtube_video_analytics
-      const { data: analytics } = await supabase
-        .from("youtube_video_analytics" as any)
-        .select("youtube_video_id, estimated_revenue")
-        .eq("workspace_id", workspaceId)
-        .in("youtube_video_id", videoIds);
+      // Fetch ALL analytics rows (default Supabase limit is 1000, which truncates revenue).
+      // Paginate to collect every row so aggregated revenue is accurate.
+      const allAnalyticsRows: any[] = [];
+      const PAGE_SIZE = 1000;
+      let offset = 0;
+      let hasMore = true;
+      while (hasMore) {
+        const { data: page } = await supabase
+          .from("youtube_video_analytics" as any)
+          .select("youtube_video_id, estimated_revenue")
+          .eq("workspace_id", workspaceId)
+          .in("youtube_video_id", videoIds)
+          .range(offset, offset + PAGE_SIZE - 1);
+        const rows = (page ?? []) as any[];
+        allAnalyticsRows.push(...rows);
+        hasMore = rows.length === PAGE_SIZE;
+        offset += PAGE_SIZE;
+      }
 
       const revenueMap = new Map<string, number>();
-      for (const a of (analytics ?? []) as any[]) {
+      for (const a of allAnalyticsRows) {
         revenueMap.set(
           a.youtube_video_id,
           (revenueMap.get(a.youtube_video_id) ?? 0) + (Number(a.estimated_revenue) || 0)
