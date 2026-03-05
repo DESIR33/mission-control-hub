@@ -680,7 +680,7 @@ export function VideoQueueDetails({ video, onClose, onUpdate }: VideoQueueDetail
               {linkedYtVideo.ctr_percent != null && <p className="text-xs text-muted-foreground mt-1">CTR: {linkedYtVideo.ctr_percent.toFixed(1)}%</p>}
               {linkedYtVideo.avg_view_duration_seconds != null && <p className="text-xs text-muted-foreground">Avg view: {Math.floor(linkedYtVideo.avg_view_duration_seconds / 60)}m {linkedYtVideo.avg_view_duration_seconds % 60}s</p>}
             </div>
-          ) : video.status === "published" ? (
+          ) : (
             <div>
               <p className="text-xs text-muted-foreground mb-2">Select the YouTube video to link:</p>
               <div className="max-h-64 overflow-y-auto space-y-1">
@@ -694,8 +694,6 @@ export function VideoQueueDetails({ video, onClose, onUpdate }: VideoQueueDetail
                 {ytVideos.length === 0 && <p className="text-xs text-muted-foreground p-4 text-center">No YouTube videos found. Sync your YouTube data first.</p>}
               </div>
             </div>
-          ) : (
-            <p className="text-xs text-muted-foreground">Video must be published before linking to YouTube stats.</p>
           )}
         </div>
       )}
