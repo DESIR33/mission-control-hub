@@ -24,6 +24,8 @@ import { useCompanies, useDeleteCompany, useCompanyContacts } from "@/hooks/use-
 import { useActivities } from "@/hooks/use-contacts";
 import { useVideoQueue } from "@/hooks/use-video-queue";
 import { useDeals } from "@/hooks/use-deals";
+import { useCompanyLinkedVideos } from "@/hooks/use-company-videos";
+import { useVideoCompanies } from "@/hooks/use-video-companies";
 import { useToast } from "@/hooks/use-toast";
 import { useWorkspace, WorkspaceProvider } from "@/hooks/use-workspace";
 import { supabase } from "@/integrations/supabase/client";
@@ -48,6 +50,9 @@ import {
   Play,
   Lightbulb,
   BarChart3,
+  Eye,
+  ThumbsUp,
+  ExternalLink,
 } from "lucide-react";
 import type { Company, Activity, Contact } from "@/types/crm";
 
@@ -110,9 +115,10 @@ function CompanyProfileContent() {
   const { data: activities = [] } = useActivities(companyId ?? null, "company");
   const { data: allVideos = [] } = useVideoQueue();
   const { data: allDeals = [] } = useDeals();
+  const { data: linkedYTVideos = [] } = useCompanyLinkedVideos(companyId);
   const deleteCompany = useDeleteCompany();
 
-  // Filter videos linked to this company
+  // Filter videos from video_queue linked to this company (legacy metadata approach)
   const companyVideos = useMemo(() => {
     if (!company) return [];
     return allVideos.filter(
@@ -123,16 +129,24 @@ function CompanyProfileContent() {
   const linkedVideos = useMemo(() => companyVideos.filter((v: any) => v.status === "published"), [companyVideos]);
   const pipelineIdeas = useMemo(() => companyVideos.filter((v: any) => v.status !== "published"), [companyVideos]);
 
+  // Ad revenue from YouTube videos linked via video_companies
+  const adRevenueFromLinkedVideos = useMemo(
+    () => linkedYTVideos.reduce((sum, v) => sum + v.estimated_revenue, 0),
+    [linkedYTVideos]
+  );
+
   // Deals for this company
   const companyDeals = useMemo(() => {
     if (!company) return [];
     return allDeals.filter((d) => d.company?.id === company.id);
   }, [allDeals, company]);
 
-  const totalRevenue = useMemo(
+  const dealRevenue = useMemo(
     () => companyDeals.filter((d) => d.stage === "closed_won").reduce((sum, d) => sum + (d.value ?? 0), 0),
     [companyDeals]
   );
+
+  const totalRevenue = dealRevenue + adRevenueFromLinkedVideos;
 
   // Partnership Scorecard
   const scorecard = useMemo(() => {
@@ -389,7 +403,7 @@ function CompanyProfileContent() {
           <Tabs defaultValue="contacts">
             <TabsList>
               <TabsTrigger value="contacts">Contacts ({companyContacts.length})</TabsTrigger>
-              <TabsTrigger value="videos">Videos ({companyVideos.length})</TabsTrigger>
+              <TabsTrigger value="videos">Videos ({companyVideos.length + linkedYTVideos.length})</TabsTrigger>
               <TabsTrigger value="timeline">Timeline</TabsTrigger>
             </TabsList>
 
@@ -430,7 +444,8 @@ function CompanyProfileContent() {
 
             {/* Videos Tab */}
             <TabsContent value="videos" className="mt-4 space-y-6">
-              {companyDeals.length > 0 && (
+              {/* Revenue Summary */}
+              {(companyDeals.length > 0 || adRevenueFromLinkedVideos > 0) && (
                 <div>
                   <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Revenue Generated</h4>
                   <div className="space-y-1.5">
@@ -444,6 +459,16 @@ function CompanyProfileContent() {
                         <Badge variant="outline" className="text-[10px] capitalize">{deal.stage.replace("_", " ")}</Badge>
                       </div>
                     ))}
+                    {adRevenueFromLinkedVideos > 0 && (
+                      <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2">
+                        <BarChart3 className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                        <span className="flex-1 text-sm text-foreground">YouTube Ad Revenue ({linkedYTVideos.length} videos)</span>
+                        <span className="text-xs font-mono font-medium text-success">
+                          {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(adRevenueFromLinkedVideos)}
+                        </span>
+                        <Badge variant="outline" className="text-[10px]">AdSense</Badge>
+                      </div>
+                    )}
                     {totalRevenue > 0 && (
                       <div className="flex items-center justify-between pt-1.5 border-t border-border">
                         <span className="text-xs font-medium text-muted-foreground">Total Earned</span>
@@ -456,6 +481,48 @@ function CompanyProfileContent() {
                 </div>
               )}
 
+              {/* YouTube Linked Videos (via video_companies) */}
+              {linkedYTVideos.length > 0 && (
+                <div>
+                  <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 inline-flex items-center gap-1.5">
+                    <Play className="h-3 w-3" /> Linked YouTube Videos ({linkedYTVideos.length})
+                  </h4>
+                  <div className="space-y-2">
+                    {linkedYTVideos.map((video) => (
+                      <div
+                        key={video.youtube_video_id}
+                        className="flex items-center gap-3 p-3 rounded-lg border border-border bg-card hover:bg-secondary/30 transition-colors cursor-pointer"
+                        onClick={() => navigate(`/analytics/videos/${video.youtube_video_id}`)}
+                      >
+                        <Film className="h-4 w-4 text-destructive shrink-0" />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium text-foreground truncate">{video.title ?? video.youtube_video_id}</p>
+                          <div className="flex items-center gap-3 mt-0.5">
+                            {video.views > 0 && (
+                              <span className="text-xs text-muted-foreground inline-flex items-center gap-1">
+                                <Eye className="h-3 w-3" /> {new Intl.NumberFormat("en-US", { notation: "compact" }).format(video.views)}
+                              </span>
+                            )}
+                            {video.likes > 0 && (
+                              <span className="text-xs text-muted-foreground inline-flex items-center gap-1">
+                                <ThumbsUp className="h-3 w-3" /> {new Intl.NumberFormat("en-US", { notation: "compact" }).format(video.likes)}
+                              </span>
+                            )}
+                            {video.estimated_revenue > 0 && (
+                              <span className="text-xs text-success font-mono">
+                                {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(video.estimated_revenue)}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <ExternalLink className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Video Queue Videos (legacy) */}
               <div>
                 <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 inline-flex items-center gap-1.5">
                   <Play className="h-3 w-3" /> Published Videos ({linkedVideos.length})
