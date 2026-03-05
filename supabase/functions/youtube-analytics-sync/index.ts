@@ -321,7 +321,7 @@ Deno.serve(async (req) => {
 
       // Always query full lifetime for per-video aggregates so
       // revenue totals match what YouTube Studio reports.
-      const videoLifetimeStart = body.start_date ?? "2005-01-01";
+      const videoLifetimeStart = "2005-01-01";
 
       const videoData = await fetchYouTubeAnalytics(accessToken, {
         ids,
