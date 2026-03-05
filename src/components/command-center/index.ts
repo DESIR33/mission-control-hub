@@ -24,3 +24,4 @@ export { RetentionLab } from "./RetentionLab";
 export { CompetitorIntelligence } from "./CompetitorIntelligence";
 export { RevenueIntelligence } from "./RevenueIntelligence";
 export { UploadScheduler } from "./UploadScheduler";
+export { ThumbnailLab } from "./ThumbnailLab";

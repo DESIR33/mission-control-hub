@@ -26,3 +26,6 @@ verify_jwt = false
 
 [functions.weekly-report]
 verify_jwt = false
+
+[functions.thumbnail-generate]
+verify_jwt = false

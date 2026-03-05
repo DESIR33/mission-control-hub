@@ -4,7 +4,7 @@ import {
   Eye, MousePointerClick, Search, Handshake, Trophy,
   MessageSquare, ListVideo, BarChart3, Users,
   Calendar, Zap, ChevronLeft, ChevronRight, Calculator, UserCheck,
-  UserPlus, MessageCircle, Brain, FlaskConical, Crosshair, Banknote, Upload,
+  UserPlus, MessageCircle, Brain, FlaskConical, Crosshair, Banknote, Upload, ImageIcon,
 } from "lucide-react";
 import { useWorkspace, WorkspaceProvider } from "@/hooks/use-workspace";
 import { useSyncYouTube } from "@/hooks/use-youtube-analytics";
@@ -19,6 +19,7 @@ import {
   SubGrowthAttribution, CohortAnalysis, CommentInbox,
   ContentStrategist, RetentionLab, EnhancedScorecard,
   CompetitorIntelligence, RevenueIntelligence, UploadScheduler,
+  ThumbnailLab,
 } from "@/components/command-center";
 
 type Tab =
@@ -47,7 +48,8 @@ type Tab =
   | "sub_attribution"
   | "cohorts"
   | "comment_inbox"
-  | "content_strategist";
+  | "content_strategist"
+  | "thumbnail_lab";
 
 const TABS: { key: Tab; label: string; icon: React.ReactNode; group: string }[] = [
   // Growth
@@ -68,6 +70,7 @@ const TABS: { key: Tab; label: string; icon: React.ReactNode; group: string }[] 
   { key: "viral", label: "Viral Predictor", icon: <Zap className="w-3.5 h-3.5" />, group: "Content" },
   { key: "upload_time", label: "Upload Time", icon: <Clock className="w-3.5 h-3.5" />, group: "Content" },
   { key: "upload_scheduler", label: "Upload Scheduler", icon: <Upload className="w-3.5 h-3.5" />, group: "Content" },
+  { key: "thumbnail_lab", label: "Thumbnail Lab", icon: <ImageIcon className="w-3.5 h-3.5" />, group: "Content" },
   // Revenue
   { key: "revenue_link", label: "Content → Revenue", icon: <DollarSign className="w-3.5 h-3.5" />, group: "Revenue" },
   { key: "revenue_forecast", label: "Revenue Forecast", icon: <BarChart3 className="w-3.5 h-3.5" />, group: "Revenue" },
@@ -110,6 +113,7 @@ const TAB_COMPONENTS: Record<Tab, React.ComponentType> = {
   cohorts: CohortAnalysis,
   comment_inbox: CommentInbox,
   content_strategist: ContentStrategist,
+  thumbnail_lab: ThumbnailLab,
 };
 
 function CommandCenterContent() {
