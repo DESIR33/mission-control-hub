@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { ContactsTable } from "@/components/crm/ContactsTable";
@@ -25,6 +25,8 @@ import { Plus } from "lucide-react";
 import type { Contact, Company } from "@/types/crm";
 
 function RelationshipsContent() {
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get("tab") || "contacts";
   const navigate = useNavigate();
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [contactSheetOpen, setContactSheetOpen] = useState(false);
@@ -61,7 +63,7 @@ function RelationshipsContent() {
         </p>
       </div>
 
-      <Tabs defaultValue="contacts">
+      <Tabs defaultValue={initialTab} onValueChange={(v) => { const sp = new URLSearchParams(window.location.search); sp.set("tab", v); window.history.replaceState({}, "", `?${sp.toString()}`); }}>
         <TabsList>
           <TabsTrigger value="contacts">Contacts</TabsTrigger>
           <TabsTrigger value="companies">Companies</TabsTrigger>

@@ -56,7 +56,7 @@ function AddCompanyForm() {
         notes: (form.get("notes") as string) || undefined,
       });
       toast({ title: "Company created" });
-      navigate("/relationships");
+      navigate("/relationships?tab=companies");
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
     }
@@ -66,11 +66,11 @@ function AddCompanyForm() {
     <div className="p-4 sm:p-6 lg:p-8 gradient-mesh min-h-screen">
       <div className="mx-auto max-w-2xl">
         <button
-          onClick={() => navigate("/relationships")}
+          onClick={() => navigate("/relationships?tab=companies")}
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Relationships
+          Back to Companies
         </button>
 
         <div className="flex items-center gap-2 mb-6">
@@ -213,7 +213,7 @@ function AddCompanyForm() {
               {createCompany.isPending && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
               Create Company
             </Button>
-            <Button type="button" variant="ghost" onClick={() => navigate("/relationships")}>
+            <Button type="button" variant="ghost" onClick={() => navigate("/relationships?tab=companies")}>
               Cancel
             </Button>
           </div>
