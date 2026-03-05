@@ -23,6 +23,7 @@ import { ExperimentsTable } from "@/components/video-detail/ExperimentsTable";
 import { RepurposingTable } from "@/components/video-detail/RepurposingTable";
 import { DealsAttributionPanel } from "@/components/video-detail/DealsAttributionPanel";
 import { RetentionCurve } from "@/components/video-detail/RetentionCurve";
+import { VideoCompaniesPanel } from "@/components/video-detail/VideoCompaniesPanel";
 
 const tooltipStyle = {
   backgroundColor: "hsl(var(--card))",
@@ -147,6 +148,8 @@ function VideoDetailContent() {
         totalRevenue={totalCombinedRevenue}
         rpm={rpm}
       />
+
+      <VideoCompaniesPanel youtubeVideoId={detail.youtube_video_id} />
 
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="flex flex-wrap h-auto gap-1 bg-transparent p-0 border-b border-border rounded-none pb-2">
