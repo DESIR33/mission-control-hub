@@ -37,6 +37,7 @@ import WeeklyReportPage from "./pages/WeeklyReportPage";
 import VideoDetailPage from "./pages/VideoDetailPage";
 import YouTubeCommandCenterPage from "./pages/YouTubeCommandCenterPage";
 import WeeklySprintPage from "./pages/WeeklySprintPage";
+import CompanyProfilePage from "./pages/CompanyProfilePage";
 
 const queryClient = new QueryClient();
 
@@ -79,6 +80,7 @@ const App = () => (
               <Route path="/relationships" element={<RelationshipsPage />} />
               <Route path="/relationships/new-company" element={<AddCompanyPage />} />
               <Route path="/relationships/new-contact" element={<AddContactPage />} />
+              <Route path="/relationships/companies/:companyId" element={<CompanyProfilePage />} />
               <Route path="/content" element={<VideoQueuePage />} />
               <Route path="/content/create" element={<VideoQueueFormPage />} />
               <Route path="/content/:id/edit" element={<VideoQueueFormPage />} />

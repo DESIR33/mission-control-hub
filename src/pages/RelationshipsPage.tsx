@@ -5,8 +5,6 @@ import { Button } from "@/components/ui/button";
 import { ContactsTable } from "@/components/crm/ContactsTable";
 import { ContactDetailSheet } from "@/components/crm/ContactDetailSheet";
 import { CompaniesTable } from "@/components/crm/CompaniesTable";
-import { CompanyDetailSheet } from "@/components/crm/CompanyDetailSheet";
-import { EditCompanyDialog } from "@/components/crm/EditCompanyDialog";
 import { ImportContactsDialog } from "@/components/crm/ImportContactsDialog";
 import { ImportCompaniesDialog } from "@/components/crm/ImportCompaniesDialog";
 import { ExportContactsDialog, ExportCompaniesDialog } from "@/components/crm/ExportDialog";
@@ -17,7 +15,7 @@ import { YouTubeLeadInbox } from "@/components/crm/YouTubeLeadInbox";
 import { EngagementScorePanel } from "@/components/crm/EngagementScorePanel";
 import { BulkImportWizard } from "@/components/crm/BulkImportWizard";
 import { useContacts, useActivities } from "@/hooks/use-contacts";
-import { useCompanies, useCompanyContacts } from "@/hooks/use-companies";
+import { useCompanies } from "@/hooks/use-companies";
 import { useDeals } from "@/hooks/use-deals";
 import { WorkspaceProvider } from "@/hooks/use-workspace";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -31,17 +29,10 @@ function RelationshipsContent() {
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [contactSheetOpen, setContactSheetOpen] = useState(false);
 
-  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
-  const [companySheetOpen, setCompanySheetOpen] = useState(false);
-  const [editCompanyOpen, setEditCompanyOpen] = useState(false);
-
   const { data: contacts = [], isLoading: contactsLoading } = useContacts();
   const { data: contactActivities = [] } = useActivities(selectedContact?.id ?? null);
 
   const { data: companies = [], isLoading: companiesLoading } = useCompanies();
-  const { data: companyActivities = [] } = useActivities(selectedCompany?.id ?? null, "company");
-  const { data: companyContacts = [] } = useCompanyContacts(selectedCompany?.id ?? null);
-
   const { data: deals = [] } = useDeals();
 
   const handleSelectContact = (contact: Contact) => {
@@ -50,8 +41,7 @@ function RelationshipsContent() {
   };
 
   const handleSelectCompany = (company: Company) => {
-    setSelectedCompany(company);
-    setCompanySheetOpen(true);
+    navigate(`/relationships/companies/${company.id}`);
   };
 
   return (
@@ -112,7 +102,6 @@ function RelationshipsContent() {
             <CompaniesTable
               companies={companies}
               onSelectCompany={handleSelectCompany}
-              selectedId={selectedCompany?.id}
               addButton={
                 <div className="flex items-center gap-2">
                   <ExportCompaniesDialog companies={companies} />
@@ -174,25 +163,6 @@ function RelationshipsContent() {
         open={contactSheetOpen}
         onOpenChange={setContactSheetOpen}
         onDeleted={() => setSelectedContact(null)}
-      />
-
-      <CompanyDetailSheet
-        company={selectedCompany}
-        activities={companyActivities}
-        companyContacts={companyContacts}
-        open={companySheetOpen}
-        onOpenChange={(open) => {
-          setCompanySheetOpen(open);
-          if (!open) setSelectedCompany(null);
-        }}
-        onEdit={() => setEditCompanyOpen(true)}
-        onDeleted={() => setSelectedCompany(null)}
-      />
-
-      <EditCompanyDialog
-        company={selectedCompany}
-        open={editCompanyOpen}
-        onOpenChange={setEditCompanyOpen}
       />
     </div>
   );
