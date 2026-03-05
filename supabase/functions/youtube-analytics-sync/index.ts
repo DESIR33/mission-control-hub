@@ -225,9 +225,6 @@ Deno.serve(async (req) => {
           "dislikes",
           "comments",
           "shares",
-          "impressions",
-          "impressionsCtr",
-          "uniqueViewers",
           "cardClicks",
           "cardImpressions",
           "cardClickRate",
@@ -246,6 +243,7 @@ Deno.serve(async (req) => {
         sort: "day",
       });
 
+      console.log(`Channel analytics: ${channelData.rows?.length ?? 0} rows returned`);
       if (channelData.rows) {
         for (const row of channelData.rows) {
           const [
@@ -260,9 +258,6 @@ Deno.serve(async (req) => {
             dislikes,
             comments,
             shares,
-            impressions,
-            impressionsCtr,
-            uniqueViewers,
             cardClicks,
             cardImpressions,
             cardCtr,
@@ -279,40 +274,46 @@ Deno.serve(async (req) => {
             playbackCpm,
           ] = row;
 
+          const record = {
+            workspace_id,
+            date: day,
+            views: views || 0,
+            estimated_minutes_watched: minutesWatched || 0,
+            average_view_duration_seconds: Math.round(avgDuration || 0),
+            average_view_percentage: avgPercentage || 0,
+            subscribers_gained: subsGained || 0,
+            subscribers_lost: subsLost || 0,
+            net_subscribers: (subsGained || 0) - (subsLost || 0),
+            likes: likes || 0,
+            dislikes: dislikes || 0,
+            comments: comments || 0,
+            shares: shares || 0,
+            impressions: 0,
+            impressions_ctr: 0,
+            unique_viewers: 0,
+            card_clicks: cardClicks || 0,
+            card_impressions: cardImpressions || 0,
+            card_ctr: cardCtr || 0,
+            end_screen_element_clicks: endScreenClicks || 0,
+            end_screen_element_impressions: endScreenImpressions || 0,
+            end_screen_element_ctr: endScreenCtr || 0,
+            estimated_revenue: estRevenue || 0,
+            estimated_ad_revenue: estAdRevenue || 0,
+            estimated_red_partner_revenue: estRedRevenue || 0,
+            gross_revenue: grossRevenue || 0,
+            cpm: cpm || 0,
+            ad_impressions: adImpressions || 0,
+            monetized_playbacks: monetizedPlaybacks || 0,
+            playback_based_cpm: playbackCpm || 0,
+            fetched_at: new Date().toISOString(),
+          };
+
+          if (results.channel_days === 0) {
+            console.log("Sample channel row:", JSON.stringify({ day, views, minutesWatched, avgDuration, avgPercentage, estRevenue }));
+          }
+
           await supabase.from("youtube_channel_analytics").upsert(
-            {
-              workspace_id,
-              date: day,
-              views: views || 0,
-              estimated_minutes_watched: minutesWatched || 0,
-              average_view_duration_seconds: Math.round(avgDuration || 0),
-              average_view_percentage: avgPercentage || 0,
-              subscribers_gained: subsGained || 0,
-              subscribers_lost: subsLost || 0,
-              net_subscribers: (subsGained || 0) - (subsLost || 0),
-              likes: likes || 0,
-              dislikes: dislikes || 0,
-              comments: comments || 0,
-              shares: shares || 0,
-              impressions: impressions || 0,
-              impressions_ctr: impressionsCtr || 0,
-              unique_viewers: uniqueViewers || 0,
-              card_clicks: cardClicks || 0,
-              card_impressions: cardImpressions || 0,
-              card_ctr: cardCtr || 0,
-              end_screen_element_clicks: endScreenClicks || 0,
-              end_screen_element_impressions: endScreenImpressions || 0,
-              end_screen_element_ctr: endScreenCtr || 0,
-              estimated_revenue: estRevenue || 0,
-              estimated_ad_revenue: estAdRevenue || 0,
-              estimated_red_partner_revenue: estRedRevenue || 0,
-              gross_revenue: grossRevenue || 0,
-              cpm: cpm || 0,
-              ad_impressions: adImpressions || 0,
-              monetized_playbacks: monetizedPlaybacks || 0,
-              playback_based_cpm: playbackCpm || 0,
-              fetched_at: new Date().toISOString(),
-            },
+            record,
             { onConflict: "workspace_id,date" }
           );
           results.channel_days++;
@@ -340,8 +341,6 @@ Deno.serve(async (req) => {
           "dislikes",
           "comments",
           "shares",
-          "impressions",
-          "impressionsCtr",
           "cardClicks",
           "cardImpressions",
           "endScreenElementClicks",
@@ -353,6 +352,7 @@ Deno.serve(async (req) => {
         maxResults: 50,
       });
 
+      console.log(`Video analytics: ${videoData.rows?.length ?? 0} rows returned`);
       if (videoData.rows) {
         for (const row of videoData.rows) {
           const [
@@ -367,8 +367,6 @@ Deno.serve(async (req) => {
             dislikes,
             comments,
             shares,
-            impressions,
-            impressionsCtr,
             cardClicks,
             cardImpressions,
             endScreenClicks,
@@ -391,6 +389,10 @@ Deno.serve(async (req) => {
             }
           }
 
+          if (results.video_rows === 0) {
+            console.log("Sample video row:", JSON.stringify({ videoId, views, minutesWatched, avgDuration, avgPercentage, estRevenue }));
+          }
+
           await supabase.from("youtube_video_analytics").upsert(
             {
               workspace_id,
@@ -407,8 +409,8 @@ Deno.serve(async (req) => {
               dislikes: dislikes || 0,
               comments: comments || 0,
               shares: shares || 0,
-              impressions: impressions || 0,
-              impressions_ctr: impressionsCtr || 0,
+              impressions: 0,
+              impressions_ctr: 0,
               card_clicks: cardClicks || 0,
               card_impressions: cardImpressions || 0,
               end_screen_element_clicks: endScreenClicks || 0,
