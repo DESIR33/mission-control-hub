@@ -141,7 +141,9 @@ const INTEGRATIONS: IntegrationDef[] = [
     docsUrl: "https://developers.google.com/youtube/v3",
     usedFor: "Used for: channel analytics · video stats · subscriber growth · audience demographics · revenue",
     connectHint:
-      "Provide your YouTube Data API key and channel ID. For advanced analytics (demographics, traffic, revenue), also add OAuth2 credentials.",
+      "Enter your YouTube Data API key and channel ID for basic stats. For full analytics (demographics, traffic, revenue), add OAuth2 credentials.",
+    warningNote:
+      "Required Google Cloud APIs: YouTube Data API v3 + YouTube Analytics API. OAuth scopes needed: yt-analytics.readonly (analytics) + yt-analytics-monetary.readonly (revenue).",
     fields: [
       {
         name: "api_key",
@@ -149,26 +151,26 @@ const INTEGRATIONS: IntegrationDef[] = [
         placeholder: "AIza…",
         secret: true,
         required: true,
-        hint: "Google Cloud Console → APIs & Services → Credentials → API Key.",
+        hint: "Google Cloud Console → APIs & Services → Credentials → API Key. Enable 'YouTube Data API v3'.",
       },
       {
         name: "channel_id",
         label: "Channel ID",
         placeholder: "UC…",
         required: true,
-        hint: "Your YouTube channel ID (starts with UC). Find it at youtube.com/account_advanced.",
+        hint: "Your YouTube channel ID (starts with UC). Find it at youtube.com → Settings → Advanced settings, or youtube.com/account_advanced.",
       },
       {
         name: "client_id",
-        label: "OAuth Client ID (optional – for Analytics API)",
+        label: "OAuth Client ID (for Analytics + Revenue)",
         placeholder: "123456789.apps.googleusercontent.com",
         secret: false,
         required: false,
-        hint: "Google Cloud Console → APIs & Services → Credentials → OAuth 2.0 Client ID.",
+        hint: "Google Cloud Console → APIs & Services → Credentials → OAuth 2.0 Client ID. Use 'Web application' type.",
       },
       {
         name: "client_secret",
-        label: "OAuth Client Secret (optional)",
+        label: "OAuth Client Secret",
         placeholder: "GOCSPX-…",
         secret: true,
         required: false,
@@ -176,11 +178,11 @@ const INTEGRATIONS: IntegrationDef[] = [
       },
       {
         name: "refresh_token",
-        label: "OAuth Refresh Token (optional)",
+        label: "OAuth Refresh Token",
         placeholder: "1//0…",
         secret: true,
         required: false,
-        hint: "Generate via OAuth Playground or your own consent flow with yt-analytics.readonly scope.",
+        hint: "Generate at developers.google.com/oauthplayground — select scopes: 'YouTube Analytics API v2' (yt-analytics.readonly) + 'YouTube Analytics Monetary' (yt-analytics-monetary.readonly). Use your own OAuth credentials (gear icon → 'Use your own OAuth credentials').",
       },
     ],
   },

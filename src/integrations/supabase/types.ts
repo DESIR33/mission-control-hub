@@ -1598,12 +1598,14 @@ export type Database = {
       }
       youtube_video_stats: {
         Row: {
+          avg_view_duration_seconds: number | null
           comments: number
           ctr_percent: number
           fetched_at: string
           id: string
           likes: number
           published_at: string | null
+          thumbnail_url: string | null
           title: string
           views: number
           watch_time_minutes: number
@@ -1611,12 +1613,14 @@ export type Database = {
           youtube_video_id: string
         }
         Insert: {
+          avg_view_duration_seconds?: number | null
           comments?: number
           ctr_percent?: number
           fetched_at?: string
           id?: string
           likes?: number
           published_at?: string | null
+          thumbnail_url?: string | null
           title?: string
           views?: number
           watch_time_minutes?: number
@@ -1624,12 +1628,14 @@ export type Database = {
           youtube_video_id: string
         }
         Update: {
+          avg_view_duration_seconds?: number | null
           comments?: number
           ctr_percent?: number
           fetched_at?: string
           id?: string
           likes?: number
           published_at?: string | null
+          thumbnail_url?: string | null
           title?: string
           views?: number
           watch_time_minutes?: number
