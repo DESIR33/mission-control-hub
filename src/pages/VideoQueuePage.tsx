@@ -20,12 +20,12 @@ import { format } from "date-fns";
 import {
   SiFacebook,
   SiInstagram,
-  SiLinkedin,
   SiTiktok,
   SiTwitch,
   SiX,
   SiYoutube,
 } from "react-icons/si";
+import { Linkedin as SiLinkedin } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
