@@ -66,7 +66,7 @@ export default function NewAffiliateProgramPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["affiliate-programs"] });
       toast({ title: "Success", description: "Affiliate program created successfully" });
-      navigate("/monetization");
+      navigate("/monetization?tab=affiliate");
     },
     onError: (error: Error) => {
       toast({ title: "Error", description: error.message, variant: "destructive" });

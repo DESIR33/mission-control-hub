@@ -22,6 +22,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useContentRevenue } from "@/hooks/use-content-revenue";
 import { RateCardCalculator } from "@/components/crm/RateCardCalculator";
 import { RevenueOverview } from "@/components/monetization/RevenueOverview";
+import { useCompanies } from "@/hooks/use-companies";
+import { useWorkspace } from "@/hooks/use-workspace";
 
 function TopEarningVideos() {
   const { data: revSummary } = useContentRevenue();
@@ -97,26 +99,23 @@ interface ProductTransaction {
 }
 
 interface AffiliateProgram {
-  id: number;
-  name: string;
-  companyId: number;
-  companyName?: string;
-  commissionRate: number;
-  commissionPercentage?: number;
-  payoutFrequency?: string;
-  nextPayoutDate?: string;
-  totalRevenue?: number;
-  status: string;
-  transactions?: any[];
+  id: string;
+  company_id: string | null;
+  commission_percentage: number;
+  payout_frequency: string;
+  next_payout_date: string | null;
+  dashboard_url: string | null;
+  minimum_payout: number;
+  notes: string | null;
+  created_at: string;
   [key: string]: any;
 }
 
 interface Company {
-  id: number;
+  id: string;
   name: string;
-  website?: string;
-  industry?: string;
-  size?: string;
+  website?: string | null;
+  industry?: string | null;
   [key: string]: any;
 }
 
@@ -138,7 +137,7 @@ export default function MonetizationPage() {
   // Parse the tab from the URL query parameter once during initialization
   const getInitialTab = useMemo(() => {
     const tabParam = searchParams.get('tab');
-    return tabParam === 'products' || tabParam === 'affiliates' || tabParam === 'sponsorships' || tabParam === 'revenue-overview' || tabParam === 'rate-card'
+    return tabParam === 'products' || tabParam === 'affiliate' || tabParam === 'sponsorships' || tabParam === 'revenue-overview' || tabParam === 'rate-card'
       ? tabParam
       : "overview";
   }, []);
@@ -192,13 +191,24 @@ export default function MonetizationPage() {
     },
   ]);
 
+  const { workspaceId } = useWorkspace();
+
   const { data: affiliatePrograms = [] } = useQuery<AffiliateProgram[]>({
-    queryKey: ["/api/affiliate-programs"],
+    queryKey: ["affiliate-programs", workspaceId],
+    queryFn: async () => {
+      if (!workspaceId) return [];
+      const { data, error } = await supabase
+        .from("affiliate_programs")
+        .select("*")
+        .eq("workspace_id", workspaceId)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as AffiliateProgram[];
+    },
+    enabled: !!workspaceId,
   });
 
-  const { data: companies = [] } = useQuery<Company[]>({
-    queryKey: ["/api/companies"],
-  });
+  const { data: companies = [] } = useCompanies();
 
   const { data: sponsorships = [] } = useQuery<Sponsorship[]>({
     queryKey: ["/api/sponsorships"],
@@ -331,22 +341,22 @@ export default function MonetizationPage() {
     });
   };
 
-  const handleRowClick = (programId: number) => {
+  const handleRowClick = (programId: string) => {
     navigate(`/affiliate-program/${programId}`);
   };
 
   const deleteAffiliateProgram = useMutation({
-    mutationFn: async (id: number) => {
-      const response = await fetch(`/api/affiliate-programs/${id}`, {
-        method: "DELETE",
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message);
-      }
+    mutationFn: async (id: string) => {
+      if (!workspaceId) throw new Error("No workspace");
+      const { error } = await supabase
+        .from("affiliate_programs")
+        .delete()
+        .eq("id", id)
+        .eq("workspace_id", workspaceId);
+      if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/affiliate-programs"] });
+      queryClient.invalidateQueries({ queryKey: ["affiliate-programs", workspaceId] });
       toast({
         title: "Affiliate Program deleted",
         description: "The affiliate program has been successfully deleted.",
@@ -354,7 +364,7 @@ export default function MonetizationPage() {
     },
   });
 
-  const handleDeleteProgram = async (id: number) => {
+  const handleDeleteProgram = async (id: string) => {
     try {
       await deleteAffiliateProgram.mutateAsync(id);
     } catch (error) {
@@ -740,7 +750,7 @@ export default function MonetizationPage() {
                     </TableHeader>
                     <TableBody>
                       {sortedAffiliatePrograms.map((program) => {
-                        const company = companies.find((c) => c.id === program.companyId);
+                        const company = companies.find((c) => c.id === program.company_id);
                         return (
                           <TableRow
                             key={program.id}
@@ -748,15 +758,15 @@ export default function MonetizationPage() {
                             onClick={() => handleRowClick(program.id)}
                           >
                             <TableCell className="text-sm text-card-foreground">{company?.name || "Unknown Company"}</TableCell>
-                            <TableCell className="text-sm font-mono text-card-foreground">{program.commissionPercentage}%</TableCell>
-                            <TableCell className="text-sm text-muted-foreground">{program.payoutFrequency}</TableCell>
+                            <TableCell className="text-sm font-mono text-card-foreground">{program.commission_percentage}%</TableCell>
+                            <TableCell className="text-sm text-muted-foreground">{program.payout_frequency}</TableCell>
                             <TableCell className="text-sm text-muted-foreground">
-                              {program.nextPayoutDate
-                                ? format(new Date(program.nextPayoutDate), "MMM d, yyyy")
+                              {program.next_payout_date
+                                ? format(new Date(program.next_payout_date), "MMM d, yyyy")
                                 : "Not set"}
                             </TableCell>
                             <TableCell className="text-sm font-mono text-card-foreground">
-                              ${program.totalRevenue?.toLocaleString() || "0"}
+                              —
                             </TableCell>
                             <TableCell>
                               <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
@@ -836,7 +846,7 @@ export default function MonetizationPage() {
                     </TableHeader>
                     <TableBody>
                       {sponsorships.map((sponsorship) => {
-                        const company = companies.find((c) => c.id === sponsorship.companyId);
+                        const company = companies.find((c) => String(c.id) === String(sponsorship.companyId));
                         return (
                           <TableRow key={sponsorship.id} className="cursor-pointer hover:bg-secondary transition-colors">
                             <TableCell className="text-sm text-card-foreground">{company?.name || "Unknown Company"}</TableCell>
