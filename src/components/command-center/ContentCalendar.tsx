@@ -125,7 +125,7 @@ export function ContentCalendar() {
               <div className="flex flex-wrap gap-1.5">
                 {smartData.contentMix.map((mix) => (
                   <Badge key={mix.type} variant="outline" className="text-[9px]">
-                    {mix.type}: {mix.actual}{mix.ideal > 0 ? `/${mix.ideal}` : ""}
+                    {mix.type}: {mix.planned}{mix.ideal > 0 ? `/${mix.ideal}` : ""}
                   </Badge>
                 ))}
               </div>

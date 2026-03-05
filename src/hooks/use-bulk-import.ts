@@ -127,7 +127,7 @@ export function useBulkImportContacts() {
 
           const { error: insertError } = await supabase
             .from("contacts")
-            .insert(contact);
+            .insert(contact as any);
 
           if (insertError) {
             errors.push({ row: processed + 1, error: insertError.message });

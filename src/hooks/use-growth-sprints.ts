@@ -42,11 +42,12 @@ export function useCurrentSprint() {
         .maybeSingle();
       if (error) throw error;
       if (!data) return null;
+      const d = data as any;
       return {
-        ...data,
-        goals: Array.isArray(data.goals) ? data.goals : [],
-        tasks: Array.isArray(data.tasks) ? data.tasks : [],
-      } as unknown as GrowthSprint;
+        ...d,
+        goals: Array.isArray(d.goals) ? d.goals : [],
+        tasks: Array.isArray(d.tasks) ? d.tasks : [],
+      } as GrowthSprint;
     },
     enabled: !!workspaceId,
   });

@@ -262,7 +262,7 @@ function ReportCard({
 
 function GrowthMilestonesSection() {
   const { alerts } = useGrowthAlerts();
-  const milestones = alerts.filter((a) => a.severity === "celebration" || a.type === "milestone_reached");
+  const milestones = alerts.filter((a) => a.severity === "celebration" || a.alertType === "milestone_reached");
   if (milestones.length === 0) return null;
 
   return (
@@ -279,7 +279,7 @@ function GrowthMilestonesSection() {
           >
             <span className="text-green-500 text-sm">&#x1F389;</span>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground">{alert.title}</p>
+              <p className="text-sm font-medium text-foreground">{alert.message}</p>
               <p className="text-xs text-muted-foreground">{alert.message}</p>
             </div>
           </div>

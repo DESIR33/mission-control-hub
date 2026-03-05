@@ -84,7 +84,7 @@ function AnalyticsContent() {
     if (hasSynced.current || workspaceLoading) return;
     hasSynced.current = true;
     syncYouTube.mutate();
-    syncAnalytics.mutate();
+    syncAnalytics.mutate({});
   }, [workspaceLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const isLoading = workspaceLoading || loadingChannel || loadingVideos;

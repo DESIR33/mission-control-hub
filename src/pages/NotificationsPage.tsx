@@ -76,7 +76,7 @@ function GrowthAlertsSection() {
             >
               <Icon className={cn("w-4 h-4 mt-0.5 shrink-0", style.text)} />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground">{alert.title}</p>
+                <p className="text-sm font-medium text-foreground">{alert.message}</p>
                 <p className="text-xs text-muted-foreground">{alert.message}</p>
               </div>
             </div>
