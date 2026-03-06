@@ -200,25 +200,35 @@ export function useRevenueData() {
 
   return useQuery({
     queryKey: ["revenue-data", workspaceId],
-    queryFn: async (): Promise<{ monthly: RevenueDataPoint[]; sponsors: number; affiliates: number; products: number }> => {
+    queryFn: async (): Promise<{ monthly: RevenueDataPoint[]; sponsors: number; affiliates: number; ads: number }> => {
       if (!workspaceId) {
-        return { monthly: [], sponsors: 0, affiliates: 0, products: 0 };
+        return { monthly: [], sponsors: 0, affiliates: 0, ads: 0 };
       }
 
-      const { data: wonDeals } = await supabase
-        .from("deals")
-        .select("value, closed_at")
-        .eq("workspace_id", workspaceId)
-        .eq("stage", "closed_won")
-        .is("deleted_at", null);
+      const sixMonthsAgo = startOfMonth(subMonths(new Date(), 5));
+      const cutoff = format(sixMonthsAgo, "yyyy-MM-dd");
 
-      const { data: affiliateTx } = await supabase
-        .from("affiliate_transactions" as any)
-        .select("amount, transaction_date")
-        .eq("workspace_id", workspaceId);
+      const [wonDealsRes, affiliateTxRes, adRevenueRes] = await Promise.all([
+        supabase
+          .from("deals")
+          .select("value, closed_at")
+          .eq("workspace_id", workspaceId)
+          .eq("stage", "closed_won")
+          .is("deleted_at", null),
+        supabase
+          .from("affiliate_transactions" as any)
+          .select("amount, transaction_date")
+          .eq("workspace_id", workspaceId),
+        supabase
+          .from("youtube_channel_analytics" as any)
+          .select("date, estimated_revenue")
+          .eq("workspace_id", workspaceId)
+          .gte("date", cutoff),
+      ]);
 
-      const deals = wonDeals ?? [];
-      const transactions = (affiliateTx ?? []) as unknown as Array<{ amount: number; transaction_date: string }>;
+      const deals = wonDealsRes.data ?? [];
+      const transactions = (affiliateTxRes.data ?? []) as unknown as Array<{ amount: number; transaction_date: string }>;
+      const adRows = (adRevenueRes.data ?? []) as unknown as Array<{ date: string; estimated_revenue: number }>;
 
       const months: RevenueDataPoint[] = [];
       for (let i = 5; i >= 0; i--) {
@@ -237,18 +247,24 @@ export function useRevenueData() {
             amount += t.amount ?? 0;
           }
         }
+        for (const a of adRows) {
+          if (a.date && a.date.startsWith(monthStr)) {
+            amount += Number(a.estimated_revenue) || 0;
+          }
+        }
 
         months.push({ month: monthLabel, amount });
       }
 
       const sponsorTotal = deals.reduce((s, d) => s + (d.value ?? 0), 0);
       const affiliateTotal = transactions.reduce((s, t) => s + (t.amount ?? 0), 0);
+      const adTotal = adRows.reduce((s, a) => s + (Number(a.estimated_revenue) || 0), 0);
 
       return {
         monthly: months,
         sponsors: sponsorTotal,
         affiliates: affiliateTotal,
-        products: 0,
+        ads: adTotal,
       };
     },
     enabled: !!workspaceId,

@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import { DollarSign, Users, Film, CheckSquare, TrendingUp, AlertTriangle } from "lucide-react";
 import { KpiCard } from "@/components/dashboard/KpiCard";
 import { AiBriefing } from "@/components/dashboard/AiBriefing";
-import { NeedsAttention } from "@/components/dashboard/NeedsAttention";
+// NeedsAttention merged into AiBriefing
 import { PipelineHealth } from "@/components/dashboard/PipelineHealth";
 import { RevenueChart } from "@/components/dashboard/RevenueChart";
 import { YouTubeGrowth } from "@/components/dashboard/YouTubeGrowth";
