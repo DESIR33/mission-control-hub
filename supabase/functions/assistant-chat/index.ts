@@ -210,8 +210,8 @@ async function handleToolCall(
         });
         if (error) return { error: error.message };
         return { success: true };
-      } catch (e) {
-        return { error: e.message };
+      } catch (e: unknown) {
+        return { error: (e as Error).message };
       }
     }
     case "save_daily_log": {
