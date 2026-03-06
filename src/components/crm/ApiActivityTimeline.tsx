@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { formatDistanceToNow } from "date-fns";
 
 export type TimelineType =
@@ -80,20 +81,23 @@ export function ActivityTimeline({ entityType, entityId }: { entityType: "contac
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid gap-3 md:grid-cols-4">
-          <select
-            className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
-            value={selectedTypes.join(",")}
-            onChange={(e) => {
-              const value = e.target.value;
+          <Select
+            value={selectedTypes.length === 1 ? selectedTypes[0] : "all"}
+            onValueChange={(v) => {
               setBefore(undefined);
-              setSelectedTypes(value ? (value.split(",") as TimelineType[]) : []);
+              setSelectedTypes(v === "all" ? [] : [v as TimelineType]);
             }}
           >
-            <option value="">All event types</option>
-            {EVENT_TYPE_OPTIONS.map((type) => (
-              <option key={type} value={type}>{LABELS[type]}</option>
-            ))}
-          </select>
+            <SelectTrigger>
+              <SelectValue placeholder="All event types" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All event types</SelectItem>
+              {EVENT_TYPE_OPTIONS.map((type) => (
+                <SelectItem key={type} value={type}>{LABELS[type]}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
           <Input type="date" value={startDate} onChange={(e) => { setBefore(undefined); setStartDate(e.target.value); }} />
           <Input type="date" value={endDate} onChange={(e) => { setBefore(undefined); setEndDate(e.target.value); }} />

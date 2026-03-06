@@ -85,6 +85,7 @@ export default function TagPicker({ entityId, entityType }: TagPickerProps) {
             type="button"
             onClick={() => handleToggle(tag.id)}
             className="ml-0.5 rounded-full p-0.5 hover:bg-muted"
+            aria-label={`Remove tag ${tag.name}`}
           >
             <X className="h-3 w-3" />
           </button>
@@ -159,6 +160,7 @@ export default function TagPicker({ entityId, entityType }: TagPickerProps) {
                           : "border-transparent hover:scale-105"
                       }`}
                       style={{ backgroundColor: color }}
+                      aria-label={`Select color ${color}`}
                     />
                   ))}
                 </div>

@@ -20,7 +20,7 @@ import { useDealVelocity } from "@/hooks/use-deal-velocity";
 import { useEmailSequences } from "@/hooks/use-email-sequences";
 
 const STAGE_COLORS: Record<string, string> = {
-  prospecting: "border-t-gray-400",
+  prospecting: "border-t-muted-foreground",
   qualification: "border-t-blue-400",
   proposal: "border-t-purple-400",
   negotiation: "border-t-yellow-400",
