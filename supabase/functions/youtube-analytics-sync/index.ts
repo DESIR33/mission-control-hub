@@ -76,9 +76,11 @@ async function refreshAccessToken(
 
   if (res.ok) {
     const data = await res.json();
-    // Log granted scopes to verify yt-analytics.readonly is present
+    // Log granted scopes — expected: yt-analytics.readonly, yt-analytics-monetary.readonly, youtube.force-ssl
     if (data.scope) {
       console.log(`[YT Analytics] Token scopes: ${data.scope}`);
+      // Note: youtube.force-ssl scope is required for video update operations (title, description, tags, thumbnails)
+      // Ensure the OAuth consent screen includes this scope when generating refresh tokens
     }
     return data.access_token;
   }

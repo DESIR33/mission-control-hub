@@ -41,3 +41,5 @@ export { SponsorPipeline } from "./SponsorPipeline";
 export { VideoAutopsy } from "./VideoAutopsy";
 export { ChannelPulse } from "./ChannelPulse";
 export { AIGrowthCoach } from "./AIGrowthCoach";
+export { VideoStrategist } from "./VideoStrategist";
+export { ExperimentCard } from "./ExperimentCard";
