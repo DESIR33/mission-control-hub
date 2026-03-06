@@ -13,6 +13,8 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { differenceInDays, format, parseISO } from "date-fns";
 import {
@@ -236,11 +238,11 @@ function NewSprintForm({ onCreated }: { onCreated?: () => void }) {
           <label className="text-xs text-muted-foreground uppercase tracking-wider">
             Subscriber Target
           </label>
-          <input
+          <Input
             type="number"
             value={subTarget}
             onChange={(e) => setSubTarget(Number(e.target.value))}
-            className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm font-mono text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+            className="mt-1 font-mono"
             min={1}
           />
         </div>
@@ -251,7 +253,7 @@ function NewSprintForm({ onCreated }: { onCreated?: () => void }) {
             Tasks
           </label>
           <div className="mt-1 flex gap-2">
-            <input
+            <Input
               type="text"
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
@@ -262,21 +264,20 @@ function NewSprintForm({ onCreated }: { onCreated?: () => void }) {
                 }
               }}
               placeholder="Task title..."
-              className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              className="flex-1"
             />
-            <select
-              value={newCategory}
-              onChange={(e) =>
-                setNewCategory(e.target.value as SprintTask["category"])
-              }
-              className="rounded-md border border-border bg-background px-2 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-            >
-              {CATEGORIES.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
+            <Select value={newCategory} onValueChange={(v) => setNewCategory(v as SprintTask["category"])}>
+              <SelectTrigger className="text-xs w-auto">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {CATEGORIES.map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {c}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <Button size="sm" variant="outline" onClick={addTask}>
               <Plus className="w-4 h-4" />
             </Button>

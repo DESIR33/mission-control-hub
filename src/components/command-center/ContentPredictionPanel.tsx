@@ -7,6 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -184,8 +185,8 @@ export function ContentPredictionPanel() {
               <span className="text-xs text-muted-foreground font-mono w-4 shrink-0">
                 {i + 1}.
               </span>
-              <input
-                className="flex-1 bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+              <Input
+                className="flex-1"
                 placeholder={`Title option ${i + 1}`}
                 value={title}
                 onChange={(e) => updateTitle(i, e.target.value)}

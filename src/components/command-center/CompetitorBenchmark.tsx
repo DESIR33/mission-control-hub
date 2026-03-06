@@ -8,6 +8,7 @@ import {
 } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   useCompetitorBenchmark, useCreateCompetitor, useDeleteCompetitor,
 } from "@/hooks/use-competitor-benchmarking";
@@ -246,27 +247,23 @@ function AddForm({ showAdd, setShowAdd, form, setForm, handleAdd, isPending }: a
       {showAdd ? (
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-2">
-            <input
-              className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+            <Input
               placeholder="Channel name"
               value={form.channel_name}
               onChange={(e: any) => setForm({ ...form, channel_name: e.target.value })}
             />
-            <input
-              className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+            <Input
               placeholder="Channel URL"
               value={form.channel_url}
               onChange={(e: any) => setForm({ ...form, channel_url: e.target.value })}
             />
-            <input
-              className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+            <Input
               placeholder="Subscribers"
               type="number"
               value={form.subscriber_count}
               onChange={(e: any) => setForm({ ...form, subscriber_count: e.target.value })}
             />
-            <input
-              className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+            <Input
               placeholder="Niche"
               value={form.primary_niche}
               onChange={(e: any) => setForm({ ...form, primary_niche: e.target.value })}

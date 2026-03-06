@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
@@ -206,8 +207,7 @@ export function ABTestLab() {
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
                 <label className="text-xs text-muted-foreground mb-1 block">Variant A</label>
-                <input
-                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                <Input
                   placeholder="Variant A text..."
                   value={variantA}
                   onChange={(e) => setVariantA(e.target.value)}
@@ -215,8 +215,7 @@ export function ABTestLab() {
               </div>
               <div>
                 <label className="text-xs text-muted-foreground mb-1 block">Variant B</label>
-                <input
-                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                <Input
                   placeholder="Variant B text..."
                   value={variantB}
                   onChange={(e) => setVariantB(e.target.value)}
@@ -225,10 +224,9 @@ export function ABTestLab() {
             </div>
             <div className="max-w-[200px]">
               <label className="text-xs text-muted-foreground mb-1 block">CTR Before (%)</label>
-              <input
+              <Input
                 type="number"
                 step="0.01"
-                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                 placeholder="e.g. 4.5"
                 value={ctrBefore}
                 onChange={(e) => setCtrBefore(e.target.value)}

@@ -16,6 +16,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
 import { differenceInHours, differenceInDays, format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -240,8 +241,8 @@ function VideoRow({
               <Lightbulb className="h-4 w-4" />
               <span>Learnings &amp; Notes</span>
             </div>
-            <textarea
-              className="w-full min-h-[80px] rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 resize-y"
+            <Textarea
+              className="resize-y"
               placeholder="What worked? What didn't? Key takeaways..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}

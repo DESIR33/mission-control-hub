@@ -5,6 +5,8 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -208,24 +210,25 @@ export default function WeeklySprintPage() {
 
         {/* Add Task */}
         <div className="flex items-center gap-2 mt-4 pt-4 border-t border-border">
-          <input
-            className="flex-1 bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+          <Input
+            className="flex-1"
             placeholder="Add a task..."
             value={newTaskTitle}
             onChange={(e) => setNewTaskTitle(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addTask()}
           />
-          <select
-            className="bg-muted/50 rounded px-2 py-2 text-xs text-foreground border border-border outline-none"
-            value={newTaskCategory}
-            onChange={(e) => setNewTaskCategory(e.target.value as SprintTask["category"])}
-          >
-            <option value="content">Content</option>
-            <option value="outreach">Outreach</option>
-            <option value="engagement">Engagement</option>
-            <option value="deals">Deals</option>
-            <option value="other">Other</option>
-          </select>
+          <Select value={newTaskCategory} onValueChange={(v) => setNewTaskCategory(v as SprintTask["category"])}>
+            <SelectTrigger className="bg-muted/50 text-xs w-auto">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="content">Content</SelectItem>
+              <SelectItem value="outreach">Outreach</SelectItem>
+              <SelectItem value="engagement">Engagement</SelectItem>
+              <SelectItem value="deals">Deals</SelectItem>
+              <SelectItem value="other">Other</SelectItem>
+            </SelectContent>
+          </Select>
           <Button size="sm" onClick={addTask} disabled={!newTaskTitle.trim()}>
             <Plus className="w-4 h-4" />
           </Button>
