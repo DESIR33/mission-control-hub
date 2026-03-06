@@ -5,6 +5,8 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCollaborations, useCreateCollaboration, useUpdateCollaboration, useDeleteCollaboration } from "@/hooks/use-collaborations";
 import { useCollaborationROI } from "@/hooks/use-collaboration-roi";
 import { toast } from "sonner";
@@ -224,18 +226,17 @@ export function CollaborationTracker() {
                       </div>
                     );
                   })()}
-                  <select
-                    className="bg-muted/50 rounded px-2 py-1 text-xs text-foreground border border-border outline-none"
-                    value={collab.status}
-                    onChange={(e) =>
-                      updateCollab.mutate({ id: collab.id, status: e.target.value as any })
-                    }
-                  >
-                    {statusSteps.map((s) => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
-                    <option value="declined">declined</option>
-                  </select>
+                  <Select value={collab.status} onValueChange={(v) => updateCollab.mutate({ id: collab.id, status: v as any })}>
+                    <SelectTrigger className="bg-muted/50 text-xs w-auto">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {statusSteps.map((s) => (
+                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                      ))}
+                      <SelectItem value="declined">declined</SelectItem>
+                    </SelectContent>
+                  </Select>
                   {collab.channel_url && (
                     <a href={collab.channel_url} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-blue-400">
                       <ExternalLink className="w-3.5 h-3.5" />
@@ -280,14 +281,15 @@ export function CollaborationTracker() {
                       {collabTypeLabels[collab.collab_type] ?? collab.collab_type}
                     </Badge>
                   )}
-                  <select
-                    className="w-full bg-muted/50 rounded px-1.5 py-0.5 text-xs text-foreground border border-border outline-none"
-                    value={collab.status}
-                    onChange={(e) => updateCollab.mutate({ id: collab.id, status: e.target.value as any })}
-                  >
-                    {statusSteps.map((s) => (<option key={s} value={s}>{s}</option>))}
-                    <option value="declined">declined</option>
-                  </select>
+                  <Select value={collab.status} onValueChange={(v) => updateCollab.mutate({ id: collab.id, status: v as any })}>
+                    <SelectTrigger className="w-full bg-muted/50 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {statusSteps.map((s) => (<SelectItem key={s} value={s}>{s}</SelectItem>))}
+                      <SelectItem value="declined">declined</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               ))}
             </div>
@@ -300,42 +302,39 @@ export function CollaborationTracker() {
         {showAdd ? (
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-2">
-              <input
-                className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+              <Input
                 placeholder="Creator name"
                 value={form.creator_name}
                 onChange={(e) => setForm({ ...form, creator_name: e.target.value })}
               />
-              <input
-                className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+              <Input
                 placeholder="Channel URL"
                 value={form.channel_url}
                 onChange={(e) => setForm({ ...form, channel_url: e.target.value })}
               />
-              <input
-                className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+              <Input
                 placeholder="Subscriber count"
                 type="number"
                 value={form.subscriber_count}
                 onChange={(e) => setForm({ ...form, subscriber_count: e.target.value })}
               />
-              <input
-                className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+              <Input
                 placeholder="Niche"
                 value={form.niche}
                 onChange={(e) => setForm({ ...form, niche: e.target.value })}
               />
             </div>
             <div className="flex items-center gap-2">
-              <select
-                className="bg-muted/50 rounded px-2 py-1 text-xs text-foreground border border-border outline-none"
-                value={form.collab_type}
-                onChange={(e) => setForm({ ...form, collab_type: e.target.value })}
-              >
-                {Object.entries(collabTypeLabels).map(([k, v]) => (
-                  <option key={k} value={k}>{v}</option>
-                ))}
-              </select>
+              <Select value={form.collab_type} onValueChange={(v) => setForm({ ...form, collab_type: v })}>
+                <SelectTrigger className="bg-muted/50 text-xs w-auto">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(collabTypeLabels).map(([k, v]) => (
+                    <SelectItem key={k} value={k}>{v}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <div className="flex-1" />
               <Button size="sm" variant="ghost" onClick={() => setShowAdd(false)}>Cancel</Button>
               <Button size="sm" onClick={handleAdd} disabled={createCollab.isPending}>Add</Button>

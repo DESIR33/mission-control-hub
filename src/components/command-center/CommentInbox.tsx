@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useYouTubeComments, useCommentStats, useUpdateCommentStatus } from "@/hooks/use-youtube-comments";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
@@ -78,28 +79,30 @@ export function CommentInbox() {
       {/* Filters */}
       <div className="rounded-lg border border-border bg-card p-3 flex items-center gap-2 flex-wrap">
         <Filter className="w-3.5 h-3.5 text-muted-foreground" />
-        <select
-          className="bg-muted/50 rounded px-2 py-1 text-xs text-foreground border border-border outline-none"
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-        >
-          <option value="">All Status</option>
-          <option value="unread">Unread</option>
-          <option value="read">Read</option>
-          <option value="replied">Replied</option>
-          <option value="flagged">Flagged</option>
-        </select>
-        <select
-          className="bg-muted/50 rounded px-2 py-1 text-xs text-foreground border border-border outline-none"
-          value={sentimentFilter}
-          onChange={(e) => setSentimentFilter(e.target.value)}
-        >
-          <option value="">All Sentiment</option>
-          <option value="positive">Positive</option>
-          <option value="neutral">Neutral</option>
-          <option value="negative">Negative</option>
-          <option value="question">Questions</option>
-        </select>
+        <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v === "all" ? "" : v)}>
+          <SelectTrigger className="bg-muted/50 text-xs w-auto">
+            <SelectValue placeholder="All Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="unread">Unread</SelectItem>
+            <SelectItem value="read">Read</SelectItem>
+            <SelectItem value="replied">Replied</SelectItem>
+            <SelectItem value="flagged">Flagged</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={sentimentFilter} onValueChange={(v) => setSentimentFilter(v === "all" ? "" : v)}>
+          <SelectTrigger className="bg-muted/50 text-xs w-auto">
+            <SelectValue placeholder="All Sentiment" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Sentiment</SelectItem>
+            <SelectItem value="positive">Positive</SelectItem>
+            <SelectItem value="neutral">Neutral</SelectItem>
+            <SelectItem value="negative">Negative</SelectItem>
+            <SelectItem value="question">Questions</SelectItem>
+          </SelectContent>
+        </Select>
         <span className="text-xs text-muted-foreground ml-auto">{comments.length} comments</span>
       </div>
 
