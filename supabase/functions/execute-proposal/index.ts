@@ -146,6 +146,176 @@ Deno.serve(async (req) => {
         break;
       }
 
+      case "video_title_optimization":
+      case "video_description_optimization":
+      case "video_tags_optimization": {
+        const videoId = proposal.video_id;
+        if (!videoId) throw new Error("Missing video_id on proposal");
+
+        // 1. Get current video state for snapshot
+        const stateUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/youtube-video-update`;
+        const stateRes = await fetch(stateUrl, {
+          method: "POST",
+          headers: {
+            Authorization: authHeader,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            action: "get_current_state",
+            workspace_id,
+            video_id: videoId,
+          }),
+        });
+        const currentState = stateRes.ok ? await stateRes.json() : {};
+
+        // 2. Determine what to update
+        const updatePayload: Record<string, unknown> = {
+          action: "update_metadata",
+          workspace_id,
+          video_id: videoId,
+        };
+
+        let experimentType = "multi";
+        if (proposal.proposal_type === "video_title_optimization") {
+          experimentType = "title";
+          // Use first title option from proposed_changes.titles array
+          const titles = changes.titles as string[];
+          updatePayload.title = titles?.[0] || changes.title;
+        } else if (proposal.proposal_type === "video_description_optimization") {
+          experimentType = "description";
+          updatePayload.description = changes.description;
+        } else {
+          experimentType = "tags";
+          updatePayload.tags = changes.tags;
+        }
+
+        // 3. Apply changes via YouTube API
+        const updateRes = await fetch(stateUrl, {
+          method: "POST",
+          headers: {
+            Authorization: authHeader,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updatePayload),
+        });
+
+        if (!updateRes.ok) {
+          const err = await updateRes.text();
+          throw new Error(`YouTube update failed: ${err}`);
+        }
+
+        // 4. Fetch baseline metrics
+        const { data: analytics } = await supabase
+          .from("youtube_video_analytics")
+          .select("views, impressions, impressions_click_through_rate, estimated_minutes_watched, average_view_duration")
+          .eq("workspace_id", workspace_id)
+          .eq("video_id", videoId)
+          .limit(1)
+          .maybeSingle();
+
+        // 5. Create experiment entry
+        await supabase.from("video_optimization_experiments").insert({
+          workspace_id,
+          video_id: videoId,
+          video_title: currentState.title || proposal.title,
+          experiment_type: experimentType,
+          original_title: currentState.title || null,
+          original_description: currentState.description || null,
+          original_tags: currentState.tags || [],
+          original_thumbnail_url: currentState.thumbnail_url || null,
+          new_title: updatePayload.title || null,
+          new_description: updatePayload.description || null,
+          new_tags: updatePayload.tags || null,
+          baseline_views: analytics?.views || 0,
+          baseline_ctr: analytics?.impressions_click_through_rate || 0,
+          baseline_impressions: analytics?.impressions || 0,
+          baseline_avg_view_duration: analytics?.average_view_duration || 0,
+          baseline_watch_time_hours: (analytics?.estimated_minutes_watched || 0) / 60,
+          proposal_id: proposal.id,
+        });
+
+        result = { action: proposal.proposal_type, video_id: videoId, experiment_created: true };
+        break;
+      }
+
+      case "video_thumbnail_optimization": {
+        const videoId = proposal.video_id;
+        if (!videoId) throw new Error("Missing video_id on proposal");
+
+        // Check if thumbnails have been generated
+        const thumbnailUrls = proposal.thumbnail_urls as string[];
+        if (!thumbnailUrls?.length) {
+          throw new Error("Thumbnails must be generated before applying. Use the 'Generate Thumbnail' action first.");
+        }
+
+        const thumbnailUrl = thumbnailUrls[0];
+
+        // 1. Get current state
+        const stateUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/youtube-video-update`;
+        const stateRes = await fetch(stateUrl, {
+          method: "POST",
+          headers: {
+            Authorization: authHeader,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            action: "get_current_state",
+            workspace_id,
+            video_id: videoId,
+          }),
+        });
+        const currentState = stateRes.ok ? await stateRes.json() : {};
+
+        // 2. Upload new thumbnail
+        const uploadRes = await fetch(stateUrl, {
+          method: "POST",
+          headers: {
+            Authorization: authHeader,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            action: "update_thumbnail",
+            workspace_id,
+            video_id: videoId,
+            thumbnail_url: thumbnailUrl,
+          }),
+        });
+
+        if (!uploadRes.ok) {
+          const err = await uploadRes.text();
+          throw new Error(`Thumbnail upload failed: ${err}`);
+        }
+
+        // 3. Fetch baseline metrics
+        const { data: analytics } = await supabase
+          .from("youtube_video_analytics")
+          .select("views, impressions, impressions_click_through_rate, estimated_minutes_watched, average_view_duration")
+          .eq("workspace_id", workspace_id)
+          .eq("video_id", videoId)
+          .limit(1)
+          .maybeSingle();
+
+        // 4. Create experiment entry
+        await supabase.from("video_optimization_experiments").insert({
+          workspace_id,
+          video_id: videoId,
+          video_title: currentState.title || proposal.title,
+          experiment_type: "thumbnail",
+          original_title: currentState.title || null,
+          original_thumbnail_url: currentState.thumbnail_url || null,
+          new_thumbnail_url: thumbnailUrl,
+          baseline_views: analytics?.views || 0,
+          baseline_ctr: analytics?.impressions_click_through_rate || 0,
+          baseline_impressions: analytics?.impressions || 0,
+          baseline_avg_view_duration: analytics?.average_view_duration || 0,
+          baseline_watch_time_hours: (analytics?.estimated_minutes_watched || 0) / 60,
+          proposal_id: proposal.id,
+        });
+
+        result = { action: "video_thumbnail_optimization", video_id: videoId, experiment_created: true };
+        break;
+      }
+
       default:
         result = { action: "unknown", message: `Unknown proposal type: ${proposal.proposal_type}` };
     }

@@ -17,7 +17,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { action, video_title, current_thumbnail_url, prompt, model } = await req.json();
+    const { action, video_title, current_thumbnail_url, prompt, model, proposal_id, workspace_id } = await req.json();
 
     if (action === 'assess') {
       // Use the thumbnail URL to build an assessment based on the strategy doc principles
@@ -36,8 +36,25 @@ Deno.serve(async (req) => {
         );
       }
 
-      // Default to Flux Schnell for speed, allow override
-      const modelId = model || 'black-forest-labs/flux-schnell';
+      // Model selection: Nano Banana 2 for strategist thumbnails, Flux Schnell as default
+      const NANO_BANANA_2 = 'fofr/sdxl-nano-banana-2';
+      const modelId = model === 'nano-banana-2' ? NANO_BANANA_2 : (model || 'black-forest-labs/flux-schnell');
+
+      // Build input based on model
+      const modelInput: Record<string, unknown> = modelId === NANO_BANANA_2
+        ? {
+            prompt,
+            width: 1280,
+            height: 720,
+            num_outputs: 1,
+          }
+        : {
+            prompt,
+            aspect_ratio: '16:9',
+            num_outputs: 1,
+            output_format: 'png',
+            output_quality: 90,
+          };
 
       // Create prediction
       const createRes = await fetch('https://api.replicate.com/v1/predictions', {
@@ -49,13 +66,7 @@ Deno.serve(async (req) => {
         },
         body: JSON.stringify({
           model: modelId,
-          input: {
-            prompt,
-            aspect_ratio: '16:9',
-            num_outputs: 1,
-            output_format: 'png',
-            output_quality: 90,
-          },
+          input: modelInput,
         }),
       });
 
@@ -73,6 +84,31 @@ Deno.serve(async (req) => {
       // If using Prefer: wait, the prediction should be complete
       if (prediction.status === 'succeeded' && prediction.output) {
         const outputUrl = Array.isArray(prediction.output) ? prediction.output[0] : prediction.output;
+
+        // If proposal_id provided, save thumbnail URL back to the proposal
+        if (proposal_id && workspace_id) {
+          try {
+            const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
+            const supabase = createClient(
+              Deno.env.get('SUPABASE_URL')!,
+              Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+            );
+            const { data: existing } = await supabase
+              .from('ai_proposals')
+              .select('thumbnail_urls')
+              .eq('id', proposal_id)
+              .single();
+            const urls = existing?.thumbnail_urls || [];
+            urls.push(outputUrl);
+            await supabase
+              .from('ai_proposals')
+              .update({ thumbnail_urls: urls, requires_thumbnail_generation: false })
+              .eq('id', proposal_id);
+          } catch (e) {
+            console.error('Failed to update proposal with thumbnail URL:', e);
+          }
+        }
+
         return new Response(
           JSON.stringify({ success: true, image_url: outputUrl, prediction_id: prediction.id }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

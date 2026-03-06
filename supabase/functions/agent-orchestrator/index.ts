@@ -186,19 +186,86 @@ async function queryGrowthGoals(supabase: any, workspaceId: string) {
   return { growth_goals: data ?? [] };
 }
 
+async function queryAllVideoAnalytics(supabase: any, workspaceId: string, input: any) {
+  const sortBy = input?.sort_by || "views";
+  const [analyticsRes, statsRes] = await Promise.all([
+    supabase
+      .from("youtube_video_analytics")
+      .select("video_id, title, views, estimated_minutes_watched, average_view_duration, impressions, impressions_click_through_rate, likes, comments")
+      .eq("workspace_id", workspaceId)
+      .order(sortBy === "ctr_percent" ? "impressions_click_through_rate" : sortBy === "watch_time_hours" ? "estimated_minutes_watched" : sortBy, { ascending: false })
+      .limit(500),
+    supabase
+      .from("youtube_video_stats")
+      .select("video_id, title, views, likes, comments, ctr_percent, avg_view_duration_seconds, published_at, thumbnail_url, description, tags")
+      .eq("workspace_id", workspaceId)
+      .order("views", { ascending: false })
+      .limit(500),
+  ]);
+
+  const analytics = analyticsRes.data ?? [];
+  const stats = statsRes.data ?? [];
+
+  // Compute percentile rankings
+  const viewCounts = stats.map((v: any) => v.views).sort((a: number, b: number) => a - b);
+  const getPercentile = (views: number) => {
+    const idx = viewCounts.findIndex((v: number) => v >= views);
+    return idx >= 0 ? Math.round((idx / viewCounts.length) * 100) : 100;
+  };
+
+  const enrichedStats = stats.map((v: any) => ({
+    ...v,
+    percentile: getPercentile(v.views),
+    quartile: getPercentile(v.views) <= 25 ? "bottom" : getPercentile(v.views) <= 50 ? "lower_mid" : getPercentile(v.views) <= 75 ? "upper_mid" : "top",
+  }));
+
+  return {
+    video_analytics: analytics,
+    video_stats: enrichedStats,
+    total_videos: stats.length,
+    avg_views: stats.length > 0 ? Math.round(viewCounts.reduce((a: number, b: number) => a + b, 0) / stats.length) : 0,
+  };
+}
+
+async function queryExperiments(supabase: any, workspaceId: string, input: any) {
+  let query = supabase
+    .from("video_optimization_experiments")
+    .select("*")
+    .eq("workspace_id", workspaceId)
+    .order("created_at", { ascending: false })
+    .limit(input?.limit || 20);
+
+  if (input?.status && input.status !== "all") {
+    query = query.eq("status", input.status);
+  }
+
+  const { data, error } = await query;
+  if (error) return { error: error.message };
+
+  return {
+    experiments: data ?? [],
+    active_count: (data ?? []).filter((e: any) => e.status === "active").length,
+    completed_count: (data ?? []).filter((e: any) => e.status === "completed").length,
+    rolled_back_count: (data ?? []).filter((e: any) => e.status === "rolled_back").length,
+  };
+}
+
 async function createProposal(
   supabase: any,
   workspaceId: string,
   input: any
 ) {
-  const VALID_ENTITY_TYPES = ["contact", "deal", "company"];
+  const VALID_ENTITY_TYPES = ["contact", "deal", "company", "video"];
   const VALID_PROPOSAL_TYPES = [
     "enrichment", "outreach", "deal_update", "score_update", "tag_suggestion",
+    "video_title_optimization", "video_description_optimization",
+    "video_tags_optimization", "video_thumbnail_optimization",
   ];
 
   const rawEntityType = input.entity_type || "company";
   const rawProposalType = input.proposal_type || "tag_suggestion";
   const isContentSuggestion = rawProposalType === "content_suggestion";
+  const isVideoOptimization = rawProposalType.startsWith("video_");
 
   const dbEntityType = VALID_ENTITY_TYPES.includes(rawEntityType) ? rawEntityType : "company";
   const dbProposalType = VALID_PROPOSAL_TYPES.includes(rawProposalType) ? rawProposalType : "tag_suggestion";
@@ -210,24 +277,36 @@ async function createProposal(
   };
 
   const PLACEHOLDER_ID = "00000000-0000-0000-0000-000000000000";
-  const entityId = isContentSuggestion
+  const entityId = (isContentSuggestion || isVideoOptimization)
     ? (input.entity_id || PLACEHOLDER_ID)
     : (input.entity_id || workspaceId);
 
-  const { error } = await supabase.from("ai_proposals").insert({
+  const insertData: Record<string, unknown> = {
     workspace_id: workspaceId,
-    entity_type: dbEntityType,
+    entity_type: isVideoOptimization ? "video" : dbEntityType,
     entity_id: entityId,
-    proposal_type: dbProposalType,
+    proposal_type: isVideoOptimization ? rawProposalType : dbProposalType,
     title: input.title || "Agent Suggestion",
     summary: input.summary || null,
     proposed_changes: proposedChanges,
     confidence: input.confidence || 0.7,
     status: "pending",
-  });
+  };
+
+  // Video optimization fields
+  if (isVideoOptimization) {
+    if (input.video_id) insertData.video_id = input.video_id;
+    if (input.optimization_proof) insertData.optimization_proof = input.optimization_proof;
+    if (input.thumbnail_prompts) insertData.thumbnail_prompts = input.thumbnail_prompts;
+    if (rawProposalType === "video_thumbnail_optimization") {
+      insertData.requires_thumbnail_generation = true;
+    }
+  }
+
+  const { data: inserted, error } = await supabase.from("ai_proposals").insert(insertData).select("id").single();
 
   if (error) return { success: false, error: error.message };
-  return { success: true, title: input.title };
+  return { success: true, title: input.title, proposal_id: inserted?.id };
 }
 
 async function saveInsight(
@@ -348,19 +427,51 @@ const coreToolDefinitions = [
     type: "function",
     function: {
       name: "create_proposal",
-      description: "Create an actionable proposal for the user to review in the AI Bridge. Use this to suggest specific actions like content ideas, outreach, deal updates, etc.",
+      description: "Create an actionable proposal for the user to review. Use for content ideas, outreach, deal updates, or video optimization recommendations. For video optimization, include video_id, optimization_proof, and thumbnail_prompts.",
       parameters: {
         type: "object",
         properties: {
           title: { type: "string", description: "Short title (max 80 chars)" },
           summary: { type: "string", description: "1-2 sentence explanation" },
-          entity_type: { type: "string", enum: ["contact", "deal", "company", "video_queue"] },
-          entity_id: { type: "string", description: "UUID of the relevant entity, or placeholder for content suggestions" },
-          proposal_type: { type: "string", enum: ["enrichment", "outreach", "deal_update", "score_update", "tag_suggestion", "content_suggestion"] },
-          proposed_changes: { type: "object", description: "Specific suggested changes" },
+          entity_type: { type: "string", enum: ["contact", "deal", "company", "video_queue", "video"] },
+          entity_id: { type: "string", description: "UUID or video ID of the relevant entity" },
+          proposal_type: { type: "string", enum: ["enrichment", "outreach", "deal_update", "score_update", "tag_suggestion", "content_suggestion", "video_title_optimization", "video_description_optimization", "video_tags_optimization", "video_thumbnail_optimization"] },
+          proposed_changes: { type: "object", description: "Specific suggested changes. For titles: {titles: [option1, option2, option3]}. For descriptions: {description: '...'}. For tags: {tags: [...]}. For thumbnails: {thumbnail_prompts: ['prompt1', ...]}" },
           confidence: { type: "number", description: "0.0-1.0 confidence score" },
+          video_id: { type: "string", description: "YouTube video ID (for video optimization proposals)" },
+          optimization_proof: { type: "object", description: "Data-driven evidence. Include: current_metrics, percentile, competitor_comparison, youtube_best_practices, expected_impact" },
+          thumbnail_prompts: { type: "array", items: { type: "string" }, description: "Thumbnail generation prompts for Nano Banana 2 (for thumbnail optimization)" },
         },
         required: ["title", "summary", "proposal_type"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "query_all_video_analytics",
+      description: "Fetch comprehensive analytics for ALL videos including 30-day views, CTR, impressions, watch time, and percentile rankings. Use this for video optimization analysis instead of query_youtube_stats when you need the full picture.",
+      parameters: {
+        type: "object",
+        properties: {
+          sort_by: { type: "string", enum: ["views", "ctr_percent", "impressions", "watch_time_hours"], default: "views" },
+        },
+        required: [],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "query_experiments",
+      description: "Fetch past and active video optimization experiments to learn from previous results. Use this to understand what title/thumbnail/tag changes worked or didn't.",
+      parameters: {
+        type: "object",
+        properties: {
+          status: { type: "string", enum: ["active", "completed", "rolled_back", "all"], default: "all" },
+          limit: { type: "integer", default: 20 },
+        },
+        required: [],
       },
     },
   },
@@ -419,6 +530,10 @@ async function handleToolCall(
       return queryComments(supabase, workspaceId, toolInput);
     case "query_growth_goals":
       return queryGrowthGoals(supabase, workspaceId);
+    case "query_all_video_analytics":
+      return queryAllVideoAnalytics(supabase, workspaceId, toolInput);
+    case "query_experiments":
+      return queryExperiments(supabase, workspaceId, toolInput);
     case "create_proposal":
       return createProposal(supabase, workspaceId, toolInput);
     case "save_insight":

@@ -4,7 +4,7 @@ import {
   Eye, MousePointerClick, Handshake, Users,
   Calendar, Brain, ChevronLeft, ChevronRight,
   MessageSquare, ListVideo, Upload, Crosshair, UserCheck,
-  Menu, RefreshCw, Mail, Zap,
+  Menu, RefreshCw, Mail, Zap, Sparkles,
 } from "lucide-react";
 import { useWorkspace, WorkspaceProvider } from "@/hooks/use-workspace";
 import { useSyncYouTube } from "@/hooks/use-youtube-analytics";
@@ -22,6 +22,7 @@ import { RevenueHubSection } from "@/components/command-center/sections/RevenueH
 import { ContentPlannerSection } from "@/components/command-center/sections/ContentPlannerSection";
 import { CommentHubSection } from "@/components/command-center/sections/CommentHubSection";
 import { ContentStrategist } from "@/components/command-center";
+import { VideoStrategist } from "@/components/command-center";
 import { PlaylistOptimizer } from "@/components/command-center";
 import { MissionBriefing } from "@/components/command-center";
 import { ChannelPulse } from "@/components/command-center";
@@ -37,6 +38,7 @@ type Tab =
   | "performance"
   | "ctr_viral"
   | "strategist"
+  | "video_optimizer"
   | "upload_thumbnails"
   | "revenue"
   | "planner"
@@ -56,6 +58,7 @@ const TABS: { key: Tab; label: string; icon: React.ReactNode; group: string }[] 
   { key: "performance", label: "Video Performance", icon: <Eye className="w-3.5 h-3.5" />, group: "Content" },
   { key: "ctr_viral", label: "CTR & Virality", icon: <MousePointerClick className="w-3.5 h-3.5" />, group: "Content" },
   { key: "strategist", label: "AI Strategist", icon: <Brain className="w-3.5 h-3.5" />, group: "Content" },
+  { key: "video_optimizer", label: "Video Optimizer", icon: <Sparkles className="w-3.5 h-3.5" />, group: "Content" },
   { key: "upload_thumbnails", label: "Upload & Thumbnails", icon: <Upload className="w-3.5 h-3.5" />, group: "Content" },
   // Revenue
   { key: "revenue", label: "Revenue Hub", icon: <DollarSign className="w-3.5 h-3.5" />, group: "Revenue" },
@@ -77,6 +80,7 @@ const TAB_COMPONENTS: Record<Tab, React.ComponentType> = {
   performance: VideoPerformanceSection,
   ctr_viral: CtrViralitySection,
   strategist: ContentStrategist,
+  video_optimizer: VideoStrategist,
   upload_thumbnails: UploadThumbnailSection,
   revenue: RevenueHubSection,
   planner: ContentPlannerSection,
