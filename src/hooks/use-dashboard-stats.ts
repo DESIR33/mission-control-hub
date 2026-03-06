@@ -200,25 +200,35 @@ export function useRevenueData() {
 
   return useQuery({
     queryKey: ["revenue-data", workspaceId],
-    queryFn: async (): Promise<{ monthly: RevenueDataPoint[]; sponsors: number; affiliates: number; products: number }> => {
+    queryFn: async (): Promise<{ monthly: RevenueDataPoint[]; sponsors: number; affiliates: number; ads: number }> => {
       if (!workspaceId) {
-        return { monthly: [], sponsors: 0, affiliates: 0, products: 0 };
+        return { monthly: [], sponsors: 0, affiliates: 0, ads: 0 };
       }
 
-      const { data: wonDeals } = await supabase
-        .from("deals")
-        .select("value, closed_at")
-        .eq("workspace_id", workspaceId)
-        .eq("stage", "closed_won")
-        .is("deleted_at", null);
+      const sixMonthsAgo = startOfMonth(subMonths(new Date(), 5));
+      const cutoff = format(sixMonthsAgo, "yyyy-MM-dd");
 
-      const { data: affiliateTx } = await supabase
-        .from("affiliate_transactions" as any)
-        .select("amount, transaction_date")
-        .eq("workspace_id", workspaceId);
+      const [wonDealsRes, affiliateTxRes, adRevenueRes] = await Promise.all([
+        supabase
+          .from("deals")
+          .select("value, closed_at")
+          .eq("workspace_id", workspaceId)
+          .eq("stage", "closed_won")
+          .is("deleted_at", null),
+        supabase
+          .from("affiliate_transactions" as any)
+          .select("amount, transaction_date")
+          .eq("workspace_id", workspaceId),
+        supabase
+          .from("youtube_channel_analytics" as any)
+          .select("date, estimated_revenue")
+          .eq("workspace_id", workspaceId)
+          .gte("date", cutoff),
+      ]);
 
-      const deals = wonDeals ?? [];
-      const transactions = (affiliateTx ?? []) as unknown as Array<{ amount: number; transaction_date: string }>;
+      const deals = wonDealsRes.data ?? [];
+      const transactions = (affiliateTxRes.data ?? []) as unknown as Array<{ amount: number; transaction_date: string }>;
+      const adRows = (adRevenueRes.data ?? []) as unknown as Array<{ date: string; estimated_revenue: number }>;
 
       const months: RevenueDataPoint[] = [];
       for (let i = 5; i >= 0; i--) {
@@ -237,18 +247,24 @@ export function useRevenueData() {
             amount += t.amount ?? 0;
           }
         }
+        for (const a of adRows) {
+          if (a.date && a.date.startsWith(monthStr)) {
+            amount += Number(a.estimated_revenue) || 0;
+          }
+        }
 
         months.push({ month: monthLabel, amount });
       }
 
       const sponsorTotal = deals.reduce((s, d) => s + (d.value ?? 0), 0);
       const affiliateTotal = transactions.reduce((s, t) => s + (t.amount ?? 0), 0);
+      const adTotal = adRows.reduce((s, a) => s + (Number(a.estimated_revenue) || 0), 0);
 
       return {
         monthly: months,
         sponsors: sponsorTotal,
         affiliates: affiliateTotal,
-        products: 0,
+        ads: adTotal,
       };
     },
     enabled: !!workspaceId,
@@ -338,6 +354,33 @@ export function useAiBriefing() {
       if (!workspaceId) return [];
 
       const items: BriefingItem[] = [];
+      const today = format(new Date(), "yyyy-MM-dd");
+
+      // First, check for a stored AI-generated daily briefing
+      const { data: storedBriefing } = await supabase
+        .from("assistant_daily_logs")
+        .select("content")
+        .eq("workspace_id", workspaceId)
+        .eq("source", "daily-briefing")
+        .eq("log_date", today)
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+      if (storedBriefing && storedBriefing.length > 0) {
+        const lines = storedBriefing[0].content.split("\n").filter((l: string) => l.trim());
+        for (const line of lines) {
+          const trimmed = line.replace(/^[-•]\s*/, "").trim();
+          if (!trimmed) continue;
+          const isAction = trimmed.startsWith("🔴") || trimmed.startsWith("🟡");
+          items.push({
+            type: isAction ? "action" : "insight",
+            text: trimmed,
+          });
+        }
+        return items.slice(0, 8);
+      }
+
+      // Fallback: generate client-side briefing from live data
       const sevenDaysAgo = subDays(new Date(), 7).toISOString();
 
       const { count: staleCount } = await supabase
@@ -397,11 +440,10 @@ export function useAiBriefing() {
         });
       }
 
-      // Feature 13: YouTube Performance Intelligence
+      // YouTube Performance Intelligence
       const fourteenDaysAgo = subDays(new Date(), 14).toISOString().split("T")[0];
       const fiveDaysAgo = subDays(new Date(), 5).toISOString();
 
-      // CTR alert for latest video
       const { data: recentVideos } = await supabase
         .from("youtube_video_analytics" as any)
         .select("title, impressions_ctr, views, subscribers_gained, estimated_revenue, youtube_video_id")
@@ -419,7 +461,6 @@ export function useAiBriefing() {
           });
         }
 
-        // Subscriber conversion highlight
         const bestSubVideo = recentVideos.reduce((best: any, v: any) =>
           (v.subscribers_gained > (best?.subscribers_gained ?? 0)) ? v : best, null);
         if (bestSubVideo && bestSubVideo.subscribers_gained > 100) {
@@ -430,7 +471,7 @@ export function useAiBriefing() {
         }
       }
 
-      // Monthly ad revenue milestone
+      // Monthly ad revenue
       const thirtyDaysAgo = subDays(new Date(), 30).toISOString().split("T")[0];
       const { data: monthlyAdData } = await supabase
         .from("youtube_video_analytics" as any)
