@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  Rocket, TrendingUp, Award, DollarSign, Clock,
-  Eye, MousePointerClick, Search, Handshake, Trophy,
-  MessageSquare, ListVideo, BarChart3, Users,
-  Calendar, Zap, ChevronLeft, ChevronRight, Calculator, UserCheck,
-  UserPlus, MessageCircle, Brain, FlaskConical, Crosshair, Banknote, Upload, ImageIcon,
+  Rocket, TrendingUp, DollarSign,
+  Eye, MousePointerClick, Handshake, Users,
+  Calendar, Brain, ChevronLeft, ChevronRight,
+  MessageSquare, ListVideo, Upload, Crosshair, UserCheck,
   Menu,
 } from "lucide-react";
 import { useWorkspace, WorkspaceProvider } from "@/hooks/use-workspace";
@@ -12,111 +11,63 @@ import { useSyncYouTube } from "@/hooks/use-youtube-analytics";
 import { useSyncYouTubeAnalytics } from "@/hooks/use-youtube-analytics-api";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
-import {
-  GrowthForecast, VideoScorecard, ContentRevenueLinker,
-  UploadTimeAnalyzer, RetentionAnalyzer, CtrOptimizer,
-  ContentGapFinder, CollaborationTracker, MilestoneCountdown,
-  CommentSentiment, PlaylistOptimizer, RevenueForecast,
-  CompetitorBenchmark, ContentCalendar, ViralPredictor,
-  ContentROICalculator, SubscriberImpact,
-  SubGrowthAttribution, CohortAnalysis, CommentInbox,
-  ContentStrategist, RetentionLab, EnhancedScorecard,
-  CompetitorIntelligence, RevenueIntelligence, UploadScheduler,
-  ThumbnailLab,
-} from "@/components/command-center";
+
+import { GrowthForecastSection } from "@/components/command-center/sections/GrowthForecastSection";
+import { SubscriberIntelSection } from "@/components/command-center/sections/SubscriberIntelSection";
+import { CompetitorIntelSection } from "@/components/command-center/sections/CompetitorIntelSection";
+import { VideoPerformanceSection } from "@/components/command-center/sections/VideoPerformanceSection";
+import { CtrViralitySection } from "@/components/command-center/sections/CtrViralitySection";
+import { UploadThumbnailSection } from "@/components/command-center/sections/UploadThumbnailSection";
+import { RevenueHubSection } from "@/components/command-center/sections/RevenueHubSection";
+import { ContentPlannerSection } from "@/components/command-center/sections/ContentPlannerSection";
+import { CommentHubSection } from "@/components/command-center/sections/CommentHubSection";
+import { ContentStrategist } from "@/components/command-center";
+import { PlaylistOptimizer } from "@/components/command-center";
 
 type Tab =
-  | "forecast"
-  | "scorecard"
-  | "enhanced_scorecard"
-  | "revenue_link"
-  | "upload_time"
-  | "upload_scheduler"
-  | "retention"
-  | "retention_lab"
-  | "ctr"
-  | "content_gaps"
-  | "collaborations"
-  | "milestones"
-  | "sentiment"
-  | "playlists"
-  | "revenue_forecast"
-  | "revenue_intel"
+  | "growth"
+  | "subscribers"
   | "competitors"
-  | "competitor_intel"
-  | "calendar"
-  | "viral"
-  | "roi_calculator"
-  | "subscriber_impact"
-  | "sub_attribution"
-  | "cohorts"
-  | "comment_inbox"
-  | "content_strategist"
-  | "thumbnail_lab";
+  | "performance"
+  | "ctr_viral"
+  | "strategist"
+  | "upload_thumbnails"
+  | "revenue"
+  | "planner"
+  | "comments"
+  | "playlists";
 
 const TABS: { key: Tab; label: string; icon: React.ReactNode; group: string }[] = [
   // Growth
-  { key: "forecast", label: "Growth Forecast", icon: <TrendingUp className="w-3.5 h-3.5" />, group: "Growth" },
-  { key: "milestones", label: "Milestones", icon: <Trophy className="w-3.5 h-3.5" />, group: "Growth" },
-  { key: "competitors", label: "Competitors", icon: <Users className="w-3.5 h-3.5" />, group: "Growth" },
-  { key: "competitor_intel", label: "Competitor Intel", icon: <Crosshair className="w-3.5 h-3.5" />, group: "Growth" },
-  { key: "subscriber_impact", label: "Sub Impact", icon: <UserCheck className="w-3.5 h-3.5" />, group: "Growth" },
-  { key: "sub_attribution", label: "Sub Attribution", icon: <UserPlus className="w-3.5 h-3.5" />, group: "Growth" },
-  { key: "cohorts", label: "Cohort Analysis", icon: <BarChart3 className="w-3.5 h-3.5" />, group: "Growth" },
+  { key: "growth", label: "Growth Forecast", icon: <TrendingUp className="w-3.5 h-3.5" />, group: "Growth" },
+  { key: "subscribers", label: "Subscriber Intel", icon: <UserCheck className="w-3.5 h-3.5" />, group: "Growth" },
+  { key: "competitors", label: "Competitor Intel", icon: <Crosshair className="w-3.5 h-3.5" />, group: "Growth" },
   // Content
-  { key: "scorecard", label: "Video Scorecard", icon: <Award className="w-3.5 h-3.5" />, group: "Content" },
-  { key: "enhanced_scorecard", label: "Enhanced Scorecard", icon: <FlaskConical className="w-3.5 h-3.5" />, group: "Content" },
-  { key: "content_strategist", label: "AI Strategist", icon: <Brain className="w-3.5 h-3.5" />, group: "Content" },
-  { key: "retention", label: "Retention", icon: <Eye className="w-3.5 h-3.5" />, group: "Content" },
-  { key: "retention_lab", label: "Retention Lab", icon: <FlaskConical className="w-3.5 h-3.5" />, group: "Content" },
-  { key: "ctr", label: "CTR Optimizer", icon: <MousePointerClick className="w-3.5 h-3.5" />, group: "Content" },
-  { key: "viral", label: "Viral Predictor", icon: <Zap className="w-3.5 h-3.5" />, group: "Content" },
-  { key: "upload_time", label: "Upload Time", icon: <Clock className="w-3.5 h-3.5" />, group: "Content" },
-  { key: "upload_scheduler", label: "Upload Scheduler", icon: <Upload className="w-3.5 h-3.5" />, group: "Content" },
-  { key: "thumbnail_lab", label: "Thumbnail Lab", icon: <ImageIcon className="w-3.5 h-3.5" />, group: "Content" },
+  { key: "performance", label: "Video Performance", icon: <Eye className="w-3.5 h-3.5" />, group: "Content" },
+  { key: "ctr_viral", label: "CTR & Virality", icon: <MousePointerClick className="w-3.5 h-3.5" />, group: "Content" },
+  { key: "strategist", label: "AI Strategist", icon: <Brain className="w-3.5 h-3.5" />, group: "Content" },
+  { key: "upload_thumbnails", label: "Upload & Thumbnails", icon: <Upload className="w-3.5 h-3.5" />, group: "Content" },
   // Revenue
-  { key: "revenue_link", label: "Content → Revenue", icon: <DollarSign className="w-3.5 h-3.5" />, group: "Revenue" },
-  { key: "revenue_forecast", label: "Revenue Forecast", icon: <BarChart3 className="w-3.5 h-3.5" />, group: "Revenue" },
-  { key: "revenue_intel", label: "Revenue Intel", icon: <Banknote className="w-3.5 h-3.5" />, group: "Revenue" },
-  { key: "roi_calculator", label: "ROI Calculator", icon: <Calculator className="w-3.5 h-3.5" />, group: "Revenue" },
+  { key: "revenue", label: "Revenue Hub", icon: <DollarSign className="w-3.5 h-3.5" />, group: "Revenue" },
   // Planning
-  { key: "calendar", label: "Content Calendar", icon: <Calendar className="w-3.5 h-3.5" />, group: "Planning" },
-  { key: "content_gaps", label: "Content Gaps", icon: <Search className="w-3.5 h-3.5" />, group: "Planning" },
-  { key: "collaborations", label: "Collaborations", icon: <Handshake className="w-3.5 h-3.5" />, group: "Planning" },
+  { key: "planner", label: "Content Planner", icon: <Calendar className="w-3.5 h-3.5" />, group: "Planning" },
   // Audience
-  { key: "sentiment", label: "Comment Sentiment", icon: <MessageSquare className="w-3.5 h-3.5" />, group: "Audience" },
+  { key: "comments", label: "Comments", icon: <MessageSquare className="w-3.5 h-3.5" />, group: "Audience" },
   { key: "playlists", label: "Playlists", icon: <ListVideo className="w-3.5 h-3.5" />, group: "Audience" },
-  { key: "comment_inbox", label: "Comment Inbox", icon: <MessageCircle className="w-3.5 h-3.5" />, group: "Audience" },
 ];
 
 const TAB_COMPONENTS: Record<Tab, React.ComponentType> = {
-  forecast: GrowthForecast,
-  scorecard: VideoScorecard,
-  enhanced_scorecard: EnhancedScorecard,
-  revenue_link: ContentRevenueLinker,
-  upload_time: UploadTimeAnalyzer,
-  upload_scheduler: UploadScheduler,
-  retention: RetentionAnalyzer,
-  retention_lab: RetentionLab,
-  ctr: CtrOptimizer,
-  content_gaps: ContentGapFinder,
-  collaborations: CollaborationTracker,
-  milestones: MilestoneCountdown,
-  sentiment: CommentSentiment,
+  growth: GrowthForecastSection,
+  subscribers: SubscriberIntelSection,
+  competitors: CompetitorIntelSection,
+  performance: VideoPerformanceSection,
+  ctr_viral: CtrViralitySection,
+  strategist: ContentStrategist,
+  upload_thumbnails: UploadThumbnailSection,
+  revenue: RevenueHubSection,
+  planner: ContentPlannerSection,
+  comments: CommentHubSection,
   playlists: PlaylistOptimizer,
-  revenue_forecast: RevenueForecast,
-  revenue_intel: RevenueIntelligence,
-  competitors: CompetitorBenchmark,
-  competitor_intel: CompetitorIntelligence,
-  calendar: ContentCalendar,
-  viral: ViralPredictor,
-  roi_calculator: ContentROICalculator,
-  subscriber_impact: SubscriberImpact,
-  sub_attribution: SubGrowthAttribution,
-  cohorts: CohortAnalysis,
-  comment_inbox: CommentInbox,
-  content_strategist: ContentStrategist,
-  thumbnail_lab: ThumbnailLab,
 };
 
 function SidebarNav({
@@ -182,7 +133,7 @@ function SidebarNav({
 }
 
 function CommandCenterContent() {
-  const [activeTab, setActiveTab] = useState<Tab>("forecast");
+  const [activeTab, setActiveTab] = useState<Tab>("growth");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const isMobile = useIsMobile();
