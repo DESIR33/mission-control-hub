@@ -98,7 +98,7 @@ export function DeviceBreakdown({ data }: Props) {
             </div>
             <p className="text-xs text-muted-foreground font-medium">{d.device}</p>
             <p className="text-xl font-bold font-mono text-foreground mt-1">{d.pct}%</p>
-            <p className="text-[10px] text-muted-foreground">{fmtCount(d.views)} views</p>
+            <p className="text-xs text-muted-foreground">{fmtCount(d.views)} views</p>
           </div>
         ))}
       </div>

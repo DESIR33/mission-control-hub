@@ -51,7 +51,7 @@ export function SkillManager({ skills, onCreateSkill, onDeleteSkill }: SkillMana
                       <div className="flex items-center gap-2 min-w-0">
                         <Zap className="h-3 w-3 text-amber-400 shrink-0" />
                         <span className="text-sm truncate">{skill.name}</span>
-                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 shrink-0">
+                        <Badge variant="outline" className="text-xs px-1.5 py-0 shrink-0">
                           {skill.skill_type}
                         </Badge>
                       </div>

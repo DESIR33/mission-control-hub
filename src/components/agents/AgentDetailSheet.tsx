@@ -99,7 +99,7 @@ export function AgentDetailSheet({
                       <div className="flex items-center gap-2">
                         <Zap className="h-3 w-3 text-amber-400" />
                         <span className="text-sm font-medium">{skill.name}</span>
-                        <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                        <Badge variant="outline" className="text-xs px-1.5 py-0">
                           {skill.skill_type}
                         </Badge>
                       </div>
@@ -132,11 +132,11 @@ export function AgentDetailSheet({
                         <div className="flex items-center gap-2">
                           {statusIcon(exec.status)}
                           <span className="text-xs capitalize">{exec.status}</span>
-                          <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                          <Badge variant="outline" className="text-xs px-1.5 py-0">
                             {exec.trigger_type}
                           </Badge>
                         </div>
-                        <span className="text-[10px] text-muted-foreground">
+                        <span className="text-xs text-muted-foreground">
                           {new Date(exec.created_at).toLocaleString()}
                         </span>
                       </div>
@@ -149,7 +149,7 @@ export function AgentDetailSheet({
                         </div>
                       )}
                       {exec.duration_ms && (
-                        <span className="text-[10px] text-muted-foreground">
+                        <span className="text-xs text-muted-foreground">
                           Duration: {(exec.duration_ms / 1000).toFixed(1)}s
                         </span>
                       )}

@@ -108,7 +108,7 @@ export function ExperimentsTable({ experiments, onCreate, onUpdate, onRemove, is
               {experiments.map((exp) => (
                 <tr key={exp.id} className="border-t border-border/50">
                   <td className="p-2.5">
-                    <span className={`px-2 py-0.5 text-[10px] font-medium rounded-full ${exp.experiment_type === "title" ? "bg-blue-500/10 text-blue-500" : "bg-purple-500/10 text-purple-500"}`}>
+                    <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${exp.experiment_type === "title" ? "bg-blue-500/10 text-blue-500" : "bg-purple-500/10 text-purple-500"}`}>
                       {exp.experiment_type}
                     </span>
                   </td>

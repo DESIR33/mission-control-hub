@@ -49,30 +49,30 @@ export function GrowthForecast() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <TrendingUp className="w-3.5 h-3.5 text-green-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Daily Growth</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Daily Growth</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">+{forecast.dailyRate}</p>
-          <p className="text-[10px] text-muted-foreground">subs/day</p>
+          <p className="text-xs text-muted-foreground">subs/day</p>
         </div>
 
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Calendar className="w-3.5 h-3.5 text-blue-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Monthly</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Monthly</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">+{fmtCount(forecast.monthlyRate)}</p>
-          <p className="text-[10px] text-muted-foreground">subs/month</p>
+          <p className="text-xs text-muted-foreground">subs/month</p>
         </div>
 
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Target className="w-3.5 h-3.5 text-purple-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Days to {fmtCount(forecast.targetSubs)}</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Days to {fmtCount(forecast.targetSubs)}</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">
             {forecast.daysToTarget ?? "—"}
           </p>
-          <p className="text-[10px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             {forecast.forecastedTargetDate ?? "N/A"}
           </p>
         </div>
@@ -80,14 +80,14 @@ export function GrowthForecast() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Zap className="w-3.5 h-3.5 text-yellow-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Status</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Status</p>
           </div>
           <div className="flex items-center gap-1.5">
             <Badge variant={forecast.onTrack ? "default" : "destructive"} className="text-xs">
               {forecast.onTrack ? "On Track" : "Behind"}
             </Badge>
           </div>
-          <p className="text-[10px] text-muted-foreground mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             Confidence: {forecast.confidence}
           </p>
         </div>
@@ -104,7 +104,7 @@ export function GrowthForecast() {
           </p>
         </div>
         <Progress value={progressToTarget} className="h-3" />
-        <p className="text-[10px] text-muted-foreground mt-1">
+        <p className="text-xs text-muted-foreground mt-1">
           {progressToTarget.toFixed(1)}% complete — {fmtCount(forecast.targetSubs - forecast.currentSubs)} remaining
         </p>
       </div>

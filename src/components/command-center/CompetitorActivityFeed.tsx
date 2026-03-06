@@ -135,7 +135,7 @@ export function CompetitorActivityFeed() {
                       </p>
                       <Badge
                         variant="outline"
-                        className={`text-[9px] shrink-0 ${config.badgeClass}`}
+                        className={`text-xs shrink-0 ${config.badgeClass}`}
                       >
                         {formatActivityType(activity.activity_type)}
                       </Badge>
@@ -145,7 +145,7 @@ export function CompetitorActivityFeed() {
                         {activity.description}
                       </p>
                     )}
-                    <p className="text-[10px] text-muted-foreground mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       {formatDistanceToNow(new Date(activity.detected_at), {
                         addSuffix: true,
                       })}

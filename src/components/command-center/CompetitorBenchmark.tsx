@@ -8,6 +8,7 @@ import {
 } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   useCompetitorBenchmark, useCreateCompetitor, useDeleteCompetitor,
 } from "@/hooks/use-competitor-benchmarking";
@@ -36,7 +37,7 @@ const statusIcon: Record<string, any> = {
 const statusColor: Record<string, string> = {
   ahead: "text-green-400",
   behind: "text-red-400",
-  even: "text-gray-400",
+  even: "text-muted-foreground",
 };
 
 export function CompetitorBenchmark() {
@@ -135,10 +136,10 @@ export function CompetitorBenchmark() {
             <div key={comp.metric} className="rounded-lg border border-border bg-card p-3">
               <div className="flex items-center gap-1.5 mb-1">
                 <Icon className={`w-3.5 h-3.5 ${statusColor[comp.status]}`} />
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{comp.metric}</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wider">{comp.metric}</p>
               </div>
               <p className="text-lg font-bold font-mono text-foreground">{fmtCount(comp.yours)}</p>
-              <p className="text-[10px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 vs avg {fmtCount(comp.competitorAvg)}
                 <span className={`ml-1 ${statusColor[comp.status]}`}>
                   ({comp.deltaPercent >= 0 ? "+" : ""}{comp.deltaPercent.toFixed(0)}%)
@@ -160,7 +161,7 @@ export function CompetitorBenchmark() {
             {benchmark.yourPosition.map((p) => (
               <div key={p.metric} className="text-center">
                 <p className="text-2xl font-bold font-mono text-foreground">#{p.rank}</p>
-                <p className="text-[10px] text-muted-foreground">of {p.total} · {p.metric}</p>
+                <p className="text-xs text-muted-foreground">of {p.total} · {p.metric}</p>
               </div>
             ))}
           </div>
@@ -206,7 +207,7 @@ export function CompetitorBenchmark() {
           <div key={comp.id} className="rounded-lg border border-border bg-card p-3 flex items-center gap-3">
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground">{comp.channel_name}</p>
-              <div className="flex items-center gap-3 text-[10px] text-muted-foreground mt-0.5">
+              <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
                 {comp.subscriber_count != null && <span>{fmtCount(comp.subscriber_count)} subs</span>}
                 {comp.video_count != null && <span>{comp.video_count} videos</span>}
                 {comp.primary_niche && <span>{comp.primary_niche}</span>}
@@ -246,27 +247,23 @@ function AddForm({ showAdd, setShowAdd, form, setForm, handleAdd, isPending }: a
       {showAdd ? (
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-2">
-            <input
-              className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+            <Input
               placeholder="Channel name"
               value={form.channel_name}
               onChange={(e: any) => setForm({ ...form, channel_name: e.target.value })}
             />
-            <input
-              className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+            <Input
               placeholder="Channel URL"
               value={form.channel_url}
               onChange={(e: any) => setForm({ ...form, channel_url: e.target.value })}
             />
-            <input
-              className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+            <Input
               placeholder="Subscribers"
               type="number"
               value={form.subscriber_count}
               onChange={(e: any) => setForm({ ...form, subscriber_count: e.target.value })}
             />
-            <input
-              className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+            <Input
               placeholder="Niche"
               value={form.primary_niche}
               onChange={(e: any) => setForm({ ...form, primary_niche: e.target.value })}

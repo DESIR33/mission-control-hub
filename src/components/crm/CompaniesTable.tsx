@@ -140,16 +140,16 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
                 </div>
                 <div className="flex items-center gap-3 mt-1">
                   {company.size && (
-                    <span className="text-[11px] text-muted-foreground flex items-center gap-0.5">
+                    <span className="text-xs text-muted-foreground flex items-center gap-0.5">
                       <Users className="w-3 h-3 shrink-0" />
                       {company.size}
                     </span>
                   )}
-                  <Badge variant="outline" className="text-[10px] shrink-0">
+                  <Badge variant="outline" className="text-xs shrink-0">
                     {company.contacts?.length ?? 0} contacts
                   </Badge>
                   {company.last_contact_date && (
-                    <span className="text-[11px] text-muted-foreground">
+                    <span className="text-xs text-muted-foreground">
                       {formatDistanceToNow(new Date(company.last_contact_date), { addSuffix: true })}
                     </span>
                   )}

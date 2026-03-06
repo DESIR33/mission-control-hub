@@ -45,6 +45,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useVideoTranscript, useUploadTranscript, useRetentionData, useSaveRetentionData } from "@/hooks/use-video-transcripts";
 import { useYouTubeVideoStats } from "@/hooks/use-youtube-analytics";
 import { useRepurposes, useCreateRepurpose, useUpdateRepurpose, useDeleteRepurpose } from "@/hooks/use-repurposes";
@@ -442,7 +444,7 @@ export function VideoQueueDetails({ video, onClose, onUpdate }: VideoQueueDetail
               ))}
             </div>
             <div className="mt-2 flex gap-2">
-              <input type="text" value={newChecklistLabel} onChange={(e) => setNewChecklistLabel(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") handleAddChecklist(); }} placeholder="Add checklist item..." className="h-9 flex-1 rounded-lg border border-border bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20" />
+              <Input type="text" value={newChecklistLabel} onChange={(e) => setNewChecklistLabel(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") handleAddChecklist(); }} placeholder="Add checklist item..." className="h-9 flex-1" />
               <button onClick={handleAddChecklist} disabled={!newChecklistLabel.trim()} className="inline-flex h-9 items-center gap-1 rounded-lg bg-primary px-3 text-xs text-primary-foreground disabled:opacity-50"><Plus className="h-3.5 w-3.5" />Add</button>
             </div>
           </div>
@@ -455,13 +457,13 @@ export function VideoQueueDetails({ video, onClose, onUpdate }: VideoQueueDetail
           <div className="flex items-center justify-between">
             <p className="text-xs text-muted-foreground">{wordCount} words</p>
           </div>
-          <textarea
+          <Textarea
             value={scriptContent}
             onChange={(e) => handleScriptChange(e.target.value)}
             placeholder={"## Hook\n\n## Intro\n\n## Main Content\n\n## CTA\n\n## Outro"}
-            className="w-full min-h-[400px] rounded-lg border border-border bg-background p-4 text-sm text-foreground font-mono focus:outline-none focus:ring-2 focus:ring-primary/20 resize-y"
+            className="min-h-[400px] p-4 font-mono resize-y"
           />
-          <p className="text-[10px] text-muted-foreground">Auto-saves as you type. Use ## headings to structure your script.</p>
+          <p className="text-xs text-muted-foreground">Auto-saves as you type. Use ## headings to structure your script.</p>
         </div>
       )}
 
@@ -559,7 +561,7 @@ export function VideoQueueDetails({ video, onClose, onUpdate }: VideoQueueDetail
             ) : (
               <div>
                 <p className="text-xs text-muted-foreground mb-2">Paste retention data (CSV format: seconds,percent)</p>
-                <textarea value={retentionCsv} onChange={(e) => setRetentionCsv(e.target.value)} placeholder={"0,100\n30,95\n60,88\n90,72\n120,65"} className="w-full h-32 rounded-lg border border-border bg-background p-3 text-xs font-mono text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none" />
+                <Textarea value={retentionCsv} onChange={(e) => setRetentionCsv(e.target.value)} placeholder={"0,100\n30,95\n60,88\n90,72\n120,65"} className="h-32 text-xs font-mono resize-none" />
                 <button onClick={handleRetentionPaste} disabled={!retentionCsv.trim()} className="mt-2 inline-flex h-8 items-center gap-1.5 rounded-lg bg-primary px-3 text-xs text-primary-foreground disabled:opacity-50"><BarChart3 className="h-3 w-3" />Save Retention Data</button>
               </div>
             )}
@@ -580,16 +582,15 @@ export function VideoQueueDetails({ video, onClose, onUpdate }: VideoQueueDetail
               {repurposes.map((r) => (
                 <div key={r.id} className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2">
                   <span className="text-xs font-medium text-foreground flex-1 truncate">{r.title}</span>
-                  <span className="text-[10px] text-muted-foreground">{r.platform}</span>
-                  <select
-                    value={r.status}
-                    onChange={(e) => updateRepurpose.mutate({ id: r.id, status: e.target.value })}
-                    className="text-[10px] rounded border border-border bg-background px-1.5 py-0.5 text-foreground"
-                  >
-                    <option value="planned">Planned</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="published">Published</option>
-                  </select>
+                  <span className="text-xs text-muted-foreground">{r.platform}</span>
+                  <Select value={r.status} onValueChange={(value) => updateRepurpose.mutate({ id: r.id, status: value })}>
+                    <SelectTrigger className="h-7 w-[120px] text-xs"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="planned">Planned</SelectItem>
+                      <SelectItem value="in_progress">In Progress</SelectItem>
+                      <SelectItem value="published">Published</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <button onClick={() => deleteRepurpose.mutate(r.id)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-3 w-3" /></button>
                 </div>
               ))}
@@ -599,14 +600,20 @@ export function VideoQueueDetails({ video, onClose, onUpdate }: VideoQueueDetail
           <div className="rounded-lg border border-border bg-card p-3 space-y-2">
             <p className="text-xs font-medium text-muted-foreground">Add Repurpose</p>
             <div className="grid grid-cols-2 gap-2">
-              <select value={newRepurpose.platform} onChange={(e) => setNewRepurpose((p) => ({ ...p, platform: e.target.value }))} className="text-xs rounded-lg border border-border bg-background px-2 py-1.5 text-foreground">
-                {["TikTok", "Instagram", "X", "LinkedIn", "Facebook", "Newsletter", "Blog"].map((p) => <option key={p} value={p}>{p}</option>)}
-              </select>
-              <select value={newRepurpose.format} onChange={(e) => setNewRepurpose((p) => ({ ...p, format: e.target.value }))} className="text-xs rounded-lg border border-border bg-background px-2 py-1.5 text-foreground">
-                {["clip", "short", "reel", "thread", "carousel", "post", "newsletter", "blog", "other"].map((f) => <option key={f} value={f}>{f}</option>)}
-              </select>
+              <Select value={newRepurpose.platform} onValueChange={(value) => setNewRepurpose((p) => ({ ...p, platform: value }))}>
+                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {["TikTok", "Instagram", "X", "LinkedIn", "Facebook", "Newsletter", "Blog"].map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <Select value={newRepurpose.format} onValueChange={(value) => setNewRepurpose((p) => ({ ...p, format: value }))}>
+                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {["clip", "short", "reel", "thread", "carousel", "post", "newsletter", "blog", "other"].map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
-            <input type="text" value={newRepurpose.title} onChange={(e) => setNewRepurpose((p) => ({ ...p, title: e.target.value }))} placeholder="Repurpose title..." className="w-full h-8 rounded-lg border border-border bg-background px-2 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20" />
+            <Input type="text" value={newRepurpose.title} onChange={(e) => setNewRepurpose((p) => ({ ...p, title: e.target.value }))} placeholder="Repurpose title..." className="h-8 text-xs" />
             <button onClick={handleAddRepurpose} disabled={!newRepurpose.title.trim()} className="inline-flex h-7 items-center gap-1 rounded-lg bg-primary px-3 text-xs text-primary-foreground disabled:opacity-50"><Plus className="h-3 w-3" />Add</button>
           </div>
         </div>
@@ -622,17 +629,17 @@ export function VideoQueueDetails({ video, onClose, onUpdate }: VideoQueueDetail
               {abTests.map((t) => (
                 <div key={t.id} className="rounded-lg border border-border bg-card p-3">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-[10px] uppercase font-medium text-muted-foreground">{t.test_type}</span>
-                    {t.winner && <span className={`text-[10px] rounded-full px-1.5 py-0.5 ${t.winner === "a" ? "bg-blue-100 text-blue-700" : t.winner === "b" ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-600"}`}>Winner: {t.winner.toUpperCase()}</span>}
+                    <span className="text-xs uppercase font-medium text-muted-foreground">{t.test_type}</span>
+                    {t.winner && <span className={`text-xs rounded-full px-1.5 py-0.5 ${t.winner === "a" ? "bg-blue-100 text-blue-700" : t.winner === "b" ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-600"}`}>Winner: {t.winner.toUpperCase()}</span>}
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div className={`rounded-lg border p-2 ${t.winner === "a" ? "border-blue-300 bg-blue-50" : "border-border"}`}>
-                      <p className="text-[10px] text-muted-foreground">Variant A</p>
+                      <p className="text-xs text-muted-foreground">Variant A</p>
                       <p className="text-xs text-foreground truncate">{t.variant_a}</p>
                       {t.variant_a_ctr != null && <p className="text-xs font-mono text-foreground mt-1">CTR: {t.variant_a_ctr}%</p>}
                     </div>
                     <div className={`rounded-lg border p-2 ${t.winner === "b" ? "border-green-300 bg-green-50" : "border-border"}`}>
-                      <p className="text-[10px] text-muted-foreground">Variant B</p>
+                      <p className="text-xs text-muted-foreground">Variant B</p>
                       <p className="text-xs text-foreground truncate">{t.variant_b}</p>
                       {t.variant_b_ctr != null && <p className="text-xs font-mono text-foreground mt-1">CTR: {t.variant_b_ctr}%</p>}
                     </div>
@@ -644,22 +651,28 @@ export function VideoQueueDetails({ video, onClose, onUpdate }: VideoQueueDetail
 
           <div className="rounded-lg border border-border bg-card p-3 space-y-2">
             <p className="text-xs font-medium text-muted-foreground">Log New A/B Test</p>
-            <select value={newAbTest.testType} onChange={(e) => setNewAbTest((p) => ({ ...p, testType: e.target.value as "title" | "thumbnail" }))} className="w-full text-xs rounded-lg border border-border bg-background px-2 py-1.5 text-foreground">
-              <option value="title">Title</option>
-              <option value="thumbnail">Thumbnail</option>
-            </select>
-            <input type="text" value={newAbTest.variantA} onChange={(e) => setNewAbTest((p) => ({ ...p, variantA: e.target.value }))} placeholder="Variant A (original)..." className="w-full h-8 rounded-lg border border-border bg-background px-2 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20" />
-            <input type="text" value={newAbTest.variantB} onChange={(e) => setNewAbTest((p) => ({ ...p, variantB: e.target.value }))} placeholder="Variant B (new)..." className="w-full h-8 rounded-lg border border-border bg-background px-2 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20" />
+            <Select value={newAbTest.testType} onValueChange={(value) => setNewAbTest((p) => ({ ...p, testType: value as "title" | "thumbnail" }))}>
+              <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="title">Title</SelectItem>
+                <SelectItem value="thumbnail">Thumbnail</SelectItem>
+              </SelectContent>
+            </Select>
+            <Input type="text" value={newAbTest.variantA} onChange={(e) => setNewAbTest((p) => ({ ...p, variantA: e.target.value }))} placeholder="Variant A (original)..." className="h-8 text-xs" />
+            <Input type="text" value={newAbTest.variantB} onChange={(e) => setNewAbTest((p) => ({ ...p, variantB: e.target.value }))} placeholder="Variant B (new)..." className="h-8 text-xs" />
             <div className="grid grid-cols-2 gap-2">
-              <input type="number" step="0.1" value={newAbTest.variantACtr} onChange={(e) => setNewAbTest((p) => ({ ...p, variantACtr: e.target.value }))} placeholder="A CTR %" className="h-8 rounded-lg border border-border bg-background px-2 text-xs text-foreground focus:outline-none" />
-              <input type="number" step="0.1" value={newAbTest.variantBCtr} onChange={(e) => setNewAbTest((p) => ({ ...p, variantBCtr: e.target.value }))} placeholder="B CTR %" className="h-8 rounded-lg border border-border bg-background px-2 text-xs text-foreground focus:outline-none" />
+              <Input type="number" step="0.1" value={newAbTest.variantACtr} onChange={(e) => setNewAbTest((p) => ({ ...p, variantACtr: e.target.value }))} placeholder="A CTR %" className="h-8 text-xs" />
+              <Input type="number" step="0.1" value={newAbTest.variantBCtr} onChange={(e) => setNewAbTest((p) => ({ ...p, variantBCtr: e.target.value }))} placeholder="B CTR %" className="h-8 text-xs" />
             </div>
-            <select value={newAbTest.winner} onChange={(e) => setNewAbTest((p) => ({ ...p, winner: e.target.value as any }))} className="w-full text-xs rounded-lg border border-border bg-background px-2 py-1.5 text-foreground">
-              <option value="">No winner yet</option>
-              <option value="a">Variant A wins</option>
-              <option value="b">Variant B wins</option>
-              <option value="inconclusive">Inconclusive</option>
-            </select>
+            <Select value={newAbTest.winner || "none"} onValueChange={(value) => setNewAbTest((p) => ({ ...p, winner: (value === "none" ? "" : value) as any }))}>
+              <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No winner yet</SelectItem>
+                <SelectItem value="a">Variant A wins</SelectItem>
+                <SelectItem value="b">Variant B wins</SelectItem>
+                <SelectItem value="inconclusive">Inconclusive</SelectItem>
+              </SelectContent>
+            </Select>
             <button onClick={handleAddAbTest} disabled={!newAbTest.variantA.trim() || !newAbTest.variantB.trim()} className="inline-flex h-7 items-center gap-1 rounded-lg bg-primary px-3 text-xs text-primary-foreground disabled:opacity-50"><Plus className="h-3 w-3" />Log Test</button>
           </div>
         </div>
@@ -688,7 +701,7 @@ export function VideoQueueDetails({ video, onClose, onUpdate }: VideoQueueDetail
                   <button key={yt.id} onClick={() => handleLinkYouTube(yt.youtube_video_id)} className="w-full text-left flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 hover:bg-muted/50 transition-colors">
                     <SiYoutube className="h-3.5 w-3.5 text-red-600 shrink-0" />
                     <span className="flex-1 text-xs text-foreground truncate">{yt.title}</span>
-                    <span className="text-[10px] text-muted-foreground font-mono">{(yt.views ?? 0).toLocaleString()} views</span>
+                    <span className="text-xs text-muted-foreground font-mono">{(yt.views ?? 0).toLocaleString()} views</span>
                   </button>
                 ))}
                 {ytVideos.length === 0 && <p className="text-xs text-muted-foreground p-4 text-center">No YouTube videos found. Sync your YouTube data first.</p>}
@@ -721,7 +734,7 @@ export function VideoQueueDetails({ video, onClose, onUpdate }: VideoQueueDetail
                 >
                   <SiYoutube className="h-3.5 w-3.5 text-red-600 shrink-0" />
                   <span className="flex-1 text-xs text-foreground truncate">{yt.title}</span>
-                  <span className="text-[10px] text-muted-foreground font-mono">{(yt.views ?? 0).toLocaleString()} views</span>
+                  <span className="text-xs text-muted-foreground font-mono">{(yt.views ?? 0).toLocaleString()} views</span>
                 </button>
               ))}
               {ytVideos.length === 0 && (

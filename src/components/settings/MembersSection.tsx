@@ -380,7 +380,7 @@ export function MembersSection() {
                 <r.icon className="w-3.5 h-3.5 mt-0.5 shrink-0 text-muted-foreground" />
                 <div>
                   <p className="text-xs font-medium capitalize">{r.label}</p>
-                  <p className="text-[10px] text-muted-foreground leading-tight">{r.description}</p>
+                  <p className="text-xs text-muted-foreground leading-tight">{r.description}</p>
                 </div>
               </div>
             ))}

@@ -52,7 +52,7 @@ export function MemoryPanel({ memoriesUsed, toolsCalled, onClose }: Props) {
                     >
                       <div className="flex items-center gap-1 mb-1">
                         <span>{originIcons[m.origin] || "📝"}</span>
-                        <Badge variant="outline" className="text-[10px] h-4 px-1">
+                        <Badge variant="outline" className="text-xs h-4 px-1">
                           {m.origin}
                         </Badge>
                       </div>
@@ -69,7 +69,7 @@ export function MemoryPanel({ memoriesUsed, toolsCalled, onClose }: Props) {
                 </p>
                 <div className="flex flex-wrap gap-1">
                   {toolsCalled.map((t, i) => (
-                    <Badge key={i} variant="secondary" className="text-[10px]">
+                    <Badge key={i} variant="secondary" className="text-xs">
                       {t}
                     </Badge>
                   ))}

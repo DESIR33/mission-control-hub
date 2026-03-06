@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
@@ -80,41 +81,37 @@ export function CompetitorIntelSection() {
           </DialogHeader>
           <div className="space-y-3 py-2">
             <div className="grid grid-cols-2 gap-2">
-              <input
-                className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border col-span-2"
+              <Input
+                className="col-span-2"
                 placeholder="Channel name *"
                 value={form.channel_name}
                 onChange={(e) => setForm({ ...form, channel_name: e.target.value })}
               />
-              <input
-                className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border col-span-2"
+              <Input
+                className="col-span-2"
                 placeholder="Channel URL"
                 value={form.channel_url}
                 onChange={(e) => setForm({ ...form, channel_url: e.target.value })}
               />
-              <input
-                className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+              <Input
                 placeholder="Subscribers"
                 type="number"
                 value={form.subscriber_count}
                 onChange={(e) => setForm({ ...form, subscriber_count: e.target.value })}
               />
-              <input
-                className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+              <Input
                 placeholder="Video count"
                 type="number"
                 value={form.video_count}
                 onChange={(e) => setForm({ ...form, video_count: e.target.value })}
               />
-              <input
-                className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+              <Input
                 placeholder="Total views"
                 type="number"
                 value={form.total_view_count}
                 onChange={(e) => setForm({ ...form, total_view_count: e.target.value })}
               />
-              <input
-                className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+              <Input
                 placeholder="Niche"
                 value={form.primary_niche}
                 onChange={(e) => setForm({ ...form, primary_niche: e.target.value })}

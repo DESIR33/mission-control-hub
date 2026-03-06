@@ -98,6 +98,7 @@ export function VideoCompaniesPanel({ youtubeVideoId }: Props) {
               <button
                 onClick={() => handleUnlink(lc.id)}
                 className="ml-0.5 rounded-full hover:bg-destructive/20 p-0.5"
+                aria-label={`Unlink ${lc.company?.name ?? "company"}`}
               >
                 <X className="w-3 h-3" />
               </button>

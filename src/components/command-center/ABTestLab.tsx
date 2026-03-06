@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
@@ -206,8 +207,7 @@ export function ABTestLab() {
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
                 <label className="text-xs text-muted-foreground mb-1 block">Variant A</label>
-                <input
-                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                <Input
                   placeholder="Variant A text..."
                   value={variantA}
                   onChange={(e) => setVariantA(e.target.value)}
@@ -215,8 +215,7 @@ export function ABTestLab() {
               </div>
               <div>
                 <label className="text-xs text-muted-foreground mb-1 block">Variant B</label>
-                <input
-                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                <Input
                   placeholder="Variant B text..."
                   value={variantB}
                   onChange={(e) => setVariantB(e.target.value)}
@@ -225,10 +224,9 @@ export function ABTestLab() {
             </div>
             <div className="max-w-[200px]">
               <label className="text-xs text-muted-foreground mb-1 block">CTR Before (%)</label>
-              <input
+              <Input
                 type="number"
                 step="0.01"
-                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                 placeholder="e.g. 4.5"
                 value={ctrBefore}
                 onChange={(e) => setCtrBefore(e.target.value)}
@@ -284,12 +282,12 @@ export function ABTestLab() {
                 <CardContent className="space-y-3">
                   <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
                     <div className="rounded-md border border-border bg-muted/30 p-2">
-                      <p className="text-[10px] text-muted-foreground mb-0.5">Variant A</p>
+                      <p className="text-xs text-muted-foreground mb-0.5">Variant A</p>
                       <p className="text-sm text-foreground line-clamp-2">{exp.variant_a}</p>
                     </div>
                     <ArrowRight className="w-4 h-4 text-muted-foreground" />
                     <div className="rounded-md border border-border bg-muted/30 p-2">
-                      <p className="text-[10px] text-muted-foreground mb-0.5">Variant B</p>
+                      <p className="text-xs text-muted-foreground mb-0.5">Variant B</p>
                       <p className="text-sm text-foreground line-clamp-2">{exp.variant_b}</p>
                     </div>
                   </div>
@@ -342,19 +340,19 @@ export function ABTestLab() {
           <CardContent>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div className="rounded-md border border-border p-3">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
                   Title Tests
                 </p>
                 <p className="text-lg font-bold font-mono text-foreground">{insights.titleCount}</p>
               </div>
               <div className="rounded-md border border-border p-3">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
                   Thumbnail Tests
                 </p>
                 <p className="text-lg font-bold font-mono text-foreground">{insights.thumbnailCount}</p>
               </div>
               <div className="rounded-md border border-border p-3">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
                   Avg CTR Improvement
                 </p>
                 <p
@@ -367,14 +365,14 @@ export function ABTestLab() {
                 </p>
               </div>
               <div className="rounded-md border border-border p-3">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
                   Best Pattern
                 </p>
                 {insights.bestTest ? (
                   <>
                     <Badge
                       variant="outline"
-                      className="text-[10px] mb-1"
+                      className="text-xs mb-1"
                     >
                       {insights.bestTest.experiment_type}
                     </Badge>
@@ -491,7 +489,7 @@ export function ABTestLab() {
                       i === 0
                         ? "text-yellow-400"
                         : i === 1
-                          ? "text-gray-300"
+                          ? "text-muted-foreground"
                           : i === 2
                             ? "text-amber-600"
                             : "text-muted-foreground"

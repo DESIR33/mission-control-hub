@@ -104,14 +104,14 @@ export function AgentCard({
         </p>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+            <Badge variant="outline" className="text-xs px-1.5 py-0">
               {schedule}
             </Badge>
-            <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+            <Badge variant="outline" className="text-xs px-1.5 py-0">
               {agent.skills.length} skills
             </Badge>
             {lastExecution?.proposals_created ? (
-              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+              <Badge variant="secondary" className="text-xs px-1.5 py-0">
                 {lastExecution.proposals_created} proposals
               </Badge>
             ) : null}

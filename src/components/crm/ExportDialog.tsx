@@ -142,9 +142,9 @@ export function ExportContactsDialog({ contacts }: ExportContactsDialogProps) {
                     checked={selectedCols.has(col.key)}
                     onCheckedChange={() => toggleCol(col.key)}
                   />
-                  <label htmlFor={`col_${col.key}`} className="text-sm cursor-pointer">
+                  <Label htmlFor={`col_${col.key}`} className="text-sm cursor-pointer">
                     {col.label}
-                  </label>
+                  </Label>
                 </div>
               ))}
             </div>
@@ -234,9 +234,9 @@ export function ExportCompaniesDialog({ companies }: ExportCompaniesDialogProps)
                     checked={selectedCols.has(col.key)}
                     onCheckedChange={() => toggleCol(col.key)}
                   />
-                  <label htmlFor={`ccol_${col.key}`} className="text-sm cursor-pointer">
+                  <Label htmlFor={`ccol_${col.key}`} className="text-sm cursor-pointer">
                     {col.label}
-                  </label>
+                  </Label>
                 </div>
               ))}
             </div>

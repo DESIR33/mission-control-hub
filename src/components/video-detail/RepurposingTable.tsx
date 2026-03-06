@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Trash2, ExternalLink } from "lucide-react";
 import type { VideoRepurpose } from "@/hooks/use-video-repurposes";
@@ -61,7 +62,7 @@ export function RepurposingTable({ repurposes, onCreate, onUpdate, onRemove, isC
         <div className="rounded-lg border border-border bg-card p-4 space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="text-xs text-muted-foreground block mb-1">Type</label>
+              <Label className="text-xs text-muted-foreground block mb-1">Type</Label>
               <Select value={form.repurpose_type} onValueChange={(v) => setForm({ ...form, repurpose_type: v })}>
                 <SelectTrigger className="text-sm"><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -72,11 +73,11 @@ export function RepurposingTable({ repurposes, onCreate, onUpdate, onRemove, isC
               </Select>
             </div>
             <div>
-              <label className="text-xs text-muted-foreground block mb-1">URL</label>
+              <Label className="text-xs text-muted-foreground block mb-1">URL</Label>
               <Input value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} placeholder="https://…" className="text-sm" />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground block mb-1">Notes</label>
+              <Label className="text-xs text-muted-foreground block mb-1">Notes</Label>
               <Input value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Optional" className="text-sm" />
             </div>
           </div>
@@ -130,7 +131,7 @@ export function RepurposingTable({ repurposes, onCreate, onUpdate, onRemove, isC
                   </td>
                   <td className="p-2.5 text-muted-foreground text-xs max-w-[200px] truncate">{r.notes || "—"}</td>
                   <td className="p-2.5">
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onRemove(r.id)}>
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onRemove(r.id)} aria-label="Remove repurpose">
                       <Trash2 className="w-3 h-3 text-muted-foreground" />
                     </Button>
                   </td>

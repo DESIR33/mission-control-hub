@@ -131,7 +131,7 @@ function KpiBox({ label, value, icon, valueClass }: { label: string; value: stri
     <div className="rounded-lg border border-border bg-card p-3">
       <div className="flex items-center gap-1.5 mb-1">
         {icon}
-        <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</span>
+        <span className="text-xs text-muted-foreground uppercase tracking-wider">{label}</span>
       </div>
       <p className={`text-lg font-bold font-mono ${valueClass ?? "text-foreground"}`}>{value}</p>
     </div>

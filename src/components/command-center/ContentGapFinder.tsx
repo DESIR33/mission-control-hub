@@ -5,6 +5,8 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useContentGaps, useCreateContentGap, useUpdateContentGap, useDeleteContentGap } from "@/hooks/use-content-gaps";
 import { toast } from "sonner";
 
@@ -66,28 +68,28 @@ export function ContentGapFinder() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Lightbulb className="w-3.5 h-3.5 text-yellow-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Total Gaps</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Gaps</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{gaps.length}</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Target className="w-3.5 h-3.5 text-blue-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Identified</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Identified</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{statusCounts.identified ?? 0}</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <FileText className="w-3.5 h-3.5 text-green-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">In Production</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">In Production</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{statusCounts.in_production ?? 0}</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <TrendingUp className="w-3.5 h-3.5 text-purple-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Published</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Published</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{statusCounts.published ?? 0}</p>
         </div>
@@ -97,33 +99,35 @@ export function ContentGapFinder() {
       <div className="rounded-lg border border-border bg-card p-4">
         {showAdd ? (
           <div className="space-y-3">
-            <input
-              className="w-full bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+            <Input
+              className="w-full"
               placeholder="Topic or keyword..."
               value={newTopic}
               onChange={(e) => setNewTopic(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleAdd()}
             />
             <div className="flex items-center gap-2">
-              <select
-                className="bg-muted/50 rounded px-2 py-1 text-xs text-foreground border border-border outline-none"
-                value={newSource}
-                onChange={(e) => setNewSource(e.target.value)}
-              >
-                <option value="manual">Manual</option>
-                <option value="audience_comments">Comments</option>
-                <option value="competitor">Competitor</option>
-                <option value="trend">Trend</option>
-              </select>
-              <select
-                className="bg-muted/50 rounded px-2 py-1 text-xs text-foreground border border-border outline-none"
-                value={newCompetition}
-                onChange={(e) => setNewCompetition(e.target.value as any)}
-              >
-                <option value="low">Low Competition</option>
-                <option value="medium">Medium Competition</option>
-                <option value="high">High Competition</option>
-              </select>
+              <Select value={newSource} onValueChange={setNewSource}>
+                <SelectTrigger className="bg-muted/50 text-xs w-auto">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="manual">Manual</SelectItem>
+                  <SelectItem value="audience_comments">Comments</SelectItem>
+                  <SelectItem value="competitor">Competitor</SelectItem>
+                  <SelectItem value="trend">Trend</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={newCompetition} onValueChange={(v) => setNewCompetition(v as any)}>
+                <SelectTrigger className="bg-muted/50 text-xs w-auto">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Low Competition</SelectItem>
+                  <SelectItem value="medium">Medium Competition</SelectItem>
+                  <SelectItem value="high">High Competition</SelectItem>
+                </SelectContent>
+              </Select>
               <div className="flex-1" />
               <Button size="sm" variant="ghost" onClick={() => setShowAdd(false)}>Cancel</Button>
               <Button size="sm" onClick={handleAdd} disabled={createGap.isPending}>Add</Button>
@@ -146,28 +150,27 @@ export function ContentGapFinder() {
                 <p className="text-sm font-medium text-foreground">{gap.topic}</p>
                 <div className="flex items-center gap-2 mt-1">
                   {gap.competition && (
-                    <span className={`text-[10px] ${competitionColor[gap.competition]}`}>
+                    <span className={`text-xs ${competitionColor[gap.competition]}`}>
                       {gap.competition} competition
                     </span>
                   )}
                   {gap.source && (
-                    <span className="text-[10px] text-muted-foreground">via {gap.source}</span>
+                    <span className="text-xs text-muted-foreground">via {gap.source}</span>
                   )}
                 </div>
               </div>
-              <select
-                className="bg-muted/50 rounded px-2 py-1 text-[10px] text-foreground border border-border outline-none"
-                value={gap.status}
-                onChange={(e) =>
-                  updateGap.mutate({ id: gap.id, status: e.target.value as any })
-                }
-              >
-                <option value="identified">Identified</option>
-                <option value="planned">Planned</option>
-                <option value="in_production">In Production</option>
-                <option value="published">Published</option>
-                <option value="dismissed">Dismissed</option>
-              </select>
+              <Select value={gap.status} onValueChange={(v) => updateGap.mutate({ id: gap.id, status: v as any })}>
+                <SelectTrigger className="bg-muted/50 text-xs w-auto">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="identified">Identified</SelectItem>
+                  <SelectItem value="planned">Planned</SelectItem>
+                  <SelectItem value="in_production">In Production</SelectItem>
+                  <SelectItem value="published">Published</SelectItem>
+                  <SelectItem value="dismissed">Dismissed</SelectItem>
+                </SelectContent>
+              </Select>
               <button
                 className="text-muted-foreground hover:text-red-500 transition-colors"
                 onClick={() => {

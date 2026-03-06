@@ -59,7 +59,7 @@ function DetailRow({ icon: Icon, label, value, href }: { icon: typeof Mail; labe
     <div className="flex items-start gap-3 py-1.5">
       <Icon className="w-3.5 h-3.5 text-muted-foreground mt-0.5 shrink-0" />
       <div className="min-w-0">
-        <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</p>
+        <p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p>
         {href ? (
           <a href={href} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline truncate block">
             {value}
@@ -199,7 +199,7 @@ export function ContactDetailSheet({ contact, activities, open, onOpenChange, on
               </div>
             </div>
             <div className="flex items-center gap-2 mt-2">
-              <Badge variant="outline" className={cn("text-[10px] uppercase tracking-wider", statusColors[contact.status])}>
+              <Badge variant="outline" className={cn("text-xs uppercase tracking-wider", statusColors[contact.status])}>
                 {contact.status}
               </Badge>
               {contact.vip_tier !== "none" && (
@@ -455,11 +455,11 @@ export function ContactDetailSheet({ contact, activities, open, onOpenChange, on
                           <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Sponsored Videos</h4>
                           <div className="grid grid-cols-2 gap-2 mb-2">
                             <div className="rounded-md border border-border bg-muted/30 p-2">
-                              <p className="text-[10px] text-muted-foreground">Videos</p>
+                              <p className="text-xs text-muted-foreground">Videos</p>
                               <p className="text-sm font-bold font-mono text-foreground">{contactSponsor.videosSponsored}</p>
                             </div>
                             <div className="rounded-md border border-border bg-muted/30 p-2">
-                              <p className="text-[10px] text-muted-foreground">Total Value</p>
+                              <p className="text-xs text-muted-foreground">Total Value</p>
                               <p className="text-sm font-bold font-mono text-green-500">${contactSponsor.totalDealValue.toLocaleString()}</p>
                             </div>
                           </div>
@@ -479,7 +479,7 @@ export function ContactDetailSheet({ contact, activities, open, onOpenChange, on
 
                   {/* Meta */}
                   <Separator className="bg-border" />
-                  <div className="text-[10px] text-muted-foreground space-y-1">
+                  <div className="text-xs text-muted-foreground space-y-1">
                     <p>Created: {format(new Date(contact.created_at), "MMM d, yyyy")}</p>
                     <p>Updated: {format(new Date(contact.updated_at), "MMM d, yyyy")}</p>
                     {contact.source && <p>Source: {contact.source}</p>}

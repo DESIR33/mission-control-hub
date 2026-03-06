@@ -54,16 +54,16 @@ export function CtrOptimizer() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <MousePointerClick className="w-3.5 h-3.5 text-blue-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Avg CTR</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Avg CTR</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{optimization.avgCtr.toFixed(1)}%</p>
-          <p className="text-[10px] text-muted-foreground">YouTube avg 4-5%</p>
+          <p className="text-xs text-muted-foreground">YouTube avg 4-5%</p>
         </div>
 
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <TrendingUp className="w-3.5 h-3.5 text-green-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Top CTR Videos</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Top CTR Videos</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{optimization.topCtrVideos.length}</p>
         </div>
@@ -71,7 +71,7 @@ export function CtrOptimizer() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <AlertTriangle className="w-3.5 h-3.5 text-red-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Low CTR</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Low CTR</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{optimization.lowCtrVideos.length}</p>
         </div>
@@ -79,10 +79,10 @@ export function CtrOptimizer() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Eye className="w-3.5 h-3.5 text-yellow-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Missed Views</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Missed Views</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{fmtCount(optimization.totalMissedViews)}</p>
-          <p className="text-[10px] text-muted-foreground">recoverable</p>
+          <p className="text-xs text-muted-foreground">recoverable</p>
         </div>
       </div>
 
@@ -138,7 +138,7 @@ export function CtrOptimizer() {
                 <div key={p.pattern} className="flex items-center justify-between p-2 rounded bg-muted/30">
                   <div>
                     <p className="text-sm text-foreground">{p.pattern}</p>
-                    <p className="text-[10px] text-muted-foreground">{p.videoCount} videos</p>
+                    <p className="text-xs text-muted-foreground">{p.videoCount} videos</p>
                   </div>
                   <Badge variant={p.avgCtr > optimization.avgCtr ? "default" : "secondary"}>
                     {p.avgCtr.toFixed(1)}% CTR
@@ -160,9 +160,9 @@ export function CtrOptimizer() {
           <div className="space-y-2">
             {optimization.topCtrVideos.slice(0, 5).map((v) => (
               <div key={v.videoId} className="flex items-center gap-2">
-                <Badge className="text-[9px] shrink-0 font-mono">{v.ctr.toFixed(1)}%</Badge>
+                <Badge className="text-xs shrink-0 font-mono">{v.ctr.toFixed(1)}%</Badge>
                 <p className="text-xs text-foreground truncate flex-1">{v.title}</p>
-                <p className="text-[10px] text-muted-foreground shrink-0">{fmtCount(v.views)}</p>
+                <p className="text-xs text-muted-foreground shrink-0">{fmtCount(v.views)}</p>
               </div>
             ))}
           </div>
@@ -176,9 +176,9 @@ export function CtrOptimizer() {
           <div className="space-y-2">
             {optimization.lowCtrVideos.slice(0, 5).map((v) => (
               <div key={v.videoId} className="flex items-center gap-2">
-                <Badge variant="destructive" className="text-[9px] shrink-0 font-mono">{v.ctr.toFixed(1)}%</Badge>
+                <Badge variant="destructive" className="text-xs shrink-0 font-mono">{v.ctr.toFixed(1)}%</Badge>
                 <p className="text-xs text-foreground truncate flex-1">{v.title}</p>
-                <p className="text-[10px] text-muted-foreground shrink-0">+{fmtCount(v.opportunity)} potential</p>
+                <p className="text-xs text-muted-foreground shrink-0">+{fmtCount(v.opportunity)} potential</p>
               </div>
             ))}
           </div>

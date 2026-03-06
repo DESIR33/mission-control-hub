@@ -1,4 +1,3 @@
-import { WorkspaceProvider } from "@/hooks/use-workspace";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Brain, BookOpen, Camera } from "lucide-react";
 import { LongTermMemoryTab } from "@/components/memory/LongTermMemoryTab";
@@ -7,7 +6,7 @@ import { ServiceSnapshotsTab } from "@/components/memory/ServiceSnapshotsTab";
 import { useAssistantMemory } from "@/hooks/use-assistant-memory";
 import { motion } from "framer-motion";
 
-function MemoryContent() {
+export default function MemoryPage() {
   const memory = useAssistantMemory();
 
   return (
@@ -67,10 +66,3 @@ function MemoryContent() {
   );
 }
 
-export default function MemoryPage() {
-  return (
-    <WorkspaceProvider>
-      <MemoryContent />
-    </WorkspaceProvider>
-  );
-}

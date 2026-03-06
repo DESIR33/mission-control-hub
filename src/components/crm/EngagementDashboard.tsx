@@ -44,28 +44,28 @@ export function EngagementDashboard() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <BarChart3 className="w-3.5 h-3.5 text-blue-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Avg Score</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Avg Score</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{dashboard.avgScore}</p>
-          <p className="text-[10px] text-muted-foreground">across {dashboard.totalScored} contacts</p>
+          <p className="text-xs text-muted-foreground">across {dashboard.totalScored} contacts</p>
         </div>
 
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Flame className="w-3.5 h-3.5 text-green-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Hot Leads</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Hot Leads</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{dashboard.hotLeads.length}</p>
-          <p className="text-[10px] text-muted-foreground">score 60+</p>
+          <p className="text-xs text-muted-foreground">score 60+</p>
         </div>
 
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <AlertTriangle className="w-3.5 h-3.5 text-red-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">At Risk</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">At Risk</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{dashboard.atRisk.length}</p>
-          <p className="text-[10px] text-muted-foreground">need attention</p>
+          <p className="text-xs text-muted-foreground">need attention</p>
         </div>
       </div>
 
@@ -100,8 +100,8 @@ export function EngagementDashboard() {
               return (
                 <div key={lead.id} className="flex items-center gap-2">
                   <span className="text-xs text-foreground flex-1 truncate">{lead.name}</span>
-                  {lead.company && <span className="text-[10px] text-muted-foreground truncate max-w-[80px]">{lead.company}</span>}
-                  <Badge variant="outline" className={`text-[9px] ${badge.className}`}>
+                  {lead.company && <span className="text-xs text-muted-foreground truncate max-w-[80px]">{lead.company}</span>}
+                  <Badge variant="outline" className={`text-xs ${badge.className}`}>
                     {lead.score}
                   </Badge>
                 </div>
@@ -124,7 +124,7 @@ export function EngagementDashboard() {
               return (
                 <div key={contact.id} className="flex items-center gap-2">
                   <span className="text-xs text-foreground flex-1 truncate">{contact.name}</span>
-                  <Badge variant="outline" className={`text-[9px] ${badge.className}`}>
+                  <Badge variant="outline" className={`text-xs ${badge.className}`}>
                     {contact.score}
                   </Badge>
                 </div>

@@ -5,6 +5,8 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   useContentCalendar, useCreateCalendarEntry, useUpdateCalendarEntry, useDeleteCalendarEntry,
 } from "@/hooks/use-content-calendar";
@@ -93,7 +95,7 @@ export function ContentCalendar() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Calendar className="w-3.5 h-3.5 text-blue-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Upcoming</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Upcoming</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{calendar.upcomingCount}</p>
         </div>
@@ -101,7 +103,7 @@ export function ContentCalendar() {
           <div key={status} className="rounded-lg border border-border bg-card p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <div className={`w-2.5 h-2.5 rounded-full ${statusColors[status] ?? "bg-gray-500"}`} />
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider capitalize">{status}</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider capitalize">{status}</p>
             </div>
             <p className="text-lg font-bold font-mono text-foreground">{count}</p>
           </div>
@@ -114,17 +116,17 @@ export function ContentCalendar() {
           <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <Zap className="w-3.5 h-3.5 text-green-500" />
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Pub Streak</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Pub Streak</p>
             </div>
             <p className="text-lg font-bold font-mono text-foreground">{smartData.streakWeeks}</p>
-            <p className="text-[10px] text-muted-foreground">consecutive weeks</p>
+            <p className="text-xs text-muted-foreground">consecutive weeks</p>
           </div>
           {smartData.contentMix.length > 0 && (
             <div className="rounded-lg border border-border bg-card p-3 col-span-1 sm:col-span-2">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5">Content Mix This Month</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1.5">Content Mix This Month</p>
               <div className="flex flex-wrap gap-1.5">
                 {smartData.contentMix.map((mix) => (
-                  <Badge key={mix.type} variant="outline" className="text-[9px]">
+                  <Badge key={mix.type} variant="outline" className="text-xs">
                     {mix.type}: {mix.planned}{mix.ideal > 0 ? `/${mix.ideal}` : ""}
                   </Badge>
                 ))}
@@ -139,29 +141,27 @@ export function ContentCalendar() {
         {showAdd ? (
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-2">
-              <input
-                className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+              <Input
                 placeholder="Video title"
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
               />
-              <input
-                className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+              <Input
                 type="date"
                 value={form.scheduled_date}
                 onChange={(e) => setForm({ ...form, scheduled_date: e.target.value })}
               />
-              <select
-                className="bg-muted/50 rounded px-2 py-1 text-xs text-foreground border border-border outline-none"
-                value={form.content_type}
-                onChange={(e) => setForm({ ...form, content_type: e.target.value })}
-              >
-                {Object.entries(contentTypeLabels).map(([k, v]) => (
-                  <option key={k} value={k}>{v}</option>
-                ))}
-              </select>
-              <input
-                className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+              <Select value={form.content_type} onValueChange={(v) => setForm({ ...form, content_type: v })}>
+                <SelectTrigger className="bg-muted/50 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(contentTypeLabels).map(([k, v]) => (
+                    <SelectItem key={k} value={k}>{v}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Input
                 placeholder="Predicted views"
                 type="number"
                 value={form.predicted_views}
@@ -187,7 +187,7 @@ export function ContentCalendar() {
           <div className="px-4 py-2 bg-muted/30 border-b border-border flex items-center justify-between">
             <p className="text-xs font-semibold text-foreground">{week.weekLabel}</p>
             {week.totalPredictedViews > 0 && (
-              <p className="text-[10px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 ~{fmtCount(week.totalPredictedViews)} predicted views
               </p>
             )}
@@ -198,7 +198,7 @@ export function ContentCalendar() {
                 key={day.date}
                 className={`min-h-[80px] p-1.5 ${day.isToday ? "bg-blue-500/5" : ""}`}
               >
-                <p className={`text-[9px] font-mono ${day.isToday ? "text-blue-400 font-semibold" : "text-muted-foreground"}`}>
+                <p className={`text-xs font-mono ${day.isToday ? "text-blue-400 font-semibold" : "text-muted-foreground"}`}>
                   {day.dayName} {day.date.split("-")[2]}
                 </p>
                 {day.entries.map((entry) => (
@@ -216,17 +216,16 @@ export function ContentCalendar() {
                       </p>
                     )}
                     <div className="hidden group-hover:flex items-center gap-1 mt-0.5">
-                      <select
-                        className="bg-transparent text-[7px] text-muted-foreground outline-none"
-                        value={entry.status}
-                        onChange={(e) =>
-                          updateEntry.mutate({ id: entry.id, status: e.target.value as any })
-                        }
-                      >
-                        {Object.keys(statusColors).map((s) => (
-                          <option key={s} value={s}>{s}</option>
-                        ))}
-                      </select>
+                      <Select value={entry.status} onValueChange={(v) => updateEntry.mutate({ id: entry.id, status: v as any })}>
+                        <SelectTrigger className="bg-transparent text-[7px] text-muted-foreground h-auto py-0 px-1 w-auto border-none">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.keys(statusColors).map((s) => (
+                            <SelectItem key={s} value={s}>{s}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <button
                         className="text-muted-foreground hover:text-red-500"
                         onClick={() => deleteEntry.mutate(entry.id)}

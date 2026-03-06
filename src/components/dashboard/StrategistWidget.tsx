@@ -34,7 +34,7 @@ export function StrategistWidget({ onNavigate }: { onNavigate?: () => void }) {
             <CardTitle className="text-sm font-semibold">Video Strategist</CardTitle>
           </div>
           {pendingCount > 0 && (
-            <Badge className="bg-yellow-500/15 text-yellow-400 border-yellow-400/30 text-[10px]">
+            <Badge className="bg-yellow-500/15 text-yellow-400 border-yellow-400/30 text-xs">
               {pendingCount} pending
             </Badge>
           )}
@@ -47,14 +47,14 @@ export function StrategistWidget({ onNavigate }: { onNavigate?: () => void }) {
             <FlaskConical className="w-3.5 h-3.5 text-green-400" />
             <div>
               <p className="text-lg font-bold">{activeCount}</p>
-              <p className="text-[10px] text-muted-foreground">Active Experiments</p>
+              <p className="text-xs text-muted-foreground">Active Experiments</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <TrendingUp className="w-3.5 h-3.5 text-blue-400" />
             <div>
               <p className="text-lg font-bold">{pendingCount}</p>
-              <p className="text-[10px] text-muted-foreground">Recommendations</p>
+              <p className="text-xs text-muted-foreground">Recommendations</p>
             </div>
           </div>
         </div>
@@ -63,7 +63,7 @@ export function StrategistWidget({ onNavigate }: { onNavigate?: () => void }) {
           <div className="p-2 rounded-lg bg-green-500/10 border border-green-500/20">
             <div className="flex items-center gap-1.5">
               <TrendingUp className="w-3 h-3 text-green-400" />
-              <span className="text-[10px] font-medium text-green-400">Top Result</span>
+              <span className="text-xs font-medium text-green-400">Top Result</span>
             </div>
             <p className="text-xs text-muted-foreground mt-1 truncate">
               {bestResult.video_title}: +{bestResult.performance_delta.views?.toFixed(1)}% views
@@ -73,13 +73,13 @@ export function StrategistWidget({ onNavigate }: { onNavigate?: () => void }) {
 
         {!bestResult && activeCount === 0 && pendingCount === 0 && (
           <div className="p-2 rounded-lg bg-muted/50 text-center">
-            <p className="text-[10px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               Recommendations generated daily at 3:00 AM CST
             </p>
           </div>
         )}
 
-        <div className="flex items-center justify-end text-[10px] text-muted-foreground hover:text-foreground transition-colors">
+        <div className="flex items-center justify-end text-xs text-muted-foreground hover:text-foreground transition-colors">
           View details <ArrowRight className="w-3 h-3 ml-1" />
         </div>
       </CardContent>

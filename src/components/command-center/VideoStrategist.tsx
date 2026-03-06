@@ -46,7 +46,7 @@ function ProofSection({ proof }: { proof: VideoOptimizationProposal["optimizatio
     <div className="mt-2">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="flex items-center gap-1 text-[10px] font-medium text-blue-400 hover:text-blue-300 transition-colors"
+        className="flex items-center gap-1 text-xs font-medium text-blue-400 hover:text-blue-300 transition-colors"
       >
         {expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
         {expanded ? "Hide proof" : "Show data proof"}
@@ -116,11 +116,11 @@ function RecommendationCard({ proposal }: { proposal: VideoOptimizationProposal 
           <div className="min-w-0">
             <div className="flex items-center gap-1.5 mb-1">
               <Icon className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-              <span className="text-[10px] font-medium text-blue-400 uppercase tracking-wide">{typeLabel}</span>
+              <span className="text-xs font-medium text-blue-400 uppercase tracking-wide">{typeLabel}</span>
             </div>
             <CardTitle className="text-sm font-semibold leading-snug">{proposal.title}</CardTitle>
           </div>
-          <Badge className="shrink-0 text-[10px] bg-yellow-500/10 text-yellow-400 border-yellow-400/30">
+          <Badge className="shrink-0 text-xs bg-yellow-500/10 text-yellow-400 border-yellow-400/30">
             {Math.round(proposal.confidence * 100)}% conf
           </Badge>
         </div>
@@ -135,7 +135,7 @@ function RecommendationCard({ proposal }: { proposal: VideoOptimizationProposal 
         {/* Title options */}
         {titles.length > 0 && (
           <div className="space-y-1.5">
-            <p className="text-[10px] font-medium text-foreground uppercase tracking-wide">Recommended Titles</p>
+            <p className="text-xs font-medium text-foreground uppercase tracking-wide">Recommended Titles</p>
             {titles.map((title, i) => (
               <button
                 key={i}
@@ -156,7 +156,7 @@ function RecommendationCard({ proposal }: { proposal: VideoOptimizationProposal 
         {/* Thumbnail prompts */}
         {isThumbnail && proposal.thumbnail_prompts?.length ? (
           <div className="space-y-1.5">
-            <p className="text-[10px] font-medium text-foreground uppercase tracking-wide">Thumbnail Concepts</p>
+            <p className="text-xs font-medium text-foreground uppercase tracking-wide">Thumbnail Concepts</p>
             {proposal.thumbnail_prompts.map((prompt, i) => (
               <div key={i} className="text-xs text-muted-foreground p-2 rounded border border-border">
                 {prompt}
@@ -168,7 +168,7 @@ function RecommendationCard({ proposal }: { proposal: VideoOptimizationProposal 
         {/* Generated thumbnails */}
         {proposal.thumbnail_urls?.length ? (
           <div className="space-y-1.5">
-            <p className="text-[10px] font-medium text-foreground uppercase tracking-wide">Generated Thumbnails</p>
+            <p className="text-xs font-medium text-foreground uppercase tracking-wide">Generated Thumbnails</p>
             <div className="grid grid-cols-2 gap-2">
               {proposal.thumbnail_urls.map((url, i) => (
                 <img key={i} src={url} alt={`Thumbnail option ${i + 1}`} className="rounded border border-border w-full aspect-video object-cover" />
@@ -180,10 +180,10 @@ function RecommendationCard({ proposal }: { proposal: VideoOptimizationProposal 
         {/* Tags */}
         {(changes.tags as string[])?.length ? (
           <div className="space-y-1.5">
-            <p className="text-[10px] font-medium text-foreground uppercase tracking-wide">Recommended Tags</p>
+            <p className="text-xs font-medium text-foreground uppercase tracking-wide">Recommended Tags</p>
             <div className="flex flex-wrap gap-1">
               {(changes.tags as string[]).map((tag, i) => (
-                <Badge key={i} variant="outline" className="text-[10px]">{tag}</Badge>
+                <Badge key={i} variant="outline" className="text-xs">{tag}</Badge>
               ))}
             </div>
           </div>
@@ -192,7 +192,7 @@ function RecommendationCard({ proposal }: { proposal: VideoOptimizationProposal 
         {/* Description */}
         {changes.description && (
           <div className="space-y-1.5">
-            <p className="text-[10px] font-medium text-foreground uppercase tracking-wide">Recommended Description</p>
+            <p className="text-xs font-medium text-foreground uppercase tracking-wide">Recommended Description</p>
             <p className="text-xs text-muted-foreground whitespace-pre-wrap max-h-32 overflow-y-auto p-2 rounded border border-border">
               {changes.description as string}
             </p>
@@ -250,7 +250,7 @@ function RecommendationCard({ proposal }: { proposal: VideoOptimizationProposal 
           </Button>
         </div>
         {titles.length > 0 && !selectedTitle && (
-          <p className="text-[10px] text-amber-400 flex items-center gap-1">
+          <p className="text-xs text-amber-400 flex items-center gap-1">
             <AlertTriangle className="w-3 h-3" />
             Select a title option above before approving
           </p>
@@ -329,7 +329,7 @@ export function VideoStrategist() {
             <TrendingUp className="w-3.5 h-3.5 mr-1.5" />
             Recommendations
             {(pending.data?.length || 0) > 0 && (
-              <Badge className="ml-1.5 text-[9px] px-1.5 py-0 bg-blue-500/20 text-blue-400">
+              <Badge className="ml-1.5 text-xs px-1.5 py-0 bg-blue-500/20 text-blue-400">
                 {pending.data?.length}
               </Badge>
             )}
@@ -338,7 +338,7 @@ export function VideoStrategist() {
             <FlaskConical className="w-3.5 h-3.5 mr-1.5" />
             Active Experiments
             {(activeExperiments.data?.length || 0) > 0 && (
-              <Badge className="ml-1.5 text-[9px] px-1.5 py-0 bg-green-500/20 text-green-400">
+              <Badge className="ml-1.5 text-xs px-1.5 py-0 bg-green-500/20 text-green-400">
                 {activeExperiments.data?.length}
               </Badge>
             )}

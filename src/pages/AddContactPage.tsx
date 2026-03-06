@@ -1,13 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, UserPlus } from "lucide-react";
-import { WorkspaceProvider } from "@/hooks/use-workspace";
 import AddContactForm from "@/components/crm/AddContactForm";
 
-function AddContactPageContent() {
+export default function AddContactPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 gradient-mesh min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 min-h-screen">
       <div className="mx-auto max-w-2xl">
         <button
           onClick={() => navigate("/relationships")}
@@ -28,10 +27,3 @@ function AddContactPageContent() {
   );
 }
 
-export default function AddContactPage() {
-  return (
-    <WorkspaceProvider>
-      <AddContactPageContent />
-    </WorkspaceProvider>
-  );
-}

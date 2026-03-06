@@ -146,7 +146,7 @@ export function SequenceHealthDashboard() {
       <div className="flex items-center gap-2">
         <Send className="w-5 h-5 text-blue-500" />
         <h2 className="text-lg font-semibold text-foreground">Sequence Health</h2>
-        <Badge variant="outline" className="text-[10px] font-mono">
+        <Badge variant="outline" className="text-xs font-mono">
           {health.activeSequences} active
         </Badge>
       </div>
@@ -156,28 +156,28 @@ export function SequenceHealthDashboard() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Mail className="w-3.5 h-3.5 text-blue-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Total Sent</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Sent</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{health.totalSent}</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <CheckCircle className="w-3.5 h-3.5 text-green-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Delivery Rate</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Delivery Rate</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{health.deliveryRate.toFixed(1)}%</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <MessageSquare className="w-3.5 h-3.5 text-purple-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Reply Rate</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Reply Rate</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{health.replyRate.toFixed(1)}%</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Users className="w-3.5 h-3.5 text-amber-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Active Enrolled</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Active Enrolled</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{health.activeEnrollments}</p>
         </div>
@@ -199,7 +199,7 @@ export function SequenceHealthDashboard() {
                 : 0;
               return (
                 <div key={item.label} className="flex items-center gap-2">
-                  <span className="text-[10px] text-muted-foreground w-24 shrink-0">
+                  <span className="text-xs text-muted-foreground w-24 shrink-0">
                     {item.label}
                   </span>
                   <div className="flex-1 bg-muted/50 rounded-full h-2 overflow-hidden">
@@ -251,7 +251,7 @@ export function SequenceHealthDashboard() {
                 </span>
                 <span className="text-foreground truncate">{log.to_email}</span>
                 {log.error_message && (
-                  <span className="text-destructive truncate text-[10px]">
+                  <span className="text-destructive truncate text-xs">
                     {log.error_message}
                   </span>
                 )}

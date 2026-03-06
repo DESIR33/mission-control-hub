@@ -37,7 +37,7 @@ function DeltaBadge({ delta }: { delta: number }) {
   const isPositive = delta > 0;
   const Icon = isPositive ? TrendingUp : TrendingDown;
   return (
-    <span className={`inline-flex items-center gap-0.5 text-[10px] font-mono ${isPositive ? "text-green-500" : "text-red-500"}`}>
+    <span className={`inline-flex items-center gap-0.5 text-xs font-mono ${isPositive ? "text-green-500" : "text-red-500"}`}>
       <Icon className="w-2.5 h-2.5" />
       {isPositive ? "+" : ""}
       {formatCompact(delta)}
@@ -87,7 +87,7 @@ export function ChannelPulse() {
       <div className="flex items-center gap-1.5 shrink-0">
         <Users className="w-3.5 h-3.5 text-muted-foreground" />
         <div className="flex flex-col leading-none">
-          <span className="text-[10px] text-muted-foreground">Subscribers</span>
+          <span className="text-xs text-muted-foreground">Subscribers</span>
           <div className="flex items-center gap-1">
             <span className="text-xs font-bold font-mono">
               {channelStats ? formatCompact(channelStats.subscriber_count) : "--"}
@@ -104,7 +104,7 @@ export function ChannelPulse() {
       <div className="flex items-center gap-1.5 shrink-0">
         <Eye className="w-3.5 h-3.5 text-muted-foreground" />
         <div className="flex flex-col leading-none">
-          <span className="text-[10px] text-muted-foreground">Views</span>
+          <span className="text-xs text-muted-foreground">Views</span>
           <span className="text-xs font-bold font-mono">
             {channelStats ? formatCompact(channelStats.total_view_count) : "--"}
           </span>
@@ -117,7 +117,7 @@ export function ChannelPulse() {
       <div className="flex items-center gap-1.5 shrink-0">
         <DollarSign className="w-3.5 h-3.5 text-muted-foreground" />
         <div className="flex flex-col leading-none">
-          <span className="text-[10px] text-muted-foreground">Revenue</span>
+          <span className="text-xs text-muted-foreground">Revenue</span>
           <span className="text-xs font-bold font-mono">
             {revenue ? formatCurrency(currentMonthRevenue) : "--"}
           </span>
@@ -130,7 +130,7 @@ export function ChannelPulse() {
       <div className="flex items-center gap-1.5 shrink-0">
         <Handshake className="w-3.5 h-3.5 text-muted-foreground" />
         <div className="flex flex-col leading-none">
-          <span className="text-[10px] text-muted-foreground">Active Deals</span>
+          <span className="text-xs text-muted-foreground">Active Deals</span>
           <span className="text-xs font-bold font-mono">{deals ? activeDeals : "--"}</span>
         </div>
       </div>
@@ -141,7 +141,7 @@ export function ChannelPulse() {
       <div className="flex items-center gap-1.5 shrink-0">
         <Video className="w-3.5 h-3.5 text-muted-foreground" />
         <div className="flex flex-col leading-none">
-          <span className="text-[10px] text-muted-foreground">Content Queue</span>
+          <span className="text-xs text-muted-foreground">Content Queue</span>
           <span className="text-xs font-bold font-mono">{videoQueue ? contentQueue : "--"}</span>
         </div>
       </div>
@@ -151,7 +151,7 @@ export function ChannelPulse() {
 
       {/* Last Synced */}
       {lastSynced && (
-        <div className="flex items-center gap-1 shrink-0 text-[10px] text-muted-foreground">
+        <div className="flex items-center gap-1 shrink-0 text-xs text-muted-foreground">
           <Clock className="w-3 h-3" />
           <span>Synced {lastSynced}</span>
         </div>

@@ -13,6 +13,8 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { differenceInDays, format, parseISO } from "date-fns";
 import {
@@ -29,7 +31,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   outreach: "text-purple-400",
   engagement: "text-green-400",
   deals: "text-yellow-400",
-  other: "text-gray-400",
+  other: "text-muted-foreground",
 };
 
 const CATEGORY_BG: Record<string, string> = {
@@ -37,7 +39,7 @@ const CATEGORY_BG: Record<string, string> = {
   outreach: "bg-purple-400/15 text-purple-400",
   engagement: "bg-green-400/15 text-green-400",
   deals: "bg-yellow-400/15 text-yellow-400",
-  other: "bg-gray-400/15 text-gray-400",
+  other: "bg-muted text-muted-foreground",
 };
 
 const CATEGORIES: SprintTask["category"][] = [
@@ -111,11 +113,11 @@ function ActiveSprintCard({
             <Target className="w-4 h-4 text-primary" />
             Active Sprint
           </CardTitle>
-          <Badge variant="default" className="text-[9px]">
+          <Badge variant="default" className="text-xs">
             {daysRemaining} day{daysRemaining !== 1 ? "s" : ""} left
           </Badge>
         </div>
-        <p className="text-[10px] text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           {format(weekStart, "MMM d")} - {format(weekEnd, "MMM d, yyyy")}
         </p>
       </CardHeader>
@@ -130,7 +132,7 @@ function ActiveSprintCard({
             </div>
           </div>
           <div className="flex-1">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">
               Sub Target
             </p>
             <p className="text-2xl font-bold font-mono text-foreground">
@@ -169,7 +171,7 @@ function ActiveSprintCard({
                 </span>
                 <Badge
                   variant="outline"
-                  className={`text-[9px] px-1.5 py-0 ${CATEGORY_BG[task.category]}`}
+                  className={`text-xs px-1.5 py-0 ${CATEGORY_BG[task.category]}`}
                 >
                   {task.category}
                 </Badge>
@@ -225,7 +227,7 @@ function NewSprintForm({ onCreated }: { onCreated?: () => void }) {
           <Target className="w-4 h-4 text-primary" />
           New Growth Sprint
         </CardTitle>
-        <p className="text-[10px] text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Plan your weekly growth sprint
         </p>
       </CardHeader>
@@ -233,25 +235,25 @@ function NewSprintForm({ onCreated }: { onCreated?: () => void }) {
       <CardContent className="space-y-4">
         {/* Sub target */}
         <div>
-          <label className="text-[10px] text-muted-foreground uppercase tracking-wider">
+          <label className="text-xs text-muted-foreground uppercase tracking-wider">
             Subscriber Target
           </label>
-          <input
+          <Input
             type="number"
             value={subTarget}
             onChange={(e) => setSubTarget(Number(e.target.value))}
-            className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm font-mono text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+            className="mt-1 font-mono"
             min={1}
           />
         </div>
 
         {/* Add task row */}
         <div>
-          <label className="text-[10px] text-muted-foreground uppercase tracking-wider">
+          <label className="text-xs text-muted-foreground uppercase tracking-wider">
             Tasks
           </label>
           <div className="mt-1 flex gap-2">
-            <input
+            <Input
               type="text"
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
@@ -262,21 +264,20 @@ function NewSprintForm({ onCreated }: { onCreated?: () => void }) {
                 }
               }}
               placeholder="Task title..."
-              className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              className="flex-1"
             />
-            <select
-              value={newCategory}
-              onChange={(e) =>
-                setNewCategory(e.target.value as SprintTask["category"])
-              }
-              className="rounded-md border border-border bg-background px-2 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-            >
-              {CATEGORIES.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
+            <Select value={newCategory} onValueChange={(v) => setNewCategory(v as SprintTask["category"])}>
+              <SelectTrigger className="text-xs w-auto">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {CATEGORIES.map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {c}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <Button size="sm" variant="outline" onClick={addTask}>
               <Plus className="w-4 h-4" />
             </Button>
@@ -299,7 +300,7 @@ function NewSprintForm({ onCreated }: { onCreated?: () => void }) {
                 </span>
                 <Badge
                   variant="outline"
-                  className={`text-[9px] px-1.5 py-0 ${CATEGORY_BG[task.category]}`}
+                  className={`text-xs px-1.5 py-0 ${CATEGORY_BG[task.category]}`}
                 >
                   {task.category}
                 </Badge>
@@ -378,7 +379,7 @@ function SprintHistorySection({ sprints }: { sprints: GrowthSprint[] }) {
               <span className="text-sm font-bold font-mono text-orange-400">
                 {streak}
               </span>
-              <span className="text-[10px] text-muted-foreground">streak</span>
+              <span className="text-xs text-muted-foreground">streak</span>
             </div>
           )}
         </div>
@@ -447,7 +448,7 @@ function SprintHistorySection({ sprints }: { sprints: GrowthSprint[] }) {
                   </span>
                   <Badge
                     variant="outline"
-                    className={`text-[9px] ${
+                    className={`text-xs ${
                       s.status === "completed"
                         ? "text-green-400"
                         : s.status === "skipped"

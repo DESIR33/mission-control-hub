@@ -139,13 +139,13 @@ export function ConnectDialog({
                     />
                   )}
                   {field.hint && (
-                    <p className="text-[11px] text-muted-foreground">{field.hint}</p>
+                    <p className="text-xs text-muted-foreground">{field.hint}</p>
                   )}
                 </div>
               ))}
 
               {def.warningNote && (
-                <p className="text-[11px] text-amber-400 bg-amber-950/30 border border-amber-800/40 rounded-md px-3 py-2">
+                <p className="text-xs text-amber-400 bg-amber-950/30 border border-amber-800/40 rounded-md px-3 py-2">
                   {def.warningNote}
                 </p>
               )}

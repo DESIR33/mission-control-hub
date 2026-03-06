@@ -54,7 +54,7 @@ function DetailRow({ icon: Icon, label, value, href }: { icon: typeof Mail; labe
     <div className="flex items-start gap-3 py-1.5">
       <Icon className="w-3.5 h-3.5 text-muted-foreground mt-0.5 shrink-0" />
       <div className="min-w-0">
-        <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</p>
+        <p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p>
         {href ? (
           <a href={href} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline truncate block">
             {value}
@@ -252,10 +252,10 @@ export function CompanyDetailSheet({ company, activities, companyContacts, open,
                 <span className={cn("text-xs", tier.color)}>{tier.label}</span>
               )}
               {company.size && (
-                <Badge variant="outline" className="text-[10px]">{company.size} employees</Badge>
+                <Badge variant="outline" className="text-xs">{company.size} employees</Badge>
               )}
               {totalRevenue > 0 && (
-                <Badge variant="outline" className="text-[10px] border-emerald-300 bg-emerald-50 text-emerald-700">
+                <Badge variant="outline" className="text-xs border-emerald-300 bg-emerald-50 text-emerald-700">
                   {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(totalRevenue)} revenue
                 </Badge>
               )}
@@ -266,7 +266,7 @@ export function CompanyDetailSheet({ company, activities, companyContacts, open,
           {scorecard && (scorecard.totalCollabs > 0 || scorecard.closedDeals > 0) && (
             <div className="mt-3 rounded-xl border border-border bg-muted/30 p-3">
               <div className="flex items-center justify-between mb-2.5">
-                <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
                   <BarChart3 className="h-3 w-3" />
                   Partnership Scorecard
                 </h4>
@@ -281,7 +281,7 @@ export function CompanyDetailSheet({ company, activities, companyContacts, open,
                       ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", notation: "compact", maximumFractionDigits: 1 }).format(scorecard.totalRevenue)
                       : "$0"}
                   </p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">Lifetime Rev</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Lifetime Rev</p>
                 </div>
                 <div className="rounded-lg bg-card border border-border px-2.5 py-2 text-center">
                   <p className="text-sm font-bold text-foreground font-mono">
@@ -289,17 +289,17 @@ export function CompanyDetailSheet({ company, activities, companyContacts, open,
                       ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", notation: "compact", maximumFractionDigits: 1 }).format(scorecard.revenuePerVideo)
                       : "$0"}
                   </p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">Rev / Video</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Rev / Video</p>
                 </div>
                 <div className="rounded-lg bg-card border border-border px-2.5 py-2 text-center">
                   <p className="text-sm font-bold text-foreground font-mono">
                     {scorecard.closedDeals > 0 ? `${Math.round(scorecard.winRate * 100)}%` : "--"}
                   </p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">Win Rate</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Win Rate</p>
                 </div>
                 <div className="rounded-lg bg-card border border-border px-2.5 py-2 text-center">
                   <p className="text-sm font-bold text-foreground font-mono">{scorecard.totalCollabs}</p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">Collabs</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Collabs</p>
                 </div>
                 <div className="rounded-lg bg-card border border-border px-2.5 py-2 text-center">
                   <p className="text-sm font-bold text-foreground font-mono">
@@ -307,7 +307,7 @@ export function CompanyDetailSheet({ company, activities, companyContacts, open,
                       ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", notation: "compact", maximumFractionDigits: 1 }).format(scorecard.pipelineValue)
                       : "$0"}
                   </p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">Pipeline</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Pipeline</p>
                 </div>
                 <div className="rounded-lg bg-card border border-border px-2.5 py-2 text-center">
                   <p className="text-sm font-bold text-foreground font-mono">
@@ -317,7 +317,7 @@ export function CompanyDetailSheet({ company, activities, companyContacts, open,
                         ? `${Math.round(scorecard.relationshipDays / 30)}mo`
                         : `${scorecard.relationshipDays}d`}
                   </p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">Rel. Age</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Rel. Age</p>
                 </div>
               </div>
             </div>
@@ -426,7 +426,7 @@ export function CompanyDetailSheet({ company, activities, companyContacts, open,
               </div>
 
               {/* Meta */}
-              <div className="text-[10px] text-muted-foreground space-y-1">
+              <div className="text-xs text-muted-foreground space-y-1">
                 <p>Created: {format(new Date(company.created_at), "MMM d, yyyy")}</p>
                 <p>Updated: {format(new Date(company.updated_at), "MMM d, yyyy")}</p>
               </div>
@@ -453,7 +453,7 @@ export function CompanyDetailSheet({ company, activities, companyContacts, open,
                             ? new Intl.NumberFormat("en-US", { style: "currency", currency: deal.currency ?? "USD" }).format(deal.value)
                             : "$0"}
                         </span>
-                        <Badge variant="outline" className="text-[10px] capitalize">{deal.stage.replace("_", " ")}</Badge>
+                        <Badge variant="outline" className="text-xs capitalize">{deal.stage.replace("_", " ")}</Badge>
                       </div>
                     ))}
                     {totalRevenue > 0 && (
@@ -492,11 +492,11 @@ export function CompanyDetailSheet({ company, activities, companyContacts, open,
                               </p>
                             )}
                             {video.sponsoringCompany?.id === company.id && (
-                              <Badge variant="outline" className="text-[10px] border-amber-200 bg-amber-50 text-amber-700">Sponsor</Badge>
+                              <Badge variant="outline" className="text-xs border-amber-200 bg-amber-50 text-amber-700">Sponsor</Badge>
                             )}
                           </div>
                         </div>
-                        <Badge className={cn("text-[10px] capitalize", videoStatusTone[video.status])}>
+                        <Badge className={cn("text-xs capitalize", videoStatusTone[video.status])}>
                           {video.status}
                         </Badge>
                       </div>
@@ -526,7 +526,7 @@ export function CompanyDetailSheet({ company, activities, companyContacts, open,
                             {video.description || "No description"}
                           </p>
                         </div>
-                        <Badge className={cn("text-[10px] capitalize", videoStatusTone[video.status])}>
+                        <Badge className={cn("text-xs capitalize", videoStatusTone[video.status])}>
                           {video.status}
                         </Badge>
                       </div>
@@ -575,7 +575,7 @@ export function CompanyDetailSheet({ company, activities, companyContacts, open,
                       </div>
                       <Badge
                         variant="outline"
-                        className={cn("text-[10px] uppercase tracking-wider shrink-0", statusColors[contact.status])}
+                        className={cn("text-xs uppercase tracking-wider shrink-0", statusColors[contact.status])}
                       >
                         {contact.status}
                       </Badge>

@@ -186,7 +186,7 @@ export function RevenueForecast10Month() {
           10-Month Revenue Forecast
           <Badge
             variant="outline"
-            className="ml-auto bg-blue-500/15 text-blue-400 border-blue-500/30 text-[9px]"
+            className="ml-auto bg-blue-500/15 text-blue-400 border-blue-500/30 text-xs"
           >
             21K &rarr; 50K Plan
           </Badge>
@@ -198,40 +198,40 @@ export function RevenueForecast10Month() {
           <div className="rounded-lg border border-border bg-card p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <DollarSign className="w-3.5 h-3.5 text-green-500" />
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 Monthly Rev
               </p>
             </div>
             <p className="text-lg font-bold font-mono text-foreground">
               {fmtMoney(forecast.currentMonthlyRevenue)}
             </p>
-            <p className="text-[10px] text-muted-foreground">current</p>
+            <p className="text-xs text-muted-foreground">current</p>
           </div>
 
           <div className="rounded-lg border border-border bg-card p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <Calendar className="w-3.5 h-3.5 text-blue-500" />
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 Projected Annual
               </p>
             </div>
             <p className="text-lg font-bold font-mono text-foreground">
               {fmtMoney(unified.projectedAnnual)}
             </p>
-            <p className="text-[10px] text-muted-foreground">at current pace</p>
+            <p className="text-xs text-muted-foreground">at current pace</p>
           </div>
 
           <div className="rounded-lg border border-border bg-card p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <BarChart3 className="w-3.5 h-3.5 text-purple-500" />
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 RPM
               </p>
             </div>
             <p className="text-lg font-bold font-mono text-foreground">
               ${forecast.avgRpm.toFixed(2)}
             </p>
-            <p className="text-[10px] text-muted-foreground">avg per 1K views</p>
+            <p className="text-xs text-muted-foreground">avg per 1K views</p>
           </div>
 
           <div className="rounded-lg border border-border bg-card p-3">
@@ -241,7 +241,7 @@ export function RevenueForecast10Month() {
               ) : (
                 <TrendingDown className="w-3.5 h-3.5 text-red-500" />
               )}
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 MoM Growth
               </p>
             </div>
@@ -264,7 +264,7 @@ export function RevenueForecast10Month() {
                 <DollarSign className="w-3.5 h-3.5 text-green-500" />
                 Revenue per 1K Subscribers
               </h3>
-              <p className="text-[10px] text-muted-foreground mt-0.5">
+              <p className="text-xs text-muted-foreground mt-0.5">
                 Total revenue earned per 1,000 subscribers (lifetime)
               </p>
             </div>
@@ -331,7 +331,7 @@ export function RevenueForecast10Month() {
               </AreaChart>
             </ResponsiveContainer>
             {projection.length > 0 && (
-              <p className="text-[10px] text-muted-foreground mt-2 text-center">
+              <p className="text-xs text-muted-foreground mt-2 text-center">
                 Month 10 projected total: {fmtMoney(projection[projection.length - 1].total)}/mo
               </p>
             )}
@@ -407,24 +407,24 @@ export function RevenueForecast10Month() {
             {breakeven && (
               <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-lg border border-border p-3">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
                     Views Needed / Month
                   </p>
                   <p className="text-lg font-bold font-mono text-foreground">
                     {breakeven.viewsNeeded.toLocaleString()}
                   </p>
-                  <p className="text-[10px] text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     at ${forecast.avgRpm.toFixed(2)} RPM
                   </p>
                 </div>
                 <div className="rounded-lg border border-border p-3">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
                     Videos Needed / Month
                   </p>
                   <p className="text-lg font-bold font-mono text-foreground">
                     {breakeven.videosNeeded}
                   </p>
-                  <p className="text-[10px] text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     at ~5K views/video avg
                   </p>
                 </div>

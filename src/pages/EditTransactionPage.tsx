@@ -3,7 +3,9 @@ import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Transaction {
@@ -145,19 +147,22 @@ export default function EditTransactionPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="bg-gray-900 border-b border-gray-800">
+      <div className="border-b border-border bg-card">
         <div className="container px-4 md:px-8 py-8">
           <div className="space-y-1">
             <div className="flex items-center gap-2 mb-4">
-              <button
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => navigate(`/affiliate-program/${id}`)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-800 text-gray-300 shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border border-gray-700 transition-all duration-300 hover:shadow-[8px_8px_16px_rgba(0,0,0,0.15),-8px_-8px_16px_rgba(255,255,255,0.08)] dark:hover:shadow-[8px_8px_16px_rgba(0,0,0,0.3),-8px_-8px_16px_rgba(255,255,255,0.04)] hover:scale-95 active:scale-90 font-medium"
+                className="gap-1.5"
               >
-                ← Back to Program
-              </button>
+                <ArrowLeft className="h-4 w-4" />
+                Back to Program
+              </Button>
             </div>
-            <h1 className="text-4xl font-bold text-white">Edit Transaction</h1>
-            <p className="text-gray-400 text-lg">
+            <h1 className="text-4xl font-bold text-foreground">Edit Transaction</h1>
+            <p className="text-muted-foreground text-lg">
               {company?.name
                 ? `Update transaction for ${company.name}`
                 : "Update transaction details"}
@@ -167,7 +172,7 @@ export default function EditTransactionPage() {
       </div>
 
       <div className="container px-4 md:px-8 py-8 max-w-2xl">
-        <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-6 shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border border-border/50">
+        <div className="rounded-lg border border-border bg-card p-6">
           <form
             onSubmit={async (e) => {
               e.preventDefault();
@@ -255,22 +260,21 @@ export default function EditTransactionPage() {
             )}
 
             <div className="flex gap-3 pt-4">
-              <button
+              <Button
                 type="button"
+                variant="outline"
                 onClick={() => navigate(`/affiliate-program/${id}`)}
-                className="px-6 py-3 rounded-xl bg-gray-800 text-gray-300 shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border border-gray-700 transition-all duration-300 hover:scale-95 active:scale-90 font-medium"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
                 disabled={updateTransaction.isPending}
-                className="px-6 py-3 rounded-xl bg-primary text-primary-foreground shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border border-primary/30 transition-all duration-300 hover:scale-95 active:scale-90 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {updateTransaction.isPending
                   ? "Saving..."
                   : "Save Changes"}
-              </button>
+              </Button>
             </div>
           </form>
         </div>

@@ -36,7 +36,7 @@ export function GoalPaceWidget() {
             <Target className="w-4 h-4 text-foreground" />
             <h3 className="text-sm font-semibold text-foreground">50K Goal Pace</h3>
           </div>
-          <Badge variant="outline" className={`text-[9px] ${colors.badge}`}>
+          <Badge variant="outline" className={`text-xs ${colors.badge}`}>
             {isAhead ? (
               <><ArrowUpRight className="w-3 h-3 mr-0.5" />{pace.weeksAheadBehind}w ahead</>
             ) : (
@@ -48,11 +48,11 @@ export function GoalPaceWidget() {
         <div className="flex items-end gap-4 mb-2">
           <div>
             <p className="text-2xl font-bold font-mono text-foreground">{fmtCount(pace.currentSubs)}</p>
-            <p className="text-[10px] text-muted-foreground">of {fmtCount(pace.targetSubs)} target</p>
+            <p className="text-xs text-muted-foreground">of {fmtCount(pace.targetSubs)} target</p>
           </div>
           <div className="text-right flex-1">
             <div className="flex items-center justify-end gap-2">
-              <span className="text-[10px] text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 +{pace.actualWeeklyRate}/wk (need +{pace.requiredWeeklyRate})
               </span>
             </div>
@@ -60,7 +60,7 @@ export function GoalPaceWidget() {
         </div>
 
         <Progress value={pace.progressPercent} className="h-2" />
-        <p className="text-[10px] text-muted-foreground mt-1">
+        <p className="text-xs text-muted-foreground mt-1">
           {pace.progressPercent.toFixed(1)}% · {pace.weeksRemaining} weeks remaining
         </p>
       </div>

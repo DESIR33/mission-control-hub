@@ -7,6 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -181,11 +182,11 @@ export function ContentPredictionPanel() {
           </p>
           {titles.map((title, i) => (
             <div key={i} className="flex items-center gap-2">
-              <span className="text-[10px] text-muted-foreground font-mono w-4 shrink-0">
+              <span className="text-xs text-muted-foreground font-mono w-4 shrink-0">
                 {i + 1}.
               </span>
-              <input
-                className="flex-1 bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+              <Input
+                className="flex-1"
                 placeholder={`Title option ${i + 1}`}
                 value={title}
                 onChange={(e) => updateTitle(i, e.target.value)}
@@ -256,7 +257,7 @@ export function ContentPredictionPanel() {
                       <div className="flex items-center gap-2 shrink-0">
                         <Badge
                           variant="outline"
-                          className={`text-[9px] font-mono ${
+                          className={`text-xs font-mono ${
                             isWinner
                               ? "bg-yellow-500/15 text-yellow-400 border-yellow-500/30"
                               : ""
@@ -266,13 +267,13 @@ export function ContentPredictionPanel() {
                         </Badge>
                         <Badge
                           variant="outline"
-                          className="text-[9px] font-mono"
+                          className="text-xs font-mono"
                         >
                           {Math.round(score.confidence * 100)}% conf
                         </Badge>
                       </div>
                     </div>
-                    <p className="text-[11px] text-muted-foreground mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       {score.reasoning}
                     </p>
                   </div>
@@ -290,7 +291,7 @@ export function ContentPredictionPanel() {
             </h3>
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider">
                   Measured
                 </p>
                 <p className="text-lg font-bold font-mono text-foreground">
@@ -298,7 +299,7 @@ export function ContentPredictionPanel() {
                 </p>
               </div>
               <div>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider">
                   Accuracy
                 </p>
                 <p className="text-lg font-bold font-mono text-foreground">
@@ -306,7 +307,7 @@ export function ContentPredictionPanel() {
                 </p>
               </div>
               <div>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider">
                   Avg Error
                 </p>
                 <p className="text-lg font-bold font-mono text-foreground">
@@ -340,7 +341,7 @@ export function ContentPredictionPanel() {
                     <p className="text-xs text-foreground truncate">
                       {pred.winner}
                     </p>
-                    <p className="text-[10px] text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       {pred.titles.length} options compared{" "}
                       {formatDistanceToNow(new Date(pred.created_at), {
                         addSuffix: true,
@@ -349,7 +350,7 @@ export function ContentPredictionPanel() {
                   </div>
                   <Badge
                     variant="outline"
-                    className={`text-[9px] ${
+                    className={`text-xs ${
                       pred.status === "measured"
                         ? "bg-green-500/15 text-green-400 border-green-500/30"
                         : "bg-blue-500/15 text-blue-400 border-blue-500/30"

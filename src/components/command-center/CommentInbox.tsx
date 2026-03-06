@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useYouTubeComments, useCommentStats, useUpdateCommentStatus } from "@/hooks/use-youtube-comments";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
@@ -13,7 +14,7 @@ const sentimentConfig: Record<string, { icon: any; color: string; label: string 
   positive: { icon: Smile, color: "text-green-400", label: "Positive" },
   negative: { icon: Frown, color: "text-red-400", label: "Negative" },
   question: { icon: HelpCircle, color: "text-blue-400", label: "Question" },
-  neutral: { icon: MessageCircle, color: "text-gray-400", label: "Neutral" },
+  neutral: { icon: MessageCircle, color: "text-muted-foreground", label: "Neutral" },
 };
 
 export function CommentInbox() {
@@ -43,7 +44,7 @@ export function CommentInbox() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <MessageSquare className="w-3.5 h-3.5 text-blue-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Total</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Total</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{stats?.total ?? 0}</p>
         </div>
@@ -51,7 +52,7 @@ export function CommentInbox() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Eye className="w-3.5 h-3.5 text-yellow-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Unread</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Unread</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{stats?.unread ?? 0}</p>
         </div>
@@ -59,7 +60,7 @@ export function CommentInbox() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Check className="w-3.5 h-3.5 text-green-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Reply Rate</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Reply Rate</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">
             {(stats?.replyRate ?? 0).toFixed(1)}%
@@ -69,7 +70,7 @@ export function CommentInbox() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <HelpCircle className="w-3.5 h-3.5 text-purple-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Questions</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Questions</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{stats?.questions ?? 0}</p>
         </div>
@@ -78,29 +79,31 @@ export function CommentInbox() {
       {/* Filters */}
       <div className="rounded-lg border border-border bg-card p-3 flex items-center gap-2 flex-wrap">
         <Filter className="w-3.5 h-3.5 text-muted-foreground" />
-        <select
-          className="bg-muted/50 rounded px-2 py-1 text-xs text-foreground border border-border outline-none"
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-        >
-          <option value="">All Status</option>
-          <option value="unread">Unread</option>
-          <option value="read">Read</option>
-          <option value="replied">Replied</option>
-          <option value="flagged">Flagged</option>
-        </select>
-        <select
-          className="bg-muted/50 rounded px-2 py-1 text-xs text-foreground border border-border outline-none"
-          value={sentimentFilter}
-          onChange={(e) => setSentimentFilter(e.target.value)}
-        >
-          <option value="">All Sentiment</option>
-          <option value="positive">Positive</option>
-          <option value="neutral">Neutral</option>
-          <option value="negative">Negative</option>
-          <option value="question">Questions</option>
-        </select>
-        <span className="text-[10px] text-muted-foreground ml-auto">{comments.length} comments</span>
+        <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v === "all" ? "" : v)}>
+          <SelectTrigger className="bg-muted/50 text-xs w-auto">
+            <SelectValue placeholder="All Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="unread">Unread</SelectItem>
+            <SelectItem value="read">Read</SelectItem>
+            <SelectItem value="replied">Replied</SelectItem>
+            <SelectItem value="flagged">Flagged</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={sentimentFilter} onValueChange={(v) => setSentimentFilter(v === "all" ? "" : v)}>
+          <SelectTrigger className="bg-muted/50 text-xs w-auto">
+            <SelectValue placeholder="All Sentiment" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Sentiment</SelectItem>
+            <SelectItem value="positive">Positive</SelectItem>
+            <SelectItem value="neutral">Neutral</SelectItem>
+            <SelectItem value="negative">Negative</SelectItem>
+            <SelectItem value="question">Questions</SelectItem>
+          </SelectContent>
+        </Select>
+        <span className="text-xs text-muted-foreground ml-auto">{comments.length} comments</span>
       </div>
 
       {/* Comment List */}
@@ -133,10 +136,10 @@ export function CommentInbox() {
                     <div className="flex items-center gap-2 flex-wrap">
                       <p className="text-xs font-semibold text-foreground">{comment.author_name}</p>
                       <SentimentIcon className={`w-3 h-3 ${sentiment.color}`} />
-                      <Badge variant="outline" className="text-[9px]">
+                      <Badge variant="outline" className="text-xs">
                         {comment.status}
                       </Badge>
-                      <span className="text-[10px] text-muted-foreground ml-auto">
+                      <span className="text-xs text-muted-foreground ml-auto">
                         {formatDistanceToNow(new Date(comment.published_at), { addSuffix: true })}
                       </span>
                     </div>
@@ -144,11 +147,11 @@ export function CommentInbox() {
                     <p className="text-xs text-muted-foreground mt-1 line-clamp-3">{comment.text_display}</p>
 
                     <div className="flex items-center gap-3 mt-2">
-                      <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                      <span className="text-xs text-muted-foreground flex items-center gap-1">
                         <ThumbsUp className="w-3 h-3" /> {comment.like_count}
                       </span>
                       {comment.video_title && (
-                        <span className="text-[10px] text-muted-foreground truncate max-w-[200px]">
+                        <span className="text-xs text-muted-foreground truncate max-w-[200px]">
                           on: {comment.video_title}
                         </span>
                       )}
@@ -157,19 +160,19 @@ export function CommentInbox() {
                     {/* Actions */}
                     <div className="flex items-center gap-1.5 mt-2">
                       {comment.status === "unread" && (
-                        <Button size="sm" variant="ghost" className="h-6 text-[10px] px-2"
+                        <Button size="sm" variant="ghost" className="h-6 text-xs px-2"
                           onClick={() => handleStatusChange(comment.id, "read")}>
                           <Eye className="w-3 h-3 mr-1" /> Read
                         </Button>
                       )}
                       {comment.status !== "replied" && (
-                        <Button size="sm" variant="ghost" className="h-6 text-[10px] px-2"
+                        <Button size="sm" variant="ghost" className="h-6 text-xs px-2"
                           onClick={() => handleStatusChange(comment.id, "replied")}>
                           <Check className="w-3 h-3 mr-1" /> Replied
                         </Button>
                       )}
                       {comment.status !== "flagged" && (
-                        <Button size="sm" variant="ghost" className="h-6 text-[10px] px-2"
+                        <Button size="sm" variant="ghost" className="h-6 text-xs px-2"
                           onClick={() => handleStatusChange(comment.id, "flagged")}>
                           <Flag className="w-3 h-3 mr-1" /> Flag
                         </Button>

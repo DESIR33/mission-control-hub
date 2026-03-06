@@ -251,7 +251,7 @@ export function OutreachPipelineDialog({
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 Optionally enroll the contact in an automated email sequence.
               </p>
             </div>

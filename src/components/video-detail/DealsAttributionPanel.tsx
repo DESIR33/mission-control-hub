@@ -33,15 +33,15 @@ export function DealsAttributionPanel({ deals, isLoading }: Props) {
         <>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <div className="rounded-lg border border-border bg-card p-3">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Total Pipeline</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Pipeline</p>
               <p className="text-lg font-bold font-mono text-foreground">{fmtMoney(totalValue)}</p>
             </div>
             <div className="rounded-lg border border-border bg-card p-3">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Won Revenue</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Won Revenue</p>
               <p className="text-lg font-bold font-mono text-green-500">{fmtMoney(wonValue)}</p>
             </div>
             <div className="rounded-lg border border-border bg-card p-3">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Deals</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Deals</p>
               <p className="text-lg font-bold font-mono text-foreground">{deals.length}</p>
             </div>
           </div>
@@ -70,7 +70,7 @@ export function DealsAttributionPanel({ deals, isLoading }: Props) {
                     </td>
                     <td className="p-2.5 font-mono">{d.value ? fmtMoney(d.value, d.currency ?? "USD") : "—"}</td>
                     <td className="p-2.5">
-                      <span className={`px-2 py-0.5 text-[10px] font-medium rounded-full ${
+                      <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
                         d.stage === "closed_won" ? "bg-green-500/10 text-green-500" :
                         d.stage === "closed_lost" ? "bg-red-500/10 text-red-500" :
                         "bg-primary/10 text-primary"

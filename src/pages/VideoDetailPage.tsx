@@ -8,7 +8,6 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
 import { format } from "date-fns";
-import { WorkspaceProvider } from "@/hooks/use-workspace";
 import { useVideoDetail, useVideoAnalyticsTrend } from "@/hooks/use-video-detail";
 import { useVideoNotes } from "@/hooks/use-video-notes";
 import { useVideoExperiments } from "@/hooks/use-video-experiments";
@@ -43,7 +42,7 @@ const fmtMoney = (n: number) => {
   return `$${n.toFixed(2)}`;
 };
 
-function VideoDetailContent() {
+export default function VideoDetailPage() {
   const { youtubeVideoId } = useParams<{ youtubeVideoId: string }>();
   const navigate = useNavigate();
 
@@ -127,7 +126,7 @@ function VideoDetailContent() {
   const rpm = detail.views > 0 ? (totalCombinedRevenue / detail.views) * 1000 : 0;
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 gradient-mesh min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
       <Button variant="ghost" size="sm" onClick={() => navigate("/analytics")} className="-ml-2">
         <ArrowLeft className="w-4 h-4 mr-1" /> Analytics
       </Button>
@@ -242,7 +241,7 @@ function VideoDetailContent() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {demographics.map((d: any) => (
                   <div key={d.id} className="rounded-md border border-border bg-muted/30 px-2.5 py-2">
-                    <p className="text-[9px] uppercase text-muted-foreground">{d.gender} · {d.age_group}</p>
+                    <p className="text-xs uppercase text-muted-foreground">{d.gender} · {d.age_group}</p>
                     <p className="text-sm font-mono font-bold text-foreground">{d.viewer_percentage.toFixed(1)}%</p>
                   </div>
                 ))}
@@ -287,7 +286,7 @@ function VideoDetailContent() {
                 <h3 className="text-sm font-semibold text-foreground">Total Combined Revenue</h3>
               </div>
               <p className="text-2xl font-bold font-mono text-green-500">{fmtMoney(totalCombinedRevenue)}</p>
-              <p className="text-[10px] text-muted-foreground mt-1">Ad + Sponsorship + Affiliate revenue combined</p>
+              <p className="text-xs text-muted-foreground mt-1">Ad + Sponsorship + Affiliate revenue combined</p>
             </div>
           )}
 
@@ -364,7 +363,7 @@ function VideoDetailContent() {
 function SummaryCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg border border-border bg-card p-3">
-      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</p>
+      <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
       <p className="text-lg font-bold font-mono text-foreground mt-0.5">{value}</p>
     </div>
   );
@@ -376,10 +375,3 @@ function fmtDuration(seconds: number) {
   return `${Math.round(seconds)}s`;
 }
 
-export default function VideoDetailPage() {
-  return (
-    <WorkspaceProvider>
-      <VideoDetailContent />
-    </WorkspaceProvider>
-  );
-}

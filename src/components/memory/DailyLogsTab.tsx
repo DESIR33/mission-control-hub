@@ -111,7 +111,7 @@ export function DailyLogsTab({ logs, logDate, onDateChange, onCreate, onDelete }
                   <div key={entry.id} className="flex items-start gap-2 group">
                     <div className="flex-1 text-sm text-foreground bg-muted/30 rounded p-2 border border-border">
                       {entry.content}
-                      <span className="text-[10px] text-muted-foreground ml-2">
+                      <span className="text-xs text-muted-foreground ml-2">
                         {format(new Date(entry.created_at), "HH:mm")}
                       </span>
                     </div>

@@ -67,14 +67,14 @@ export function UploadTimeAnalyzer() {
             {analysis.topSlots.map((slot, i) => (
               <div key={i} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Badge variant={i === 0 ? "default" : "secondary"} className="text-[10px] font-mono">
+                  <Badge variant={i === 0 ? "default" : "secondary"} className="text-xs font-mono">
                     #{i + 1}
                   </Badge>
                   <p className="text-sm text-foreground">{slot.label}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-xs font-mono text-foreground">Score: {slot.score}</p>
-                  <p className="text-[10px] text-muted-foreground">{slot.videoCount} video(s)</p>
+                  <p className="text-xs text-muted-foreground">{slot.videoCount} video(s)</p>
                 </div>
               </div>
             ))}
@@ -92,7 +92,7 @@ export function UploadTimeAnalyzer() {
                 <p className="text-sm text-foreground">{slot.label}</p>
                 <div className="text-right">
                   <p className="text-xs font-mono text-muted-foreground">Score: {slot.score}</p>
-                  <p className="text-[10px] text-muted-foreground">Avg {Math.round(slot.avgViews).toLocaleString()} views</p>
+                  <p className="text-xs text-muted-foreground">Avg {Math.round(slot.avgViews).toLocaleString()} views</p>
                 </div>
               </div>
             ))}
@@ -126,7 +126,7 @@ export function UploadTimeAnalyzer() {
             {/* Header */}
             <div />
             {["12AM", "3AM", "6AM", "9AM", "12PM", "3PM", "6PM", "9PM"].map((h) => (
-              <div key={h} className="text-[9px] text-muted-foreground text-center">{h}</div>
+              <div key={h} className="text-xs text-muted-foreground text-center">{h}</div>
             ))}
 
             {/* Days */}
@@ -134,7 +134,7 @@ export function UploadTimeAnalyzer() {
               const daySlots = analysis.heatmap.filter((s) => s.dayOfWeek.startsWith(day.substring(0, 3)));
               return (
                 <div key={day} className="contents">
-                  <div className="text-[10px] text-muted-foreground flex items-center">{day}</div>
+                  <div className="text-xs text-muted-foreground flex items-center">{day}</div>
                   {Array.from({ length: 8 }, (_, i) => {
                     const slot = daySlots.find((s) => s.hour >= i * 3 && s.hour < (i + 1) * 3);
                     const score = slot?.score ?? 0;
@@ -157,13 +157,13 @@ export function UploadTimeAnalyzer() {
           </div>
         </div>
         <div className="flex items-center gap-3 mt-2 justify-end">
-          <span className="text-[9px] text-muted-foreground">Low</span>
+          <span className="text-xs text-muted-foreground">Low</span>
           <div className="flex gap-0.5">
             {["#64748b", "#eab308", "#3b82f6", "#22c55e"].map((c) => (
               <div key={c} className="w-4 h-2 rounded-sm" style={{ backgroundColor: c }} />
             ))}
           </div>
-          <span className="text-[9px] text-muted-foreground">High</span>
+          <span className="text-xs text-muted-foreground">High</span>
         </div>
       </div>
     </div>

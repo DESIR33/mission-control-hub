@@ -231,20 +231,22 @@ export default function AddProductTransactionPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="bg-gray-900 border-b border-gray-800">
+      <div className="border-b border-border bg-card">
         <div className="container px-4 md:px-8 py-8">
           <div className="space-y-1">
             <div className="flex items-center gap-2 mb-4">
-              <button
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={handleGoBack}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-800 text-gray-300 shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border border-gray-700 transition-all duration-300 hover:shadow-[8px_8px_16px_rgba(0,0,0,0.15),-8px_-8px_16px_rgba(255,255,255,0.08)] dark:hover:shadow-[8px_8px_16px_rgba(0,0,0,0.3),-8px_-8px_16px_rgba(255,255,255,0.04)] hover:scale-95 active:scale-90 font-medium"
+                className="gap-1.5"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Back
-              </button>
+              </Button>
             </div>
-            <h1 className="text-4xl font-bold text-white">Add Product Transaction</h1>
-            <p className="text-gray-400 text-lg">
+            <h1 className="text-4xl font-bold text-foreground">Add Product Transaction</h1>
+            <p className="text-muted-foreground text-lg">
               Record a new product sale transaction
             </p>
           </div>
@@ -252,7 +254,7 @@ export default function AddProductTransactionPage() {
       </div>
 
       <div className="container px-4 md:px-8 py-8 max-w-2xl">
-        <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-6 shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border border-border/50">
+        <div className="rounded-lg border border-border bg-card p-6">
           {isLoadingProducts ? (
             <div className="flex flex-col items-center justify-center p-8">
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent mb-4"></div>
@@ -462,25 +464,24 @@ export default function AddProductTransactionPage() {
                 )}
 
                 <div className="flex gap-3 pt-4">
-                  <button
+                  <Button
                     type="button"
+                    variant="outline"
                     onClick={handleGoBack}
-                    className="px-6 py-3 rounded-xl bg-gray-800 text-gray-300 shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border border-gray-700 transition-all duration-300 hover:scale-95 active:scale-90 font-medium"
                   >
                     Cancel
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="submit"
                     disabled={createTransaction.isPending || !watchProductId}
-                    className="px-6 py-3 rounded-xl bg-primary text-primary-foreground shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.2),-6px_-6px_12px_rgba(255,255,255,0.02)] border border-primary/30 transition-all duration-300 hover:scale-95 active:scale-90 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {createTransaction.isPending ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin inline" />
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Creating...
                       </>
                     ) : "Create Transaction"}
-                  </button>
+                  </Button>
                 </div>
               </form>
             </Form>

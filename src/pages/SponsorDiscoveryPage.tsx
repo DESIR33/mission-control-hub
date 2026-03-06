@@ -26,7 +26,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { WorkspaceProvider, useWorkspace } from "@/hooks/use-workspace";
+import { useWorkspace } from "@/hooks/use-workspace";
 import { useCreateCompany, useCompanies } from "@/hooks/use-companies";
 import { useCreateDeal } from "@/hooks/use-deals";
 import { useSponsorMatchScore } from "@/hooks/use-sponsor-match-score";
@@ -66,7 +66,7 @@ Best regards,
 [Your Email]`;
 }
 
-function SponsorDiscoveryContent() {
+export default function SponsorDiscoveryPage() {
   const { workspaceId } = useWorkspace();
   const navigate = useNavigate();
   const createCompany = useCreateCompany();
@@ -322,7 +322,7 @@ function SponsorDiscoveryContent() {
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 gradient-mesh min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
@@ -462,16 +462,16 @@ function SponsorDiscoveryContent() {
                     const match = matchScores.find((m) => m.companyName.toLowerCase() === sponsor.name.toLowerCase());
                     if (!match) return null;
                     const color = match.matchScore >= 70 ? "bg-green-500/15 text-green-600 border-green-500/30" : match.matchScore >= 40 ? "bg-amber-500/15 text-amber-600 border-amber-500/30" : "bg-gray-500/15 text-gray-500 border-gray-500/30";
-                    return <Badge variant="outline" className={`text-[10px] shrink-0 ${color}`}>{match.matchScore}pts</Badge>;
+                    return <Badge variant="outline" className={`text-xs shrink-0 ${color}`}>{match.matchScore}pts</Badge>;
                   })()}
-                  <Badge variant="outline" className="text-[10px] shrink-0">
+                  <Badge variant="outline" className="text-xs shrink-0">
                     {sponsor.mentions}x
                   </Badge>
                 </div>
 
                 {sponsor.sources.length > 0 && (
                   <div className="space-y-1">
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Sources</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider">Sources</p>
                     {sponsor.sources.map((src, si) => (
                       <p key={si} className="text-xs text-muted-foreground truncate" title={src}>
                         {src}
@@ -540,19 +540,19 @@ function SponsorDiscoveryContent() {
 
           <div className="space-y-3">
             <div className="flex flex-wrap gap-1.5">
-              <Badge variant="secondary" className="text-[10px]">
+              <Badge variant="secondary" className="text-xs">
                 {"{{company_name}}"}
               </Badge>
-              <Badge variant="secondary" className="text-[10px]">
+              <Badge variant="secondary" className="text-xs">
                 {"{{subscriber_count}}"}
               </Badge>
-              <Badge variant="secondary" className="text-[10px]">
+              <Badge variant="secondary" className="text-xs">
                 {"{{avg_views}}"}
               </Badge>
-              <Badge variant="secondary" className="text-[10px]">
+              <Badge variant="secondary" className="text-xs">
                 {"{{audience_demographic}}"}
               </Badge>
-              <Badge variant="secondary" className="text-[10px]">
+              <Badge variant="secondary" className="text-xs">
                 {"{{engagement_rate}}"}
               </Badge>
             </div>
@@ -580,10 +580,3 @@ function SponsorDiscoveryContent() {
   );
 }
 
-export default function SponsorDiscoveryPage() {
-  return (
-    <WorkspaceProvider>
-      <SponsorDiscoveryContent />
-    </WorkspaceProvider>
-  );
-}

@@ -13,7 +13,7 @@ const categoryConfig: Record<string, { label: string; icon: typeof Star; color: 
   positive: { label: "Positive", icon: Heart, color: "text-green-400 bg-green-400/10" },
   negative: { label: "Criticism", icon: AlertCircle, color: "text-red-400 bg-red-400/10" },
   question: { label: "Question", icon: HelpCircle, color: "text-blue-400 bg-blue-400/10" },
-  neutral: { label: "Neutral", icon: MessageSquare, color: "text-gray-400 bg-gray-400/10" },
+  neutral: { label: "Neutral", icon: MessageSquare, color: "text-muted-foreground bg-muted" },
 };
 
 interface SuperFan {
@@ -113,28 +113,28 @@ export function CommentInsights() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <MessageSquare className="w-3.5 h-3.5 text-blue-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Total</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Total</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{stats?.total ?? 0}</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <TrendingUp className="w-3.5 h-3.5 text-green-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Reply Rate</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Reply Rate</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{(stats?.replyRate ?? 0).toFixed(1)}%</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Star className="w-3.5 h-3.5 text-yellow-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Super Fans</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Super Fans</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{superFans.length}</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Handshake className="w-3.5 h-3.5 text-purple-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Opportunities</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Opportunities</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{opportunities.length}</p>
         </div>
@@ -191,7 +191,7 @@ export function CommentInsights() {
                       </span>
                       <Badge
                         variant="outline"
-                        className={`text-[9px] ${
+                        className={`text-xs ${
                           opp.type === "collab_request"
                             ? "bg-blue-500/15 text-blue-400 border-blue-400/30"
                             : opp.type === "sponsor_interest"
@@ -207,7 +207,7 @@ export function CommentInsights() {
                       </Badge>
                       <Badge
                         variant="outline"
-                        className={`text-[9px] ${
+                        className={`text-xs ${
                           opp.confidence === "high"
                             ? "bg-green-500/15 text-green-400"
                             : "bg-amber-500/15 text-amber-400"
@@ -216,11 +216,11 @@ export function CommentInsights() {
                         {opp.confidence}
                       </Badge>
                     </div>
-                    <p className="text-[11px] text-muted-foreground line-clamp-2">
+                    <p className="text-xs text-muted-foreground line-clamp-2">
                       {opp.comment.text_display}
                     </p>
                     {opp.comment.video_title && (
-                      <p className="text-[10px] text-muted-foreground/60 mt-0.5">
+                      <p className="text-xs text-muted-foreground/60 mt-0.5">
                         on: {opp.comment.video_title}
                       </p>
                     )}
@@ -260,7 +260,7 @@ export function CommentInsights() {
                   <p className="text-xs font-medium text-foreground truncate">
                     {fan.name}
                   </p>
-                  <p className="text-[10px] text-muted-foreground truncate">
+                  <p className="text-xs text-muted-foreground truncate">
                     {fan.latestComment}
                   </p>
                 </div>
@@ -268,7 +268,7 @@ export function CommentInsights() {
                   <p className="text-xs font-mono font-bold text-foreground">
                     {fan.commentCount}
                   </p>
-                  <p className="text-[9px] text-muted-foreground">comments</p>
+                  <p className="text-xs text-muted-foreground">comments</p>
                 </div>
               </div>
             ))}

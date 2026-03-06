@@ -62,21 +62,21 @@ export function SubGrowthAttribution() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <UserPlus className="w-3.5 h-3.5 text-green-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Total Subs</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Subs</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{fmtCount(attribution.totalSubsFromContent)}</p>
-          <p className="text-[10px] text-muted-foreground">from tracked content</p>
+          <p className="text-xs text-muted-foreground">from tracked content</p>
         </div>
 
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Award className="w-3.5 h-3.5 text-yellow-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Best Video</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Best Video</p>
           </div>
           <p className="text-sm font-semibold text-foreground truncate">
             {attribution.bestVideo?.title ?? "—"}
           </p>
-          <p className="text-[10px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             +{fmtCount(attribution.bestVideo?.netSubs ?? 0)} subs
           </p>
         </div>
@@ -84,21 +84,21 @@ export function SubGrowthAttribution() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Film className="w-3.5 h-3.5 text-blue-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Best Type</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Best Type</p>
           </div>
           <p className="text-sm font-semibold text-foreground capitalize">{attribution.bestCategory}</p>
-          <p className="text-[10px] text-muted-foreground">highest net subs</p>
+          <p className="text-xs text-muted-foreground">highest net subs</p>
         </div>
 
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <TrendingUp className="w-3.5 h-3.5 text-purple-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Avg Efficiency</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Avg Efficiency</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">
             {attribution.avgEfficiency.toFixed(1)}
           </p>
-          <p className="text-[10px] text-muted-foreground">subs per 1K views</p>
+          <p className="text-xs text-muted-foreground">subs per 1K views</p>
         </div>
       </div>
 

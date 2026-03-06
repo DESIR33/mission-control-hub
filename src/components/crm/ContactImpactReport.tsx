@@ -38,28 +38,28 @@ export function ContactImpactReport({ contactId }: { contactId: string }) {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <DollarSign className="w-3.5 h-3.5 text-green-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Total Value</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Value</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{fmtDollar(impact.totalRelationshipValue)}</p>
-          <p className="text-[10px] text-muted-foreground">deal + ad revenue</p>
+          <p className="text-xs text-muted-foreground">deal + ad revenue</p>
         </div>
 
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Film className="w-3.5 h-3.5 text-blue-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Videos</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Videos</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{impact.linkedVideos.length}</p>
-          <p className="text-[10px] text-muted-foreground">linked content</p>
+          <p className="text-xs text-muted-foreground">linked content</p>
         </div>
 
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Award className="w-3.5 h-3.5 text-purple-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Score</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Score</p>
           </div>
           <p className={`text-lg font-bold font-mono ${scoreColor}`}>{impact.partnershipScore}</p>
-          <p className="text-[10px] text-muted-foreground">partnership score</p>
+          <p className="text-xs text-muted-foreground">partnership score</p>
         </div>
 
         <div className="rounded-lg border border-border bg-card p-3">
@@ -69,12 +69,12 @@ export function ContactImpactReport({ contactId }: { contactId: string }) {
             ) : (
               <TrendingDown className="w-3.5 h-3.5 text-red-500" />
             )}
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">vs Avg</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">vs Avg</p>
           </div>
           <p className={`text-lg font-bold font-mono ${impact.performanceVsAvg >= 100 ? "text-green-400" : "text-red-400"}`}>
             {impact.performanceVsAvg}%
           </p>
-          <p className="text-[10px] text-muted-foreground">of channel avg</p>
+          <p className="text-xs text-muted-foreground">of channel avg</p>
         </div>
       </div>
 
@@ -84,11 +84,11 @@ export function ContactImpactReport({ contactId }: { contactId: string }) {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/30">
-                <th className="text-left px-4 py-2 text-[10px] text-muted-foreground uppercase tracking-wider">Video</th>
-                <th className="text-right px-4 py-2 text-[10px] text-muted-foreground uppercase tracking-wider">Views</th>
-                <th className="text-right px-4 py-2 text-[10px] text-muted-foreground uppercase tracking-wider hidden sm:table-cell">Subs</th>
-                <th className="text-right px-4 py-2 text-[10px] text-muted-foreground uppercase tracking-wider hidden sm:table-cell">Revenue</th>
-                <th className="text-right px-4 py-2 text-[10px] text-muted-foreground uppercase tracking-wider">vs Avg</th>
+                <th className="text-left px-4 py-2 text-xs text-muted-foreground uppercase tracking-wider">Video</th>
+                <th className="text-right px-4 py-2 text-xs text-muted-foreground uppercase tracking-wider">Views</th>
+                <th className="text-right px-4 py-2 text-xs text-muted-foreground uppercase tracking-wider hidden sm:table-cell">Subs</th>
+                <th className="text-right px-4 py-2 text-xs text-muted-foreground uppercase tracking-wider hidden sm:table-cell">Revenue</th>
+                <th className="text-right px-4 py-2 text-xs text-muted-foreground uppercase tracking-wider">vs Avg</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -107,7 +107,7 @@ export function ContactImpactReport({ contactId }: { contactId: string }) {
                     <span className="text-xs font-mono text-muted-foreground">{fmtDollar(video.estimatedRevenue)}</span>
                   </td>
                   <td className="px-4 py-2.5 text-right">
-                    <Badge variant="outline" className={`text-[9px] ${
+                    <Badge variant="outline" className={`text-xs ${
                       video.vsAvgViews >= 100
                         ? "bg-green-500/15 text-green-400 border-green-500/30"
                         : "bg-red-500/15 text-red-400 border-red-500/30"
@@ -125,11 +125,11 @@ export function ContactImpactReport({ contactId }: { contactId: string }) {
       {/* Revenue Breakdown */}
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-lg border border-border bg-card p-3">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Deal Revenue</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Deal Revenue</p>
           <p className="text-sm font-bold font-mono text-foreground">{fmtDollar(impact.totalDealValue)}</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-3">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Ad Revenue (from their videos)</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Ad Revenue (from their videos)</p>
           <p className="text-sm font-bold font-mono text-foreground">{fmtDollar(impact.totalAdRevenue)}</p>
         </div>
       </div>

@@ -31,7 +31,7 @@ export function SprintWidget() {
             <Target className="w-4 h-4 text-primary" />
             <h3 className="text-sm font-semibold text-foreground">This Week's Sprint</h3>
           </div>
-          <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+          <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <Clock className="w-3 h-3" />
             {daysRemaining}d left
           </div>

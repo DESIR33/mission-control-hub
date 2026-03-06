@@ -35,7 +35,7 @@ export default function CompanyChip({ companyId }: CompanyChipProps) {
       {company.logo_url ? (
         <Avatar className="h-5 w-5">
           <AvatarImage src={company.logo_url} alt={company.name} />
-          <AvatarFallback className="text-[9px]">
+          <AvatarFallback className="text-xs">
             {company.name.charAt(0)}
           </AvatarFallback>
         </Avatar>

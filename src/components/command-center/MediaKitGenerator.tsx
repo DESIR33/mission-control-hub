@@ -238,7 +238,7 @@ export function MediaKitGenerator() {
           Media Kit Generator
           <Badge
             variant="outline"
-            className="ml-auto bg-purple-500/15 text-purple-400 border-purple-500/30 text-[9px]"
+            className="ml-auto bg-purple-500/15 text-purple-400 border-purple-500/30 text-xs"
           >
             Auto-Populated
           </Badge>
@@ -261,28 +261,28 @@ export function MediaKitGenerator() {
               <p className="text-lg font-bold font-mono text-foreground">
                 {fmtNum(stats.subs)}
               </p>
-              <p className="text-[10px] text-muted-foreground">Subscribers</p>
+              <p className="text-xs text-muted-foreground">Subscribers</p>
             </div>
             <div className="rounded-lg border border-border bg-card/80 p-3 text-center">
               <Eye className="w-4 h-4 mx-auto text-green-500 mb-1" />
               <p className="text-lg font-bold font-mono text-foreground">
                 {fmtNum(stats.avgViews)}
               </p>
-              <p className="text-[10px] text-muted-foreground">Avg Views/Video</p>
+              <p className="text-xs text-muted-foreground">Avg Views/Video</p>
             </div>
             <div className="rounded-lg border border-border bg-card/80 p-3 text-center">
               <ThumbsUp className="w-4 h-4 mx-auto text-purple-500 mb-1" />
               <p className="text-lg font-bold font-mono text-foreground">
                 {stats.engagementRate}%
               </p>
-              <p className="text-[10px] text-muted-foreground">Engagement Rate</p>
+              <p className="text-xs text-muted-foreground">Engagement Rate</p>
             </div>
             <div className="rounded-lg border border-border bg-card/80 p-3 text-center">
               <PlayCircle className="w-4 h-4 mx-auto text-red-500 mb-1" />
               <p className="text-lg font-bold font-mono text-foreground">
                 {fmtNum(stats.totalViews)}
               </p>
-              <p className="text-[10px] text-muted-foreground">Total Views</p>
+              <p className="text-xs text-muted-foreground">Total Views</p>
             </div>
           </div>
 
@@ -300,7 +300,7 @@ export function MediaKitGenerator() {
                     key={v.youtube_video_id}
                     className="flex items-center gap-3 rounded-lg border border-border bg-card/60 p-2"
                   >
-                    <span className="text-[10px] font-mono text-muted-foreground w-4 text-right">
+                    <span className="text-xs font-mono text-muted-foreground w-4 text-right">
                       {idx + 1}
                     </span>
                     <p className="text-xs text-foreground flex-1 truncate">
@@ -328,7 +328,7 @@ export function MediaKitGenerator() {
                 {/* Gender */}
                 {demoBreakdown.genderSplit.length > 0 && (
                   <div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1.5">
                       Gender
                     </p>
                     <div className="space-y-1">
@@ -343,7 +343,7 @@ export function MediaKitGenerator() {
                               style={{ width: `${g.pct}%` }}
                             />
                           </div>
-                          <span className="text-[10px] font-mono text-muted-foreground w-10 text-right">
+                          <span className="text-xs font-mono text-muted-foreground w-10 text-right">
                             {g.pct}%
                           </span>
                         </div>
@@ -355,7 +355,7 @@ export function MediaKitGenerator() {
                 {/* Age Groups */}
                 {demoBreakdown.ageGroups.length > 0 && (
                   <div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1.5">
                       Age Groups
                     </p>
                     <div className="space-y-1">
@@ -370,7 +370,7 @@ export function MediaKitGenerator() {
                               style={{ width: `${a.pct}%` }}
                             />
                           </div>
-                          <span className="text-[10px] font-mono text-muted-foreground w-10 text-right">
+                          <span className="text-xs font-mono text-muted-foreground w-10 text-right">
                             {a.pct}%
                           </span>
                         </div>
@@ -393,7 +393,7 @@ export function MediaKitGenerator() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-6 text-[10px] gap-1"
+                className="h-6 text-xs gap-1"
                 onClick={() => setEditingTiers((prev) => !prev)}
               >
                 <Edit3 className="w-3 h-3" />
@@ -425,7 +425,7 @@ export function MediaKitGenerator() {
                       <Input
                         value={tier.description}
                         onChange={(e) => updateTier(idx, "description", e.target.value)}
-                        className="h-7 text-[10px]"
+                        className="h-7 text-xs"
                         placeholder="Description"
                       />
                     </div>
@@ -439,7 +439,7 @@ export function MediaKitGenerator() {
                           ${parseFloat(tier.price).toLocaleString()}
                         </p>
                       </div>
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         {tier.description}
                       </p>
                     </>
@@ -483,7 +483,7 @@ export function MediaKitGenerator() {
 
         {shareLink && (
           <div className="rounded-lg border border-border bg-muted/50 p-3">
-            <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">
+            <Label className="text-xs text-muted-foreground uppercase tracking-wider">
               Share Link
             </Label>
             <p className="text-xs font-mono text-foreground break-all mt-1">

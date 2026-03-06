@@ -96,7 +96,7 @@ export function EditProposalDialog({
               <div className="flex items-center justify-between">
                 <Label htmlFor="changes">Proposed Changes (JSON)</Label>
                 {!isValidJson && changesText.length > 0 && (
-                  <span className="text-[11px] text-destructive">
+                  <span className="text-xs text-destructive">
                     Invalid JSON
                   </span>
                 )}

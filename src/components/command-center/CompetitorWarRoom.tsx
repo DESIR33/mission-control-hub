@@ -129,7 +129,7 @@ export function CompetitorWarRoom() {
   const getComparisonBadge = (yours: number, theirs: number) => {
     if (yours > theirs) {
       return (
-        <Badge variant="outline" className="bg-green-500/20 text-green-400 border-green-500/30 text-[10px]">
+        <Badge variant="outline" className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">
           <TrendingUp className="w-3 h-3 mr-1" />
           Leading
         </Badge>
@@ -137,14 +137,14 @@ export function CompetitorWarRoom() {
     }
     if (yours < theirs) {
       return (
-        <Badge variant="outline" className="bg-red-500/20 text-red-400 border-red-500/30 text-[10px]">
+        <Badge variant="outline" className="bg-red-500/20 text-red-400 border-red-500/30 text-xs">
           <TrendingDown className="w-3 h-3 mr-1" />
           Trailing
         </Badge>
       );
     }
     return (
-      <Badge variant="outline" className="bg-gray-500/20 text-gray-400 border-gray-500/30 text-[10px]">
+      <Badge variant="outline" className="bg-muted text-muted-foreground border-border text-xs">
         <Minus className="w-3 h-3 mr-1" />
         Tied
       </Badge>
@@ -189,7 +189,7 @@ export function CompetitorWarRoom() {
               <p className="text-2xl font-bold font-mono text-foreground">
                 {activitySummary.totalTracked}
               </p>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 Competitors Tracked
               </p>
             </CardContent>
@@ -200,7 +200,7 @@ export function CompetitorWarRoom() {
               <p className="text-2xl font-bold font-mono text-foreground">
                 {fmtCount(activitySummary.avgSubscribers)}
               </p>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 Avg Competitor Subs
               </p>
             </CardContent>
@@ -211,7 +211,7 @@ export function CompetitorWarRoom() {
               <p className="text-2xl font-bold font-mono text-foreground">
                 #{activitySummary.yourRank}
               </p>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 Your Rank of {activitySummary.totalParticipants}
               </p>
             </CardContent>
@@ -222,7 +222,7 @@ export function CompetitorWarRoom() {
               <p className="text-2xl font-bold font-mono text-foreground">
                 {contentGaps.length}
               </p>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 Content Gaps Found
               </p>
             </CardContent>
@@ -243,19 +243,19 @@ export function CompetitorWarRoom() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="text-left py-2 text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
+                  <th className="text-left py-2 text-xs text-muted-foreground uppercase tracking-wider font-medium">
                     Channel
                   </th>
-                  <th className="text-right py-2 text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
+                  <th className="text-right py-2 text-xs text-muted-foreground uppercase tracking-wider font-medium">
                     Subscribers
                   </th>
-                  <th className="text-right py-2 text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
+                  <th className="text-right py-2 text-xs text-muted-foreground uppercase tracking-wider font-medium">
                     Videos
                   </th>
-                  <th className="text-right py-2 text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
+                  <th className="text-right py-2 text-xs text-muted-foreground uppercase tracking-wider font-medium">
                     Total Views
                   </th>
-                  <th className="text-center py-2 text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
+                  <th className="text-center py-2 text-xs text-muted-foreground uppercase tracking-wider font-medium">
                     Status
                   </th>
                 </tr>
@@ -277,7 +277,7 @@ export function CompetitorWarRoom() {
                     {fmtCount(yourStats.total_view_count)}
                   </td>
                   <td className="py-2.5 text-center">
-                    <Badge variant="outline" className="bg-primary/20 text-primary border-primary/30 text-[10px]">
+                    <Badge variant="outline" className="bg-primary/20 text-primary border-primary/30 text-xs">
                       You
                     </Badge>
                   </td>
@@ -323,19 +323,19 @@ export function CompetitorWarRoom() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="text-left py-2 text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
+                    <th className="text-left py-2 text-xs text-muted-foreground uppercase tracking-wider font-medium">
                       Topic
                     </th>
-                    <th className="text-right py-2 text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
+                    <th className="text-right py-2 text-xs text-muted-foreground uppercase tracking-wider font-medium">
                       Search Volume
                     </th>
-                    <th className="text-center py-2 text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
+                    <th className="text-center py-2 text-xs text-muted-foreground uppercase tracking-wider font-medium">
                       Difficulty
                     </th>
-                    <th className="text-center py-2 text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
+                    <th className="text-center py-2 text-xs text-muted-foreground uppercase tracking-wider font-medium">
                       Priority
                     </th>
-                    <th className="text-center py-2 text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
+                    <th className="text-center py-2 text-xs text-muted-foreground uppercase tracking-wider font-medium">
                       Status
                     </th>
                   </tr>
@@ -358,7 +358,7 @@ export function CompetitorWarRoom() {
                           {gap.difficulty ? (
                             <Badge
                               variant="outline"
-                              className={`${difficultyColor[gap.difficulty] ?? "bg-gray-500/20 text-gray-400"} border-transparent text-[10px]`}
+                              className={`${difficultyColor[gap.difficulty] ?? "bg-muted text-muted-foreground"} border-transparent text-xs`}
                             >
                               {gap.difficulty}
                             </Badge>
@@ -369,7 +369,7 @@ export function CompetitorWarRoom() {
                         <td className="py-2.5 text-center">
                           <Badge
                             variant="outline"
-                            className={`${priorityColor[priority] ?? priorityColor[1]} border-transparent text-[10px]`}
+                            className={`${priorityColor[priority] ?? priorityColor[1]} border-transparent text-xs`}
                           >
                             {priorityLabel[priority] ?? `P${priority}`}
                           </Badge>
@@ -377,7 +377,7 @@ export function CompetitorWarRoom() {
                         <td className="py-2.5 text-center">
                           <Badge
                             variant="outline"
-                            className={`${status.className} border-transparent text-[10px]`}
+                            className={`${status.className} border-transparent text-xs`}
                           >
                             {status.label}
                           </Badge>
@@ -416,7 +416,7 @@ export function CompetitorWarRoom() {
                         {comp.channel_name}
                       </p>
                       {comp.primary_niche && (
-                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                        <p className="text-xs text-muted-foreground mt-0.5">
                           {comp.primary_niche}
                         </p>
                       )}
@@ -424,14 +424,14 @@ export function CompetitorWarRoom() {
                     {subsAhead ? (
                       <TrendingUp className="w-4 h-4 text-green-400 shrink-0" />
                     ) : subsEqual ? (
-                      <Minus className="w-4 h-4 text-gray-400 shrink-0" />
+                      <Minus className="w-4 h-4 text-muted-foreground shrink-0" />
                     ) : (
                       <TrendingDown className="w-4 h-4 text-red-400 shrink-0" />
                     )}
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider">
                         Subscribers
                       </p>
                       <p className="text-sm font-bold font-mono text-foreground">
@@ -439,7 +439,7 @@ export function CompetitorWarRoom() {
                       </p>
                     </div>
                     <div>
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider">
                         Videos
                       </p>
                       <p className="text-sm font-bold font-mono text-foreground">
@@ -447,7 +447,7 @@ export function CompetitorWarRoom() {
                       </p>
                     </div>
                     <div>
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider">
                         Avg Views/Video
                       </p>
                       <p className="text-sm font-bold font-mono text-foreground">
@@ -455,14 +455,14 @@ export function CompetitorWarRoom() {
                       </p>
                     </div>
                     <div>
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider">
                         Your Position
                       </p>
                       <p className="text-sm font-bold text-foreground">
                         {subsAhead ? (
                           <span className="text-green-400">Ahead</span>
                         ) : subsEqual ? (
-                          <span className="text-gray-400">Tied</span>
+                          <span className="text-muted-foreground">Tied</span>
                         ) : (
                           <span className="text-red-400">Behind</span>
                         )}

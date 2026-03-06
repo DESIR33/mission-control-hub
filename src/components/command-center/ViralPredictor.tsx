@@ -27,7 +27,7 @@ const tierConfig: Record<string, { color: string; bg: string; label: string }> =
   viral: { color: "text-yellow-400", bg: "bg-yellow-400/10 border-yellow-400/30", label: "Viral" },
   trending: { color: "text-green-400", bg: "bg-green-400/10 border-green-400/30", label: "Trending" },
   solid: { color: "text-blue-400", bg: "bg-blue-400/10 border-blue-400/30", label: "Solid" },
-  average: { color: "text-gray-400", bg: "bg-gray-400/10 border-gray-400/30", label: "Average" },
+  average: { color: "text-muted-foreground", bg: "bg-muted border-border", label: "Average" },
   underperforming: { color: "text-red-400", bg: "bg-red-400/10 border-red-400/30", label: "Low" },
 };
 
@@ -85,7 +85,7 @@ export function ViralPredictor() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Zap className="w-3.5 h-3.5 text-yellow-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Avg Score</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Avg Score</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{analysis.avgViralScore}</p>
         </div>
@@ -93,21 +93,21 @@ export function ViralPredictor() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <TrendingUp className="w-3.5 h-3.5 text-green-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Viral Potential</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Viral Potential</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{analysis.potentialViral.length}</p>
-          <p className="text-[10px] text-muted-foreground">videos (75+ score)</p>
+          <p className="text-xs text-muted-foreground">videos (75+ score)</p>
         </div>
 
         <div className="rounded-lg border border-border bg-card p-3 col-span-2">
           <div className="flex items-center gap-1.5 mb-1">
             <Share2 className="w-3.5 h-3.5 text-purple-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Top Viral Factor</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Top Viral Factor</p>
           </div>
           <p className="text-sm font-semibold text-foreground">
             {analysis.viralFactors[0]?.factor ?? "N/A"}
           </p>
-          <p className="text-[10px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             correlation: {((analysis.viralFactors[0]?.correlation ?? 0) * 100).toFixed(0)}%
           </p>
         </div>
@@ -161,7 +161,7 @@ export function ViralPredictor() {
                     style={{ width: `${f.correlation * 100}%` }}
                   />
                 </div>
-                <p className="text-[10px] font-mono text-muted-foreground w-10 text-right">
+                <p className="text-xs font-mono text-muted-foreground w-10 text-right">
                   {(f.correlation * 100).toFixed(0)}%
                 </p>
               </div>
@@ -184,11 +184,11 @@ export function ViralPredictor() {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground truncate">{video.title}</p>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <Badge variant="outline" className={`text-[9px] ${tier.bg} ${tier.color} border`}>
+                    <Badge variant="outline" className={`text-xs ${tier.bg} ${tier.color} border`}>
                       {tier.label}
                     </Badge>
                     {video.factors.slice(0, 2).map((f) => (
-                      <span key={f} className="text-[9px] text-muted-foreground">{f}</span>
+                      <span key={f} className="text-xs text-muted-foreground">{f}</span>
                     ))}
                   </div>
                 </div>
@@ -203,27 +203,27 @@ export function ViralPredictor() {
                 <div className="px-3 pb-3 border-t border-border pt-3">
                   <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 text-center">
                     <div>
-                      <p className="text-[9px] text-muted-foreground">Velocity</p>
+                      <p className="text-xs text-muted-foreground">Velocity</p>
                       <p className="text-sm font-mono font-bold text-foreground">{video.velocityScore}</p>
                     </div>
                     <div>
-                      <p className="text-[9px] text-muted-foreground">Shareability</p>
+                      <p className="text-xs text-muted-foreground">Shareability</p>
                       <p className="text-sm font-mono font-bold text-foreground">{video.shareabilityScore}</p>
                     </div>
                     <div>
-                      <p className="text-[9px] text-muted-foreground">Engagement</p>
+                      <p className="text-xs text-muted-foreground">Engagement</p>
                       <p className="text-sm font-mono font-bold text-foreground">{video.engagementScore}</p>
                     </div>
                     <div>
-                      <p className="text-[9px] text-muted-foreground">CTR</p>
+                      <p className="text-xs text-muted-foreground">CTR</p>
                       <p className="text-sm font-mono font-bold text-foreground">{video.ctrScore}</p>
                     </div>
                     <div>
-                      <p className="text-[9px] text-muted-foreground">Retention</p>
+                      <p className="text-xs text-muted-foreground">Retention</p>
                       <p className="text-sm font-mono font-bold text-foreground">{video.retentionScore}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 mt-2 text-[10px] text-muted-foreground justify-center">
+                  <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground justify-center">
                     <span>{fmtCount(video.views)} views</span>
                     <span>{fmtCount(video.shares)} shares</span>
                     <span>{video.subsGained} subs</span>

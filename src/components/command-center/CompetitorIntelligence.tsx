@@ -11,6 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
@@ -48,7 +49,7 @@ const statusIcon: Record<string, typeof TrendingUp> = {
 const statusColor: Record<string, string> = {
   ahead: "text-green-400",
   behind: "text-red-400",
-  even: "text-gray-400",
+  even: "text-muted-foreground",
 };
 
 interface CompetitorTopVideo {
@@ -200,14 +201,14 @@ export function CompetitorIntelligence() {
                       <Icon
                         className={`w-3.5 h-3.5 ${statusColor[comp.status]}`}
                       />
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider">
                         {comp.metric}
                       </p>
                     </div>
                     <p className="text-lg font-bold font-mono text-foreground">
                       {fmtCount(comp.yours)}
                     </p>
-                    <p className="text-[10px] text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       vs avg {fmtCount(comp.competitorAvg)}
                       <span className={`ml-1 ${statusColor[comp.status]}`}>
                         ({comp.deltaPercent >= 0 ? "+" : ""}
@@ -232,7 +233,7 @@ export function CompetitorIntelligence() {
                       <p className="text-2xl font-bold font-mono text-foreground">
                         #{p.rank}
                       </p>
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         of {p.total} &middot; {p.metric}
                       </p>
                     </div>
@@ -323,7 +324,7 @@ export function CompetitorIntelligence() {
                       <p className="text-xs text-foreground truncate">
                         {video.title}
                       </p>
-                      <div className="flex items-center gap-2 text-[10px] text-muted-foreground mt-0.5">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
                         {competitor && (
                           <span className="truncate max-w-[100px]">
                             {competitor.channel_name}
@@ -337,7 +338,7 @@ export function CompetitorIntelligence() {
                     </div>
                     <Badge
                       variant="outline"
-                      className="text-[9px] bg-purple-500/15 text-purple-400 border-purple-500/30"
+                      className="text-xs bg-purple-500/15 text-purple-400 border-purple-500/30"
                     >
                       Gap
                     </Badge>
@@ -363,7 +364,7 @@ export function CompetitorIntelligence() {
                   <p className="text-sm font-medium text-foreground">
                     {comp.channel_name}
                   </p>
-                  <div className="flex items-center gap-3 text-[10px] text-muted-foreground mt-0.5">
+                  <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
                     {comp.subscriber_count != null && (
                       <span>{fmtCount(comp.subscriber_count)} subs</span>
                     )}
@@ -393,8 +394,11 @@ export function CompetitorIntelligence() {
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                 )}
-                <button
-                  className="text-muted-foreground hover:text-red-500 transition-colors"
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 text-muted-foreground hover:text-red-500 transition-colors"
+                  aria-label="Remove competitor"
                   onClick={() =>
                     deleteCompetitor.mutate(comp.id, {
                       onSuccess: () => toast.success("Competitor removed"),
@@ -402,7 +406,7 @@ export function CompetitorIntelligence() {
                   }
                 >
                   <Trash2 className="w-3.5 h-3.5" />
-                </button>
+                </Button>
               </div>
             ))}
           </div>
@@ -416,24 +420,23 @@ export function CompetitorIntelligence() {
             </DialogHeader>
             <div className="space-y-3 py-2">
               <div className="grid grid-cols-2 gap-2">
-                <input
-                  className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border col-span-2"
+                <Input
+                  className="col-span-2"
                   placeholder="Channel name *"
                   value={form.channel_name}
                   onChange={(e) =>
                     setForm({ ...form, channel_name: e.target.value })
                   }
                 />
-                <input
-                  className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border col-span-2"
+                <Input
+                  className="col-span-2"
                   placeholder="Channel URL"
                   value={form.channel_url}
                   onChange={(e) =>
                     setForm({ ...form, channel_url: e.target.value })
                   }
                 />
-                <input
-                  className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+                <Input
                   placeholder="Subscribers"
                   type="number"
                   value={form.subscriber_count}
@@ -441,8 +444,7 @@ export function CompetitorIntelligence() {
                     setForm({ ...form, subscriber_count: e.target.value })
                   }
                 />
-                <input
-                  className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+                <Input
                   placeholder="Video count"
                   type="number"
                   value={form.video_count}
@@ -450,8 +452,7 @@ export function CompetitorIntelligence() {
                     setForm({ ...form, video_count: e.target.value })
                   }
                 />
-                <input
-                  className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+                <Input
                   placeholder="Total views"
                   type="number"
                   value={form.total_view_count}
@@ -459,8 +460,7 @@ export function CompetitorIntelligence() {
                     setForm({ ...form, total_view_count: e.target.value })
                   }
                 />
-                <input
-                  className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+                <Input
                   placeholder="Niche"
                   value={form.primary_niche}
                   onChange={(e) =>

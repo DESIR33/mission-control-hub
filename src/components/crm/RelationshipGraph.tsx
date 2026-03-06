@@ -118,10 +118,10 @@ export function RelationshipGraph({
                 </p>
               </div>
               <div className="flex items-center gap-2 shrink-0">
-                <Badge variant="outline" className="text-[10px]">
+                <Badge variant="outline" className="text-xs">
                   {node.contacts.length} contact{node.contacts.length !== 1 ? "s" : ""}
                 </Badge>
-                <Badge variant="outline" className="text-[10px]">
+                <Badge variant="outline" className="text-xs">
                   {node.deals.length} deal{node.deals.length !== 1 ? "s" : ""}
                 </Badge>
               </div>
@@ -144,7 +144,7 @@ export function RelationshipGraph({
                     {contact.role && (
                       <span className="text-xs text-muted-foreground ml-1 truncate">{contact.role}</span>
                     )}
-                    <Badge variant="outline" className={cn("text-[10px] ml-auto shrink-0", {
+                    <Badge variant="outline" className={cn("text-xs ml-auto shrink-0", {
                       "bg-success/15 text-success": contact.status === "active",
                       "bg-primary/15 text-primary": contact.status === "lead",
                     })}>
@@ -165,7 +165,7 @@ export function RelationshipGraph({
                         ${deal.value.toLocaleString()}
                       </span>
                     )}
-                    <Badge variant="outline" className={cn("text-[10px] ml-auto shrink-0", stageColors[deal.stage])}>
+                    <Badge variant="outline" className={cn("text-xs ml-auto shrink-0", stageColors[deal.stage])}>
                       {deal.stage.replace("_", " ")}
                     </Badge>
                   </div>
@@ -195,7 +195,7 @@ export function RelationshipGraph({
                 <span className="text-sm text-foreground truncate">
                   {contact.first_name} {contact.last_name}
                 </span>
-                <Badge variant="outline" className="text-[10px] ml-auto shrink-0">
+                <Badge variant="outline" className="text-xs ml-auto shrink-0">
                   {contact.status}
                 </Badge>
               </button>

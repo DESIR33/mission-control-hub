@@ -46,7 +46,7 @@ export function MilestoneCountdown() {
       {/* Next Milestone Hero */}
       <div className="rounded-lg border border-purple-500/30 bg-purple-500/5 p-6 text-center">
         <Trophy className="w-10 h-10 mx-auto mb-3 text-purple-400" />
-        <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Next Milestone</p>
+        <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Next Milestone</p>
         <p className="text-4xl font-bold font-mono text-foreground">{next.label}</p>
         <p className="text-sm text-muted-foreground mt-2">
           {next.reached
@@ -60,7 +60,7 @@ export function MilestoneCountdown() {
         )}
         <div className="mt-4 max-w-md mx-auto">
           <Progress value={next.progressPercent} className="h-4" />
-          <p className="text-[10px] text-muted-foreground mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             {next.progressPercent.toFixed(1)}% of the way from {fmtCount(next.previousMilestone)} to {next.label}
           </p>
         </div>
@@ -71,25 +71,25 @@ export function MilestoneCountdown() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <TrendingUp className="w-3.5 h-3.5 text-green-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Daily Rate</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Daily Rate</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">+{countdown.dailyRate}</p>
-          <p className="text-[10px] text-muted-foreground">subs/day</p>
+          <p className="text-xs text-muted-foreground">subs/day</p>
         </div>
 
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Flame className="w-3.5 h-3.5 text-orange-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Growth Streak</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Growth Streak</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{countdown.streakDays}</p>
-          <p className="text-[10px] text-muted-foreground">days</p>
+          <p className="text-xs text-muted-foreground">days</p>
         </div>
 
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <MomentumIcon className={`w-3.5 h-3.5 ${momentum.color}`} />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Momentum</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Momentum</p>
           </div>
           <p className={`text-sm font-semibold ${momentum.color}`}>{momentum.label}</p>
         </div>
@@ -98,10 +98,10 @@ export function MilestoneCountdown() {
           <div className="rounded-lg border border-border bg-card p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <Zap className="w-3.5 h-3.5 text-yellow-500" />
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Best Day</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Best Day</p>
             </div>
             <p className="text-lg font-bold font-mono text-foreground">+{countdown.bestDay.gained}</p>
-            <p className="text-[10px] text-muted-foreground">{countdown.bestDay.date}</p>
+            <p className="text-xs text-muted-foreground">{countdown.bestDay.date}</p>
           </div>
         )}
       </div>
@@ -112,17 +112,17 @@ export function MilestoneCountdown() {
           <h3 className="text-sm font-semibold text-foreground mb-3">Growth Pace to 50K</h3>
           <div className="grid grid-cols-3 gap-3 mb-4">
             <div className="text-center">
-              <p className="text-[10px] text-muted-foreground">Required/Week</p>
+              <p className="text-xs text-muted-foreground">Required/Week</p>
               <p className="text-sm font-bold font-mono text-foreground">+{Math.round(pace.requiredWeeklyRate)}</p>
             </div>
             <div className="text-center">
-              <p className="text-[10px] text-muted-foreground">Actual/Week</p>
+              <p className="text-xs text-muted-foreground">Actual/Week</p>
               <p className={`text-sm font-bold font-mono ${pace.paceZone === "green" ? "text-green-400" : pace.paceZone === "yellow" ? "text-yellow-400" : "text-red-400"}`}>
                 +{Math.round(pace.actualWeeklyRate)}
               </p>
             </div>
             <div className="text-center">
-              <p className="text-[10px] text-muted-foreground">Weeks {pace.weeksAheadBehind >= 0 ? "Ahead" : "Behind"}</p>
+              <p className="text-xs text-muted-foreground">Weeks {pace.weeksAheadBehind >= 0 ? "Ahead" : "Behind"}</p>
               <p className={`text-sm font-bold font-mono ${pace.weeksAheadBehind >= 0 ? "text-green-400" : "text-red-400"}`}>
                 {pace.weeksAheadBehind >= 0 ? "+" : ""}{pace.weeksAheadBehind.toFixed(1)}
               </p>
@@ -168,14 +168,14 @@ export function MilestoneCountdown() {
                   </p>
                   <div className="text-right">
                     {m.reached ? (
-                      <Badge variant="default" className="text-[9px]">Reached</Badge>
+                      <Badge variant="default" className="text-xs">Reached</Badge>
                     ) : (
                       <>
                         {m.daysAway != null && (
                           <p className="text-xs text-muted-foreground">{m.daysAway} days</p>
                         )}
                         {m.estimatedDate && (
-                          <p className="text-[10px] text-muted-foreground">{m.estimatedDate}</p>
+                          <p className="text-xs text-muted-foreground">{m.estimatedDate}</p>
                         )}
                       </>
                     )}

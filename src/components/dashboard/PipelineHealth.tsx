@@ -16,7 +16,7 @@ function PipelineBar({ stages, title }: { stages: PipelineStage[]; title: string
           <p className="text-xs font-mono text-muted-foreground">0 total</p>
         </div>
         <div className="h-2 rounded-full bg-secondary" />
-        <p className="text-[11px] text-muted-foreground">No data yet</p>
+        <p className="text-xs text-muted-foreground">No data yet</p>
       </div>
     );
   }
@@ -39,7 +39,7 @@ function PipelineBar({ stages, title }: { stages: PipelineStage[]; title: string
         {stages.map((stage, i) => (
           <div key={i} className="flex items-center gap-1.5">
             <div className={`w-2 h-2 rounded-full ${stage.color}`} />
-            <span className="text-[11px] text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               {stage.label}
               <span className="font-mono ml-1 text-card-foreground">{stage.count}</span>
             </span>

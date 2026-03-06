@@ -6,6 +6,8 @@ import {
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   format, startOfWeek, endOfWeek, eachDayOfInterval, addWeeks, subWeeks, isSameDay,
 } from "date-fns";
@@ -242,7 +244,7 @@ export function SmartContentCalendar() {
               {/* legend */}
               <div className="flex flex-wrap gap-2">
                 {Object.entries(typeCounts).map(([type, count]) => (
-                  <span key={type} className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                  <span key={type} className="flex items-center gap-1 text-xs text-muted-foreground">
                     <span className={`inline-block w-2 h-2 rounded-full ${contentTypeBarColors[type] ?? "bg-gray-500"}`} />
                     {contentTypeLabels[type] ?? type}: {count}
                   </span>
@@ -252,7 +254,7 @@ export function SmartContentCalendar() {
               <div className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground">Mix Score:</span>
                 <span className="text-sm font-bold font-mono text-foreground">{mixScore}/100</span>
-                <span className="text-[10px] text-muted-foreground">
+                <span className="text-xs text-muted-foreground">
                   ({mixScore >= 70 ? "Great diversity" : mixScore >= 40 ? "Moderate diversity" : "Low diversity"})
                 </span>
               </div>
@@ -270,11 +272,11 @@ export function SmartContentCalendar() {
             <span className="text-sm font-bold font-mono text-foreground">
               {cadence.perWeek}/week
             </span>
-            <span className="text-[10px] text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               (target: {TARGET_UPLOADS_PER_WEEK}/week)
             </span>
           </div>
-          <Badge variant="outline" className={`text-[10px] ${cadence.color}`}>
+          <Badge variant="outline" className={`text-xs ${cadence.color}`}>
             {cadence.label}
           </Badge>
         </CardContent>
@@ -325,7 +327,7 @@ export function SmartContentCalendar() {
               >
                 {/* day header */}
                 <p
-                  className={`text-[9px] font-mono mb-1 ${
+                  className={`text-xs font-mono mb-1 ${
                     isToday ? "text-blue-400 font-semibold" : "text-muted-foreground"
                   }`}
                 >
@@ -369,19 +371,18 @@ export function SmartContentCalendar() {
 
                       {/* hover controls */}
                       <div className="hidden group-hover:flex items-center gap-1 mt-0.5 pl-4">
-                        <select
-                          className="bg-transparent text-[7px] text-muted-foreground outline-none"
-                          value={entry.status}
-                          onChange={(e) =>
-                            updateEntry.mutate({ id: entry.id, status: e.target.value as ContentCalendarEntry["status"] })
-                          }
-                        >
-                          {Object.keys(statusColors).map((s) => (
-                            <option key={s} value={s}>
-                              {s}
-                            </option>
-                          ))}
-                        </select>
+                        <Select value={entry.status} onValueChange={(v) => updateEntry.mutate({ id: entry.id, status: v as ContentCalendarEntry["status"] })}>
+                          <SelectTrigger className="bg-transparent text-[7px] text-muted-foreground h-auto py-0 px-1 w-auto border-none">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Object.keys(statusColors).map((s) => (
+                              <SelectItem key={s} value={s}>
+                                {s}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <button
                           className="text-muted-foreground hover:text-red-500"
                           onClick={() =>
@@ -404,14 +405,14 @@ export function SmartContentCalendar() {
 
       {/* ─ Strategy Tag Legend ─ */}
       <div className="flex flex-wrap items-center gap-3 px-1">
-        <span className="text-[10px] text-muted-foreground">Strategy:</span>
+        <span className="text-xs text-muted-foreground">Strategy:</span>
         {strategyTagOptions.map((tag) => (
-          <span key={tag} className="flex items-center gap-1 text-[10px] text-muted-foreground capitalize">
+          <span key={tag} className="flex items-center gap-1 text-xs text-muted-foreground capitalize">
             <span className={`inline-block w-3 h-1.5 rounded-sm border-l-2 ${strategyColors[tag]}`} />
             {tag}
           </span>
         ))}
-        <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+        <span className="flex items-center gap-1 text-xs text-muted-foreground">
           <span className="inline-block w-3 h-1.5 rounded-sm border-l-2 border-l-gray-500" />
           none
         </span>
@@ -423,41 +424,41 @@ export function SmartContentCalendar() {
           {showAdd ? (
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-2">
-                <input
-                  className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+                <Input
                   placeholder="Video title"
                   value={form.title}
                   onChange={(e) => setForm({ ...form, title: e.target.value })}
                 />
-                <input
-                  className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+                <Input
                   type="date"
                   value={form.scheduled_date}
                   onChange={(e) => setForm({ ...form, scheduled_date: e.target.value })}
                 />
-                <select
-                  className="bg-muted/50 rounded px-2 py-2 text-xs text-foreground border border-border outline-none"
-                  value={form.content_type}
-                  onChange={(e) => setForm({ ...form, content_type: e.target.value })}
-                >
-                  {Object.entries(contentTypeLabels).map(([k, v]) => (
-                    <option key={k} value={k}>
-                      {v}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  className="bg-muted/50 rounded px-2 py-2 text-xs text-foreground border border-border outline-none"
-                  value={form.strategy_tag}
-                  onChange={(e) => setForm({ ...form, strategy_tag: e.target.value })}
-                >
-                  <option value="">No strategy tag</option>
-                  {strategyTagOptions.map((tag) => (
-                    <option key={tag} value={tag}>
-                      {tag.charAt(0).toUpperCase() + tag.slice(1)}
-                    </option>
-                  ))}
-                </select>
+                <Select value={form.content_type} onValueChange={(v) => setForm({ ...form, content_type: v })}>
+                  <SelectTrigger className="bg-muted/50 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(contentTypeLabels).map(([k, v]) => (
+                      <SelectItem key={k} value={k}>
+                        {v}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={form.strategy_tag || "none"} onValueChange={(v) => setForm({ ...form, strategy_tag: v === "none" ? "" : v })}>
+                  <SelectTrigger className="bg-muted/50 text-xs">
+                    <SelectValue placeholder="No strategy tag" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No strategy tag</SelectItem>
+                    {strategyTagOptions.map((tag) => (
+                      <SelectItem key={tag} value={tag}>
+                        {tag.charAt(0).toUpperCase() + tag.slice(1)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="flex items-center gap-2 justify-end">
                 <Button size="sm" variant="ghost" onClick={() => setShowAdd(false)}>

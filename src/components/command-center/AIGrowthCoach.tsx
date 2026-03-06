@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Brain, X, Send, Plus, Loader2, Sparkles, User, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useChat } from "@/hooks/use-chat";
 import { useChannelStats } from "@/hooks/use-youtube-analytics";
@@ -117,7 +118,7 @@ export function AIGrowthCoach() {
                 variant="ghost"
                 size="icon"
                 onClick={() => newSession()}
-                title="New session"
+                aria-label="New session"
               >
                 <Plus className="w-4 h-4" />
               </Button>
@@ -125,7 +126,7 @@ export function AIGrowthCoach() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsOpen(false)}
-                title="Close"
+                aria-label="Close coach"
               >
                 <X className="w-4 h-4" />
               </Button>
@@ -206,7 +207,7 @@ export function AIGrowthCoach() {
           {/* Input Area */}
           <div className="border-t border-border px-4 py-3">
             <div className="flex items-center gap-2">
-              <input
+              <Input
                 ref={inputRef}
                 type="text"
                 value={input}
@@ -214,13 +215,13 @@ export function AIGrowthCoach() {
                 onKeyDown={handleKeyDown}
                 placeholder="Ask your growth coach..."
                 disabled={isLoading}
-                className="flex-1 bg-muted rounded-md px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-50 placeholder:text-muted-foreground"
+                className="flex-1 bg-muted"
               />
               <Button
                 size="icon"
                 onClick={() => handleSend()}
                 disabled={isLoading || !input.trim()}
-                title="Send message"
+                aria-label="Send message"
               >
                 {isLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />

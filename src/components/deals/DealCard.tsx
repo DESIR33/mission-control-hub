@@ -42,7 +42,7 @@ export function DealCard({ deal, onClick }: DealCardProps) {
       </div>
 
       {deal.expected_close_date && (
-        <div className="flex items-center gap-1 mt-2 text-[10px] text-muted-foreground">
+        <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
           <Calendar className="h-3 w-3" />
           <span>{format(new Date(deal.expected_close_date), "MMM d, yyyy")}</span>
         </div>

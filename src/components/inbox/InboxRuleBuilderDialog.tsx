@@ -6,6 +6,7 @@ import axios from "@/lib/axios-config";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -179,18 +180,18 @@ export default function InboxRuleBuilderDialog({
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="action-type">Action</Label>
-              <select
-                id="action-type"
-                value={actionType}
-                onChange={(e) => setActionType(e.target.value)}
-                className="h-10 w-full rounded-xl border border-input bg-background px-3 text-sm"
-              >
-                <option value="move">Move to folder</option>
-                <option value="archive">Archive</option>
-                <option value="tag">Apply tag</option>
-                <option value="assign">Assign to user</option>
-                <option value="reply">Auto-reply</option>
-              </select>
+              <Select value={actionType} onValueChange={setActionType}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="move">Move to folder</SelectItem>
+                  <SelectItem value="archive">Archive</SelectItem>
+                  <SelectItem value="tag">Apply tag</SelectItem>
+                  <SelectItem value="assign">Assign to user</SelectItem>
+                  <SelectItem value="reply">Auto-reply</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">
@@ -207,15 +208,15 @@ export default function InboxRuleBuilderDialog({
 
           <div className="space-y-2">
             <Label htmlFor="execution-mode">Execution mode</Label>
-            <select
-              id="execution-mode"
-              value={executionMode}
-              onChange={(e) => setExecutionMode(e.target.value as "shadow" | "active")}
-              className="h-10 w-full rounded-xl border border-input bg-background px-3 text-sm"
-            >
-              <option value="shadow">Shadow (dry run)</option>
-              <option value="active">Active (live)</option>
-            </select>
+            <Select value={executionMode} onValueChange={(v) => setExecutionMode(v as "shadow" | "active")}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="shadow">Shadow (dry run)</SelectItem>
+                <SelectItem value="active">Active (live)</SelectItem>
+              </SelectContent>
+            </Select>
             <p className="text-xs text-muted-foreground">
               Shadow mode shows what would happen without making changes. Use active mode once confident.
             </p>

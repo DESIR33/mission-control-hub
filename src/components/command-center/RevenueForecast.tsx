@@ -45,7 +45,7 @@ export function RevenueForecast() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <DollarSign className="w-3.5 h-3.5 text-green-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Monthly Rev</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Monthly Rev</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{fmtMoney(forecast.currentMonthlyRevenue)}</p>
         </div>
@@ -53,19 +53,19 @@ export function RevenueForecast() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Calendar className="w-3.5 h-3.5 text-blue-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Projected</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Projected</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{fmtMoney(forecast.projectedMonthlyRevenue)}</p>
-          <p className="text-[10px] text-muted-foreground">next month</p>
+          <p className="text-xs text-muted-foreground">next month</p>
         </div>
 
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <TrendingUp className="w-3.5 h-3.5 text-purple-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Annual</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Annual</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{fmtMoney(forecast.projectedAnnualRevenue)}</p>
-          <p className="text-[10px] text-muted-foreground">projected</p>
+          <p className="text-xs text-muted-foreground">projected</p>
         </div>
 
         <div className="rounded-lg border border-border bg-card p-3">
@@ -75,7 +75,7 @@ export function RevenueForecast() {
             ) : (
               <TrendingDown className="w-3.5 h-3.5 text-red-500" />
             )}
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">MoM Growth</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">MoM Growth</p>
           </div>
           <p className={`text-lg font-bold font-mono ${forecast.monthlyGrowthRate >= 0 ? "text-green-400" : "text-red-400"}`}>
             {forecast.monthlyGrowthRate >= 0 ? "+" : ""}{forecast.monthlyGrowthRate.toFixed(1)}%
@@ -152,7 +152,7 @@ export function RevenueForecast() {
             <div key={b.source} className="flex items-center gap-3">
               <p className="text-sm text-foreground w-32">{b.source}</p>
               <div className="flex-1">
-                <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-0.5">
+                <div className="flex items-center justify-between text-xs text-muted-foreground mb-0.5">
                   <span>Current: {fmtMoney(b.current)}</span>
                   <span>Projected: {fmtMoney(b.projected)}</span>
                 </div>

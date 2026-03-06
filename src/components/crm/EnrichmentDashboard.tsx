@@ -154,7 +154,7 @@ function EnrichmentSourceCard({ source, data }: { source: EnrichmentSourceConfig
           <Badge
             variant="outline"
             className={cn(
-              "text-[10px] uppercase tracking-wider",
+              "text-xs uppercase tracking-wider",
               hasData
                 ? "bg-success/15 text-success border-success/30"
                 : "bg-muted text-muted-foreground border-border"
@@ -180,7 +180,7 @@ function EnrichmentSourceCard({ source, data }: { source: EnrichmentSourceConfig
           <div className="space-y-1.5 mt-2">
             {fields.map((field, i) => (
               <div key={i}>
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                <p className="text-xs uppercase tracking-wider text-muted-foreground">
                   {field.label}
                 </p>
                 <p className="text-sm text-foreground break-words">{field.value}</p>
@@ -195,7 +195,7 @@ function EnrichmentSourceCard({ source, data }: { source: EnrichmentSourceConfig
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-6 text-[10px] text-muted-foreground px-2 w-full justify-start"
+                className="h-6 text-xs text-muted-foreground px-2 w-full justify-start"
               >
                 <Code2 className="w-3 h-3 mr-1" />
                 Raw data
@@ -237,7 +237,7 @@ export function EnrichmentDashboard({ contact }: EnrichmentDashboardProps) {
         <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
           Enrichment Dashboard
         </h4>
-        <Badge variant="outline" className="text-[10px]">
+        <Badge variant="outline" className="text-xs">
           {enrichedCount}/{sources.length} sources
         </Badge>
       </div>

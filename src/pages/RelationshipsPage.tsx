@@ -17,12 +17,11 @@ import { BulkImportWizard } from "@/components/crm/BulkImportWizard";
 import { useContacts, useActivities } from "@/hooks/use-contacts";
 import { useCompanies } from "@/hooks/use-companies";
 import { useDeals } from "@/hooks/use-deals";
-import { WorkspaceProvider } from "@/hooks/use-workspace";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus } from "lucide-react";
 import type { Contact, Company } from "@/types/crm";
 
-function RelationshipsContent() {
+export default function RelationshipsPage() {
   const [searchParams] = useSearchParams();
   const initialTab = searchParams.get("tab") || "contacts";
   const navigate = useNavigate();
@@ -45,7 +44,7 @@ function RelationshipsContent() {
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 gradient-mesh min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 min-h-screen">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-foreground">Relationships</h1>
         <p className="text-sm text-muted-foreground mt-1">
@@ -54,16 +53,16 @@ function RelationshipsContent() {
       </div>
 
       <Tabs defaultValue={initialTab} onValueChange={(v) => { const sp = new URLSearchParams(window.location.search); sp.set("tab", v); window.history.replaceState({}, "", `?${sp.toString()}`); }}>
-        <TabsList>
-          <TabsTrigger value="contacts">Contacts</TabsTrigger>
-          <TabsTrigger value="companies">Companies</TabsTrigger>
-          <TabsTrigger value="graph">Relationships</TabsTrigger>
-          <TabsTrigger value="sponsors">Sponsors</TabsTrigger>
-          <TabsTrigger value="sponsor_pipeline">Sponsor Pipeline</TabsTrigger>
-          <TabsTrigger value="affiliate_pipeline">Affiliate Pipeline</TabsTrigger>
-          <TabsTrigger value="collab_pipeline">Collaborator Pipeline</TabsTrigger>
-          <TabsTrigger value="yt_leads">YouTube Leads</TabsTrigger>
-          <TabsTrigger value="engagement">Engagement</TabsTrigger>
+        <TabsList className="overflow-x-auto flex-nowrap scrollbar-hide w-full justify-start">
+          <TabsTrigger value="contacts" className="flex-shrink-0">Contacts</TabsTrigger>
+          <TabsTrigger value="companies" className="flex-shrink-0">Companies</TabsTrigger>
+          <TabsTrigger value="graph" className="flex-shrink-0">Relationships</TabsTrigger>
+          <TabsTrigger value="sponsors" className="flex-shrink-0">Sponsors</TabsTrigger>
+          <TabsTrigger value="sponsor_pipeline" className="flex-shrink-0">Sponsor Pipeline</TabsTrigger>
+          <TabsTrigger value="affiliate_pipeline" className="flex-shrink-0">Affiliate Pipeline</TabsTrigger>
+          <TabsTrigger value="collab_pipeline" className="flex-shrink-0">Collaborator Pipeline</TabsTrigger>
+          <TabsTrigger value="yt_leads" className="flex-shrink-0">YouTube Leads</TabsTrigger>
+          <TabsTrigger value="engagement" className="flex-shrink-0">Engagement</TabsTrigger>
         </TabsList>
 
         <TabsContent value="contacts" className="mt-4">
@@ -168,10 +167,3 @@ function RelationshipsContent() {
   );
 }
 
-export default function RelationshipsPage() {
-  return (
-    <WorkspaceProvider>
-      <RelationshipsContent />
-    </WorkspaceProvider>
-  );
-}

@@ -51,7 +51,7 @@ export function PlaylistOptimizer() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <ListVideo className="w-3.5 h-3.5 text-blue-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Playlists</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Playlists</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{optimization.playlists.length}</p>
         </div>
@@ -59,7 +59,7 @@ export function PlaylistOptimizer() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Eye className="w-3.5 h-3.5 text-green-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Total Views</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Views</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{fmtCount(optimization.totalViews)}</p>
         </div>
@@ -67,7 +67,7 @@ export function PlaylistOptimizer() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Clock className="w-3.5 h-3.5 text-purple-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Avg Completion</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Avg Completion</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{optimization.avgCompletionRate.toFixed(1)}%</p>
         </div>
@@ -75,7 +75,7 @@ export function PlaylistOptimizer() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <AlertTriangle className="w-3.5 h-3.5 text-yellow-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Underperform</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Underperform</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{optimization.underperformers.length}</p>
         </div>
@@ -118,9 +118,9 @@ export function PlaylistOptimizer() {
           <div key={playlist.id} className="rounded-lg border border-border bg-card p-3">
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm font-medium text-foreground">{playlist.playlist_title}</p>
-              <Badge variant="secondary" className="text-[9px]">{playlist.video_count} videos</Badge>
+              <Badge variant="secondary" className="text-xs">{playlist.video_count} videos</Badge>
             </div>
-            <div className="grid grid-cols-3 gap-3 text-[10px]">
+            <div className="grid grid-cols-3 gap-3 text-xs">
               <div>
                 <p className="text-muted-foreground">Views</p>
                 <p className="font-mono text-foreground">{fmtCount(Number(playlist.total_views))}</p>
@@ -138,7 +138,7 @@ export function PlaylistOptimizer() {
               <Progress value={Number(playlist.avg_completion_rate)} className="h-1 mt-2" />
             )}
             {playlist.drop_off_video && (
-              <p className="text-[10px] text-red-400 mt-1">Drop-off at: {playlist.drop_off_video}</p>
+              <p className="text-xs text-red-400 mt-1">Drop-off at: {playlist.drop_off_video}</p>
             )}
           </div>
         ))}

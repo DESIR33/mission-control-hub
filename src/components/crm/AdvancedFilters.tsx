@@ -98,7 +98,7 @@ export function AdvancedContactFilters({
           <SlidersHorizontal className="w-3.5 h-3.5" />
           Filters
           {activeFilterCount > 0 && (
-            <Badge className="h-4 w-4 p-0 text-[10px] flex items-center justify-center rounded-full ml-1">
+            <Badge className="h-4 w-4 p-0 text-xs flex items-center justify-center rounded-full ml-1">
               {activeFilterCount}
             </Badge>
           )}
@@ -245,7 +245,7 @@ export function AdvancedContactFilters({
             </div>
             {savedFilters.length > 0 && (
               <div className="space-y-1">
-                <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Saved Filters</Label>
+                <Label className="text-xs uppercase tracking-wider text-muted-foreground">Saved Filters</Label>
                 <div className="flex flex-wrap gap-1">
                   {savedFilters.map((sf, i) => (
                     <Badge

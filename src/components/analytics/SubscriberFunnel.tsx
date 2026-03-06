@@ -34,7 +34,7 @@ import {
   type SubscriberFunnelData,
 } from "@/hooks/use-subscriber-funnel";
 
-const FUNNEL_COLORS = ["#3b82f6", "#8b5cf6", "#f59e0b", "#22c55e"];
+const FUNNEL_COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-4))", "hsl(var(--chart-3))", "hsl(var(--chart-2))"];
 
 const FUNNEL_ICONS = [
   <MousePointerClick key="imp" className="w-4 h-4" />,
@@ -65,8 +65,8 @@ const SOURCE_LABELS: Record<string, string> = {
 };
 
 const TRAFFIC_COLORS = [
-  "#3b82f6", "#8b5cf6", "#ec4899", "#f59e0b", "#22c55e",
-  "#06b6d4", "#ef4444", "#6366f1", "#14b8a6", "#f97316",
+  "hsl(var(--chart-1))", "hsl(var(--chart-4))", "hsl(var(--chart-5))", "hsl(var(--chart-3))", "hsl(var(--chart-2))",
+  "hsl(var(--chart-1))", "hsl(var(--chart-5))", "hsl(var(--chart-4))", "hsl(var(--chart-2))", "hsl(var(--chart-3))",
 ];
 
 const tooltipStyle = {
@@ -222,7 +222,7 @@ function FunnelVisualization({ funnel }: { funnel: SubscriberFunnelData["funnel"
                   <span style={{ color: FUNNEL_COLORS[i] }}>{FUNNEL_ICONS[i]}</span>
                   <span className="font-medium text-foreground">{step.label}</span>
                   {conversionFromPrev && (
-                    <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                    <Badge variant="outline" className="text-xs px-1.5 py-0">
                       {conversionFromPrev}% conv.
                     </Badge>
                   )}
@@ -318,12 +318,12 @@ function DailyGrowthChart({
         <AreaChart data={chartData}>
           <defs>
             <linearGradient id="gainedGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3} />
-              <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
+              <stop offset="5%" stopColor="hsl(var(--chart-2))" stopOpacity={0.3} />
+              <stop offset="95%" stopColor="hsl(var(--chart-2))" stopOpacity={0} />
             </linearGradient>
             <linearGradient id="lostGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#ef4444" stopOpacity={0} />
-              <stop offset="95%" stopColor="#ef4444" stopOpacity={0.3} />
+              <stop offset="5%" stopColor="hsl(var(--chart-5))" stopOpacity={0} />
+              <stop offset="95%" stopColor="hsl(var(--chart-5))" stopOpacity={0.3} />
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
@@ -354,21 +354,21 @@ function DailyGrowthChart({
           <Area
             type="monotone"
             dataKey="gained"
-            stroke="#22c55e"
+            stroke="hsl(var(--chart-2))"
             strokeWidth={2}
             fill="url(#gainedGrad)"
           />
           <Area
             type="monotone"
             dataKey="lost"
-            stroke="#ef4444"
+            stroke="hsl(var(--chart-5))"
             strokeWidth={2}
             fill="url(#lostGrad)"
           />
           <Area
             type="monotone"
             dataKey="net"
-            stroke="#3b82f6"
+            stroke="hsl(var(--chart-1))"
             strokeWidth={2}
             fill="none"
             strokeDasharray="4 2"
@@ -438,7 +438,7 @@ function MagnetVideosTable({
                 <td className="py-2 px-2 text-right">
                   <Badge
                     variant={video.conversion_rate >= 5 ? "default" : "secondary"}
-                    className="font-mono text-[10px]"
+                    className="font-mono text-xs"
                   >
                     {video.conversion_rate.toFixed(1)}
                   </Badge>
@@ -497,12 +497,12 @@ function TrafficConversionChart({
             }}
           />
           <Legend wrapperStyle={{ fontSize: 12 }} />
-          <Bar dataKey="views" name="views" fill="#3b82f6" radius={[0, 4, 4, 0]}>
+          <Bar dataKey="views" name="views" fill="hsl(var(--chart-1))" radius={[0, 4, 4, 0]}>
             {chartData.map((_, i) => (
               <Cell key={i} fill={TRAFFIC_COLORS[i % TRAFFIC_COLORS.length]} />
             ))}
           </Bar>
-          <Bar dataKey="estimated_subs" name="estimated_subs" fill="#22c55e" radius={[0, 4, 4, 0]} />
+          <Bar dataKey="estimated_subs" name="estimated_subs" fill="hsl(var(--chart-2))" radius={[0, 4, 4, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

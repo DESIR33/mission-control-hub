@@ -41,7 +41,7 @@ export function RetentionCurve({ data, avgViewPercentage, videoDurationSeconds }
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-foreground">Audience Retention</h3>
         {!hasRealData && avgViewPercentage > 0 && (
-          <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+          <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
             Estimated from avg view %
           </span>
         )}

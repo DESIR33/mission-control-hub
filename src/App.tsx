@@ -64,7 +64,15 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
-  if (isLoading) return null;
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-8 h-8 rounded-lg bg-foreground flex items-center justify-center animate-pulse">
+          <span className="text-background font-bold text-sm">D</span>
+        </div>
+      </div>
+    );
+  }
   if (user) return <Navigate to="/" replace />;
   return <>{children}</>;
 }

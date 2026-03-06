@@ -64,7 +64,7 @@ export function VideoHeaderCard({
             </p>
           )}
           {!hasAnalyticsData && (
-            <p className="text-[10px] text-muted-foreground mt-2">
+            <p className="text-xs text-muted-foreground mt-2">
               Showing Data API stats. Sync Analytics for richer metrics.
             </p>
           )}
@@ -92,7 +92,7 @@ function KpiChip({ icon, label, value }: { icon: React.ReactNode; label: string;
     <div className="rounded-md border border-border bg-muted/30 px-2.5 py-2">
       <div className="flex items-center gap-1 text-muted-foreground mb-0.5">
         {icon}
-        <span className="text-[9px] uppercase tracking-wider">{label}</span>
+        <span className="text-xs uppercase tracking-wider">{label}</span>
       </div>
       <p className="text-sm font-bold font-mono text-foreground">{value}</p>
     </div>

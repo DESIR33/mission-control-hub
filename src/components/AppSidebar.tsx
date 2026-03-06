@@ -52,7 +52,7 @@ export function AppSidebar() {
             <h1 className="text-sm font-semibold text-sidebar-accent-foreground truncate">
               Desmily
             </h1>
-            <p className="text-[10px] text-sidebar-foreground truncate">
+            <p className="text-xs text-sidebar-foreground truncate">
               Mission Control
             </p>
           </div>
@@ -107,7 +107,7 @@ export function AppSidebar() {
                   <div className="relative shrink-0">
                     <item.icon className="w-4 h-4" />
                     {showBadge && (
-                      <span className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center leading-none">
+                      <span className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center leading-none">
                         {unreadCount > 9 ? "9+" : unreadCount}
                       </span>
                     )}
@@ -152,17 +152,10 @@ export function AppSidebar() {
                         )
                       }
                     >
-                      <div className="relative shrink-0">
-                        <item.icon className="w-4 h-4" />
-                        {showBadge && (
-                          <span className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center leading-none">
-                            {unreadCount > 9 ? "9+" : unreadCount}
-                          </span>
-                        )}
-                      </div>
+                      <item.icon className="w-4 h-4 shrink-0" />
                       <span className="truncate flex-1">{item.label}</span>
                       {showBadge && (
-                        <span className="ml-auto shrink-0 min-w-[18px] h-[18px] rounded-full bg-primary text-primary-foreground text-[10px] font-semibold flex items-center justify-center px-1">
+                        <span className="ml-auto shrink-0 min-w-[18px] h-[18px] rounded-full bg-primary text-primary-foreground text-xs font-semibold flex items-center justify-center px-1">
                           {unreadCount > 99 ? "99+" : unreadCount}
                         </span>
                       )}

@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
 import { Settings } from "lucide-react";
-import { WorkspaceProvider } from "@/hooks/use-workspace";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProfileSection } from "@/components/settings/ProfileSection";
 import { WorkspaceSection } from "@/components/settings/WorkspaceSection";
@@ -8,9 +7,9 @@ import { MembersSection } from "@/components/settings/MembersSection";
 import { BillingSection } from "@/components/settings/BillingSection";
 import { AutomationSection } from "@/components/settings/AutomationSection";
 
-function SettingsContent() {
+export default function SettingsPage() {
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 gradient-mesh min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}
@@ -60,10 +59,3 @@ function SettingsContent() {
   );
 }
 
-export default function SettingsPage() {
-  return (
-    <WorkspaceProvider>
-      <SettingsContent />
-    </WorkspaceProvider>
-  );
-}

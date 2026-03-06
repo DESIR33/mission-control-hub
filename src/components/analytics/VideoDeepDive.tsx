@@ -308,7 +308,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-semibold text-foreground">Thumbnail Intelligence</h3>
-            <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+            <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
               Channel Avg CTR: {ctrAnalysis.channelAvgCTR.toFixed(2)}%
             </span>
           </div>
@@ -423,20 +423,20 @@ export function VideoDeepDive({ data, daysRange }: Props) {
                   >
                     <p className="text-sm font-medium text-foreground truncate hover:text-primary transition-colors">{v.title || v.youtube_video_id}</p>
                     <div className="flex items-center gap-3 mt-0.5 flex-wrap">
-                      <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                      <span className="text-xs text-muted-foreground flex items-center gap-0.5">
                         <Eye className="w-2.5 h-2.5" /> {fmtCount(v.views)}
                       </span>
-                      <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                      <span className="text-xs text-muted-foreground flex items-center gap-0.5">
                         <ThumbsUp className="w-2.5 h-2.5" /> {fmtCount(v.likes)}
                       </span>
-                      <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                      <span className="text-xs text-muted-foreground flex items-center gap-0.5">
                         <MousePointerClick className="w-2.5 h-2.5" /> {v.impressions_ctr.toFixed(1)}% CTR
                       </span>
-                      <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                      <span className="text-xs text-muted-foreground flex items-center gap-0.5">
                         <Clock className="w-2.5 h-2.5" /> {fmtDuration(v.average_view_duration_seconds)}
                       </span>
                       {v.estimated_minutes_watched > 0 && (
-                        <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                        <span className="text-xs text-muted-foreground flex items-center gap-0.5">
                           <Clock className="w-2.5 h-2.5" />
                           {v.estimated_minutes_watched >= 60
                             ? `${Math.round(v.estimated_minutes_watched / 60)}h`
@@ -444,12 +444,12 @@ export function VideoDeepDive({ data, daysRange }: Props) {
                         </span>
                       )}
                       {netSubs !== 0 && (
-                        <span className={`text-[10px] flex items-center gap-0.5 ${netSubs > 0 ? "text-green-500" : "text-red-500"}`}>
+                        <span className={`text-xs flex items-center gap-0.5 ${netSubs > 0 ? "text-green-500" : "text-red-500"}`}>
                           <Users className="w-2.5 h-2.5" /> {netSubs > 0 ? "+" : ""}{netSubs} subs
                         </span>
                       )}
                       {notesSet?.has(v.youtube_video_id) && (
-                        <span className="text-[10px] text-primary flex items-center gap-0.5">
+                        <span className="text-xs text-primary flex items-center gap-0.5">
                           <FileText className="w-2.5 h-2.5" /> Notes
                         </span>
                       )}
@@ -457,7 +457,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
                         const combinedRev = revenueLookup.get(v.youtube_video_id);
                         const totalRev = combinedRev?.totalRevenue ?? (v.estimated_revenue > 0 ? v.estimated_revenue : 0);
                         return totalRev > 0 ? (
-                          <span className="text-[10px] text-green-500 flex items-center gap-0.5">
+                          <span className="text-xs text-green-500 flex items-center gap-0.5">
                             <DollarSign className="w-2.5 h-2.5" /> ${totalRev.toFixed(0)}{combinedRev ? " total" : ""}
                           </span>
                         ) : null;
@@ -466,7 +466,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
                   </button>
                   {/* Feature 12: Above-average badge */}
                   <div className="shrink-0">
-                    <span className={`inline-flex items-center justify-center text-[10px] font-bold rounded-full w-6 h-6 ${
+                    <span className={`inline-flex items-center justify-center text-xs font-bold rounded-full w-6 h-6 ${
                       aboveAvgCount >= 3
                         ? "bg-green-500/20 text-green-600 dark:text-green-400"
                         : aboveAvgCount >= 2
@@ -478,7 +478,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
                   </div>
                   <div className="text-right shrink-0">
                     <span className="text-xs font-mono font-semibold text-primary">{v.engagementRate}%</span>
-                    <p className="text-[10px] text-muted-foreground">engagement</p>
+                    <p className="text-xs text-muted-foreground">engagement</p>
                   </div>
                   <button
                     onClick={() => setExpandedVideo(isExpanded ? null : v.youtube_video_id)}
@@ -553,7 +553,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
 function MiniKpi({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg border border-border bg-card p-3">
-      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</p>
+      <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
       <p className="text-lg font-bold font-mono text-foreground mt-0.5">{value}</p>
     </div>
   );
@@ -564,7 +564,7 @@ function DetailStat({ label, value, positive, negative, benchmark }: {
 }) {
   return (
     <div className="bg-muted/30 rounded px-2 py-1.5">
-      <p className="text-[9px] text-muted-foreground uppercase tracking-wider">{label}</p>
+      <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
       <div className="flex items-center gap-1 mt-0.5">
         {benchmark && (
           <span className={`inline-block w-2 h-2 rounded-full shrink-0 ${

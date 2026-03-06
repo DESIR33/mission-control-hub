@@ -27,7 +27,7 @@ import { useDeals } from "@/hooks/use-deals";
 import { useCompanyLinkedVideos } from "@/hooks/use-company-videos";
 import { useVideoCompanies } from "@/hooks/use-video-companies";
 import { useToast } from "@/hooks/use-toast";
-import { useWorkspace, WorkspaceProvider } from "@/hooks/use-workspace";
+import { useWorkspace } from "@/hooks/use-workspace";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import {
@@ -85,7 +85,7 @@ function DetailRow({ icon: Icon, label, value, href }: { icon: typeof Mail; labe
     <div className="flex items-start gap-3 py-2">
       <Icon className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
       <div className="min-w-0">
-        <p className="text-[11px] uppercase tracking-wider text-muted-foreground">{label}</p>
+        <p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p>
         {href ? (
           <a href={href} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline truncate block">
             {value}
@@ -98,7 +98,7 @@ function DetailRow({ icon: Icon, label, value, href }: { icon: typeof Mail; labe
   );
 }
 
-function CompanyProfileContent() {
+export default function CompanyProfilePage() {
   const { companyId } = useParams<{ companyId: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -216,7 +216,7 @@ function CompanyProfileContent() {
 
   if (companiesLoading) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8 gradient-mesh min-h-screen space-y-6">
+      <div className="p-4 sm:p-6 lg:p-8 min-h-screen space-y-6">
         <Skeleton className="h-8 w-48" />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <Skeleton className="h-64" />
@@ -228,7 +228,7 @@ function CompanyProfileContent() {
 
   if (!company) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8 gradient-mesh min-h-screen">
+      <div className="p-4 sm:p-6 lg:p-8 min-h-screen">
         <Button variant="ghost" size="sm" onClick={() => navigate("/relationships?tab=companies")} className="gap-1.5 mb-6 text-muted-foreground hover:text-foreground">
           <ArrowLeft className="w-4 h-4" /> Back to Companies
         </Button>
@@ -242,7 +242,7 @@ function CompanyProfileContent() {
   }
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 gradient-mesh min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 min-h-screen">
       {/* Back navigation */}
       <Button variant="ghost" size="sm" onClick={() => navigate("/relationships?tab=companies")} className="gap-1.5 mb-6 text-muted-foreground hover:text-foreground">
         <ArrowLeft className="w-4 h-4" /> Back to Companies
@@ -263,9 +263,9 @@ function CompanyProfileContent() {
             <div className="flex items-center gap-2 mt-1 flex-wrap">
               {company.industry && <span className="text-sm text-muted-foreground">{company.industry}</span>}
               {tier && company.vip_tier !== "none" && <span className={cn("text-xs", tier.color)}>{tier.label}</span>}
-              {company.size && <Badge variant="outline" className="text-[10px]">{company.size} employees</Badge>}
+              {company.size && <Badge variant="outline" className="text-xs">{company.size} employees</Badge>}
               {totalRevenue > 0 && (
-                <Badge variant="outline" className="text-[10px] border-success/30 bg-success/10 text-success">
+                <Badge variant="outline" className="text-xs border-success/30 bg-success/10 text-success">
                   {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(totalRevenue)} revenue
                 </Badge>
               )}
@@ -309,7 +309,7 @@ function CompanyProfileContent() {
               ].map((item) => (
                 <div key={item.label} className="rounded-lg bg-secondary/30 border border-border px-3 py-2.5 text-center">
                   <p className="text-sm font-bold text-foreground font-mono">{item.val}</p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">{item.label}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{item.label}</p>
                 </div>
               ))}
             </div>
@@ -382,7 +382,7 @@ function CompanyProfileContent() {
               <CardContent>
                 {company.enrichment_brandfetch && (
                   <div>
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Brandfetch</p>
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Brandfetch</p>
                     <pre className="text-xs text-foreground bg-secondary/50 rounded-md p-3 overflow-auto max-h-32 font-mono">
                       {JSON.stringify(company.enrichment_brandfetch, null, 2)}
                     </pre>
@@ -392,7 +392,7 @@ function CompanyProfileContent() {
             </Card>
           )}
 
-          <div className="text-[10px] text-muted-foreground space-y-1 px-1">
+          <div className="text-xs text-muted-foreground space-y-1 px-1">
             <p>Created: {format(new Date(company.created_at), "MMM d, yyyy")}</p>
             <p>Updated: {format(new Date(company.updated_at), "MMM d, yyyy")}</p>
           </div>
@@ -433,7 +433,7 @@ function CompanyProfileContent() {
                           {contact.email && <p className="text-xs text-muted-foreground truncate">{contact.email}</p>}
                         </div>
                       </div>
-                      <Badge variant="outline" className={cn("text-[10px] uppercase tracking-wider shrink-0", statusColors[contact.status])}>
+                      <Badge variant="outline" className={cn("text-xs uppercase tracking-wider shrink-0", statusColors[contact.status])}>
                         {contact.status}
                       </Badge>
                     </div>
@@ -456,7 +456,7 @@ function CompanyProfileContent() {
                         <span className={cn("text-xs font-mono font-medium", deal.stage === "closed_won" ? "text-success" : "text-muted-foreground")}>
                           {deal.value != null ? new Intl.NumberFormat("en-US", { style: "currency", currency: deal.currency ?? "USD" }).format(deal.value) : "$0"}
                         </span>
-                        <Badge variant="outline" className="text-[10px] capitalize">{deal.stage.replace("_", " ")}</Badge>
+                        <Badge variant="outline" className="text-xs capitalize">{deal.stage.replace("_", " ")}</Badge>
                       </div>
                     ))}
                     {adRevenueFromLinkedVideos > 0 && (
@@ -466,7 +466,7 @@ function CompanyProfileContent() {
                         <span className="text-xs font-mono font-medium text-success">
                           {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(adRevenueFromLinkedVideos)}
                         </span>
-                        <Badge variant="outline" className="text-[10px]">AdSense</Badge>
+                        <Badge variant="outline" className="text-xs">AdSense</Badge>
                       </div>
                     )}
                     {totalRevenue > 0 && (
@@ -538,7 +538,7 @@ function CompanyProfileContent() {
                           <p className="text-sm font-medium text-foreground truncate">{video.title}</p>
                           {video.targetPublishDate && <p className="text-xs text-muted-foreground">{format(new Date(video.targetPublishDate), "MMM d, yyyy")}</p>}
                         </div>
-                        <Badge className={cn("text-[10px] capitalize", videoStatusTone[video.status])}>{video.status}</Badge>
+                        <Badge className={cn("text-xs capitalize", videoStatusTone[video.status])}>{video.status}</Badge>
                       </div>
                     ))}
                   </div>
@@ -560,7 +560,7 @@ function CompanyProfileContent() {
                           <p className="text-sm font-medium text-foreground truncate">{video.title}</p>
                           <p className="text-xs text-muted-foreground truncate mt-0.5">{video.description || "No description"}</p>
                         </div>
-                        <Badge className={cn("text-[10px] capitalize", videoStatusTone[video.status])}>{video.status}</Badge>
+                        <Badge className={cn("text-xs capitalize", videoStatusTone[video.status])}>{video.status}</Badge>
                       </div>
                     ))}
                   </div>
@@ -601,10 +601,3 @@ function CompanyProfileContent() {
   );
 }
 
-export default function CompanyProfilePage() {
-  return (
-    <WorkspaceProvider>
-      <CompanyProfileContent />
-    </WorkspaceProvider>
-  );
-}
