@@ -11,6 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
@@ -393,8 +394,11 @@ export function CompetitorIntelligence() {
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                 )}
-                <button
-                  className="text-muted-foreground hover:text-red-500 transition-colors"
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 text-muted-foreground hover:text-red-500 transition-colors"
+                  aria-label="Remove competitor"
                   onClick={() =>
                     deleteCompetitor.mutate(comp.id, {
                       onSuccess: () => toast.success("Competitor removed"),
@@ -402,7 +406,7 @@ export function CompetitorIntelligence() {
                   }
                 >
                   <Trash2 className="w-3.5 h-3.5" />
-                </button>
+                </Button>
               </div>
             ))}
           </div>
@@ -416,24 +420,23 @@ export function CompetitorIntelligence() {
             </DialogHeader>
             <div className="space-y-3 py-2">
               <div className="grid grid-cols-2 gap-2">
-                <input
-                  className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border col-span-2"
+                <Input
+                  className="col-span-2"
                   placeholder="Channel name *"
                   value={form.channel_name}
                   onChange={(e) =>
                     setForm({ ...form, channel_name: e.target.value })
                   }
                 />
-                <input
-                  className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border col-span-2"
+                <Input
+                  className="col-span-2"
                   placeholder="Channel URL"
                   value={form.channel_url}
                   onChange={(e) =>
                     setForm({ ...form, channel_url: e.target.value })
                   }
                 />
-                <input
-                  className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+                <Input
                   placeholder="Subscribers"
                   type="number"
                   value={form.subscriber_count}
@@ -441,8 +444,7 @@ export function CompetitorIntelligence() {
                     setForm({ ...form, subscriber_count: e.target.value })
                   }
                 />
-                <input
-                  className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+                <Input
                   placeholder="Video count"
                   type="number"
                   value={form.video_count}
@@ -450,8 +452,7 @@ export function CompetitorIntelligence() {
                     setForm({ ...form, video_count: e.target.value })
                   }
                 />
-                <input
-                  className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+                <Input
                   placeholder="Total views"
                   type="number"
                   value={form.total_view_count}
@@ -459,8 +460,7 @@ export function CompetitorIntelligence() {
                     setForm({ ...form, total_view_count: e.target.value })
                   }
                 />
-                <input
-                  className="bg-muted/50 rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+                <Input
                   placeholder="Niche"
                   value={form.primary_niche}
                   onChange={(e) =>

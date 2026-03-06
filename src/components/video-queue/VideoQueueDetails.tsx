@@ -45,6 +45,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useVideoTranscript, useUploadTranscript, useRetentionData, useSaveRetentionData } from "@/hooks/use-video-transcripts";
 import { useYouTubeVideoStats } from "@/hooks/use-youtube-analytics";
 import { useRepurposes, useCreateRepurpose, useUpdateRepurpose, useDeleteRepurpose } from "@/hooks/use-repurposes";
@@ -442,7 +444,7 @@ export function VideoQueueDetails({ video, onClose, onUpdate }: VideoQueueDetail
               ))}
             </div>
             <div className="mt-2 flex gap-2">
-              <input type="text" value={newChecklistLabel} onChange={(e) => setNewChecklistLabel(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") handleAddChecklist(); }} placeholder="Add checklist item..." className="h-9 flex-1 rounded-lg border border-border bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20" />
+              <Input type="text" value={newChecklistLabel} onChange={(e) => setNewChecklistLabel(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") handleAddChecklist(); }} placeholder="Add checklist item..." className="h-9 flex-1" />
               <button onClick={handleAddChecklist} disabled={!newChecklistLabel.trim()} className="inline-flex h-9 items-center gap-1 rounded-lg bg-primary px-3 text-xs text-primary-foreground disabled:opacity-50"><Plus className="h-3.5 w-3.5" />Add</button>
             </div>
           </div>
@@ -606,7 +608,7 @@ export function VideoQueueDetails({ video, onClose, onUpdate }: VideoQueueDetail
                 {["clip", "short", "reel", "thread", "carousel", "post", "newsletter", "blog", "other"].map((f) => <option key={f} value={f}>{f}</option>)}
               </select>
             </div>
-            <input type="text" value={newRepurpose.title} onChange={(e) => setNewRepurpose((p) => ({ ...p, title: e.target.value }))} placeholder="Repurpose title..." className="w-full h-8 rounded-lg border border-border bg-background px-2 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20" />
+            <Input type="text" value={newRepurpose.title} onChange={(e) => setNewRepurpose((p) => ({ ...p, title: e.target.value }))} placeholder="Repurpose title..." className="h-8 text-xs" />
             <button onClick={handleAddRepurpose} disabled={!newRepurpose.title.trim()} className="inline-flex h-7 items-center gap-1 rounded-lg bg-primary px-3 text-xs text-primary-foreground disabled:opacity-50"><Plus className="h-3 w-3" />Add</button>
           </div>
         </div>
@@ -648,11 +650,11 @@ export function VideoQueueDetails({ video, onClose, onUpdate }: VideoQueueDetail
               <option value="title">Title</option>
               <option value="thumbnail">Thumbnail</option>
             </select>
-            <input type="text" value={newAbTest.variantA} onChange={(e) => setNewAbTest((p) => ({ ...p, variantA: e.target.value }))} placeholder="Variant A (original)..." className="w-full h-8 rounded-lg border border-border bg-background px-2 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20" />
-            <input type="text" value={newAbTest.variantB} onChange={(e) => setNewAbTest((p) => ({ ...p, variantB: e.target.value }))} placeholder="Variant B (new)..." className="w-full h-8 rounded-lg border border-border bg-background px-2 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20" />
+            <Input type="text" value={newAbTest.variantA} onChange={(e) => setNewAbTest((p) => ({ ...p, variantA: e.target.value }))} placeholder="Variant A (original)..." className="h-8 text-xs" />
+            <Input type="text" value={newAbTest.variantB} onChange={(e) => setNewAbTest((p) => ({ ...p, variantB: e.target.value }))} placeholder="Variant B (new)..." className="h-8 text-xs" />
             <div className="grid grid-cols-2 gap-2">
-              <input type="number" step="0.1" value={newAbTest.variantACtr} onChange={(e) => setNewAbTest((p) => ({ ...p, variantACtr: e.target.value }))} placeholder="A CTR %" className="h-8 rounded-lg border border-border bg-background px-2 text-xs text-foreground focus:outline-none" />
-              <input type="number" step="0.1" value={newAbTest.variantBCtr} onChange={(e) => setNewAbTest((p) => ({ ...p, variantBCtr: e.target.value }))} placeholder="B CTR %" className="h-8 rounded-lg border border-border bg-background px-2 text-xs text-foreground focus:outline-none" />
+              <Input type="number" step="0.1" value={newAbTest.variantACtr} onChange={(e) => setNewAbTest((p) => ({ ...p, variantACtr: e.target.value }))} placeholder="A CTR %" className="h-8 text-xs" />
+              <Input type="number" step="0.1" value={newAbTest.variantBCtr} onChange={(e) => setNewAbTest((p) => ({ ...p, variantBCtr: e.target.value }))} placeholder="B CTR %" className="h-8 text-xs" />
             </div>
             <select value={newAbTest.winner} onChange={(e) => setNewAbTest((p) => ({ ...p, winner: e.target.value as any }))} className="w-full text-xs rounded-lg border border-border bg-background px-2 py-1.5 text-foreground">
               <option value="">No winner yet</option>
