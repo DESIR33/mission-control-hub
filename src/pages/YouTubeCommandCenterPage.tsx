@@ -4,7 +4,7 @@ import {
   Eye, MousePointerClick, Handshake, Users,
   Calendar, Brain, ChevronLeft, ChevronRight,
   MessageSquare, ListVideo, Upload, Crosshair, UserCheck,
-  Menu,
+  Menu, RefreshCw, Mail,
 } from "lucide-react";
 import { useWorkspace, WorkspaceProvider } from "@/hooks/use-workspace";
 import { useSyncYouTube } from "@/hooks/use-youtube-analytics";
@@ -23,6 +23,8 @@ import { ContentPlannerSection } from "@/components/command-center/sections/Cont
 import { CommentHubSection } from "@/components/command-center/sections/CommentHubSection";
 import { ContentStrategist } from "@/components/command-center";
 import { PlaylistOptimizer } from "@/components/command-center";
+import { SyncHistoryPanel } from "@/components/analytics/SyncHistoryPanel";
+import { SequenceHealthDashboard } from "@/components/command-center/SequenceHealthDashboard";
 
 type Tab =
   | "growth"
@@ -35,7 +37,9 @@ type Tab =
   | "revenue"
   | "planner"
   | "comments"
-  | "playlists";
+  | "playlists"
+  | "sync_history"
+  | "sequences";
 
 const TABS: { key: Tab; label: string; icon: React.ReactNode; group: string }[] = [
   // Growth
@@ -54,6 +58,9 @@ const TABS: { key: Tab; label: string; icon: React.ReactNode; group: string }[] 
   // Audience
   { key: "comments", label: "Comments", icon: <MessageSquare className="w-3.5 h-3.5" />, group: "Audience" },
   { key: "playlists", label: "Playlists", icon: <ListVideo className="w-3.5 h-3.5" />, group: "Audience" },
+  // Operations
+  { key: "sequences", label: "Email Sequences", icon: <Mail className="w-3.5 h-3.5" />, group: "Operations" },
+  { key: "sync_history", label: "Sync History", icon: <RefreshCw className="w-3.5 h-3.5" />, group: "Operations" },
 ];
 
 const TAB_COMPONENTS: Record<Tab, React.ComponentType> = {
@@ -68,6 +75,8 @@ const TAB_COMPONENTS: Record<Tab, React.ComponentType> = {
   planner: ContentPlannerSection,
   comments: CommentHubSection,
   playlists: PlaylistOptimizer,
+  sync_history: SyncHistoryPanel,
+  sequences: SequenceHealthDashboard,
 };
 
 function SidebarNav({
