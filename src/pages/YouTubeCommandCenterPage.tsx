@@ -4,7 +4,7 @@ import {
   Eye, MousePointerClick, Handshake, Users,
   Calendar, Brain, ChevronLeft, ChevronRight,
   MessageSquare, ListVideo, Upload, Crosshair, UserCheck,
-  Menu, RefreshCw, Mail,
+  Menu, RefreshCw, Mail, Zap,
 } from "lucide-react";
 import { useWorkspace, WorkspaceProvider } from "@/hooks/use-workspace";
 import { useSyncYouTube } from "@/hooks/use-youtube-analytics";
@@ -23,10 +23,14 @@ import { ContentPlannerSection } from "@/components/command-center/sections/Cont
 import { CommentHubSection } from "@/components/command-center/sections/CommentHubSection";
 import { ContentStrategist } from "@/components/command-center";
 import { PlaylistOptimizer } from "@/components/command-center";
+import { MissionBriefing } from "@/components/command-center";
+import { ChannelPulse } from "@/components/command-center";
+import { AIGrowthCoach } from "@/components/command-center";
 import { SyncHistoryPanel } from "@/components/analytics/SyncHistoryPanel";
 import { SequenceHealthDashboard } from "@/components/command-center/SequenceHealthDashboard";
 
 type Tab =
+  | "briefing"
   | "growth"
   | "subscribers"
   | "competitors"
@@ -42,6 +46,8 @@ type Tab =
   | "sequences";
 
 const TABS: { key: Tab; label: string; icon: React.ReactNode; group: string }[] = [
+  // Mission
+  { key: "briefing", label: "Mission Briefing", icon: <Zap className="w-3.5 h-3.5" />, group: "Mission" },
   // Growth
   { key: "growth", label: "Growth Forecast", icon: <TrendingUp className="w-3.5 h-3.5" />, group: "Growth" },
   { key: "subscribers", label: "Subscriber Intel", icon: <UserCheck className="w-3.5 h-3.5" />, group: "Growth" },
@@ -64,6 +70,7 @@ const TABS: { key: Tab; label: string; icon: React.ReactNode; group: string }[] 
 ];
 
 const TAB_COMPONENTS: Record<Tab, React.ComponentType> = {
+  briefing: MissionBriefing,
   growth: GrowthForecastSection,
   subscribers: SubscriberIntelSection,
   competitors: CompetitorIntelSection,
@@ -142,7 +149,7 @@ function SidebarNav({
 }
 
 function CommandCenterContent() {
-  const [activeTab, setActiveTab] = useState<Tab>("growth");
+  const [activeTab, setActiveTab] = useState<Tab>("briefing");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const isMobile = useIsMobile();
@@ -205,6 +212,11 @@ function CommandCenterContent() {
 
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto">
+        {/* Channel Pulse - persistent KPI header */}
+        <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border">
+          <ChannelPulse />
+        </div>
+
         <div className="p-4 md:p-6">
           <div className="flex items-center gap-3 mb-4 md:mb-6">
             {isMobile && (
@@ -226,6 +238,9 @@ function CommandCenterContent() {
           <ActiveComponent />
         </div>
       </div>
+
+      {/* AI Growth Coach - floating panel */}
+      <AIGrowthCoach />
     </div>
   );
 }
