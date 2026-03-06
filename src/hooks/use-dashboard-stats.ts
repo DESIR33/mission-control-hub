@@ -354,6 +354,33 @@ export function useAiBriefing() {
       if (!workspaceId) return [];
 
       const items: BriefingItem[] = [];
+      const today = format(new Date(), "yyyy-MM-dd");
+
+      // First, check for a stored AI-generated daily briefing
+      const { data: storedBriefing } = await supabase
+        .from("assistant_daily_logs")
+        .select("content")
+        .eq("workspace_id", workspaceId)
+        .eq("source", "daily-briefing")
+        .eq("log_date", today)
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+      if (storedBriefing && storedBriefing.length > 0) {
+        const lines = storedBriefing[0].content.split("\n").filter((l: string) => l.trim());
+        for (const line of lines) {
+          const trimmed = line.replace(/^[-•]\s*/, "").trim();
+          if (!trimmed) continue;
+          const isAction = trimmed.startsWith("🔴") || trimmed.startsWith("🟡");
+          items.push({
+            type: isAction ? "action" : "insight",
+            text: trimmed,
+          });
+        }
+        return items.slice(0, 8);
+      }
+
+      // Fallback: generate client-side briefing from live data
       const sevenDaysAgo = subDays(new Date(), 7).toISOString();
 
       const { count: staleCount } = await supabase
@@ -413,11 +440,10 @@ export function useAiBriefing() {
         });
       }
 
-      // Feature 13: YouTube Performance Intelligence
+      // YouTube Performance Intelligence
       const fourteenDaysAgo = subDays(new Date(), 14).toISOString().split("T")[0];
       const fiveDaysAgo = subDays(new Date(), 5).toISOString();
 
-      // CTR alert for latest video
       const { data: recentVideos } = await supabase
         .from("youtube_video_analytics" as any)
         .select("title, impressions_ctr, views, subscribers_gained, estimated_revenue, youtube_video_id")
@@ -435,7 +461,6 @@ export function useAiBriefing() {
           });
         }
 
-        // Subscriber conversion highlight
         const bestSubVideo = recentVideos.reduce((best: any, v: any) =>
           (v.subscribers_gained > (best?.subscribers_gained ?? 0)) ? v : best, null);
         if (bestSubVideo && bestSubVideo.subscribers_gained > 100) {
@@ -446,7 +471,7 @@ export function useAiBriefing() {
         }
       }
 
-      // Monthly ad revenue milestone
+      // Monthly ad revenue
       const thirtyDaysAgo = subDays(new Date(), 30).toISOString().split("T")[0];
       const { data: monthlyAdData } = await supabase
         .from("youtube_video_analytics" as any)
