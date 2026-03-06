@@ -380,8 +380,7 @@ function PatternTracker({
 }
 
 export function VideoAutopsy() {
-  const { currentWorkspace } = useWorkspace();
-  const workspaceId = currentWorkspace?.id;
+  const { workspaceId } = useWorkspace();
 
   const { data: publishedVideos = [], isLoading } = useQuery({
     queryKey: ["published-videos-autopsy", workspaceId],
