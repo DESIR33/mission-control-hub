@@ -182,7 +182,7 @@ const INTEGRATIONS: IntegrationDef[] = [
         placeholder: "1//0…",
         secret: true,
         required: false,
-        hint: "Generate at developers.google.com/oauthplayground — select scopes: 'YouTube Analytics API v2' (yt-analytics.readonly) + 'YouTube Analytics Monetary' (yt-analytics-monetary.readonly). Use your own OAuth credentials (gear icon → 'Use your own OAuth credentials').",
+        hint: "Generate at developers.google.com/oauthplayground — select ALL 4 scopes: yt-analytics.readonly, yt-analytics-monetary.readonly, youtube.readonly, youtube.force-ssl. Use your own OAuth credentials (gear icon → 'Use your own OAuth credentials').",
       },
     ],
   },
