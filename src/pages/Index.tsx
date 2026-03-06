@@ -67,9 +67,6 @@ function DashboardContent() {
       <GrowthCommandWidget />
 
 
-      {/* YouTube Growth Widget */}
-      <YouTubeGrowth />
-
       {/* Sprint + Goal Pace Widgets */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <SprintWidget />
