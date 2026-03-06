@@ -44,7 +44,7 @@ export function RevenueChart({ monthly = [], sponsors = 0, affiliates = 0, ads =
         <div className="flex items-end gap-2 h-32">
           {revenue.map((val, i) => (
             <div key={i} className="flex-1 flex flex-col items-center gap-1">
-              <span className="text-[10px] font-mono text-muted-foreground">
+              <span className="text-xs font-mono text-muted-foreground">
                 {formatCurrency(val)}
               </span>
               <motion.div
@@ -53,7 +53,7 @@ export function RevenueChart({ monthly = [], sponsors = 0, affiliates = 0, ads =
                 transition={{ duration: 0.6, delay: 0.3 + i * 0.05 }}
                 className="w-full rounded-t-sm bg-primary/80 hover:bg-primary transition-colors min-h-[4px]"
               />
-              <span className="text-[10px] text-muted-foreground">{months[i]}</span>
+              <span className="text-xs text-muted-foreground">{months[i]}</span>
             </div>
           ))}
         </div>
@@ -65,15 +65,15 @@ export function RevenueChart({ monthly = [], sponsors = 0, affiliates = 0, ads =
 
       <div className="mt-4 pt-3 border-t border-border grid grid-cols-3 gap-3">
         <div>
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Sponsors</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-wider">Sponsors</p>
           <p className="text-sm font-mono font-semibold text-card-foreground">{formatCurrency(sponsors)}</p>
         </div>
         <div>
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Affiliates</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-wider">Affiliates</p>
           <p className="text-sm font-mono font-semibold text-card-foreground">{formatCurrency(affiliates)}</p>
         </div>
         <div>
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Ad Revenue</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-wider">Ad Revenue</p>
           <p className="text-sm font-mono font-semibold text-card-foreground">{formatCurrency(ads)}</p>
         </div>
       </div>

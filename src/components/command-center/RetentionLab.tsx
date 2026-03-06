@@ -386,20 +386,20 @@ export function RetentionLab() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <BarChart3 className="w-3.5 h-3.5 text-purple-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">
               Channel Avg Retention
             </p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">
             {channelAvgRetention.toFixed(1)}%
           </p>
-          <p className="text-[10px] text-muted-foreground">YouTube avg ~40%</p>
+          <p className="text-xs text-muted-foreground">YouTube avg ~40%</p>
         </div>
 
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Zap className="w-3.5 h-3.5 text-yellow-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">
               Avg Hook Score
             </p>
           </div>
@@ -408,13 +408,13 @@ export function RetentionLab() {
               ? (profiles.reduce((s, p) => s + p.hookScore, 0) / profiles.length).toFixed(1)
               : "--"}%
           </p>
-          <p className="text-[10px] text-muted-foreground">Retained at 30s</p>
+          <p className="text-xs text-muted-foreground">Retained at 30s</p>
         </div>
 
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Clock className="w-3.5 h-3.5 text-blue-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">
               Avg Mid-Roll
             </p>
           </div>
@@ -423,13 +423,13 @@ export function RetentionLab() {
               ? (profiles.reduce((s, p) => s + p.midRollRetention, 0) / profiles.length).toFixed(1)
               : "--"}%
           </p>
-          <p className="text-[10px] text-muted-foreground">At 50% of video</p>
+          <p className="text-xs text-muted-foreground">At 50% of video</p>
         </div>
 
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Target className="w-3.5 h-3.5 text-green-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">
               Avg End Screen
             </p>
           </div>
@@ -438,7 +438,7 @@ export function RetentionLab() {
               ? (profiles.reduce((s, p) => s + p.endScreenReach, 0) / profiles.length).toFixed(1)
               : "--"}%
           </p>
-          <p className="text-[10px] text-muted-foreground">Last 20s reach</p>
+          <p className="text-xs text-muted-foreground">Last 20s reach</p>
         </div>
       </div>
 
@@ -479,7 +479,7 @@ export function RetentionLab() {
             <Eye className="w-4 h-4 text-blue-500" />
             Retention Curve Comparison
           </CardTitle>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             Select up to 3 videos to compare retention curves side-by-side.
           </p>
         </CardHeader>
@@ -498,7 +498,7 @@ export function RetentionLab() {
                     key={p.videoId}
                     variant={isSelected ? "default" : "outline"}
                     size="sm"
-                    className="text-[10px] h-7 px-2.5"
+                    className="text-xs h-7 px-2.5"
                     style={
                       isSelected
                         ? { backgroundColor: COMPARISON_COLORS[colorIdx] ?? "#3b82f6" }
@@ -605,19 +605,19 @@ export function RetentionLab() {
                   </div>
                   <div className="grid grid-cols-3 gap-2 text-center">
                     <div>
-                      <p className="text-[9px] text-muted-foreground uppercase">Hook</p>
+                      <p className="text-xs text-muted-foreground uppercase">Hook</p>
                       <p className="text-sm font-bold font-mono">
                         {profile.hookScore.toFixed(0)}%
                       </p>
                     </div>
                     <div>
-                      <p className="text-[9px] text-muted-foreground uppercase">Mid-Roll</p>
+                      <p className="text-xs text-muted-foreground uppercase">Mid-Roll</p>
                       <p className="text-sm font-bold font-mono">
                         {profile.midRollRetention.toFixed(0)}%
                       </p>
                     </div>
                     <div>
-                      <p className="text-[9px] text-muted-foreground uppercase">End Screen</p>
+                      <p className="text-xs text-muted-foreground uppercase">End Screen</p>
                       <p className="text-sm font-bold font-mono">
                         {profile.endScreenReach.toFixed(0)}%
                       </p>
@@ -642,7 +642,7 @@ export function RetentionLab() {
                       />
                     </LineChart>
                   </ResponsiveContainer>
-                  <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <span>{fmtCount(profile.views)} views</span>
                     <span>Avg: {fmtDuration(profile.avgDurationSeconds)} / ~{fmtDuration(profile.estimatedVideoLengthSeconds)}</span>
                   </div>
@@ -677,7 +677,7 @@ export function RetentionLab() {
               )}
             </Button>
           </div>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             Sorted worst-to-best retention. Videos below channel average are flagged.
           </p>
         </CardHeader>
@@ -732,7 +732,7 @@ export function RetentionLab() {
             </table>
           </div>
           {!showTable && profiles.length > 8 && (
-            <p className="text-[10px] text-muted-foreground mt-2 text-center">
+            <p className="text-xs text-muted-foreground mt-2 text-center">
               Showing 8 of {profiles.length} videos
             </p>
           )}
@@ -748,7 +748,7 @@ function RetentionBadge({ vsAvg }: { vsAvg: number }) {
   if (vsAvg >= 0) {
     return (
       <Badge
-        className="text-[9px] bg-green-500/15 text-green-600 border-green-500/30 shrink-0"
+        className="text-xs bg-green-500/15 text-green-600 border-green-500/30 shrink-0"
         variant="outline"
       >
         <ArrowUpRight className="w-2.5 h-2.5 mr-0.5" />
@@ -758,7 +758,7 @@ function RetentionBadge({ vsAvg }: { vsAvg: number }) {
   }
   return (
     <Badge
-      className="text-[9px] bg-red-500/15 text-red-600 border-red-500/30 shrink-0"
+      className="text-xs bg-red-500/15 text-red-600 border-red-500/30 shrink-0"
       variant="outline"
     >
       <ArrowDownRight className="w-2.5 h-2.5 mr-0.5" />

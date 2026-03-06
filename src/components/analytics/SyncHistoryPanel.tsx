@@ -78,7 +78,7 @@ export function SyncHistoryPanel() {
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <Badge variant="outline" className="text-[9px] shrink-0">
+                <Badge variant="outline" className="text-xs shrink-0">
                   {log.sync_type}
                 </Badge>
                 <span className="text-muted-foreground truncate">
@@ -86,7 +86,7 @@ export function SyncHistoryPanel() {
                 </span>
               </div>
               {log.error_message && (
-                <p className="text-destructive text-[10px] mt-0.5 truncate">
+                <p className="text-destructive text-xs mt-0.5 truncate">
                   {log.error_message}
                 </p>
               )}

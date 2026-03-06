@@ -129,7 +129,7 @@ export function LongTermMemoryTab({
             <div className="flex items-start justify-between mb-2">
               <div className="flex items-center gap-1.5">
                 <span className="text-sm">{originIcons[m.origin]}</span>
-                <Badge variant="outline" className="text-[10px] h-4">
+                <Badge variant="outline" className="text-xs h-4">
                   {m.origin}
                 </Badge>
               </div>
@@ -150,13 +150,13 @@ export function LongTermMemoryTab({
             {m.tags.length > 0 && (
               <div className="flex flex-wrap gap-1 mt-2">
                 {m.tags.map((t) => (
-                  <Badge key={t} variant="secondary" className="text-[10px] h-4 px-1.5">
+                  <Badge key={t} variant="secondary" className="text-xs h-4 px-1.5">
                     {t}
                   </Badge>
                 ))}
               </div>
             )}
-            <p className="text-[10px] text-muted-foreground mt-2">
+            <p className="text-xs text-muted-foreground mt-2">
               {format(new Date(m.updated_at), "MMM d, yyyy")}
             </p>
           </Card>

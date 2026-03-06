@@ -229,7 +229,7 @@ export function UploadScheduler() {
               {TIME_BLOCKS.map((block) => (
                 <div
                   key={block.start}
-                  className="text-[9px] text-muted-foreground text-center truncate px-0.5"
+                  className="text-xs text-muted-foreground text-center truncate px-0.5"
                 >
                   {block.label}
                 </div>
@@ -242,7 +242,7 @@ export function UploadScheduler() {
                 );
                 return (
                   <div key={day} className="contents">
-                    <div className="text-[10px] text-muted-foreground flex items-center font-medium">
+                    <div className="text-xs text-muted-foreground flex items-center font-medium">
                       {DAYS_SHORT[day]}
                     </div>
                     {TIME_BLOCKS.map((block) => {
@@ -264,7 +264,7 @@ export function UploadScheduler() {
                           }
                         >
                           {score > 0 && (
-                            <span className="text-[9px] font-mono font-medium">
+                            <span className="text-xs font-mono font-medium">
                               {score}
                             </span>
                           )}
@@ -279,7 +279,7 @@ export function UploadScheduler() {
 
           {/* Legend */}
           <div className="flex items-center gap-2 mt-3 justify-end">
-            <span className="text-[9px] text-muted-foreground">Cold</span>
+            <span className="text-xs text-muted-foreground">Cold</span>
             <div className="flex gap-0.5">
               <div className="w-5 h-2.5 rounded-sm bg-slate-100 dark:bg-slate-500/10" />
               <div className="w-5 h-2.5 rounded-sm bg-blue-100 dark:bg-blue-500/10" />
@@ -287,7 +287,7 @@ export function UploadScheduler() {
               <div className="w-5 h-2.5 rounded-sm bg-orange-100 dark:bg-orange-500/20" />
               <div className="w-5 h-2.5 rounded-sm bg-red-100 dark:bg-red-500/30" />
             </div>
-            <span className="text-[9px] text-muted-foreground">Hot</span>
+            <span className="text-xs text-muted-foreground">Hot</span>
           </div>
         </CardContent>
       </Card>
@@ -313,7 +313,7 @@ export function UploadScheduler() {
                     <Badge
                       variant={i === 0 ? "default" : "secondary"}
                       className={cn(
-                        "text-[10px] font-mono shrink-0 w-6 justify-center",
+                        "text-xs font-mono shrink-0 w-6 justify-center",
                         i === 0 && "bg-green-600"
                       )}
                     >
@@ -323,7 +323,7 @@ export function UploadScheduler() {
                       <p className="text-sm font-medium text-foreground truncate">
                         {slot.label}
                       </p>
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         {slot.videoCount} video{slot.videoCount !== 1 ? "s" : ""}
                       </p>
                     </div>
@@ -332,7 +332,7 @@ export function UploadScheduler() {
                     <p className="text-xs font-mono text-foreground">
                       {Math.round(slot.avgViews).toLocaleString()} views
                     </p>
-                    <p className="text-[10px] text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       {slot.avgCtr.toFixed(1)}% CTR
                     </p>
                   </div>
@@ -359,7 +359,7 @@ export function UploadScheduler() {
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     <div className="w-6 h-6 rounded-full bg-red-500/10 flex items-center justify-center shrink-0">
-                      <span className="text-[10px] font-mono text-red-500">
+                      <span className="text-xs font-mono text-red-500">
                         {i + 1}
                       </span>
                     </div>
@@ -367,7 +367,7 @@ export function UploadScheduler() {
                       <p className="text-sm font-medium text-foreground truncate">
                         {slot.label}
                       </p>
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         Score: {slot.score}
                       </p>
                     </div>
@@ -376,7 +376,7 @@ export function UploadScheduler() {
                     <p className="text-xs font-mono text-muted-foreground">
                       {Math.round(slot.avgViews).toLocaleString()} views
                     </p>
-                    <p className="text-[10px] text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       {slot.avgCtr.toFixed(1)}% CTR
                     </p>
                   </div>
@@ -404,7 +404,7 @@ export function UploadScheduler() {
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="rounded-lg border border-border bg-secondary/30 p-4 text-center">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
                 Best Day
               </p>
               <p className="text-lg font-bold text-foreground">
@@ -412,7 +412,7 @@ export function UploadScheduler() {
               </p>
             </div>
             <div className="rounded-lg border border-border bg-secondary/30 p-4 text-center">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
                 Best Time
               </p>
               <p className="text-lg font-bold text-foreground">
@@ -420,7 +420,7 @@ export function UploadScheduler() {
               </p>
             </div>
             <div className="rounded-lg border border-border bg-secondary/30 p-4 text-center">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
                 Optimal vs Non-Optimal
               </p>
               <p className="text-lg font-bold text-foreground">
@@ -430,7 +430,7 @@ export function UploadScheduler() {
                 </span>
                 {avgNonOptimalViews.toLocaleString()}
               </p>
-              <p className="text-[10px] text-muted-foreground">avg views</p>
+              <p className="text-xs text-muted-foreground">avg views</p>
             </div>
           </div>
         </CardContent>
@@ -466,7 +466,7 @@ export function UploadScheduler() {
                       i === 0 ? "text-green-500" : "text-muted-foreground"
                     )}
                   />
-                  <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Window {i + 1}
                   </span>
                 </div>
@@ -477,7 +477,7 @@ export function UploadScheduler() {
                 <Badge
                   variant="outline"
                   className={cn(
-                    "mt-2 text-[10px]",
+                    "mt-2 text-xs",
                     i === 0 && "border-green-500/30 text-green-600 dark:text-green-400"
                   )}
                 >

@@ -53,7 +53,7 @@ function MobileNav({
           <h1 className="text-sm font-semibold text-sidebar-accent-foreground">
             Desmily
           </h1>
-          <p className="text-[10px] text-sidebar-foreground">Mission Control</p>
+          <p className="text-xs text-sidebar-foreground">Mission Control</p>
         </div>
       </div>
 
@@ -120,17 +120,10 @@ function MobileNav({
                         )
                       }
                     >
-                      <div className="relative shrink-0">
-                        <item.icon className="w-4 h-4" />
-                        {showBadge && (
-                          <span className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center leading-none">
-                            {unreadCount > 9 ? "9+" : unreadCount}
-                          </span>
-                        )}
-                      </div>
+                      <item.icon className="w-4 h-4 shrink-0" />
                       <span className="flex-1">{item.label}</span>
                       {showBadge && (
-                        <span className="shrink-0 min-w-[18px] h-[18px] rounded-full bg-primary text-primary-foreground text-[10px] font-semibold flex items-center justify-center px-1">
+                        <span className="shrink-0 min-w-[18px] h-[18px] rounded-full bg-primary text-primary-foreground text-xs font-semibold flex items-center justify-center px-1">
                           {unreadCount > 99 ? "99+" : unreadCount}
                         </span>
                       )}
@@ -186,6 +179,9 @@ export function AppLayout() {
   return (
     <WorkspaceProvider>
       <div className="flex h-screen overflow-hidden bg-background">
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:outline-none">
+          Skip to content
+        </a>
         {/* Desktop Sidebar — hidden on mobile */}
         <div className="hidden md:block shrink-0">
           <AppSidebar />
@@ -205,7 +201,7 @@ export function AppLayout() {
 
             <div className="flex items-center gap-2 flex-1 min-w-0">
               <div className="w-6 h-6 rounded bg-primary flex items-center justify-center shrink-0">
-                <span className="text-primary-foreground font-bold text-[11px]">
+                <span className="text-primary-foreground font-bold text-xs">
                   D
                 </span>
               </div>
@@ -221,7 +217,7 @@ export function AppLayout() {
                 aria-label={`${unreadCount} unread notifications`}
               >
                 <Bell className="w-5 h-5" />
-                <span className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center leading-none">
+                <span className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center leading-none">
                   {unreadCount > 9 ? "9+" : unreadCount}
                 </span>
               </RouterNavLink>
@@ -229,7 +225,7 @@ export function AppLayout() {
           </header>
 
           {/* Page content */}
-          <main className="flex-1 overflow-y-auto">
+          <main id="main-content" className="flex-1 overflow-y-auto">
             <Outlet />
           </main>
         </div>

@@ -93,7 +93,7 @@ export function ContentCalendar() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Calendar className="w-3.5 h-3.5 text-blue-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Upcoming</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Upcoming</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{calendar.upcomingCount}</p>
         </div>
@@ -101,7 +101,7 @@ export function ContentCalendar() {
           <div key={status} className="rounded-lg border border-border bg-card p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <div className={`w-2.5 h-2.5 rounded-full ${statusColors[status] ?? "bg-gray-500"}`} />
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider capitalize">{status}</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider capitalize">{status}</p>
             </div>
             <p className="text-lg font-bold font-mono text-foreground">{count}</p>
           </div>
@@ -114,17 +114,17 @@ export function ContentCalendar() {
           <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <Zap className="w-3.5 h-3.5 text-green-500" />
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Pub Streak</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Pub Streak</p>
             </div>
             <p className="text-lg font-bold font-mono text-foreground">{smartData.streakWeeks}</p>
-            <p className="text-[10px] text-muted-foreground">consecutive weeks</p>
+            <p className="text-xs text-muted-foreground">consecutive weeks</p>
           </div>
           {smartData.contentMix.length > 0 && (
             <div className="rounded-lg border border-border bg-card p-3 col-span-1 sm:col-span-2">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5">Content Mix This Month</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1.5">Content Mix This Month</p>
               <div className="flex flex-wrap gap-1.5">
                 {smartData.contentMix.map((mix) => (
-                  <Badge key={mix.type} variant="outline" className="text-[9px]">
+                  <Badge key={mix.type} variant="outline" className="text-xs">
                     {mix.type}: {mix.planned}{mix.ideal > 0 ? `/${mix.ideal}` : ""}
                   </Badge>
                 ))}
@@ -187,7 +187,7 @@ export function ContentCalendar() {
           <div className="px-4 py-2 bg-muted/30 border-b border-border flex items-center justify-between">
             <p className="text-xs font-semibold text-foreground">{week.weekLabel}</p>
             {week.totalPredictedViews > 0 && (
-              <p className="text-[10px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 ~{fmtCount(week.totalPredictedViews)} predicted views
               </p>
             )}
@@ -198,7 +198,7 @@ export function ContentCalendar() {
                 key={day.date}
                 className={`min-h-[80px] p-1.5 ${day.isToday ? "bg-blue-500/5" : ""}`}
               >
-                <p className={`text-[9px] font-mono ${day.isToday ? "text-blue-400 font-semibold" : "text-muted-foreground"}`}>
+                <p className={`text-xs font-mono ${day.isToday ? "text-blue-400 font-semibold" : "text-muted-foreground"}`}>
                   {day.dayName} {day.date.split("-")[2]}
                 </p>
                 {day.entries.map((entry) => (

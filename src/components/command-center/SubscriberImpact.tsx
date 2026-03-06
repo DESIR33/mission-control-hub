@@ -162,10 +162,10 @@ function KpiBox({ label, value, subtitle, icon }: { label: string; value: string
     <div className="rounded-lg border border-border bg-card p-3">
       <div className="flex items-center gap-1.5 mb-1">
         {icon}
-        <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</span>
+        <span className="text-xs text-muted-foreground uppercase tracking-wider">{label}</span>
       </div>
       <p className="text-lg font-bold font-mono text-foreground">{value}</p>
-      {subtitle && <p className="text-[10px] text-muted-foreground truncate">{subtitle}</p>}
+      {subtitle && <p className="text-xs text-muted-foreground truncate">{subtitle}</p>}
     </div>
   );
 }

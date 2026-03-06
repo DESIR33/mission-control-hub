@@ -53,7 +53,7 @@ function SuggestionCard({
           </CardTitle>
           <Badge
             variant={status.variant}
-            className={`shrink-0 text-[10px] ${
+            className={`shrink-0 text-xs ${
               suggestion.status === "suggestion"
                 ? "bg-blue-500/10 text-blue-400 border-blue-400/30"
                 : suggestion.status === "queued"
@@ -82,11 +82,11 @@ function SuggestionCard({
             <span className="text-xs font-mono font-medium text-foreground">
               {fmtNumber(suggestion.predicted_views_low)}-{fmtNumber(suggestion.predicted_views_high)}
             </span>
-            <span className="text-[10px] text-muted-foreground">predicted views</span>
+            <span className="text-xs text-muted-foreground">predicted views</span>
           </div>
           <Badge
             variant="outline"
-            className={`text-[10px] font-mono ${confidenceColor(suggestion.confidence_score)}`}
+            className={`text-xs font-mono ${confidenceColor(suggestion.confidence_score)}`}
           >
             <Target className="w-3 h-3 mr-1" />
             {suggestion.confidence_score}% confidence
@@ -94,7 +94,7 @@ function SuggestionCard({
         </div>
 
         {/* Details Row */}
-        <div className="flex items-center gap-4 flex-wrap text-[11px] text-muted-foreground">
+        <div className="flex items-center gap-4 flex-wrap text-xs text-muted-foreground">
           {suggestion.optimal_length_minutes > 0 && (
             <div className="flex items-center gap-1">
               <Clock className="w-3 h-3" />
@@ -108,7 +108,7 @@ function SuggestionCard({
             </div>
           )}
           {suggestion.best_publish_time && (
-            <span className="text-[10px]">at {suggestion.best_publish_time}</span>
+            <span className="text-xs">at {suggestion.best_publish_time}</span>
           )}
         </div>
 
@@ -117,7 +117,7 @@ function SuggestionCard({
           <div className="rounded-md bg-muted/50 p-2.5 border border-border">
             <div className="flex items-start gap-1.5">
               <Brain className="w-3.5 h-3.5 text-purple-400 mt-0.5 shrink-0" />
-              <p className="text-[11px] text-muted-foreground leading-relaxed">
+              <p className="text-xs text-muted-foreground leading-relaxed">
                 {suggestion.reasoning}
               </p>
             </div>
@@ -144,7 +144,7 @@ function SuggestionCard({
 
         {/* Queued indicator with queue link */}
         {isQueued && suggestion.video_queue_id && (
-          <div className="flex items-center gap-1.5 text-[10px] text-green-400">
+          <div className="flex items-center gap-1.5 text-xs text-green-400">
             <Film className="w-3 h-3" />
             <span>Added to production queue</span>
           </div>
@@ -205,7 +205,7 @@ export function ContentStrategist() {
           <Sparkles className="w-5 h-5 text-yellow-500" />
           <h2 className="text-lg font-semibold text-foreground">AI Content Strategist</h2>
           {suggestions.length > 0 && (
-            <Badge variant="outline" className="text-[10px] font-mono">
+            <Badge variant="outline" className="text-xs font-mono">
               {activeSuggestions.length} active
             </Badge>
           )}
@@ -230,28 +230,28 @@ export function ContentStrategist() {
           <div className="rounded-lg border border-border bg-card p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <Lightbulb className="w-3.5 h-3.5 text-yellow-500" />
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Total</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Total</p>
             </div>
             <p className="text-lg font-bold font-mono text-foreground">{suggestions.length}</p>
           </div>
           <div className="rounded-lg border border-border bg-card p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <Sparkles className="w-3.5 h-3.5 text-blue-500" />
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Active</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Active</p>
             </div>
             <p className="text-lg font-bold font-mono text-foreground">{activeSuggestions.length}</p>
           </div>
           <div className="rounded-lg border border-border bg-card p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <Film className="w-3.5 h-3.5 text-green-500" />
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Queued</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Queued</p>
             </div>
             <p className="text-lg font-bold font-mono text-foreground">{queuedSuggestions.length}</p>
           </div>
           <div className="rounded-lg border border-border bg-card p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <Target className="w-3.5 h-3.5 text-purple-500" />
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Avg Confidence</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Avg Confidence</p>
             </div>
             <p className="text-lg font-bold font-mono text-foreground">
               {suggestions.length > 0

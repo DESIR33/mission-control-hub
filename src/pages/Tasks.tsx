@@ -125,8 +125,7 @@ export default function Tasks() {
   const isLoading = isTasksLoading || (selectedProject && selectedProject !== 'all' && isProjectTasksLoading);
 
   return (
-    <div className="container max-w-7xl mx-auto p-6">
-      <div className="flex flex-col gap-6">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
         {/* Header with actions */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -140,24 +139,28 @@ export default function Tasks() {
           </div>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1 md:gap-2">
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="List view"
                 className={cn(
-                  "rounded-md p-1.5 md:p-2",
-                  currentView === "list" ? "bg-primary text-primary-foreground" : "hover:bg-accent"
+                  currentView === "list" ? "bg-primary text-primary-foreground" : ""
                 )}
                 onClick={() => setCurrentView("list")}
               >
                 <List className="h-3.5 w-3.5 md:h-4 md:w-4" />
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Board view"
                 className={cn(
-                  "rounded-md p-1.5 md:p-2",
-                  currentView === "board" ? "bg-primary text-primary-foreground" : "hover:bg-accent"
+                  currentView === "board" ? "bg-primary text-primary-foreground" : ""
                 )}
                 onClick={() => setCurrentView("board")}
               >
                 <Grid className="h-3.5 w-3.5 md:h-4 md:w-4" />
-              </button>
+              </Button>
             </div>
             <Select
               value={selectedProject}
@@ -224,7 +227,7 @@ export default function Tasks() {
                     <div className="flex items-center gap-2">
                       <h3 className="font-medium text-sm md:text-base">{task.name}</h3>
                       <span
-                        className={cn("text-[10px] md:text-xs px-1.5 md:px-2.5 py-0.5 md:py-1 rounded-full font-medium", {
+                        className={cn("text-xs md:text-xs px-1.5 md:px-2.5 py-0.5 md:py-1 rounded-full font-medium", {
                           "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300": task.priority === "high",
                           "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300": task.priority === "medium",
                           "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300": task.priority === "low",
@@ -233,7 +236,7 @@ export default function Tasks() {
                         {task.priority}
                       </span>
                       <span
-                        className={cn("text-[10px] md:text-xs px-1.5 md:px-2.5 py-0.5 md:py-1 rounded-full font-medium", {
+                        className={cn("text-xs md:text-xs px-1.5 md:px-2.5 py-0.5 md:py-1 rounded-full font-medium", {
                           "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300": task.status === "pending",
                           "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300": task.status === "in_progress",
                           "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300": task.status === "completed",
@@ -264,7 +267,7 @@ export default function Tasks() {
                     <div className="flex items-center gap-2">
                       <Avatar className="h-6 w-6">
                         <AvatarImage src={task.assignee.avatar} alt={`${task.assignee.firstName} ${task.assignee.lastName}`} />
-                        <AvatarFallback className="text-[10px]">
+                        <AvatarFallback className="text-xs">
                           {task.assignee.firstName[0]}{task.assignee.lastName[0]}
                         </AvatarFallback>
                       </Avatar>
@@ -279,7 +282,7 @@ export default function Tasks() {
                       {task.company.logo ? (
                         <Avatar className="h-5 w-5">
                           <AvatarImage src={task.company.logo} alt={task.company.name} />
-                          <AvatarFallback className="text-[9px]">
+                          <AvatarFallback className="text-xs">
                             {task.company.name.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
@@ -309,7 +312,6 @@ export default function Tasks() {
             ))}
           </div>
         )}
-      </div>
     </div>
   );
 }

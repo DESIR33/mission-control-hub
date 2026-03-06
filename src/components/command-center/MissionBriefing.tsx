@@ -345,7 +345,7 @@ export function MissionBriefing() {
       <div className="flex items-center gap-2">
         <Rocket className="w-5 h-5 text-blue-500" />
         <h2 className="text-lg font-semibold text-foreground">Mission Briefing</h2>
-        <Badge variant="outline" className="ml-auto text-[10px] border-blue-400/40 text-blue-400">
+        <Badge variant="outline" className="ml-auto text-xs border-blue-400/40 text-blue-400">
           {format(new Date(), "EEEE, MMM d")}
         </Badge>
       </div>
@@ -370,7 +370,7 @@ export function MissionBriefing() {
                   key={p.id}
                   className="flex items-center gap-3 rounded-lg border border-border bg-muted/30 px-3 py-2.5 transition-colors hover:bg-muted/50"
                 >
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-muted text-[11px] font-bold text-muted-foreground shrink-0">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-muted text-xs font-bold text-muted-foreground shrink-0">
                     {i + 1}
                   </span>
                   {p.icon}
@@ -409,18 +409,18 @@ export function MissionBriefing() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <Badge
                       variant="outline"
-                      className={`text-[10px] ${STATUS_COLORS[v.status] ?? ""}`}
+                      className={`text-xs ${STATUS_COLORS[v.status] ?? ""}`}
                     >
                       {v.status}
                     </Badge>
                     <Badge
                       variant="outline"
-                      className={`text-[10px] ${PRIORITY_ICON_COLOR[v.priority] ?? "text-slate-400"} border-current/30`}
+                      className={`text-xs ${PRIORITY_ICON_COLOR[v.priority] ?? "text-slate-400"} border-current/30`}
                     >
                       {v.priority}
                     </Badge>
                   </div>
-                  <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                     <Clock className="w-3 h-3" />
                     {v.daysUntil < 0
                       ? <span className="text-red-400">{Math.abs(v.daysUntil)}d overdue</span>
@@ -444,7 +444,7 @@ export function MissionBriefing() {
           <CardContent className="p-4">
             <div className="flex items-center gap-1.5 mb-1">
               <Users className="w-3.5 h-3.5 text-blue-500" />
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 Subscribers
               </p>
             </div>
@@ -458,7 +458,7 @@ export function MissionBriefing() {
           <CardContent className="p-4">
             <div className="flex items-center gap-1.5 mb-1">
               <BarChart3 className="w-3.5 h-3.5 text-green-500" />
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 Total Views
               </p>
             </div>
@@ -472,7 +472,7 @@ export function MissionBriefing() {
           <CardContent className="p-4">
             <div className="flex items-center gap-1.5 mb-1">
               <DollarSign className="w-3.5 h-3.5 text-yellow-500" />
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 Revenue This Month
               </p>
             </div>
@@ -486,7 +486,7 @@ export function MissionBriefing() {
           <CardContent className="p-4">
             <div className="flex items-center gap-1.5 mb-1">
               <Target className="w-3.5 h-3.5 text-purple-500" />
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 Active Deals
               </p>
             </div>
@@ -506,7 +506,7 @@ export function MissionBriefing() {
               Attention Needed
               <Badge
                 variant="outline"
-                className="ml-1 text-[10px] border-orange-400/40 text-orange-400"
+                className="ml-1 text-xs border-orange-400/40 text-orange-400"
               >
                 {attentionItems.length}
               </Badge>
@@ -538,7 +538,7 @@ export function MissionBriefing() {
           <CardTitle className="flex items-center gap-2 text-sm">
             <BarChart3 className="w-4 h-4 text-green-500" />
             Weekly Velocity
-            <span className="text-[10px] text-muted-foreground font-normal ml-1">
+            <span className="text-xs text-muted-foreground font-normal ml-1">
               Videos published / week (last 8 weeks)
             </span>
           </CardTitle>

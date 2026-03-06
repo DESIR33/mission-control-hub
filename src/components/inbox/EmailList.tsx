@@ -374,11 +374,11 @@ export default function EmailList({
                     <PinIcon className="h-3 w-3 text-primary shrink-0" />
                   )}
                   {email.aiDraft && (
-                    <span className="rounded-full bg-violet-100 text-violet-700 px-1.5 py-0.5 text-[10px] font-medium shrink-0">
+                    <span className="rounded-full bg-violet-100 text-violet-700 px-1.5 py-0.5 text-xs font-medium shrink-0">
                       {email.aiDraft.badge || "AI"}
                     </span>
                   )}
-                  <span className="ml-auto text-[11px] text-muted-foreground shrink-0 tabular-nums">
+                  <span className="ml-auto text-xs text-muted-foreground shrink-0 tabular-nums">
                     {formatRelativeDate(email.latestTimestamp || email.receivedAt)}
                   </span>
                 </div>
@@ -399,14 +399,14 @@ export default function EmailList({
                       <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
                     )}
                     {email.unreadCount && email.unreadCount > 1 && (
-                      <span className="rounded-full bg-primary/10 text-primary px-1.5 text-[10px] font-medium">
+                      <span className="rounded-full bg-primary/10 text-primary px-1.5 text-xs font-medium">
                         {email.unreadCount}
                       </span>
                     )}
                     {email.tags?.slice(0, 2).map((tag) => (
                       <span
                         key={tag.id}
-                        className="rounded px-1 py-0.5 text-[10px] font-medium"
+                        className="rounded px-1 py-0.5 text-xs font-medium"
                         style={{
                           backgroundColor: `${tag.color}20`,
                           color: tag.color,
@@ -417,7 +417,7 @@ export default function EmailList({
                     ))}
                     {email.opportunity && (
                       <span className={cn(
-                        "rounded-full px-1.5 py-0.5 text-[10px] font-semibold",
+                        "rounded-full px-1.5 py-0.5 text-xs font-semibold",
                         email.opportunity.bucket === "high"
                           ? "bg-emerald-100 text-emerald-700"
                           : email.opportunity.bucket === "medium"

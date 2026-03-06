@@ -11,10 +11,9 @@ import { ImageUpload } from "@/components/settings/ImageUpload";
 import { useCreateCompany } from "@/hooks/use-companies";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { WorkspaceProvider } from "@/hooks/use-workspace";
 import { cn } from "@/lib/utils";
 
-function AddCompanyForm() {
+export default function AddCompanyPage() {
   const navigate = useNavigate();
   const createCompany = useCreateCompany();
   const { toast } = useToast();
@@ -63,7 +62,7 @@ function AddCompanyForm() {
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 gradient-mesh min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 min-h-screen">
       <div className="mx-auto max-w-2xl">
         <button
           onClick={() => navigate("/relationships?tab=companies")}
@@ -223,10 +222,3 @@ function AddCompanyForm() {
   );
 }
 
-export default function AddCompanyPage() {
-  return (
-    <WorkspaceProvider>
-      <AddCompanyForm />
-    </WorkspaceProvider>
-  );
-}

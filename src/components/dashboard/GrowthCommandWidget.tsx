@@ -548,12 +548,12 @@ export function GrowthCommandWidget() {
                 <CardTitle className="text-base font-bold tracking-tight">
                   Growth Command Center
                 </CardTitle>
-                <p className="text-[11px] text-muted-foreground mt-0.5">
+                <p className="text-xs text-muted-foreground mt-0.5">
                   Road to {fmtCount(data.targetSubs)} subscribers
                 </p>
               </div>
             </div>
-            <Badge variant="outline" className={`text-[10px] font-semibold gap-1 ${pace.badgeClass}`}>
+            <Badge variant="outline" className={`text-xs font-semibold gap-1 ${pace.badgeClass}`}>
               {pace.icon}
               {pace.label}
             </Badge>
@@ -568,7 +568,7 @@ export function GrowthCommandWidget() {
                 <p className="text-3xl font-bold font-mono tracking-tight text-foreground">
                   {fmtCount(data.currentSubs)}
                 </p>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   {fmtCount(data.subsNeeded)} to go
                 </p>
               </div>
@@ -596,7 +596,7 @@ export function GrowthCommandWidget() {
           {/* Stats row */}
           <div className="grid grid-cols-3 gap-3">
             <div className="rounded-lg bg-muted/50 p-3 text-center">
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
                 Days Left
               </p>
               <p className="text-lg font-bold font-mono text-foreground mt-0.5">
@@ -605,7 +605,7 @@ export function GrowthCommandWidget() {
             </div>
 
             <div className="rounded-lg bg-muted/50 p-3 text-center">
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
                 Need/Day
               </p>
               <p className="text-lg font-bold font-mono text-foreground mt-0.5">
@@ -614,7 +614,7 @@ export function GrowthCommandWidget() {
             </div>
 
             <div className="rounded-lg bg-muted/50 p-3 text-center">
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
                 Avg 7d/Day
               </p>
               <p
@@ -633,7 +633,7 @@ export function GrowthCommandWidget() {
 
           {/* Rate comparison bar */}
           <div className="space-y-1.5">
-            <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
               <span>Daily rate vs required</span>
               <span className="font-mono">
                 {data.requiredDailyRate > 0

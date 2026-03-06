@@ -242,7 +242,7 @@ export function SmartContentCalendar() {
               {/* legend */}
               <div className="flex flex-wrap gap-2">
                 {Object.entries(typeCounts).map(([type, count]) => (
-                  <span key={type} className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                  <span key={type} className="flex items-center gap-1 text-xs text-muted-foreground">
                     <span className={`inline-block w-2 h-2 rounded-full ${contentTypeBarColors[type] ?? "bg-gray-500"}`} />
                     {contentTypeLabels[type] ?? type}: {count}
                   </span>
@@ -252,7 +252,7 @@ export function SmartContentCalendar() {
               <div className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground">Mix Score:</span>
                 <span className="text-sm font-bold font-mono text-foreground">{mixScore}/100</span>
-                <span className="text-[10px] text-muted-foreground">
+                <span className="text-xs text-muted-foreground">
                   ({mixScore >= 70 ? "Great diversity" : mixScore >= 40 ? "Moderate diversity" : "Low diversity"})
                 </span>
               </div>
@@ -270,11 +270,11 @@ export function SmartContentCalendar() {
             <span className="text-sm font-bold font-mono text-foreground">
               {cadence.perWeek}/week
             </span>
-            <span className="text-[10px] text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               (target: {TARGET_UPLOADS_PER_WEEK}/week)
             </span>
           </div>
-          <Badge variant="outline" className={`text-[10px] ${cadence.color}`}>
+          <Badge variant="outline" className={`text-xs ${cadence.color}`}>
             {cadence.label}
           </Badge>
         </CardContent>
@@ -325,7 +325,7 @@ export function SmartContentCalendar() {
               >
                 {/* day header */}
                 <p
-                  className={`text-[9px] font-mono mb-1 ${
+                  className={`text-xs font-mono mb-1 ${
                     isToday ? "text-blue-400 font-semibold" : "text-muted-foreground"
                   }`}
                 >
@@ -404,14 +404,14 @@ export function SmartContentCalendar() {
 
       {/* ─ Strategy Tag Legend ─ */}
       <div className="flex flex-wrap items-center gap-3 px-1">
-        <span className="text-[10px] text-muted-foreground">Strategy:</span>
+        <span className="text-xs text-muted-foreground">Strategy:</span>
         {strategyTagOptions.map((tag) => (
-          <span key={tag} className="flex items-center gap-1 text-[10px] text-muted-foreground capitalize">
+          <span key={tag} className="flex items-center gap-1 text-xs text-muted-foreground capitalize">
             <span className={`inline-block w-3 h-1.5 rounded-sm border-l-2 ${strategyColors[tag]}`} />
             {tag}
           </span>
         ))}
-        <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+        <span className="flex items-center gap-1 text-xs text-muted-foreground">
           <span className="inline-block w-3 h-1.5 rounded-sm border-l-2 border-l-gray-500" />
           none
         </span>

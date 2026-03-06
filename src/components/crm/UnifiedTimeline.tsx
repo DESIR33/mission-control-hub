@@ -149,7 +149,7 @@ function RelationshipHealth({ events }: { events: TimelineEvent[] }) {
         </span>
         <Badge
           variant="outline"
-          className={cn("ml-auto text-[10px]", config.border, config.color)}
+          className={cn("ml-auto text-xs", config.border, config.color)}
         >
           {config.label}
         </Badge>
@@ -159,13 +159,13 @@ function RelationshipHealth({ events }: { events: TimelineEvent[] }) {
           <p className="text-lg font-bold text-foreground">
             {health.daysSinceContact !== null ? health.daysSinceContact : "--"}
           </p>
-          <p className="text-[10px] text-muted-foreground">days since contact</p>
+          <p className="text-xs text-muted-foreground">days since contact</p>
         </div>
         <div className="text-center">
           <p className="text-lg font-bold text-foreground">
             {health.totalInteractions}
           </p>
-          <p className="text-[10px] text-muted-foreground">total interactions</p>
+          <p className="text-xs text-muted-foreground">total interactions</p>
         </div>
         <div className="text-center">
           <p className="text-sm font-semibold text-foreground mt-0.5">
@@ -173,7 +173,7 @@ function RelationshipHealth({ events }: { events: TimelineEvent[] }) {
               ? typeLabels[health.mostFrequentType] ?? health.mostFrequentType
               : "--"}
           </p>
-          <p className="text-[10px] text-muted-foreground">most frequent</p>
+          <p className="text-xs text-muted-foreground">most frequent</p>
         </div>
       </div>
     </div>
@@ -301,7 +301,7 @@ function TimelineEventItem({ event }: { event: TimelineEvent }) {
           <p className="text-sm font-medium text-foreground">
             {event.title}
           </p>
-          <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4">
+          <Badge variant="outline" className="text-xs px-1.5 py-0 h-4">
             {event.type === "deal_change"
               ? "Deal"
               : event.type === "youtube_lead"
@@ -315,11 +315,11 @@ function TimelineEventItem({ event }: { event: TimelineEvent }) {
           </p>
         )}
         {event.metadata?.intent && (
-          <Badge variant="secondary" className="text-[9px] mt-1">
+          <Badge variant="secondary" className="text-xs mt-1">
             Intent: {String(event.metadata.intent)}
           </Badge>
         )}
-        <p className="text-[10px] text-muted-foreground mt-1">{relativeTime}</p>
+        <p className="text-xs text-muted-foreground mt-1">{relativeTime}</p>
       </div>
     </div>
   );
@@ -403,7 +403,7 @@ export function UnifiedTimeline({ contactId }: { contactId: string }) {
               key={value}
               onClick={() => setFilter(value)}
               className={cn(
-                "px-2.5 py-0.5 rounded-full text-[11px] font-medium transition-colors",
+                "px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors",
                 filter === value
                   ? "bg-primary text-primary-foreground"
                   : "bg-secondary text-muted-foreground hover:text-foreground"

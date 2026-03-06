@@ -284,12 +284,12 @@ export function ABTestLab() {
                 <CardContent className="space-y-3">
                   <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
                     <div className="rounded-md border border-border bg-muted/30 p-2">
-                      <p className="text-[10px] text-muted-foreground mb-0.5">Variant A</p>
+                      <p className="text-xs text-muted-foreground mb-0.5">Variant A</p>
                       <p className="text-sm text-foreground line-clamp-2">{exp.variant_a}</p>
                     </div>
                     <ArrowRight className="w-4 h-4 text-muted-foreground" />
                     <div className="rounded-md border border-border bg-muted/30 p-2">
-                      <p className="text-[10px] text-muted-foreground mb-0.5">Variant B</p>
+                      <p className="text-xs text-muted-foreground mb-0.5">Variant B</p>
                       <p className="text-sm text-foreground line-clamp-2">{exp.variant_b}</p>
                     </div>
                   </div>
@@ -342,19 +342,19 @@ export function ABTestLab() {
           <CardContent>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div className="rounded-md border border-border p-3">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
                   Title Tests
                 </p>
                 <p className="text-lg font-bold font-mono text-foreground">{insights.titleCount}</p>
               </div>
               <div className="rounded-md border border-border p-3">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
                   Thumbnail Tests
                 </p>
                 <p className="text-lg font-bold font-mono text-foreground">{insights.thumbnailCount}</p>
               </div>
               <div className="rounded-md border border-border p-3">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
                   Avg CTR Improvement
                 </p>
                 <p
@@ -367,14 +367,14 @@ export function ABTestLab() {
                 </p>
               </div>
               <div className="rounded-md border border-border p-3">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
                   Best Pattern
                 </p>
                 {insights.bestTest ? (
                   <>
                     <Badge
                       variant="outline"
-                      className="text-[10px] mb-1"
+                      className="text-xs mb-1"
                     >
                       {insights.bestTest.experiment_type}
                     </Badge>

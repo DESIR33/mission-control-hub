@@ -1,4 +1,3 @@
-import { WorkspaceProvider } from "@/hooks/use-workspace";
 import { ChatSidebar } from "@/components/chat/ChatSidebar";
 import { ChatMessages } from "@/components/chat/ChatMessages";
 import { ChatInput } from "@/components/chat/ChatInput";
@@ -10,7 +9,7 @@ import { PanelRightOpen, PanelRightClose, Menu } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 
-function ChatContent() {
+export default function ChatPage() {
   const chat = useChat();
   const [showMemory, setShowMemory] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
@@ -81,10 +80,3 @@ function ChatContent() {
   );
 }
 
-export default function ChatPage() {
-  return (
-    <WorkspaceProvider>
-      <ChatContent />
-    </WorkspaceProvider>
-  );
-}

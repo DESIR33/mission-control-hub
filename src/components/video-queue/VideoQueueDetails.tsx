@@ -461,7 +461,7 @@ export function VideoQueueDetails({ video, onClose, onUpdate }: VideoQueueDetail
             placeholder={"## Hook\n\n## Intro\n\n## Main Content\n\n## CTA\n\n## Outro"}
             className="w-full min-h-[400px] rounded-lg border border-border bg-background p-4 text-sm text-foreground font-mono focus:outline-none focus:ring-2 focus:ring-primary/20 resize-y"
           />
-          <p className="text-[10px] text-muted-foreground">Auto-saves as you type. Use ## headings to structure your script.</p>
+          <p className="text-xs text-muted-foreground">Auto-saves as you type. Use ## headings to structure your script.</p>
         </div>
       )}
 
@@ -580,11 +580,11 @@ export function VideoQueueDetails({ video, onClose, onUpdate }: VideoQueueDetail
               {repurposes.map((r) => (
                 <div key={r.id} className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2">
                   <span className="text-xs font-medium text-foreground flex-1 truncate">{r.title}</span>
-                  <span className="text-[10px] text-muted-foreground">{r.platform}</span>
+                  <span className="text-xs text-muted-foreground">{r.platform}</span>
                   <select
                     value={r.status}
                     onChange={(e) => updateRepurpose.mutate({ id: r.id, status: e.target.value })}
-                    className="text-[10px] rounded border border-border bg-background px-1.5 py-0.5 text-foreground"
+                    className="text-xs rounded border border-border bg-background px-1.5 py-0.5 text-foreground"
                   >
                     <option value="planned">Planned</option>
                     <option value="in_progress">In Progress</option>
@@ -622,17 +622,17 @@ export function VideoQueueDetails({ video, onClose, onUpdate }: VideoQueueDetail
               {abTests.map((t) => (
                 <div key={t.id} className="rounded-lg border border-border bg-card p-3">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-[10px] uppercase font-medium text-muted-foreground">{t.test_type}</span>
-                    {t.winner && <span className={`text-[10px] rounded-full px-1.5 py-0.5 ${t.winner === "a" ? "bg-blue-100 text-blue-700" : t.winner === "b" ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-600"}`}>Winner: {t.winner.toUpperCase()}</span>}
+                    <span className="text-xs uppercase font-medium text-muted-foreground">{t.test_type}</span>
+                    {t.winner && <span className={`text-xs rounded-full px-1.5 py-0.5 ${t.winner === "a" ? "bg-blue-100 text-blue-700" : t.winner === "b" ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-600"}`}>Winner: {t.winner.toUpperCase()}</span>}
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div className={`rounded-lg border p-2 ${t.winner === "a" ? "border-blue-300 bg-blue-50" : "border-border"}`}>
-                      <p className="text-[10px] text-muted-foreground">Variant A</p>
+                      <p className="text-xs text-muted-foreground">Variant A</p>
                       <p className="text-xs text-foreground truncate">{t.variant_a}</p>
                       {t.variant_a_ctr != null && <p className="text-xs font-mono text-foreground mt-1">CTR: {t.variant_a_ctr}%</p>}
                     </div>
                     <div className={`rounded-lg border p-2 ${t.winner === "b" ? "border-green-300 bg-green-50" : "border-border"}`}>
-                      <p className="text-[10px] text-muted-foreground">Variant B</p>
+                      <p className="text-xs text-muted-foreground">Variant B</p>
                       <p className="text-xs text-foreground truncate">{t.variant_b}</p>
                       {t.variant_b_ctr != null && <p className="text-xs font-mono text-foreground mt-1">CTR: {t.variant_b_ctr}%</p>}
                     </div>
@@ -688,7 +688,7 @@ export function VideoQueueDetails({ video, onClose, onUpdate }: VideoQueueDetail
                   <button key={yt.id} onClick={() => handleLinkYouTube(yt.youtube_video_id)} className="w-full text-left flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 hover:bg-muted/50 transition-colors">
                     <SiYoutube className="h-3.5 w-3.5 text-red-600 shrink-0" />
                     <span className="flex-1 text-xs text-foreground truncate">{yt.title}</span>
-                    <span className="text-[10px] text-muted-foreground font-mono">{(yt.views ?? 0).toLocaleString()} views</span>
+                    <span className="text-xs text-muted-foreground font-mono">{(yt.views ?? 0).toLocaleString()} views</span>
                   </button>
                 ))}
                 {ytVideos.length === 0 && <p className="text-xs text-muted-foreground p-4 text-center">No YouTube videos found. Sync your YouTube data first.</p>}
@@ -721,7 +721,7 @@ export function VideoQueueDetails({ video, onClose, onUpdate }: VideoQueueDetail
                 >
                   <SiYoutube className="h-3.5 w-3.5 text-red-600 shrink-0" />
                   <span className="flex-1 text-xs text-foreground truncate">{yt.title}</span>
-                  <span className="text-[10px] text-muted-foreground font-mono">{(yt.views ?? 0).toLocaleString()} views</span>
+                  <span className="text-xs text-muted-foreground font-mono">{(yt.views ?? 0).toLocaleString()} views</span>
                 </button>
               ))}
               {ytVideos.length === 0 && (

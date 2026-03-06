@@ -149,7 +149,7 @@ export function ProposalCard({
               <span className="text-muted-foreground/40">|</span>
               <Badge
                 variant="outline"
-                className={cn("text-[10px]", proposalType.className)}
+                className={cn("text-xs", proposalType.className)}
               >
                 {proposalType.label}
               </Badge>
@@ -158,7 +158,7 @@ export function ProposalCard({
                   <span className="text-muted-foreground/40">|</span>
                   <span
                     className={cn(
-                      "text-[11px] font-medium",
+                      "text-xs font-medium",
                       confidencePercent >= 85
                         ? "text-success"
                         : confidencePercent >= 70
@@ -177,11 +177,11 @@ export function ProposalCard({
         <div className="flex items-center gap-2 sm:shrink-0 flex-wrap">
           <Badge
             variant="outline"
-            className={cn("text-[10px] uppercase tracking-wider", status.className)}
+            className={cn("text-xs uppercase tracking-wider", status.className)}
           >
             {status.label}
           </Badge>
-          <span className="text-[11px] text-muted-foreground whitespace-nowrap">
+          <span className="text-xs text-muted-foreground whitespace-nowrap">
             {formatDistanceToNow(new Date(proposal.created_at), {
               addSuffix: true,
             })}
@@ -254,7 +254,7 @@ export function ProposalCard({
       {/* Reviewed info */}
       {proposal.status !== "pending" && proposal.reviewed_at && (
         <div className="mt-3 pt-3 border-t border-border/50 flex items-center justify-between">
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             {proposal.status === "approved" ? "Approved" : "Rejected"}{" "}
             {formatDistanceToNow(new Date(proposal.reviewed_at), {
               addSuffix: true,
@@ -270,7 +270,7 @@ export function ProposalCard({
               failed: "bg-destructive/15 text-destructive border-destructive/30",
             };
             return (
-              <Badge variant="outline" className={cn("text-[9px] uppercase tracking-wider", execColors[execStatus] ?? "")}>
+              <Badge variant="outline" className={cn("text-xs uppercase tracking-wider", execColors[execStatus] ?? "")}>
                 {execStatus === "executing" ? "Executing..." : execStatus}
               </Badge>
             );

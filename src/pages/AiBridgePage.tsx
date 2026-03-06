@@ -11,7 +11,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Search, Filter, Brain, Sparkles, Loader2, Check } from "lucide-react";
-import { WorkspaceProvider, useWorkspace } from "@/hooks/use-workspace";
+import { useWorkspace } from "@/hooks/use-workspace";
 import { supabase } from "@/integrations/supabase/client";
 import { useProposals, useUpdateProposalStatus, useUpdateProposal } from "@/hooks/use-proposals";
 import { ProposalCard } from "@/components/ai-bridge/ProposalCard";
@@ -20,7 +20,7 @@ import { EditProposalDialog } from "@/components/ai-bridge/EditProposalDialog";
 import { useToast } from "@/hooks/use-toast";
 import type { AiProposal, ProposalStatus } from "@/types/proposals";
 
-function AiBridgeContent() {
+export default function AiBridgePage() {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [editingProposal, setEditingProposal] = useState<AiProposal | null>(null);
@@ -193,7 +193,7 @@ function AiBridgeContent() {
   ).length;
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 gradient-mesh min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 min-h-screen">
       <div className="mb-6">
         <div className="flex items-center justify-between gap-3 mb-1">
           <div className="flex items-center gap-3">
@@ -346,10 +346,3 @@ function AiBridgeContent() {
   );
 }
 
-export default function AiBridgePage() {
-  return (
-    <WorkspaceProvider>
-      <AiBridgeContent />
-    </WorkspaceProvider>
-  );
-}

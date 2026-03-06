@@ -41,14 +41,14 @@ const scoreBarColor = (score: number) => {
 function ScoreBar({ label, score }: { label: string; score: number }) {
   return (
     <div className="flex items-center gap-2">
-      <p className="text-[10px] text-muted-foreground w-20 shrink-0">{label}</p>
+      <p className="text-xs text-muted-foreground w-20 shrink-0">{label}</p>
       <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
         <div
           className="h-full rounded-full transition-all"
           style={{ width: `${score}%`, backgroundColor: scoreBarColor(score) }}
         />
       </div>
-      <p className="text-[10px] font-mono text-foreground w-8 text-right">{score}</p>
+      <p className="text-xs font-mono text-foreground w-8 text-right">{score}</p>
     </div>
   );
 }
@@ -89,30 +89,30 @@ export function VideoScorecard() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Award className="w-3.5 h-3.5 text-yellow-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Avg Score</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Avg Score</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{scorecard.avgScore}</p>
-          <p className="text-[10px] text-muted-foreground">across {scorecard.videos.length} videos</p>
+          <p className="text-xs text-muted-foreground">across {scorecard.videos.length} videos</p>
         </div>
 
         {scorecard.topPerformer && (
           <div className="rounded-lg border border-border bg-card p-3 col-span-2">
             <div className="flex items-center gap-1.5 mb-1">
               <TrendingUp className="w-3.5 h-3.5 text-green-500" />
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Top Performer</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Top Performer</p>
             </div>
             <p className="text-sm font-semibold text-foreground truncate">{scorecard.topPerformer.title}</p>
-            <p className="text-[10px] text-muted-foreground">Score: {scorecard.topPerformer.overallScore} ({scorecard.topPerformer.grade})</p>
+            <p className="text-xs text-muted-foreground">Score: {scorecard.topPerformer.overallScore} ({scorecard.topPerformer.grade})</p>
           </div>
         )}
 
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Eye className="w-3.5 h-3.5 text-red-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Underperforming</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Underperforming</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{scorecard.underperformers.length}</p>
-          <p className="text-[10px] text-muted-foreground">videos below 30</p>
+          <p className="text-xs text-muted-foreground">videos below 30</p>
         </div>
       </div>
 
@@ -173,7 +173,7 @@ export function VideoScorecard() {
               </span>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-foreground truncate">{video.title}</p>
-                <p className="text-[10px] text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   {fmtCount(video.views)} views · {video.ctr.toFixed(1)}% CTR · {video.avgViewPercent.toFixed(0)}% retention
                 </p>
               </div>
@@ -193,7 +193,7 @@ export function VideoScorecard() {
                 <ScoreBar label="Engagement" score={video.engagementScore} />
                 <ScoreBar label="Subscribers" score={video.subscriberScore} />
                 <ScoreBar label="Revenue" score={video.revenueScore} />
-                <div className="flex items-center gap-4 pt-2 text-[10px] text-muted-foreground">
+                <div className="flex items-center gap-4 pt-2 text-xs text-muted-foreground">
                   <span>{fmtCount(video.views)} views</span>
                   <span>{video.subsGained} subs gained</span>
                   <span>${video.revenue.toFixed(2)} revenue</span>

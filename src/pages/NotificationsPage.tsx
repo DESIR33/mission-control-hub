@@ -130,7 +130,7 @@ function NotificationItem({
             <Badge
               variant="outline"
               className={cn(
-                "text-[10px] h-4 px-1.5 border-0",
+                "text-xs h-4 px-1.5 border-0",
                 config.bg,
                 config.color
               )}
@@ -148,7 +148,7 @@ function NotificationItem({
                 <Check className="w-3.5 h-3.5" />
               </button>
             )}
-            <span className="text-[11px] text-muted-foreground whitespace-nowrap">
+            <span className="text-xs text-muted-foreground whitespace-nowrap">
               {formatDistanceToNow(new Date(notification.created_at), {
                 addSuffix: true,
               })}
@@ -182,7 +182,7 @@ export default function NotificationsPage() {
   } = useNotifications();
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 gradient-mesh min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 min-h-screen">
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
         <div>
@@ -264,7 +264,7 @@ export default function NotificationsPage() {
             {unreadCount > 0 && (
               <>
                 <div className="px-5 py-2 bg-sidebar-accent/20 border-b border-border/50">
-                  <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                     Unread · {unreadCount}
                   </span>
                 </div>
@@ -284,7 +284,7 @@ export default function NotificationsPage() {
             {notifications.some((n) => n.read_at) && (
               <>
                 <div className="px-5 py-2 bg-sidebar-accent/10 border-b border-border/50">
-                  <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                     Earlier
                   </span>
                 </div>

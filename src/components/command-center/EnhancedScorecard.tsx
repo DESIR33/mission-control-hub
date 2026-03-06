@@ -89,7 +89,7 @@ const GRADE_OPTIONS: GradeFilter[] = ["ALL", "S", "A", "B", "C", "D", "F"];
 function ScoreBar({ label, score }: { label: string; score: number }) {
   return (
     <div className="flex items-center gap-2">
-      <p className="text-[10px] text-muted-foreground w-20 shrink-0">
+      <p className="text-xs text-muted-foreground w-20 shrink-0">
         {label}
       </p>
       <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
@@ -101,7 +101,7 @@ function ScoreBar({ label, score }: { label: string; score: number }) {
           }}
         />
       </div>
-      <p className="text-[10px] font-mono text-foreground w-7 text-right">
+      <p className="text-xs font-mono text-foreground w-7 text-right">
         {score}
       </p>
     </div>
@@ -203,7 +203,7 @@ function VideoCard({ video }: { video: VideoScore }) {
             <p className="text-sm font-semibold text-foreground truncate">
               {truncate(video.title)}
             </p>
-            <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1 text-[11px] text-muted-foreground">
+            <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1 text-xs text-muted-foreground">
               <span className="flex items-center gap-1">
                 <Eye className="w-3 h-3" />
                 {fmtCount(video.views)} views
@@ -258,7 +258,7 @@ function VideoCard({ video }: { video: VideoScore }) {
           {/* Key metrics row */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             <div className="rounded-md bg-muted/50 p-2 text-center">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 Views
               </p>
               <p className="text-sm font-bold font-mono text-foreground">
@@ -266,7 +266,7 @@ function VideoCard({ video }: { video: VideoScore }) {
               </p>
             </div>
             <div className="rounded-md bg-muted/50 p-2 text-center">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 CTR
               </p>
               <p className="text-sm font-bold font-mono text-foreground">
@@ -274,7 +274,7 @@ function VideoCard({ video }: { video: VideoScore }) {
               </p>
             </div>
             <div className="rounded-md bg-muted/50 p-2 text-center">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 Retention
               </p>
               <p className="text-sm font-bold font-mono text-foreground">
@@ -282,7 +282,7 @@ function VideoCard({ video }: { video: VideoScore }) {
               </p>
             </div>
             <div className="rounded-md bg-muted/50 p-2 text-center">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 Subs Gained
               </p>
               <p className="text-sm font-bold font-mono text-foreground">
@@ -363,7 +363,7 @@ function SummaryBar({
         <CardContent className="p-4">
           <div className="flex items-center gap-2 mb-1">
             <Award className="w-4 h-4 text-yellow-500" />
-            <p className="text-[11px] text-muted-foreground uppercase tracking-wider">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">
               Average Score
             </p>
           </div>
@@ -378,7 +378,7 @@ function SummaryBar({
         <CardContent className="p-4">
           <div className="flex items-center gap-2 mb-1">
             <TrendingUp className="w-4 h-4 text-green-500" />
-            <p className="text-[11px] text-muted-foreground uppercase tracking-wider">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">
               Top Performer
             </p>
           </div>
@@ -387,7 +387,7 @@ function SummaryBar({
               <p className="text-sm font-semibold text-foreground truncate">
                 {truncate(topPerformer.title, 36)}
               </p>
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 Score: {topPerformer.overallScore} ({topPerformer.grade})
               </p>
             </>
@@ -402,14 +402,14 @@ function SummaryBar({
         <CardContent className="p-4">
           <div className="flex items-center gap-2 mb-1">
             <AlertTriangle className="w-4 h-4 text-red-500" />
-            <p className="text-[11px] text-muted-foreground uppercase tracking-wider">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">
               Underperformers
             </p>
           </div>
           <p className="text-2xl font-bold font-mono text-foreground">
             {underperformerCount}
           </p>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             videos scoring below 30
           </p>
         </CardContent>
@@ -420,7 +420,7 @@ function SummaryBar({
         <CardContent className="p-4">
           <div className="flex items-center gap-2 mb-2">
             <BarChart3 className="w-4 h-4 text-blue-500" />
-            <p className="text-[11px] text-muted-foreground uppercase tracking-wider">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">
               Grade Distribution
             </p>
           </div>
@@ -428,7 +428,7 @@ function SummaryBar({
             {(["S", "A", "B", "C", "D", "F"] as Grade[]).map((g) => (
               <span
                 key={g}
-                className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded border ${GRADE_BADGE_CLASSES[g]}`}
+                className={`text-xs font-mono font-bold px-1.5 py-0.5 rounded border ${GRADE_BADGE_CLASSES[g]}`}
               >
                 {g}:{gradeDistribution[g] ?? 0}
               </span>
@@ -628,7 +628,7 @@ export function EnhancedScorecard() {
               >
                 {opt.label}
                 {sortBy === opt.value && (
-                  <span className="ml-0.5 text-[10px]">
+                  <span className="ml-0.5 text-xs">
                     {sortAsc ? "\u2191" : "\u2193"}
                   </span>
                 )}
@@ -675,7 +675,7 @@ export function EnhancedScorecard() {
               <h3 className="text-sm font-semibold text-foreground">
                 AI Recommendations
               </h3>
-              <Badge variant="outline" className="text-[10px] border-orange-400/40 text-orange-400">
+              <Badge variant="outline" className="text-xs border-orange-400/40 text-orange-400">
                 {underperformingVideos.length} video{underperformingVideos.length !== 1 ? "s" : ""} need attention
               </Badge>
             </div>

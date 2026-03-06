@@ -14,7 +14,6 @@ import { SprintWidget } from "@/components/dashboard/SprintWidget";
 import { GoalPaceWidget } from "@/components/dashboard/GoalPaceWidget";
 import { GrowthCommandWidget } from "@/components/dashboard/GrowthCommandWidget";
 import { MilestoneProgressBar } from "@/components/dashboard/MilestoneProgressBar";
-import { WorkspaceProvider } from "@/hooks/use-workspace";
 import {
   useDashboardStats,
   usePipelineHealth,
@@ -23,7 +22,7 @@ import {
   useAiBriefing,
 } from "@/hooks/use-dashboard-stats";
 
-function DashboardContent() {
+function Index() {
   const { data: stats } = useDashboardStats();
   const { data: pipeline } = usePipelineHealth();
   const { data: revenue } = useRevenueData();
@@ -44,7 +43,7 @@ function DashboardContent() {
       : `$${pipelineValue}`;
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 gradient-mesh min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}
@@ -164,13 +163,5 @@ function DashboardContent() {
     </div>
   );
 }
-
-const Index = () => {
-  return (
-    <WorkspaceProvider>
-      <DashboardContent />
-    </WorkspaceProvider>
-  );
-};
 
 export default Index;

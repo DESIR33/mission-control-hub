@@ -126,7 +126,7 @@ export function IntegrationCard({
         <CardContent className="pt-0 space-y-3">
           {/* Connected detail */}
           {isConnected && record?.connected_at && (
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               Connected{" "}
               {new Date(record.connected_at).toLocaleDateString("en-US", {
                 month: "short",
@@ -138,7 +138,7 @@ export function IntegrationCard({
 
           {/* Uses line */}
           {def.usedFor && (
-            <p className="text-[11px] text-muted-foreground border-t border-border pt-2">
+            <p className="text-xs text-muted-foreground border-t border-border pt-2">
               {def.usedFor}
             </p>
           )}
@@ -216,14 +216,14 @@ export function IntegrationCard({
                 </span>
               </div>
               {testResult.oauth_scopes && (
-                <p className="text-[10px] text-muted-foreground break-all">
+                <p className="text-xs text-muted-foreground break-all">
                   Scopes: {testResult.oauth_scopes}
                 </p>
               )}
               {testResult.errors?.length > 0 && (
                 <div className="space-y-1">
                   {testResult.errors.map((err: string, i: number) => (
-                    <p key={i} className="text-[10px] text-amber-400">⚠ {err}</p>
+                    <p key={i} className="text-xs text-amber-400">⚠ {err}</p>
                   ))}
                 </div>
               )}

@@ -86,40 +86,40 @@ export function RevenueIntelligence() {
           <div className="rounded-lg border border-border bg-card p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <DollarSign className="w-3.5 h-3.5 text-green-500" />
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 Monthly Rev
               </p>
             </div>
             <p className="text-lg font-bold font-mono text-foreground">
               {fmtMoney(forecast.currentMonthlyRevenue)}
             </p>
-            <p className="text-[10px] text-muted-foreground">current</p>
+            <p className="text-xs text-muted-foreground">current</p>
           </div>
 
           <div className="rounded-lg border border-border bg-card p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <Calendar className="w-3.5 h-3.5 text-blue-500" />
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 Projected
               </p>
             </div>
             <p className="text-lg font-bold font-mono text-foreground">
               {fmtMoney(forecast.projectedMonthlyRevenue)}
             </p>
-            <p className="text-[10px] text-muted-foreground">next month</p>
+            <p className="text-xs text-muted-foreground">next month</p>
           </div>
 
           <div className="rounded-lg border border-border bg-card p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <TrendingUp className="w-3.5 h-3.5 text-purple-500" />
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 Annual
               </p>
             </div>
             <p className="text-lg font-bold font-mono text-foreground">
               {fmtMoney(forecast.projectedAnnualRevenue)}
             </p>
-            <p className="text-[10px] text-muted-foreground">projected</p>
+            <p className="text-xs text-muted-foreground">projected</p>
           </div>
 
           <div className="rounded-lg border border-border bg-card p-3">
@@ -129,7 +129,7 @@ export function RevenueIntelligence() {
               ) : (
                 <TrendingDown className="w-3.5 h-3.5 text-red-500" />
               )}
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 MoM Growth
               </p>
             </div>
@@ -262,7 +262,7 @@ export function RevenueIntelligence() {
                 <div key={b.source} className="flex items-center gap-3">
                   <p className="text-sm text-foreground w-36">{b.source}</p>
                   <div className="flex-1">
-                    <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-0.5">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-0.5">
                       <span>Current: {fmtMoney(b.current)}</span>
                       <span>Projected: {fmtMoney(b.projected)}</span>
                     </div>
@@ -286,7 +286,7 @@ export function RevenueIntelligence() {
               <CreditCard className="w-3.5 h-3.5 text-purple-500" />
               Suggested Rate Card
             </h3>
-            <div className="flex items-center gap-4 text-[10px] text-muted-foreground mb-3">
+            <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
               <span>
                 Subscribers: {rateCard.subscriberCount.toLocaleString()}
               </span>
@@ -295,7 +295,7 @@ export function RevenueIntelligence() {
               {rateCard.isUndercharging && (
                 <Badge
                   variant="outline"
-                  className="bg-yellow-500/15 text-yellow-400 border-yellow-500/30 text-[9px]"
+                  className="bg-yellow-500/15 text-yellow-400 border-yellow-500/30 text-xs"
                 >
                   Undercharging
                 </Badge>
@@ -311,7 +311,7 @@ export function RevenueIntelligence() {
                     <p className="text-xs font-medium text-foreground">
                       {tier.type}
                     </p>
-                    <p className="text-[10px] text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       {tier.description}
                     </p>
                   </div>
@@ -320,7 +320,7 @@ export function RevenueIntelligence() {
                       {fmtMoney(tier.suggestedRate)}
                     </p>
                     {tier.avgHistoricalDeal > 0 && (
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         avg deal: {fmtMoney(tier.avgHistoricalDeal)}
                         <span
                           className={`ml-1 ${

@@ -46,7 +46,7 @@ export function AiBriefing({ items = [], attentionItems = [] }: AiBriefingProps)
               {urgentCount} urgent
             </span>
           )}
-          <div className="flex items-center gap-1 text-[10px] text-primary font-mono animate-pulse-glow">
+          <div className="flex items-center gap-1 text-xs text-primary font-mono animate-pulse-glow">
             <Sparkles className="w-3 h-3" />
             LIVE
           </div>

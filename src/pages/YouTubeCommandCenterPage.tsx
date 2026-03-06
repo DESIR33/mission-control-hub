@@ -6,7 +6,7 @@ import {
   MessageSquare, ListVideo, Upload, Crosshair, UserCheck,
   Menu, RefreshCw, Mail, Zap, Sparkles,
 } from "lucide-react";
-import { useWorkspace, WorkspaceProvider } from "@/hooks/use-workspace";
+import { useWorkspace } from "@/hooks/use-workspace";
 import { useSyncYouTube } from "@/hooks/use-youtube-analytics";
 import { useSyncYouTubeAnalytics } from "@/hooks/use-youtube-analytics-api";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -126,7 +126,7 @@ function SidebarNav({
         {groups.map((group) => (
           <div key={group}>
             {!sidebarCollapsed && (
-              <p className="text-[9px] text-muted-foreground uppercase tracking-wider px-2 mb-1">{group}</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider px-2 mb-1">{group}</p>
             )}
             <div className="space-y-0.5">
               {TABS.filter((t) => t.group === group).map((tab) => (
@@ -152,7 +152,7 @@ function SidebarNav({
   );
 }
 
-function CommandCenterContent() {
+export default function YouTubeCommandCenterPage() {
   const [activeTab, setActiveTab] = useState<Tab>("briefing");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -249,10 +249,3 @@ function CommandCenterContent() {
   );
 }
 
-export default function YouTubeCommandCenterPage() {
-  return (
-    <WorkspaceProvider>
-      <CommandCenterContent />
-    </WorkspaceProvider>
-  );
-}

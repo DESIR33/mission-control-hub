@@ -6,7 +6,7 @@ import {
   Zap, Award, Target, RefreshCw, ChevronDown, ChevronUp, ArrowUpDown,
   Globe, Route, Monitor, DollarSign, Tv, ExternalLink,
 } from "lucide-react";
-import { useWorkspace, WorkspaceProvider } from "@/hooks/use-workspace";
+import { useWorkspace } from "@/hooks/use-workspace";
 import {
   useYouTubeChannelStats, useYouTubeVideoStats, useGrowthGoal, useSyncYouTube,
 } from "@/hooks/use-youtube-analytics";
@@ -56,7 +56,7 @@ const TABS: { key: AnalyticsTab; label: string; icon: React.ReactNode }[] = [
   { key: "growth_funnel", label: "Growth Funnel", icon: <Target className="w-3.5 h-3.5" /> },
 ];
 
-function AnalyticsContent() {
+export default function AnalyticsPage() {
   const [timeRange, setTimeRange] = useState<TimeRange>("30d");
   const [activeTab, setActiveTab] = useState<AnalyticsTab>("overview");
   const { isLoading: workspaceLoading } = useWorkspace();
@@ -313,7 +313,7 @@ function AnalyticsContent() {
 
   if (isLoading) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8 space-y-6 gradient-mesh min-h-screen">
+      <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
         <Skeleton className="h-8 w-48" />
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -331,7 +331,7 @@ function AnalyticsContent() {
   }
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 gradient-mesh min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
       {/* Sync Status Bar */}
       <SyncStatusBar />
       <SyncDebugPanel />
@@ -673,7 +673,7 @@ function OverviewTab({
             </div>
           )}
           {goal && (
-            <p className="text-[10px] text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Goal: {goal.target_value.toLocaleString()}
             </p>
           )}
@@ -709,7 +709,7 @@ function OverviewTab({
               : "--"}
           </p>
           {subGrowthMetrics?.daysToGoal && (
-            <p className="text-[10px] text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               ~{subGrowthMetrics.daysToGoal}d to goal at this rate
             </p>
           )}
@@ -723,7 +723,7 @@ function OverviewTab({
           <p className="text-2xl font-bold text-foreground font-mono">
             {subGrowthMetrics?.subsPerVideo != null ? `+${subGrowthMetrics.subsPerVideo}` : "--"}
           </p>
-          <p className="text-[10px] text-muted-foreground mt-1">Growth velocity</p>
+          <p className="text-xs text-muted-foreground mt-1">Growth velocity</p>
         </div>
       </div>
 
@@ -744,10 +744,10 @@ function OverviewTab({
             className="h-2.5"
           />
           <div className="flex items-center justify-between mt-1.5">
-            <span className="text-[10px] text-muted-foreground font-mono">
+            <span className="text-xs text-muted-foreground font-mono">
               {((latestSnapshot.subscriber_count / goal.target_value) * 100).toFixed(1)}% complete
             </span>
-            <span className="text-[10px] text-muted-foreground font-mono">
+            <span className="text-xs text-muted-foreground font-mono">
               {(goal.target_value - latestSnapshot.subscriber_count).toLocaleString()} to go
             </span>
           </div>
@@ -821,48 +821,48 @@ function OverviewTab({
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             <div className="rounded-lg border border-border bg-card p-3">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Engagement Rate</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Engagement Rate</p>
               <p className="text-lg font-bold text-foreground font-mono mt-0.5">
                 {videoEngagement.engagementRate}%
               </p>
-              <p className="text-[10px] text-muted-foreground">(likes+comments)/views</p>
+              <p className="text-xs text-muted-foreground">(likes+comments)/views</p>
             </div>
             <div className="rounded-lg border border-border bg-card p-3">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Avg CTR</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Avg CTR</p>
               <p className="text-lg font-bold text-foreground font-mono mt-0.5">
                 {videoEngagement.avgCtr != null ? `${videoEngagement.avgCtr}%` : "--"}
               </p>
-              <p className="text-[10px] text-muted-foreground">click-through rate</p>
+              <p className="text-xs text-muted-foreground">click-through rate</p>
             </div>
             <div className="rounded-lg border border-border bg-card p-3">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Avg Duration</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Avg Duration</p>
               <p className="text-lg font-bold text-foreground font-mono mt-0.5">
                 {videoEngagement.avgDuration != null ? fmtDuration(videoEngagement.avgDuration) : "--"}
               </p>
-              <p className="text-[10px] text-muted-foreground">view duration</p>
+              <p className="text-xs text-muted-foreground">view duration</p>
             </div>
             <div className="rounded-lg border border-border bg-card p-3">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Like Ratio</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Like Ratio</p>
               <p className="text-lg font-bold text-foreground font-mono mt-0.5">
                 {videoEngagement.likesToViewsRatio}%
               </p>
-              <p className="text-[10px] text-muted-foreground">likes/views</p>
+              <p className="text-xs text-muted-foreground">likes/views</p>
             </div>
             <div className="rounded-lg border border-border bg-card p-3">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Total Watch Time</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Watch Time</p>
               <p className="text-lg font-bold text-foreground font-mono mt-0.5">
                 {videoEngagement.totalWatchTime >= 60
                   ? `${Math.round(videoEngagement.totalWatchTime / 60)}h`
                   : `${videoEngagement.totalWatchTime}m`}
               </p>
-              <p className="text-[10px] text-muted-foreground">across all videos</p>
+              <p className="text-xs text-muted-foreground">across all videos</p>
             </div>
             <div className="rounded-lg border border-border bg-card p-3">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Total Comments</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Comments</p>
               <p className="text-lg font-bold text-foreground font-mono mt-0.5">
                 {videoEngagement.totalComments.toLocaleString()}
               </p>
-              <p className="text-[10px] text-muted-foreground">community signals</p>
+              <p className="text-xs text-muted-foreground">community signals</p>
             </div>
           </div>
         </>
@@ -890,17 +890,17 @@ function OverviewTab({
                     {v.title}
                   </p>
                   <div className="flex items-center gap-3 mt-0.5">
-                    <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                    <span className="text-xs text-muted-foreground flex items-center gap-0.5">
                       <Eye className="w-2.5 h-2.5" /> {(v.views ?? 0).toLocaleString()}
                     </span>
-                    <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                    <span className="text-xs text-muted-foreground flex items-center gap-0.5">
                       <ThumbsUp className="w-2.5 h-2.5" /> {(v.likes ?? 0).toLocaleString()}
                     </span>
-                    <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                    <span className="text-xs text-muted-foreground flex items-center gap-0.5">
                       <MessageSquare className="w-2.5 h-2.5" /> {(v.comments ?? 0).toLocaleString()}
                     </span>
                     {v.ctr_percent != null && (
-                      <span className="text-[10px] text-muted-foreground">
+                      <span className="text-xs text-muted-foreground">
                         CTR: {v.ctr_percent.toFixed(1)}%
                       </span>
                     )}
@@ -908,7 +908,7 @@ function OverviewTab({
                 </div>
                 <div className="text-right">
                   <span className="text-xs font-mono font-semibold text-primary">{v.engagementRate}%</span>
-                  <p className="text-[10px] text-muted-foreground">engagement</p>
+                  <p className="text-xs text-muted-foreground">engagement</p>
                 </div>
                 <ExternalLink className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
               </div>
@@ -927,11 +927,11 @@ function OverviewTab({
                 Publish Cadence
               </h2>
               <div className="flex gap-3">
-                <span className="text-[10px] text-muted-foreground">
+                <span className="text-xs text-muted-foreground">
                   Avg: <span className="font-mono font-semibold text-foreground">{publishFrequency.avgPerWeek}</span>/week
                 </span>
                 {publishFrequency.avgGap != null && (
-                  <span className="text-[10px] text-muted-foreground">
+                  <span className="text-xs text-muted-foreground">
                     Gap: <span className="font-mono font-semibold text-foreground">{publishFrequency.avgGap}</span> days
                   </span>
                 )}
@@ -1093,7 +1093,7 @@ function OverviewTab({
 function MiniStat({ label, value }: { label: string; value: string }) {
   return (
     <div className="text-center">
-      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</p>
+      <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
       <p className="text-sm font-bold font-mono text-foreground">{value}</p>
     </div>
   );
@@ -1131,10 +1131,3 @@ function SortableTh({
   );
 }
 
-export default function AnalyticsPage() {
-  return (
-    <WorkspaceProvider>
-      <AnalyticsContent />
-    </WorkspaceProvider>
-  );
-}

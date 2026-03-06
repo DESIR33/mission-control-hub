@@ -185,16 +185,16 @@ export default function EmailPreview({
           <h2 className="text-lg font-semibold text-foreground leading-snug">{email.subject || "(No subject)"}</h2>
           <div className="flex flex-wrap items-center gap-2">
             {email.importance === "high" && (
-              <span className="rounded-full bg-red-100 text-red-700 px-2 py-0.5 text-[10px] font-semibold">High importance</span>
+              <span className="rounded-full bg-red-100 text-red-700 px-2 py-0.5 text-xs font-semibold">High importance</span>
             )}
             {email.isVip && (
-              <span className="rounded-full bg-amber-100 text-amber-700 px-2 py-0.5 text-[10px] font-semibold flex items-center gap-1">
+              <span className="rounded-full bg-amber-100 text-amber-700 px-2 py-0.5 text-xs font-semibold flex items-center gap-1">
                 <StarIcon className="h-3 w-3 fill-amber-500" />VIP
               </span>
             )}
             {email.priority && (
               <span className={cn(
-                "rounded-full px-2 py-0.5 text-[10px] font-semibold",
+                "rounded-full px-2 py-0.5 text-xs font-semibold",
                 email.priority.bucket === "high" ? "bg-red-100 text-red-700"
                   : email.priority.bucket === "medium" ? "bg-amber-100 text-amber-700"
                     : "bg-slate-100 text-slate-600",
@@ -203,14 +203,14 @@ export default function EmailPreview({
               </span>
             )}
             {email.aiDraft && (
-              <span className="rounded-full bg-violet-100 text-violet-700 px-2 py-0.5 text-[10px] font-medium">
+              <span className="rounded-full bg-violet-100 text-violet-700 px-2 py-0.5 text-xs font-medium">
                 {email.aiDraft.badge || "AI Draft available"}
               </span>
             )}
             {email.tags?.map((tag) => (
               <span
                 key={tag.id}
-                className="rounded px-2 py-0.5 text-[10px] font-medium"
+                className="rounded px-2 py-0.5 text-xs font-medium"
                 style={{ backgroundColor: `${tag.color}20`, color: tag.color }}
               >
                 {tag.name}
@@ -272,7 +272,7 @@ export default function EmailPreview({
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold">Opportunity Signal</span>
               <span className={cn(
-                "rounded-full px-2 py-0.5 text-[10px] font-semibold",
+                "rounded-full px-2 py-0.5 text-xs font-semibold",
                 email.opportunity.bucket === "high" ? "bg-emerald-200 text-emerald-800"
                   : email.opportunity.bucket === "medium" ? "bg-amber-200 text-amber-800"
                     : "bg-slate-200 text-slate-700",

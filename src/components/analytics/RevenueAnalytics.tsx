@@ -319,9 +319,9 @@ export function RevenueAnalytics({ channelData, videoData, daysRange }: Props) {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground truncate">{v.title || v.youtube_video_id}</p>
                   <div className="flex items-center gap-3 mt-0.5">
-                    <span className="text-[10px] text-muted-foreground">{fmtCount(v.views)} views</span>
-                    <span className="text-[10px] text-muted-foreground">{v.impressions_ctr.toFixed(1)}% CTR</span>
-                    <span className="text-[10px] text-muted-foreground">RPM: ${v.views > 0 ? ((v.estimated_revenue / v.views) * 1000).toFixed(2) : "0"}</span>
+                    <span className="text-xs text-muted-foreground">{fmtCount(v.views)} views</span>
+                    <span className="text-xs text-muted-foreground">{v.impressions_ctr.toFixed(1)}% CTR</span>
+                    <span className="text-xs text-muted-foreground">RPM: ${v.views > 0 ? ((v.estimated_revenue / v.views) * 1000).toFixed(2) : "0"}</span>
                   </div>
                 </div>
                 <span className="text-sm font-mono font-bold text-green-500">{fmtMoney(v.estimated_revenue)}</span>
@@ -381,13 +381,13 @@ function RevenueKpi({
     <div className="rounded-lg border border-border bg-card p-3">
       <div className="flex items-center gap-1.5 mb-1">
         <DollarSign className="w-3.5 h-3.5 text-green-500" />
-        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</p>
+        <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
       </div>
       <div className="flex items-center gap-2">
         <p className="text-lg font-bold font-mono text-foreground mt-0.5">{value}</p>
         {delta != null && (
           <span
-            className={`inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
+            className={`inline-flex items-center gap-0.5 text-xs font-semibold px-1.5 py-0.5 rounded-full ${
               delta >= 0
                 ? "text-green-700 bg-green-100 dark:text-green-400 dark:bg-green-950"
                 : "text-red-700 bg-red-100 dark:text-red-400 dark:bg-red-950"
@@ -402,7 +402,7 @@ function RevenueKpi({
           </span>
         )}
       </div>
-      <p className="text-[10px] text-muted-foreground">{sub}</p>
+      <p className="text-xs text-muted-foreground">{sub}</p>
     </div>
   );
 }

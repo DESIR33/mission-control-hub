@@ -172,7 +172,7 @@ export function ContactsTable({ contacts, onSelectContact, selectedId, addButton
                   )}
                   <Badge
                     variant="outline"
-                    className={cn("text-[10px] uppercase tracking-wider shrink-0", statusColors[contact.status])}
+                    className={cn("text-xs uppercase tracking-wider shrink-0", statusColors[contact.status])}
                   >
                     {contact.status}
                   </Badge>
@@ -181,7 +181,7 @@ export function ContactsTable({ contacts, onSelectContact, selectedId, addButton
                   {contact.email && <Mail className="w-3 h-3 text-muted-foreground shrink-0" />}
                   {contact.phone && <Phone className="w-3 h-3 text-muted-foreground shrink-0" />}
                   {contact.last_contact_date && (
-                    <span className="text-[11px] text-muted-foreground">
+                    <span className="text-xs text-muted-foreground">
                       {formatDistanceToNow(new Date(contact.last_contact_date), { addSuffix: true })}
                     </span>
                   )}
@@ -272,7 +272,7 @@ export function ContactsTable({ contacts, onSelectContact, selectedId, addButton
                   <TableCell>
                     <Badge
                       variant="outline"
-                      className={cn("text-[10px] uppercase tracking-wider", statusColors[contact.status])}
+                      className={cn("text-xs uppercase tracking-wider", statusColors[contact.status])}
                     >
                       {contact.status}
                     </Badge>

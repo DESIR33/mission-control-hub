@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
-import { WorkspaceProvider } from "@/hooks/use-workspace";
 import {
   useCurrentSprint, useSprintHistory, useCreateSprint, useUpdateSprint,
   type GrowthSprint, type SprintTask,
@@ -22,7 +21,7 @@ const categoryColors: Record<string, string> = {
   other: "bg-gray-500/15 text-gray-400 border-gray-500/30",
 };
 
-function SprintContent() {
+export default function WeeklySprintPage() {
   const { data: sprint, isLoading } = useCurrentSprint();
   const { data: history = [] } = useSprintHistory();
   const createSprint = useCreateSprint();
@@ -36,7 +35,7 @@ function SprintContent() {
 
   if (isLoading) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8 gradient-mesh min-h-screen">
+      <div className="p-4 sm:p-6 lg:p-8 min-h-screen">
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-muted rounded w-48" />
           <div className="h-40 bg-muted rounded" />
@@ -61,7 +60,7 @@ function SprintContent() {
 
   if (!sprint) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8 gradient-mesh min-h-screen">
+      <div className="p-4 sm:p-6 lg:p-8 min-h-screen">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
             <Target className="w-6 h-6 text-primary" />
@@ -122,7 +121,7 @@ function SprintContent() {
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 gradient-mesh min-h-screen space-y-6">
+    <div className="p-4 sm:p-6 lg:p-8 min-h-screen space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -144,28 +143,28 @@ function SprintContent() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Target className="w-3.5 h-3.5 text-purple-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Sub Target</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Sub Target</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">+{sprint.sub_target}</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Check className="w-3.5 h-3.5 text-green-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Tasks Done</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Tasks Done</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{completedTasks}/{totalTasks}</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Calendar className="w-3.5 h-3.5 text-blue-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Days Left</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Days Left</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{daysLeft}</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <TrendingUp className="w-3.5 h-3.5 text-green-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Progress</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Progress</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{taskPercent.toFixed(0)}%</p>
         </div>
@@ -200,7 +199,7 @@ function SprintContent() {
               <span className={`text-sm flex-1 ${task.completed ? "line-through text-muted-foreground" : "text-foreground"}`}>
                 {task.title}
               </span>
-              <Badge variant="outline" className={`text-[9px] ${categoryColors[task.category]}`}>
+              <Badge variant="outline" className={`text-xs ${categoryColors[task.category]}`}>
                 {task.category}
               </Badge>
             </div>
@@ -280,11 +279,11 @@ function SprintContent() {
                     <p className="text-xs font-medium text-foreground">
                       Week of {format(new Date(s.week_start), "MMM d")}
                     </p>
-                    <p className="text-[10px] text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       {done}/{s.tasks.length} tasks · +{s.sub_target} sub target
                     </p>
                   </div>
-                  <Badge variant="outline" className="text-[9px] capitalize">{s.status}</Badge>
+                  <Badge variant="outline" className="text-xs capitalize">{s.status}</Badge>
                 </div>
               );
             })}
@@ -295,10 +294,3 @@ function SprintContent() {
   );
 }
 
-export default function WeeklySprintPage() {
-  return (
-    <WorkspaceProvider>
-      <SprintContent />
-    </WorkspaceProvider>
-  );
-}

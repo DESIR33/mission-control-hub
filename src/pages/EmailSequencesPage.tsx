@@ -35,7 +35,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { WorkspaceProvider } from "@/hooks/use-workspace";
 import {
   useEmailSequences,
   useCreateEmailSequence,
@@ -108,15 +107,15 @@ function SequenceAnalyticsSection({
           {/* Funnel KPIs */}
           <div className="grid grid-cols-3 gap-2">
             <div className="rounded-md border border-border bg-muted/30 p-2 text-center">
-              <p className="text-[10px] text-muted-foreground">Sent</p>
+              <p className="text-xs text-muted-foreground">Sent</p>
               <p className="text-sm font-bold font-mono text-blue-500">{tracking.totalSent}</p>
             </div>
             <div className="rounded-md border border-border bg-muted/30 p-2 text-center">
-              <p className="text-[10px] text-muted-foreground">Open Rate</p>
+              <p className="text-xs text-muted-foreground">Open Rate</p>
               <p className="text-sm font-bold font-mono text-green-500">{tracking.openRate.toFixed(1)}%</p>
             </div>
             <div className="rounded-md border border-border bg-muted/30 p-2 text-center">
-              <p className="text-[10px] text-muted-foreground">Reply Rate</p>
+              <p className="text-xs text-muted-foreground">Reply Rate</p>
               <p className="text-sm font-bold font-mono text-purple-500">{tracking.replyRate.toFixed(1)}%</p>
             </div>
           </div>
@@ -128,7 +127,7 @@ function SequenceAnalyticsSection({
           {/* Per-step breakdown */}
           {tracking.stepMetrics.length > 0 && (
             <div className="space-y-1">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Per Step</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Per Step</p>
               {tracking.stepMetrics.map((step) => (
                 <div key={step.stepNumber} className="flex items-center gap-3 text-xs rounded-md bg-muted/20 px-2 py-1">
                   <span className="font-mono text-muted-foreground w-8">#{step.stepNumber}</span>
@@ -148,15 +147,15 @@ function SequenceAnalyticsSection({
           <p className="text-xs text-muted-foreground mb-2">No tracking events yet.</p>
           {enrollments.length > 0 && (
             <div className="space-y-1">
-              <p className="text-[10px] text-muted-foreground">Log events manually for enrolled contacts:</p>
+              <p className="text-xs text-muted-foreground">Log events manually for enrolled contacts:</p>
               {enrollments.slice(0, 3).map((enrollment) => (
                 <div key={enrollment.id} className="flex items-center gap-1 justify-center flex-wrap">
-                  <span className="text-[10px] font-mono text-foreground">{enrollment.contact_id.slice(0, 8)}...</span>
+                  <span className="text-xs font-mono text-foreground">{enrollment.contact_id.slice(0, 8)}...</span>
                   {eventTypes.map((type) => (
                     <button
                       key={type}
                       onClick={() => handleLogEvent(enrollment.id, enrollment.current_step, type)}
-                      className="text-[10px] px-1.5 py-0.5 rounded border border-border bg-background hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                      className="text-xs px-1.5 py-0.5 rounded border border-border bg-background hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                     >
                       {type}
                     </button>
@@ -222,13 +221,13 @@ function SequenceDetail({
               className="rounded-lg border border-border bg-muted/30 p-3"
             >
               <div className="flex items-center gap-2 mb-1">
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
                   {step.step_number}
                 </span>
                 <span className="text-xs font-medium text-foreground">
                   {step.subject_template || "(no subject)"}
                 </span>
-                <span className="ml-auto flex items-center gap-1 text-[11px] text-muted-foreground">
+                <span className="ml-auto flex items-center gap-1 text-xs text-muted-foreground">
                   <Clock className="h-3 w-3" />
                   {step.delay_days === 0
                     ? "Immediately"
@@ -299,7 +298,7 @@ function SequenceDetail({
                       <Badge
                         variant="outline"
                         className={cn(
-                          "text-[10px] uppercase tracking-wider",
+                          "text-xs uppercase tracking-wider",
                           enrollmentStatusColors[enrollment.status] ?? ""
                         )}
                       >
@@ -472,15 +471,15 @@ function SequenceFormDialog({
               </Button>
             </div>
 
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               Use merge tags in subject and body:{" "}
-              <code className="rounded bg-muted px-1 py-0.5 text-[10px]">
+              <code className="rounded bg-muted px-1 py-0.5 text-xs">
                 {"{{first_name}}"}
               </code>{" "}
-              <code className="rounded bg-muted px-1 py-0.5 text-[10px]">
+              <code className="rounded bg-muted px-1 py-0.5 text-xs">
                 {"{{company_name}}"}
               </code>{" "}
-              <code className="rounded bg-muted px-1 py-0.5 text-[10px]">
+              <code className="rounded bg-muted px-1 py-0.5 text-xs">
                 {"{{last_name}}"}
               </code>
             </p>
@@ -510,7 +509,7 @@ function SequenceFormDialog({
 
                   <div className="grid grid-cols-1 sm:grid-cols-[100px_1fr] gap-2">
                     <div className="space-y-1">
-                      <Label className="text-[11px]">Delay (days)</Label>
+                      <Label className="text-xs">Delay (days)</Label>
                       <Input
                         type="number"
                         min={0}
@@ -525,7 +524,7 @@ function SequenceFormDialog({
                       />
                     </div>
                     <div className="space-y-1">
-                      <Label className="text-[11px]">Subject</Label>
+                      <Label className="text-xs">Subject</Label>
                       <Input
                         placeholder="e.g. Hey {{first_name}}, quick question"
                         value={step.subject_template}
@@ -537,7 +536,7 @@ function SequenceFormDialog({
                   </div>
 
                   <div className="space-y-1">
-                    <Label className="text-[11px]">Body</Label>
+                    <Label className="text-xs">Body</Label>
                     <Textarea
                       placeholder="Hi {{first_name}}, I noticed {{company_name}} is..."
                       value={step.body_template}
@@ -574,7 +573,7 @@ function SequenceFormDialog({
 
 // ---------- Main Content ----------
 
-function EmailSequencesContent() {
+export default function EmailSequencesPage() {
   const { data: sequences = [], isLoading } = useEmailSequences();
   const deleteMutation = useDeleteEmailSequence();
   const updateMutation = useUpdateEmailSequence();
@@ -613,7 +612,7 @@ function EmailSequencesContent() {
 
   if (isLoading) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8 gradient-mesh min-h-screen">
+      <div className="p-4 sm:p-6 lg:p-8 min-h-screen">
         <div className="space-y-4">
           <Skeleton className="h-8 w-56" />
           <Skeleton className="h-4 w-72" />
@@ -628,7 +627,7 @@ function EmailSequencesContent() {
   }
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 gradient-mesh min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 min-h-screen">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -683,7 +682,7 @@ function EmailSequencesContent() {
                       <Badge
                         variant="outline"
                         className={cn(
-                          "text-[10px] uppercase tracking-wider",
+                          "text-xs uppercase tracking-wider",
                           statusColors[sequence.status] ?? ""
                         )}
                       >
@@ -828,10 +827,3 @@ function SequenceEnrollmentCount({ sequenceId }: { sequenceId: string }) {
 
 // ---------- Page export ----------
 
-export default function EmailSequencesPage() {
-  return (
-    <WorkspaceProvider>
-      <EmailSequencesContent />
-    </WorkspaceProvider>
-  );
-}

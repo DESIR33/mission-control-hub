@@ -192,7 +192,7 @@ export function FollowUpReminders({ entityId, entityType }: FollowUpRemindersPro
                     </span>
                     <Badge
                       variant="outline"
-                      className={cn("text-[10px] uppercase tracking-wider", status.color)}
+                      className={cn("text-xs uppercase tracking-wider", status.color)}
                     >
                       {status.label}
                     </Badge>
@@ -202,7 +202,7 @@ export function FollowUpReminders({ entityId, entityType }: FollowUpRemindersPro
                       {reminder.description}
                     </p>
                   )}
-                  <p className="text-[10px] text-muted-foreground mt-1">
+                  <p className="text-xs text-muted-foreground mt-1">
                     Due {formatDistanceToNow(new Date(reminder.due_date), { addSuffix: true })}
                   </p>
                 </div>
@@ -223,7 +223,7 @@ export function FollowUpReminders({ entityId, entityType }: FollowUpRemindersPro
 
       {completedReminders.length > 0 && (
         <div className="space-y-2">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider">
             Completed ({completedReminders.length})
           </p>
           <ul className="space-y-1.5">

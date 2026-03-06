@@ -63,7 +63,7 @@ function DetailRow({ icon: Icon, label, value }: { icon: typeof DollarSign; labe
     <div className="flex items-start gap-3 py-1.5">
       <Icon className="w-3.5 h-3.5 text-muted-foreground mt-0.5 shrink-0" />
       <div className="min-w-0">
-        <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</p>
+        <p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p>
         <p className="text-sm text-foreground truncate">{value}</p>
       </div>
     </div>
@@ -196,11 +196,11 @@ export function DealDetailSheet({ deal, open, onOpenChange, onDeleted }: DealDet
               </div>
             </div>
             <div className="flex items-center gap-2 mt-2">
-              <Badge variant="outline" className={cn("text-[10px] uppercase tracking-wider", stageInfo.color)}>
+              <Badge variant="outline" className={cn("text-xs uppercase tracking-wider", stageInfo.color)}>
                 {stageInfo.label}
               </Badge>
               {deal.forecast_category && (
-                <Badge variant="outline" className="text-[10px] uppercase tracking-wider">
+                <Badge variant="outline" className="text-xs uppercase tracking-wider">
                   {forecastLabels[deal.forecast_category] ?? deal.forecast_category}
                 </Badge>
               )}
@@ -371,7 +371,7 @@ export function DealDetailSheet({ deal, open, onOpenChange, onDeleted }: DealDet
                           >
                             <Film className="w-3 h-3 text-muted-foreground shrink-0" />
                             <span className="text-xs text-foreground truncate flex-1">{v.title}</span>
-                            <span className="text-[10px] text-muted-foreground capitalize shrink-0">{v.status}</span>
+                            <span className="text-xs text-muted-foreground capitalize shrink-0">{v.status}</span>
                           </button>
                         ))}
                         {videos.length === 0 && (
@@ -417,7 +417,7 @@ export function DealDetailSheet({ deal, open, onOpenChange, onDeleted }: DealDet
                     </>
                   )}
 
-                  <div className="text-[10px] text-muted-foreground space-y-1">
+                  <div className="text-xs text-muted-foreground space-y-1">
                     <p>Created: {format(new Date(deal.created_at), "MMM d, yyyy")}</p>
                     <p>Updated: {format(new Date(deal.updated_at), "MMM d, yyyy")}</p>
                   </div>
@@ -441,7 +441,7 @@ export function DealDetailSheet({ deal, open, onOpenChange, onDeleted }: DealDet
                         <div key={a.id} className="relative">
                           <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-primary border-2 border-background" />
                           <p className="text-sm text-foreground">{a.description || "Stage changed"}</p>
-                          <p className="text-[10px] text-muted-foreground">
+                          <p className="text-xs text-muted-foreground">
                             {format(new Date(a.created_at), "MMM d, yyyy 'at' h:mm a")}
                           </p>
                         </div>
@@ -474,7 +474,7 @@ export function DealDetailSheet({ deal, open, onOpenChange, onDeleted }: DealDet
                     })} />
                     <span className="text-sm font-medium">{config.label}</span>
                     {deal.stage === key && (
-                      <Badge variant="outline" className="ml-auto text-[10px]">Current</Badge>
+                      <Badge variant="outline" className="ml-auto text-xs">Current</Badge>
                     )}
                   </button>
                 ))}

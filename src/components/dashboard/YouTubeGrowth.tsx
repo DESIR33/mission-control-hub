@@ -65,7 +65,7 @@ export function YouTubeGrowth() {
           Subscriber Growth
         </h3>
         <div className="ml-auto flex items-center gap-2">
-          <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+          <span className="text-xs text-muted-foreground flex items-center gap-1">
             <Target className="w-3 h-3" />
             {targetValue.toLocaleString()} goal
           </span>
@@ -100,10 +100,10 @@ export function YouTubeGrowth() {
           <div className="relative mb-2">
             <Progress value={progress} className="h-3" />
             <div className="flex items-center justify-between mt-1">
-              <span className="text-[10px] text-muted-foreground font-mono">
+              <span className="text-xs text-muted-foreground font-mono">
                 {progress.toFixed(1)}%
               </span>
-              <span className="text-[10px] text-muted-foreground font-mono">
+              <span className="text-xs text-muted-foreground font-mono">
                 {remaining.toLocaleString()} to go
               </span>
             </div>
@@ -129,7 +129,7 @@ export function YouTubeGrowth() {
                         : "bg-card border-border"
                     }`}
                   />
-                  <span className="absolute top-4 left-1/2 -translate-x-1/2 text-[9px] text-muted-foreground whitespace-nowrap">
+                  <span className="absolute top-4 left-1/2 -translate-x-1/2 text-xs text-muted-foreground whitespace-nowrap">
                     {(m / 1000).toFixed(0)}K
                   </span>
                 </div>
@@ -140,7 +140,7 @@ export function YouTubeGrowth() {
           {/* Subscriber trend chart */}
           {trend.length > 0 && (
             <div className="mb-4">
-              <p className="text-[10px] text-muted-foreground mb-1 uppercase tracking-wider">
+              <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wider">
                 Subscriber trend
               </p>
               <div className="flex items-end gap-[3px] h-16">
@@ -163,7 +163,7 @@ export function YouTubeGrowth() {
           {/* Stats row */}
           <div className="grid grid-cols-3 gap-3 pt-3 border-t border-border">
             <div>
-              <div className="flex items-center gap-1 text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">
+              <div className="flex items-center gap-1 text-xs text-muted-foreground uppercase tracking-wider mb-0.5">
                 <Calendar className="w-3 h-3" />
                 Days Left
               </div>
@@ -172,7 +172,7 @@ export function YouTubeGrowth() {
               </p>
             </div>
             <div>
-              <div className="flex items-center gap-1 text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">
+              <div className="flex items-center gap-1 text-xs text-muted-foreground uppercase tracking-wider mb-0.5">
                 <TrendingUp className="w-3 h-3" />
                 Daily Target
               </div>
@@ -181,7 +181,7 @@ export function YouTubeGrowth() {
               </p>
             </div>
             <div>
-              <div className="flex items-center gap-1 text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">
+              <div className="flex items-center gap-1 text-xs text-muted-foreground uppercase tracking-wider mb-0.5">
                 <Target className="w-3 h-3" />
                 Target Date
               </div>

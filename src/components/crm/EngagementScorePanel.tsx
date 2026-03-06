@@ -85,7 +85,7 @@ export function EngagementScorePanel() {
           <div className="rounded-lg border border-border bg-card p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <BarChart3 className="w-3.5 h-3.5 text-blue-500" />
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 Avg Score
               </p>
             </div>
@@ -98,40 +98,40 @@ export function EngagementScorePanel() {
           <div className="rounded-lg border border-border bg-card p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <Users className="w-3.5 h-3.5 text-purple-500" />
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 Total Scored
               </p>
             </div>
             <p className="text-lg font-bold font-mono text-foreground">
               {dashboard.totalScored}
             </p>
-            <p className="text-[10px] text-muted-foreground">contacts</p>
+            <p className="text-xs text-muted-foreground">contacts</p>
           </div>
 
           <div className="rounded-lg border border-border bg-card p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <Flame className="w-3.5 h-3.5 text-red-500" />
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 Hot Leads
               </p>
             </div>
             <p className="text-lg font-bold font-mono text-foreground">
               {dashboard.hotLeads.length}
             </p>
-            <p className="text-[10px] text-muted-foreground">score 60+</p>
+            <p className="text-xs text-muted-foreground">score 60+</p>
           </div>
 
           <div className="rounded-lg border border-border bg-card p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <AlertTriangle className="w-3.5 h-3.5 text-yellow-500" />
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 At Risk
               </p>
             </div>
             <p className="text-lg font-bold font-mono text-foreground">
               {dashboard.atRisk.length}
             </p>
-            <p className="text-[10px] text-muted-foreground">need attention</p>
+            <p className="text-xs text-muted-foreground">need attention</p>
           </div>
         </div>
 
@@ -143,7 +143,7 @@ export function EngagementScorePanel() {
               <h3 className="text-sm font-semibold text-foreground">
                 Needs Attention
               </h3>
-              <Badge variant="outline" className="bg-yellow-500/15 text-yellow-400 border-yellow-500/30 text-[9px]">
+              <Badge variant="outline" className="bg-yellow-500/15 text-yellow-400 border-yellow-500/30 text-xs">
                 {needsAttention.length}
               </Badge>
             </div>
@@ -159,7 +159,7 @@ export function EngagementScorePanel() {
                   </span>
                   <Badge
                     variant="outline"
-                    className="text-[9px] bg-red-500/15 text-red-400 border-red-500/30"
+                    className="text-xs bg-red-500/15 text-red-400 border-red-500/30"
                   >
                     {contact.score}
                   </Badge>
@@ -209,13 +209,13 @@ export function EngagementScorePanel() {
                       {lead.name}
                     </span>
                     {lead.company && (
-                      <span className="text-[10px] text-muted-foreground truncate max-w-[80px]">
+                      <span className="text-xs text-muted-foreground truncate max-w-[80px]">
                         {lead.company}
                       </span>
                     )}
                     <Badge
                       variant="outline"
-                      className={`text-[9px] ${badge.className}`}
+                      className={`text-xs ${badge.className}`}
                     >
                       {badge.label} {lead.score}
                     </Badge>
@@ -245,14 +245,14 @@ export function EngagementScorePanel() {
                       {contact.name}
                     </span>
                     {contact.lastContact && (
-                      <span className="text-[10px] text-muted-foreground">
+                      <span className="text-xs text-muted-foreground">
                         Last:{" "}
                         {new Date(contact.lastContact).toLocaleDateString()}
                       </span>
                     )}
                     <Badge
                       variant="outline"
-                      className={`text-[9px] ${badge.className}`}
+                      className={`text-xs ${badge.className}`}
                     >
                       {badge.label} {contact.score}
                     </Badge>

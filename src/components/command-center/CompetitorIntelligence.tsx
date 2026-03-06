@@ -200,14 +200,14 @@ export function CompetitorIntelligence() {
                       <Icon
                         className={`w-3.5 h-3.5 ${statusColor[comp.status]}`}
                       />
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider">
                         {comp.metric}
                       </p>
                     </div>
                     <p className="text-lg font-bold font-mono text-foreground">
                       {fmtCount(comp.yours)}
                     </p>
-                    <p className="text-[10px] text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       vs avg {fmtCount(comp.competitorAvg)}
                       <span className={`ml-1 ${statusColor[comp.status]}`}>
                         ({comp.deltaPercent >= 0 ? "+" : ""}
@@ -232,7 +232,7 @@ export function CompetitorIntelligence() {
                       <p className="text-2xl font-bold font-mono text-foreground">
                         #{p.rank}
                       </p>
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         of {p.total} &middot; {p.metric}
                       </p>
                     </div>
@@ -323,7 +323,7 @@ export function CompetitorIntelligence() {
                       <p className="text-xs text-foreground truncate">
                         {video.title}
                       </p>
-                      <div className="flex items-center gap-2 text-[10px] text-muted-foreground mt-0.5">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
                         {competitor && (
                           <span className="truncate max-w-[100px]">
                             {competitor.channel_name}
@@ -337,7 +337,7 @@ export function CompetitorIntelligence() {
                     </div>
                     <Badge
                       variant="outline"
-                      className="text-[9px] bg-purple-500/15 text-purple-400 border-purple-500/30"
+                      className="text-xs bg-purple-500/15 text-purple-400 border-purple-500/30"
                     >
                       Gap
                     </Badge>
@@ -363,7 +363,7 @@ export function CompetitorIntelligence() {
                   <p className="text-sm font-medium text-foreground">
                     {comp.channel_name}
                   </p>
-                  <div className="flex items-center gap-3 text-[10px] text-muted-foreground mt-0.5">
+                  <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
                     {comp.subscriber_count != null && (
                       <span>{fmtCount(comp.subscriber_count)} subs</span>
                     )}

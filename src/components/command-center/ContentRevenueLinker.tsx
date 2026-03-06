@@ -53,7 +53,7 @@ export function ContentRevenueLinker() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <DollarSign className="w-3.5 h-3.5 text-green-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Total Revenue</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Revenue</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{fmtMoney(summary.grandTotal)}</p>
         </div>
@@ -61,7 +61,7 @@ export function ContentRevenueLinker() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Video className="w-3.5 h-3.5 text-blue-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Avg/Video</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Avg/Video</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{fmtMoney(summary.avgRevenuePerVideo)}</p>
         </div>
@@ -70,10 +70,10 @@ export function ContentRevenueLinker() {
           <div className="rounded-lg border border-border bg-card p-3 col-span-2">
             <div className="flex items-center gap-1.5 mb-1">
               <TrendingUp className="w-3.5 h-3.5 text-yellow-500" />
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Top Earner</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Top Earner</p>
             </div>
             <p className="text-sm font-semibold text-foreground truncate">{summary.topEarner.videoTitle}</p>
-            <p className="text-[10px] text-muted-foreground">{fmtMoney(summary.topEarner.totalRevenue)} total</p>
+            <p className="text-xs text-muted-foreground">{fmtMoney(summary.topEarner.totalRevenue)} total</p>
           </div>
         )}
       </div>

@@ -42,12 +42,12 @@ export function EngagementBadge({ contact, showBreakdown = false }: EngagementBa
 
   return (
     <div className="inline-flex items-center gap-1.5">
-      <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1 ${colors.bg} ${colors.text} ${colors.ring}`}>
+      <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ring-1 ${colors.bg} ${colors.text} ${colors.ring}`}>
         {result.score}
         <span className="font-medium">{result.label}</span>
       </span>
       {showBreakdown && (
-        <div className="text-[10px] text-muted-foreground space-x-1.5">
+        <div className="text-xs text-muted-foreground space-x-1.5">
           <span title="Recency">R:{result.breakdown.recency}</span>
           <span title="Activity">A:{result.breakdown.activityVolume}</span>
           <span title="Deal">D:{result.breakdown.dealStatus}</span>

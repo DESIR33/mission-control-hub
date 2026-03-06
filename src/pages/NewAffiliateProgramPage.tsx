@@ -74,7 +74,7 @@ export default function NewAffiliateProgramPage() {
   });
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 gradient-mesh min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 min-h-screen">
       <div className="mx-auto max-w-2xl">
         <button
           onClick={() => navigate("/monetization")}

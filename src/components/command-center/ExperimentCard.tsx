@@ -77,7 +77,7 @@ export function ExperimentCard({
               {experiment.experiment_type} optimization
             </p>
           </div>
-          <Badge className={`shrink-0 text-[10px] ${statusConfig.color}`}>
+          <Badge className={`shrink-0 text-xs ${statusConfig.color}`}>
             <StatusIcon className="w-3 h-3 mr-1" />
             {statusConfig.label}
           </Badge>
@@ -127,7 +127,7 @@ export function ExperimentCard({
         {/* Progress bar for active experiments */}
         {experiment.status === "active" && (
           <div className="space-y-1">
-            <div className="flex justify-between text-[10px] text-muted-foreground">
+            <div className="flex justify-between text-xs text-muted-foreground">
               <span>Day {daysSinceStart} of {experiment.measurement_period_days}</span>
               <span>{Math.round(progress)}%</span>
             </div>

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { WorkspaceProvider } from "@/hooks/use-workspace";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -30,7 +29,7 @@ import { RunAgentDialog } from "@/components/agents/RunAgentDialog";
 import { CreateSkillDialog } from "@/components/agents/CreateSkillDialog";
 import type { AgentDefinition, AgentSkill } from "@/types/agents";
 
-function AgentHubContent() {
+export default function AgentHubPage() {
   const { toast } = useToast();
 
   // Data
@@ -126,7 +125,7 @@ function AgentHubContent() {
   const isLoading = agentsLoading || skillsLoading;
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 gradient-mesh min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 min-h-screen">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -260,10 +259,3 @@ function AgentHubContent() {
   );
 }
 
-export default function AgentHubPage() {
-  return (
-    <WorkspaceProvider>
-      <AgentHubContent />
-    </WorkspaceProvider>
-  );
-}

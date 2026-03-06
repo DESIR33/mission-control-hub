@@ -95,28 +95,28 @@ export function CollaborationTracker() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Handshake className="w-3.5 h-3.5 text-blue-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Total</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Total</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{collabs.length}</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <UserPlus className="w-3.5 h-3.5 text-green-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Confirmed</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Confirmed</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{byStatus.confirmed?.length ?? 0}</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <TrendingUp className="w-3.5 h-3.5 text-purple-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Expected Subs</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Expected Subs</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{fmtCount(totalExpectedSubs)}</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <TrendingUp className="w-3.5 h-3.5 text-green-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Actual Subs</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Actual Subs</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{fmtCount(totalActualSubs)}</p>
         </div>
@@ -126,15 +126,15 @@ export function CollaborationTracker() {
       {roiData && roiData.totalSubsFromCollabs > 0 && (
         <div className="grid grid-cols-3 gap-3">
           <div className="rounded-lg border border-border bg-card p-3">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Total Subs from Collabs</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Subs from Collabs</p>
             <p className="text-lg font-bold font-mono text-green-500">{fmtCount(roiData.totalSubsFromCollabs)}</p>
           </div>
           <div className="rounded-lg border border-border bg-card p-3">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Best Collab ROI</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Best Collab ROI</p>
             <p className="text-sm font-bold text-foreground truncate">{roiData.bestCollabROI?.partnerName ?? "--"}</p>
           </div>
           <div className="rounded-lg border border-border bg-card p-3">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Avg Sub Gain</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Avg Sub Gain</p>
             <p className="text-lg font-bold font-mono text-foreground">{fmtCount(roiData.avgSubGainPerCollab)}</p>
           </div>
         </div>
@@ -166,8 +166,8 @@ export function CollaborationTracker() {
                 <div key={step} className="flex items-center gap-1">
                   <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-muted/50">
                     <div className={`w-2 h-2 rounded-full ${statusColors[step]}`} />
-                    <span className="text-[10px] text-foreground capitalize whitespace-nowrap">{step}</span>
-                    <span className="text-[10px] font-mono text-muted-foreground">({byStatus[step]?.length ?? 0})</span>
+                    <span className="text-xs text-foreground capitalize whitespace-nowrap">{step}</span>
+                    <span className="text-xs font-mono text-muted-foreground">({byStatus[step]?.length ?? 0})</span>
                   </div>
                   {i < statusSteps.length - 1 && <span className="text-muted-foreground text-xs">→</span>}
                 </div>
@@ -185,16 +185,16 @@ export function CollaborationTracker() {
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-medium text-foreground">{collab.creator_name}</p>
                       {collab.subscriber_count && (
-                        <span className="text-[10px] text-muted-foreground">{fmtCount(collab.subscriber_count)} subs</span>
+                        <span className="text-xs text-muted-foreground">{fmtCount(collab.subscriber_count)} subs</span>
                       )}
                     </div>
                     <div className="flex items-center gap-2 mt-0.5">
                       {collab.collab_type && (
-                        <span className="text-[10px] text-muted-foreground">{collabTypeLabels[collab.collab_type] ?? collab.collab_type}</span>
+                        <span className="text-xs text-muted-foreground">{collabTypeLabels[collab.collab_type] ?? collab.collab_type}</span>
                       )}
-                      {collab.niche && <span className="text-[10px] text-muted-foreground">· {collab.niche}</span>}
+                      {collab.niche && <span className="text-xs text-muted-foreground">· {collab.niche}</span>}
                       {collab.scheduled_date && (
-                        <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                        <span className="text-xs text-muted-foreground flex items-center gap-0.5">
                           <Calendar className="w-2.5 h-2.5" /> {collab.scheduled_date}
                         </span>
                       )}
@@ -205,7 +205,7 @@ export function CollaborationTracker() {
                     const roi = roiMap.get(collab.id);
                     if (!roi || (roi.viewsGenerated === 0 && roi.actualSubGain === 0)) return null;
                     return (
-                      <div className="flex items-center gap-2 text-[10px]">
+                      <div className="flex items-center gap-2 text-xs">
                         {roi.viewsGenerated > 0 && (
                           <span className="flex items-center gap-0.5 text-blue-500">
                             <Eye className="w-2.5 h-2.5" />{fmtCount(roi.viewsGenerated)}
@@ -225,7 +225,7 @@ export function CollaborationTracker() {
                     );
                   })()}
                   <select
-                    className="bg-muted/50 rounded px-2 py-1 text-[10px] text-foreground border border-border outline-none"
+                    className="bg-muted/50 rounded px-2 py-1 text-xs text-foreground border border-border outline-none"
                     value={collab.status}
                     onChange={(e) =>
                       updateCollab.mutate({ id: collab.id, status: e.target.value as any })
@@ -266,14 +266,14 @@ export function CollaborationTracker() {
             <div key={step} className="space-y-2">
               <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-muted/30 border border-border">
                 <div className={`w-2 h-2 rounded-full ${statusColors[step]}`} />
-                <span className="text-[10px] font-semibold text-foreground capitalize">{step}</span>
-                <span className="text-[10px] font-mono text-muted-foreground ml-auto">({byStatus[step]?.length ?? 0})</span>
+                <span className="text-xs font-semibold text-foreground capitalize">{step}</span>
+                <span className="text-xs font-mono text-muted-foreground ml-auto">({byStatus[step]?.length ?? 0})</span>
               </div>
               {(byStatus[step] ?? []).map((collab) => (
                 <div key={collab.id} className="rounded-lg border border-border bg-card p-2.5 space-y-1.5">
                   <p className="text-xs font-medium text-foreground truncate">{collab.creator_name}</p>
                   {collab.subscriber_count && (
-                    <p className="text-[10px] text-muted-foreground">{fmtCount(collab.subscriber_count)} subs</p>
+                    <p className="text-xs text-muted-foreground">{fmtCount(collab.subscriber_count)} subs</p>
                   )}
                   {collab.collab_type && (
                     <Badge variant="outline" className="text-[8px]">
@@ -281,7 +281,7 @@ export function CollaborationTracker() {
                     </Badge>
                   )}
                   <select
-                    className="w-full bg-muted/50 rounded px-1.5 py-0.5 text-[9px] text-foreground border border-border outline-none"
+                    className="w-full bg-muted/50 rounded px-1.5 py-0.5 text-xs text-foreground border border-border outline-none"
                     value={collab.status}
                     onChange={(e) => updateCollab.mutate({ id: collab.id, status: e.target.value as any })}
                   >

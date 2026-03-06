@@ -323,7 +323,7 @@ export default function ProjectsPage() {
                     </h2>
                     <span
                       className={cn(
-                        "text-[11px] px-2 py-0.5 rounded-full font-medium shrink-0",
+                        "text-xs px-2 py-0.5 rounded-full font-medium shrink-0",
                         getStatusBgClass(project.status)
                       )}
                     >
@@ -382,7 +382,7 @@ export default function ProjectsPage() {
                       <h3 className="font-medium text-sm truncate">{project.title}</h3>
                       <span
                         className={cn(
-                          "text-[10px] px-1.5 py-0.5 rounded-full font-medium shrink-0",
+                          "text-xs px-1.5 py-0.5 rounded-full font-medium shrink-0",
                           getStatusBgClass(project.status)
                         )}
                       >

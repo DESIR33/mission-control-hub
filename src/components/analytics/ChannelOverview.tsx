@@ -334,7 +334,7 @@ export function ChannelOverview({ data, daysRange, currentSubscribers }: Props) 
           <div className="rounded-lg border border-border bg-card p-4">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold text-foreground">Subscriber Velocity</h3>
-              <span className="text-[10px] text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 Avg: {avgSubsVelocity} subs/1K views
               </span>
             </div>
@@ -426,14 +426,14 @@ function KpiCard({
     <div className="rounded-lg border border-border bg-card p-3">
       <div className="flex items-center gap-1.5 mb-1">
         {icon}
-        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</p>
+        <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
       </div>
       <p className={`text-lg font-bold font-mono mt-0.5 ${
         positive === true ? "text-green-500" : positive === false ? "text-red-500" : "text-foreground"
       }`}>
         {value}
       </p>
-      {sub && <p className="text-[10px] text-muted-foreground">{sub}</p>}
+      {sub && <p className="text-xs text-muted-foreground">{sub}</p>}
       {change !== undefined && change !== null && (
         <div className={`flex items-center gap-0.5 mt-1 ${change >= 0 ? "text-green-500" : "text-red-500"}`}>
           {change >= 0 ? (
@@ -441,7 +441,7 @@ function KpiCard({
           ) : (
             <ArrowDownRight className="w-3 h-3" />
           )}
-          <span className="text-[10px] font-medium">
+          <span className="text-xs font-medium">
             {change >= 0 ? "+" : ""}{change}%{daysRange ? ` vs prev ${daysRange}d` : ""}
           </span>
         </div>

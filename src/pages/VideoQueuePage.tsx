@@ -29,6 +29,18 @@ import { Linkedin as SiLinkedin } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -47,18 +59,18 @@ import { useVideoRevenueLookup } from "@/hooks/use-video-revenue-lookup";
 import { useYouTubeVideoStats } from "@/hooks/use-youtube-analytics";
 
 const statusTone: Record<VideoQueueItem["status"], string> = {
-  idea: "bg-slate-100 text-slate-700 border-slate-200",
-  scripting: "bg-blue-100 text-blue-700 border-blue-200",
-  recording: "bg-amber-100 text-amber-700 border-amber-200",
-  editing: "bg-orange-100 text-orange-700 border-orange-200",
-  scheduled: "bg-purple-100 text-purple-700 border-purple-200",
-  published: "bg-emerald-100 text-emerald-700 border-emerald-200",
+  idea: "bg-slate-500/15 text-slate-400 border-slate-500/25",
+  scripting: "bg-blue-500/15 text-blue-400 border-blue-500/25",
+  recording: "bg-amber-500/15 text-amber-400 border-amber-500/25",
+  editing: "bg-orange-500/15 text-orange-400 border-orange-500/25",
+  scheduled: "bg-purple-500/15 text-purple-400 border-purple-500/25",
+  published: "bg-emerald-500/15 text-emerald-400 border-emerald-500/25",
 };
 
 const priorityTone: Record<VideoQueueItem["priority"], string> = {
-  low: "bg-emerald-100 text-emerald-700 border-emerald-200",
-  medium: "bg-amber-100 text-amber-700 border-amber-200",
-  high: "bg-rose-100 text-rose-700 border-rose-200",
+  low: "bg-emerald-500/15 text-emerald-400 border-emerald-500/25",
+  medium: "bg-amber-500/15 text-amber-400 border-amber-500/25",
+  high: "bg-rose-500/15 text-rose-400 border-rose-500/25",
 };
 
 const getPlatformIcon = (platform: string) => {
@@ -97,6 +109,7 @@ export default function VideoQueuePage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [priorityFilter, setPriorityFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [deleteVideoId, setDeleteVideoId] = useState<number | string | null>(null);
   const [currentView, setCurrentView] = useState<"list" | "cards" | "calendar">(() => {
     const saved = localStorage.getItem("video-queue-view");
     if (saved === "list" || saved === "cards" || saved === "calendar") return saved;
@@ -163,37 +176,37 @@ export default function VideoQueuePage() {
   );
 
   const handleDeleteVideo = (videoId: number | string) => {
-    if (
-      confirm(
-        "Are you sure you want to delete this video? This action cannot be undone."
-      )
-    ) {
-      deleteVideoMutation.mutate(videoId, {
-        onSuccess: () => {
-          toast({
-            title: "Success",
-            description: "Video deleted successfully.",
-          });
-        },
-        onError: () => {
-          toast({
-            title: "Error",
-            description: "Failed to delete video.",
-            variant: "destructive",
-          });
-        },
-      });
-    }
+    setDeleteVideoId(videoId);
+  };
+
+  const confirmDelete = () => {
+    if (deleteVideoId === null) return;
+    deleteVideoMutation.mutate(deleteVideoId, {
+      onSuccess: () => {
+        toast({
+          title: "Success",
+          description: "Video deleted successfully.",
+        });
+      },
+      onError: () => {
+        toast({
+          title: "Error",
+          description: "Failed to delete video.",
+          variant: "destructive",
+        });
+      },
+    });
+    setDeleteVideoId(null);
   };
 
   return (
-    <div className="flex flex-col pb-20 sm:pb-0 sm:h-[calc(100vh-64px)]">
+    <div className="flex flex-col sm:h-[calc(100vh-64px)]">
       <header className="flex-shrink-0 border-b border-border bg-card px-4 py-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <Film className="h-5 w-5 text-foreground" />
             <div>
-              <h1 className="text-lg font-bold text-foreground">
+              <h1 className="text-2xl font-bold text-foreground">
                 Video Queue
               </h1>
               <p className="text-xs text-muted-foreground">
@@ -203,19 +216,16 @@ export default function VideoQueuePage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <button
-              onClick={handleRefresh}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-background px-3 py-1.5 text-sm text-foreground shadow-[4px_4px_8px_rgba(0,0,0,0.1),-4px_-4px_8px_rgba(255,255,255,0.04)]"
-            >
-              <RefreshCw className="h-3.5 w-3.5" />
+            <Button variant="outline" size="sm" onClick={handleRefresh}>
+              <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
               Refresh
-            </button>
-            <Link to="/content/create">
-              <button className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3 py-1.5 text-sm text-primary-foreground shadow-[4px_4px_8px_rgba(0,0,0,0.1),-4px_-4px_8px_rgba(255,255,255,0.04)]">
-                <Plus className="h-3.5 w-3.5" />
+            </Button>
+            <Button size="sm" asChild>
+              <Link to="/content/create">
+                <Plus className="h-3.5 w-3.5 mr-1.5" />
                 Add video
-              </button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </div>
 
@@ -243,12 +253,12 @@ export default function VideoQueuePage() {
         <div className="flex flex-wrap gap-2">
           <div className="relative min-w-[220px] flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-            <input
+            <Input
               type="search"
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
               placeholder="Search videos"
-              className="h-10 w-full rounded-xl border border-border bg-background pl-9 pr-3 text-sm text-foreground shadow-[inset_2px_2px_4px_rgba(0,0,0,0.08),inset_-2px_-2px_4px_rgba(255,255,255,0.04)] focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="pl-9"
             />
           </div>
 
@@ -280,42 +290,48 @@ export default function VideoQueuePage() {
           </Select>
 
           <div className="flex items-center gap-1 rounded-xl border border-border bg-background px-1">
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="List view"
               className={cn(
-                "rounded-lg p-2",
+                "h-8 w-8",
                 currentView === "list"
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-accent"
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                  : "text-muted-foreground"
               )}
               onClick={() => handleViewChange("list")}
-              title="List view"
             >
               <List className="h-3.5 w-3.5" />
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Card view"
               className={cn(
-                "rounded-lg p-2",
+                "h-8 w-8",
                 currentView === "cards"
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-accent"
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                  : "text-muted-foreground"
               )}
               onClick={() => handleViewChange("cards")}
-              title="Card view"
             >
               <LayoutGrid className="h-3.5 w-3.5" />
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Calendar view"
               className={cn(
-                "rounded-lg p-2",
+                "h-8 w-8",
                 currentView === "calendar"
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-accent"
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                  : "text-muted-foreground"
               )}
               onClick={() => handleViewChange("calendar")}
-              title="Calendar view"
             >
               <CalendarDays className="h-3.5 w-3.5" />
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -363,12 +379,12 @@ export default function VideoQueuePage() {
                           {video.title}
                         </h2>
                         <span
-                          className={`rounded-full border px-2 py-0.5 text-[11px] font-medium capitalize ${priorityTone[video.priority]}`}
+                          className={`rounded-full border px-2 py-0.5 text-xs font-medium capitalize ${priorityTone[video.priority]}`}
                         >
                           {video.priority}
                         </span>
                         <span
-                          className={`rounded-full border px-2 py-0.5 text-[11px] font-medium capitalize ${statusTone[video.status]}`}
+                          className={`rounded-full border px-2 py-0.5 text-xs font-medium capitalize ${statusTone[video.status]}`}
                         >
                           {video.status}
                         </span>
@@ -406,7 +422,7 @@ export default function VideoQueuePage() {
                           </span>
                         )}
                         {video.youtubeVideoId && revenueLookup.get(video.youtubeVideoId) && (
-                          <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
+                          <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/25 bg-emerald-500/15 px-2 py-0.5 text-xs font-medium text-emerald-400">
                             ${revenueLookup.get(video.youtubeVideoId)!.totalRevenue.toFixed(0)} rev
                           </span>
                         )}
@@ -414,14 +430,14 @@ export default function VideoQueuePage() {
                           const stats = ytStatsLookup.get(video.youtubeVideoId!)!;
                           return (
                             <>
-                              <span className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700">
+                              <span className="inline-flex items-center gap-1 rounded-full border border-blue-500/25 bg-blue-500/15 px-2 py-0.5 text-xs font-medium text-blue-400">
                                 <Eye className="h-3 w-3" /> {stats.views.toLocaleString()}
                               </span>
-                              <span className="inline-flex items-center gap-1 rounded-full border border-green-200 bg-green-50 px-2 py-0.5 text-[11px] font-medium text-green-700">
+                              <span className="inline-flex items-center gap-1 rounded-full border border-green-500/25 bg-green-500/15 px-2 py-0.5 text-xs font-medium text-green-400">
                                 {stats.likes.toLocaleString()} likes
                               </span>
                               {stats.ctr != null && stats.ctr > 0 && (
-                                <span className="inline-flex items-center gap-1 rounded-full border border-purple-200 bg-purple-50 px-2 py-0.5 text-[11px] font-medium text-purple-700">
+                                <span className="inline-flex items-center gap-1 rounded-full border border-purple-500/25 bg-purple-500/15 px-2 py-0.5 text-xs font-medium text-purple-400">
                                   CTR {stats.ctr.toFixed(1)}%
                                 </span>
                               )}
@@ -447,28 +463,29 @@ export default function VideoQueuePage() {
                           </span>
                         ))}
                       </div>
-                      <button
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        aria-label="View details"
+                        className="text-primary"
                         onClick={() => setSelectedVideo(video)}
-                        className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background text-primary"
-                        title="View details"
                       >
                         <Eye className="h-4 w-4" />
-                      </button>
-                      <Link to={`/content/${video.id}/edit`}>
-                        <button
-                          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background text-foreground"
-                          title="Edit"
-                        >
+                      </Button>
+                      <Button variant="outline" size="icon" aria-label="Edit" asChild>
+                        <Link to={`/content/${video.id}/edit`}>
                           <Edit3 className="h-4 w-4" />
-                        </button>
-                      </Link>
-                      <button
+                        </Link>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        aria-label="Delete"
+                        className="text-destructive hover:text-destructive"
                         onClick={() => handleDeleteVideo(video.id)}
-                        className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background text-destructive"
-                        title="Delete"
                       >
                         <Trash2 className="h-4 w-4" />
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -488,17 +505,17 @@ export default function VideoQueuePage() {
                 >
                   <div className="flex flex-wrap items-center gap-1.5">
                     <span
-                      className={`rounded-full border px-2 py-0.5 text-[11px] font-medium capitalize ${statusTone[video.status]}`}
+                      className={`rounded-full border px-2 py-0.5 text-xs font-medium capitalize ${statusTone[video.status]}`}
                     >
                       {video.status}
                     </span>
                     <span
-                      className={`rounded-full border px-2 py-0.5 text-[11px] font-medium capitalize ${priorityTone[video.priority]}`}
+                      className={`rounded-full border px-2 py-0.5 text-xs font-medium capitalize ${priorityTone[video.priority]}`}
                     >
                       {video.priority}
                     </span>
                     {video.isSponsored && (
-                      <span className="rounded-full border border-amber-200 bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700">
+                      <span className="rounded-full border border-amber-500/25 bg-amber-500/15 px-2 py-0.5 text-xs font-medium text-amber-400">
                         Sponsored
                       </span>
                     )}
@@ -546,7 +563,7 @@ export default function VideoQueuePage() {
                     Owner: {nameFromUser(video.assignedTo)}
                   </p>
                   {video.youtubeVideoId && revenueLookup.get(video.youtubeVideoId) && (
-                    <span className="mt-1 inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
+                    <span className="mt-1 inline-flex items-center gap-1 rounded-full border border-emerald-500/25 bg-emerald-500/15 px-2 py-0.5 text-xs font-medium text-emerald-400">
                       ${revenueLookup.get(video.youtubeVideoId)!.totalRevenue.toFixed(0)} rev
                     </span>
                   )}
@@ -554,14 +571,14 @@ export default function VideoQueuePage() {
                     const stats = ytStatsLookup.get(video.youtubeVideoId!)!;
                     return (
                       <div className="mt-1 flex flex-wrap items-center gap-1">
-                        <span className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-blue-500/25 bg-blue-500/15 px-2 py-0.5 text-xs font-medium text-blue-400">
                           <Eye className="h-3 w-3" /> {stats.views.toLocaleString()}
                         </span>
-                        <span className="inline-flex items-center gap-1 rounded-full border border-green-200 bg-green-50 px-2 py-0.5 text-[11px] font-medium text-green-700">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-green-500/25 bg-green-500/15 px-2 py-0.5 text-xs font-medium text-green-400">
                           {stats.likes.toLocaleString()} likes
                         </span>
                         {stats.ctr != null && stats.ctr > 0 && (
-                          <span className="inline-flex items-center gap-1 rounded-full border border-purple-200 bg-purple-50 px-2 py-0.5 text-[11px] font-medium text-purple-700">
+                          <span className="inline-flex items-center gap-1 rounded-full border border-purple-500/25 bg-purple-500/15 px-2 py-0.5 text-xs font-medium text-purple-400">
                             CTR {stats.ctr.toFixed(1)}%
                           </span>
                         )}
@@ -570,28 +587,29 @@ export default function VideoQueuePage() {
                   })()}
 
                   <div className="mt-4 flex items-center gap-1 border-t border-border pt-3">
-                    <button
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      aria-label="View details"
+                      className="h-8 w-8 text-primary"
                       onClick={() => setSelectedVideo(video)}
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-background text-primary"
-                      title="View details"
                     >
                       <Eye className="h-3.5 w-3.5" />
-                    </button>
-                    <Link to={`/content/${video.id}/edit`}>
-                      <button
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-background text-foreground"
-                        title="Edit"
-                      >
+                    </Button>
+                    <Button variant="outline" size="icon" aria-label="Edit" className="h-8 w-8" asChild>
+                      <Link to={`/content/${video.id}/edit`}>
                         <Edit3 className="h-3.5 w-3.5" />
-                      </button>
-                    </Link>
-                    <button
+                      </Link>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      aria-label="Delete"
+                      className="h-8 w-8 text-destructive hover:text-destructive"
                       onClick={() => handleDeleteVideo(video.id)}
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-background text-destructive"
-                      title="Delete"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
-                    </button>
+                    </Button>
                   </div>
                 </div>
               );
@@ -619,6 +637,23 @@ export default function VideoQueuePage() {
           </DialogContent>
         </Dialog>
       )}
+
+      <AlertDialog open={deleteVideoId !== null} onOpenChange={(open) => !open && setDeleteVideoId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete video</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this video? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

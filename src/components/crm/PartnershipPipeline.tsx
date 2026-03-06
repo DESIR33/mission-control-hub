@@ -80,28 +80,28 @@ export function PartnershipPipeline({ partnershipType }: Props) {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Users className="w-3.5 h-3.5 text-blue-500" />
-            <span className="text-[10px] text-muted-foreground uppercase tracking-wider">In Pipeline</span>
+            <span className="text-xs text-muted-foreground uppercase tracking-wider">In Pipeline</span>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{totalInPipeline}</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <DollarSign className="w-3.5 h-3.5 text-green-500" />
-            <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Total Value</span>
+            <span className="text-xs text-muted-foreground uppercase tracking-wider">Total Value</span>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{fmtMoney(totalValue)}</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <TrendingUp className="w-3.5 h-3.5 text-amber-500" />
-            <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Active</span>
+            <span className="text-xs text-muted-foreground uppercase tracking-wider">Active</span>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{activeCount}</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Clock className="w-3.5 h-3.5 text-purple-500" />
-            <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Conversion</span>
+            <span className="text-xs text-muted-foreground uppercase tracking-wider">Conversion</span>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">
             {totalInPipeline > 0 ? `${((columns[2].cards.length / totalInPipeline) * 100).toFixed(0)}%` : "—"}
@@ -116,10 +116,10 @@ export function PartnershipPipeline({ partnershipType }: Props) {
             <div className="p-3 border-b border-border">
               <div className="flex items-center justify-between">
                 <h4 className="text-xs font-semibold text-foreground">{STATUS_LABELS[col.status]}</h4>
-                <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">{col.cards.length}</span>
+                <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">{col.cards.length}</span>
               </div>
               {col.totalValue > 0 && (
-                <p className="text-[10px] text-green-500 font-mono mt-0.5">{fmtMoney(col.totalValue)}</p>
+                <p className="text-xs text-green-500 font-mono mt-0.5">{fmtMoney(col.totalValue)}</p>
               )}
             </div>
             <div className="p-2 space-y-2 max-h-[400px] overflow-y-auto">
@@ -131,16 +131,16 @@ export function PartnershipPipeline({ partnershipType }: Props) {
                       {contact.first_name} {contact.last_name}
                     </p>
                     {contact.company_name && (
-                      <p className="text-[10px] text-muted-foreground mt-0.5">{contact.company_name}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{contact.company_name}</p>
                     )}
                     <div className="flex items-center gap-2 mt-1.5">
                       {contact.vip_tier && (
-                        <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200 font-medium">
+                        <span className="text-xs px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200 font-medium">
                           {contact.vip_tier}
                         </span>
                       )}
                       {dealValue > 0 && (
-                        <span className="text-[10px] text-green-500 font-mono">{fmtMoney(dealValue)}</span>
+                        <span className="text-xs text-green-500 font-mono">{fmtMoney(dealValue)}</span>
                       )}
                     </div>
                   </div>

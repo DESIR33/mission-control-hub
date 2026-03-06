@@ -69,21 +69,21 @@ export function RateCardCalculator() {
       {/* Channel Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="rounded-lg border border-border bg-card p-3">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Subscribers</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Subscribers</p>
           <p className="text-lg font-bold font-mono text-foreground">{fmtCount(rateCard.subscriberCount)}</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-3">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Avg Views</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Avg Views</p>
           <p className="text-lg font-bold font-mono text-foreground">{fmtCount(rateCard.avgViews)}</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-3">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Engagement</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Engagement</p>
           <p className="text-lg font-bold font-mono text-foreground">{rateCard.engagementRate}%</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-3">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Niche Multiplier</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Niche Multiplier</p>
           <p className="text-lg font-bold font-mono text-foreground">{rateCard.nicheMultiplier}x</p>
-          <p className="text-[10px] text-muted-foreground">Tech/Business</p>
+          <p className="text-xs text-muted-foreground">Tech/Business</p>
         </div>
       </div>
 
@@ -92,10 +92,10 @@ export function RateCardCalculator() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border bg-muted/30">
-              <th className="text-left px-4 py-2 text-[10px] text-muted-foreground uppercase tracking-wider">Integration Type</th>
-              <th className="text-right px-4 py-2 text-[10px] text-muted-foreground uppercase tracking-wider">Suggested Rate</th>
-              <th className="text-right px-4 py-2 text-[10px] text-muted-foreground uppercase tracking-wider hidden sm:table-cell">Your Avg Deal</th>
-              <th className="text-right px-4 py-2 text-[10px] text-muted-foreground uppercase tracking-wider hidden sm:table-cell">Delta</th>
+              <th className="text-left px-4 py-2 text-xs text-muted-foreground uppercase tracking-wider">Integration Type</th>
+              <th className="text-right px-4 py-2 text-xs text-muted-foreground uppercase tracking-wider">Suggested Rate</th>
+              <th className="text-right px-4 py-2 text-xs text-muted-foreground uppercase tracking-wider hidden sm:table-cell">Your Avg Deal</th>
+              <th className="text-right px-4 py-2 text-xs text-muted-foreground uppercase tracking-wider hidden sm:table-cell">Delta</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -103,7 +103,7 @@ export function RateCardCalculator() {
               <tr key={rate.type}>
                 <td className="px-4 py-2.5">
                   <p className="text-xs font-medium text-foreground">{rate.type}</p>
-                  <p className="text-[10px] text-muted-foreground">{rate.description}</p>
+                  <p className="text-xs text-muted-foreground">{rate.description}</p>
                 </td>
                 <td className="px-4 py-2.5 text-right">
                   <p className="text-sm font-bold font-mono text-foreground">{fmtDollar(rate.suggestedRate)}</p>
@@ -136,7 +136,7 @@ export function RateCardCalculator() {
         </h3>
         <div className="flex items-center gap-3">
           <div className="flex-1">
-            <label className="text-[10px] text-muted-foreground uppercase tracking-wider">Sponsor's Offer</label>
+            <label className="text-xs text-muted-foreground uppercase tracking-wider">Sponsor's Offer</label>
             <div className="relative mt-1">
               <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
               <input
@@ -150,11 +150,11 @@ export function RateCardCalculator() {
           </div>
           {offer > 0 && (
             <div className="text-right">
-              <p className="text-[10px] text-muted-foreground">vs Market Rate</p>
+              <p className="text-xs text-muted-foreground">vs Market Rate</p>
               <p className={`text-lg font-bold font-mono ${offerVsMarket >= 0 ? "text-green-400" : "text-red-400"}`}>
                 {offerVsMarket >= 0 ? "+" : ""}{offerVsMarket.toFixed(0)}%
               </p>
-              <p className="text-[10px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 {offerVsMarket >= 0 ? "above" : "below"} suggested rate
               </p>
             </div>

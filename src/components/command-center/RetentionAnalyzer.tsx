@@ -59,16 +59,16 @@ export function RetentionAnalyzer() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Clock className="w-3.5 h-3.5 text-blue-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Avg Retention</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Avg Retention</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{analysis.avgRetention.toFixed(1)}%</p>
-          <p className="text-[10px] text-muted-foreground">YouTube avg ~40%</p>
+          <p className="text-xs text-muted-foreground">YouTube avg ~40%</p>
         </div>
 
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <BarChart3 className="w-3.5 h-3.5 text-purple-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Median</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Median</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{analysis.medianRetention.toFixed(1)}%</p>
         </div>
@@ -76,7 +76,7 @@ export function RetentionAnalyzer() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <TrendingUp className="w-3.5 h-3.5 text-green-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Top 5 Avg</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Top 5 Avg</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">
             {analysis.topRetention.length > 0
@@ -163,11 +163,11 @@ export function RetentionAnalyzer() {
           <div className="space-y-2">
             {analysis.topRetention.map((v) => (
               <div key={v.videoId} className="flex items-center gap-2">
-                <Badge variant={categoryBadge[v.category] as any} className="text-[9px] shrink-0">
+                <Badge variant={categoryBadge[v.category] as any} className="text-xs shrink-0">
                   {v.retention.toFixed(0)}%
                 </Badge>
                 <p className="text-xs text-foreground truncate flex-1">{v.title}</p>
-                <p className="text-[10px] text-muted-foreground shrink-0">{fmtCount(v.views)}</p>
+                <p className="text-xs text-muted-foreground shrink-0">{fmtCount(v.views)}</p>
               </div>
             ))}
           </div>
@@ -181,11 +181,11 @@ export function RetentionAnalyzer() {
           <div className="space-y-2">
             {analysis.lowRetention.map((v) => (
               <div key={v.videoId} className="flex items-center gap-2">
-                <Badge variant="destructive" className="text-[9px] shrink-0">
+                <Badge variant="destructive" className="text-xs shrink-0">
                   {v.retention.toFixed(0)}%
                 </Badge>
                 <p className="text-xs text-foreground truncate flex-1">{v.title}</p>
-                <p className="text-[10px] text-muted-foreground shrink-0">{fmtCount(v.views)}</p>
+                <p className="text-xs text-muted-foreground shrink-0">{fmtCount(v.views)}</p>
               </div>
             ))}
           </div>

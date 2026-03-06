@@ -72,8 +72,8 @@ export function PipelineVelocity() {
               />
             </div>
             <div className="w-full border-t border-border pt-1.5 text-center">
-              <p className="text-[10px] text-muted-foreground leading-tight">{STAGE_LABELS[sv.stage] ?? sv.stage}</p>
-              <p className="text-[10px] text-muted-foreground">{sv.dealCount} deals</p>
+              <p className="text-xs text-muted-foreground leading-tight">{STAGE_LABELS[sv.stage] ?? sv.stage}</p>
+              <p className="text-xs text-muted-foreground">{sv.dealCount} deals</p>
             </div>
             {i < data.stageVelocities.length - 1 && data.stageConversions[i] && (
               <div className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 hidden">
@@ -88,7 +88,7 @@ export function PipelineVelocity() {
       {data.stageConversions.length > 0 && (
         <div className="mt-3 pt-3 border-t border-border flex flex-wrap gap-3">
           {data.stageConversions.map((c) => (
-            <span key={`${c.from}-${c.to}`} className="text-[10px] text-muted-foreground">
+            <span key={`${c.from}-${c.to}`} className="text-xs text-muted-foreground">
               {STAGE_LABELS[c.from] ?? c.from} → {STAGE_LABELS[c.to] ?? c.to}:{" "}
               <span className="font-mono font-semibold text-foreground">{c.rate}%</span>
             </span>

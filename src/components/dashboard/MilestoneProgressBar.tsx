@@ -83,7 +83,7 @@ export function MilestoneProgressBar() {
             <Target className="w-5 h-5" />
             Milestone Progress
           </CardTitle>
-          <Badge variant="outline" className={`text-[9px] ${momentum.className}`}>
+          <Badge variant="outline" className={`text-xs ${momentum.className}`}>
             <MomentumIcon className="w-3 h-3 mr-0.5" />
             {momentum.label}
           </Badge>
@@ -96,7 +96,7 @@ export function MilestoneProgressBar() {
             <p className="text-3xl font-bold font-mono text-foreground">
               {fmtCount(currentSubs)}
             </p>
-            <p className="text-[10px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               subscribers
             </p>
           </div>
@@ -104,7 +104,7 @@ export function MilestoneProgressBar() {
             <p className="text-lg font-bold font-mono text-foreground">
               {nextMilestone.label}
             </p>
-            <p className="text-[10px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               next milestone
             </p>
           </div>
@@ -113,18 +113,18 @@ export function MilestoneProgressBar() {
         {/* Progress bar */}
         <div>
           <div className="flex items-center justify-between mb-1">
-            <span className="text-[10px] text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               {fmtCount(nextMilestone.previousMilestone)}
             </span>
-            <span className="text-[10px] font-medium text-foreground">
+            <span className="text-xs font-medium text-foreground">
               {nextMilestone.progressPercent.toFixed(1)}%
             </span>
-            <span className="text-[10px] text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               {nextMilestone.label}
             </span>
           </div>
           <Progress value={nextMilestone.progressPercent} className="h-2.5" />
-          <p className="text-[10px] text-muted-foreground mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             {fmtCount(nextMilestone.subsNeeded)} subscribers to go
           </p>
         </div>
@@ -134,7 +134,7 @@ export function MilestoneProgressBar() {
           <div className="rounded-lg border border-border bg-card p-2.5">
             <div className="flex items-center gap-1 mb-0.5">
               <TrendingUp className="w-3 h-3 text-green-500" />
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 Daily Rate
               </p>
             </div>
@@ -146,7 +146,7 @@ export function MilestoneProgressBar() {
           <div className="rounded-lg border border-border bg-card p-2.5">
             <div className="flex items-center gap-1 mb-0.5">
               <Calendar className="w-3 h-3 text-blue-500" />
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 ETA
               </p>
             </div>
@@ -154,7 +154,7 @@ export function MilestoneProgressBar() {
               {nextMilestone.daysAway != null ? `${nextMilestone.daysAway}d` : "--"}
             </p>
             {nextMilestone.estimatedDate && (
-              <p className="text-[9px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 {nextMilestone.estimatedDate}
               </p>
             )}
@@ -163,14 +163,14 @@ export function MilestoneProgressBar() {
           <div className="rounded-lg border border-border bg-card p-2.5">
             <div className="flex items-center gap-1 mb-0.5">
               <Flame className="w-3 h-3 text-orange-500" />
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 Streak
               </p>
             </div>
             <p className="text-sm font-bold font-mono text-foreground">
               {streakDays}d
             </p>
-            <p className="text-[9px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               consecutive growth
             </p>
           </div>

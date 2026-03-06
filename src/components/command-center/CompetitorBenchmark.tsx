@@ -135,10 +135,10 @@ export function CompetitorBenchmark() {
             <div key={comp.metric} className="rounded-lg border border-border bg-card p-3">
               <div className="flex items-center gap-1.5 mb-1">
                 <Icon className={`w-3.5 h-3.5 ${statusColor[comp.status]}`} />
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{comp.metric}</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wider">{comp.metric}</p>
               </div>
               <p className="text-lg font-bold font-mono text-foreground">{fmtCount(comp.yours)}</p>
-              <p className="text-[10px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 vs avg {fmtCount(comp.competitorAvg)}
                 <span className={`ml-1 ${statusColor[comp.status]}`}>
                   ({comp.deltaPercent >= 0 ? "+" : ""}{comp.deltaPercent.toFixed(0)}%)
@@ -160,7 +160,7 @@ export function CompetitorBenchmark() {
             {benchmark.yourPosition.map((p) => (
               <div key={p.metric} className="text-center">
                 <p className="text-2xl font-bold font-mono text-foreground">#{p.rank}</p>
-                <p className="text-[10px] text-muted-foreground">of {p.total} · {p.metric}</p>
+                <p className="text-xs text-muted-foreground">of {p.total} · {p.metric}</p>
               </div>
             ))}
           </div>
@@ -206,7 +206,7 @@ export function CompetitorBenchmark() {
           <div key={comp.id} className="rounded-lg border border-border bg-card p-3 flex items-center gap-3">
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground">{comp.channel_name}</p>
-              <div className="flex items-center gap-3 text-[10px] text-muted-foreground mt-0.5">
+              <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
                 {comp.subscriber_count != null && <span>{fmtCount(comp.subscriber_count)} subs</span>}
                 {comp.video_count != null && <span>{comp.video_count} videos</span>}
                 {comp.primary_niche && <span>{comp.primary_niche}</span>}

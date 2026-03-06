@@ -44,7 +44,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { WorkspaceProvider } from "@/hooks/use-workspace";
 import {
   useCollaborations,
   useCreateCollaboration,
@@ -197,19 +196,19 @@ function SummaryStats({ collaborations }: { collaborations: Collaboration[] }) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
       <div className="rounded-lg border border-border bg-card p-3">
-        <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Total</p>
+        <p className="text-xs uppercase tracking-wider text-muted-foreground">Total</p>
         <p className="text-xl font-bold text-foreground">{stats.total}</p>
       </div>
       {STATUSES.map((s) => (
         <div key={s} className="rounded-lg border border-border bg-card p-3">
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs uppercase tracking-wider text-muted-foreground">
             {STATUS_LABELS[s]}
           </p>
           <p className="text-xl font-bold text-foreground">{stats.byCounts[s]}</p>
         </div>
       ))}
       <div className="rounded-lg border border-border bg-card p-3">
-        <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+        <p className="text-xs uppercase tracking-wider text-muted-foreground">
           Expected / Actual Subs
         </p>
         <p className="text-lg font-bold text-foreground">
@@ -245,25 +244,25 @@ function ROISection({ collaborations }: { collaborations: Collaboration[] }) {
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div>
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs uppercase tracking-wider text-muted-foreground">
             Published Collabs
           </p>
           <p className="text-lg font-bold text-foreground">{published.length}</p>
         </div>
         <div>
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs uppercase tracking-wider text-muted-foreground">
             Total Sub Gain
           </p>
           <p className="text-lg font-bold text-emerald-400">{formatSubGain(totalActual)}</p>
         </div>
         <div>
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs uppercase tracking-wider text-muted-foreground">
             Avg Sub Gain
           </p>
           <p className="text-lg font-bold text-foreground">{formatSubGain(Math.round(avgGain))}</p>
         </div>
         <div>
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs uppercase tracking-wider text-muted-foreground">
             Actual vs Expected
           </p>
           <p className="text-lg font-bold text-foreground">{roiPercent}%</p>
@@ -330,7 +329,7 @@ function CollabCard({
       <div className="flex items-start justify-between gap-1">
         <h4 className="text-sm font-semibold text-foreground truncate">{collab.creator_name}</h4>
         {collab.collab_type && (
-          <Badge variant="outline" className="text-[10px] shrink-0">
+          <Badge variant="outline" className="text-xs shrink-0">
             {COLLAB_TYPE_LABELS[collab.collab_type]}
           </Badge>
         )}
@@ -619,7 +618,7 @@ function CollabFormFields({
 
 // ---------- Main Content ----------
 
-function CollaborationsContent() {
+export default function CollaborationsPage() {
   const { data: collaborations = [], isLoading } = useCollaborations();
   const createCollab = useCreateCollaboration();
   const updateCollab = useUpdateCollaboration();
@@ -717,7 +716,7 @@ function CollaborationsContent() {
 
   if (isLoading) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8 space-y-6 gradient-mesh min-h-screen">
+      <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
         <div className="flex items-center gap-2">
           <Handshake className="w-5 h-5 text-primary" />
           <h1 className="text-2xl font-bold text-foreground">Collaborations</h1>
@@ -741,7 +740,7 @@ function CollaborationsContent() {
   }
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 gradient-mesh min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
@@ -854,10 +853,3 @@ function CollaborationsContent() {
   );
 }
 
-export default function CollaborationsPage() {
-  return (
-    <WorkspaceProvider>
-      <CollaborationsContent />
-    </WorkspaceProvider>
-  );
-}

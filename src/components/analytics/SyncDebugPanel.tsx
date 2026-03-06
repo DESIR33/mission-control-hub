@@ -121,7 +121,7 @@ export function SyncDebugPanel() {
               {result.sampleChannelRow && (
                 <div>
                   <p className="text-xs font-medium text-muted-foreground mb-1">Sample channel row:</p>
-                  <pre className="text-[10px] bg-muted rounded p-2 overflow-x-auto font-mono">
+                  <pre className="text-xs bg-muted rounded p-2 overflow-x-auto font-mono">
                     {JSON.stringify(result.sampleChannelRow, null, 2)}
                   </pre>
                 </div>
@@ -129,7 +129,7 @@ export function SyncDebugPanel() {
               {result.sampleVideoRow && (
                 <div>
                   <p className="text-xs font-medium text-muted-foreground mb-1">Sample video row:</p>
-                  <pre className="text-[10px] bg-muted rounded p-2 overflow-x-auto font-mono">
+                  <pre className="text-xs bg-muted rounded p-2 overflow-x-auto font-mono">
                     {JSON.stringify(result.sampleVideoRow, null, 2)}
                   </pre>
                 </div>

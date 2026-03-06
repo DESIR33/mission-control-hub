@@ -65,7 +65,7 @@ export function ProposalStats({ proposals }: ProposalStatsProps) {
           </div>
           <div>
             <p className="text-lg font-bold text-foreground">{stat.value}</p>
-            <p className="text-[11px] text-muted-foreground">{stat.label}</p>
+            <p className="text-xs text-muted-foreground">{stat.label}</p>
           </div>
         </div>
       ))}

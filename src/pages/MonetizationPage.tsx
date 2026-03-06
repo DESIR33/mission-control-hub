@@ -53,7 +53,7 @@ function TopEarningVideos() {
         {topVideos.map((video, i) => (
           <div key={video.id} className="flex items-center gap-3 py-2 border-b border-border last:border-0">
             <span className={cn(
-              "w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0",
+              "w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0",
               i === 0 ? "bg-warning/20 text-warning" : i === 1 ? "bg-muted text-muted-foreground" : i === 2 ? "bg-orange-100 text-orange-600" : "bg-secondary text-muted-foreground"
             )}>
               {i + 1}
@@ -497,7 +497,7 @@ export default function MonetizationPage() {
   }, [transactions]);
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 gradient-mesh min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}

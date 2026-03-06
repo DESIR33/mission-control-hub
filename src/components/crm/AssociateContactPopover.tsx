@@ -71,7 +71,7 @@ export function AssociateContactPopover({ companyId, existingContactIds }: Assoc
                   className="w-full flex items-center gap-2.5 p-2 rounded-md hover:bg-accent/50 transition-colors text-left"
                 >
                   <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                    <span className="text-[10px] font-semibold text-primary">
+                    <span className="text-xs font-semibold text-primary">
                       {contact.first_name[0]}{contact.last_name?.[0] ?? ""}
                     </span>
                   </div>
@@ -80,7 +80,7 @@ export function AssociateContactPopover({ companyId, existingContactIds }: Assoc
                       {contact.first_name} {contact.last_name}
                     </p>
                     {contact.email && (
-                      <p className="text-[10px] text-muted-foreground truncate">{contact.email}</p>
+                      <p className="text-xs text-muted-foreground truncate">{contact.email}</p>
                     )}
                   </div>
                   {associateContact.isPending && (

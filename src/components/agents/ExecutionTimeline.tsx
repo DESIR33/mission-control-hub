@@ -105,16 +105,16 @@ export function ExecutionTimeline({ executions, isLoading }: ExecutionTimelinePr
                         </span>
                       </div>
                       <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                        <Badge variant="outline" className="text-xs px-1.5 py-0">
                           {triggerLabel(exec.trigger_type)}
                         </Badge>
                         {exec.proposals_created > 0 && (
-                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                          <Badge variant="secondary" className="text-xs px-1.5 py-0">
                             {exec.proposals_created} proposals
                           </Badge>
                         )}
                         {exec.duration_ms && (
-                          <span className="text-[10px] text-muted-foreground">
+                          <span className="text-xs text-muted-foreground">
                             {(exec.duration_ms / 1000).toFixed(1)}s
                           </span>
                         )}
@@ -125,7 +125,7 @@ export function ExecutionTimeline({ executions, isLoading }: ExecutionTimelinePr
                         </p>
                       )}
                     </div>
-                    <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">
                       {formatTime(exec.created_at)}
                     </span>
                   </div>

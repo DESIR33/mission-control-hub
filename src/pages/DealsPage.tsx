@@ -22,7 +22,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { WorkspaceProvider } from "@/hooks/use-workspace";
 import { useDeals, useUpdateDeal, type Deal, type DealStage } from "@/hooks/use-deals";
 import { AddDealDialog } from "@/components/deals/AddDealDialog";
 import { DealDetailSheet } from "@/components/deals/DealDetailSheet";
@@ -48,7 +47,7 @@ const stageColors: Record<string, string> = {
   closed_lost: "bg-destructive/15 text-destructive border-destructive/30",
 };
 
-function DealsContent() {
+export default function DealsPage() {
   const [view, setView] = useState<"kanban" | "list">("kanban");
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -133,7 +132,7 @@ function DealsContent() {
 
   if (isLoading) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8 gradient-mesh min-h-screen">
+      <div className="p-4 sm:p-6 lg:p-8 min-h-screen">
         <div className="space-y-4">
           <Skeleton className="h-8 w-48" />
           <Skeleton className="h-4 w-64" />
@@ -152,7 +151,7 @@ function DealsContent() {
   }
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 gradient-mesh min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 min-h-screen">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -168,6 +167,7 @@ function DealsContent() {
               size="sm"
               className={cn("rounded-r-none h-8", view === "kanban" && "bg-muted")}
               onClick={() => setView("kanban")}
+              aria-label="Kanban view"
             >
               <LayoutGrid className="w-4 h-4" />
             </Button>
@@ -176,6 +176,7 @@ function DealsContent() {
               size="sm"
               className={cn("rounded-l-none h-8", view === "list" && "bg-muted")}
               onClick={() => setView("list")}
+              aria-label="List view"
             >
               <List className="w-4 h-4" />
             </Button>
@@ -237,11 +238,11 @@ function DealsContent() {
                     style={{ backgroundColor: stage.color }}
                   />
                   <h3 className="font-medium text-xs truncate">{stage.label}</h3>
-                  <span className="text-[10px] text-muted-foreground ml-auto shrink-0">
+                  <span className="text-xs text-muted-foreground ml-auto shrink-0">
                     {stageDeals.length}
                   </span>
                 </div>
-                <p className="text-[10px] text-muted-foreground mb-3">
+                <p className="text-xs text-muted-foreground mb-3">
                   {formatCurrency(stageTotal)}
                 </p>
 
@@ -262,7 +263,7 @@ function DealsContent() {
                           const match = matchScores.find((m) => m.companyId === deal.company!.id);
                           if (!match) return null;
                           const color = match.matchScore >= 70 ? "bg-green-500/15 text-green-600 border-green-500/30" : match.matchScore >= 40 ? "bg-amber-500/15 text-amber-600 border-amber-500/30" : "bg-gray-500/15 text-gray-500 border-gray-500/30";
-                          return <Badge variant="outline" className={`text-[9px] shrink-0 ${color}`}>{match.matchScore}pt</Badge>;
+                          return <Badge variant="outline" className={`text-xs shrink-0 ${color}`}>{match.matchScore}pt</Badge>;
                         })()}
                       </div>
                       {deal.value != null && (
@@ -272,19 +273,19 @@ function DealsContent() {
                       )}
                       <div className="flex items-center gap-1.5 flex-wrap">
                         {deal.company && (
-                          <div className="flex items-center gap-1 text-[10px] text-muted-foreground" title={deal.company.name}>
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground" title={deal.company.name}>
                             <Building2 className="w-2.5 h-2.5" />
                             <span className="truncate max-w-[60px]">{deal.company.name}</span>
                           </div>
                         )}
                         {deal.contact && (
-                          <div className="flex items-center gap-1 text-[10px] text-muted-foreground" title={`${deal.contact.first_name} ${deal.contact.last_name ?? ""}`}>
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground" title={`${deal.contact.first_name} ${deal.contact.last_name ?? ""}`}>
                             <User2 className="w-2.5 h-2.5" />
                             <span className="truncate max-w-[60px]">{deal.contact.first_name}</span>
                           </div>
                         )}
                         {deal.expected_close_date && (
-                          <div className="flex items-center gap-1 text-[10px] text-muted-foreground ml-auto">
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground ml-auto">
                             <Calendar className="w-2.5 h-2.5" />
                             <span>{format(new Date(deal.expected_close_date), "MMM d")}</span>
                           </div>
@@ -294,7 +295,7 @@ function DealsContent() {
                   ))}
 
                   {stageDeals.length === 0 && (
-                    <p className="text-[10px] text-muted-foreground text-center py-6">
+                    <p className="text-xs text-muted-foreground text-center py-6">
                       No deals
                     </p>
                   )}
@@ -339,7 +340,7 @@ function DealsContent() {
                       {deal.value != null ? formatCurrency(deal.value, deal.currency) : "--"}
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={cn("text-[10px] uppercase tracking-wider", stageColors[deal.stage])}>
+                      <Badge variant="outline" className={cn("text-xs uppercase tracking-wider", stageColors[deal.stage])}>
                         {STAGES.find((s) => s.id === deal.stage)?.label ?? deal.stage}
                       </Badge>
                     </TableCell>
@@ -374,10 +375,3 @@ function DealsContent() {
   );
 }
 
-export default function DealsPage() {
-  return (
-    <WorkspaceProvider>
-      <DealsContent />
-    </WorkspaceProvider>
-  );
-}

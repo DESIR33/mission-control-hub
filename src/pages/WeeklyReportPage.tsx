@@ -10,7 +10,7 @@ import {
   Calendar,
   BarChart3,
 } from "lucide-react";
-import { useWorkspace, WorkspaceProvider } from "@/hooks/use-workspace";
+import { useWorkspace } from "@/hooks/use-workspace";
 import {
   useWeeklyReports,
   useGenerateWeeklyReport,
@@ -101,7 +101,7 @@ function ReportCard({
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-md border border-border bg-muted/30 p-3">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider">
                   Total Subscribers
                 </p>
                 <p className="text-lg font-bold text-foreground font-mono mt-0.5">
@@ -111,7 +111,7 @@ function ReportCard({
                 </p>
               </div>
               <div className="rounded-md border border-border bg-muted/30 p-3">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider">
                   Change
                 </p>
                 <p
@@ -135,7 +135,7 @@ function ReportCard({
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-md border border-border bg-muted/30 p-3">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider">
                   Videos Published
                 </p>
                 <p className="text-lg font-bold text-foreground font-mono mt-0.5">
@@ -144,7 +144,7 @@ function ReportCard({
               </div>
               {d.top_video && (
                 <div className="rounded-md border border-border bg-muted/30 p-3">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider">
                     Top Video
                   </p>
                   <p
@@ -171,7 +171,7 @@ function ReportCard({
                 </h3>
               </div>
               <div className="rounded-md border border-border bg-muted/30 p-3">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider">
                   Deals Closed
                 </p>
                 <p className="text-lg font-bold text-foreground font-mono mt-0.5">
@@ -187,7 +187,7 @@ function ReportCard({
                 </h3>
               </div>
               <div className="rounded-md border border-border bg-muted/30 p-3">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider">
                   Revenue Earned
                 </p>
                 <p className="text-lg font-bold text-foreground font-mono mt-0.5">
@@ -289,7 +289,7 @@ function GrowthMilestonesSection() {
   );
 }
 
-function WeeklyReportsContent() {
+export default function WeeklyReportPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const { isLoading: workspaceLoading } = useWorkspace();
   const { data: reports = [], isLoading: reportsLoading } = useWeeklyReports();
@@ -310,7 +310,7 @@ function WeeklyReportsContent() {
 
   if (isLoading) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8 space-y-6 gradient-mesh min-h-screen">
+      <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
         <Skeleton className="h-8 w-48" />
         <div className="space-y-3">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -322,7 +322,7 @@ function WeeklyReportsContent() {
   }
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 gradient-mesh min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-2">
@@ -378,10 +378,3 @@ function WeeklyReportsContent() {
   );
 }
 
-export default function WeeklyReportPage() {
-  return (
-    <WorkspaceProvider>
-      <WeeklyReportsContent />
-    </WorkspaceProvider>
-  );
-}

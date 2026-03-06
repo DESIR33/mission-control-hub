@@ -50,7 +50,7 @@ export function AlertsPanel() {
             <Bell className="w-4 h-4 text-foreground" />
             <h3 className="text-sm font-semibold text-foreground">Performance Alerts</h3>
             {unread.length > 0 && (
-              <Badge variant="outline" className="text-[9px] bg-primary/10 text-primary border-primary/30">
+              <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/30">
                 {unread.length} new
               </Badge>
             )}
@@ -59,7 +59,7 @@ export function AlertsPanel() {
             <Button
               size="sm"
               variant="ghost"
-              className="text-[10px] h-6 px-2"
+              className="text-xs h-6 px-2"
               onClick={() => markAllRead.mutate()}
             >
               <CheckCircle2 className="w-3 h-3 mr-1" />
@@ -92,9 +92,9 @@ export function AlertsPanel() {
                     </Badge>
                   </div>
                   {alert.description && (
-                    <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2">{alert.description}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{alert.description}</p>
                   )}
-                  <p className="text-[10px] text-muted-foreground/60 mt-1">
+                  <p className="text-xs text-muted-foreground/60 mt-1">
                     {formatDistanceToNow(new Date(alert.created_at), { addSuffix: true })}
                   </p>
                 </div>

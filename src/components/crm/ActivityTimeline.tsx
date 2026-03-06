@@ -210,7 +210,7 @@ export function ActivityTimeline({ activities, contactId, entityType = "contact"
               key={value}
               onClick={() => setTypeFilter(value)}
               className={cn(
-                "px-2.5 py-0.5 rounded-full text-[11px] font-medium capitalize transition-colors",
+                "px-2.5 py-0.5 rounded-full text-xs font-medium capitalize transition-colors",
                 typeFilter === value
                   ? "bg-primary text-primary-foreground"
                   : "bg-secondary text-muted-foreground hover:text-foreground"
@@ -225,7 +225,7 @@ export function ActivityTimeline({ activities, contactId, entityType = "contact"
           value={dateFilter}
           onValueChange={(v) => setDateFilter(v as DateFilterValue)}
         >
-          <SelectTrigger className="h-6 w-auto text-[11px] px-2 ml-auto border-border">
+          <SelectTrigger className="h-6 w-auto text-xs px-2 ml-auto border-border">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -268,7 +268,7 @@ export function ActivityTimeline({ activities, contactId, entityType = "contact"
                       <p className="text-sm font-medium text-foreground truncate">
                         {activity.title}
                       </p>
-                      <span className="text-[10px] text-muted-foreground uppercase tracking-wider shrink-0">
+                      <span className="text-xs text-muted-foreground uppercase tracking-wider shrink-0">
                         {activity.activity_type.replace(/_/g, " ")}
                       </span>
                     </div>
@@ -277,7 +277,7 @@ export function ActivityTimeline({ activities, contactId, entityType = "contact"
                         {activity.description}
                       </p>
                     )}
-                    <p className="text-[10px] text-muted-foreground mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       {format(new Date(activity.performed_at), "MMM d, yyyy · h:mm a")}
                     </p>
                   </div>

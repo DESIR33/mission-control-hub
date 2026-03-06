@@ -63,19 +63,19 @@ export function CohortAnalysis() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <TrendingUp className="w-3.5 h-3.5 text-green-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Weekly Avg</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Weekly Avg</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">+{Math.round(analysis.weeklyAvgGain)}</p>
-          <p className="text-[10px] text-muted-foreground">subs/week</p>
+          <p className="text-xs text-muted-foreground">subs/week</p>
         </div>
 
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Calendar className="w-3.5 h-3.5 text-blue-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Best Week</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Best Week</p>
           </div>
           <p className="text-sm font-semibold text-foreground">{analysis.bestCohortWeek?.week ?? "—"}</p>
-          <p className="text-[10px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             +{fmtCount(analysis.bestCohortWeek?.netSubs ?? 0)} subs
           </p>
         </div>
@@ -83,12 +83,12 @@ export function CohortAnalysis() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Target className="w-3.5 h-3.5 text-purple-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Weeks to 50K</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Weeks to 50K</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">
             {analysis.weeksTo50K === Infinity ? "—" : analysis.weeksTo50K}
           </p>
-          <p className="text-[10px] text-muted-foreground">at current rate</p>
+          <p className="text-xs text-muted-foreground">at current rate</p>
         </div>
 
         <div className="rounded-lg border border-border bg-card p-3">
@@ -98,12 +98,12 @@ export function CohortAnalysis() {
             ) : (
               <ArrowDownRight className="w-3.5 h-3.5 text-red-500" />
             )}
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Pace</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Pace</p>
           </div>
           <p className={`text-lg font-bold font-mono ${isOnPace ? "text-green-400" : "text-red-400"}`}>
             {Math.round(analysis.actualWeeklyRate)}/{Math.round(analysis.requiredWeeklyRate)}
           </p>
-          <p className="text-[10px] text-muted-foreground">actual/required per week</p>
+          <p className="text-xs text-muted-foreground">actual/required per week</p>
         </div>
       </div>
 
@@ -141,10 +141,10 @@ export function CohortAnalysis() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-4">
           <h3 className="text-sm font-semibold text-foreground mb-2">Sticky Content</h3>
-          <p className="text-[10px] text-muted-foreground mb-2">Content types that drive sustainable subscribers</p>
+          <p className="text-xs text-muted-foreground mb-2">Content types that drive sustainable subscribers</p>
           <div className="flex flex-wrap gap-1.5">
             {analysis.stickyContentTypes.map((type) => (
-              <Badge key={type} variant="outline" className="text-[10px] capitalize bg-green-500/10 text-green-400 border-green-500/30">
+              <Badge key={type} variant="outline" className="text-xs capitalize bg-green-500/10 text-green-400 border-green-500/30">
                 {type}
               </Badge>
             ))}
@@ -156,10 +156,10 @@ export function CohortAnalysis() {
 
         <div className="rounded-lg border border-yellow-500/20 bg-yellow-500/5 p-4">
           <h3 className="text-sm font-semibold text-foreground mb-2">Tourist Content</h3>
-          <p className="text-[10px] text-muted-foreground mb-2">Views but lower subscriber retention</p>
+          <p className="text-xs text-muted-foreground mb-2">Views but lower subscriber retention</p>
           <div className="flex flex-wrap gap-1.5">
             {analysis.touristContentTypes.map((type) => (
-              <Badge key={type} variant="outline" className="text-[10px] capitalize bg-yellow-500/10 text-yellow-400 border-yellow-500/30">
+              <Badge key={type} variant="outline" className="text-xs capitalize bg-yellow-500/10 text-yellow-400 border-yellow-500/30">
                 {type}
               </Badge>
             ))}

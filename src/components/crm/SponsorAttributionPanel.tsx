@@ -53,28 +53,28 @@ export function SponsorAttributionPanel() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <DollarSign className="w-4 h-4 text-green-500" />
-            <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Total Sponsor Revenue</span>
+            <span className="text-xs text-muted-foreground uppercase tracking-wider">Total Sponsor Revenue</span>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{fmtMoney(summary.totalSponsorRevenue)}</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Users className="w-4 h-4 text-blue-500" />
-            <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Sponsors</span>
+            <span className="text-xs text-muted-foreground uppercase tracking-wider">Sponsors</span>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{summary.sponsors.length}</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <DollarSign className="w-4 h-4 text-purple-500" />
-            <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Avg Deal Size</span>
+            <span className="text-xs text-muted-foreground uppercase tracking-wider">Avg Deal Size</span>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{fmtMoney(summary.avgDealSize)}</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <TrendingUp className="w-4 h-4 text-amber-500" />
-            <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Repeat Rate</span>
+            <span className="text-xs text-muted-foreground uppercase tracking-wider">Repeat Rate</span>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{summary.sponsorRetentionRate.toFixed(0)}%</p>
         </div>
@@ -114,7 +114,7 @@ export function SponsorAttributionPanel() {
                 >
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground">{sponsor.companyName}</p>
-                    <p className="text-[10px] text-muted-foreground">{sponsor.contactName} · {sponsor.videosSponsored} video{sponsor.videosSponsored !== 1 ? "s" : ""}</p>
+                    <p className="text-xs text-muted-foreground">{sponsor.contactName} · {sponsor.videosSponsored} video{sponsor.videosSponsored !== 1 ? "s" : ""}</p>
                   </div>
                   <span className="text-sm font-mono font-semibold text-green-500">{fmtMoney(sponsor.totalDealValue)}</span>
                   {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}

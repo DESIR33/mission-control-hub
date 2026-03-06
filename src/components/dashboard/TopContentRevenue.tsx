@@ -66,9 +66,9 @@ export function TopContentRevenue() {
               </div>
               {/* Revenue source bar */}
               <div className="h-1.5 rounded-full bg-muted overflow-hidden flex" style={{ width: `${barWidth}%` }}>
-                {adPct > 0 && <div className="h-full bg-green-500" style={{ width: `${adPct}%` }} />}
-                {dealPct > 0 && <div className="h-full bg-blue-500" style={{ width: `${dealPct}%` }} />}
-                {affiliatePct > 0 && <div className="h-full bg-purple-500" style={{ width: `${affiliatePct}%` }} />}
+                {adPct > 0 && <div className="h-full" style={{ width: `${adPct}%`, backgroundColor: "hsl(var(--chart-2))" }} />}
+                {dealPct > 0 && <div className="h-full" style={{ width: `${dealPct}%`, backgroundColor: "hsl(var(--chart-1))" }} />}
+                {affiliatePct > 0 && <div className="h-full" style={{ width: `${affiliatePct}%`, backgroundColor: "hsl(var(--chart-4))" }} />}
               </div>
             </div>
           );
@@ -77,14 +77,14 @@ export function TopContentRevenue() {
 
       {/* Legend */}
       <div className="flex items-center gap-3 mt-3 pt-2 border-t border-border">
-        <span className="flex items-center gap-1 text-[9px] text-muted-foreground">
-          <span className="w-2 h-2 rounded-full bg-green-500" /> Ad
+        <span className="flex items-center gap-1 text-xs text-muted-foreground">
+          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: "hsl(var(--chart-2))" }} /> Ad
         </span>
-        <span className="flex items-center gap-1 text-[9px] text-muted-foreground">
-          <span className="w-2 h-2 rounded-full bg-blue-500" /> Deal
+        <span className="flex items-center gap-1 text-xs text-muted-foreground">
+          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: "hsl(var(--chart-1))" }} /> Deal
         </span>
-        <span className="flex items-center gap-1 text-[9px] text-muted-foreground">
-          <span className="w-2 h-2 rounded-full bg-purple-500" /> Affiliate
+        <span className="flex items-center gap-1 text-xs text-muted-foreground">
+          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: "hsl(var(--chart-4))" }} /> Affiliate
         </span>
       </div>
     </div>

@@ -103,7 +103,7 @@ export default function FolderSidebar({ selectedFolder, onSelectFolder, onDropEm
   return (
     <div className="h-full overflow-y-auto bg-card border-r border-border px-2 py-3">
       <div className="mb-3 px-2">
-        <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Folders</p>
+        <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Folders</p>
       </div>
 
       <div className="space-y-0.5">
@@ -137,7 +137,7 @@ export default function FolderSidebar({ selectedFolder, onSelectFolder, onDropEm
       {customFolders.length > 0 && (
         <>
           <div className="mt-4 mb-2 px-2">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Custom</p>
+            <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Custom</p>
           </div>
           <div className="space-y-0.5">
             {customFolders.map((folder) => {

@@ -73,7 +73,7 @@ export function ChatMessages({ messages, isLoading }: Props) {
                           </span>
                         )}
                         {msg.metadata.agent_delegated && (
-                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 gap-1">
+                          <Badge variant="secondary" className="text-xs px-1.5 py-0 gap-1">
                             <Bot className="h-2.5 w-2.5" />
                             Agent
                           </Badge>

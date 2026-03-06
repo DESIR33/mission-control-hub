@@ -39,7 +39,7 @@ export function ServiceSnapshotsTab({ snapshots }: Props) {
                 <h3 className="font-medium text-sm">{info.label}</h3>
               </div>
               {freshness && (
-                <Badge className={`text-[10px] ${freshness.className}`}>
+                <Badge className={`text-xs ${freshness.className}`}>
                   {freshness.label}
                 </Badge>
               )}
@@ -47,7 +47,7 @@ export function ServiceSnapshotsTab({ snapshots }: Props) {
             {snapshot ? (
               <>
                 <p className="text-sm text-foreground">{snapshot.summary}</p>
-                <p className="text-[10px] text-muted-foreground mt-3">
+                <p className="text-xs text-muted-foreground mt-3">
                   Last updated: {format(new Date(snapshot.snapshot_date), "MMM d, yyyy")}
                 </p>
               </>

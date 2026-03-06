@@ -47,16 +47,16 @@ export function CommentSentiment() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <MessageSquare className="w-3.5 h-3.5 text-blue-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Analyzed</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Analyzed</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{overview.totalAnalyzed}</p>
-          <p className="text-[10px] text-muted-foreground">videos</p>
+          <p className="text-xs text-muted-foreground">videos</p>
         </div>
 
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Smile className="w-3.5 h-3.5 text-green-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Positive</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Positive</p>
           </div>
           <p className="text-lg font-bold font-mono text-green-400">{overview.overallPositivePercent.toFixed(1)}%</p>
         </div>
@@ -64,7 +64,7 @@ export function CommentSentiment() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Minus className="w-3.5 h-3.5 text-gray-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Neutral</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Neutral</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{overview.overallNeutralPercent.toFixed(1)}%</p>
         </div>
@@ -72,7 +72,7 @@ export function CommentSentiment() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Frown className="w-3.5 h-3.5 text-red-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Negative</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Negative</p>
           </div>
           <p className="text-lg font-bold font-mono text-red-400">{overview.overallNegativePercent.toFixed(1)}%</p>
         </div>
@@ -166,10 +166,10 @@ export function CommentSentiment() {
           <div className="space-y-2">
             {overview.topQuestions.map((q, i) => (
               <div key={i} className="flex items-start gap-2 p-2 rounded bg-muted/30">
-                <span className="text-[10px] font-mono text-muted-foreground mt-0.5">Q{i + 1}</span>
+                <span className="text-xs font-mono text-muted-foreground mt-0.5">Q{i + 1}</span>
                 <div className="flex-1">
                   <p className="text-xs text-foreground">{q.text}</p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     from "{q.videoTitle}" · {q.likes} likes
                   </p>
                 </div>

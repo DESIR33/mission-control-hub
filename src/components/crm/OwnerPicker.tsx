@@ -60,7 +60,7 @@ export function OwnerPicker({ value, onChange }: OwnerPickerProps) {
                 {member.avatar_url && (
                   <AvatarImage src={member.avatar_url} alt={member.full_name ?? ""} />
                 )}
-                <AvatarFallback className="text-[10px]">
+                <AvatarFallback className="text-xs">
                   {getInitials(member.full_name, member.email)}
                 </AvatarFallback>
               </Avatar>

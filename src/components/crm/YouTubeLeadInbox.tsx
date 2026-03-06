@@ -107,13 +107,13 @@ function LeadCard({
               {lead.author_name ?? "Unknown"}
             </span>
             {lead.author_subscriber_count > 0 && (
-              <span className="text-[10px] text-muted-foreground font-mono">
+              <span className="text-xs text-muted-foreground font-mono">
                 {formatSubscriberCount(lead.author_subscriber_count)}
               </span>
             )}
             <Badge
               variant="outline"
-              className={`text-[10px] px-1.5 py-0 border ${intentConfig.className}`}
+              className={`text-xs px-1.5 py-0 border ${intentConfig.className}`}
             >
               {intentConfig.label}
             </Badge>
@@ -122,7 +122,7 @@ function LeadCard({
           {lead.video_title && (
             <div className="flex items-center gap-1 mt-0.5">
               <Video className="w-3 h-3 text-muted-foreground shrink-0" />
-              <span className="text-[11px] text-muted-foreground truncate">
+              <span className="text-xs text-muted-foreground truncate">
                 {lead.video_title}
               </span>
             </div>
@@ -135,7 +135,7 @@ function LeadCard({
       </p>
 
       {lead.processed && (
-        <Badge variant="secondary" className="text-[10px]">
+        <Badge variant="secondary" className="text-xs">
           Already converted
         </Badge>
       )}
@@ -320,7 +320,7 @@ export function YouTubeLeadInbox() {
       ) : (
         <div className="space-y-3">
           {/* Summary counts */}
-          <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
               <Users className="w-3 h-3" />
               {filteredLeads.length} lead{filteredLeads.length !== 1 ? "s" : ""}

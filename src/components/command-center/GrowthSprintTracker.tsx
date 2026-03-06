@@ -111,11 +111,11 @@ function ActiveSprintCard({
             <Target className="w-4 h-4 text-primary" />
             Active Sprint
           </CardTitle>
-          <Badge variant="default" className="text-[9px]">
+          <Badge variant="default" className="text-xs">
             {daysRemaining} day{daysRemaining !== 1 ? "s" : ""} left
           </Badge>
         </div>
-        <p className="text-[10px] text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           {format(weekStart, "MMM d")} - {format(weekEnd, "MMM d, yyyy")}
         </p>
       </CardHeader>
@@ -130,7 +130,7 @@ function ActiveSprintCard({
             </div>
           </div>
           <div className="flex-1">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">
               Sub Target
             </p>
             <p className="text-2xl font-bold font-mono text-foreground">
@@ -169,7 +169,7 @@ function ActiveSprintCard({
                 </span>
                 <Badge
                   variant="outline"
-                  className={`text-[9px] px-1.5 py-0 ${CATEGORY_BG[task.category]}`}
+                  className={`text-xs px-1.5 py-0 ${CATEGORY_BG[task.category]}`}
                 >
                   {task.category}
                 </Badge>
@@ -225,7 +225,7 @@ function NewSprintForm({ onCreated }: { onCreated?: () => void }) {
           <Target className="w-4 h-4 text-primary" />
           New Growth Sprint
         </CardTitle>
-        <p className="text-[10px] text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Plan your weekly growth sprint
         </p>
       </CardHeader>
@@ -233,7 +233,7 @@ function NewSprintForm({ onCreated }: { onCreated?: () => void }) {
       <CardContent className="space-y-4">
         {/* Sub target */}
         <div>
-          <label className="text-[10px] text-muted-foreground uppercase tracking-wider">
+          <label className="text-xs text-muted-foreground uppercase tracking-wider">
             Subscriber Target
           </label>
           <input
@@ -247,7 +247,7 @@ function NewSprintForm({ onCreated }: { onCreated?: () => void }) {
 
         {/* Add task row */}
         <div>
-          <label className="text-[10px] text-muted-foreground uppercase tracking-wider">
+          <label className="text-xs text-muted-foreground uppercase tracking-wider">
             Tasks
           </label>
           <div className="mt-1 flex gap-2">
@@ -299,7 +299,7 @@ function NewSprintForm({ onCreated }: { onCreated?: () => void }) {
                 </span>
                 <Badge
                   variant="outline"
-                  className={`text-[9px] px-1.5 py-0 ${CATEGORY_BG[task.category]}`}
+                  className={`text-xs px-1.5 py-0 ${CATEGORY_BG[task.category]}`}
                 >
                   {task.category}
                 </Badge>
@@ -378,7 +378,7 @@ function SprintHistorySection({ sprints }: { sprints: GrowthSprint[] }) {
               <span className="text-sm font-bold font-mono text-orange-400">
                 {streak}
               </span>
-              <span className="text-[10px] text-muted-foreground">streak</span>
+              <span className="text-xs text-muted-foreground">streak</span>
             </div>
           )}
         </div>
@@ -447,7 +447,7 @@ function SprintHistorySection({ sprints }: { sprints: GrowthSprint[] }) {
                   </span>
                   <Badge
                     variant="outline"
-                    className={`text-[9px] ${
+                    className={`text-xs ${
                       s.status === "completed"
                         ? "text-green-400"
                         : s.status === "skipped"

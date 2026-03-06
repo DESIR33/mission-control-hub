@@ -52,18 +52,18 @@ export function WeeklyRevenueSection() {
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <div className="rounded-lg border border-border bg-card p-3">
-          <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Total Revenue</span>
+          <span className="text-xs text-muted-foreground uppercase tracking-wider">Total Revenue</span>
           <p className="text-lg font-bold font-mono text-foreground mt-0.5">{fmtMoney(summary.totalThisWeek)}</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-3">
-          <span className="text-[10px] text-muted-foreground uppercase tracking-wider">WoW Change</span>
+          <span className="text-xs text-muted-foreground uppercase tracking-wider">WoW Change</span>
           <p className={`text-lg font-bold font-mono mt-0.5 flex items-center gap-1 ${wowPositive ? "text-green-500" : "text-red-500"}`}>
             {wowPositive ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
             {wowPositive ? "+" : ""}{summary.weekOverWeekChange.toFixed(0)}%
           </p>
         </div>
         <div className="rounded-lg border border-border bg-card p-3">
-          <span className="text-[10px] text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+          <span className="text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-1">
             <Calendar className="w-3 h-3" /> Best Day
           </span>
           <p className="text-lg font-bold font-mono text-foreground mt-0.5">
@@ -71,7 +71,7 @@ export function WeeklyRevenueSection() {
           </p>
         </div>
         <div className="rounded-lg border border-border bg-card p-3">
-          <span className="text-[10px] text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+          <span className="text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-1">
             <Film className="w-3 h-3" /> Top Video
           </span>
           <p className="text-sm font-semibold text-foreground mt-0.5 truncate">

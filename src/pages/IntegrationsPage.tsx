@@ -2,7 +2,6 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Zap } from "lucide-react";
 import { toast } from "sonner";
-import { WorkspaceProvider } from "@/hooks/use-workspace";
 import {
   useIntegrations,
   useUpsertIntegration,
@@ -217,7 +216,7 @@ const INTEGRATIONS: IntegrationDef[] = [
   },
 ];
 
-function IntegrationsContent() {
+export default function IntegrationsPage() {
   const { data: integrations = [], isLoading } = useIntegrations();
   const upsert = useUpsertIntegration();
   const disconnect = useDisconnectIntegration();
@@ -261,7 +260,7 @@ function IntegrationsContent() {
   const connectedCount = integrations.filter((r) => r.enabled).length;
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 gradient-mesh min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -322,10 +321,3 @@ function IntegrationsContent() {
   );
 }
 
-export default function IntegrationsPage() {
-  return (
-    <WorkspaceProvider>
-      <IntegrationsContent />
-    </WorkspaceProvider>
-  );
-}

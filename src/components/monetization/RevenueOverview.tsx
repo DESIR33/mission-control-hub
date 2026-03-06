@@ -14,7 +14,7 @@ const tooltipStyle = {
   fontSize: 12,
 };
 
-const COLORS = { sponsors: "#3b82f6", affiliates: "#22c55e", adSense: "#f59e0b" };
+const COLORS = { sponsors: "hsl(var(--chart-1))", affiliates: "hsl(var(--chart-2))", adSense: "hsl(var(--chart-3))" };
 
 const fmtDollar = (n: number) => `$${n.toLocaleString()}`;
 
@@ -49,7 +49,7 @@ export function RevenueOverview() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <DollarSign className="w-3.5 h-3.5 text-green-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Total Revenue</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Revenue</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{fmtDollar(revenue.totalRevenue)}</p>
         </div>
@@ -57,7 +57,7 @@ export function RevenueOverview() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Users className="w-3.5 h-3.5 text-blue-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Rev/1K Subs</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Rev/1K Subs</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">
             {fmtDollar(revenue.revenuePerSub * 1000)}
@@ -67,7 +67,7 @@ export function RevenueOverview() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Film className="w-3.5 h-3.5 text-purple-500" />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Rev/Video</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Rev/Video</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{fmtDollar(revenue.revenuePerVideo)}</p>
         </div>
@@ -75,7 +75,7 @@ export function RevenueOverview() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <TrendingUp className={`w-3.5 h-3.5 ${revenue.momGrowth >= 0 ? "text-green-500" : "text-red-500"}`} />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">MoM Growth</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">MoM Growth</p>
           </div>
           <p className={`text-lg font-bold font-mono ${revenue.momGrowth >= 0 ? "text-green-400" : "text-red-400"}`}>
             {revenue.momGrowth >= 0 ? "+" : ""}{revenue.momGrowth}%
@@ -158,7 +158,7 @@ export function RevenueOverview() {
                 <span className="text-xs font-semibold text-foreground">Projected Annual</span>
                 <span className="text-sm font-bold font-mono text-foreground">{fmtDollar(revenue.projectedAnnual)}</span>
               </div>
-              <p className="text-[10px] text-muted-foreground mt-1">Based on last 3 months average</p>
+              <p className="text-xs text-muted-foreground mt-1">Based on last 3 months average</p>
             </div>
           </div>
         </div>

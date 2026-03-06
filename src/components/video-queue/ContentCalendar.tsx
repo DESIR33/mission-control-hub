@@ -163,7 +163,7 @@ export function ContentCalendar({ videos, onSelectVideo }: ContentCalendarProps)
           {(Object.entries(statusColors) as [VideoQueueItem["status"], string][]).map(([status, color]) => (
             <div key={status} className="flex items-center gap-1">
               <span className={cn("w-2 h-2 rounded-full", color)} />
-              <span className="text-[10px] text-muted-foreground capitalize">{status}</span>
+              <span className="text-xs text-muted-foreground capitalize">{status}</span>
             </div>
           ))}
         </div>
@@ -171,7 +171,7 @@ export function ContentCalendar({ videos, onSelectVideo }: ContentCalendarProps)
         {/* Weekday headers */}
         <div className="grid grid-cols-7 mb-1">
           {weekdays.map((d) => (
-            <div key={d} className="text-center text-[10px] font-medium text-muted-foreground py-1">
+            <div key={d} className="text-center text-xs font-medium text-muted-foreground py-1">
               {d}
             </div>
           ))}
@@ -200,7 +200,7 @@ export function ContentCalendar({ videos, onSelectVideo }: ContentCalendarProps)
                 onDragOver={handleDragOver}
               >
                 <div className={cn(
-                  "text-[11px] font-medium mb-0.5",
+                  "text-xs font-medium mb-0.5",
                   today ? "text-primary font-bold" : inMonth ? "text-foreground" : "text-muted-foreground/50"
                 )}>
                   {format(day, "d")}
@@ -213,7 +213,7 @@ export function ContentCalendar({ videos, onSelectVideo }: ContentCalendarProps)
                       onDragStart={(e) => handleDragStart(e, v.id)}
                       onClick={() => onSelectVideo(v)}
                       className={cn(
-                        "text-[10px] px-1 py-0.5 rounded truncate cursor-pointer text-white font-medium",
+                        "text-xs px-1 py-0.5 rounded truncate cursor-pointer text-white font-medium",
                         statusColors[v.status]
                       )}
                       title={v.title}
@@ -222,7 +222,7 @@ export function ContentCalendar({ videos, onSelectVideo }: ContentCalendarProps)
                     </div>
                   ))}
                   {dayVideos.length > 3 && (
-                    <div className="text-[10px] text-muted-foreground px-1">
+                    <div className="text-xs text-muted-foreground px-1">
                       +{dayVideos.length - 3} more
                     </div>
                   )}
@@ -252,7 +252,7 @@ export function ContentCalendar({ videos, onSelectVideo }: ContentCalendarProps)
               >
                 <div className="flex items-center gap-1 mb-1">
                   <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", statusColors[v.status])} />
-                  <span className="text-[10px] text-muted-foreground capitalize">{v.status}</span>
+                  <span className="text-xs text-muted-foreground capitalize">{v.status}</span>
                 </div>
                 <p className="text-xs text-foreground font-medium truncate">{v.title}</p>
               </div>
