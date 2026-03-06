@@ -50,3 +50,6 @@ verify_jwt = false
 
 [functions.youtube-video-update]
 verify_jwt = false
+
+[functions.daily-briefing]
+verify_jwt = false
