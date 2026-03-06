@@ -208,15 +208,15 @@ export default function InboxRuleBuilderDialog({
 
           <div className="space-y-2">
             <Label htmlFor="execution-mode">Execution mode</Label>
-            <select
-              id="execution-mode"
-              value={executionMode}
-              onChange={(e) => setExecutionMode(e.target.value as "shadow" | "active")}
-              className="h-10 w-full rounded-xl border border-input bg-background px-3 text-sm"
-            >
-              <option value="shadow">Shadow (dry run)</option>
-              <option value="active">Active (live)</option>
-            </select>
+            <Select value={executionMode} onValueChange={(v) => setExecutionMode(v as "shadow" | "active")}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="shadow">Shadow (dry run)</SelectItem>
+                <SelectItem value="active">Active (live)</SelectItem>
+              </SelectContent>
+            </Select>
             <p className="text-xs text-muted-foreground">
               Shadow mode shows what would happen without making changes. Use active mode once confident.
             </p>

@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Zap, Plus, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import {
   useAutomationRules,
@@ -67,37 +69,45 @@ export function AutomationSection() {
       {showAdd && (
         <div className="rounded-lg border border-border bg-card p-4 space-y-3">
           <div>
-            <label className="text-xs font-medium text-muted-foreground">Rule Type</label>
-            <select
+            <Label className="text-xs font-medium text-muted-foreground">Rule Type</Label>
+            <Select
               value={newRule.rule_type}
-              onChange={(e) => setNewRule((r) => ({ ...r, rule_type: e.target.value }))}
-              className="mt-1 w-full text-sm rounded-lg border border-border bg-background px-3 py-2 text-foreground"
+              onValueChange={(v) => setNewRule((r) => ({ ...r, rule_type: v }))}
             >
-              {RULE_TYPES.map((rt) => (
-                <option key={rt.id} value={rt.id}>{rt.label}</option>
-              ))}
-            </select>
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {RULE_TYPES.map((rt) => (
+                  <SelectItem key={rt.id} value={rt.id}>{rt.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {newRule.rule_type === "deal_stale" && (
             <div>
-              <label className="text-xs font-medium text-muted-foreground">Deal Stage</label>
-              <select
+              <Label className="text-xs font-medium text-muted-foreground">Deal Stage</Label>
+              <Select
                 value={newRule.stage}
-                onChange={(e) => setNewRule((r) => ({ ...r, stage: e.target.value }))}
-                className="mt-1 w-full text-sm rounded-lg border border-border bg-background px-3 py-2 text-foreground"
+                onValueChange={(v) => setNewRule((r) => ({ ...r, stage: v }))}
               >
-                {["prospecting", "qualification", "proposal", "negotiation"].map((s) => (
-                  <option key={s} value={s} className="capitalize">{s}</option>
-                ))}
-              </select>
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {["prospecting", "qualification", "proposal", "negotiation"].map((s) => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           )}
 
           <div>
-            <label className="text-xs font-medium text-muted-foreground">
+            <Label className="text-xs font-medium text-muted-foreground">
               {newRule.rule_type === "deal_stale" ? "Max days in stage" : "Max days since contact"}
-            </label>
+            </Label>
             <Input
               type="number"
               min={1}
@@ -108,7 +118,7 @@ export function AutomationSection() {
           </div>
 
           <div>
-            <label className="text-xs font-medium text-muted-foreground">Reminder Title</label>
+            <Label className="text-xs font-medium text-muted-foreground">Reminder Title</Label>
             <Input
               value={newRule.reminder_title}
               onChange={(e) => setNewRule((r) => ({ ...r, reminder_title: e.target.value }))}
@@ -139,17 +149,20 @@ export function AutomationSection() {
             const config = rule.config as Record<string, any>;
             return (
               <div key={rule.id} className="flex items-center gap-3 rounded-lg border border-border bg-card p-3">
-                <button
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="shrink-0 h-8 w-8"
+                  aria-label={rule.enabled ? "Disable rule" : "Enable rule"}
                   onClick={() => updateRule.mutate({ id: rule.id, enabled: !rule.enabled }, {
                     onSuccess: () => toast.success(rule.enabled ? "Rule disabled" : "Rule enabled"),
                   })}
-                  className="shrink-0"
                 >
                   {rule.enabled
                     ? <ToggleRight className="h-5 w-5 text-primary" />
                     : <ToggleLeft className="h-5 w-5 text-muted-foreground" />
                   }
-                </button>
+                </Button>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground">{ruleType?.label ?? rule.rule_type}</p>
                   <p className="text-xs text-muted-foreground">
@@ -159,14 +172,17 @@ export function AutomationSection() {
                     {config.reminder_title && ` — "${config.reminder_title}"`}
                   </p>
                 </div>
-                <button
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="shrink-0 h-8 w-8 text-muted-foreground hover:text-destructive"
+                  aria-label="Delete rule"
                   onClick={() => deleteRule.mutate(rule.id, {
                     onSuccess: () => toast.success("Rule deleted"),
                   })}
-                  className="shrink-0 text-muted-foreground hover:text-destructive"
                 >
                   <Trash2 className="h-4 w-4" />
-                </button>
+                </Button>
               </div>
             );
           })}
