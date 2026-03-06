@@ -9,7 +9,7 @@ interface RevenueChartProps {
   monthly?: RevenueDataPoint[];
   sponsors?: number;
   affiliates?: number;
-  products?: number;
+  ads?: number;
 }
 
 function formatCurrency(val: number): string {
@@ -17,7 +17,7 @@ function formatCurrency(val: number): string {
   return `$${val.toFixed(0)}`;
 }
 
-export function RevenueChart({ monthly = [], sponsors = 0, affiliates = 0, products = 0 }: RevenueChartProps) {
+export function RevenueChart({ monthly = [], sponsors = 0, affiliates = 0, ads = 0 }: RevenueChartProps) {
   const revenue = monthly.map((d) => d.amount);
   const months = monthly.map((d) => d.month);
   const maxRevenue = Math.max(...revenue, 1);
@@ -73,8 +73,8 @@ export function RevenueChart({ monthly = [], sponsors = 0, affiliates = 0, produ
           <p className="text-sm font-mono font-semibold text-card-foreground">{formatCurrency(affiliates)}</p>
         </div>
         <div>
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Products</p>
-          <p className="text-sm font-mono font-semibold text-card-foreground">{formatCurrency(products)}</p>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Ad Revenue</p>
+          <p className="text-sm font-mono font-semibold text-card-foreground">{formatCurrency(ads)}</p>
         </div>
       </div>
     </motion.div>

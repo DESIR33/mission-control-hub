@@ -142,7 +142,7 @@ function DashboardContent() {
       <div className="grid lg:grid-cols-3 gap-4">
         {/* Left column */}
         <div className="lg:col-span-2 space-y-4">
-          <AiBriefing items={briefingItems} />
+          <AiBriefing items={briefingItems} attentionItems={attentionItems} />
           <PipelineHealth
             contacts={pipeline?.contacts}
             content={pipeline?.content}
@@ -152,13 +152,12 @@ function DashboardContent() {
 
         {/* Right column */}
         <div className="space-y-4">
-          <NeedsAttention items={attentionItems} />
           <TopContentRevenue />
           <RevenueChart
             monthly={revenue?.monthly}
             sponsors={revenue?.sponsors}
             affiliates={revenue?.affiliates}
-            products={revenue?.products}
+            ads={revenue?.ads}
           />
         </div>
       </div>
