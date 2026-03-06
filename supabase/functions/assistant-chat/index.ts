@@ -194,8 +194,8 @@ async function handleToolCall(
         });
         if (error) return { error: error.message };
         return { results: data || [] };
-      } catch (e) {
-        return { results: [], error: e.message };
+      } catch (e: unknown) {
+        return { results: [], error: (e as Error).message };
       }
     }
     case "save_memory": {
