@@ -1,0 +1,217 @@
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useWorkspace } from "@/hooks/use-workspace";
+import type {
+  AgentDefinition,
+  AgentSkill,
+  AgentExecution,
+  AgentRunResult,
+  ProactiveRunResult,
+} from "@/types/agents";
+
+const query = (table: string) => (supabase as any).from(table);
+
+// ── Agent Definitions ────────────────────────────────────────
+
+export function useAgents() {
+  const { workspaceId } = useWorkspace();
+  return useQuery<AgentDefinition[]>({
+    queryKey: ["agents", workspaceId],
+    queryFn: async () => {
+      if (!workspaceId) return [];
+      const { data, error } = await query("agent_definitions")
+        .select("*")
+        .or(`workspace_id.eq.${workspaceId},workspace_id.is.null`)
+        .eq("enabled", true)
+        .order("name");
+      if (error) throw error;
+      return (data as AgentDefinition[]) || [];
+    },
+    enabled: !!workspaceId,
+  });
+}
+
+export function useToggleAgent() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, enabled }: { id: string; enabled: boolean }) => {
+      const { error } = await query("agent_definitions")
+        .update({ enabled })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["agents"] });
+    },
+  });
+}
+
+// ── Agent Skills ─────────────────────────────────────────────
+
+export function useSkills() {
+  const { workspaceId } = useWorkspace();
+  return useQuery<AgentSkill[]>({
+    queryKey: ["agent-skills", workspaceId],
+    queryFn: async () => {
+      if (!workspaceId) return [];
+      const { data, error } = await query("agent_skills")
+        .select("*")
+        .or(`workspace_id.eq.${workspaceId},workspace_id.is.null`)
+        .eq("enabled", true)
+        .order("category, name");
+      if (error) throw error;
+      return (data as AgentSkill[]) || [];
+    },
+    enabled: !!workspaceId,
+  });
+}
+
+export function useCreateSkill() {
+  const { workspaceId } = useWorkspace();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (skill: {
+      name: string;
+      slug: string;
+      description: string;
+      category: AgentSkill["category"];
+      input_schema?: Record<string, unknown>;
+    }) => {
+      if (!workspaceId) throw new Error("No workspace");
+      const { error } = await query("agent_skills").insert({
+        workspace_id: workspaceId,
+        name: skill.name,
+        slug: skill.slug,
+        description: skill.description,
+        category: skill.category,
+        skill_type: "custom",
+        input_schema: skill.input_schema || {},
+        tool_definitions: [
+          {
+            type: "function",
+            function: {
+              name: skill.slug,
+              description: skill.description,
+              parameters: {
+                type: "object",
+                properties: skill.input_schema || {},
+                required: [],
+              },
+            },
+          },
+        ],
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["agent-skills"] });
+    },
+  });
+}
+
+export function useDeleteSkill() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await query("agent_skills").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["agent-skills"] });
+    },
+  });
+}
+
+// ── Agent Executions ─────────────────────────────────────────
+
+export function useExecutions(limit = 20) {
+  const { workspaceId } = useWorkspace();
+  return useQuery<AgentExecution[]>({
+    queryKey: ["agent-executions", workspaceId, limit],
+    queryFn: async () => {
+      if (!workspaceId) return [];
+      const { data, error } = await query("agent_executions")
+        .select("*")
+        .eq("workspace_id", workspaceId)
+        .order("created_at", { ascending: false })
+        .limit(limit);
+      if (error) throw error;
+      return (data as AgentExecution[]) || [];
+    },
+    enabled: !!workspaceId,
+    refetchInterval: 10000,
+  });
+}
+
+export function useAgentExecutions(agentSlug: string, limit = 10) {
+  const { workspaceId } = useWorkspace();
+  return useQuery<AgentExecution[]>({
+    queryKey: ["agent-executions", workspaceId, agentSlug, limit],
+    queryFn: async () => {
+      if (!workspaceId) return [];
+      const { data, error } = await query("agent_executions")
+        .select("*")
+        .eq("workspace_id", workspaceId)
+        .eq("agent_slug", agentSlug)
+        .order("created_at", { ascending: false })
+        .limit(limit);
+      if (error) throw error;
+      return (data as AgentExecution[]) || [];
+    },
+    enabled: !!workspaceId,
+  });
+}
+
+// ── Run Agent ────────────────────────────────────────────────
+
+export function useRunAgent() {
+  const { workspaceId } = useWorkspace();
+  const queryClient = useQueryClient();
+  return useMutation<AgentRunResult, Error, { agent_slug: string; message: string }>({
+    mutationFn: async ({ agent_slug, message }) => {
+      if (!workspaceId) throw new Error("No workspace");
+      const { data, error } = await supabase.functions.invoke(
+        "agent-orchestrator",
+        {
+          body: {
+            workspace_id: workspaceId,
+            agent_slug,
+            input: { message },
+            trigger_type: "manual",
+          },
+        }
+      );
+      if (error) throw error;
+      return data as AgentRunResult;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["agent-executions"] });
+      queryClient.invalidateQueries({ queryKey: ["proposals"] });
+    },
+  });
+}
+
+export function useRunAllAgents() {
+  const { workspaceId } = useWorkspace();
+  const queryClient = useQueryClient();
+  return useMutation<ProactiveRunResult, Error, { agent_slugs?: string[] }>({
+    mutationFn: async ({ agent_slugs }) => {
+      if (!workspaceId) throw new Error("No workspace");
+      const { data, error } = await supabase.functions.invoke(
+        "agent-proactive-runner",
+        {
+          body: {
+            workspace_id: workspaceId,
+            agent_slugs,
+          },
+        }
+      );
+      if (error) throw error;
+      return data as ProactiveRunResult;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["agent-executions"] });
+      queryClient.invalidateQueries({ queryKey: ["proposals"] });
+    },
+  });
+}

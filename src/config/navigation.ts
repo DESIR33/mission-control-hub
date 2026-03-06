@@ -20,6 +20,7 @@ import {
   MessageSquare,
   BookOpen,
   UserPlus,
+  Bot,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -51,6 +52,7 @@ export const navItems: NavItem[] = [
   { to: "/sprints", icon: Target, label: "Growth Sprints" },
   { to: "/ai-bridge", icon: Brain, label: "AI Bridge" },
   { to: "/chat", icon: MessageSquare, label: "AI Chat" },
+  { to: "/agents", icon: Bot, label: "Agent Hub" },
   { to: "/memory", icon: BookOpen, label: "Memory" },
   { to: "/reports", icon: FileText, label: "Weekly Reports" },
   { to: "/inbox", icon: Mail, label: "Inbox" },
@@ -92,6 +94,7 @@ export const navGroups: NavGroup[] = [
       { to: "/command-center", icon: Rocket, label: "Command Center" },
       { to: "/ai-bridge", icon: Brain, label: "AI Bridge" },
       { to: "/chat", icon: MessageSquare, label: "AI Chat" },
+      { to: "/agents", icon: Bot, label: "Agent Hub" },
       { to: "/memory", icon: BookOpen, label: "Memory" },
       { to: "/reports", icon: FileText, label: "Weekly Reports" },
     ],

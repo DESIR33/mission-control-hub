@@ -120,6 +120,36 @@ const toolDefinitions = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "delegate_to_agent",
+      description:
+        "Delegate a task to a specialized AI agent. Use this when the user asks for deep analysis of competitors, content strategy, growth optimization, audience insights, or revenue optimization. Available agents: competitor-analyst, content-strategist, growth-optimizer, audience-analyst, revenue-optimizer. Use 'auto' to let the system choose.",
+      parameters: {
+        type: "object",
+        properties: {
+          agent_slug: {
+            type: "string",
+            enum: [
+              "auto",
+              "competitor-analyst",
+              "content-strategist",
+              "growth-optimizer",
+              "audience-analyst",
+              "revenue-optimizer",
+            ],
+            description: "Which agent to delegate to, or 'auto' for automatic routing",
+          },
+          message: {
+            type: "string",
+            description: "The task or question to send to the agent",
+          },
+        },
+        required: ["agent_slug", "message"],
+      },
+    },
+  },
 ];
 
 async function getEmbedding(text: string): Promise<number[]> {
@@ -233,6 +263,38 @@ async function handleToolCall(
       if (error) return { error: error.message };
       return { logs: data || [] };
     }
+    case "delegate_to_agent": {
+      try {
+        const orchestratorUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/agent-orchestrator`;
+        const res = await fetch(orchestratorUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+          },
+          body: JSON.stringify({
+            workspace_id: workspaceId,
+            agent_slug: toolInput.agent_slug || "auto",
+            input: { message: toolInput.message },
+            trigger_type: "chat",
+          }),
+        });
+        if (!res.ok) {
+          const errText = await res.text();
+          return { error: `Agent error: ${errText}` };
+        }
+        const result = await res.json();
+        return {
+          agent_name: result.agent_name,
+          agent_slug: result.agent,
+          response: result.response,
+          proposals_created: result.proposals_created,
+          tools_called: result.tools_called,
+        };
+      } catch (e) {
+        return { error: `Agent delegation failed: ${e.message}` };
+      }
+    }
     default:
       return { error: `Unknown tool: ${toolName}` };
   }
@@ -326,7 +388,8 @@ Behavior Rules:
 4. When you notice a pattern across services, save it as a long-term memory with origin='strategy'.
 5. If a service snapshot is older than 24 hours and the question is service-specific, proactively mention the snapshot may be stale.
 6. Never say "I don't have access to previous conversations." You have memory. Use it.
-7. Be direct and action-oriented. This is a power-user tool.`;
+7. Be direct and action-oriented. This is a power-user tool.
+8. When the user asks for deep analysis (competitor analysis, content strategy, growth optimization, audience insights, revenue analysis), delegate to a specialized agent using delegate_to_agent. Present the agent's findings to the user.`;
 
   return { prompt, memoriesUsed: memories };
 }
@@ -460,6 +523,9 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Check if an agent was delegated to
+    const agentDelegated = toolCallsMade.includes("delegate_to_agent");
+
     // Save assistant response
     await supabase.from("assistant_conversations").insert({
       workspace_id,
@@ -470,6 +536,7 @@ Deno.serve(async (req) => {
         memories_used: memoriesUsed.length,
         tools_called: toolCallsMade,
         model: selectedModel,
+        agent_delegated: agentDelegated,
       },
     });
 
@@ -480,6 +547,7 @@ Deno.serve(async (req) => {
         tools_called: toolCallsMade,
         session_id,
         model: selectedModel,
+        agent_delegated: agentDelegated,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
