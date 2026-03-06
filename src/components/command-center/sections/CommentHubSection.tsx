@@ -1,6 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CommentSentiment } from "../CommentSentiment";
 import { CommentInbox } from "../CommentInbox";
+import { CommentInsights } from "../CommentInsights";
 
 export function CommentHubSection() {
   return (
@@ -8,9 +9,11 @@ export function CommentHubSection() {
       <TabsList>
         <TabsTrigger value="sentiment">Sentiment</TabsTrigger>
         <TabsTrigger value="inbox">Comment Inbox</TabsTrigger>
+        <TabsTrigger value="insights">Insights</TabsTrigger>
       </TabsList>
       <TabsContent value="sentiment"><CommentSentiment /></TabsContent>
       <TabsContent value="inbox"><CommentInbox /></TabsContent>
+      <TabsContent value="insights"><CommentInsights /></TabsContent>
     </Tabs>
   );
 }

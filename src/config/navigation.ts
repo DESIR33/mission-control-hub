@@ -19,6 +19,7 @@ import {
   Target,
   MessageSquare,
   BookOpen,
+  UserPlus,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -43,6 +44,7 @@ export const navItems: NavItem[] = [
   { to: "/monetization", icon: DollarSign, label: "Monetization" },
   { to: "/deals", icon: Handshake, label: "Deals Pipeline" },
   { to: "/discover", icon: Compass, label: "Discover" },
+  { to: "/collaborations", icon: UserPlus, label: "Collaborations" },
   { to: "/sequences", icon: Send, label: "Email Sequences" },
   { to: "/projects", icon: FolderKanban, label: "Projects" },
   { to: "/tasks", icon: CheckSquare, label: "Tasks" },
@@ -70,6 +72,7 @@ export const navGroups: NavGroup[] = [
       { to: "/deals", icon: Handshake, label: "Deals Pipeline" },
       { to: "/monetization", icon: DollarSign, label: "Monetization" },
       { to: "/discover", icon: Compass, label: "Discover" },
+      { to: "/collaborations", icon: UserPlus, label: "Collaborations" },
       { to: "/sequences", icon: Send, label: "Email Sequences" },
     ],
   },

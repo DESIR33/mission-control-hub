@@ -13,6 +13,7 @@ import { AlertsPanel } from "@/components/dashboard/AlertsPanel";
 import { SprintWidget } from "@/components/dashboard/SprintWidget";
 import { GoalPaceWidget } from "@/components/dashboard/GoalPaceWidget";
 import { GrowthCommandWidget } from "@/components/dashboard/GrowthCommandWidget";
+import { MilestoneProgressBar } from "@/components/dashboard/MilestoneProgressBar";
 import { WorkspaceProvider } from "@/hooks/use-workspace";
 import {
   useDashboardStats,
@@ -64,6 +65,9 @@ function DashboardContent() {
 
       {/* Growth Command Widget */}
       <GrowthCommandWidget />
+
+      {/* 50K Milestone Progress */}
+      <MilestoneProgressBar />
 
       {/* YouTube Growth Widget */}
       <YouTubeGrowth />

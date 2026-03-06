@@ -40,6 +40,7 @@ import WeeklySprintPage from "./pages/WeeklySprintPage";
 import CompanyProfilePage from "./pages/CompanyProfilePage";
 import ChatPage from "./pages/ChatPage";
 import MemoryPage from "./pages/MemoryPage";
+import CollaborationsPage from "./pages/CollaborationsPage";
 
 const queryClient = new QueryClient();
 
@@ -92,6 +93,7 @@ const App = () => (
               <Route path="/monetization" element={<MonetizationPage />} />
               <Route path="/deals" element={<DealsPage />} />
               <Route path="/discover" element={<SponsorDiscoveryPage />} />
+              <Route path="/collaborations" element={<CollaborationsPage />} />
               <Route path="/sequences" element={<EmailSequencesPage />} />
               <Route path="/reports" element={<WeeklyReportPage />} />
               <Route path="/affiliate-program/new" element={<NewAffiliateProgramPage />} />
