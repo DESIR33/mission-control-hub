@@ -517,9 +517,8 @@ Deno.serve(async (req) => {
         toolCallsMade.push(tc.function.name);
         messages.push({
           role: "tool",
-          tool_call_id: tc.id,
           content: JSON.stringify(result),
-        });
+        } as any);
       }
     }
 
