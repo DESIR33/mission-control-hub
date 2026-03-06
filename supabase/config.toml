@@ -35,3 +35,18 @@ verify_jwt = false
 
 [functions.assistant-memory-manage]
 verify_jwt = false
+
+[functions.agent-orchestrator]
+verify_jwt = false
+
+[functions.agent-proactive-runner]
+verify_jwt = false
+
+[functions.strategist-daily-run]
+verify_jwt = false
+
+[functions.strategist-check-experiments]
+verify_jwt = false
+
+[functions.youtube-video-update]
+verify_jwt = false

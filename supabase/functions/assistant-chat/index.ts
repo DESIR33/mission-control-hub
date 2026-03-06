@@ -194,8 +194,8 @@ async function handleToolCall(
         });
         if (error) return { error: error.message };
         return { results: data || [] };
-      } catch (e) {
-        return { results: [], error: e.message };
+      } catch (e: unknown) {
+        return { results: [], error: (e as Error).message };
       }
     }
     case "save_memory": {
@@ -210,8 +210,8 @@ async function handleToolCall(
         });
         if (error) return { error: error.message };
         return { success: true };
-      } catch (e) {
-        return { error: e.message };
+      } catch (e: unknown) {
+        return { error: (e as Error).message };
       }
     }
     case "save_daily_log": {
@@ -291,8 +291,8 @@ async function handleToolCall(
           proposals_created: result.proposals_created,
           tools_called: result.tools_called,
         };
-      } catch (e) {
-        return { error: `Agent delegation failed: ${e.message}` };
+      } catch (e: unknown) {
+        return { error: `Agent delegation failed: ${(e as Error).message}` };
       }
     }
     default:
@@ -517,9 +517,8 @@ Deno.serve(async (req) => {
         toolCallsMade.push(tc.function.name);
         messages.push({
           role: "tool",
-          tool_call_id: tc.id,
           content: JSON.stringify(result),
-        });
+        } as any);
       }
     }
 
@@ -551,9 +550,9 @@ Deno.serve(async (req) => {
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: (error as Error).message }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

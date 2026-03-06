@@ -130,56 +130,276 @@ export type Database = {
           },
         ]
       }
+      agent_definitions: {
+        Row: {
+          config: Json
+          created_at: string
+          description: string
+          enabled: boolean
+          id: string
+          is_system: boolean
+          model: string
+          name: string
+          skills: string[]
+          slug: string
+          system_prompt: string
+          updated_at: string
+          workspace_id: string | null
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          description?: string
+          enabled?: boolean
+          id?: string
+          is_system?: boolean
+          model?: string
+          name: string
+          skills?: string[]
+          slug: string
+          system_prompt?: string
+          updated_at?: string
+          workspace_id?: string | null
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          description?: string
+          enabled?: boolean
+          id?: string
+          is_system?: boolean
+          model?: string
+          name?: string
+          skills?: string[]
+          slug?: string
+          system_prompt?: string
+          updated_at?: string
+          workspace_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_definitions_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_executions: {
+        Row: {
+          agent_id: string | null
+          agent_slug: string
+          completed_at: string | null
+          created_at: string
+          duration_ms: number | null
+          error_message: string | null
+          id: string
+          input: Json
+          output: Json | null
+          proposals_created: number
+          skill_slug: string | null
+          started_at: string | null
+          status: string
+          trigger_type: string
+          workspace_id: string
+        }
+        Insert: {
+          agent_id?: string | null
+          agent_slug: string
+          completed_at?: string | null
+          created_at?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: string
+          input?: Json
+          output?: Json | null
+          proposals_created?: number
+          skill_slug?: string | null
+          started_at?: string | null
+          status?: string
+          trigger_type?: string
+          workspace_id: string
+        }
+        Update: {
+          agent_id?: string | null
+          agent_slug?: string
+          completed_at?: string | null
+          created_at?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: string
+          input?: Json
+          output?: Json | null
+          proposals_created?: number
+          skill_slug?: string | null
+          started_at?: string | null
+          status?: string
+          trigger_type?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_executions_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_definitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_executions_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_skills: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          enabled: boolean
+          handler_code: string | null
+          id: string
+          input_schema: Json
+          is_system: boolean
+          name: string
+          skill_type: string
+          slug: string
+          tool_definitions: Json
+          updated_at: string
+          workspace_id: string | null
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string
+          enabled?: boolean
+          handler_code?: string | null
+          id?: string
+          input_schema?: Json
+          is_system?: boolean
+          name: string
+          skill_type?: string
+          slug: string
+          tool_definitions?: Json
+          updated_at?: string
+          workspace_id?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          enabled?: boolean
+          handler_code?: string | null
+          id?: string
+          input_schema?: Json
+          is_system?: boolean
+          name?: string
+          skill_type?: string
+          slug?: string
+          tool_definitions?: Json
+          updated_at?: string
+          workspace_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_skills_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_proposals: {
         Row: {
           company_id: string | null
+          confidence: number | null
           contact_id: string | null
           content: Json | null
           created_at: string
           created_by: string | null
           description: string | null
+          entity_id: string | null
+          entity_type: string | null
+          execution_status: string | null
           id: string
           metadata: Json | null
+          optimization_proof: Json | null
+          proposal_type: string | null
+          proposed_changes: Json | null
+          requires_thumbnail_generation: boolean | null
           reviewed_at: string | null
           reviewed_by: string | null
           status: string
+          summary: string | null
+          thumbnail_prompts: string[] | null
+          thumbnail_urls: string[] | null
           title: string
           type: string
           updated_at: string
+          video_id: string | null
           workspace_id: string
         }
         Insert: {
           company_id?: string | null
+          confidence?: number | null
           contact_id?: string | null
           content?: Json | null
           created_at?: string
           created_by?: string | null
           description?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          execution_status?: string | null
           id?: string
           metadata?: Json | null
+          optimization_proof?: Json | null
+          proposal_type?: string | null
+          proposed_changes?: Json | null
+          requires_thumbnail_generation?: boolean | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: string
+          summary?: string | null
+          thumbnail_prompts?: string[] | null
+          thumbnail_urls?: string[] | null
           title: string
           type?: string
           updated_at?: string
+          video_id?: string | null
           workspace_id: string
         }
         Update: {
           company_id?: string | null
+          confidence?: number | null
           contact_id?: string | null
           content?: Json | null
           created_at?: string
           created_by?: string | null
           description?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          execution_status?: string | null
           id?: string
           metadata?: Json | null
+          optimization_proof?: Json | null
+          proposal_type?: string | null
+          proposed_changes?: Json | null
+          requires_thumbnail_generation?: boolean | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: string
+          summary?: string | null
+          thumbnail_prompts?: string[] | null
+          thumbnail_urls?: string[] | null
           title?: string
           type?: string
           updated_at?: string
+          video_id?: string | null
           workspace_id?: string
         }
         Relationships: [
@@ -835,6 +1055,101 @@ export type Database = {
         }
         Relationships: []
       }
+      strategist_daily_runs: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          execution_id: string | null
+          id: string
+          proposal_ids: string[]
+          recommendations_count: number
+          run_date: string
+          started_at: string | null
+          status: string
+          workspace_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          execution_id?: string | null
+          id?: string
+          proposal_ids?: string[]
+          recommendations_count?: number
+          run_date?: string
+          started_at?: string | null
+          status?: string
+          workspace_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          execution_id?: string | null
+          id?: string
+          proposal_ids?: string[]
+          recommendations_count?: number
+          run_date?: string
+          started_at?: string | null
+          status?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "strategist_daily_runs_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      strategist_notifications: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          read: boolean
+          run_id: string | null
+          title: string
+          workspace_id: string
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          run_id?: string | null
+          title: string
+          workspace_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          run_id?: string | null
+          title?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "strategist_notifications_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "strategist_daily_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strategist_notifications_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tags: {
         Row: {
           color: string | null
@@ -1102,6 +1417,128 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "video_notes_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      video_optimization_experiments: {
+        Row: {
+          baseline_avg_view_duration: number
+          baseline_ctr: number
+          baseline_impressions: number
+          baseline_views: number
+          baseline_watch_time_hours: number
+          completed_at: string | null
+          created_at: string
+          experiment_type: string
+          id: string
+          lesson_learned: string | null
+          measured_at: string | null
+          measurement_period_days: number
+          new_description: string | null
+          new_tags: string[] | null
+          new_thumbnail_url: string | null
+          new_title: string | null
+          original_description: string | null
+          original_tags: string[] | null
+          original_thumbnail_url: string | null
+          original_title: string | null
+          performance_delta: Json | null
+          proposal_id: string | null
+          result_avg_view_duration: number | null
+          result_ctr: number | null
+          result_impressions: number | null
+          result_views: number | null
+          result_watch_time_hours: number | null
+          rollback_reason: string | null
+          rolled_back_at: string | null
+          started_at: string
+          status: string
+          updated_at: string
+          video_id: string
+          video_title: string
+          workspace_id: string
+        }
+        Insert: {
+          baseline_avg_view_duration?: number
+          baseline_ctr?: number
+          baseline_impressions?: number
+          baseline_views?: number
+          baseline_watch_time_hours?: number
+          completed_at?: string | null
+          created_at?: string
+          experiment_type?: string
+          id?: string
+          lesson_learned?: string | null
+          measured_at?: string | null
+          measurement_period_days?: number
+          new_description?: string | null
+          new_tags?: string[] | null
+          new_thumbnail_url?: string | null
+          new_title?: string | null
+          original_description?: string | null
+          original_tags?: string[] | null
+          original_thumbnail_url?: string | null
+          original_title?: string | null
+          performance_delta?: Json | null
+          proposal_id?: string | null
+          result_avg_view_duration?: number | null
+          result_ctr?: number | null
+          result_impressions?: number | null
+          result_views?: number | null
+          result_watch_time_hours?: number | null
+          rollback_reason?: string | null
+          rolled_back_at?: string | null
+          started_at?: string
+          status?: string
+          updated_at?: string
+          video_id: string
+          video_title?: string
+          workspace_id: string
+        }
+        Update: {
+          baseline_avg_view_duration?: number
+          baseline_ctr?: number
+          baseline_impressions?: number
+          baseline_views?: number
+          baseline_watch_time_hours?: number
+          completed_at?: string | null
+          created_at?: string
+          experiment_type?: string
+          id?: string
+          lesson_learned?: string | null
+          measured_at?: string | null
+          measurement_period_days?: number
+          new_description?: string | null
+          new_tags?: string[] | null
+          new_thumbnail_url?: string | null
+          new_title?: string | null
+          original_description?: string | null
+          original_tags?: string[] | null
+          original_thumbnail_url?: string | null
+          original_title?: string | null
+          performance_delta?: Json | null
+          proposal_id?: string | null
+          result_avg_view_duration?: number | null
+          result_ctr?: number | null
+          result_impressions?: number | null
+          result_views?: number | null
+          result_watch_time_hours?: number | null
+          rollback_reason?: string | null
+          rolled_back_at?: string | null
+          started_at?: string
+          status?: string
+          updated_at?: string
+          video_id?: string
+          video_title?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_optimization_experiments_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
