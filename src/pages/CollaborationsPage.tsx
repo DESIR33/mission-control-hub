@@ -378,6 +378,7 @@ function CollabCard({
               onMoveBack();
             }}
             title="Move to previous stage"
+            aria-label="Move to previous stage"
           >
             <ArrowLeft className="w-3 h-3" />
           </Button>
@@ -392,6 +393,7 @@ function CollabCard({
               onMoveForward();
             }}
             title="Move to next stage"
+            aria-label="Move to next stage"
           >
             <ArrowRight className="w-3 h-3" />
           </Button>
@@ -406,6 +408,7 @@ function CollabCard({
               window.open(collab.channel_url!, "_blank");
             }}
             title="Open channel"
+            aria-label="Open channel"
           >
             <ExternalLink className="w-3 h-3" />
           </Button>

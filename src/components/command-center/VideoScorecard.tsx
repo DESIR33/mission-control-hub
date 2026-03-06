@@ -7,6 +7,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
 } from "recharts";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { useVideoScorecard, type VideoScore } from "@/hooks/use-video-scorecard";
 
 const tooltipStyle = {
@@ -152,8 +153,8 @@ export function VideoScorecard() {
       {/* Search */}
       <div className="flex items-center gap-2 px-1">
         <Search className="w-4 h-4 text-muted-foreground" />
-        <input
-          className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
+        <Input
+          className="flex-1 bg-transparent border-none shadow-none focus-visible:ring-0"
           placeholder="Search videos..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}

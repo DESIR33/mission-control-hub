@@ -218,12 +218,12 @@ export default function ProjectsPage() {
         <div className="flex flex-wrap gap-2">
           <div className="relative min-w-[220px] flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-            <input
+            <Input
               type="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search projects"
-              className="h-10 w-full rounded-xl border border-border bg-background pl-9 pr-3 text-sm text-foreground shadow-[inset_2px_2px_4px_rgba(0,0,0,0.08),inset_-2px_-2px_4px_rgba(255,255,255,0.04)] focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="h-10 w-full rounded-xl pl-9 pr-3 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.08),inset_-2px_-2px_4px_rgba(255,255,255,0.04)]"
             />
           </div>
 
@@ -241,30 +241,34 @@ export default function ProjectsPage() {
           </Select>
 
           <div className="flex items-center gap-1 rounded-xl border border-border bg-background px-1">
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               className={cn(
-                "rounded-lg p-2",
+                "rounded-lg h-8 w-8",
                 currentView === "cards"
-                  ? "bg-primary text-primary-foreground"
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90"
                   : "text-muted-foreground hover:bg-accent"
               )}
               onClick={() => setCurrentView("cards")}
-              title="Card view"
+              aria-label="Card view"
             >
               <LayoutGrid className="h-3.5 w-3.5" />
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
               className={cn(
-                "rounded-lg p-2",
+                "rounded-lg h-8 w-8",
                 currentView === "list"
-                  ? "bg-primary text-primary-foreground"
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90"
                   : "text-muted-foreground hover:bg-accent"
               )}
               onClick={() => setCurrentView("list")}
-              title="List view"
+              aria-label="List view"
             >
               <List className="h-3.5 w-3.5" />
-            </button>
+            </Button>
           </div>
         </div>
       </div>
