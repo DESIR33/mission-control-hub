@@ -69,7 +69,7 @@ const statusConfig: Record<string, { label: string; color: string; bgClass: stri
   completed: {
     label: "Completed",
     color: "#6B7280",
-    bgClass: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300",
+    bgClass: "bg-muted text-muted-foreground",
   },
 };
 
@@ -78,7 +78,7 @@ function getStatusLabel(status: string) {
 }
 
 function getStatusBgClass(status: string) {
-  return statusConfig[status]?.bgClass ?? "bg-gray-100 text-gray-800";
+  return statusConfig[status]?.bgClass ?? "bg-muted text-muted-foreground";
 }
 
 export default function ProjectsPage() {

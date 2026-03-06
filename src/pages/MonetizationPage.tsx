@@ -774,13 +774,14 @@ export default function MonetizationPage() {
                                   variant="ghost"
                                   size="icon"
                                   className="h-7 w-7"
+                                  aria-label="Edit program"
                                   onClick={() => navigate(`/affiliate-program/${program.id}/edit`)}
                                 >
                                   <Pencil className="h-3.5 w-3.5" />
                                 </Button>
                                 <AlertDialog>
                                   <AlertDialogTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-7 w-7">
+                                    <Button variant="ghost" size="icon" className="h-7 w-7" aria-label="Delete program">
                                       <Trash2 className="h-3.5 w-3.5" />
                                     </Button>
                                   </AlertDialogTrigger>
@@ -866,6 +867,7 @@ export default function MonetizationPage() {
                                   variant="ghost"
                                   size="icon"
                                   className="h-7 w-7"
+                                  aria-label="Edit sponsorship"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     navigate(`/monetization/edit-sponsorship/${sponsorship.id}`);
@@ -1085,6 +1087,7 @@ export default function MonetizationPage() {
                                     variant="ghost"
                                     size="icon"
                                     className="h-7 w-7"
+                                    aria-label="Edit product"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       setEditingProduct(product);
@@ -1098,6 +1101,7 @@ export default function MonetizationPage() {
                                         variant="ghost"
                                         size="icon"
                                         className="h-7 w-7"
+                                        aria-label="Delete product"
                                         onClick={(e) => e.stopPropagation()}
                                       >
                                         <Trash2 className="h-3.5 w-3.5" />
@@ -1164,6 +1168,7 @@ export default function MonetizationPage() {
                                     variant="ghost"
                                     size="icon"
                                     className="h-7 w-7"
+                                    aria-label="Edit transaction"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       setEditingTransaction(transaction);
@@ -1177,6 +1182,7 @@ export default function MonetizationPage() {
                                         variant="ghost"
                                         size="icon"
                                         className="h-7 w-7"
+                                        aria-label="Delete transaction"
                                         onClick={(e) => e.stopPropagation()}
                                       >
                                         <Trash2 className="h-3.5 w-3.5" />

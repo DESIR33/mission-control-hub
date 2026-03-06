@@ -15,6 +15,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import {
   useCreateVideo,
@@ -260,12 +263,11 @@ export default function VideoQueueFormPage() {
           <label className="mb-1.5 block text-sm font-medium text-foreground">
             Title <span className="text-destructive">*</span>
           </label>
-          <input
+          <Input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Enter video title"
-            className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
           />
         </div>
 
@@ -274,12 +276,11 @@ export default function VideoQueueFormPage() {
           <label className="mb-1.5 block text-sm font-medium text-foreground">
             Description
           </label>
-          <textarea
+          <Textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Brief description or notes"
             rows={3}
-            className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
           />
         </div>
 
@@ -399,14 +400,14 @@ export default function VideoQueueFormPage() {
           </label>
           <div className="relative">
             <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <input
+            <Input
               type="number"
-              min="0"
-              step="0.01"
+              min={0}
+              step={0.01}
               value={productionCost}
               onChange={(e) => setProductionCost(e.target.value)}
               placeholder="0.00"
-              className="h-10 w-full rounded-xl border border-border bg-background pl-9 pr-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="pl-9"
             />
           </div>
           <p className="mt-1 text-xs text-muted-foreground">Used for ROI calculations in the Command Center.</p>
@@ -495,7 +496,7 @@ export default function VideoQueueFormPage() {
               ))}
             </div>
             <div className="mt-2 flex gap-2">
-              <input
+              <Input
                 type="text"
                 value={newChecklistItem}
                 onChange={(e) => setNewChecklistItem(e.target.value)}
@@ -506,27 +507,27 @@ export default function VideoQueueFormPage() {
                   }
                 }}
                 placeholder="Add checklist item..."
-                className="h-9 flex-1 rounded-lg border border-border bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="h-9 flex-1"
               />
-              <button
+              <Button
                 type="button"
+                size="sm"
                 onClick={addChecklistItem}
                 disabled={!newChecklistItem.trim()}
-                className="inline-flex h-9 items-center gap-1 rounded-lg bg-primary px-3 text-xs text-primary-foreground disabled:opacity-50"
+                className="gap-1"
               >
                 <Plus className="h-3.5 w-3.5" />
                 Add
-              </button>
+              </Button>
             </div>
           </div>
         )}
 
         {/* Submit */}
         <div className="flex items-center gap-3 pt-2">
-          <button
+          <Button
             type="submit"
             disabled={workspaceLoading || createVideo.isPending || updateVideo.isPending || !workspaceId}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-5 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
           >
             {workspaceLoading
               ? "Loading workspace..."
@@ -537,14 +538,14 @@ export default function VideoQueueFormPage() {
                   : isEditing
                     ? "Update Video"
                     : "Create Video"}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="outline"
             onClick={() => navigate("/content")}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-background px-5 py-2 text-sm text-foreground"
           >
             Cancel
-          </button>
+          </Button>
         </div>
       </form>
     </div>
