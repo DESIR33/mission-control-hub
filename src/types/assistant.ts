@@ -40,6 +40,7 @@ export interface ChatMessage {
   metadata?: {
     memories_used?: number;
     tools_called?: string[];
+    agent_delegated?: boolean;
   };
   created_at: string;
 }

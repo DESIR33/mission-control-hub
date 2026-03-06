@@ -41,6 +41,7 @@ import CompanyProfilePage from "./pages/CompanyProfilePage";
 import ChatPage from "./pages/ChatPage";
 import MemoryPage from "./pages/MemoryPage";
 import CollaborationsPage from "./pages/CollaborationsPage";
+import AgentHubPage from "./pages/AgentHubPage";
 
 const queryClient = new QueryClient();
 
@@ -114,6 +115,7 @@ const App = () => (
               <Route path="/integrations" element={<IntegrationsPage />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/chat" element={<ChatPage />} />
+              <Route path="/agents" element={<AgentHubPage />} />
               <Route path="/memory" element={<MemoryPage />} />
             </Route>
             <Route path="*" element={<NotFound />} />

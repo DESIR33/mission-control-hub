@@ -100,6 +100,7 @@ export function useChat() {
           metadata: {
             memories_used: data.memories_used?.length || 0,
             tools_called: data.tools_called || [],
+            agent_delegated: data.agent_delegated || false,
           },
           created_at: new Date().toISOString(),
         };

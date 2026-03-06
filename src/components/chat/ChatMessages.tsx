@@ -3,7 +3,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { cn } from "@/lib/utils";
-import { Brain, User } from "lucide-react";
+import { Brain, User, Bot } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import type { ChatMessage } from "@/types/assistant";
 
 interface Props {
@@ -70,6 +71,12 @@ export function ChatMessages({ messages, isLoading }: Props) {
                           <span>
                             🔧 {msg.metadata.tools_called!.length} tools
                           </span>
+                        )}
+                        {msg.metadata.agent_delegated && (
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 gap-1">
+                            <Bot className="h-2.5 w-2.5" />
+                            Agent
+                          </Badge>
                         )}
                       </div>
                     )}
