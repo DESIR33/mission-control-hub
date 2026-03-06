@@ -143,7 +143,7 @@ const INTEGRATIONS: IntegrationDef[] = [
     connectHint:
       "Enter your YouTube Data API key and channel ID for basic stats. For full analytics (demographics, traffic, revenue), add OAuth2 credentials.",
     warningNote:
-      "Required Google Cloud APIs: YouTube Data API v3 + YouTube Analytics API. OAuth scopes needed: yt-analytics.readonly (analytics) + yt-analytics-monetary.readonly (revenue).",
+      "Required Google Cloud APIs: YouTube Data API v3 + YouTube Analytics API. OAuth scopes needed: yt-analytics.readonly, yt-analytics-monetary.readonly, youtube.readonly, youtube.force-ssl (for video updates).",
     fields: [
       {
         name: "api_key",
