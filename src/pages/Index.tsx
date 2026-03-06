@@ -66,8 +66,6 @@ function DashboardContent() {
       {/* Growth Command Widget */}
       <GrowthCommandWidget />
 
-      {/* 50K Milestone Progress */}
-      <MilestoneProgressBar />
 
       {/* YouTube Growth Widget */}
       <YouTubeGrowth />
