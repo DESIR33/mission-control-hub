@@ -5,6 +5,7 @@ import { RevenueIntelligence } from "../RevenueIntelligence";
 import { ContentROICalculator } from "../ContentROICalculator";
 import { RevenueForecast10Month } from "../RevenueForecast10Month";
 import { MediaKitGenerator } from "../MediaKitGenerator";
+import { SponsorPipeline } from "../SponsorPipeline";
 
 export function RevenueHubSection() {
   return (
@@ -16,6 +17,7 @@ export function RevenueHubSection() {
         <TabsTrigger value="intel">Revenue Intel</TabsTrigger>
         <TabsTrigger value="roi">ROI Calculator</TabsTrigger>
         <TabsTrigger value="mediakit">Media Kit</TabsTrigger>
+        <TabsTrigger value="pipeline">Sponsor Pipeline</TabsTrigger>
       </TabsList>
       <TabsContent value="linker"><ContentRevenueLinker /></TabsContent>
       <TabsContent value="forecast"><RevenueForecast /></TabsContent>
@@ -23,6 +25,7 @@ export function RevenueHubSection() {
       <TabsContent value="intel"><RevenueIntelligence /></TabsContent>
       <TabsContent value="roi"><ContentROICalculator /></TabsContent>
       <TabsContent value="mediakit"><MediaKitGenerator /></TabsContent>
+      <TabsContent value="pipeline"><SponsorPipeline /></TabsContent>
     </Tabs>
   );
 }

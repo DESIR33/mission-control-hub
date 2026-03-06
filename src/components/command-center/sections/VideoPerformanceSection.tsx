@@ -3,6 +3,7 @@ import { VideoScorecard } from "../VideoScorecard";
 import { EnhancedScorecard } from "../EnhancedScorecard";
 import { RetentionAnalyzer } from "../RetentionAnalyzer";
 import { RetentionLab } from "../RetentionLab";
+import { VideoAutopsy } from "../VideoAutopsy";
 
 export function VideoPerformanceSection() {
   return (
@@ -12,11 +13,13 @@ export function VideoPerformanceSection() {
         <TabsTrigger value="enhanced">Enhanced Scorecard</TabsTrigger>
         <TabsTrigger value="retention">Retention</TabsTrigger>
         <TabsTrigger value="retention_lab">Retention Lab</TabsTrigger>
+        <TabsTrigger value="autopsy">Video Autopsy</TabsTrigger>
       </TabsList>
       <TabsContent value="scorecard"><VideoScorecard /></TabsContent>
       <TabsContent value="enhanced"><EnhancedScorecard /></TabsContent>
       <TabsContent value="retention"><RetentionAnalyzer /></TabsContent>
       <TabsContent value="retention_lab"><RetentionLab /></TabsContent>
+      <TabsContent value="autopsy"><VideoAutopsy /></TabsContent>
     </Tabs>
   );
 }

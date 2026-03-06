@@ -8,6 +8,7 @@ import {
 import { CompetitorBenchmark } from "../CompetitorBenchmark";
 import { CompetitorIntelligence } from "../CompetitorIntelligence";
 import { CompetitorActivityFeed } from "../CompetitorActivityFeed";
+import { CompetitorWarRoom } from "../CompetitorWarRoom";
 import { useCreateCompetitor } from "@/hooks/use-competitor-benchmarking";
 import { toast } from "sonner";
 
@@ -60,14 +61,16 @@ export function CompetitorIntelSection() {
       </div>
 
       <Tabs defaultValue="benchmark" className="space-y-4">
-        <TabsList>
+        <TabsList className="flex-wrap h-auto gap-1">
           <TabsTrigger value="benchmark">Benchmarks</TabsTrigger>
           <TabsTrigger value="intel">Deep Intel</TabsTrigger>
           <TabsTrigger value="activity">Activity Feed</TabsTrigger>
+          <TabsTrigger value="warroom">War Room</TabsTrigger>
         </TabsList>
         <TabsContent value="benchmark"><CompetitorBenchmark /></TabsContent>
         <TabsContent value="intel"><CompetitorIntelligence /></TabsContent>
         <TabsContent value="activity"><CompetitorActivityFeed /></TabsContent>
+        <TabsContent value="warroom"><CompetitorWarRoom /></TabsContent>
       </Tabs>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
