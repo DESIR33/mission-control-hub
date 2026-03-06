@@ -13,7 +13,7 @@ const sentimentConfig: Record<string, { icon: any; color: string; label: string 
   positive: { icon: Smile, color: "text-green-400", label: "Positive" },
   negative: { icon: Frown, color: "text-red-400", label: "Negative" },
   question: { icon: HelpCircle, color: "text-blue-400", label: "Question" },
-  neutral: { icon: MessageCircle, color: "text-gray-400", label: "Neutral" },
+  neutral: { icon: MessageCircle, color: "text-muted-foreground", label: "Neutral" },
 };
 
 export function CommentInbox() {

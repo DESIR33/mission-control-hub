@@ -491,7 +491,7 @@ export function ABTestLab() {
                       i === 0
                         ? "text-yellow-400"
                         : i === 1
-                          ? "text-gray-300"
+                          ? "text-muted-foreground"
                           : i === 2
                             ? "text-amber-600"
                             : "text-muted-foreground"

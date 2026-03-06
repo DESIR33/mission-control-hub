@@ -36,7 +36,7 @@ const statusIcon: Record<string, any> = {
 const statusColor: Record<string, string> = {
   ahead: "text-green-400",
   behind: "text-red-400",
-  even: "text-gray-400",
+  even: "text-muted-foreground",
 };
 
 export function CompetitorBenchmark() {

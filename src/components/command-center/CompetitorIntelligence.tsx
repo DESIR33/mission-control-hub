@@ -48,7 +48,7 @@ const statusIcon: Record<string, typeof TrendingUp> = {
 const statusColor: Record<string, string> = {
   ahead: "text-green-400",
   behind: "text-red-400",
-  even: "text-gray-400",
+  even: "text-muted-foreground",
 };
 
 interface CompetitorTopVideo {

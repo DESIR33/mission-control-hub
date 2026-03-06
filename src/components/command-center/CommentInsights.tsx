@@ -13,7 +13,7 @@ const categoryConfig: Record<string, { label: string; icon: typeof Star; color: 
   positive: { label: "Positive", icon: Heart, color: "text-green-400 bg-green-400/10" },
   negative: { label: "Criticism", icon: AlertCircle, color: "text-red-400 bg-red-400/10" },
   question: { label: "Question", icon: HelpCircle, color: "text-blue-400 bg-blue-400/10" },
-  neutral: { label: "Neutral", icon: MessageSquare, color: "text-gray-400 bg-gray-400/10" },
+  neutral: { label: "Neutral", icon: MessageSquare, color: "text-muted-foreground bg-muted" },
 };
 
 interface SuperFan {
