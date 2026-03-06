@@ -34,6 +34,7 @@ export function GrowthAlertBanner() {
             <button
               onClick={() => dismiss(alert.id)}
               className="p-1 rounded hover:bg-black/10 dark:hover:bg-white/10 transition-colors shrink-0"
+              aria-label="Dismiss alert"
             >
               <X className="w-3.5 h-3.5" />
             </button>

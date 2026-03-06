@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -173,6 +174,7 @@ export function CSVImportDialog({
                   variant="ghost"
                   size="icon"
                   onClick={handleRemoveFile}
+                  aria-label="Remove file"
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -183,9 +185,9 @@ export function CSVImportDialog({
                 <div className="grid gap-4 md:grid-cols-2">
                   {requiredFields.map((field) => (
                     <div key={field.key} className="space-y-2">
-                      <label className="text-sm font-medium">
+                      <Label htmlFor={`map-${field.key}`} className="text-sm font-medium">
                         {field.label} <span className="text-destructive">*</span>
-                      </label>
+                      </Label>
                       <Select
                         value={columnMappings[field.key]?.toString()}
                         onValueChange={(value) => handleColumnMapping(field.key, value)}
@@ -206,7 +208,7 @@ export function CSVImportDialog({
 
                   {optionalFields.map((field) => (
                     <div key={field.key} className="space-y-2">
-                      <label className="text-sm font-medium">{field.label}</label>
+                      <Label htmlFor={`map-${field.key}`} className="text-sm font-medium">{field.label}</Label>
                       <Select
                         value={columnMappings[field.key]?.toString()}
                         onValueChange={(value) => handleColumnMapping(field.key, value)}

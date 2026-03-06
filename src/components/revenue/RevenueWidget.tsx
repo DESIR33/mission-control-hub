@@ -58,12 +58,13 @@ export function RevenueWidget({ metric, onUpdate, onDelete }: RevenueWidgetProps
             size="icon"
             className="h-6 w-6"
             onClick={() => setIsEditing(true)}
+            aria-label="Edit widget"
           >
             <Pencil className="h-3 w-3" />
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-6 w-6">
+              <Button variant="ghost" size="icon" className="h-6 w-6" aria-label="Delete widget">
                 <Trash2 className="h-3 w-3" />
               </Button>
             </AlertDialogTrigger>

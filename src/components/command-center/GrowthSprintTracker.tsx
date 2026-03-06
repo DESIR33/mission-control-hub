@@ -29,7 +29,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   outreach: "text-purple-400",
   engagement: "text-green-400",
   deals: "text-yellow-400",
-  other: "text-gray-400",
+  other: "text-muted-foreground",
 };
 
 const CATEGORY_BG: Record<string, string> = {
@@ -37,7 +37,7 @@ const CATEGORY_BG: Record<string, string> = {
   outreach: "bg-purple-400/15 text-purple-400",
   engagement: "bg-green-400/15 text-green-400",
   deals: "bg-yellow-400/15 text-yellow-400",
-  other: "bg-gray-400/15 text-gray-400",
+  other: "bg-muted text-muted-foreground",
 };
 
 const CATEGORIES: SprintTask["category"][] = [

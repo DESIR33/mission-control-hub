@@ -95,6 +95,7 @@ export function ChatInput({ onSend, isLoading }: Props) {
             disabled={!value.trim() || isLoading}
             size="icon"
             className="h-11 w-11 flex-shrink-0"
+            aria-label="Send message"
           >
             <Send className="h-4 w-4" />
           </Button>

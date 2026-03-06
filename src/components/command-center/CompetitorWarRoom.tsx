@@ -144,7 +144,7 @@ export function CompetitorWarRoom() {
       );
     }
     return (
-      <Badge variant="outline" className="bg-gray-500/20 text-gray-400 border-gray-500/30 text-xs">
+      <Badge variant="outline" className="bg-muted text-muted-foreground border-border text-xs">
         <Minus className="w-3 h-3 mr-1" />
         Tied
       </Badge>
@@ -358,7 +358,7 @@ export function CompetitorWarRoom() {
                           {gap.difficulty ? (
                             <Badge
                               variant="outline"
-                              className={`${difficultyColor[gap.difficulty] ?? "bg-gray-500/20 text-gray-400"} border-transparent text-xs`}
+                              className={`${difficultyColor[gap.difficulty] ?? "bg-muted text-muted-foreground"} border-transparent text-xs`}
                             >
                               {gap.difficulty}
                             </Badge>
@@ -424,7 +424,7 @@ export function CompetitorWarRoom() {
                     {subsAhead ? (
                       <TrendingUp className="w-4 h-4 text-green-400 shrink-0" />
                     ) : subsEqual ? (
-                      <Minus className="w-4 h-4 text-gray-400 shrink-0" />
+                      <Minus className="w-4 h-4 text-muted-foreground shrink-0" />
                     ) : (
                       <TrendingDown className="w-4 h-4 text-red-400 shrink-0" />
                     )}
@@ -462,7 +462,7 @@ export function CompetitorWarRoom() {
                         {subsAhead ? (
                           <span className="text-green-400">Ahead</span>
                         ) : subsEqual ? (
-                          <span className="text-gray-400">Tied</span>
+                          <span className="text-muted-foreground">Tied</span>
                         ) : (
                           <span className="text-red-400">Behind</span>
                         )}

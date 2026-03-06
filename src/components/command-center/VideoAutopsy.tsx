@@ -86,7 +86,7 @@ const getCheckpointBadge = (
   return {
     label: "Reviewed",
     className:
-      "bg-gray-500/15 text-gray-400 border-gray-500/40 hover:bg-gray-500/25",
+      "bg-muted text-muted-foreground border-border hover:bg-accent",
   };
 };
 

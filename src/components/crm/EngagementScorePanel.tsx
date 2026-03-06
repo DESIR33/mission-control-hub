@@ -24,7 +24,7 @@ function getScoreBadge(score: number): { label: string; className: string } {
     return { label: "Warm", className: "bg-orange-500/15 text-orange-400 border-orange-500/30" };
   if (score >= 20)
     return { label: "Cool", className: "bg-blue-500/15 text-blue-400 border-blue-500/30" };
-  return { label: "Cold", className: "bg-gray-500/15 text-gray-400 border-gray-500/30" };
+  return { label: "Cold", className: "bg-muted text-muted-foreground border-border" };
 }
 
 export function EngagementScorePanel() {
