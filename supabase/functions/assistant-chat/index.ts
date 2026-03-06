@@ -291,8 +291,8 @@ async function handleToolCall(
           proposals_created: result.proposals_created,
           tools_called: result.tools_called,
         };
-      } catch (e) {
-        return { error: `Agent delegation failed: ${e.message}` };
+      } catch (e: unknown) {
+        return { error: `Agent delegation failed: ${(e as Error).message}` };
       }
     }
     default:
