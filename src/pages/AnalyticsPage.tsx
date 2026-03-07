@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   BarChart3, TrendingUp, TrendingDown, Eye, ThumbsUp, MessageSquare,
@@ -71,11 +71,20 @@ export default function AnalyticsPage() {
   const { data: deviceTypes = [], isLoading: loadingDevices } = useDeviceTypes();
   const syncAnalytics = useSyncYouTubeAnalytics();
 
-  // Auto-sync YouTube data and analytics on page load (fetch 90 days for all time ranges)
+  // Auto-sync YouTube data on page load only if last sync was 30+ minutes ago
   const hasSynced = useRef(false);
   useEffect(() => {
     if (hasSynced.current || workspaceLoading) return;
     hasSynced.current = true;
+
+    const THIRTY_MINUTES = 30 * 60 * 1000;
+    const lastSyncKey = "yt_last_sync_ts";
+    const lastSync = Number(localStorage.getItem(lastSyncKey) || "0");
+    const now = Date.now();
+
+    if (now - lastSync < THIRTY_MINUTES) return;
+
+    localStorage.setItem(lastSyncKey, String(now));
     syncYouTube.mutate();
     syncAnalytics.mutate({ start_date: subDays(new Date(), 90).toISOString().split("T")[0] });
   }, [workspaceLoading]); // eslint-disable-line react-hooks/exhaustive-deps
