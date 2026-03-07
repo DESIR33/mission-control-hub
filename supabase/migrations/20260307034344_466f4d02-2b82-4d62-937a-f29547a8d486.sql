@@ -1,0 +1,1 @@
+UPDATE agent_definitions SET model = 'anthropic/claude-3.5-sonnet' WHERE model = 'anthropic/claude-sonnet-4-20250514';
