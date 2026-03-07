@@ -3,6 +3,8 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useContactImpact } from "@/hooks/use-contact-impact";
+import { useAllVideoCompanies } from "@/hooks/use-all-video-companies";
+import { VideoCompanyLogos } from "@/components/VideoCompanyLogos";
 
 const fmtCount = (n: number) => {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
