@@ -42,9 +42,9 @@ Deno.serve(async (req) => {
     const { workspace_id, request_type } = await req.json();
     if (!workspace_id) throw new Error("Missing workspace_id");
 
-    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
-    if (!ANTHROPIC_API_KEY) {
-      throw new Error("ANTHROPIC_API_KEY not configured. Set it as a Supabase secret.");
+    const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
+    if (!OPENROUTER_API_KEY) {
+      throw new Error("OPENROUTER_API_KEY not configured. Set it as a Supabase secret.");
     }
 
     // Gather context data
@@ -141,28 +141,29 @@ Return ONLY a JSON array of proposals. No markdown, no explanation, just the arr
 
     const userPrompt = `Here is the current data for analysis:\n\n${JSON.stringify(context, null, 2)}`;
 
-    const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
+    const openrouterRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
+        "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: "minimax/minimax-m2.5",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
         max_tokens: 2048,
-        system: systemPrompt,
-        messages: [{ role: "user", content: userPrompt }],
       }),
     });
 
-    if (!anthropicRes.ok) {
-      const errBody = await anthropicRes.text();
-      throw new Error(`Anthropic API error: ${anthropicRes.status} - ${errBody}`);
+    if (!openrouterRes.ok) {
+      const errBody = await openrouterRes.text();
+      throw new Error(`OpenRouter API error: ${openrouterRes.status} - ${errBody}`);
     }
 
-    const anthropicData = await anthropicRes.json();
-    const responseText = anthropicData.content?.[0]?.text ?? "[]";
+    const openrouterData = await openrouterRes.json();
+    const responseText = openrouterData.choices?.[0]?.message?.content ?? "[]";
 
     // Parse proposals from LLM response
     let proposals: any[];
