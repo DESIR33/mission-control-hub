@@ -19,7 +19,7 @@ const tierIcons: Record<VipTier, string> = {
 
 const tierOrder: Record<VipTier, number> = { none: 0, silver: 1, gold: 2, platinum: 3 };
 
-type SortKey = "name" | "industry" | "location" | "size" | "vip" | "revenue" | "contacts" | "lastContact";
+type SortKey = "name" | "industry" | "location" | "videos" | "vip" | "revenue" | "contacts" | "lastContact";
 type SortDir = "asc" | "desc";
 
 function formatCurrency(value: number): string {
