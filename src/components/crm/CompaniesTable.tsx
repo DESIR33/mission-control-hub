@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Filter, Building2, Globe, MapPin, Users, Star, ChevronRight } from "lucide-react";
+import { Search, Filter, Building2, MapPin, Users, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Company, VipTier } from "@/types/crm";
 import { formatDistanceToNow } from "date-fns";
+import { useCompanyRevenue, type CompanyRevenueMap } from "@/hooks/use-company-revenue";
 
 const tierIcons: Record<VipTier, string> = {
   none: "",
@@ -15,6 +16,17 @@ const tierIcons: Record<VipTier, string> = {
   platinum: "💎",
 };
 
+const tierOrder: Record<VipTier, number> = { none: 0, silver: 1, gold: 2, platinum: 3 };
+
+type SortKey = "name" | "industry" | "location" | "size" | "vip" | "revenue" | "contacts" | "lastContact";
+type SortDir = "asc" | "desc";
+
+function formatCurrency(value: number): string {
+  if (value === 0) return "—";
+  if (value >= 1000) return `$${(value / 1000).toFixed(1)}k`;
+  return `$${value.toFixed(0)}`;
+}
+
 interface CompaniesTableProps {
   companies: Company[];
   onSelectCompany: (company: Company) => void;
@@ -22,23 +34,85 @@ interface CompaniesTableProps {
   addButton?: React.ReactNode;
 }
 
+function SortIcon({ column, sortKey, sortDir }: { column: SortKey; sortKey: SortKey | null; sortDir: SortDir }) {
+  if (sortKey !== column) return <ArrowUpDown className="w-3 h-3 ml-1 text-muted-foreground/50" />;
+  return sortDir === "asc"
+    ? <ArrowUp className="w-3 h-3 ml-1 text-primary" />
+    : <ArrowDown className="w-3 h-3 ml-1 text-primary" />;
+}
+
 export function CompaniesTable({ companies, onSelectCompany, selectedId, addButton }: CompaniesTableProps) {
   const [search, setSearch] = useState("");
   const [industryFilter, setIndustryFilter] = useState<string>("all");
   const [sizeFilter, setSizeFilter] = useState<string>("all");
+  const [sortKey, setSortKey] = useState<SortKey | null>(null);
+  const [sortDir, setSortDir] = useState<SortDir>("desc");
+
+  const revenueMap = useCompanyRevenue();
 
   const industries = Array.from(new Set(companies.map((c) => c.industry).filter(Boolean))) as string[];
 
-  const filtered = companies.filter((c) => {
-    const matchesSearch =
-      !search ||
-      `${c.name} ${c.industry ?? ""} ${c.location ?? ""} ${c.primary_email ?? ""}`
-        .toLowerCase()
-        .includes(search.toLowerCase());
-    const matchesIndustry = industryFilter === "all" || c.industry === industryFilter;
-    const matchesSize = sizeFilter === "all" || c.size === sizeFilter;
-    return matchesSearch && matchesIndustry && matchesSize;
-  });
+  const handleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir(key === "name" ? "asc" : "desc");
+    }
+  };
+
+  const filtered = useMemo(() => {
+    let list = companies.filter((c) => {
+      const matchesSearch =
+        !search ||
+        `${c.name} ${c.industry ?? ""} ${c.location ?? ""} ${c.primary_email ?? ""}`
+          .toLowerCase()
+          .includes(search.toLowerCase());
+      const matchesIndustry = industryFilter === "all" || c.industry === industryFilter;
+      const matchesSize = sizeFilter === "all" || c.size === sizeFilter;
+      return matchesSearch && matchesIndustry && matchesSize;
+    });
+
+    if (sortKey) {
+      list = [...list].sort((a, b) => {
+        let cmp = 0;
+        switch (sortKey) {
+          case "name":
+            cmp = a.name.localeCompare(b.name);
+            break;
+          case "industry":
+            cmp = (a.industry ?? "").localeCompare(b.industry ?? "");
+            break;
+          case "location":
+            cmp = (a.location ?? "").localeCompare(b.location ?? "");
+            break;
+          case "size":
+            cmp = (a.size ?? "").localeCompare(b.size ?? "");
+            break;
+          case "vip":
+            cmp = tierOrder[a.vip_tier] - tierOrder[b.vip_tier];
+            break;
+          case "revenue":
+            cmp = (revenueMap[a.id]?.total ?? 0) - (revenueMap[b.id]?.total ?? 0);
+            break;
+          case "contacts":
+            cmp = (a.contacts?.length ?? 0) - (b.contacts?.length ?? 0);
+            break;
+          case "lastContact": {
+            const da = a.last_contact_date ? new Date(a.last_contact_date).getTime() : 0;
+            const db = b.last_contact_date ? new Date(b.last_contact_date).getTime() : 0;
+            cmp = da - db;
+            break;
+          }
+        }
+        return sortDir === "asc" ? cmp : -cmp;
+      });
+    }
+
+    return list;
+  }, [companies, search, industryFilter, sizeFilter, sortKey, sortDir, revenueMap]);
+
+  const thClass = "text-muted-foreground font-semibold cursor-pointer select-none hover:text-foreground transition-colors";
 
   return (
     <div className="flex flex-col gap-4">
@@ -94,91 +168,93 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
         {search || industryFilter !== "all" || sizeFilter !== "all" ? " (filtered)" : ""}
       </p>
 
-      {/* Mobile card list — visible only on small screens */}
+      {/* Mobile card list */}
       <div className="md:hidden rounded-lg border border-border bg-card overflow-hidden divide-y divide-border">
         {filtered.length === 0 ? (
           <div className="py-12 text-center text-sm text-muted-foreground">
             No companies found
           </div>
         ) : (
-          filtered.map((company) => (
-            <button
-              key={company.id}
-              onClick={() => onSelectCompany(company)}
-              className={cn(
-                "w-full flex items-center gap-3 px-4 py-3 text-left transition-colors",
-                selectedId === company.id
-                  ? "bg-primary/5"
-                  : "hover:bg-accent/50 active:bg-accent/70"
-              )}
-            >
-              {/* Icon */}
-              <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
-                {company.logo_url ? (
-                  <img src={company.logo_url} alt={company.name} className="w-full h-full object-cover" />
-                ) : (
-                  <Building2 className="w-4 h-4 text-primary" />
+          filtered.map((company) => {
+            const rev = revenueMap[company.id];
+            return (
+              <button
+                key={company.id}
+                onClick={() => onSelectCompany(company)}
+                className={cn(
+                  "w-full flex items-center gap-3 px-4 py-3 text-left transition-colors",
+                  selectedId === company.id
+                    ? "bg-primary/5"
+                    : "hover:bg-accent/50 active:bg-accent/70"
                 )}
-              </div>
-
-              {/* Content */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <p className="text-sm font-medium text-foreground truncate">
-                    {company.name}
-                  </p>
-                  {company.vip_tier !== "none" && (
-                    <span className="text-sm leading-none shrink-0">{tierIcons[company.vip_tier]}</span>
+              >
+                <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
+                  {company.logo_url ? (
+                    <img src={company.logo_url} alt={company.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <Building2 className="w-4 h-4 text-primary" />
                   )}
                 </div>
-                <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                  {company.industry && (
-                    <span className="text-xs text-muted-foreground">{company.industry}</span>
-                  )}
-                  {company.location && (
-                    <span className="text-xs text-muted-foreground flex items-center gap-0.5">
-                      <MapPin className="w-3 h-3 shrink-0" />
-                      {company.location}
-                    </span>
-                  )}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-sm font-medium text-foreground truncate">{company.name}</p>
+                    {company.vip_tier !== "none" && (
+                      <span className="text-sm leading-none shrink-0">{tierIcons[company.vip_tier]}</span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                    {company.industry && <span className="text-xs text-muted-foreground">{company.industry}</span>}
+                    {company.location && (
+                      <span className="text-xs text-muted-foreground flex items-center gap-0.5">
+                        <MapPin className="w-3 h-3 shrink-0" />{company.location}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3 mt-1">
+                    {rev && rev.total > 0 && (
+                      <span className="text-xs font-medium text-emerald-500">{formatCurrency(rev.total)}</span>
+                    )}
+                    <Badge variant="outline" className="text-xs shrink-0">
+                      {company.contacts?.length ?? 0} contacts
+                    </Badge>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3 mt-1">
-                  {company.size && (
-                    <span className="text-xs text-muted-foreground flex items-center gap-0.5">
-                      <Users className="w-3 h-3 shrink-0" />
-                      {company.size}
-                    </span>
-                  )}
-                  <Badge variant="outline" className="text-xs shrink-0">
-                    {company.contacts?.length ?? 0} contacts
-                  </Badge>
-                  {company.last_contact_date && (
-                    <span className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(new Date(company.last_contact_date), { addSuffix: true })}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
-            </button>
-          ))
+                <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+              </button>
+            );
+          })
         )}
       </div>
 
-      {/* Desktop table — hidden on small screens */}
+      {/* Desktop table */}
       <div className="hidden md:block rounded-lg border border-border bg-card overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent border-border">
-              <TableHead className="text-muted-foreground font-semibold">Company</TableHead>
-              <TableHead className="text-muted-foreground font-semibold">Industry</TableHead>
-              <TableHead className="text-muted-foreground font-semibold">Location</TableHead>
-              <TableHead className="text-muted-foreground font-semibold">Size</TableHead>
-              <TableHead className="text-muted-foreground font-semibold">VIP</TableHead>
-              <TableHead className="text-muted-foreground font-semibold">Revenue</TableHead>
-              <TableHead className="text-muted-foreground font-semibold">Contacts</TableHead>
-              <TableHead className="text-muted-foreground font-semibold">Last Contact</TableHead>
+              <TableHead className={thClass} onClick={() => handleSort("name")}>
+                <div className="flex items-center">Company<SortIcon column="name" sortKey={sortKey} sortDir={sortDir} /></div>
+              </TableHead>
+              <TableHead className={thClass} onClick={() => handleSort("industry")}>
+                <div className="flex items-center">Industry<SortIcon column="industry" sortKey={sortKey} sortDir={sortDir} /></div>
+              </TableHead>
+              <TableHead className={thClass} onClick={() => handleSort("location")}>
+                <div className="flex items-center">Location<SortIcon column="location" sortKey={sortKey} sortDir={sortDir} /></div>
+              </TableHead>
+              <TableHead className={thClass} onClick={() => handleSort("size")}>
+                <div className="flex items-center">Size<SortIcon column="size" sortKey={sortKey} sortDir={sortDir} /></div>
+              </TableHead>
+              <TableHead className={thClass} onClick={() => handleSort("vip")}>
+                <div className="flex items-center">VIP<SortIcon column="vip" sortKey={sortKey} sortDir={sortDir} /></div>
+              </TableHead>
+              <TableHead className={thClass} onClick={() => handleSort("revenue")}>
+                <div className="flex items-center">Revenue<SortIcon column="revenue" sortKey={sortKey} sortDir={sortDir} /></div>
+              </TableHead>
+              <TableHead className={thClass} onClick={() => handleSort("contacts")}>
+                <div className="flex items-center">Contacts<SortIcon column="contacts" sortKey={sortKey} sortDir={sortDir} /></div>
+              </TableHead>
+              <TableHead className={thClass} onClick={() => handleSort("lastContact")}>
+                <div className="flex items-center">Last Contact<SortIcon column="lastContact" sortKey={sortKey} sortDir={sortDir} /></div>
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -189,70 +265,75 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((company) => (
-                <TableRow
-                  key={company.id}
-                  onClick={() => onSelectCompany(company)}
-                  className={cn(
-                    "cursor-pointer border-border transition-colors",
-                    selectedId === company.id
-                      ? "bg-primary/5 border-l-2 border-l-primary"
-                      : "hover:bg-accent/50"
-                  )}
-                >
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
-                        {company.logo_url ? (
-                          <img src={company.logo_url} alt={company.name} className="w-full h-full object-cover" />
-                        ) : (
-                          <Building2 className="w-4 h-4 text-primary" />
-                        )}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">{company.name}</p>
-                        {company.website && (
-                          <p className="text-xs text-muted-foreground truncate">{company.website}</p>
-                        )}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-sm text-foreground">{company.industry ?? "—"}</span>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1.5">
-                      {company.location && <MapPin className="w-3 h-3 text-muted-foreground shrink-0" />}
-                      <span className="text-sm text-muted-foreground truncate">{company.location ?? "—"}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-sm text-muted-foreground">{company.size ?? "—"}</span>
-                  </TableCell>
-                  <TableCell>
-                    {company.vip_tier !== "none" && (
-                      <span className="text-sm" title={company.vip_tier}>
-                        {tierIcons[company.vip_tier]}
-                      </span>
+              filtered.map((company) => {
+                const rev = revenueMap[company.id];
+                return (
+                  <TableRow
+                    key={company.id}
+                    onClick={() => onSelectCompany(company)}
+                    className={cn(
+                      "cursor-pointer border-border transition-colors",
+                      selectedId === company.id
+                        ? "bg-primary/5 border-l-2 border-l-primary"
+                        : "hover:bg-accent/50"
                     )}
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-sm text-muted-foreground">{company.revenue ?? "—"}</span>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="text-xs">
-                      {company.contacts?.length ?? 0}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-xs text-muted-foreground">
-                      {company.last_contact_date
-                        ? formatDistanceToNow(new Date(company.last_contact_date), { addSuffix: true })
-                        : "Never"}
-                    </span>
-                  </TableCell>
-                </TableRow>
-              ))
+                  >
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
+                          {company.logo_url ? (
+                            <img src={company.logo_url} alt={company.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <Building2 className="w-4 h-4 text-primary" />
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-foreground truncate">{company.name}</p>
+                          {company.website && (
+                            <p className="text-xs text-muted-foreground truncate">{company.website}</p>
+                          )}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-sm text-foreground">{company.industry ?? "—"}</span>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1.5">
+                        {company.location && <MapPin className="w-3 h-3 text-muted-foreground shrink-0" />}
+                        <span className="text-sm text-muted-foreground truncate">{company.location ?? "—"}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-sm text-muted-foreground">{company.size ?? "—"}</span>
+                    </TableCell>
+                    <TableCell>
+                      {company.vip_tier !== "none" && (
+                        <span className="text-sm" title={company.vip_tier}>
+                          {tierIcons[company.vip_tier]}
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <span className={cn("text-sm font-medium", rev && rev.total > 0 ? "text-emerald-500" : "text-muted-foreground")}>
+                        {formatCurrency(rev?.total ?? 0)}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="text-xs">
+                        {company.contacts?.length ?? 0}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-xs text-muted-foreground">
+                        {company.last_contact_date
+                          ? formatDistanceToNow(new Date(company.last_contact_date), { addSuffix: true })
+                          : "Never"}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
         </Table>
