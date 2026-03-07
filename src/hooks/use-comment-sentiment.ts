@@ -85,7 +85,7 @@ export function useSentimentOverview() {
           .flatMap((s) =>
             (s.top_questions ?? []).map((q) => ({
               ...q,
-              videoTitle: s.video_title ?? s.youtube_video_id,
+              videoTitle: s.video_title ?? "Untitled Video",
             }))
           )
           .sort((a, b) => b.likes - a.likes)

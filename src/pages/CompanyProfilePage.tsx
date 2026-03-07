@@ -496,7 +496,7 @@ export default function CompanyProfilePage() {
                       >
                         <Film className="h-4 w-4 text-destructive shrink-0" />
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium text-foreground truncate">{video.title ?? video.youtube_video_id}</p>
+                          <p className="text-sm font-medium text-foreground truncate">{video.title ?? "Untitled Video"}</p>
                           <div className="flex items-center gap-3 mt-0.5">
                             {video.views > 0 && (
                               <span className="text-xs text-muted-foreground inline-flex items-center gap-1">

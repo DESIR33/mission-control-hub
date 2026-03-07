@@ -133,7 +133,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
   const filteredVideos = useMemo(() => {
     if (!searchQuery.trim()) return sorted;
     const q = searchQuery.toLowerCase();
-    return sorted.filter((v) => (v.title || v.youtube_video_id).toLowerCase().includes(q));
+    return sorted.filter((v) => (v.title || "Untitled Video").toLowerCase().includes(q));
   }, [sorted, searchQuery]);
 
   // Top 5 by views for overview
@@ -145,7 +145,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
       enriched
         .filter((v) => v.views > 0 && v.impressions_ctr > 0)
         .map((v) => ({
-          title: v.title || v.youtube_video_id,
+          title: v.title || "Untitled Video",
           views: v.views,
           ctr: v.impressions_ctr,
           subs: v.subscribers_gained - v.subscribers_lost,
@@ -305,7 +305,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
                         {v.impressions_ctr.toFixed(1)}%
                       </span>
                       <span className="text-xs text-foreground truncate">
-                        {v.title || v.youtube_video_id}
+                        {v.title || "Untitled Video"}
                       </span>
                     </div>
                   ))}
@@ -330,7 +330,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
                         ({fmtCount(v.impressions)} imp.)
                       </span>
                       <span className="text-xs text-foreground truncate">
-                        {v.title || v.youtube_video_id}
+                        {v.title || "Untitled Video"}
                       </span>
                     </div>
                   ))}
@@ -398,7 +398,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
                     onClick={() => navigate(`/analytics/videos/${v.youtube_video_id}`)}
                     className="flex-1 min-w-0 text-left"
                   >
-                    <p className="text-sm font-medium text-foreground truncate hover:text-primary transition-colors">{v.title || v.youtube_video_id}</p>
+                    <p className="text-sm font-medium text-foreground truncate hover:text-primary transition-colors">{v.title || "Untitled Video"}</p>
                     <div className="flex items-center gap-3 mt-0.5 flex-wrap">
                       <span className="text-xs text-muted-foreground flex items-center gap-0.5">
                         <Eye className="w-2.5 h-2.5" /> {fmtCount(v.views)}

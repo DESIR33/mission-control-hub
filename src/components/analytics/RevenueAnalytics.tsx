@@ -153,7 +153,7 @@ export function RevenueAnalytics({ channelData, videoData, daysRange }: Props) {
     return [...videoData]
       .filter((v) => v.estimated_revenue > 0 && v.views > 100)
       .map((v) => ({
-        title: v.title || v.youtube_video_id,
+        title: v.title || "Untitled Video",
         rpm: +((v.estimated_revenue / v.views) * 1000).toFixed(2),
         videoId: v.youtube_video_id,
       }))
@@ -294,7 +294,7 @@ export function RevenueAnalytics({ channelData, videoData, daysRange }: Props) {
               >
                 <span className="text-sm font-bold text-muted-foreground font-mono w-6 text-center">{i + 1}</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">{v.title || v.youtube_video_id}</p>
+                  <p className="text-sm font-medium text-foreground truncate">{v.title || "Untitled Video"}</p>
                   <div className="flex items-center gap-3 mt-0.5">
                     <span className="text-xs text-muted-foreground">{fmtCount(v.views)} views</span>
                     <span className="text-xs text-muted-foreground">{v.impressions_ctr.toFixed(1)}% CTR</span>
