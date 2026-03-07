@@ -499,6 +499,11 @@ export function ThumbnailLab() {
             </div>
           </Card>
         </TabsContent>
+
+        {/* REFERENCES TAB */}
+        <TabsContent value="references" className="space-y-4">
+          <ThumbnailReferenceLibrary />
+        </TabsContent>
       </Tabs>
     </div>
   );
