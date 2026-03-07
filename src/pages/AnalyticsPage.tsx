@@ -252,10 +252,14 @@ export default function AnalyticsPage() {
     for (const v of videoStats) {
       if (v.title) titleMap.set(v.youtube_video_id, v.title);
     }
-    return videoAnalytics.map(va => ({
-      ...va,
-      title: va.title || titleMap.get(va.youtube_video_id) || va.youtube_video_id,
-    }));
+    return videoAnalytics.map(va => {
+      // va.title may equal the video ID if the edge function couldn't fetch the real title
+      const hasRealTitle = va.title && va.title !== va.youtube_video_id;
+      return {
+        ...va,
+        title: hasRealTitle ? va.title : (titleMap.get(va.youtube_video_id) || va.title || va.youtube_video_id),
+      };
+    });
   }, [videoAnalytics, videoStatsAsAnalytics, videoStats]);
 
   // Top 5 performing videos by engagement score
