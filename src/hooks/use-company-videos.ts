@@ -53,32 +53,24 @@ export function useCompanyLinkedVideos(companyId: string | null | undefined) {
         }
       }
 
-      // 3. Fetch aggregated ad revenue from youtube_video_analytics
-      // Fetch ALL analytics rows (default Supabase limit is 1000, which truncates revenue).
-      // Paginate to collect every row so aggregated revenue is accurate.
-      const allAnalyticsRows: any[] = [];
-      const PAGE_SIZE = 1000;
-      let offset = 0;
-      let hasMore = true;
-      while (hasMore) {
-        const { data: page } = await supabase
-          .from("youtube_video_analytics" as any)
-          .select("youtube_video_id, estimated_revenue")
-          .eq("workspace_id", workspaceId)
-          .in("youtube_video_id", videoIds)
-          .range(offset, offset + PAGE_SIZE - 1);
-        const rows = (page ?? []) as any[];
-        allAnalyticsRows.push(...rows);
-        hasMore = rows.length === PAGE_SIZE;
-        offset += PAGE_SIZE;
-      }
-
+      // 3. Fetch ad revenue – youtube_video_analytics stores cumulative lifetime
+      //    revenue per row, so we only need the latest row per video.
       const revenueMap = new Map<string, number>();
-      for (const a of allAnalyticsRows) {
-        revenueMap.set(
-          a.youtube_video_id,
-          (revenueMap.get(a.youtube_video_id) ?? 0) + (Number(a.estimated_revenue) || 0)
-        );
+      for (let i = 0; i < videoIds.length; i += 50) {
+        const batch = videoIds.slice(i, i + 50);
+        const { data: analytics } = await supabase
+          .from("youtube_video_analytics" as any)
+          .select("youtube_video_id, estimated_revenue, date")
+          .eq("workspace_id", workspaceId)
+          .in("youtube_video_id", batch)
+          .order("date", { ascending: false });
+
+        for (const a of (analytics ?? []) as any[]) {
+          // First encountered row per video is the latest (desc order)
+          if (!revenueMap.has(a.youtube_video_id)) {
+            revenueMap.set(a.youtube_video_id, Number(a.estimated_revenue) || 0);
+          }
+        }
       }
 
       // 4. Combine
