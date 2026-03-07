@@ -98,7 +98,10 @@ export function ContactImpactReport({ contactId }: { contactId: string }) {
               {impact.linkedVideos.map((video) => (
                 <tr key={video.youtubeVideoId}>
                   <td className="px-4 py-2.5">
-                    <p className="text-xs font-medium text-foreground truncate max-w-[200px]">{video.title}</p>
+                    <p className="text-xs font-medium text-foreground truncate max-w-[200px] flex items-center gap-1.5">
+                      {video.title}
+                      <VideoCompanyLogos companies={companyLookup.get(video.youtubeVideoId)} />
+                    </p>
                   </td>
                   <td className="px-4 py-2.5 text-right">
                     <span className="text-xs font-mono text-muted-foreground">{fmtCount(video.views)}</span>
