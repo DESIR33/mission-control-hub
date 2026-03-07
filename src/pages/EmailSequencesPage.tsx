@@ -573,7 +573,16 @@ function SequenceFormDialog({
 
 // ---------- Main Content ----------
 
+/** Embeddable content variant (no page-level padding/header) */
+export function EmailSequencesContent() {
+  return <EmailSequencesInner embedded />;
+}
+
 export default function EmailSequencesPage() {
+  return <EmailSequencesInner />;
+}
+
+function EmailSequencesInner({ embedded = false }: { embedded?: boolean }) {
   const { data: sequences = [], isLoading } = useEmailSequences();
   const deleteMutation = useDeleteEmailSequence();
   const updateMutation = useUpdateEmailSequence();
@@ -612,7 +621,7 @@ export default function EmailSequencesPage() {
 
   if (isLoading) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8 min-h-screen">
+      <div className={embedded ? "space-y-4" : "p-4 sm:p-6 lg:p-8 min-h-screen"}>
         <div className="space-y-4">
           <Skeleton className="h-8 w-56" />
           <Skeleton className="h-4 w-72" />
@@ -627,15 +636,23 @@ export default function EmailSequencesPage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 min-h-screen">
+    <div className={embedded ? "space-y-4" : "p-4 sm:p-6 lg:p-8 min-h-screen"}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Email Sequences</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Create and manage automated email outreach sequences
-          </p>
-        </div>
+        {!embedded && (
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Email Sequences</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Create and manage automated email outreach sequences
+            </p>
+          </div>
+        )}
+        {embedded && (
+          <div>
+            <h2 className="text-lg font-semibold text-foreground">Sequences</h2>
+            <p className="text-sm text-muted-foreground">Automated email outreach sequences</p>
+          </div>
+        )}
         <Button onClick={() => setShowCreateDialog(true)}>
           <Plus className="mr-2 h-4 w-4" />
           Create Sequence

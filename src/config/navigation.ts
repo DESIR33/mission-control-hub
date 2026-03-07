@@ -3,14 +3,10 @@ import {
   Film,
   DollarSign,
   Handshake,
-  FolderKanban,
   Brain,
-  Bell,
   Mail,
   Settings,
-  Zap,
   BarChart3,
-  Send,
   Target,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -30,15 +26,12 @@ export interface NavGroup {
 export const navItems: NavItem[] = [
   { to: "/", icon: LayoutDashboard, label: "Mission Control" },
   { to: "/partnerships", icon: Handshake, label: "Partnerships" },
-  { to: "/monetization", icon: DollarSign, label: "Monetization" },
-  { to: "/sequences", icon: Send, label: "Email Sequences" },
-  { to: "/content", icon: Film, label: "Content Pipeline" },
-  { to: "/projects", icon: FolderKanban, label: "Projects" },
+  { to: "/revenue", icon: DollarSign, label: "Revenue" },
+  { to: "/content", icon: Film, label: "Content & Projects" },
   { to: "/sprints", icon: Target, label: "Growth Sprints" },
   { to: "/youtube", icon: BarChart3, label: "YouTube Hub" },
   { to: "/ai", icon: Brain, label: "AI Hub" },
   { to: "/inbox", icon: Mail, label: "Inbox" },
-  { to: "/notifications", icon: Bell, label: "Notifications" },
 ];
 
 // Grouped layout used by the mobile menu
@@ -53,15 +46,13 @@ export const navGroups: NavGroup[] = [
     label: "Business",
     items: [
       { to: "/partnerships", icon: Handshake, label: "Partnerships" },
-      { to: "/monetization", icon: DollarSign, label: "Monetization" },
-      { to: "/sequences", icon: Send, label: "Email Sequences" },
+      { to: "/revenue", icon: DollarSign, label: "Revenue" },
     ],
   },
   {
-    label: "Content & Work",
+    label: "Work",
     items: [
-      { to: "/content", icon: Film, label: "Content Pipeline" },
-      { to: "/projects", icon: FolderKanban, label: "Projects" },
+      { to: "/content", icon: Film, label: "Content & Projects" },
       { to: "/sprints", icon: Target, label: "Growth Sprints" },
     ],
   },
@@ -76,12 +67,10 @@ export const navGroups: NavGroup[] = [
     label: "Communication",
     items: [
       { to: "/inbox", icon: Mail, label: "Inbox" },
-      { to: "/notifications", icon: Bell, label: "Notifications" },
     ],
   },
 ];
 
 export const bottomItems: NavItem[] = [
-  { to: "/integrations", icon: Zap, label: "Integrations" },
   { to: "/settings", icon: Settings, label: "Settings" },
 ];

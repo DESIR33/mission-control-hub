@@ -513,9 +513,9 @@ export default function MonetizationPage() {
         className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
       >
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Monetization</h1>
+          <h1 className="text-2xl font-bold text-foreground">Revenue</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Revenue streams, performance metrics, and monetization strategies
+            Revenue streams, performance metrics, and growth strategies
           </p>
         </div>
         <Button
@@ -917,7 +917,7 @@ export default function MonetizationPage() {
                     </Button>
                     <Button
                       variant="outline"
-                      onClick={() => navigate("/add-transaction?from=monetization")}
+                      onClick={() => navigate("/add-transaction?from=revenue")}
                       size="sm"
                     >
                       <Receipt className="mr-1 h-3.5 w-3.5" />
