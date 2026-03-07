@@ -21,6 +21,7 @@ import { VideoHeaderCard } from "@/components/video-detail/VideoHeaderCard";
 import { NotesEditor } from "@/components/video-detail/NotesEditor";
 import { ExperimentsTable } from "@/components/video-detail/ExperimentsTable";
 import { RepurposingTable } from "@/components/video-detail/RepurposingTable";
+import { RepurposingWorkflow } from "@/components/video-detail/RepurposingWorkflow";
 import { DealsAttributionPanel } from "@/components/video-detail/DealsAttributionPanel";
 import { RetentionCurve } from "@/components/video-detail/RetentionCurve";
 import { VideoCompaniesPanel } from "@/components/video-detail/VideoCompaniesPanel";
@@ -331,13 +332,7 @@ export default function VideoDetailPage() {
 
         {/* Repurposing */}
         <TabsContent value="repurposing" className="mt-4">
-          <RepurposingTable
-            repurposes={repurposes}
-            onCreate={(item) => createRep.mutate(item)}
-            onUpdate={(item) => updateRep.mutate(item)}
-            onRemove={(id) => removeRep.mutate(id)}
-            isCreating={createRep.isPending}
-          />
+          <RepurposingWorkflow youtubeVideoId={youtubeVideoId} />
         </TabsContent>
       </Tabs>
     </div>

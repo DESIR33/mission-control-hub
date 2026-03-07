@@ -14,7 +14,9 @@ import {
   RefreshCw,
   Search,
   Trash2,
+  Repeat2,
 } from "lucide-react";
+import { RepurposingQueue } from "@/components/content/RepurposingQueue";
 import { ContentCalendar } from "@/components/video-queue/ContentCalendar";
 import { format } from "date-fns";
 import {
@@ -110,6 +112,7 @@ export default function VideoQueuePage() {
   const [priorityFilter, setPriorityFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [deleteVideoId, setDeleteVideoId] = useState<number | string | null>(null);
+  const [activeTab, setActiveTab] = useState<"queue" | "repurposing">("queue");
   const [currentView, setCurrentView] = useState<"list" | "cards" | "calendar">(() => {
     const saved = localStorage.getItem("video-queue-view");
     if (saved === "list" || saved === "cards" || saved === "calendar") return saved;
@@ -246,9 +249,47 @@ export default function VideoQueuePage() {
               <span className="text-muted-foreground">{stat.label}</span>
             </div>
           ))}
+
+          <div className="ml-auto flex items-center gap-1 rounded-lg border border-border bg-background px-1 py-0.5">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn(
+                "h-7 text-xs",
+                activeTab === "queue"
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                  : "text-muted-foreground"
+              )}
+              onClick={() => setActiveTab("queue")}
+            >
+              <Film className="h-3.5 w-3.5 mr-1" />
+              Video Queue
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn(
+                "h-7 text-xs",
+                activeTab === "repurposing"
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                  : "text-muted-foreground"
+              )}
+              onClick={() => setActiveTab("repurposing")}
+            >
+              <Repeat2 className="h-3.5 w-3.5 mr-1" />
+              Repurposing Queue
+            </Button>
+          </div>
         </div>
       </header>
 
+      {activeTab === "repurposing" && (
+        <main className="flex-1 bg-muted/10 p-4 sm:min-h-0 sm:overflow-y-auto">
+          <RepurposingQueue />
+        </main>
+      )}
+
+      {activeTab === "queue" && <>
       <div className="flex-shrink-0 border-b border-border bg-card px-4 py-3">
         <div className="flex flex-wrap gap-2">
           <div className="relative min-w-[220px] flex-1">
@@ -637,6 +678,7 @@ export default function VideoQueuePage() {
           </DialogContent>
         </Dialog>
       )}
+      </>}
 
       <AlertDialog open={deleteVideoId !== null} onOpenChange={(open) => !open && setDeleteVideoId(null)}>
         <AlertDialogContent>
