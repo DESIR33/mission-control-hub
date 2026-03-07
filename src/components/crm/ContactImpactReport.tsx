@@ -16,6 +16,7 @@ const fmtDollar = (n: number) => `$${n.toLocaleString()}`;
 
 export function ContactImpactReport({ contactId }: { contactId: string }) {
   const { data: impact } = useContactImpact(contactId);
+  const { lookup: companyLookup } = useAllVideoCompanies();
 
   if (!impact) {
     return (
