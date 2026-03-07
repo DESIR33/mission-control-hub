@@ -34,6 +34,8 @@ import {
   type SubscriberFunnelData,
 } from "@/hooks/use-subscriber-funnel";
 import { fmtCount, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, lineDefaults, horizontalBarDefaults } from "@/lib/chart-theme";
+import { useAllVideoCompanies } from "@/hooks/use-all-video-companies";
+import { VideoCompanyLogos } from "@/components/VideoCompanyLogos";
 
 const FUNNEL_COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-4))", "hsl(var(--chart-3))", "hsl(var(--chart-2))"];
 
