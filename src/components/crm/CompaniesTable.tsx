@@ -233,11 +233,11 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
                     {company.vip_tier !== "none" && (
                       <span className="text-sm" title={company.vip_tier}>
                         {tierIcons[company.vip_tier]}
-                    </span>
+                      </span>
+                    )}
                   </TableCell>
                   <TableCell>
                     <span className="text-sm text-muted-foreground">{company.revenue ?? "—"}</span>
-                    )}
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline" className="text-xs">
