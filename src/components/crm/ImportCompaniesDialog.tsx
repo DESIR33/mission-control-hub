@@ -6,18 +6,27 @@ import { useCreateCompany } from "@/hooks/use-companies";
 import { toast } from "sonner";
 
 const REQUIRED_FIELDS = [
-  { key: "name", label: "Company Name" },
+  { key: "name", label: "Name" },
 ];
 
 const OPTIONAL_FIELDS = [
   { key: "industry", label: "Industry" },
   { key: "website", label: "Website" },
-  { key: "location", label: "Location" },
   { key: "size", label: "Size" },
-  { key: "revenue", label: "Revenue" },
-  { key: "primary_email", label: "Primary Email" },
+  { key: "location", label: "Location" },
   { key: "description", label: "Description" },
+  { key: "primary_email", label: "Primary Email" },
+  { key: "secondary_email", label: "Secondary Email" },
+  { key: "revenue", label: "Revenue" },
   { key: "notes", label: "Notes" },
+  { key: "vip_tier", label: "VIP Tier" },
+  { key: "social_linkedin", label: "LinkedIn" },
+  { key: "social_twitter", label: "Twitter" },
+  { key: "social_facebook", label: "Facebook" },
+  { key: "social_instagram", label: "Instagram" },
+  { key: "social_youtube", label: "YouTube" },
+  { key: "social_tiktok", label: "TikTok" },
+  { key: "social_producthunt", label: "Product Hunt" },
 ];
 
 export function ImportCompaniesDialog() {
@@ -31,16 +40,30 @@ export function ImportCompaniesDialog() {
     let failed = 0;
     for (const row of valid) {
       try {
+        const trimOrUndefined = (v?: string) => {
+          const t = v?.trim();
+          return t || undefined;
+        };
+
         await createCompany.mutateAsync({
           name: row.name.trim(),
-          industry: row.industry?.trim() || undefined,
-          website: row.website?.trim() || undefined,
-          location: row.location?.trim() || undefined,
-          size: row.size?.trim() || undefined,
-          revenue: row.revenue?.trim() || undefined,
-          primary_email: row.primary_email?.trim() || undefined,
-          description: row.description?.trim() || undefined,
-          notes: row.notes?.trim() || undefined,
+          industry: trimOrUndefined(row.industry),
+          website: trimOrUndefined(row.website),
+          location: trimOrUndefined(row.location),
+          size: trimOrUndefined(row.size),
+          revenue: trimOrUndefined(row.revenue),
+          primary_email: trimOrUndefined(row.primary_email),
+          secondary_email: trimOrUndefined(row.secondary_email),
+          description: trimOrUndefined(row.description),
+          notes: trimOrUndefined(row.notes),
+          vip_tier: trimOrUndefined(row.vip_tier),
+          social_linkedin: trimOrUndefined(row.social_linkedin),
+          social_twitter: trimOrUndefined(row.social_twitter),
+          social_facebook: trimOrUndefined(row.social_facebook),
+          social_instagram: trimOrUndefined(row.social_instagram),
+          social_youtube: trimOrUndefined(row.social_youtube),
+          social_tiktok: trimOrUndefined(row.social_tiktok),
+          social_producthunt: trimOrUndefined(row.social_producthunt),
         });
       } catch {
         failed++;
