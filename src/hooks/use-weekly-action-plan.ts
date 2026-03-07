@@ -115,7 +115,7 @@ export function useWeeklyActionPlan() {
         .order("views", { ascending: false })
         .limit(20);
       if (error) throw error;
-      return (data ?? []) as Array<{ category: string; views: number; engagement_rate: number }>;
+      return (data ?? []) as unknown as Array<{ category: string; views: number; engagement_rate: number }>;
     },
     enabled: !!workspaceId,
   });

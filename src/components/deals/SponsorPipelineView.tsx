@@ -184,7 +184,7 @@ function SponsorDealCard({
           {deal.title}
         </h4>
         {deal.isHotLead && (
-          <Flame className="w-3.5 h-3.5 text-orange-500 shrink-0" title="Hot lead - 2+ email opens" />
+          <span title="Hot lead - 2+ email opens"><Flame className="w-3.5 h-3.5 text-orange-500 shrink-0" /></span>
         )}
         {matchScore != null && (
           <Badge variant="outline" className={`text-xs shrink-0 ${scoreColor}`}>
