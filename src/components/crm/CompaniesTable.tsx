@@ -113,8 +113,12 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
               )}
             >
               {/* Icon */}
-              <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                <Building2 className="w-4 h-4 text-primary" />
+              <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
+                {company.logo_url ? (
+                  <img src={company.logo_url} alt={company.name} className="w-full h-full object-cover" />
+                ) : (
+                  <Building2 className="w-4 h-4 text-primary" />
+                )}
               </div>
 
               {/* Content */}
@@ -197,8 +201,12 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
                 >
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                        <Building2 className="w-4 h-4 text-primary" />
+                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
+                        {company.logo_url ? (
+                          <img src={company.logo_url} alt={company.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <Building2 className="w-4 h-4 text-primary" />
+                        )}
                       </div>
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-foreground truncate">{company.name}</p>
