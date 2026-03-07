@@ -50,11 +50,11 @@ export default function AgentHubPage() {
   const [showCreateSkill, setShowCreateSkill] = useState(false);
   const [runningAgentSlug, setRunningAgentSlug] = useState<string | null>(null);
 
-  const handleRunAgent = async (agentSlug: string, message: string) => {
+  const handleRunAgent = async (agentSlug: string, message: string, model?: string) => {
     setRunningAgentSlug(agentSlug);
     setRunDialogAgent(null);
     try {
-      const result = await runAgent.mutateAsync({ agent_slug: agentSlug, message });
+      const result = await runAgent.mutateAsync({ agent_slug: agentSlug, message, model });
       toast({
         title: `${result.agent_name} completed`,
         description: `Created ${result.proposals_created} proposals in ${(result.duration_ms / 1000).toFixed(1)}s`,

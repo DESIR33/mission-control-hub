@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
-const DEFAULT_MODEL = "anthropic/claude-3.5-sonnet";
+const DEFAULT_MODEL = "minimax/minimax-m2.5";
 
 function getSupabaseAdmin() {
   return createClient(
@@ -590,7 +590,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { workspace_id, agent_slug, skill_slug, input, trigger_type } = await req.json();
+    const { workspace_id, agent_slug, skill_slug, input, trigger_type, model: requestModel } = await req.json();
 
     if (!workspace_id) {
       return new Response(
@@ -723,7 +723,7 @@ IMPORTANT RULES:
             "X-Title": `Agent: ${agentDef.name}`,
           },
           body: JSON.stringify({
-            model: agentDef.model || DEFAULT_MODEL,
+            model: requestModel || agentDef.model || DEFAULT_MODEL,
             max_tokens: 4096,
             messages,
             tools: coreToolDefinitions,

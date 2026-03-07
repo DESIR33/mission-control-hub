@@ -3,20 +3,31 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Loader2, Play } from "lucide-react";
+import { MODEL_OPTIONS } from "@/components/chat/ChatInput";
 import type { AgentDefinition } from "@/types/agents";
+
+const DEFAULT_AGENT_MODEL = "minimax/minimax-m2.5";
 
 interface RunAgentDialogProps {
   agent: AgentDefinition | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onRun: (agentSlug: string, message: string) => void;
+  onRun: (agentSlug: string, message: string, model: string) => void;
   isRunning: boolean;
 }
 
@@ -41,13 +52,14 @@ export function RunAgentDialog({
   isRunning,
 }: RunAgentDialogProps) {
   const [message, setMessage] = useState("");
+  const [model, setModel] = useState(DEFAULT_AGENT_MODEL);
 
   const effectiveMessage =
     message.trim() || (agent ? DEFAULT_PROMPTS[agent.slug] || "" : "");
 
   const handleRun = () => {
     if (!agent || !effectiveMessage) return;
-    onRun(agent.slug, effectiveMessage);
+    onRun(agent.slug, effectiveMessage, model);
   };
 
   return (
@@ -67,11 +79,31 @@ export function RunAgentDialog({
             rows={4}
             className="resize-none"
           />
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-muted-foreground">Model</label>
+            <Select value={model} onValueChange={setModel}>
+              <SelectTrigger className="w-full h-9 text-xs bg-muted/30">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {MODEL_OPTIONS.map((group) => (
+                  <SelectGroup key={group.group}>
+                    <SelectLabel className="text-xs text-muted-foreground">{group.group}</SelectLabel>
+                    {group.models.map((m) => (
+                      <SelectItem key={m.id} value={m.id} className="text-xs">
+                        {m.label}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <p className="text-xs text-muted-foreground">
             Leave blank to use the default prompt. The agent will analyze your data and create proposals in AI Bridge.
           </p>
         </div>
-        <DialogFooter>
+        <div className="flex justify-end gap-2 pt-2">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isRunning}>
             Cancel
           </Button>
@@ -88,7 +120,7 @@ export function RunAgentDialog({
               </>
             )}
           </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );

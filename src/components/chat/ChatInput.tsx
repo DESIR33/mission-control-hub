@@ -51,7 +51,7 @@ export const MODEL_OPTIONS = [
   ]},
 ];
 
-const DEFAULT_MODEL = "anthropic/claude-3.5-sonnet";
+const DEFAULT_MODEL = "minimax/minimax-m2.5";
 
 interface Props {
   onSend: (message: string, model: string) => void;
