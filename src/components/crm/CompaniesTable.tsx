@@ -3,11 +3,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Filter, Building2, MapPin, Users, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Search, Filter, Building2, MapPin, Users, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, Video } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Company, VipTier } from "@/types/crm";
 import { formatDistanceToNow } from "date-fns";
 import { useCompanyRevenue, type CompanyRevenueMap } from "@/hooks/use-company-revenue";
+import { useAllVideoCompanies } from "@/hooks/use-all-video-companies";
 
 const tierIcons: Record<VipTier, string> = {
   none: "",
@@ -18,7 +19,7 @@ const tierIcons: Record<VipTier, string> = {
 
 const tierOrder: Record<VipTier, number> = { none: 0, silver: 1, gold: 2, platinum: 3 };
 
-type SortKey = "name" | "industry" | "location" | "size" | "vip" | "revenue" | "contacts" | "lastContact";
+type SortKey = "name" | "industry" | "location" | "videos" | "vip" | "revenue" | "contacts" | "lastContact";
 type SortDir = "asc" | "desc";
 
 function formatCurrency(value: number): string {
@@ -49,6 +50,16 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
   const revenueMap = useCompanyRevenue();
+  const { data: allVideoLinks = [] } = useAllVideoCompanies();
+
+  // Build company_id → video count map
+  const videoCountMap = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const link of allVideoLinks) {
+      map.set(link.company_id, (map.get(link.company_id) ?? 0) + 1);
+    }
+    return map;
+  }, [allVideoLinks]);
 
   const industries = Array.from(new Set(companies.map((c) => c.industry).filter(Boolean))) as string[];
 
@@ -86,8 +97,8 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
           case "location":
             cmp = (a.location ?? "").localeCompare(b.location ?? "");
             break;
-          case "size":
-            cmp = (a.size ?? "").localeCompare(b.size ?? "");
+          case "videos":
+            cmp = (videoCountMap.get(a.id) ?? 0) - (videoCountMap.get(b.id) ?? 0);
             break;
           case "vip":
             cmp = tierOrder[a.vip_tier] - tierOrder[b.vip_tier];
@@ -240,8 +251,8 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
               <TableHead className={thClass} onClick={() => handleSort("location")}>
                 <div className="flex items-center">Location<SortIcon column="location" sortKey={sortKey} sortDir={sortDir} /></div>
               </TableHead>
-              <TableHead className={thClass} onClick={() => handleSort("size")}>
-                <div className="flex items-center">Size<SortIcon column="size" sortKey={sortKey} sortDir={sortDir} /></div>
+              <TableHead className={thClass} onClick={() => handleSort("videos")}>
+                <div className="flex items-center">Videos<SortIcon column="videos" sortKey={sortKey} sortDir={sortDir} /></div>
               </TableHead>
               <TableHead className={thClass} onClick={() => handleSort("vip")}>
                 <div className="flex items-center">VIP<SortIcon column="vip" sortKey={sortKey} sortDir={sortDir} /></div>
@@ -305,7 +316,10 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
                       </div>
                     </TableCell>
                     <TableCell>
-                      <span className="text-sm text-muted-foreground">{company.size ?? "—"}</span>
+                      <div className="flex items-center gap-1.5">
+                        <Video className="w-3.5 h-3.5 text-muted-foreground" />
+                        <span className="text-sm text-foreground">{videoCountMap.get(company.id) ?? 0}</span>
+                      </div>
                     </TableCell>
                     <TableCell>
                       {company.vip_tier !== "none" && (
