@@ -160,7 +160,12 @@ export function ContentRevenueLinker() {
             <tbody>
               {summary.links.slice(0, 20).map((link) => (
                 <tr key={link.videoQueueId} className="border-b border-border/50 hover:bg-muted/30">
-                  <td className="p-2 text-foreground max-w-[200px] truncate">{link.videoTitle}</td>
+                  <td className="p-2 text-foreground max-w-[200px]">
+                    <span className="flex items-center gap-1.5">
+                      <span className="truncate">{link.videoTitle}</span>
+                      {link.youtubeVideoId && <VideoCompanyLogos companies={companyLookup.get(link.youtubeVideoId)} />}
+                    </span>
+                  </td>
                   <td className="p-2 text-right font-mono text-green-400">{fmtMoney(link.adRevenue)}</td>
                   <td className="p-2 text-right font-mono text-blue-400">{fmtMoney(link.dealRevenue)}</td>
                   <td className="p-2 text-right font-mono text-purple-400">{fmtMoney(link.affiliateRevenue)}</td>

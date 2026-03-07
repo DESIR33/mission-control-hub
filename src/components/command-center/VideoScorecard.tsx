@@ -9,6 +9,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useVideoScorecard, type VideoScore } from "@/hooks/use-video-scorecard";
+import { useAllVideoCompanies } from "@/hooks/use-all-video-companies";
+import { VideoCompanyLogos } from "@/components/VideoCompanyLogos";
 import {
   chartTooltipStyle,
   cartesianGridDefaults,

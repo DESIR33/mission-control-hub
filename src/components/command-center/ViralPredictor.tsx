@@ -9,6 +9,8 @@ import {
 } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { useViralPotential, type ViralScore } from "@/hooks/use-viral-potential";
+import { useAllVideoCompanies } from "@/hooks/use-all-video-companies";
+import { VideoCompanyLogos } from "@/components/VideoCompanyLogos";
 import {
   chartTooltipStyle,
   fmtCount,
