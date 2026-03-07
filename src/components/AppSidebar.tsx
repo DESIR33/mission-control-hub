@@ -1,6 +1,6 @@
 import { NavLink as RouterNavLink, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { ChevronDown, ChevronLeft, ChevronRight, LogOut } from "lucide-react";
+import { Bell, ChevronDown, ChevronLeft, ChevronRight, LogOut } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useNotifications } from "@/hooks/use-notifications";
@@ -10,6 +10,8 @@ import {
   CollapsibleTrigger,
   CollapsibleContent,
 } from "@/components/ui/collapsible";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { NotificationsPanel } from "@/components/NotificationsPanel";
 
 export function AppSidebar() {
   const [collapsed, setCollapsed] = useState(false);
@@ -170,6 +172,35 @@ export function AppSidebar() {
 
       {/* Bottom */}
       <div className="py-3 px-2 space-y-0.5 border-t border-sidebar-border">
+        {/* Notifications bell */}
+        <Sheet>
+          <SheetTrigger asChild>
+            <button
+              className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors w-full"
+            >
+              <div className="relative shrink-0">
+                <Bell className="w-4 h-4" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center leading-none">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
+              </div>
+              {!collapsed && (
+                <span className="truncate flex-1 text-left">Notifications</span>
+              )}
+              {!collapsed && unreadCount > 0 && (
+                <span className="ml-auto shrink-0 min-w-[18px] h-[18px] rounded-full bg-primary text-primary-foreground text-xs font-semibold flex items-center justify-center px-1">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+              )}
+            </button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-[380px] sm:w-[420px] p-0">
+            <NotificationsPanel />
+          </SheetContent>
+        </Sheet>
+
         {bottomItems.map((item) => (
           <RouterNavLink
             key={item.to}

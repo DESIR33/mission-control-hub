@@ -10,11 +10,10 @@ import NotFound from "./pages/NotFound";
 import AuthPage from "./pages/AuthPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import NotificationsPage from "./pages/NotificationsPage";
-import IntegrationsPage from "./pages/IntegrationsPage";
+
 import Tasks from "./pages/Tasks";
-import ProjectsPage from "./pages/ProjectsPage";
 import MonetizationPage from "./pages/MonetizationPage";
-import VideoQueuePage from "./pages/VideoQueuePage";
+import ContentProjectsPage from "./pages/ContentProjectsPage";
 import VideoQueueFormPage from "./pages/VideoQueueFormPage";
 import SettingsPage from "./pages/SettingsPage";
 import InboxPage from "./pages/InboxPage";
@@ -27,7 +26,7 @@ import AddCompanyPage from "./pages/AddCompanyPage";
 import AddContactPage from "./pages/AddContactPage";
 import AddProductTransactionPage from "./pages/AddProductTransactionPage";
 import NewSponsorshipPage from "./pages/NewSponsorshipPage";
-import EmailSequencesPage from "./pages/EmailSequencesPage";
+
 import VideoDetailPage from "./pages/VideoDetailPage";
 import WeeklySprintPage from "./pages/WeeklySprintPage";
 import CompanyProfilePage from "./pages/CompanyProfilePage";
@@ -90,8 +89,8 @@ const App = () => (
               <Route path="/relationships/new-contact" element={<AddContactPage />} />
               <Route path="/relationships/companies/:companyId" element={<CompanyProfilePage />} />
 
-              {/* Content Pipeline */}
-              <Route path="/content" element={<VideoQueuePage />} />
+              {/* Content & Projects (consolidated) */}
+              <Route path="/content" element={<ContentProjectsPage />} />
               <Route path="/content/create" element={<VideoQueueFormPage />} />
               <Route path="/content/:id/edit" element={<VideoQueueFormPage />} />
 
@@ -99,8 +98,8 @@ const App = () => (
               <Route path="/youtube" element={<YouTubeHubPage />} />
               <Route path="/analytics/videos/:youtubeVideoId" element={<VideoDetailPage />} />
 
-              {/* Monetization */}
-              <Route path="/monetization" element={<MonetizationPage />} />
+              {/* Revenue (renamed from Monetization) */}
+              <Route path="/revenue" element={<MonetizationPage />} />
               <Route path="/affiliate-program/new" element={<NewAffiliateProgramPage />} />
               <Route path="/affiliate-program/:id" element={<AffiliateProgramPage />} />
               <Route path="/affiliate-program/:id/edit" element={<EditAffiliateProgramPage />} />
@@ -110,12 +109,7 @@ const App = () => (
               <Route path="/add-transaction" element={<AddProductTransactionPage />} />
               <Route path="/add-transaction/:id" element={<AddProductTransactionPage />} />
 
-              {/* Email Sequences */}
-              <Route path="/sequences" element={<EmailSequencesPage />} />
-
-              {/* Projects (absorbs Tasks) */}
-              <Route path="/projects" element={<ProjectsPage />} />
-              {/* Keep task detail/create routes */}
+              {/* Task detail/create routes (projects absorbed into /content) */}
               <Route path="/tasks/:id" element={<Tasks />} />
               <Route path="/tasks/create" element={<Tasks />} />
               <Route path="/projects/:projectId/tasks/create" element={<Tasks />} />
@@ -132,7 +126,6 @@ const App = () => (
               <Route path="/notifications" element={<NotificationsPage />} />
 
               {/* System */}
-              <Route path="/integrations" element={<IntegrationsPage />} />
               <Route path="/settings" element={<SettingsPage />} />
 
               {/* Backward-compatibility redirects */}
@@ -144,11 +137,15 @@ const App = () => (
               <Route path="/command-center" element={<Navigate to="/youtube?section=dashboard" replace />} />
               <Route path="/comments" element={<Navigate to="/youtube?section=comments" replace />} />
               <Route path="/reports" element={<Navigate to="/youtube?section=reports" replace />} />
-              <Route path="/tasks" element={<Navigate to="/projects?view=tasks" replace />} />
+              <Route path="/tasks" element={<Navigate to="/content?tab=projects" replace />} />
               <Route path="/chat" element={<Navigate to="/ai?tab=chat" replace />} />
               <Route path="/ai-bridge" element={<Navigate to="/ai?tab=proposals" replace />} />
               <Route path="/agents" element={<Navigate to="/ai?tab=agents" replace />} />
               <Route path="/memory" element={<Navigate to="/ai?tab=memory" replace />} />
+              <Route path="/monetization" element={<Navigate to="/revenue" replace />} />
+              <Route path="/integrations" element={<Navigate to="/settings?tab=integrations" replace />} />
+              <Route path="/sequences" element={<Navigate to="/inbox?folder=sequences" replace />} />
+              <Route path="/projects" element={<Navigate to="/content?tab=projects" replace />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

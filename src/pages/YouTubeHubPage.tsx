@@ -2,11 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   BarChart3, TrendingUp, DollarSign,
-  Eye, MousePointerClick, Users,
-  Calendar, Brain, ChevronLeft, ChevronRight,
-  MessageSquare, ListVideo, Upload, Crosshair, UserCheck,
-  Menu, RefreshCw, Mail, Zap, Sparkles, FlaskConical, Lightbulb,
-  Play, Route, Globe, Monitor, Target, Tv, FileText,
+  MousePointerClick, Users,
+  ChevronLeft, ChevronRight,
+  MessageSquare, Crosshair, UserCheck,
+  Menu, Zap, FlaskConical,
+  Target, Tv, FileText, Wrench,
 } from "lucide-react";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { useSyncYouTube } from "@/hooks/use-youtube-analytics";
@@ -18,79 +18,54 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { GrowthForecastSection } from "@/components/command-center/sections/GrowthForecastSection";
 import { SubscriberIntelSection } from "@/components/command-center/sections/SubscriberIntelSection";
 import { CompetitorIntelSection } from "@/components/command-center/sections/CompetitorIntelSection";
-import { VideoPerformanceSection } from "@/components/command-center/sections/VideoPerformanceSection";
 import { CtrViralitySection } from "@/components/command-center/sections/CtrViralitySection";
-import { UploadThumbnailSection } from "@/components/command-center/sections/UploadThumbnailSection";
 import { RevenueHubSection } from "@/components/command-center/sections/RevenueHubSection";
-import { ContentPlannerSection } from "@/components/command-center/sections/ContentPlannerSection";
-import { CommentHubSection } from "@/components/command-center/sections/CommentHubSection";
-import { ContentStrategist } from "@/components/command-center";
-import { VideoStrategist } from "@/components/command-center";
-import { PlaylistOptimizer } from "@/components/command-center";
-import { MissionBriefing } from "@/components/command-center";
 import { ChannelPulse } from "@/components/command-center";
 import { AIGrowthCoach } from "@/components/command-center";
-import { SyncHistoryPanel } from "@/components/analytics/SyncHistoryPanel";
-import { SequenceHealthDashboard } from "@/components/command-center/SequenceHealthDashboard";
 import { ABTestingDashboard } from "@/components/command-center/sections/ABTestingDashboard";
-import { CommentIntelligence } from "@/components/command-center/sections/CommentIntelligence";
 
 // Analytics section components
-import {
-  ChannelOverview, AudienceDemographics, TrafficSources,
-  GeographyBreakdown, DeviceBreakdown, VideoDeepDive, RevenueAnalytics,
-  SubscriberFunnel,
-} from "@/components/analytics";
+import { SubscriberFunnel } from "@/components/analytics";
 
 // Standalone page content wrappers
 import { AnalyticsOverviewContent } from "@/components/youtube-hub/AnalyticsOverviewContent";
-import { CommentsFullContent } from "@/components/youtube-hub/CommentsFullContent";
 import { WeeklyReportsContent } from "@/components/youtube-hub/WeeklyReportsContent";
+
+// Combined section wrappers
+import { ChannelVideosSection } from "@/components/youtube-hub/ChannelVideosSection";
+import { DemographicsReachSection } from "@/components/youtube-hub/DemographicsReachSection";
+import { CommentsSection } from "@/components/youtube-hub/CommentsSection";
+import { ContentStrategySection } from "@/components/youtube-hub/ContentStrategySection";
+import { UploadPlaylistsSection } from "@/components/youtube-hub/UploadPlaylistsSection";
 
 type Section =
   | "dashboard"
   | "reports"
-  | "channel"
-  | "videos"
-  | "performance"
+  | "channel_videos"
   | "ctr_viral"
   | "ab_testing"
-  | "audience"
+  | "demographics_reach"
   | "subscribers"
-  | "traffic"
-  | "geography"
-  | "devices"
-  | "comments"
-  | "comment_intel"
+  | "comments_all"
   | "growth_forecast"
   | "growth_funnel"
   | "competitors"
   | "revenue"
-  | "planner"
-  | "video_optimizer"
-  | "upload_thumbnails"
-  | "playlists"
-  | "strategist"
-  | "sync_history";
+  | "content_strategy"
+  | "upload_playlists";
 
 const SECTIONS: { key: Section; label: string; icon: React.ReactNode; group: string }[] = [
   // Overview
   { key: "dashboard", label: "Dashboard", icon: <Zap className="w-3.5 h-3.5" />, group: "Overview" },
   { key: "reports", label: "Weekly Reports", icon: <FileText className="w-3.5 h-3.5" />, group: "Overview" },
   // Performance
-  { key: "channel", label: "Channel", icon: <Tv className="w-3.5 h-3.5" />, group: "Performance" },
-  { key: "videos", label: "Videos", icon: <Play className="w-3.5 h-3.5" />, group: "Performance" },
-  { key: "performance", label: "Video Performance", icon: <Eye className="w-3.5 h-3.5" />, group: "Performance" },
+  { key: "channel_videos", label: "Channel & Videos", icon: <Tv className="w-3.5 h-3.5" />, group: "Performance" },
   { key: "ctr_viral", label: "CTR & Virality", icon: <MousePointerClick className="w-3.5 h-3.5" />, group: "Performance" },
   { key: "ab_testing", label: "A/B Testing", icon: <FlaskConical className="w-3.5 h-3.5" />, group: "Performance" },
   // Audience
-  { key: "audience", label: "Demographics", icon: <Users className="w-3.5 h-3.5" />, group: "Audience" },
+  { key: "demographics_reach", label: "Demographics & Reach", icon: <Users className="w-3.5 h-3.5" />, group: "Audience" },
   { key: "subscribers", label: "Subscriber Intel", icon: <UserCheck className="w-3.5 h-3.5" />, group: "Audience" },
-  { key: "traffic", label: "Traffic Sources", icon: <Route className="w-3.5 h-3.5" />, group: "Audience" },
-  { key: "geography", label: "Geography", icon: <Globe className="w-3.5 h-3.5" />, group: "Audience" },
-  { key: "devices", label: "Devices", icon: <Monitor className="w-3.5 h-3.5" />, group: "Audience" },
-  { key: "comments", label: "Comments", icon: <MessageSquare className="w-3.5 h-3.5" />, group: "Audience" },
-  { key: "comment_intel", label: "Comment Intel", icon: <Lightbulb className="w-3.5 h-3.5" />, group: "Audience" },
+  { key: "comments_all", label: "Comments", icon: <MessageSquare className="w-3.5 h-3.5" />, group: "Audience" },
   // Growth
   { key: "growth_forecast", label: "Growth Forecast", icon: <TrendingUp className="w-3.5 h-3.5" />, group: "Growth" },
   { key: "growth_funnel", label: "Growth Funnel", icon: <Target className="w-3.5 h-3.5" />, group: "Growth" },
@@ -98,41 +73,25 @@ const SECTIONS: { key: Section; label: string; icon: React.ReactNode; group: str
   // Revenue
   { key: "revenue", label: "Revenue Analytics", icon: <DollarSign className="w-3.5 h-3.5" />, group: "Revenue" },
   // Content Tools
-  { key: "planner", label: "Content Planner", icon: <Calendar className="w-3.5 h-3.5" />, group: "Content Tools" },
-  { key: "video_optimizer", label: "Video Optimizer", icon: <Sparkles className="w-3.5 h-3.5" />, group: "Content Tools" },
-  { key: "upload_thumbnails", label: "Upload & Thumbnails", icon: <Upload className="w-3.5 h-3.5" />, group: "Content Tools" },
-  { key: "playlists", label: "Playlists", icon: <ListVideo className="w-3.5 h-3.5" />, group: "Content Tools" },
-  // AI Tools
-  { key: "strategist", label: "AI Strategist", icon: <Brain className="w-3.5 h-3.5" />, group: "AI Tools" },
-  // Operations
-  { key: "sync_history", label: "Sync History", icon: <RefreshCw className="w-3.5 h-3.5" />, group: "Operations" },
+  { key: "content_strategy", label: "Content & Strategy", icon: <Wrench className="w-3.5 h-3.5" />, group: "Content Tools" },
+  { key: "upload_playlists", label: "Upload & Playlists", icon: <Wrench className="w-3.5 h-3.5" />, group: "Content Tools" },
 ];
 
 const SECTION_COMPONENTS: Record<Section, React.ComponentType> = {
   dashboard: AnalyticsOverviewContent,
   reports: WeeklyReportsContent,
-  channel: ChannelOverview as React.ComponentType,
-  videos: VideoDeepDive as React.ComponentType,
-  performance: VideoPerformanceSection,
+  channel_videos: ChannelVideosSection,
   ctr_viral: CtrViralitySection,
   ab_testing: ABTestingDashboard,
-  audience: AudienceDemographics as React.ComponentType,
+  demographics_reach: DemographicsReachSection,
   subscribers: SubscriberIntelSection,
-  traffic: TrafficSources as React.ComponentType,
-  geography: GeographyBreakdown as React.ComponentType,
-  devices: DeviceBreakdown as React.ComponentType,
-  comments: CommentsFullContent,
-  comment_intel: CommentIntelligence,
+  comments_all: CommentsSection,
   growth_forecast: GrowthForecastSection,
   growth_funnel: SubscriberFunnel,
   competitors: CompetitorIntelSection,
   revenue: RevenueHubSection,
-  planner: ContentPlannerSection,
-  video_optimizer: VideoStrategist,
-  upload_thumbnails: UploadThumbnailSection,
-  playlists: PlaylistOptimizer,
-  strategist: ContentStrategist,
-  sync_history: SyncHistoryPanel,
+  content_strategy: ContentStrategySection,
+  upload_playlists: UploadPlaylistsSection,
 };
 
 function SidebarNav({

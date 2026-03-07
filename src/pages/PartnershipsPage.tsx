@@ -1,6 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { ContactsTable } from "@/components/crm/ContactsTable";
 import { ContactDetailSheet } from "@/components/crm/ContactDetailSheet";
@@ -18,16 +17,115 @@ import { useContacts, useActivities } from "@/hooks/use-contacts";
 import { useCompanies } from "@/hooks/use-companies";
 import { useDeals } from "@/hooks/use-deals";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus } from "lucide-react";
+import {
+  Plus, Users, Building2, GitGraph,
+  Kanban, Handshake, Search,
+  Megaphone, Activity, Youtube,
+  ChevronLeft, ChevronRight, Menu,
+} from "lucide-react";
 import type { Contact, Company } from "@/types/crm";
 import { DealsContent } from "@/components/partnerships/DealsContent";
 import { DiscoveryContent } from "@/components/partnerships/DiscoveryContent";
 import { CollaborationsContent } from "@/components/partnerships/CollaborationsContent";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+
+type Section =
+  | "contacts"
+  | "companies"
+  | "graph"
+  | "pipeline"
+  | "collaborations"
+  | "discovery"
+  | "sponsors"
+  | "engagement"
+  | "yt_leads";
+
+const SECTIONS: { key: Section; label: string; icon: React.ReactNode; group: string }[] = [
+  // People
+  { key: "contacts", label: "Contacts", icon: <Users className="w-3.5 h-3.5" />, group: "People" },
+  { key: "companies", label: "Companies", icon: <Building2 className="w-3.5 h-3.5" />, group: "People" },
+  { key: "graph", label: "Network Graph", icon: <GitGraph className="w-3.5 h-3.5" />, group: "People" },
+  // Pipeline
+  { key: "pipeline", label: "Deals Pipeline", icon: <Kanban className="w-3.5 h-3.5" />, group: "Pipeline" },
+  { key: "collaborations", label: "Collaborations", icon: <Handshake className="w-3.5 h-3.5" />, group: "Pipeline" },
+  { key: "discovery", label: "Discovery", icon: <Search className="w-3.5 h-3.5" />, group: "Pipeline" },
+  // Intelligence
+  { key: "sponsors", label: "Sponsors", icon: <Megaphone className="w-3.5 h-3.5" />, group: "Intelligence" },
+  { key: "engagement", label: "Engagement", icon: <Activity className="w-3.5 h-3.5" />, group: "Intelligence" },
+  { key: "yt_leads", label: "YouTube Leads", icon: <Youtube className="w-3.5 h-3.5" />, group: "Intelligence" },
+];
+
+function SidebarNav({
+  activeSection,
+  setActiveSection,
+  sidebarCollapsed,
+  setSidebarCollapsed,
+  onSelect,
+}: {
+  activeSection: Section;
+  setActiveSection: (s: Section) => void;
+  sidebarCollapsed: boolean;
+  setSidebarCollapsed: (v: boolean) => void;
+  onSelect?: () => void;
+}) {
+  const groups = Array.from(new Set(SECTIONS.map((s) => s.group)));
+
+  return (
+    <div className="flex flex-col h-full">
+      <div className="flex items-center justify-between p-3 border-b border-border">
+        {!sidebarCollapsed && (
+          <div className="flex items-center gap-2">
+            <Handshake className="w-4 h-4 text-primary" />
+            <span className="text-xs font-semibold text-foreground">Partnerships</span>
+          </div>
+        )}
+        <button
+          onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+          className="p-1 rounded hover:bg-muted transition-colors text-muted-foreground hidden md:block"
+        >
+          {sidebarCollapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
+        </button>
+      </div>
+
+      <nav className="p-2 space-y-3 overflow-y-auto flex-1">
+        {groups.map((group) => (
+          <div key={group}>
+            {!sidebarCollapsed && (
+              <p className="text-xs text-muted-foreground uppercase tracking-wider px-2 mb-1">{group}</p>
+            )}
+            <div className="space-y-0.5">
+              {SECTIONS.filter((s) => s.group === group).map((section) => (
+                <button
+                  key={section.key}
+                  onClick={() => { setActiveSection(section.key); onSelect?.(); }}
+                  className={`w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs transition-colors ${
+                    activeSection === section.key
+                      ? "bg-primary/10 text-primary font-medium"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  }`}
+                  title={sidebarCollapsed ? section.label : undefined}
+                >
+                  {section.icon}
+                  {!sidebarCollapsed && <span>{section.label}</span>}
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </nav>
+    </div>
+  );
+}
 
 export default function PartnershipsPage() {
   const [searchParams] = useSearchParams();
-  const initialTab = searchParams.get("tab") || "contacts";
+  const initialTab = (searchParams.get("tab") as Section) || "contacts";
   const navigate = useNavigate();
+  const [activeSection, setActiveSection] = useState<Section>(initialTab);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const isMobile = useIsMobile();
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [contactSheetOpen, setContactSheetOpen] = useState(false);
 
@@ -45,125 +143,160 @@ export default function PartnershipsPage() {
     navigate(`/relationships/companies/${company.id}`);
   };
 
-  const updateTab = (v: string) => {
+  // Update URL when section changes
+  useEffect(() => {
     const sp = new URLSearchParams(window.location.search);
-    sp.set("tab", v);
+    sp.set("tab", activeSection);
     window.history.replaceState({}, "", `?${sp.toString()}`);
+  }, [activeSection]);
+
+  const activeSectionInfo = SECTIONS.find((s) => s.key === activeSection)!;
+
+  const renderContent = () => {
+    switch (activeSection) {
+      case "contacts":
+        return contactsLoading ? (
+          <div className="space-y-3">
+            <Skeleton className="h-10 w-full max-w-sm" />
+            <Skeleton className="h-64 w-full" />
+          </div>
+        ) : (
+          <ContactsTable
+            contacts={contacts}
+            onSelectContact={handleSelectContact}
+            selectedId={selectedContact?.id}
+            addButton={
+              <div className="flex items-center gap-2">
+                <ExportContactsDialog contacts={contacts} />
+                <BulkImportWizard />
+                <ImportContactsDialog />
+                <Button size="sm" className="gap-1.5" onClick={() => navigate("/relationships/new-contact")}>
+                  <Plus className="w-4 h-4" />
+                  Add Contact
+                </Button>
+              </div>
+            }
+          />
+        );
+
+      case "companies":
+        return companiesLoading ? (
+          <div className="space-y-3">
+            <Skeleton className="h-10 w-full max-w-sm" />
+            <Skeleton className="h-64 w-full" />
+          </div>
+        ) : (
+          <CompaniesTable
+            companies={companies}
+            onSelectCompany={handleSelectCompany}
+            addButton={
+              <div className="flex items-center gap-2">
+                <ExportCompaniesDialog companies={companies} />
+                <ImportCompaniesDialog />
+                <Button size="sm" className="gap-1.5" onClick={() => navigate("/relationships/new-company")}>
+                  <Plus className="w-4 h-4" />
+                  Add Company
+                </Button>
+              </div>
+            }
+          />
+        );
+
+      case "pipeline":
+        return <DealsContent />;
+
+      case "collaborations":
+        return <CollaborationsContent />;
+
+      case "discovery":
+        return <DiscoveryContent />;
+
+      case "sponsors":
+        return <SponsorAttributionPanel />;
+
+      case "graph":
+        return contactsLoading || companiesLoading ? (
+          <div className="space-y-3">
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-64 w-full" />
+          </div>
+        ) : (
+          <RelationshipGraph
+            contacts={contacts}
+            companies={companies}
+            deals={deals as any}
+            onSelectContact={handleSelectContact}
+            onSelectCompany={handleSelectCompany}
+          />
+        );
+
+      case "engagement":
+        return <EngagementScorePanel />;
+
+      case "yt_leads":
+        return <YouTubeLeadInbox />;
+
+      default:
+        return null;
+    }
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 min-h-screen">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground">Partnerships</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Contacts, companies, deals pipeline, collaborations, and sponsor discovery
-        </p>
+    <div className="flex h-full">
+      {/* Desktop Sidebar */}
+      {!isMobile && (
+        <div
+          className={`shrink-0 border-r border-border bg-card/50 transition-all duration-200 ${
+            sidebarCollapsed ? "w-12" : "w-56"
+          }`}
+        >
+          <SidebarNav
+            activeSection={activeSection}
+            setActiveSection={setActiveSection}
+            sidebarCollapsed={sidebarCollapsed}
+            setSidebarCollapsed={setSidebarCollapsed}
+          />
+        </div>
+      )}
+
+      {/* Mobile Nav Sheet */}
+      {isMobile && (
+        <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
+          <SheetContent side="left" className="p-0 w-64 bg-card border-border">
+            <SidebarNav
+              activeSection={activeSection}
+              setActiveSection={setActiveSection}
+              sidebarCollapsed={false}
+              setSidebarCollapsed={() => {}}
+              onSelect={() => setMobileNavOpen(false)}
+            />
+          </SheetContent>
+        </Sheet>
+      )}
+
+      {/* Main Content */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-4 sm:p-6 lg:p-8">
+          <div className="flex items-center gap-3 mb-4 md:mb-6">
+            {isMobile && (
+              <button
+                onClick={() => setMobileNavOpen(true)}
+                className="p-1.5 rounded-md hover:bg-muted transition-colors text-muted-foreground shrink-0"
+                aria-label="Open Partnerships menu"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+            )}
+            {activeSectionInfo.icon}
+            <div className="min-w-0">
+              <h1 className="text-base md:text-lg font-bold text-foreground truncate">{activeSectionInfo.label}</h1>
+              <p className="text-xs text-muted-foreground">Partnerships</p>
+            </div>
+          </div>
+
+          {renderContent()}
+        </div>
       </div>
-
-      <Tabs defaultValue={initialTab} onValueChange={updateTab}>
-        <TabsList className="overflow-x-auto flex-nowrap scrollbar-hide w-full justify-start">
-          <TabsTrigger value="contacts" className="flex-shrink-0">Contacts</TabsTrigger>
-          <TabsTrigger value="companies" className="flex-shrink-0">Companies</TabsTrigger>
-          <TabsTrigger value="pipeline" className="flex-shrink-0">Deals Pipeline</TabsTrigger>
-          <TabsTrigger value="collaborations" className="flex-shrink-0">Collaborations</TabsTrigger>
-          <TabsTrigger value="discovery" className="flex-shrink-0">Discovery</TabsTrigger>
-          <TabsTrigger value="sponsors" className="flex-shrink-0">Sponsors</TabsTrigger>
-          <TabsTrigger value="graph" className="flex-shrink-0">Network Graph</TabsTrigger>
-          <TabsTrigger value="engagement" className="flex-shrink-0">Engagement</TabsTrigger>
-          <TabsTrigger value="yt_leads" className="flex-shrink-0">YouTube Leads</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="contacts" className="mt-4">
-          {contactsLoading ? (
-            <div className="space-y-3">
-              <Skeleton className="h-10 w-full max-w-sm" />
-              <Skeleton className="h-64 w-full" />
-            </div>
-          ) : (
-            <ContactsTable
-              contacts={contacts}
-              onSelectContact={handleSelectContact}
-              selectedId={selectedContact?.id}
-              addButton={
-                <div className="flex items-center gap-2">
-                  <ExportContactsDialog contacts={contacts} />
-                  <BulkImportWizard />
-                  <ImportContactsDialog />
-                  <Button size="sm" className="gap-1.5" onClick={() => navigate("/relationships/new-contact")}>
-                    <Plus className="w-4 h-4" />
-                    Add Contact
-                  </Button>
-                </div>
-              }
-            />
-          )}
-        </TabsContent>
-
-        <TabsContent value="companies" className="mt-4">
-          {companiesLoading ? (
-            <div className="space-y-3">
-              <Skeleton className="h-10 w-full max-w-sm" />
-              <Skeleton className="h-64 w-full" />
-            </div>
-          ) : (
-            <CompaniesTable
-              companies={companies}
-              onSelectCompany={handleSelectCompany}
-              addButton={
-                <div className="flex items-center gap-2">
-                  <ExportCompaniesDialog companies={companies} />
-                  <ImportCompaniesDialog />
-                  <Button size="sm" className="gap-1.5" onClick={() => navigate("/relationships/new-company")}>
-                    <Plus className="w-4 h-4" />
-                    Add Company
-                  </Button>
-                </div>
-              }
-            />
-          )}
-        </TabsContent>
-
-        <TabsContent value="pipeline" className="mt-4">
-          <DealsContent />
-        </TabsContent>
-
-        <TabsContent value="collaborations" className="mt-4">
-          <CollaborationsContent />
-        </TabsContent>
-
-        <TabsContent value="discovery" className="mt-4">
-          <DiscoveryContent />
-        </TabsContent>
-
-        <TabsContent value="sponsors" className="mt-4">
-          <SponsorAttributionPanel />
-        </TabsContent>
-
-        <TabsContent value="graph" className="mt-4">
-          {contactsLoading || companiesLoading ? (
-            <div className="space-y-3">
-              <Skeleton className="h-24 w-full" />
-              <Skeleton className="h-64 w-full" />
-            </div>
-          ) : (
-            <RelationshipGraph
-              contacts={contacts}
-              companies={companies}
-              deals={deals as any}
-              onSelectContact={handleSelectContact}
-              onSelectCompany={handleSelectCompany}
-            />
-          )}
-        </TabsContent>
-
-        <TabsContent value="engagement" className="mt-4">
-          <EngagementScorePanel />
-        </TabsContent>
-
-        <TabsContent value="yt_leads" className="mt-4">
-          <YouTubeLeadInbox />
-        </TabsContent>
-      </Tabs>
 
       <ContactDetailSheet
         contact={selectedContact}

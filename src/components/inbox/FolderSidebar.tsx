@@ -10,6 +10,7 @@ import {
   ArchiveIcon,
   Trash2Icon,
   FolderIcon,
+  ListOrdered,
 } from "lucide-react";
 
 interface Folder {
@@ -168,6 +169,25 @@ export default function FolderSidebar({ selectedFolder, onSelectFolder, onDropEm
           </div>
         </>
       )}
+
+      {/* Automation */}
+      <div className="mt-4 mb-2 px-2">
+        <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Automation</p>
+      </div>
+      <div className="space-y-0.5">
+        <button
+          onClick={() => onSelectFolder("sequences")}
+          className={cn(
+            "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all",
+            selectedFolder === "sequences"
+              ? "bg-primary/10 text-primary font-medium shadow-[inset_2px_2px_4px_rgba(0,0,0,0.05)]"
+              : "text-muted-foreground hover:bg-muted hover:text-foreground",
+          )}
+        >
+          <ListOrdered className="h-4 w-4 shrink-0" />
+          <span className="flex-1 text-left truncate">Sequences</span>
+        </button>
+      </div>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect, type KeyboardEvent, type MutableRefObject } from "react";
 import { useInboxShortcuts } from "@/hooks/useInboxShortcuts";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { useUser } from "@/hooks/use-user";
@@ -45,6 +45,7 @@ import EmailList from "@/components/inbox/EmailList";
 import EmailPreview from "@/components/inbox/EmailPreview";
 import InboxCommandPalette from "@/components/inbox/InboxCommandPalette";
 import InboxRuleBuilderDialog from "@/components/inbox/InboxRuleBuilderDialog";
+import { EmailSequencesContent } from "@/pages/EmailSequencesPage";
 
 
 type SidebarMode = "expanded" | "compact" | "hidden";
@@ -437,7 +438,9 @@ export default function InboxPage() {
     urgencyCues: 0.2,
     userBehavior: 0.2,
   });
-  const [selectedFolder, setSelectedFolder] = useState("inbox");
+  const [inboxSearchParams] = useSearchParams();
+  const initialFolder = inboxSearchParams.get("folder") || "inbox";
+  const [selectedFolder, setSelectedFolder] = useState(initialFolder);
   const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
   const [selectedEmails, setSelectedEmails] = useState<Set<string>>(new Set());
   const [selectedBulkPlaybookId, setSelectedBulkPlaybookId] = useState<string>("");
@@ -1380,7 +1383,13 @@ export default function InboxPage() {
               <FolderSidebar selectedFolder={selectedFolder} onSelectFolder={setSelectedFolder} onDropEmail={handleDropEmailToFolder} />
             </ResizablePanel>
             <ResizableHandle withHandle className="hidden lg:flex" />
-            {!isReadingMode && (
+            {selectedFolder === "sequences" ? (
+              <ResizablePanel defaultSize={85}>
+                <div className="h-full overflow-y-auto p-4">
+                  <EmailSequencesContent />
+                </div>
+              </ResizablePanel>
+            ) : !isReadingMode ? (
               <>
                 <ResizablePanel defaultSize={appSidebarMode === "hidden" ? 36 : 30} minSize={20} maxSize={50}>
                   <EmailList
@@ -1418,10 +1427,12 @@ export default function InboxPage() {
                 </ResizablePanel>
                 <ResizableHandle withHandle />
               </>
+            ) : null}
+            {selectedFolder !== "sequences" && (
+              <ResizablePanel defaultSize={appSidebarMode === "hidden" ? 64 : 55}>
+                <EmailPreview email={selectedEmail} playbooks={playbooks} onRunPlaybook={handleExecutePlaybook} isRunningPlaybook={executePlaybookMutation.isPending} onClose={() => setSelectedEmail(null)} isReadingMode={isReadingMode} onToggleReadingMode={() => setIsReadingMode(!isReadingMode)} onReply={() => setReplyOpen(true)} onForward={() => setForwardOpen(true)} onDelete={() => setDeleteDialogOpen(true)} onTogglePinned={handleTogglePinned} />
+              </ResizablePanel>
             )}
-            <ResizablePanel defaultSize={appSidebarMode === "hidden" ? 64 : 55}>
-              <EmailPreview email={selectedEmail} playbooks={playbooks} onRunPlaybook={handleExecutePlaybook} isRunningPlaybook={executePlaybookMutation.isPending} onClose={() => setSelectedEmail(null)} isReadingMode={isReadingMode} onToggleReadingMode={() => setIsReadingMode(!isReadingMode)} onReply={() => setReplyOpen(true)} onForward={() => setForwardOpen(true)} onDelete={() => setDeleteDialogOpen(true)} onTogglePinned={handleTogglePinned} />
-            </ResizablePanel>
           </ResizablePanelGroup>
         )}
 
