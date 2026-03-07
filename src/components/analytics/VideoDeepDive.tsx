@@ -398,7 +398,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
                     onClick={() => navigate(`/analytics/videos/${v.youtube_video_id}`)}
                     className="flex-1 min-w-0 text-left"
                   >
-                    <p className="text-sm font-medium text-foreground truncate hover:text-primary transition-colors">{v.title || v.youtube_video_id}</p>
+                    <p className="text-sm font-medium text-foreground truncate hover:text-primary transition-colors">{v.title || "Untitled Video"}</p>
                     <div className="flex items-center gap-3 mt-0.5 flex-wrap">
                       <span className="text-xs text-muted-foreground flex items-center gap-0.5">
                         <Eye className="w-2.5 h-2.5" /> {fmtCount(v.views)}

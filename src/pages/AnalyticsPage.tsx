@@ -257,7 +257,7 @@ export default function AnalyticsPage() {
       const hasRealTitle = va.title && va.title !== va.youtube_video_id;
       return {
         ...va,
-        title: hasRealTitle ? va.title : (titleMap.get(va.youtube_video_id) || va.title || va.youtube_video_id),
+        title: hasRealTitle ? va.title : (titleMap.get(va.youtube_video_id) || va.title || "Untitled Video"),
       };
     });
   }, [videoAnalytics, videoStatsAsAnalytics, videoStats]);

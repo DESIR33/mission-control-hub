@@ -138,7 +138,7 @@ export function CommentSentiment() {
           <ResponsiveContainer width="100%" height={Math.min(300, overview.videoSentiments.length * 30 + 40)}>
             <BarChart
               data={overview.videoSentiments.slice(0, 10).map((v) => ({
-                title: (v.video_title ?? v.youtube_video_id).substring(0, 25),
+                title: (v.video_title ?? "Untitled Video").substring(0, 25),
                 positive: v.positive_count,
                 neutral: v.neutral_count,
                 negative: v.negative_count,

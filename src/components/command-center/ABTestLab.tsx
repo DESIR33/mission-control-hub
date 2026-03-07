@@ -498,7 +498,7 @@ export function ABTestLab() {
                     {i + 1}
                   </span>
                   <p className="text-sm text-foreground truncate flex-1 min-w-0">
-                    {v.title || v.youtube_video_id}
+                    {v.title || "Untitled Video"}
                   </p>
                   <span className="text-xs font-mono text-muted-foreground shrink-0">
                     {fmtViews(v.views ?? 0)} views
