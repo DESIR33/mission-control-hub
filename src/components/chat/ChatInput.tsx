@@ -14,7 +14,7 @@ import { Send } from "lucide-react";
 
 export const MODEL_OPTIONS = [
   { group: "Anthropic", models: [
-    { id: "anthropic/claude-sonnet-4-20250514", label: "Claude Sonnet 4" },
+    { id: "anthropic/claude-3.5-sonnet", label: "Claude 3.5 Sonnet" },
     { id: "anthropic/claude-3.5-sonnet", label: "Claude 3.5 Sonnet" },
     { id: "anthropic/claude-3-opus", label: "Claude 3 Opus" },
     { id: "anthropic/claude-3-haiku", label: "Claude 3 Haiku" },
