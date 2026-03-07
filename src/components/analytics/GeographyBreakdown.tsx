@@ -5,6 +5,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
 import type { Geography } from "@/hooks/use-youtube-analytics-api";
+import { fmtCount, fmtDuration, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, horizontalBarDefaults } from "@/lib/chart-theme";
 
 const COUNTRY_NAMES: Record<string, string> = {
   US: "United States", GB: "United Kingdom", CA: "Canada", AU: "Australia",
@@ -30,24 +31,6 @@ const COUNTRY_FLAGS: Record<string, string> = {
   TW: "🇹🇼", MY: "🇲🇾", SA: "🇸🇦", EG: "🇪🇬", CO: "🇨🇴", CL: "🇨🇱",
 };
 
-const fmtCount = (n: number) => {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return String(n);
-};
-
-const fmtDuration = (seconds: number) => {
-  if (seconds >= 3600) return `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
-  if (seconds >= 60) return `${Math.floor(seconds / 60)}m ${Math.round(seconds % 60)}s`;
-  return `${Math.round(seconds)}s`;
-};
-
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
 
 interface Props {
   data: Geography[];
@@ -78,7 +61,7 @@ export function GeographyBreakdown({ data }: Props) {
 
   if (data.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-border bg-card p-8 text-center">
+      <div className="rounded-xl border border-dashed border-border bg-card p-8 text-center">
         <Globe className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
         <p className="text-sm text-muted-foreground">
           No geography data available. Sync YouTube Analytics to see where your viewers are located.
@@ -88,10 +71,10 @@ export function GeographyBreakdown({ data }: Props) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Top countries summary */}
       {chartData.length > 0 && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <div className="flex items-center gap-2 mb-2">
             <Globe className="w-4 h-4 text-primary" />
             <h3 className="text-sm font-semibold text-foreground">Geographic Reach</h3>
@@ -109,27 +92,27 @@ export function GeographyBreakdown({ data }: Props) {
       )}
 
       {/* Top 15 countries bar chart */}
-      <div className="rounded-lg border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-foreground mb-3">Top Countries by Views</h3>
         <ResponsiveContainer width="100%" height={Math.max(chartData.length * 32, 200)}>
           <BarChart data={chartData} layout="vertical">
-            <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-            <XAxis type="number" tick={{ fontSize: 10 }} tickFormatter={fmtCount} />
-            <YAxis type="category" dataKey="country" tick={{ fontSize: 10 }} width={130} />
+            <CartesianGrid {...cartesianGridDefaults} />
+            <XAxis type="number" {...xAxisDefaults} tickFormatter={fmtCount} />
+            <YAxis type="category" dataKey="country" {...yAxisDefaults} width={130} />
             <Tooltip
-              contentStyle={tooltipStyle}
+              contentStyle={chartTooltipStyle}
               formatter={(v: number, name: string) => {
                 if (name === "views") return [v.toLocaleString(), "Views"];
                 return [v, name];
               }}
             />
-            <Bar dataKey="views" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
+            <Bar dataKey="views" fill="#6366f1" radius={[0, 6, 6, 0]} maxBarSize={32} animationDuration={800} />
           </BarChart>
         </ResponsiveContainer>
       </div>
 
       {/* Country data table */}
-      <div className="rounded-lg border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-foreground mb-3">Country Details</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">

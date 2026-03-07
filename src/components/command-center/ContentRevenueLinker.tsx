@@ -7,19 +7,14 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from "recharts";
 import { useContentRevenue } from "@/hooks/use-content-revenue";
-
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
-
-const fmtMoney = (n: number) => {
-  if (n >= 10_000) return `$${(n / 1_000).toFixed(1)}K`;
-  if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}K`;
-  return `$${n.toFixed(2)}`;
-};
+import {
+  chartTooltipStyle,
+  fmtMoney,
+  xAxisDefaults,
+  yAxisDefaults,
+  cartesianGridDefaults,
+  horizontalBarDefaults,
+} from "@/lib/chart-theme";
 
 const COLORS = ["#22c55e", "#3b82f6", "#a855f7"];
 
@@ -27,12 +22,12 @@ export function ContentRevenueLinker() {
   const { data: summary, isLoading } = useContentRevenue();
 
   if (isLoading) {
-    return <div className="rounded-lg border border-border bg-card p-6 animate-pulse h-96" />;
+    return <div className="rounded-xl border border-border bg-card p-6 animate-pulse h-96" />;
   }
 
   if (!summary) {
     return (
-      <div className="rounded-lg border border-border bg-card p-6 text-center text-muted-foreground">
+      <div className="rounded-xl border border-border bg-card p-6 text-center text-muted-foreground">
         <DollarSign className="w-8 h-8 mx-auto mb-2 opacity-50" />
         <p>No revenue data linked to content yet. Link deals and affiliate transactions to videos.</p>
       </div>
@@ -47,10 +42,10 @@ export function ContentRevenueLinker() {
   }));
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <DollarSign className="w-3.5 h-3.5 text-green-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Revenue</p>
@@ -58,7 +53,7 @@ export function ContentRevenueLinker() {
           <p className="text-lg font-bold font-mono text-foreground">{fmtMoney(summary.grandTotal)}</p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Video className="w-3.5 h-3.5 text-blue-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Avg/Video</p>
@@ -67,7 +62,7 @@ export function ContentRevenueLinker() {
         </div>
 
         {summary.topEarner && (
-          <div className="rounded-lg border border-border bg-card p-3 col-span-2">
+          <div className="rounded-xl border border-border bg-card p-3 col-span-2">
             <div className="flex items-center gap-1.5 mb-1">
               <TrendingUp className="w-3.5 h-3.5 text-yellow-500" />
               <p className="text-xs text-muted-foreground uppercase tracking-wider">Top Earner</p>
@@ -80,7 +75,7 @@ export function ContentRevenueLinker() {
 
       {/* Revenue by Source Pie */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3">Revenue by Source</h3>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
@@ -98,12 +93,12 @@ export function ContentRevenueLinker() {
                   <Cell key={i} fill={COLORS[i % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => fmtMoney(v)} />
+              <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => fmtMoney(v)} />
             </PieChart>
           </ResponsiveContainer>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3">Breakdown</h3>
           <div className="space-y-3">
             {summary.revenueBySource.map((source, i) => (
@@ -129,24 +124,24 @@ export function ContentRevenueLinker() {
       </div>
 
       {/* Top Videos by Revenue */}
-      <div className="rounded-lg border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-foreground mb-3">Top 10 Videos by Revenue</h3>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={chartData} layout="vertical">
-            <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-            <XAxis type="number" tick={{ fontSize: 10 }} tickFormatter={(v) => `$${v}`} />
-            <YAxis type="category" dataKey="title" width={150} tick={{ fontSize: 9 }} />
-            <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => fmtMoney(v)} />
+            <CartesianGrid {...cartesianGridDefaults} />
+            <XAxis type="number" {...xAxisDefaults} tickFormatter={(v) => `$${v}`} />
+            <YAxis type="category" dataKey="title" width={150} {...yAxisDefaults} />
+            <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => fmtMoney(v)} />
             <Legend />
-            <Bar dataKey="ad" stackId="a" fill="#22c55e" name="Ad Revenue" />
-            <Bar dataKey="sponsor" stackId="a" fill="#3b82f6" name="Sponsorship" />
-            <Bar dataKey="affiliate" stackId="a" fill="#a855f7" name="Affiliate" />
+            <Bar dataKey="ad" stackId="a" fill="#22c55e" name="Ad Revenue" {...horizontalBarDefaults} animationDuration={800} />
+            <Bar dataKey="sponsor" stackId="a" fill="#3b82f6" name="Sponsorship" {...horizontalBarDefaults} animationDuration={800} />
+            <Bar dataKey="affiliate" stackId="a" fill="#a855f7" name="Affiliate" {...horizontalBarDefaults} animationDuration={800} />
           </BarChart>
         </ResponsiveContainer>
       </div>
 
       {/* Video Table */}
-      <div className="rounded-lg border border-border bg-card overflow-hidden">
+      <div className="rounded-xl border border-border bg-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>

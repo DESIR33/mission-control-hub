@@ -9,19 +9,15 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useVideoScorecard, type VideoScore } from "@/hooks/use-video-scorecard";
-
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
-
-const fmtCount = (n: number) => {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return String(Math.round(n));
-};
+import {
+  chartTooltipStyle,
+  cartesianGridDefaults,
+  xAxisDefaults,
+  yAxisDefaults,
+  horizontalBarDefaults,
+  chartAnimationDefaults,
+  fmtCount,
+} from "@/lib/chart-theme";
 
 const gradeColor: Record<string, string> = {
   S: "text-yellow-400 bg-yellow-400/10 border-yellow-400/30",
@@ -60,12 +56,12 @@ export function VideoScorecard() {
   const [search, setSearch] = useState("");
 
   if (isLoading) {
-    return <div className="rounded-lg border border-border bg-card p-6 animate-pulse h-96" />;
+    return <div className="rounded-xl border border-border bg-card p-6 animate-pulse h-96" />;
   }
 
   if (!scorecard) {
     return (
-      <div className="rounded-lg border border-border bg-card p-6 text-center text-muted-foreground">
+      <div className="rounded-xl border border-border bg-card p-6 text-center text-muted-foreground">
         <Award className="w-8 h-8 mx-auto mb-2 opacity-50" />
         <p>No video data available for scoring.</p>
       </div>
@@ -84,10 +80,10 @@ export function VideoScorecard() {
   }));
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Summary KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Award className="w-3.5 h-3.5 text-yellow-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Avg Score</p>
@@ -97,7 +93,7 @@ export function VideoScorecard() {
         </div>
 
         {scorecard.topPerformer && (
-          <div className="rounded-lg border border-border bg-card p-3 col-span-2">
+          <div className="rounded-xl border border-border bg-card p-3 col-span-2">
             <div className="flex items-center gap-1.5 mb-1">
               <TrendingUp className="w-3.5 h-3.5 text-green-500" />
               <p className="text-xs text-muted-foreground uppercase tracking-wider">Top Performer</p>
@@ -107,7 +103,7 @@ export function VideoScorecard() {
           </div>
         )}
 
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Eye className="w-3.5 h-3.5 text-red-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Underperforming</p>
@@ -119,7 +115,7 @@ export function VideoScorecard() {
 
       {/* Insights */}
       {scorecard.insights.length > 0 && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-2">Insights</h3>
           <ul className="space-y-1">
             {scorecard.insights.map((insight, i) => (
@@ -133,15 +129,15 @@ export function VideoScorecard() {
       )}
 
       {/* Score Distribution Chart */}
-      <div className="rounded-lg border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-foreground mb-3">Score Distribution</h3>
         <ResponsiveContainer width="100%" height={200}>
           <BarChart data={chartData} layout="vertical">
-            <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-            <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 10 }} />
-            <YAxis type="category" dataKey="title" width={120} tick={{ fontSize: 9 }} />
-            <Tooltip contentStyle={tooltipStyle} />
-            <Bar dataKey="score" radius={[0, 4, 4, 0]}>
+            <CartesianGrid {...cartesianGridDefaults} />
+            <XAxis type="number" domain={[0, 100]} {...xAxisDefaults} />
+            <YAxis type="category" dataKey="title" width={120} {...yAxisDefaults} />
+            <Tooltip contentStyle={chartTooltipStyle} />
+            <Bar dataKey="score" {...horizontalBarDefaults} {...chartAnimationDefaults}>
               {chartData.map((entry, i) => (
                 <Cell key={i} fill={scoreBarColor(entry.score)} />
               ))}
@@ -164,7 +160,7 @@ export function VideoScorecard() {
       {/* Video List */}
       <div className="space-y-2">
         {filtered.slice(0, 20).map((video) => (
-          <div key={video.youtube_video_id} className="rounded-lg border border-border bg-card overflow-hidden">
+          <div key={video.youtube_video_id} className="rounded-xl border border-border bg-card overflow-hidden">
             <button
               className="w-full flex items-center gap-3 p-3 text-left hover:bg-muted/50 transition-colors"
               onClick={() => setExpanded(expanded === video.youtube_video_id ? null : video.youtube_video_id)}

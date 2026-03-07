@@ -1,45 +1,20 @@
 import { useMemo } from "react";
 import {
-  Eye, Clock, Users, TrendingUp, TrendingDown, ArrowUpRight,
+  Eye, Clock, Users, TrendingDown, ArrowUpRight,
   ArrowDownRight, MousePointerClick, Share2, ThumbsUp, MessageSquare,
   Tv, Zap,
 } from "lucide-react";
 import {
   AreaChart, Area, BarChart, Bar, LineChart, Line,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
 import { format, subDays } from "date-fns";
 import type { ChannelAnalytics } from "@/hooks/use-youtube-analytics-api";
-
-const fmtCount = (n: number) => {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return String(n);
-};
-
-const fmtDuration = (seconds: number) => {
-  if (seconds >= 3600) return `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
-  if (seconds >= 60) return `${Math.floor(seconds / 60)}m ${Math.round(seconds % 60)}s`;
-  return `${Math.round(seconds)}s`;
-};
-
-const fmtMoney = (n: number) => {
-  if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}K`;
-  return `$${n.toFixed(2)}`;
-};
-
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
-
-/** Compute percentage change between two numbers. Returns null if previous is 0. */
-const pctChange = (current: number, previous: number): number | null => {
-  if (previous === 0) return current > 0 ? 100 : null;
-  return +((current - previous) / Math.abs(previous) * 100).toFixed(1);
-};
+import {
+  fmtCount, fmtDuration, fmtMoney, pctChange,
+  chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults,
+  SEMANTIC_COLORS, lineDefaults, barDefaults,
+} from "@/lib/chart-theme";
 
 interface Props {
   data: ChannelAnalytics[];
@@ -48,7 +23,6 @@ interface Props {
 }
 
 export function ChannelOverview({ data, daysRange, currentSubscribers }: Props) {
-  // Current period: last `daysRange` days
   const filtered = useMemo(() => {
     const cutoff = subDays(new Date(), daysRange);
     return data
@@ -56,7 +30,6 @@ export function ChannelOverview({ data, daysRange, currentSubscribers }: Props) 
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }, [data, daysRange]);
 
-  // Previous period: the `daysRange` days before the current period
   const prevFiltered = useMemo(() => {
     const currentCutoff = subDays(new Date(), daysRange);
     const prevCutoff = subDays(new Date(), daysRange * 2);
@@ -102,7 +75,6 @@ export function ChannelOverview({ data, daysRange, currentSubscribers }: Props) 
     return sumPeriod(prevFiltered);
   }, [prevFiltered]);
 
-  // Period-over-period deltas
   const deltas = useMemo(() => {
     if (!totals || !prevTotals) return null;
     return {
@@ -122,8 +94,6 @@ export function ChannelOverview({ data, daysRange, currentSubscribers }: Props) 
     };
   }, [totals, prevTotals]);
 
-  // Weighted average CTR: sum(ctr * views) / sum(views) — since impressions aren't available
-  // from the YouTube Analytics API, we use the stored impressions_ctr (already converted to %)
   const avgCtr = useMemo(() => {
     const withViews = filtered.filter((d) => d.views > 0);
     if (withViews.length === 0) return 0;
@@ -132,7 +102,6 @@ export function ChannelOverview({ data, daysRange, currentSubscribers }: Props) 
     return totalViews > 0 ? +(weightedSum / totalViews).toFixed(2) : 0;
   }, [filtered]);
 
-  // Weighted average duration: sum(avgDuration * views) / sum(views)
   const avgDuration = useMemo(() => {
     const withViews = filtered.filter((d) => d.views > 0);
     if (withViews.length === 0) return 0;
@@ -165,7 +134,6 @@ export function ChannelOverview({ data, daysRange, currentSubscribers }: Props) 
     [filtered]
   );
 
-  // Average subscriber velocity for the period
   const avgSubsVelocity = useMemo(() => {
     if (chartData.length === 0) return 0;
     const sum = chartData.reduce((acc, d) => acc + d.subsVelocity, 0);
@@ -174,7 +142,7 @@ export function ChannelOverview({ data, daysRange, currentSubscribers }: Props) 
 
   if (!totals || filtered.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-border bg-card p-8 text-center">
+      <div className="rounded-xl border border-dashed border-border bg-card p-8 text-center">
         <Tv className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
         <p className="text-sm text-muted-foreground">
           No channel analytics data yet. Sync your YouTube Analytics to see detailed metrics.
@@ -184,11 +152,12 @@ export function ChannelOverview({ data, daysRange, currentSubscribers }: Props) 
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* KPI Cards Row */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         <KpiCard
-          icon={<Eye className="w-3.5 h-3.5 text-blue-500" />}
+          icon={<Eye className="w-3.5 h-3.5" />}
+          iconColor={SEMANTIC_COLORS.views}
           label="Views"
           value={fmtCount(totals.views)}
           sub={`${daysRange}d total`}
@@ -196,7 +165,8 @@ export function ChannelOverview({ data, daysRange, currentSubscribers }: Props) 
           daysRange={daysRange}
         />
         <KpiCard
-          icon={<Clock className="w-3.5 h-3.5 text-purple-500" />}
+          icon={<Clock className="w-3.5 h-3.5" />}
+          iconColor={SEMANTIC_COLORS.watchTime}
           label="Watch Time"
           value={totals.watchTime >= 60 ? `${Math.round(totals.watchTime / 60)}h` : `${totals.watchTime}m`}
           sub="estimated"
@@ -204,7 +174,8 @@ export function ChannelOverview({ data, daysRange, currentSubscribers }: Props) 
           daysRange={daysRange}
         />
         <KpiCard
-          icon={<Users className="w-3.5 h-3.5 text-green-500" />}
+          icon={<Users className="w-3.5 h-3.5" />}
+          iconColor={SEMANTIC_COLORS.subscribers}
           label="Net Subscribers"
           value={`${totals.netSubs >= 0 ? "+" : ""}${fmtCount(totals.netSubs)}`}
           sub={`+${fmtCount(totals.subsGained)} / -${fmtCount(totals.subsLost)}`}
@@ -213,7 +184,8 @@ export function ChannelOverview({ data, daysRange, currentSubscribers }: Props) 
           daysRange={daysRange}
         />
         <KpiCard
-          icon={<MousePointerClick className="w-3.5 h-3.5 text-orange-500" />}
+          icon={<MousePointerClick className="w-3.5 h-3.5" />}
+          iconColor={SEMANTIC_COLORS.impressions}
           label="Impressions"
           value={fmtCount(totals.impressions)}
           sub={`${avgCtr}% CTR`}
@@ -221,13 +193,15 @@ export function ChannelOverview({ data, daysRange, currentSubscribers }: Props) 
           daysRange={daysRange}
         />
         <KpiCard
-          icon={<Zap className="w-3.5 h-3.5 text-yellow-500" />}
+          icon={<Zap className="w-3.5 h-3.5" />}
+          iconColor="#eab308"
           label="Avg Duration"
           value={fmtDuration(avgDuration)}
           sub="per view"
         />
         <KpiCard
-          icon={<Share2 className="w-3.5 h-3.5 text-cyan-500" />}
+          icon={<Share2 className="w-3.5 h-3.5" />}
+          iconColor={SEMANTIC_COLORS.engagement}
           label="Engagement"
           value={fmtCount(totals.likes + totals.comments + totals.shares)}
           sub={`${fmtCount(totals.likes)} likes · ${fmtCount(totals.shares)} shares`}
@@ -239,168 +213,158 @@ export function ChannelOverview({ data, daysRange, currentSubscribers }: Props) 
       {/* Views + Watch Time Chart */}
       {chartData.length > 1 && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div className="rounded-lg border border-border bg-card p-4">
-            <h3 className="text-sm font-semibold text-foreground mb-3">Daily Views</h3>
-            <ResponsiveContainer width="100%" height={240}>
-              <AreaChart data={chartData}>
+          <ChartCard title="Daily Views">
+            <ResponsiveContainer width="100%" height={260}>
+              <AreaChart data={chartData} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
                 <defs>
                   <linearGradient id="viewsGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                    <stop offset="0%" stopColor={SEMANTIC_COLORS.views} stopOpacity={0.25} />
+                    <stop offset="100%" stopColor={SEMANTIC_COLORS.views} stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-                <YAxis tick={{ fontSize: 10 }} tickFormatter={fmtCount} />
-                <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => [v.toLocaleString(), "Views"]} />
-                <Area type="monotone" dataKey="views" stroke="#3b82f6" strokeWidth={2} fill="url(#viewsGrad)" />
+                <CartesianGrid {...cartesianGridDefaults} />
+                <XAxis dataKey="date" {...xAxisDefaults} />
+                <YAxis {...yAxisDefaults} tickFormatter={fmtCount} />
+                <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => [v.toLocaleString(), "Views"]} />
+                <Area type="monotone" dataKey="views" stroke={SEMANTIC_COLORS.views} strokeWidth={2.5} fill="url(#viewsGrad)" dot={false} activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }} />
               </AreaChart>
             </ResponsiveContainer>
-          </div>
+          </ChartCard>
 
-          <div className="rounded-lg border border-border bg-card p-4">
-            <h3 className="text-sm font-semibold text-foreground mb-3">Watch Time (hours/day)</h3>
-            <ResponsiveContainer width="100%" height={240}>
-              <AreaChart data={chartData}>
+          <ChartCard title="Watch Time (hours/day)">
+            <ResponsiveContainer width="100%" height={260}>
+              <AreaChart data={chartData} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
                 <defs>
                   <linearGradient id="watchGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                    <stop offset="0%" stopColor={SEMANTIC_COLORS.watchTime} stopOpacity={0.25} />
+                    <stop offset="100%" stopColor={SEMANTIC_COLORS.watchTime} stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-                <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => `${v}h`} />
-                <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => [`${v}h`, "Watch Time"]} />
-                <Area type="monotone" dataKey="watchTime" stroke="#8b5cf6" strokeWidth={2} fill="url(#watchGrad)" />
+                <CartesianGrid {...cartesianGridDefaults} />
+                <XAxis dataKey="date" {...xAxisDefaults} />
+                <YAxis {...yAxisDefaults} tickFormatter={(v) => `${v}h`} />
+                <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => [`${v}h`, "Watch Time"]} />
+                <Area type="monotone" dataKey="watchTime" stroke={SEMANTIC_COLORS.watchTime} strokeWidth={2.5} fill="url(#watchGrad)" dot={false} activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }} />
               </AreaChart>
             </ResponsiveContainer>
-          </div>
+          </ChartCard>
         </div>
       )}
 
-      {/* Subscribers + CTR + Engagement Rate Chart */}
+      {/* Subscribers + CTR Chart */}
       {chartData.length > 1 && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div className="rounded-lg border border-border bg-card p-4">
-            <h3 className="text-sm font-semibold text-foreground mb-3">Daily Net Subscribers</h3>
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-                <YAxis tick={{ fontSize: 10 }} />
-                <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => [v >= 0 ? `+${v}` : v, "Net Subs"]} />
+          <ChartCard title="Daily Net Subscribers">
+            <ResponsiveContainer width="100%" height={240}>
+              <BarChart data={chartData} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+                <CartesianGrid {...cartesianGridDefaults} />
+                <XAxis dataKey="date" {...xAxisDefaults} />
+                <YAxis {...yAxisDefaults} />
+                <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => [v >= 0 ? `+${v}` : v, "Net Subs"]} />
                 <Bar
                   dataKey="subs"
-                  radius={[3, 3, 0, 0]}
-                  fill="hsl(var(--primary))"
+                  radius={barDefaults.radius}
+                  maxBarSize={barDefaults.maxBarSize}
+                  fill={SEMANTIC_COLORS.subscribers}
+                  animationDuration={800}
                 />
               </BarChart>
             </ResponsiveContainer>
-          </div>
+          </ChartCard>
 
-          <div className="rounded-lg border border-border bg-card p-4">
-            <h3 className="text-sm font-semibold text-foreground mb-3">Impressions CTR %</h3>
-            <ResponsiveContainer width="100%" height={220}>
-              <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-                <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => `${v}%`} />
-                <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => [`${v}%`, "CTR"]} />
-                <Line type="monotone" dataKey="ctr" stroke="#f59e0b" strokeWidth={2} dot={false} />
+          <ChartCard title="Impressions CTR %">
+            <ResponsiveContainer width="100%" height={240}>
+              <LineChart data={chartData} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+                <CartesianGrid {...cartesianGridDefaults} />
+                <XAxis dataKey="date" {...xAxisDefaults} />
+                <YAxis {...yAxisDefaults} tickFormatter={(v) => `${v}%`} />
+                <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => [`${v}%`, "CTR"]} />
+                <Line type="monotone" dataKey="ctr" stroke={SEMANTIC_COLORS.ctr} {...lineDefaults} />
               </LineChart>
             </ResponsiveContainer>
-          </div>
+          </ChartCard>
         </div>
       )}
 
-      {/* Feature 14: Engagement Rate Trend Chart */}
+      {/* Engagement Rate Trend + Subscriber Velocity */}
       {chartData.length > 1 && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div className="rounded-lg border border-border bg-card p-4">
-            <h3 className="text-sm font-semibold text-foreground mb-3">Engagement Rate %</h3>
-            <ResponsiveContainer width="100%" height={220}>
-              <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-                <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => `${v}%`} />
-                <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => [`${v}%`, "Engagement Rate"]} />
-                <Line type="monotone" dataKey="engagementRate" stroke="#06b6d4" strokeWidth={2} dot={false} />
+          <ChartCard title="Engagement Rate %">
+            <ResponsiveContainer width="100%" height={240}>
+              <LineChart data={chartData} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+                <CartesianGrid {...cartesianGridDefaults} />
+                <XAxis dataKey="date" {...xAxisDefaults} />
+                <YAxis {...yAxisDefaults} tickFormatter={(v) => `${v}%`} />
+                <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => [`${v}%`, "Engagement Rate"]} />
+                <Line type="monotone" dataKey="engagementRate" stroke={SEMANTIC_COLORS.engagement} {...lineDefaults} />
               </LineChart>
             </ResponsiveContainer>
-          </div>
+          </ChartCard>
 
-          {/* Feature 15: Subscriber Velocity Chart */}
-          <div className="rounded-lg border border-border bg-card p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-foreground">Subscriber Velocity</h3>
-              <span className="text-xs text-muted-foreground">
-                Avg: {avgSubsVelocity} subs/1K views
-              </span>
-            </div>
-            <ResponsiveContainer width="100%" height={220}>
-              <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-                <YAxis tick={{ fontSize: 10 }} />
-                <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => [v, "Subs per 1K views"]} />
-                <Line type="monotone" dataKey="subsVelocity" stroke="#22c55e" strokeWidth={2} dot={false} />
+          <ChartCard title="Subscriber Velocity" subtitle={`Avg: ${avgSubsVelocity} subs/1K views`}>
+            <ResponsiveContainer width="100%" height={240}>
+              <LineChart data={chartData} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+                <CartesianGrid {...cartesianGridDefaults} />
+                <XAxis dataKey="date" {...xAxisDefaults} />
+                <YAxis {...yAxisDefaults} />
+                <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => [v, "Subs per 1K views"]} />
+                <Line type="monotone" dataKey="subsVelocity" stroke={SEMANTIC_COLORS.subscribers} {...lineDefaults} />
               </LineChart>
             </ResponsiveContainer>
-          </div>
+          </ChartCard>
         </div>
       )}
 
-      {/* Revenue chart (only show if there's revenue data) */}
+      {/* Revenue chart */}
       {totals.revenue > 0 && chartData.length > 1 && (
-        <div className="rounded-lg border border-border bg-card p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-foreground">Daily Estimated Revenue</h3>
-            <span className="text-sm font-mono font-semibold text-green-500">{fmtMoney(totals.revenue)} total</span>
-          </div>
-          <ResponsiveContainer width="100%" height={200}>
-            <AreaChart data={chartData}>
+        <ChartCard title="Daily Estimated Revenue" subtitle={`${fmtMoney(totals.revenue)} total`} subtitleColor="text-green-500">
+          <ResponsiveContainer width="100%" height={220}>
+            <AreaChart data={chartData} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
               <defs>
                 <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
+                  <stop offset="0%" stopColor={SEMANTIC_COLORS.revenue} stopOpacity={0.25} />
+                  <stop offset="100%" stopColor={SEMANTIC_COLORS.revenue} stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-              <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-              <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => `$${v}`} />
-              <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => [fmtMoney(v), "Revenue"]} />
-              <Area type="monotone" dataKey="revenue" stroke="#22c55e" strokeWidth={2} fill="url(#revGrad)" />
+              <CartesianGrid {...cartesianGridDefaults} />
+              <XAxis dataKey="date" {...xAxisDefaults} />
+              <YAxis {...yAxisDefaults} tickFormatter={(v) => `$${v}`} />
+              <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => [fmtMoney(v), "Revenue"]} />
+              <Area type="monotone" dataKey="revenue" stroke={SEMANTIC_COLORS.revenue} strokeWidth={2.5} fill="url(#revGrad)" dot={false} activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }} />
             </AreaChart>
           </ResponsiveContainer>
-        </div>
+        </ChartCard>
       )}
 
       {/* Interaction metrics */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <KpiCard
-          icon={<ThumbsUp className="w-3.5 h-3.5 text-blue-500" />}
+          icon={<ThumbsUp className="w-3.5 h-3.5" />}
+          iconColor={SEMANTIC_COLORS.likes}
           label="Total Likes"
           value={fmtCount(totals.likes)}
           change={deltas?.likes ?? undefined}
           daysRange={daysRange}
         />
         <KpiCard
-          icon={<MessageSquare className="w-3.5 h-3.5 text-green-500" />}
+          icon={<MessageSquare className="w-3.5 h-3.5" />}
+          iconColor={SEMANTIC_COLORS.comments}
           label="Total Comments"
           value={fmtCount(totals.comments)}
           change={deltas?.comments ?? undefined}
           daysRange={daysRange}
         />
         <KpiCard
-          icon={<MousePointerClick className="w-3.5 h-3.5 text-orange-500" />}
+          icon={<MousePointerClick className="w-3.5 h-3.5" />}
+          iconColor={SEMANTIC_COLORS.impressions}
           label="Card Clicks"
           value={fmtCount(totals.cardClicks)}
           change={deltas?.cardClicks ?? undefined}
           daysRange={daysRange}
         />
         <KpiCard
-          icon={<ArrowUpRight className="w-3.5 h-3.5 text-purple-500" />}
+          icon={<ArrowUpRight className="w-3.5 h-3.5" />}
+          iconColor={SEMANTIC_COLORS.watchTime}
           label="End Screen Clicks"
           value={fmtCount(totals.endScreenClicks)}
           change={deltas?.endScreenClicks ?? undefined}
@@ -411,10 +375,32 @@ export function ChannelOverview({ data, daysRange, currentSubscribers }: Props) 
   );
 }
 
+function ChartCard({ title, subtitle, subtitleColor, children }: {
+  title: string;
+  subtitle?: string;
+  subtitleColor?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-xl border border-border bg-card p-4 sm:p-5">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+        {subtitle && (
+          <span className={`text-xs font-mono font-semibold ${subtitleColor || "text-muted-foreground"}`}>
+            {subtitle}
+          </span>
+        )}
+      </div>
+      {children}
+    </div>
+  );
+}
+
 function KpiCard({
-  icon, label, value, sub, positive, change, daysRange,
+  icon, iconColor, label, value, sub, positive, change, daysRange,
 }: {
   icon: React.ReactNode;
+  iconColor: string;
   label: string;
   value: string;
   sub?: string;
@@ -423,19 +409,19 @@ function KpiCard({
   daysRange?: number;
 }) {
   return (
-    <div className="rounded-lg border border-border bg-card p-3">
-      <div className="flex items-center gap-1.5 mb-1">
-        {icon}
-        <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
+    <div className="rounded-xl border border-border bg-card p-3 sm:p-4 transition-colors hover:bg-card/80">
+      <div className="flex items-center gap-1.5 mb-1.5">
+        <span style={{ color: iconColor }}>{icon}</span>
+        <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-medium">{label}</p>
       </div>
-      <p className={`text-lg font-bold font-mono mt-0.5 ${
+      <p className={`text-lg sm:text-xl font-bold font-mono mt-0.5 ${
         positive === true ? "text-green-500" : positive === false ? "text-red-500" : "text-foreground"
       }`}>
         {value}
       </p>
-      {sub && <p className="text-xs text-muted-foreground">{sub}</p>}
+      {sub && <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>}
       {change !== undefined && change !== null && (
-        <div className={`flex items-center gap-0.5 mt-1 ${change >= 0 ? "text-green-500" : "text-red-500"}`}>
+        <div className={`flex items-center gap-0.5 mt-1.5 ${change >= 0 ? "text-green-500" : "text-red-500"}`}>
           {change >= 0 ? (
             <ArrowUpRight className="w-3 h-3" />
           ) : (

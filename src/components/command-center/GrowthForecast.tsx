@@ -10,30 +10,18 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useGrowthForecast } from "@/hooks/use-growth-forecast";
-
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
-
-const fmtCount = (n: number) => {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return String(Math.round(n));
-};
+import { fmtCount, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, lineDefaults } from "@/lib/chart-theme";
 
 export function GrowthForecast() {
   const { data: forecast, isLoading } = useGrowthForecast();
 
   if (isLoading) {
-    return <div className="rounded-lg border border-border bg-card p-6 animate-pulse h-96" />;
+    return <div className="rounded-xl border border-border bg-card p-6 animate-pulse h-96" />;
   }
 
   if (!forecast) {
     return (
-      <div className="rounded-lg border border-border bg-card p-6 text-center text-muted-foreground">
+      <div className="rounded-xl border border-border bg-card p-6 text-center text-muted-foreground">
         <Target className="w-8 h-8 mx-auto mb-2 opacity-50" />
         <p>Need more subscriber data to generate forecast. Keep syncing!</p>
       </div>
@@ -43,10 +31,10 @@ export function GrowthForecast() {
   const progressToTarget = Math.min(100, (forecast.currentSubs / forecast.targetSubs) * 100);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Header KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <TrendingUp className="w-3.5 h-3.5 text-green-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Daily Growth</p>
@@ -55,7 +43,7 @@ export function GrowthForecast() {
           <p className="text-xs text-muted-foreground">subs/day</p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Calendar className="w-3.5 h-3.5 text-blue-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Monthly</p>
@@ -64,7 +52,7 @@ export function GrowthForecast() {
           <p className="text-xs text-muted-foreground">subs/month</p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Target className="w-3.5 h-3.5 text-purple-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Days to {fmtCount(forecast.targetSubs)}</p>
@@ -77,7 +65,7 @@ export function GrowthForecast() {
           </p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Zap className="w-3.5 h-3.5 text-yellow-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Status</p>
@@ -94,7 +82,7 @@ export function GrowthForecast() {
       </div>
 
       {/* Progress to target */}
-      <div className="rounded-lg border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <div className="flex items-center justify-between mb-2">
           <p className="text-sm font-semibold text-foreground">
             Progress to {fmtCount(forecast.targetSubs)} subscribers
@@ -110,35 +98,35 @@ export function GrowthForecast() {
       </div>
 
       {/* Forecast Chart */}
-      <div className="rounded-lg border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-foreground mb-3">90-Day Subscriber Forecast</h3>
         <ResponsiveContainer width="100%" height={300}>
-          <AreaChart data={forecast.forecastPoints}>
+          <AreaChart data={forecast.forecastPoints} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
             <defs>
               <linearGradient id="gradActual" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.25} />
                 <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
               </linearGradient>
               <linearGradient id="gradForecast" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3} />
+                <stop offset="5%" stopColor="#22c55e" stopOpacity={0.25} />
                 <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-            <XAxis dataKey="date" tick={{ fontSize: 10 }} interval="preserveStartEnd" />
-            <YAxis tick={{ fontSize: 10 }} tickFormatter={fmtCount} />
-            <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => fmtCount(v)} />
+            <CartesianGrid {...cartesianGridDefaults} />
+            <XAxis dataKey="date" {...xAxisDefaults} interval="preserveStartEnd" />
+            <YAxis {...yAxisDefaults} tickFormatter={fmtCount} />
+            <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => fmtCount(v)} />
             <Legend />
-            <Area type="monotone" dataKey="actual" stroke="#3b82f6" fill="url(#gradActual)" name="Actual" />
-            <Area type="monotone" dataKey="forecast" stroke="#22c55e" fill="url(#gradForecast)" strokeDasharray="5 5" name="Forecast" />
-            <Line type="monotone" dataKey="optimistic" stroke="#22c55e" strokeDasharray="2 2" dot={false} name="Optimistic" strokeOpacity={0.5} />
-            <Line type="monotone" dataKey="conservative" stroke="#eab308" strokeDasharray="2 2" dot={false} name="Conservative" strokeOpacity={0.5} />
+            <Area type="monotone" dataKey="actual" stroke="#3b82f6" fill="url(#gradActual)" name="Actual" strokeWidth={2.5} dot={false} activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }} />
+            <Area type="monotone" dataKey="forecast" stroke="#22c55e" fill="url(#gradForecast)" strokeDasharray="5 5" name="Forecast" strokeWidth={2.5} dot={false} activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }} />
+            <Line type="monotone" dataKey="optimistic" stroke="#22c55e" strokeDasharray="2 2" {...lineDefaults} name="Optimistic" strokeOpacity={0.5} />
+            <Line type="monotone" dataKey="conservative" stroke="#eab308" strokeDasharray="2 2" {...lineDefaults} name="Conservative" strokeOpacity={0.5} />
           </AreaChart>
         </ResponsiveContainer>
       </div>
 
       {/* Milestones */}
-      <div className="rounded-lg border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-foreground mb-3">Milestone Tracker</h3>
         <div className="space-y-2">
           {forecast.milestones.map((m) => (

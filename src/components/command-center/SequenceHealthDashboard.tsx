@@ -15,13 +15,12 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { formatDistanceToNow } from "date-fns";
-
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
+import {
+  chartTooltipStyle,
+  cartesianGridDefaults,
+  xAxisDefaults,
+  yAxisDefaults,
+} from "@/lib/chart-theme";
 
 interface SendLogEntry {
   id: string;
@@ -131,18 +130,18 @@ export function SequenceHealthDashboard() {
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-5">
         <Skeleton className="h-6 w-48" />
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-20 rounded-lg" />)}
+          {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-20 rounded-xl" />)}
         </div>
-        <Skeleton className="h-48 rounded-lg" />
+        <Skeleton className="h-48 rounded-xl" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div className="flex items-center gap-2">
         <Send className="w-5 h-5 text-blue-500" />
         <h2 className="text-lg font-semibold text-foreground">Sequence Health</h2>
@@ -153,28 +152,28 @@ export function SequenceHealthDashboard() {
 
       {/* KPI Row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Mail className="w-3.5 h-3.5 text-blue-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Sent</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{health.totalSent}</p>
         </div>
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <CheckCircle className="w-3.5 h-3.5 text-green-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Delivery Rate</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{health.deliveryRate.toFixed(1)}%</p>
         </div>
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <MessageSquare className="w-3.5 h-3.5 text-purple-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Reply Rate</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{health.replyRate.toFixed(1)}%</p>
         </div>
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Users className="w-3.5 h-3.5 text-amber-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Active Enrolled</p>
@@ -184,7 +183,7 @@ export function SequenceHealthDashboard() {
       </div>
 
       {/* Completion Funnel */}
-      <div className="rounded-lg border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-foreground mb-3">Enrollment Funnel</h3>
         <div className="flex items-center gap-2">
           <div className="flex-1 space-y-1.5">
@@ -220,17 +219,17 @@ export function SequenceHealthDashboard() {
 
       {/* Per-Sequence Chart */}
       {health.perSequence.length > 0 && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3">Per Sequence Performance</h3>
           <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={health.perSequence}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-              <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-              <YAxis tick={{ fontSize: 10 }} />
-              <Tooltip contentStyle={tooltipStyle} />
-              <Bar dataKey="sent" fill="#3b82f6" name="Sent" radius={[2, 2, 0, 0]} />
-              <Bar dataKey="replied" fill="#a855f7" name="Replied" radius={[2, 2, 0, 0]} />
-              <Bar dataKey="failed" fill="#ef4444" name="Failed" radius={[2, 2, 0, 0]} />
+            <BarChart data={health.perSequence} margin={{ top: 4, right: 4, bottom: 0, left: -8 }}>
+              <CartesianGrid {...cartesianGridDefaults} />
+              <XAxis dataKey="name" {...xAxisDefaults} />
+              <YAxis {...yAxisDefaults} />
+              <Tooltip contentStyle={chartTooltipStyle} />
+              <Bar dataKey="sent" fill="#3b82f6" name="Sent" radius={[6, 6, 0, 0]} maxBarSize={48} animationDuration={800} />
+              <Bar dataKey="replied" fill="#a855f7" name="Replied" radius={[6, 6, 0, 0]} maxBarSize={48} animationDuration={800} />
+              <Bar dataKey="failed" fill="#ef4444" name="Failed" radius={[6, 6, 0, 0]} maxBarSize={48} animationDuration={800} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -238,7 +237,7 @@ export function SequenceHealthDashboard() {
 
       {/* Recent Failures */}
       {health.recentFailures.length > 0 && (
-        <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4">
+        <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4">
           <h3 className="text-sm font-semibold text-destructive mb-2 flex items-center gap-1.5">
             <AlertTriangle className="w-3.5 h-3.5" />
             Recent Failures ({health.totalFailed} total)
@@ -263,7 +262,7 @@ export function SequenceHealthDashboard() {
 
       {/* Empty state */}
       {health.totalSent === 0 && health.totalEnrollments === 0 && (
-        <div className="rounded-lg border border-dashed border-border bg-card p-8 text-center">
+        <div className="rounded-xl border border-dashed border-border bg-card p-8 text-center">
           <Send className="w-8 h-8 mx-auto mb-2 text-muted-foreground opacity-50" />
           <p className="text-sm text-muted-foreground">
             No email sequence activity yet. Create sequences and enroll contacts to see health metrics.

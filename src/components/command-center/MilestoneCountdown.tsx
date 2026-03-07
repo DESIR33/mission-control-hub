@@ -7,12 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useMilestoneCountdown } from "@/hooks/use-milestone-countdown";
 import { useGoalPace } from "@/hooks/use-goal-pace";
-
-const fmtCount = (n: number) => {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return String(Math.round(n));
-};
+import { fmtCount, chartTooltipStyle, cartesianGridDefaults, xAxisDefaults, yAxisDefaults } from "@/lib/chart-theme";
 
 const momentumConfig: Record<string, { label: string; color: string; icon: any }> = {
   accelerating: { label: "Accelerating", color: "text-green-400", icon: ArrowUpRight },
@@ -25,12 +20,12 @@ export function MilestoneCountdown() {
   const { data: pace } = useGoalPace();
 
   if (isLoading) {
-    return <div className="rounded-lg border border-border bg-card p-6 animate-pulse h-96" />;
+    return <div className="rounded-xl border border-border bg-card p-6 animate-pulse h-96" />;
   }
 
   if (!countdown) {
     return (
-      <div className="rounded-lg border border-border bg-card p-6 text-center text-muted-foreground">
+      <div className="rounded-xl border border-border bg-card p-6 text-center text-muted-foreground">
         <Trophy className="w-8 h-8 mx-auto mb-2 opacity-50" />
         <p>No subscriber data available for milestones.</p>
       </div>
@@ -42,9 +37,9 @@ export function MilestoneCountdown() {
   const next = countdown.nextMilestone;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Next Milestone Hero */}
-      <div className="rounded-lg border border-purple-500/30 bg-purple-500/5 p-6 text-center">
+      <div className="rounded-xl border border-purple-500/30 bg-purple-500/5 p-6 text-center">
         <Trophy className="w-10 h-10 mx-auto mb-3 text-purple-400" />
         <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Next Milestone</p>
         <p className="text-4xl font-bold font-mono text-foreground">{next.label}</p>
@@ -68,7 +63,7 @@ export function MilestoneCountdown() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <TrendingUp className="w-3.5 h-3.5 text-green-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Daily Rate</p>
@@ -77,7 +72,7 @@ export function MilestoneCountdown() {
           <p className="text-xs text-muted-foreground">subs/day</p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Flame className="w-3.5 h-3.5 text-orange-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Growth Streak</p>
@@ -86,7 +81,7 @@ export function MilestoneCountdown() {
           <p className="text-xs text-muted-foreground">days</p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <MomentumIcon className={`w-3.5 h-3.5 ${momentum.color}`} />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Momentum</p>
@@ -95,7 +90,7 @@ export function MilestoneCountdown() {
         </div>
 
         {countdown.bestDay && (
-          <div className="rounded-lg border border-border bg-card p-3">
+          <div className="rounded-xl border border-border bg-card p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <Zap className="w-3.5 h-3.5 text-yellow-500" />
               <p className="text-xs text-muted-foreground uppercase tracking-wider">Best Day</p>
@@ -108,7 +103,7 @@ export function MilestoneCountdown() {
 
       {/* Pace Tracking */}
       {pace && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3">Growth Pace to 50K</h3>
           <div className="grid grid-cols-3 gap-3 mb-4">
             <div className="text-center">
@@ -130,20 +125,25 @@ export function MilestoneCountdown() {
           </div>
           {pace.microTargets.length > 0 && (
             <ResponsiveContainer width="100%" height={200}>
-              <AreaChart data={pace.microTargets.slice(-12)}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis dataKey="week" tick={{ fontSize: 9 }} />
-                <YAxis tick={{ fontSize: 10 }} />
+              <AreaChart data={pace.microTargets.slice(-12)} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+                <defs>
+                  <linearGradient id="targetGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#f59e0b" stopOpacity={0.25} />
+                    <stop offset="100%" stopColor="#f59e0b" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="actualGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#22c55e" stopOpacity={0.25} />
+                    <stop offset="100%" stopColor="#22c55e" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid {...cartesianGridDefaults} />
+                <XAxis dataKey="week" {...xAxisDefaults} />
+                <YAxis {...yAxisDefaults} />
                 <Tooltip
-                  contentStyle={{
-                    backgroundColor: "hsl(var(--card))",
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: 8,
-                    fontSize: 12,
-                  }}
+                  contentStyle={chartTooltipStyle}
                 />
-                <Area type="monotone" dataKey="target" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.1} name="Target" strokeDasharray="5 5" />
-                <Area type="monotone" dataKey="actual" stroke="#22c55e" fill="#22c55e" fillOpacity={0.2} name="Actual" />
+                <Area type="monotone" dataKey="target" stroke="#f59e0b" fill="url(#targetGradient)" name="Target" strokeDasharray="5 5" strokeWidth={2.5} dot={false} activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }} />
+                <Area type="monotone" dataKey="actual" stroke="#22c55e" fill="url(#actualGradient)" name="Actual" strokeWidth={2.5} dot={false} activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }} />
               </AreaChart>
             </ResponsiveContainer>
           )}
@@ -151,7 +151,7 @@ export function MilestoneCountdown() {
       )}
 
       {/* All Milestones */}
-      <div className="rounded-lg border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-foreground mb-3">All Milestones</h3>
         <div className="space-y-3">
           {countdown.allMilestones.map((m) => (

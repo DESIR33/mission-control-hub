@@ -1,20 +1,16 @@
 import { useContentROI } from "@/hooks/use-content-roi";
 import {
+  chartTooltipStyle,
+  fmtMoney,
+  xAxisDefaults,
+  yAxisDefaults,
+  cartesianGridDefaults,
+  horizontalBarDefaults,
+} from "@/lib/chart-theme";
+import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
 } from "recharts";
 import { DollarSign, TrendingUp, TrendingDown, Calculator } from "lucide-react";
-
-const fmtMoney = (n: number) => {
-  if (Math.abs(n) >= 1_000) return `$${(n / 1_000).toFixed(1)}K`;
-  return `$${n.toFixed(0)}`;
-};
-
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
 
 export function ContentROICalculator() {
   const { data: summary, isLoading } = useContentROI();
@@ -29,7 +25,7 @@ export function ContentROICalculator() {
 
   if (!summary || summary.items.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-border p-8 text-center">
+      <div className="rounded-xl border border-dashed border-border p-8 text-center">
         <Calculator className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
         <p className="text-sm text-muted-foreground">
           No ROI data yet. Add production costs to your videos in the Video Queue to see ROI calculations.
@@ -45,7 +41,7 @@ export function ContentROICalculator() {
   }));
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <KpiBox label="Total Invested" value={fmtMoney(summary.totalInvested)} icon={<DollarSign className="w-4 h-4 text-blue-500" />} />
@@ -64,19 +60,19 @@ export function ContentROICalculator() {
 
       {/* Profit Bar Chart */}
       {chartData.length > 0 && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3">Profit per Video</h3>
           <ResponsiveContainer width="100%" height={chartData.length * 35 + 40}>
             <BarChart data={chartData} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-              <XAxis type="number" tick={{ fontSize: 10 }} tickFormatter={fmtMoney} />
-              <YAxis type="category" dataKey="title" tick={{ fontSize: 10 }} width={200} />
+              <CartesianGrid {...cartesianGridDefaults} />
+              <XAxis {...xAxisDefaults} type="number" tickFormatter={fmtMoney} />
+              <YAxis {...yAxisDefaults} type="category" dataKey="title" width={200} />
               <Tooltip
-                contentStyle={tooltipStyle}
+                contentStyle={chartTooltipStyle}
                 formatter={(v: number) => [fmtMoney(v), "Profit"]}
                 labelFormatter={(_, payload) => payload?.[0]?.payload?.fullTitle ?? ""}
               />
-              <Bar dataKey="profit" radius={[0, 4, 4, 0]}>
+              <Bar dataKey="profit" {...horizontalBarDefaults} animationDuration={800}>
                 {chartData.map((entry, index) => (
                   <Cell key={index} fill={entry.profit >= 0 ? "#22c55e" : "#ef4444"} />
                 ))}
@@ -87,7 +83,7 @@ export function ContentROICalculator() {
       )}
 
       {/* ROI Table */}
-      <div className="rounded-lg border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-foreground mb-3">Video ROI Breakdown</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
@@ -128,7 +124,7 @@ export function ContentROICalculator() {
 
 function KpiBox({ label, value, icon, valueClass }: { label: string; value: string; icon: React.ReactNode; valueClass?: string }) {
   return (
-    <div className="rounded-lg border border-border bg-card p-3">
+    <div className="rounded-xl border border-border bg-card p-3">
       <div className="flex items-center gap-1.5 mb-1">
         {icon}
         <span className="text-xs text-muted-foreground uppercase tracking-wider">{label}</span>

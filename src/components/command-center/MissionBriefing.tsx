@@ -11,6 +11,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
 } from "recharts";
+import {
+  chartTooltipStyle,
+  xAxisDefaults,
+  yAxisDefaults,
+  barDefaults,
+  chartAnimationDefaults,
+  fmtCount,
+} from "@/lib/chart-theme";
 import { useChannelStats } from "@/hooks/use-youtube-analytics";
 import { useVideoQueue } from "@/hooks/use-video-queue";
 import { useDeals } from "@/hooks/use-deals";
@@ -21,12 +29,6 @@ import { differenceInDays, format, startOfWeek, subWeeks } from "date-fns";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-const fmtCount = (n: number) => {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return String(Math.round(n));
-};
-
 const fmtCurrency = (n: number) => {
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
   if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}K`;
@@ -35,13 +37,6 @@ const fmtCurrency = (n: number) => {
 
 const truncate = (text: string, maxLen = 40): string =>
   text.length > maxLen ? text.substring(0, maxLen) + "\u2026" : text;
-
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
 
 const STATUS_COLORS: Record<string, string> = {
   idea: "border-slate-400/40 bg-slate-400/15 text-slate-400",
@@ -101,7 +96,7 @@ function BriefingSkeleton() {
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="rounded-lg border border-border p-3 space-y-2">
+              <div key={i} className="rounded-xl border border-border p-3 space-y-2">
                 <Skeleton className="h-4 w-full" />
                 <Skeleton className="h-3 w-20" />
                 <Skeleton className="h-3 w-16" />
@@ -368,7 +363,7 @@ export function MissionBriefing() {
               {priorities.map((p, i) => (
                 <div
                   key={p.id}
-                  className="flex items-center gap-3 rounded-lg border border-border bg-muted/30 px-3 py-2.5 transition-colors hover:bg-muted/50"
+                  className="flex items-center gap-3 rounded-xl border border-border bg-muted/30 px-3 py-2.5 transition-colors hover:bg-muted/50"
                 >
                   <span className="flex items-center justify-center w-6 h-6 rounded-full bg-muted text-xs font-bold text-muted-foreground shrink-0">
                     {i + 1}
@@ -401,7 +396,7 @@ export function MissionBriefing() {
               {pipeline.map((v) => (
                 <div
                   key={v.id}
-                  className="rounded-lg border border-border bg-muted/20 p-3 space-y-2"
+                  className="rounded-xl border border-border bg-muted/20 p-3 space-y-2"
                 >
                   <p className="text-sm font-medium text-foreground truncate">
                     {truncate(v.title, 36)}
@@ -517,7 +512,7 @@ export function MissionBriefing() {
               {attentionItems.map((item) => (
                 <div
                   key={item.id}
-                  className={`flex items-center gap-3 rounded-lg border px-3 py-2.5 ${
+                  className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 ${
                     item.severity === "danger"
                       ? "border-red-400/30 bg-red-400/5"
                       : "border-orange-400/30 bg-orange-400/5"
@@ -548,26 +543,23 @@ export function MissionBriefing() {
             <BarChart data={weeklyVelocity} barSize={28}>
               <XAxis
                 dataKey="week"
-                tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
-                axisLine={false}
-                tickLine={false}
+                {...xAxisDefaults}
               />
               <YAxis
                 allowDecimals={false}
-                tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
-                axisLine={false}
-                tickLine={false}
+                {...yAxisDefaults}
                 width={24}
               />
               <Tooltip
-                contentStyle={tooltipStyle}
+                contentStyle={chartTooltipStyle}
                 cursor={{ fill: "hsl(var(--muted))", opacity: 0.3 }}
                 formatter={(value: number) => [`${value} video${value !== 1 ? "s" : ""}`, "Published"]}
               />
               <Bar
                 dataKey="count"
                 fill="#3b82f6"
-                radius={[4, 4, 0, 0]}
+                {...barDefaults}
+                {...chartAnimationDefaults}
               />
             </BarChart>
           </ResponsiveContainer>

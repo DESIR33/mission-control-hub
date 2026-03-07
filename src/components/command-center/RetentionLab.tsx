@@ -13,6 +13,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useVideoAnalytics, type VideoAnalytics } from "@/hooks/use-youtube-analytics-api";
+import {
+  chartTooltipStyle,
+  cartesianGridDefaults,
+  xAxisDefaults,
+  yAxisDefaults,
+  fmtCount,
+  fmtDuration,
+} from "@/lib/chart-theme";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -46,32 +54,9 @@ interface Recommendation {
 
 const COMPARISON_COLORS = ["#3b82f6", "#f59e0b", "#10b981", "#8b5cf6", "#ef4444"];
 
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-const fmtCount = (n: number): string => {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return String(Math.round(n));
-};
-
-const fmtDuration = (seconds: number): string => {
-  if (seconds < 60) return `${Math.round(seconds)}s`;
-  const m = Math.floor(seconds / 60);
-  const s = Math.round(seconds % 60);
-  if (m >= 60) {
-    const h = Math.floor(m / 60);
-    const rm = m % 60;
-    return `${h}h ${rm}m`;
-  }
-  return s > 0 ? `${m}m ${s}s` : `${m}m`;
-};
 
 /**
  * Generates a realistic-looking retention curve based on average view percentage
@@ -341,7 +326,7 @@ export function RetentionLab() {
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-5">
         <Skeleton className="h-10 w-48" />
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <Skeleton className="h-24" />
@@ -380,10 +365,10 @@ export function RetentionLab() {
   // ── Render ─────────────────────────────────────────────────────────────
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Key Metrics */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <BarChart3 className="w-3.5 h-3.5 text-purple-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">
@@ -396,7 +381,7 @@ export function RetentionLab() {
           <p className="text-xs text-muted-foreground">YouTube avg ~40%</p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Zap className="w-3.5 h-3.5 text-yellow-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">
@@ -411,7 +396,7 @@ export function RetentionLab() {
           <p className="text-xs text-muted-foreground">Retained at 30s</p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Clock className="w-3.5 h-3.5 text-blue-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">
@@ -426,7 +411,7 @@ export function RetentionLab() {
           <p className="text-xs text-muted-foreground">At 50% of video</p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Target className="w-3.5 h-3.5 text-green-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">
@@ -515,15 +500,15 @@ export function RetentionLab() {
           {/* Comparison Chart */}
           {comparisonProfiles.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={comparisonData}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+              <LineChart data={comparisonData} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+                <CartesianGrid {...cartesianGridDefaults} />
                 <XAxis
+                  {...xAxisDefaults}
                   dataKey="label"
-                  tick={{ fontSize: 10 }}
                   label={{ value: "% through video", position: "insideBottom", offset: -5, fontSize: 10 }}
                 />
                 <YAxis
-                  tick={{ fontSize: 10 }}
+                  {...yAxisDefaults}
                   domain={[0, 100]}
                   unit="%"
                   label={{
@@ -535,7 +520,7 @@ export function RetentionLab() {
                   }}
                 />
                 <Tooltip
-                  contentStyle={tooltipStyle}
+                  contentStyle={chartTooltipStyle}
                   formatter={(value: number, name: string) => {
                     const profile = comparisonProfiles.find((p) => p.videoId === name);
                     const label = profile
@@ -564,8 +549,9 @@ export function RetentionLab() {
                     type="monotone"
                     dataKey={p.videoId}
                     stroke={COMPARISON_COLORS[idx]}
-                    strokeWidth={2}
+                    strokeWidth={2.5}
                     dot={false}
+                    activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }}
                     name={p.videoId}
                   />
                 ))}
@@ -595,7 +581,7 @@ export function RetentionLab() {
               .map((profile) => (
                 <div
                   key={profile.videoId}
-                  className="rounded-lg border border-border p-3 space-y-2"
+                  className="rounded-xl border border-border p-3 space-y-2"
                 >
                   <div className="flex items-center justify-between gap-2">
                     <p className="text-xs font-medium text-foreground truncate flex-1">
@@ -624,12 +610,12 @@ export function RetentionLab() {
                     </div>
                   </div>
                   <ResponsiveContainer width="100%" height={120}>
-                    <LineChart data={profile.retentionCurve}>
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                      <XAxis dataKey="label" tick={{ fontSize: 8 }} interval={4} />
-                      <YAxis tick={{ fontSize: 8 }} domain={[0, 100]} unit="%" />
+                    <LineChart data={profile.retentionCurve} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+                      <CartesianGrid {...cartesianGridDefaults} />
+                      <XAxis {...xAxisDefaults} dataKey="label" interval={4} />
+                      <YAxis {...yAxisDefaults} domain={[0, 100]} unit="%" />
                       <Tooltip
-                        contentStyle={tooltipStyle}
+                        contentStyle={chartTooltipStyle}
                         formatter={(value: number) => [`${value}%`, "Retention"]}
                         labelFormatter={(label) => `${label} through video`}
                       />
@@ -637,8 +623,9 @@ export function RetentionLab() {
                         type="monotone"
                         dataKey="retention"
                         stroke="#3b82f6"
-                        strokeWidth={2}
+                        strokeWidth={2.5}
                         dot={false}
+                        activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }}
                       />
                     </LineChart>
                   </ResponsiveContainer>

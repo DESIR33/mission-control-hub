@@ -9,33 +9,29 @@ import {
 } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { useSubAttribution } from "@/hooks/use-sub-attribution";
-
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
+import {
+  chartTooltipStyle,
+  cartesianGridDefaults,
+  xAxisDefaults,
+  yAxisDefaults,
+  horizontalBarDefaults,
+  pieDefaults,
+  fmtCount,
+} from "@/lib/chart-theme";
 
 const COLORS = ["#22c55e", "#3b82f6", "#f59e0b", "#8b5cf6", "#ec4899", "#06b6d4", "#f97316"];
-
-const fmtCount = (n: number) => {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return String(Math.round(n));
-};
 
 export function SubGrowthAttribution() {
   const { data: attribution, isLoading } = useSubAttribution();
   const [showAll, setShowAll] = useState(false);
 
   if (isLoading) {
-    return <div className="rounded-lg border border-border bg-card p-6 animate-pulse h-96" />;
+    return <div className="rounded-xl border border-border bg-card p-6 animate-pulse h-96" />;
   }
 
   if (!attribution) {
     return (
-      <div className="rounded-lg border border-border bg-card p-6 text-center text-muted-foreground">
+      <div className="rounded-xl border border-border bg-card p-6 text-center text-muted-foreground">
         <UserPlus className="w-8 h-8 mx-auto mb-2 opacity-50" />
         <p>No subscriber attribution data available yet.</p>
         <p className="text-xs mt-1">Data appears after YouTube Analytics syncs video-level subscriber data.</p>
@@ -56,10 +52,10 @@ export function SubGrowthAttribution() {
   }));
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* KPI Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <UserPlus className="w-3.5 h-3.5 text-green-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Subs</p>
@@ -68,7 +64,7 @@ export function SubGrowthAttribution() {
           <p className="text-xs text-muted-foreground">from tracked content</p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Award className="w-3.5 h-3.5 text-yellow-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Best Video</p>
@@ -81,7 +77,7 @@ export function SubGrowthAttribution() {
           </p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Film className="w-3.5 h-3.5 text-blue-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Best Type</p>
@@ -90,7 +86,7 @@ export function SubGrowthAttribution() {
           <p className="text-xs text-muted-foreground">highest net subs</p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <TrendingUp className="w-3.5 h-3.5 text-purple-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Avg Efficiency</p>
@@ -103,15 +99,15 @@ export function SubGrowthAttribution() {
       </div>
 
       {/* Subscriber Gain by Video */}
-      <div className="rounded-lg border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-foreground mb-3">Top Videos by Subscriber Gain</h3>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={chartData} layout="vertical" margin={{ left: 10 }}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-            <XAxis type="number" tick={{ fontSize: 10 }} tickFormatter={fmtCount} />
-            <YAxis type="category" dataKey="name" tick={{ fontSize: 9 }} width={150} />
-            <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => fmtCount(v)} />
-            <Bar dataKey="subs" fill="#22c55e" radius={[0, 4, 4, 0]} name="Net Subscribers" />
+            <CartesianGrid {...cartesianGridDefaults} />
+            <XAxis type="number" {...xAxisDefaults} tickFormatter={fmtCount} />
+            <YAxis type="category" dataKey="name" {...yAxisDefaults} width={150} />
+            <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => fmtCount(v)} />
+            <Bar dataKey="subs" fill="#22c55e" {...horizontalBarDefaults} name="Net Subscribers" animationDuration={800} />
           </BarChart>
         </ResponsiveContainer>
         {attribution.videos.length > 15 && (
@@ -127,7 +123,7 @@ export function SubGrowthAttribution() {
 
       {/* Category Breakdown */}
       {pieData.length > 0 && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3">Subscribers by Content Type</h3>
           <div className="flex items-center gap-6">
             <ResponsiveContainer width="50%" height={200}>
@@ -136,9 +132,9 @@ export function SubGrowthAttribution() {
                   data={pieData}
                   dataKey="value"
                   nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={80}
+                  innerRadius="55%"
+                  outerRadius="85%"
+                  strokeWidth={0}
                   label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                   labelLine={false}
                 >
@@ -146,7 +142,7 @@ export function SubGrowthAttribution() {
                     <Cell key={i} fill={COLORS[i % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip contentStyle={tooltipStyle} />
+                <Tooltip contentStyle={chartTooltipStyle} />
               </PieChart>
             </ResponsiveContainer>
             <div className="flex-1 space-y-2">
@@ -166,7 +162,7 @@ export function SubGrowthAttribution() {
 
       {/* Recommendations */}
       {attribution.recommendations.length > 0 && (
-        <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-4">
+        <div className="rounded-xl border border-green-500/20 bg-green-500/5 p-4">
           <h3 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
             <Lightbulb className="w-3.5 h-3.5 text-green-500" />
             Recommendations

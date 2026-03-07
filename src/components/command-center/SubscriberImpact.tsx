@@ -4,26 +4,22 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
 } from "recharts";
 import { Users, TrendingUp, Award, Target } from "lucide-react";
-
-const fmtCount = (n: number) => {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return String(n);
-};
-
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
+import {
+  chartTooltipStyle,
+  fmtCount,
+  xAxisDefaults,
+  yAxisDefaults,
+  cartesianGridDefaults,
+  horizontalBarDefaults,
+  chartAnimationDefaults,
+} from "@/lib/chart-theme";
 
 export function SubscriberImpact() {
   const { data: summary } = useSubscriberImpact();
 
   if (!summary || summary.items.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-border p-8 text-center">
+      <div className="rounded-xl border border-dashed border-border p-8 text-center">
         <Users className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
         <p className="text-sm text-muted-foreground">
           No subscriber impact data yet. Sync YouTube Analytics to see which videos drive the most subscriptions.
@@ -48,7 +44,7 @@ export function SubscriberImpact() {
     }));
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <KpiBox
@@ -77,19 +73,19 @@ export function SubscriberImpact() {
 
       {/* Top 10 bar chart */}
       {chartData.length > 0 && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3">Top 10 Videos by Net Subscribers</h3>
           <ResponsiveContainer width="100%" height={chartData.length * 35 + 40}>
             <BarChart data={chartData} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-              <XAxis type="number" tick={{ fontSize: 10 }} />
-              <YAxis type="category" dataKey="title" tick={{ fontSize: 10 }} width={220} />
+              <CartesianGrid {...cartesianGridDefaults} />
+              <XAxis type="number" {...xAxisDefaults} />
+              <YAxis type="category" dataKey="title" {...yAxisDefaults} width={220} />
               <Tooltip
-                contentStyle={tooltipStyle}
+                contentStyle={chartTooltipStyle}
                 formatter={(v: number) => [v.toLocaleString(), "Net Subs"]}
                 labelFormatter={(_, payload) => payload?.[0]?.payload?.fullTitle ?? ""}
               />
-              <Bar dataKey="netSubs" radius={[0, 4, 4, 0]}>
+              <Bar dataKey="netSubs" {...horizontalBarDefaults} {...chartAnimationDefaults}>
                 {chartData.map((entry, index) => (
                   <Cell key={index} fill={entry.netSubs >= 0 ? "#22c55e" : "#ef4444"} />
                 ))}
@@ -101,15 +97,15 @@ export function SubscriberImpact() {
 
       {/* Scatter plot */}
       {scatterData.length > 2 && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-1">Views vs Subscribers</h3>
           <p className="text-xs text-muted-foreground mb-3">Outliers above the trend line convert unusually well</p>
           <ResponsiveContainer width="100%" height={260}>
             <ScatterChart>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-              <XAxis dataKey="views" name="Views" tick={{ fontSize: 10 }} tickFormatter={fmtCount} />
-              <YAxis dataKey="subs" name="Net Subs" tick={{ fontSize: 10 }} />
-              <Tooltip contentStyle={tooltipStyle} />
+              <CartesianGrid {...cartesianGridDefaults} />
+              <XAxis dataKey="views" name="Views" {...xAxisDefaults} tickFormatter={fmtCount} />
+              <YAxis dataKey="subs" name="Net Subs" {...yAxisDefaults} />
+              <Tooltip contentStyle={chartTooltipStyle} />
               <Scatter data={scatterData} fill="#22c55e" fillOpacity={0.7} />
             </ScatterChart>
           </ResponsiveContainer>
@@ -117,7 +113,7 @@ export function SubscriberImpact() {
       )}
 
       {/* Table */}
-      <div className="rounded-lg border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-foreground mb-3">All Videos — Subscriber Impact</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
@@ -159,7 +155,7 @@ export function SubscriberImpact() {
 
 function KpiBox({ label, value, subtitle, icon }: { label: string; value: string; subtitle?: string; icon: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-border bg-card p-3">
+    <div className="rounded-xl border border-border bg-card p-3">
       <div className="flex items-center gap-1.5 mb-1">
         {icon}
         <span className="text-xs text-muted-foreground uppercase tracking-wider">{label}</span>

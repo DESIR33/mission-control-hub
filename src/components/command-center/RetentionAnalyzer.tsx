@@ -8,19 +8,7 @@ import {
 } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { useRetentionAnalysis } from "@/hooks/use-retention-analysis";
-
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
-
-const fmtCount = (n: number) => {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return String(Math.round(n));
-};
+import { fmtCount, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, lineDefaults } from "@/lib/chart-theme";
 
 const categoryColor: Record<string, string> = {
   excellent: "#22c55e",
@@ -40,12 +28,12 @@ export function RetentionAnalyzer() {
   const { data: analysis, isLoading } = useRetentionAnalysis();
 
   if (isLoading) {
-    return <div className="rounded-lg border border-border bg-card p-6 animate-pulse h-96" />;
+    return <div className="rounded-xl border border-border bg-card p-6 animate-pulse h-96" />;
   }
 
   if (!analysis) {
     return (
-      <div className="rounded-lg border border-border bg-card p-6 text-center text-muted-foreground">
+      <div className="rounded-xl border border-border bg-card p-6 text-center text-muted-foreground">
         <Clock className="w-8 h-8 mx-auto mb-2 opacity-50" />
         <p>No retention data available yet.</p>
       </div>
@@ -53,10 +41,10 @@ export function RetentionAnalyzer() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Clock className="w-3.5 h-3.5 text-blue-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Avg Retention</p>
@@ -65,7 +53,7 @@ export function RetentionAnalyzer() {
           <p className="text-xs text-muted-foreground">YouTube avg ~40%</p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <BarChart3 className="w-3.5 h-3.5 text-purple-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Median</p>
@@ -73,7 +61,7 @@ export function RetentionAnalyzer() {
           <p className="text-lg font-bold font-mono text-foreground">{analysis.medianRetention.toFixed(1)}%</p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <TrendingUp className="w-3.5 h-3.5 text-green-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Top 5 Avg</p>
@@ -88,7 +76,7 @@ export function RetentionAnalyzer() {
 
       {/* Insights */}
       {analysis.insights.length > 0 && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-2">Insights</h3>
           <ul className="space-y-1">
             {analysis.insights.map((insight, i) => (
@@ -102,15 +90,15 @@ export function RetentionAnalyzer() {
       )}
 
       {/* Retention Distribution */}
-      <div className="rounded-lg border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-foreground mb-3">Retention Distribution</h3>
         <ResponsiveContainer width="100%" height={200}>
           <BarChart data={analysis.buckets}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-            <XAxis dataKey="range" tick={{ fontSize: 10 }} />
-            <YAxis tick={{ fontSize: 10 }} />
-            <Tooltip contentStyle={tooltipStyle} />
-            <Bar dataKey="count" name="Videos" radius={[4, 4, 0, 0]}>
+            <CartesianGrid {...cartesianGridDefaults} />
+            <XAxis dataKey="range" {...xAxisDefaults} />
+            <YAxis {...yAxisDefaults} />
+            <Tooltip contentStyle={chartTooltipStyle} />
+            <Bar dataKey="count" name="Videos" radius={[6, 6, 0, 0]} maxBarSize={48}>
               {analysis.buckets.map((b, i) => (
                 <Cell key={i} fill={["#ef4444", "#eab308", "#3b82f6", "#22c55e", "#22c55e"][i]} />
               ))}
@@ -120,15 +108,15 @@ export function RetentionAnalyzer() {
       </div>
 
       {/* Retention vs Views Scatter */}
-      <div className="rounded-lg border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-foreground mb-3">Retention vs Views</h3>
         <ResponsiveContainer width="100%" height={250}>
           <ScatterChart>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-            <XAxis dataKey="retention" name="Retention %" tick={{ fontSize: 10 }} unit="%" />
-            <YAxis dataKey="views" name="Views" tick={{ fontSize: 10 }} tickFormatter={fmtCount} />
+            <CartesianGrid {...cartesianGridDefaults} />
+            <XAxis dataKey="retention" name="Retention %" {...xAxisDefaults} unit="%" />
+            <YAxis dataKey="views" name="Views" {...yAxisDefaults} tickFormatter={fmtCount} />
             <Tooltip
-              contentStyle={tooltipStyle}
+              contentStyle={chartTooltipStyle}
               formatter={(v: number, name: string) => [name === "Views" ? fmtCount(v) : `${v}%`, name]}
               labelFormatter={() => ""}
             />
@@ -139,15 +127,15 @@ export function RetentionAnalyzer() {
 
       {/* Retention Trend */}
       {analysis.retentionTrend.length > 5 && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3">Retention Trend</h3>
           <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={analysis.retentionTrend}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-              <XAxis dataKey="date" tick={{ fontSize: 10 }} interval="preserveStartEnd" />
-              <YAxis tick={{ fontSize: 10 }} unit="%" />
-              <Tooltip contentStyle={tooltipStyle} />
-              <Line type="monotone" dataKey="avgRetention" stroke="#3b82f6" dot={false} name="Avg Retention %" />
+            <LineChart data={analysis.retentionTrend} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+              <CartesianGrid {...cartesianGridDefaults} />
+              <XAxis dataKey="date" {...xAxisDefaults} interval="preserveStartEnd" />
+              <YAxis {...yAxisDefaults} unit="%" />
+              <Tooltip contentStyle={chartTooltipStyle} />
+              <Line type="monotone" dataKey="avgRetention" stroke="#3b82f6" {...lineDefaults} name="Avg Retention %" />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -155,7 +143,7 @@ export function RetentionAnalyzer() {
 
       {/* Top & Bottom Videos */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-1.5">
             <TrendingUp className="w-3.5 h-3.5 text-green-500" />
             Highest Retention
@@ -173,7 +161,7 @@ export function RetentionAnalyzer() {
           </div>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-1.5">
             <TrendingDown className="w-3.5 h-3.5 text-red-500" />
             Lowest Retention

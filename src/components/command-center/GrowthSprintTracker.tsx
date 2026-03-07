@@ -16,6 +16,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { chartTooltipStyle, xAxisDefaults } from "@/lib/chart-theme";
 import { differenceInDays, format, parseISO } from "date-fns";
 import {
   useCurrentSprint,
@@ -122,7 +123,7 @@ function ActiveSprintCard({
         </p>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-5">
         {/* Progress ring + sub target */}
         <div className="flex items-center gap-4">
           <div className="relative">
@@ -232,7 +233,7 @@ function NewSprintForm({ onCreated }: { onCreated?: () => void }) {
         </p>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-5">
         {/* Sub target */}
         <div>
           <label className="text-xs text-muted-foreground uppercase tracking-wider">
@@ -385,29 +386,24 @@ function SprintHistorySection({ sprints }: { sprints: GrowthSprint[] }) {
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-5">
         {/* Mini bar chart */}
         {chartData.length > 1 && (
           <ResponsiveContainer width="100%" height={120}>
             <BarChart data={chartData}>
               <XAxis
                 dataKey="week"
-                tick={{ fontSize: 9 }}
-                tickLine={false}
-                axisLine={false}
+                {...xAxisDefaults}
               />
               <Tooltip
-                contentStyle={{
-                  backgroundColor: "hsl(var(--card))",
-                  border: "1px solid hsl(var(--border))",
-                  borderRadius: 8,
-                  fontSize: 12,
-                }}
+                contentStyle={chartTooltipStyle}
                 formatter={(value: number) => [`${value}%`, "Completion"]}
               />
               <Bar
                 dataKey="rate"
-                radius={[3, 3, 0, 0]}
+                radius={[6, 6, 0, 0]}
+                maxBarSize={48}
+                animationDuration={800}
                 fill="hsl(var(--primary))"
               />
             </BarChart>
@@ -484,9 +480,9 @@ export function GrowthSprintTracker() {
 
   if (loadingCurrent) {
     return (
-      <div className="space-y-4">
-        <Skeleton className="h-64 w-full rounded-lg" />
-        <Skeleton className="h-48 w-full rounded-lg" />
+      <div className="space-y-5">
+        <Skeleton className="h-64 w-full rounded-xl" />
+        <Skeleton className="h-48 w-full rounded-xl" />
       </div>
     );
   }
@@ -497,7 +493,7 @@ export function GrowthSprintTracker() {
   );
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {currentSprint ? (
         <ActiveSprintCard
           sprint={currentSprint}
@@ -508,7 +504,7 @@ export function GrowthSprintTracker() {
       )}
 
       {loadingHistory ? (
-        <Skeleton className="h-48 w-full rounded-lg" />
+        <Skeleton className="h-48 w-full rounded-xl" />
       ) : (
         <SprintHistorySection sprints={pastSprints} />
       )}

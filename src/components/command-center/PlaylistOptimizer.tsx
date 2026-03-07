@@ -8,30 +8,26 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { usePlaylistOptimization } from "@/hooks/use-playlist-performance";
-
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
-
-const fmtCount = (n: number) => {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return String(Math.round(n));
-};
+import {
+  chartTooltipStyle,
+  cartesianGridDefaults,
+  xAxisDefaults,
+  yAxisDefaults,
+  horizontalBarDefaults,
+  chartAnimationDefaults,
+  fmtCount,
+} from "@/lib/chart-theme";
 
 export function PlaylistOptimizer() {
   const { data: optimization, isLoading } = usePlaylistOptimization();
 
   if (isLoading) {
-    return <div className="rounded-lg border border-border bg-card p-6 animate-pulse h-96" />;
+    return <div className="rounded-xl border border-border bg-card p-6 animate-pulse h-96" />;
   }
 
   if (!optimization) {
     return (
-      <div className="rounded-lg border border-border bg-card p-6 text-center text-muted-foreground">
+      <div className="rounded-xl border border-border bg-card p-6 text-center text-muted-foreground">
         <ListVideo className="w-8 h-8 mx-auto mb-2 opacity-50" />
         <p>No playlist data available. Add playlist analytics to see optimization suggestions.</p>
       </div>
@@ -45,10 +41,10 @@ export function PlaylistOptimizer() {
   }));
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <ListVideo className="w-3.5 h-3.5 text-blue-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Playlists</p>
@@ -56,7 +52,7 @@ export function PlaylistOptimizer() {
           <p className="text-lg font-bold font-mono text-foreground">{optimization.playlists.length}</p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Eye className="w-3.5 h-3.5 text-green-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Views</p>
@@ -64,7 +60,7 @@ export function PlaylistOptimizer() {
           <p className="text-lg font-bold font-mono text-foreground">{fmtCount(optimization.totalViews)}</p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Clock className="w-3.5 h-3.5 text-purple-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Avg Completion</p>
@@ -72,7 +68,7 @@ export function PlaylistOptimizer() {
           <p className="text-lg font-bold font-mono text-foreground">{optimization.avgCompletionRate.toFixed(1)}%</p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <AlertTriangle className="w-3.5 h-3.5 text-yellow-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Underperform</p>
@@ -83,7 +79,7 @@ export function PlaylistOptimizer() {
 
       {/* Insights */}
       {optimization.insights.length > 0 && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-2">Insights</h3>
           <ul className="space-y-1">
             {optimization.insights.map((insight, i) => (
@@ -98,15 +94,15 @@ export function PlaylistOptimizer() {
 
       {/* Views Chart */}
       {chartData.length > 0 && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3">Playlist Views</h3>
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={chartData} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-              <XAxis type="number" tick={{ fontSize: 10 }} tickFormatter={fmtCount} />
-              <YAxis type="category" dataKey="title" width={130} tick={{ fontSize: 9 }} />
-              <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => fmtCount(v)} />
-              <Bar dataKey="views" fill="#3b82f6" radius={[0, 4, 4, 0]} name="Views" />
+              <CartesianGrid {...cartesianGridDefaults} />
+              <XAxis type="number" {...xAxisDefaults} tickFormatter={fmtCount} />
+              <YAxis type="category" dataKey="title" width={130} {...yAxisDefaults} />
+              <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => fmtCount(v)} />
+              <Bar dataKey="views" fill="#3b82f6" {...horizontalBarDefaults} {...chartAnimationDefaults} name="Views" />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -115,7 +111,7 @@ export function PlaylistOptimizer() {
       {/* Playlist Cards */}
       <div className="space-y-2">
         {optimization.playlists.map((playlist) => (
-          <div key={playlist.id} className="rounded-lg border border-border bg-card p-3">
+          <div key={playlist.id} className="rounded-xl border border-border bg-card p-3">
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm font-medium text-foreground">{playlist.playlist_title}</p>
               <Badge variant="secondary" className="text-xs">{playlist.video_count} videos</Badge>

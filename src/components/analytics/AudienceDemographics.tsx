@@ -6,6 +6,7 @@ import {
   PieChart, Pie, Cell,
 } from "recharts";
 import type { Demographics } from "@/hooks/use-youtube-analytics-api";
+import { chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, barDefaults } from "@/lib/chart-theme";
 
 const GENDER_COLORS: Record<string, string> = {
   male: "#3b82f6",
@@ -39,12 +40,6 @@ const AGE_LABELS: Record<string, string> = {
   "age65-": "65+",
 };
 
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
 
 interface Props {
   data: Demographics[];
@@ -95,7 +90,7 @@ export function AudienceDemographics({ data }: Props) {
 
   if (data.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-border bg-card p-8 text-center">
+      <div className="rounded-xl border border-dashed border-border bg-card p-8 text-center">
         <Users className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
         <p className="text-sm text-muted-foreground">
           No demographics data available. Sync YouTube Analytics to see your audience breakdown.
@@ -105,10 +100,10 @@ export function AudienceDemographics({ data }: Props) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Summary */}
       {dominantDemo && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <div className="flex items-center gap-2 mb-2">
             <Users className="w-4 h-4 text-primary" />
             <h3 className="text-sm font-semibold text-foreground">Audience Profile</h3>
@@ -123,7 +118,7 @@ export function AudienceDemographics({ data }: Props) {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Gender Pie Chart */}
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3">Gender Distribution</h3>
           <ResponsiveContainer width="100%" height={250}>
             <PieChart>
@@ -131,10 +126,12 @@ export function AudienceDemographics({ data }: Props) {
                 data={genderData}
                 cx="50%"
                 cy="50%"
-                innerRadius={60}
-                outerRadius={90}
+                innerRadius="55%"
+                outerRadius="85%"
                 paddingAngle={3}
                 dataKey="value"
+                strokeWidth={0}
+                animationDuration={800}
                 label={({ name, value }) => `${name}: ${value}%`}
               >
                 {genderData.map((entry, i) => (
@@ -142,7 +139,7 @@ export function AudienceDemographics({ data }: Props) {
                 ))}
               </Pie>
               <Tooltip
-                contentStyle={tooltipStyle}
+                contentStyle={chartTooltipStyle}
                 formatter={(v: number) => [`${v}%`, "Viewers"]}
               />
             </PieChart>
@@ -150,28 +147,28 @@ export function AudienceDemographics({ data }: Props) {
         </div>
 
         {/* Age Group Stacked Bar Chart */}
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3">Age Group Breakdown</h3>
           <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={ageData}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-              <XAxis dataKey="ageGroup" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => `${v}%`} />
+            <BarChart data={ageData} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+              <CartesianGrid {...cartesianGridDefaults} />
+              <XAxis dataKey="ageGroup" {...xAxisDefaults} />
+              <YAxis {...yAxisDefaults} tickFormatter={(v) => `${v}%`} />
               <Tooltip
-                contentStyle={tooltipStyle}
+                contentStyle={chartTooltipStyle}
                 formatter={(v: number, name: string) => [`${v.toFixed(1)}%`, GENDER_LABELS[name] ?? name]}
               />
               <Legend formatter={(value) => GENDER_LABELS[value] ?? value} />
-              <Bar dataKey="male" stackId="a" fill="#3b82f6" radius={[0, 0, 0, 0]} />
-              <Bar dataKey="female" stackId="a" fill="#ec4899" radius={[0, 0, 0, 0]} />
-              <Bar dataKey="other" stackId="a" fill="#8b5cf6" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="male" stackId="a" fill="#3b82f6" radius={[0, 0, 0, 0]} maxBarSize={48} animationDuration={800} />
+              <Bar dataKey="female" stackId="a" fill="#ec4899" radius={[0, 0, 0, 0]} maxBarSize={48} animationDuration={800} />
+              <Bar dataKey="other" stackId="a" fill="#8b5cf6" radius={[6, 6, 0, 0]} maxBarSize={48} animationDuration={800} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       {/* Data table */}
-      <div className="rounded-lg border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-foreground mb-3">Detailed Breakdown</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">

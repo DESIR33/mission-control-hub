@@ -11,19 +11,14 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRevenueForecast } from "@/hooks/use-revenue-forecast";
 import { useRateCard } from "@/hooks/use-rate-card";
-
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
-
-const fmtMoney = (n: number) => {
-  if (n >= 10_000) return `$${(n / 1_000).toFixed(1)}K`;
-  if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}K`;
-  return `$${n.toFixed(2)}`;
-};
+import {
+  chartTooltipStyle,
+  cartesianGridDefaults,
+  xAxisDefaults,
+  yAxisDefaults,
+  lineDefaults,
+  fmtMoney,
+} from "@/lib/chart-theme";
 
 export function RevenueIntelligence() {
   const { data: forecast, isLoading: forecastLoading } = useRevenueForecast();
@@ -40,7 +35,7 @@ export function RevenueIntelligence() {
             Revenue Intelligence
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-5">
           <Skeleton className="h-8 w-full" />
           <Skeleton className="h-48 w-full" />
           <Skeleton className="h-32 w-full" />
@@ -83,7 +78,7 @@ export function RevenueIntelligence() {
       <CardContent className="space-y-6">
         {/* KPI Row: Current vs Projected */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="rounded-lg border border-border bg-card p-3">
+          <div className="rounded-xl border border-border bg-card p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <DollarSign className="w-3.5 h-3.5 text-green-500" />
               <p className="text-xs text-muted-foreground uppercase tracking-wider">
@@ -96,7 +91,7 @@ export function RevenueIntelligence() {
             <p className="text-xs text-muted-foreground">current</p>
           </div>
 
-          <div className="rounded-lg border border-border bg-card p-3">
+          <div className="rounded-xl border border-border bg-card p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <Calendar className="w-3.5 h-3.5 text-blue-500" />
               <p className="text-xs text-muted-foreground uppercase tracking-wider">
@@ -109,7 +104,7 @@ export function RevenueIntelligence() {
             <p className="text-xs text-muted-foreground">next month</p>
           </div>
 
-          <div className="rounded-lg border border-border bg-card p-3">
+          <div className="rounded-xl border border-border bg-card p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <TrendingUp className="w-3.5 h-3.5 text-purple-500" />
               <p className="text-xs text-muted-foreground uppercase tracking-wider">
@@ -122,7 +117,7 @@ export function RevenueIntelligence() {
             <p className="text-xs text-muted-foreground">projected</p>
           </div>
 
-          <div className="rounded-lg border border-border bg-card p-3">
+          <div className="rounded-xl border border-border bg-card p-3">
             <div className="flex items-center gap-1.5 mb-1">
               {forecast.monthlyGrowthRate >= 0 ? (
                 <TrendingUp className="w-3.5 h-3.5 text-green-500" />
@@ -147,15 +142,15 @@ export function RevenueIntelligence() {
         </div>
 
         {/* 3-Scenario Forecast Chart */}
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3">
             90-Day Revenue Forecast (3 Scenarios)
           </h3>
           <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={forecast.forecastPoints}>
+            <AreaChart data={forecast.forecastPoints} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
               <defs>
                 <linearGradient id="gradRevActual" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3} />
+                  <stop offset="5%" stopColor="#22c55e" stopOpacity={0.25} />
                   <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient
@@ -165,7 +160,7 @@ export function RevenueIntelligence() {
                   x2="0"
                   y2="1"
                 >
-                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.25} />
                   <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient
@@ -175,7 +170,7 @@ export function RevenueIntelligence() {
                   x2="0"
                   y2="1"
                 >
-                  <stop offset="5%" stopColor="#22c55e" stopOpacity={0.15} />
+                  <stop offset="5%" stopColor="#22c55e" stopOpacity={0.25} />
                   <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient
@@ -185,25 +180,22 @@ export function RevenueIntelligence() {
                   x2="0"
                   y2="1"
                 >
-                  <stop offset="5%" stopColor="#eab308" stopOpacity={0.15} />
+                  <stop offset="5%" stopColor="#eab308" stopOpacity={0.25} />
                   <stop offset="95%" stopColor="#eab308" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid
-                strokeDasharray="3 3"
-                className="stroke-border"
-              />
+              <CartesianGrid {...cartesianGridDefaults} />
               <XAxis
                 dataKey="date"
-                tick={{ fontSize: 10 }}
+                {...xAxisDefaults}
                 interval="preserveStartEnd"
               />
               <YAxis
-                tick={{ fontSize: 10 }}
+                {...yAxisDefaults}
                 tickFormatter={(v) => `$${v}`}
               />
               <Tooltip
-                contentStyle={tooltipStyle}
+                contentStyle={chartTooltipStyle}
                 formatter={(v: number) => fmtMoney(v)}
               />
               <Legend />
@@ -213,6 +205,9 @@ export function RevenueIntelligence() {
                 stroke="#22c55e"
                 fill="url(#gradRevActual)"
                 name="Actual"
+                strokeWidth={2.5}
+                dot={false}
+                activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }}
               />
               <Area
                 type="monotone"
@@ -222,6 +217,9 @@ export function RevenueIntelligence() {
                 strokeDasharray="4 4"
                 name="Aggressive"
                 strokeOpacity={0.6}
+                strokeWidth={2.5}
+                dot={false}
+                activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }}
               />
               <Area
                 type="monotone"
@@ -230,6 +228,9 @@ export function RevenueIntelligence() {
                 fill="url(#gradRevForecast)"
                 strokeDasharray="5 5"
                 name="Moderate"
+                strokeWidth={2.5}
+                dot={false}
+                activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }}
               />
               <Area
                 type="monotone"
@@ -239,13 +240,16 @@ export function RevenueIntelligence() {
                 strokeDasharray="4 4"
                 name="Conservative"
                 strokeOpacity={0.6}
+                strokeWidth={2.5}
+                dot={false}
+                activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }}
               />
             </AreaChart>
           </ResponsiveContainer>
         </div>
 
         {/* Revenue Breakdown by Source */}
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-1.5">
             <BarChart3 className="w-3.5 h-3.5 text-blue-500" />
             Revenue Breakdown by Source
@@ -281,7 +285,7 @@ export function RevenueIntelligence() {
 
         {/* Rate Card Section */}
         {rateCard && (
-          <div className="rounded-lg border border-border bg-card p-4">
+          <div className="rounded-xl border border-border bg-card p-4">
             <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-1.5">
               <CreditCard className="w-3.5 h-3.5 text-purple-500" />
               Suggested Rate Card
@@ -305,7 +309,7 @@ export function RevenueIntelligence() {
               {rateCard.rates.map((tier) => (
                 <div
                   key={tier.type}
-                  className="flex items-center gap-3 rounded-lg border border-border p-2"
+                  className="flex items-center gap-3 rounded-xl border border-border p-2"
                 >
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-medium text-foreground">
@@ -341,35 +345,32 @@ export function RevenueIntelligence() {
 
         {/* RPM Trend */}
         {forecast.rpmTrend.length > 5 && (
-          <div className="rounded-lg border border-border bg-card p-4">
+          <div className="rounded-xl border border-border bg-card p-4">
             <h3 className="text-sm font-semibold text-foreground mb-3">
               RPM Trend (Revenue per 1,000 views) &middot; Avg $
               {forecast.avgRpm.toFixed(2)}
             </h3>
             <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={forecast.rpmTrend}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  className="stroke-border"
-                />
+              <LineChart data={forecast.rpmTrend} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
+                <CartesianGrid {...cartesianGridDefaults} />
                 <XAxis
                   dataKey="date"
-                  tick={{ fontSize: 10 }}
+                  {...xAxisDefaults}
                   interval="preserveStartEnd"
                 />
                 <YAxis
-                  tick={{ fontSize: 10 }}
+                  {...yAxisDefaults}
                   tickFormatter={(v) => `$${v.toFixed(1)}`}
                 />
                 <Tooltip
-                  contentStyle={tooltipStyle}
+                  contentStyle={chartTooltipStyle}
                   formatter={(v: number) => `$${v.toFixed(2)}`}
                 />
                 <Line
                   type="monotone"
                   dataKey="rpm"
                   stroke="#a855f7"
-                  dot={false}
+                  {...lineDefaults}
                   name="RPM"
                 />
               </LineChart>
@@ -379,7 +380,7 @@ export function RevenueIntelligence() {
 
         {/* AI Insights */}
         {forecast.insights.length > 0 && (
-          <div className="rounded-lg border border-border bg-card p-4">
+          <div className="rounded-xl border border-border bg-card p-4">
             <h3 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
               <Lightbulb className="w-3.5 h-3.5 text-yellow-500" />
               AI Insights
