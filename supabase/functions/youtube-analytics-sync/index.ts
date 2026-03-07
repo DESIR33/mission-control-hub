@@ -392,7 +392,7 @@ Deno.serve(async (req) => {
                 estimated_revenue: estRevenue || 0,
                 fetched_at: new Date().toISOString(),
               },
-              { onConflict: "workspace_id,youtube_video_id,date" }
+              { onConflict: "workspace_id,youtube_video_id" }
             );
 
           if (upsertErr) {
