@@ -141,18 +141,19 @@ Return ONLY a JSON array of proposals. No markdown, no explanation, just the arr
 
     const userPrompt = `Here is the current data for analysis:\n\n${JSON.stringify(context, null, 2)}`;
 
-    const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
+    const openrouterRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
+        "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: "minimax/minimax-m2.5",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
         max_tokens: 2048,
-        system: systemPrompt,
-        messages: [{ role: "user", content: userPrompt }],
       }),
     });
 
