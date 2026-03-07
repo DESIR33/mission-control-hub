@@ -176,6 +176,7 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
               <TableHead className="text-muted-foreground font-semibold">Location</TableHead>
               <TableHead className="text-muted-foreground font-semibold">Size</TableHead>
               <TableHead className="text-muted-foreground font-semibold">VIP</TableHead>
+              <TableHead className="text-muted-foreground font-semibold">Revenue</TableHead>
               <TableHead className="text-muted-foreground font-semibold">Contacts</TableHead>
               <TableHead className="text-muted-foreground font-semibold">Last Contact</TableHead>
             </TableRow>
