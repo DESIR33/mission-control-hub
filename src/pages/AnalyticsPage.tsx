@@ -419,17 +419,7 @@ export default function AnalyticsPage() {
       )}
 
       {activeTab === "videos" && (
-        <VideoDeepDive data={videoAnalytics.length > 0 ? (() => {
-          // Merge titles from videoStats into videoAnalytics (youtube_video_analytics table may lack title)
-          const titleMap = new Map<string, string>();
-          for (const v of videoStats) {
-            if (v.title) titleMap.set(v.youtube_video_id, v.title);
-          }
-          return videoAnalytics.map(va => ({
-            ...va,
-            title: va.title || titleMap.get(va.youtube_video_id) || va.youtube_video_id,
-          }));
-        })() : videoStatsAsAnalytics} daysRange={daysForRange} />
+        <VideoDeepDive data={videoAnalyticsWithTitles} daysRange={daysForRange} />
       )}
 
       {activeTab === "audience" && (
