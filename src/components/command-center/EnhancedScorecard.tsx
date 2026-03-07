@@ -35,14 +35,9 @@ import {
   useVideoScorecard,
   type VideoScore,
 } from "@/hooks/use-video-scorecard";
+import { chartTooltipStyle, fmtCount } from "@/lib/chart-theme";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
-
-const fmtCount = (n: number): string => {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return String(Math.round(n));
-};
 
 const truncate = (text: string, maxLen = 48): string =>
   text.length > maxLen ? text.substring(0, maxLen) + "\u2026" : text;
@@ -63,13 +58,6 @@ const scoreBarColor = (score: number): string => {
   if (score >= 50) return "#3b82f6";
   if (score >= 25) return "#eab308";
   return "#ef4444";
-};
-
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
 };
 
 type SortKey = "score" | "views" | "ctr" | "retention";
@@ -150,7 +138,7 @@ function VideoRadarChart({ video }: { video: VideoScore }) {
           fillOpacity={0.2}
           strokeWidth={2}
         />
-        <Tooltip contentStyle={tooltipStyle} />
+        <Tooltip contentStyle={chartTooltipStyle} />
       </RadarChart>
     </ResponsiveContainer>
   );
@@ -236,7 +224,7 @@ function VideoCard({ video }: { video: VideoScore }) {
 
       {/* Expandable details */}
       {expanded && (
-        <div className="border-t border-border px-4 pb-4 pt-3 space-y-4">
+        <div className="border-t border-border px-4 pb-4 pt-3 space-y-5">
           {/* Radar chart + score bars side by side */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Radar */}
@@ -293,7 +281,7 @@ function VideoCard({ video }: { video: VideoScore }) {
 
           {/* AI Recommendations (only for underperformers) */}
           {recommendations.length > 0 && (
-            <div className="rounded-lg border border-orange-400/30 bg-orange-400/5 p-3">
+            <div className="rounded-xl border border-orange-400/30 bg-orange-400/5 p-3">
               <div className="flex items-center gap-1.5 mb-2">
                 <Lightbulb className="w-3.5 h-3.5 text-orange-400" />
                 <p className="text-xs font-semibold text-orange-400">
@@ -444,7 +432,7 @@ function SummaryBar({
 
 function EnhancedScorecardSkeleton() {
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Summary bar skeleton */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {Array.from({ length: 4 }).map((_, i) => (
@@ -669,7 +657,7 @@ export function EnhancedScorecard() {
 
         {/* 3. AI Recommendations (aggregate for underperformers) */}
         {underperformingVideos.length > 0 && (
-          <div className="rounded-lg border border-orange-400/30 bg-orange-400/5 p-4">
+          <div className="rounded-xl border border-orange-400/30 bg-orange-400/5 p-4">
             <div className="flex items-center gap-2 mb-3">
               <Lightbulb className="w-4 h-4 text-orange-400" />
               <h3 className="text-sm font-semibold text-foreground">
@@ -711,7 +699,7 @@ export function EnhancedScorecard() {
 
         {/* 4. Insights Section */}
         {scorecard.insights.length > 0 && (
-          <div className="rounded-lg border border-border bg-muted/30 p-4">
+          <div className="rounded-xl border border-border bg-muted/30 p-4">
             <div className="flex items-center gap-2 mb-3">
               <Zap className="w-4 h-4 text-yellow-500" />
               <h3 className="text-sm font-semibold text-foreground">

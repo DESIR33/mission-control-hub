@@ -3,13 +3,9 @@ import {
   ResponsiveContainer, ReferenceLine,
 } from "recharts";
 import type { RetentionPoint } from "@/hooks/use-video-retention";
-
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
+import {
+  chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, lineDefaults,
+} from "@/lib/chart-theme";
 
 interface Props {
   data: RetentionPoint[];
@@ -37,7 +33,7 @@ export function RetentionCurve({ data, avgViewPercentage, videoDurationSeconds }
   const dropOffPoints = findDropOffPoints(chartData);
 
   return (
-    <div className="rounded-lg border border-border bg-card p-4 space-y-3">
+    <div className="rounded-xl border border-border bg-card p-4 space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-foreground">Audience Retention</h3>
         {!hasRealData && avgViewPercentage > 0 && (
@@ -50,27 +46,27 @@ export function RetentionCurve({ data, avgViewPercentage, videoDurationSeconds }
       {avgViewPercentage > 0 || hasRealData ? (
         <>
           <ResponsiveContainer width="100%" height={220}>
-            <AreaChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+            <AreaChart data={chartData} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
               <defs>
                 <linearGradient id="retentionGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.02} />
+                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.25} />
+                  <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+              <CartesianGrid {...cartesianGridDefaults} />
               <XAxis
+                {...xAxisDefaults}
                 dataKey="position"
-                tick={{ fontSize: 10 }}
                 tickFormatter={(v) => `${v}%`}
                 label={{ value: "Video Position", position: "insideBottom", offset: -3, fontSize: 10 }}
               />
               <YAxis
-                tick={{ fontSize: 10 }}
+                {...yAxisDefaults}
                 tickFormatter={(v) => `${v}%`}
                 domain={[0, 100]}
               />
               <Tooltip
-                contentStyle={tooltipStyle}
+                contentStyle={chartTooltipStyle}
                 formatter={(v: number) => [`${v}%`, "Retention"]}
                 labelFormatter={(v) => {
                   const point = chartData.find((d) => d.position === v);
@@ -89,7 +85,7 @@ export function RetentionCurve({ data, avgViewPercentage, videoDurationSeconds }
                 type="monotone"
                 dataKey="retention"
                 stroke="hsl(var(--primary))"
-                strokeWidth={2}
+                {...lineDefaults}
                 fill="url(#retentionGradient)"
               />
             </AreaChart>

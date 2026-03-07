@@ -55,6 +55,9 @@ import { parseSRT, parseRetentionCSV } from "@/lib/srt-parser";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine,
 } from "recharts";
+import {
+  chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, lineDefaults,
+} from "@/lib/chart-theme";
 
 type Tab = "overview" | "script" | "retention" | "repurpose" | "ab-tests" | "youtube";
 
@@ -292,7 +295,7 @@ export function VideoQueueDetails({ video, onClose, onUpdate }: VideoQueueDetail
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
@@ -469,9 +472,9 @@ export function VideoQueueDetails({ video, onClose, onUpdate }: VideoQueueDetail
 
       {/* TAB: Retention */}
       {activeTab === "retention" && (
-        <div className="space-y-4">
+        <div className="space-y-5">
           {/* SRT Upload */}
-          <div className="rounded-lg border border-border bg-card p-4">
+          <div className="rounded-xl border border-border bg-card p-4">
             <div className="flex items-center gap-2 mb-3">
               <FileText className="h-4 w-4 text-primary" />
               <h3 className="text-sm font-semibold text-foreground">Transcript (SRT)</h3>
@@ -502,7 +505,7 @@ export function VideoQueueDetails({ video, onClose, onUpdate }: VideoQueueDetail
           </div>
 
           {/* Retention Chart */}
-          <div className="rounded-lg border border-border bg-card p-4">
+          <div className="rounded-xl border border-border bg-card p-4">
             <div className="flex items-center gap-2 mb-3">
               <BarChart3 className="h-4 w-4 text-primary" />
               <h3 className="text-sm font-semibold text-foreground">Retention Curve</h3>
@@ -512,6 +515,7 @@ export function VideoQueueDetails({ video, onClose, onUpdate }: VideoQueueDetail
                 <ResponsiveContainer width="100%" height={220}>
                   <AreaChart
                     data={retentionChartData}
+                    margin={{ top: 8, right: 8, bottom: 0, left: -12 }}
                     onMouseMove={(e: any) => {
                       if (e?.activePayload?.[0]) setHoveredSecond(e.activePayload[0].payload.elapsed_seconds);
                     }}
@@ -519,15 +523,15 @@ export function VideoQueueDetails({ video, onClose, onUpdate }: VideoQueueDetail
                   >
                     <defs>
                       <linearGradient id="retGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.25} />
                         <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                    <XAxis dataKey="elapsed_seconds" tick={{ fontSize: 10 }} tickFormatter={(s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`} />
-                    <YAxis tick={{ fontSize: 10 }} domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
-                    <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} formatter={(v: number) => [`${v.toFixed(1)}%`, "Retention"]} labelFormatter={(s) => `${Math.floor(Number(s) / 60)}:${String(Number(s) % 60).padStart(2, "0")}`} />
-                    <Area type="monotone" dataKey="retention_percent" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#retGrad)" />
+                    <CartesianGrid {...cartesianGridDefaults} />
+                    <XAxis {...xAxisDefaults} dataKey="elapsed_seconds" tickFormatter={(s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`} />
+                    <YAxis {...yAxisDefaults} domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
+                    <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => [`${v.toFixed(1)}%`, "Retention"]} labelFormatter={(s) => `${Math.floor(Number(s) / 60)}:${String(Number(s) % 60).padStart(2, "0")}`} />
+                    <Area type="monotone" dataKey="retention_percent" stroke="hsl(var(--primary))" {...lineDefaults} fill="url(#retGrad)" />
                     {retentionChartData.filter((p) => p.isDropoff).map((p) => (
                       <ReferenceLine key={p.elapsed_seconds} x={p.elapsed_seconds} stroke="hsl(var(--destructive))" strokeDasharray="3 3" strokeOpacity={0.6} />
                     ))}

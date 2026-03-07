@@ -14,6 +14,14 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  chartTooltipStyle,
+  fmtCount,
+  cartesianGridDefaults,
+  xAxisDefaults,
+  yAxisDefaults,
+  barDefaults,
+} from "@/lib/chart-theme";
+import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
 import {
@@ -27,19 +35,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
-
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
-
-const fmtCount = (n: number) => {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return String(Math.round(n));
-};
 
 const statusIcon: Record<string, typeof TrendingUp> = {
   ahead: TrendingUp,
@@ -151,7 +146,7 @@ export function CompetitorIntelligence() {
             Competitor Intelligence
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-5">
           <Skeleton className="h-8 w-full" />
           <Skeleton className="h-48 w-full" />
           <Skeleton className="h-32 w-full" />
@@ -195,7 +190,7 @@ export function CompetitorIntelligence() {
                 return (
                   <div
                     key={comp.metric}
-                    className="rounded-lg border border-border bg-card p-3"
+                    className="rounded-xl border border-border bg-card p-3"
                   >
                     <div className="flex items-center gap-1.5 mb-1">
                       <Icon
@@ -222,7 +217,7 @@ export function CompetitorIntelligence() {
 
             {/* Position Ranking */}
             {benchmark.yourPosition.length > 0 && (
-              <div className="rounded-lg border border-border bg-card p-4">
+              <div className="rounded-xl border border-border bg-card p-4">
                 <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-1.5">
                   <Medal className="w-3.5 h-3.5 text-yellow-500" />
                   Your Position
@@ -243,33 +238,32 @@ export function CompetitorIntelligence() {
             )}
 
             {/* Comparison Bar Chart */}
-            <div className="rounded-lg border border-border bg-card p-4">
+            <div className="rounded-xl border border-border bg-card p-4">
               <h3 className="text-sm font-semibold text-foreground mb-3">
                 Your Channel vs Competitors
               </h3>
               <ResponsiveContainer width="100%" height={250}>
-                <BarChart data={comparisonData}>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    className="stroke-border"
-                  />
-                  <XAxis dataKey="metric" tick={{ fontSize: 10 }} />
-                  <YAxis tick={{ fontSize: 10 }} tickFormatter={fmtCount} />
+                <BarChart data={comparisonData} margin={{ top: 4, right: 4, bottom: 4, left: 4 }}>
+                  <CartesianGrid {...cartesianGridDefaults} />
+                  <XAxis dataKey="metric" {...xAxisDefaults} />
+                  <YAxis {...yAxisDefaults} tickFormatter={fmtCount} />
                   <Tooltip
-                    contentStyle={tooltipStyle}
+                    contentStyle={chartTooltipStyle}
                     formatter={(v: number) => fmtCount(v)}
                   />
                   <Legend />
                   <Bar
                     dataKey="You"
                     fill="#22c55e"
-                    radius={[4, 4, 0, 0]}
+                    {...barDefaults}
+                    animationDuration={800}
                     name="You"
                   />
                   <Bar
                     dataKey="Competitor Avg"
                     fill="#3b82f6"
-                    radius={[4, 4, 0, 0]}
+                    {...barDefaults}
+                    animationDuration={800}
                     name="Competitor Avg"
                   />
                 </BarChart>
@@ -278,7 +272,7 @@ export function CompetitorIntelligence() {
 
             {/* Insights */}
             {benchmark.insights.length > 0 && (
-              <div className="rounded-lg border border-border bg-card p-4">
+              <div className="rounded-xl border border-border bg-card p-4">
                 <h3 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
                   <Lightbulb className="w-3.5 h-3.5 text-yellow-500" />
                   Insights
@@ -301,7 +295,7 @@ export function CompetitorIntelligence() {
 
         {/* Content Gap Finder */}
         {topVideos.length > 0 && (
-          <div className="rounded-lg border border-border bg-card p-4">
+          <div className="rounded-xl border border-border bg-card p-4">
             <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-1.5">
               <Search className="w-3.5 h-3.5 text-purple-500" />
               Content Gap Finder
@@ -358,7 +352,7 @@ export function CompetitorIntelligence() {
             {competitors.map((comp) => (
               <div
                 key={comp.id}
-                className="rounded-lg border border-border bg-card p-3 flex items-center gap-3"
+                className="rounded-xl border border-border bg-card p-3 flex items-center gap-3"
               >
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground">

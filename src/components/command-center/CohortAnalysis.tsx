@@ -7,30 +7,25 @@ import {
 } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { useCohortAnalysis } from "@/hooks/use-cohort-analysis";
-
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
-
-const fmtCount = (n: number) => {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return String(Math.round(n));
-};
+import {
+  chartTooltipStyle,
+  cartesianGridDefaults,
+  xAxisDefaults,
+  yAxisDefaults,
+  fmtCount,
+  lineDefaults,
+} from "@/lib/chart-theme";
 
 export function CohortAnalysis() {
   const { data: analysis, isLoading } = useCohortAnalysis();
 
   if (isLoading) {
-    return <div className="rounded-lg border border-border bg-card p-6 animate-pulse h-96" />;
+    return <div className="rounded-xl border border-border bg-card p-6 animate-pulse h-96" />;
   }
 
   if (!analysis) {
     return (
-      <div className="rounded-lg border border-border bg-card p-6 text-center text-muted-foreground">
+      <div className="rounded-xl border border-border bg-card p-6 text-center text-muted-foreground">
         <Users className="w-8 h-8 mx-auto mb-2 opacity-50" />
         <p>No cohort data available yet.</p>
         <p className="text-xs mt-1">Cohort analysis requires daily channel analytics data.</p>
@@ -57,10 +52,10 @@ export function CohortAnalysis() {
   const isOnPace = analysis.actualWeeklyRate >= analysis.requiredWeeklyRate;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* KPI Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <TrendingUp className="w-3.5 h-3.5 text-green-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Weekly Avg</p>
@@ -69,7 +64,7 @@ export function CohortAnalysis() {
           <p className="text-xs text-muted-foreground">subs/week</p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Calendar className="w-3.5 h-3.5 text-blue-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Best Week</p>
@@ -80,7 +75,7 @@ export function CohortAnalysis() {
           </p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Target className="w-3.5 h-3.5 text-purple-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Weeks to 50K</p>
@@ -91,7 +86,7 @@ export function CohortAnalysis() {
           <p className="text-xs text-muted-foreground">at current rate</p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             {isOnPace ? (
               <ArrowUpRight className="w-3.5 h-3.5 text-green-500" />
@@ -108,38 +103,48 @@ export function CohortAnalysis() {
       </div>
 
       {/* Weekly Cohort Chart */}
-      <div className="rounded-lg border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-foreground mb-3">Weekly Subscriber Cohorts</h3>
         <ResponsiveContainer width="100%" height={250}>
           <BarChart data={cohortChartData}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-            <XAxis dataKey="week" tick={{ fontSize: 9 }} />
-            <YAxis tick={{ fontSize: 10 }} tickFormatter={fmtCount} />
-            <Tooltip contentStyle={tooltipStyle} />
-            <Bar dataKey="gained" fill="#22c55e" name="Gained" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="lost" fill="#ef4444" name="Lost" radius={[0, 0, 4, 4]} />
+            <CartesianGrid {...cartesianGridDefaults} />
+            <XAxis dataKey="week" {...xAxisDefaults} />
+            <YAxis {...yAxisDefaults} tickFormatter={fmtCount} />
+            <Tooltip contentStyle={chartTooltipStyle} />
+            <Bar dataKey="gained" fill="#22c55e" name="Gained" radius={[6, 6, 0, 0]} maxBarSize={48} animationDuration={800} />
+            <Bar dataKey="lost" fill="#ef4444" name="Lost" radius={[0, 0, 6, 6]} maxBarSize={48} animationDuration={800} />
           </BarChart>
         </ResponsiveContainer>
       </div>
 
       {/* Pace Chart */}
-      <div className="rounded-lg border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-foreground mb-3">Actual vs Required Growth Rate</h3>
         <ResponsiveContainer width="100%" height={200}>
-          <AreaChart data={paceChartData}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-            <XAxis dataKey="week" tick={{ fontSize: 9 }} />
-            <YAxis tick={{ fontSize: 10 }} />
-            <Tooltip contentStyle={tooltipStyle} />
-            <Area type="monotone" dataKey="required" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.1} name="Required" strokeDasharray="5 5" />
-            <Area type="monotone" dataKey="actual" stroke="#22c55e" fill="#22c55e" fillOpacity={0.2} name="Actual" />
+          <AreaChart data={paceChartData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+            <defs>
+              <linearGradient id="requiredGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#f59e0b" stopOpacity={0.25} />
+                <stop offset="100%" stopColor="#f59e0b" stopOpacity={0} />
+              </linearGradient>
+              <linearGradient id="actualGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#22c55e" stopOpacity={0.25} />
+                <stop offset="100%" stopColor="#22c55e" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid {...cartesianGridDefaults} />
+            <XAxis dataKey="week" {...xAxisDefaults} />
+            <YAxis {...yAxisDefaults} />
+            <Tooltip contentStyle={chartTooltipStyle} />
+            <Area type="monotone" dataKey="required" stroke="#f59e0b" fill="url(#requiredGradient)" name="Required" strokeDasharray="5 5" strokeWidth={2.5} dot={false} activeDot={lineDefaults.activeDot} />
+            <Area type="monotone" dataKey="actual" stroke="#22c55e" fill="url(#actualGradient)" name="Actual" strokeWidth={2.5} dot={false} activeDot={lineDefaults.activeDot} />
           </AreaChart>
         </ResponsiveContainer>
       </div>
 
       {/* Content Type Insights */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-4">
+        <div className="rounded-xl border border-green-500/20 bg-green-500/5 p-4">
           <h3 className="text-sm font-semibold text-foreground mb-2">Sticky Content</h3>
           <p className="text-xs text-muted-foreground mb-2">Content types that drive sustainable subscribers</p>
           <div className="flex flex-wrap gap-1.5">
@@ -154,7 +159,7 @@ export function CohortAnalysis() {
           </div>
         </div>
 
-        <div className="rounded-lg border border-yellow-500/20 bg-yellow-500/5 p-4">
+        <div className="rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-4">
           <h3 className="text-sm font-semibold text-foreground mb-2">Tourist Content</h3>
           <p className="text-xs text-muted-foreground mb-2">Views but lower subscriber retention</p>
           <div className="flex flex-wrap gap-1.5">

@@ -6,13 +6,14 @@ import {
 } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { useUploadTimeAnalysis } from "@/hooks/use-upload-time-analysis";
-
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
+import {
+  chartTooltipStyle,
+  xAxisDefaults,
+  yAxisDefaults,
+  cartesianGridDefaults,
+  barDefaults,
+  chartAnimationDefaults,
+} from "@/lib/chart-theme";
 
 const DAYS_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -30,12 +31,12 @@ export function UploadTimeAnalyzer() {
   const { data: analysis, isLoading } = useUploadTimeAnalysis();
 
   if (isLoading) {
-    return <div className="rounded-lg border border-border bg-card p-6 animate-pulse h-96" />;
+    return <div className="rounded-xl border border-border bg-card p-6 animate-pulse h-96" />;
   }
 
   if (!analysis) {
     return (
-      <div className="rounded-lg border border-border bg-card p-6 text-center text-muted-foreground">
+      <div className="rounded-xl border border-border bg-card p-6 text-center text-muted-foreground">
         <Clock className="w-8 h-8 mx-auto mb-2 opacity-50" />
         <p>Need more videos with publish dates to analyze upload times.</p>
       </div>
@@ -45,9 +46,9 @@ export function UploadTimeAnalyzer() {
   const maxScore = Math.max(...analysis.heatmap.map((s) => s.score), 1);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Recommendation */}
-      <div className="rounded-lg border border-green-500/30 bg-green-500/5 p-4">
+      <div className="rounded-xl border border-green-500/30 bg-green-500/5 p-4">
         <div className="flex items-center gap-2 mb-2">
           <Star className="w-4 h-4 text-green-500" />
           <h3 className="text-sm font-semibold text-green-400">Best Upload Time</h3>
@@ -58,7 +59,7 @@ export function UploadTimeAnalyzer() {
 
       {/* Top Slots */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-1.5">
             <TrendingUp className="w-3.5 h-3.5 text-green-500" />
             Best Times
@@ -81,7 +82,7 @@ export function UploadTimeAnalyzer() {
           </div>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-1.5">
             <AlertTriangle className="w-3.5 h-3.5 text-red-500" />
             Worst Times
@@ -101,15 +102,15 @@ export function UploadTimeAnalyzer() {
       </div>
 
       {/* Top Slots Bar Chart */}
-      <div className="rounded-lg border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-foreground mb-3">Performance by Time Slot</h3>
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={analysis.topSlots}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-            <XAxis dataKey="label" tick={{ fontSize: 10 }} />
-            <YAxis tick={{ fontSize: 10 }} />
-            <Tooltip contentStyle={tooltipStyle} />
-            <Bar dataKey="avgViews" name="Avg Views" radius={[4, 4, 0, 0]}>
+            <CartesianGrid {...cartesianGridDefaults} />
+            <XAxis dataKey="label" {...xAxisDefaults} />
+            <YAxis {...yAxisDefaults} />
+            <Tooltip contentStyle={chartTooltipStyle} />
+            <Bar dataKey="avgViews" name="Avg Views" {...barDefaults} {...chartAnimationDefaults}>
               {analysis.topSlots.map((_, i) => (
                 <Cell key={i} fill={i === 0 ? "#22c55e" : "#3b82f6"} />
               ))}
@@ -119,7 +120,7 @@ export function UploadTimeAnalyzer() {
       </div>
 
       {/* Heatmap */}
-      <div className="rounded-lg border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-foreground mb-3">Upload Time Heatmap</h3>
         <div className="overflow-x-auto">
           <div className="grid gap-1" style={{ gridTemplateColumns: "60px repeat(8, 1fr)" }}>

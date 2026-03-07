@@ -7,6 +7,7 @@ import {
 } from "recharts";
 import { subDays, format } from "date-fns";
 import type { TrafficSource } from "@/hooks/use-youtube-analytics-api";
+import { fmtCount, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, CHART_COLORS, horizontalBarDefaults } from "@/lib/chart-theme";
 
 const SOURCE_LABELS: Record<string, string> = {
   ADVERTISING: "Ads",
@@ -28,25 +29,6 @@ const SOURCE_LABELS: Record<string, string> = {
   YT_OTHER_PAGE: "Other YouTube",
   YT_PLAYLIST_PAGE: "Playlist Page",
   YT_SEARCH: "YouTube Search",
-};
-
-const COLORS = [
-  "#3b82f6", "#8b5cf6", "#ec4899", "#f59e0b", "#22c55e",
-  "#06b6d4", "#ef4444", "#6366f1", "#14b8a6", "#f97316",
-  "#a855f7", "#64748b", "#84cc16", "#0ea5e9",
-];
-
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
-
-const fmtCount = (n: number) => {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return String(n);
 };
 
 const sourceLabel = (sourceType: string) =>
@@ -150,7 +132,7 @@ export function TrafficSources({ data, daysRange }: Props) {
       chartData.slice(0, 8).map((d, i) => ({
         name: d.source,
         value: d.views,
-        color: COLORS[i % COLORS.length],
+        color: CHART_COLORS[i % CHART_COLORS.length],
       })),
     [chartData]
   );
@@ -216,7 +198,7 @@ export function TrafficSources({ data, daysRange }: Props) {
 
   if (data.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-border bg-card p-8 text-center">
+      <div className="rounded-xl border border-dashed border-border bg-card p-8 text-center">
         <Route className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
         <p className="text-sm text-muted-foreground">
           No traffic source data available. Sync YouTube Analytics to see where your views come from.
@@ -226,10 +208,10 @@ export function TrafficSources({ data, daysRange }: Props) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Top source callout */}
       {chartData.length > 0 && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <div className="flex items-center gap-2 mb-2">
             <Route className="w-4 h-4 text-primary" />
             <h3 className="text-sm font-semibold text-foreground">Traffic Insights</h3>
@@ -256,24 +238,24 @@ export function TrafficSources({ data, daysRange }: Props) {
 
       {/* Feature 8: Traffic Source Trend Chart (stacked area) */}
       {trendChartData.length > 0 && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3">Traffic Source Trends</h3>
           <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={trendChartData}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-              <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-              <YAxis tick={{ fontSize: 10 }} tickFormatter={fmtCount} />
-              <Tooltip contentStyle={tooltipStyle} />
-              <Legend wrapperStyle={{ fontSize: 12 }} />
+            <AreaChart data={trendChartData} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+              <CartesianGrid {...cartesianGridDefaults} />
+              <XAxis dataKey="date" {...xAxisDefaults} />
+              <YAxis {...yAxisDefaults} tickFormatter={fmtCount} />
+              <Tooltip contentStyle={chartTooltipStyle} />
+              <Legend wrapperStyle={{ fontSize: 11, paddingTop: 8 }} />
               {top5Sources.map((source, i) => (
                 <Area
                   key={source}
                   type="monotone"
                   dataKey={source}
                   stackId="1"
-                  stroke={COLORS[i % COLORS.length]}
-                  fill={COLORS[i % COLORS.length]}
-                  fillOpacity={0.6}
+                  stroke={CHART_COLORS[i % CHART_COLORS.length]}
+                  fill={CHART_COLORS[i % CHART_COLORS.length]}
+                  fillOpacity={0.5}
                 />
               ))}
             </AreaChart>
@@ -283,21 +265,21 @@ export function TrafficSources({ data, daysRange }: Props) {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Horizontal bar chart */}
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3">Views by Source</h3>
           <ResponsiveContainer width="100%" height={Math.max(chartData.length * 36, 200)}>
             <BarChart data={chartData} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-              <XAxis type="number" tick={{ fontSize: 10 }} tickFormatter={fmtCount} />
-              <YAxis type="category" dataKey="source" tick={{ fontSize: 10 }} width={120} />
-              <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => [v.toLocaleString(), "Views"]} />
-              <Bar dataKey="views" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
+              <CartesianGrid {...cartesianGridDefaults} />
+              <XAxis type="number" {...xAxisDefaults} tickFormatter={fmtCount} />
+              <YAxis type="category" dataKey="source" {...yAxisDefaults} width={120} />
+              <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => [v.toLocaleString(), "Views"]} />
+              <Bar dataKey="views" fill="hsl(var(--primary))" radius={[0, 6, 6, 0]} maxBarSize={32} />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
         {/* Pie chart */}
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3">Source Distribution</h3>
           <ResponsiveContainer width="100%" height={280}>
             <PieChart>
@@ -305,10 +287,11 @@ export function TrafficSources({ data, daysRange }: Props) {
                 data={pieData}
                 cx="50%"
                 cy="50%"
-                innerRadius={55}
-                outerRadius={95}
+                innerRadius="55%"
+                outerRadius="85%"
                 paddingAngle={2}
                 dataKey="value"
+                strokeWidth={0}
                 label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
               >
                 {pieData.map((entry, i) => (
@@ -316,7 +299,7 @@ export function TrafficSources({ data, daysRange }: Props) {
                 ))}
               </Pie>
               <Tooltip
-                contentStyle={tooltipStyle}
+                contentStyle={chartTooltipStyle}
                 formatter={(v: number) => [v.toLocaleString(), "Views"]}
               />
             </PieChart>
@@ -326,25 +309,25 @@ export function TrafficSources({ data, daysRange }: Props) {
 
       {/* Feature 7: Watch Time Efficiency bar chart */}
       {efficiencyData.length > 0 && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3">Watch Time Efficiency</h3>
           <ResponsiveContainer width="100%" height={Math.max(efficiencyData.length * 36, 200)}>
             <BarChart data={efficiencyData} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-              <XAxis type="number" tick={{ fontSize: 10 }} tickFormatter={(v: number) => `${v.toFixed(1)}m`} />
-              <YAxis type="category" dataKey="source" tick={{ fontSize: 10 }} width={120} />
+              <CartesianGrid {...cartesianGridDefaults} />
+              <XAxis type="number" {...xAxisDefaults} tickFormatter={(v: number) => `${v.toFixed(1)}m`} />
+              <YAxis type="category" dataKey="source" {...yAxisDefaults} width={120} />
               <Tooltip
-                contentStyle={tooltipStyle}
+                contentStyle={chartTooltipStyle}
                 formatter={(v: number) => [`${v.toFixed(1)}m`, "Avg Watch/View"]}
               />
-              <Bar dataKey="minutesPerView" fill="#8b5cf6" radius={[0, 4, 4, 0]} />
+              <Bar dataKey="minutesPerView" fill="#8b5cf6" radius={[0, 6, 6, 0]} maxBarSize={32} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       )}
 
       {/* Data table */}
-      <div className="rounded-lg border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-foreground mb-3">All Traffic Sources</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">

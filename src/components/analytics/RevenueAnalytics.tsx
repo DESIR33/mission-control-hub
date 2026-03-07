@@ -7,32 +7,9 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from "recharts";
 import { format, subDays } from "date-fns";
+import { fmtCount, fmtMoney, pctChange, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, SEMANTIC_COLORS, lineDefaults, barDefaults, horizontalBarDefaults, CHART_COLORS } from "@/lib/chart-theme";
 import type { ChannelAnalytics } from "@/hooks/use-youtube-analytics-api";
 import type { VideoAnalytics } from "@/hooks/use-youtube-analytics-api";
-
-const fmtMoney = (n: number) => {
-  if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}K`;
-  return `$${n.toFixed(2)}`;
-};
-
-const fmtCount = (n: number) => {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return String(n);
-};
-
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
-
-/** Compute percentage change; returns null when previous is 0 to avoid division errors. */
-function pctChange(current: number, previous: number): number | null {
-  if (previous === 0) return current > 0 ? 100 : null;
-  return +((((current - previous) / previous) * 100).toFixed(1));
-}
 
 interface Props {
   channelData: ChannelAnalytics[];
@@ -188,7 +165,7 @@ export function RevenueAnalytics({ channelData, videoData, daysRange }: Props) {
 
   if (!hasRevenue && topEarningVideos.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-border bg-card p-8 text-center">
+      <div className="rounded-xl border border-dashed border-border bg-card p-8 text-center">
         <DollarSign className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
         <p className="text-sm text-muted-foreground">
           No revenue data available. Revenue analytics require a monetized YouTube channel with YouTube Analytics API access.
@@ -198,7 +175,7 @@ export function RevenueAnalytics({ channelData, videoData, daysRange }: Props) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Revenue KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         <RevenueKpi label="Est. Revenue" value={fmtMoney(totals.revenue)} sub={`${daysRange}d total`} delta={deltas.revenue} />
@@ -212,24 +189,24 @@ export function RevenueAnalytics({ channelData, videoData, daysRange }: Props) {
       {/* Revenue trend + donut */}
       {dailyChartData.length > 1 && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div className="rounded-lg border border-border bg-card p-4">
+          <div className="rounded-xl border border-border bg-card p-4">
             <h3 className="text-sm font-semibold text-foreground mb-3">Daily Revenue Breakdown</h3>
             <ResponsiveContainer width="100%" height={260}>
-              <AreaChart data={dailyChartData}>
+              <AreaChart data={dailyChartData} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
                 <defs>
                   <linearGradient id="adRevGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3} />
+                    <stop offset="5%" stopColor="#22c55e" stopOpacity={0.25} />
                     <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="premRevGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3} />
+                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.25} />
                     <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-                <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => `$${v}`} />
-                <Tooltip contentStyle={tooltipStyle} formatter={(v: number, name: string) => {
+                <CartesianGrid {...cartesianGridDefaults} />
+                <XAxis dataKey="date" {...xAxisDefaults} />
+                <YAxis {...yAxisDefaults} tickFormatter={(v) => `$${v}`} />
+                <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number, name: string) => {
                   const labels: Record<string, string> = {
                     adRevenue: "Ad Revenue",
                     premiumRevenue: "Premium Revenue",
@@ -244,21 +221,21 @@ export function RevenueAnalytics({ channelData, videoData, daysRange }: Props) {
                   };
                   return labels[value] ?? value;
                 }} />
-                <Area type="monotone" dataKey="adRevenue" stroke="#22c55e" strokeWidth={2} fill="url(#adRevGrad)" />
-                <Area type="monotone" dataKey="premiumRevenue" stroke="#ef4444" strokeWidth={1.5} fill="url(#premRevGrad)" />
+                <Area type="monotone" dataKey="adRevenue" stroke="#22c55e" strokeWidth={2.5} fill="url(#adRevGrad)" dot={false} activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }} />
+                <Area type="monotone" dataKey="premiumRevenue" stroke="#ef4444" strokeWidth={2.5} fill="url(#premRevGrad)" dot={false} activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
 
-          <div className="rounded-lg border border-border bg-card p-4">
+          <div className="rounded-xl border border-border bg-card p-4">
             <h3 className="text-sm font-semibold text-foreground mb-3">CPM Trend</h3>
             <ResponsiveContainer width="100%" height={260}>
-              <LineChart data={dailyChartData}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-                <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => `$${v}`} />
-                <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => [`$${v}`, "CPM"]} />
-                <Line type="monotone" dataKey="cpm" stroke="#f59e0b" strokeWidth={2} dot={false} />
+              <LineChart data={dailyChartData} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+                <CartesianGrid {...cartesianGridDefaults} />
+                <XAxis dataKey="date" {...xAxisDefaults} />
+                <YAxis {...yAxisDefaults} tickFormatter={(v) => `$${v}`} />
+                <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => [`$${v}`, "CPM"]} />
+                <Line type="monotone" dataKey="cpm" stroke="#f59e0b" strokeWidth={2.5} dot={false} activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -268,7 +245,7 @@ export function RevenueAnalytics({ channelData, videoData, daysRange }: Props) {
       {/* Revenue Source Breakdown Donut Chart */}
       {revenueSourceData.length > 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div className="rounded-lg border border-border bg-card p-4">
+          <div className="rounded-xl border border-border bg-card p-4">
             <h3 className="text-sm font-semibold text-foreground mb-3">Revenue Source Breakdown</h3>
             <ResponsiveContainer width="100%" height={260}>
               <PieChart>
@@ -278,8 +255,8 @@ export function RevenueAnalytics({ channelData, videoData, daysRange }: Props) {
                   nameKey="name"
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={100}
+                  innerRadius="55%"
+                  outerRadius="85%"
                   paddingAngle={3}
                   strokeWidth={0}
                 >
@@ -288,7 +265,7 @@ export function RevenueAnalytics({ channelData, videoData, daysRange }: Props) {
                   ))}
                 </Pie>
                 <Tooltip
-                  contentStyle={tooltipStyle}
+                  contentStyle={chartTooltipStyle}
                   formatter={(v: number, name: string) => [fmtMoney(v), name]}
                 />
                 <Legend
@@ -303,7 +280,7 @@ export function RevenueAnalytics({ channelData, videoData, daysRange }: Props) {
 
       {/* Top Earning Videos */}
       {topEarningVideos.length > 0 && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <div className="flex items-center gap-2 mb-4">
             <Banknote className="w-4 h-4 text-green-500" />
             <h3 className="text-sm font-semibold text-foreground">Top Earning Videos</h3>
@@ -333,31 +310,31 @@ export function RevenueAnalytics({ channelData, videoData, daysRange }: Props) {
 
       {/* RPM Ranking Chart */}
       {rpmRankingData.length > 0 && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <div className="flex items-center gap-2 mb-4">
             <BarChart3 className="w-4 h-4 text-amber-500" />
             <h3 className="text-sm font-semibold text-foreground">RPM Ranking (Top 10 Videos)</h3>
           </div>
           <ResponsiveContainer width="100%" height={Math.max(300, rpmRankingData.length * 40)}>
             <BarChart data={rpmRankingData} layout="vertical" margin={{ left: 20, right: 30 }}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border" horizontal={false} />
+              <CartesianGrid {...cartesianGridDefaults} horizontal={false} />
               <XAxis
                 type="number"
-                tick={{ fontSize: 10 }}
+                {...xAxisDefaults}
                 tickFormatter={(v) => `$${v}`}
               />
               <YAxis
                 type="category"
                 dataKey="title"
-                tick={{ fontSize: 10 }}
+                {...yAxisDefaults}
                 width={180}
                 tickFormatter={(value: string) => value.length > 28 ? `${value.slice(0, 28)}...` : value}
               />
               <Tooltip
-                contentStyle={tooltipStyle}
+                contentStyle={chartTooltipStyle}
                 formatter={(v: number) => [`$${v.toFixed(2)}`, "RPM"]}
               />
-              <Bar dataKey="rpm" fill="#f59e0b" radius={[0, 4, 4, 0]} barSize={20} />
+              <Bar dataKey="rpm" fill="#f59e0b" radius={[0, 6, 6, 0]} maxBarSize={32} barSize={20} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -378,7 +355,7 @@ function RevenueKpi({
   delta?: number | null;
 }) {
   return (
-    <div className="rounded-lg border border-border bg-card p-3">
+    <div className="rounded-xl border border-border bg-card p-3 sm:p-4 transition-colors hover:bg-card/80">
       <div className="flex items-center gap-1.5 mb-1">
         <DollarSign className="w-3.5 h-3.5 text-green-500" />
         <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>

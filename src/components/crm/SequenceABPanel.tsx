@@ -40,13 +40,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { FlaskConical, Trophy, Plus, Check } from "lucide-react";
-
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
+import { chartTooltipStyle, cartesianGridDefaults, xAxisDefaults, yAxisDefaults } from "@/lib/chart-theme";
 
 function WinnerBadge({ winner }: { winner: "A" | "B" | "none" }) {
   if (winner === "none") return null;
@@ -82,7 +76,7 @@ function VariantComparisonCard({
       <CardContent>
         {variant ? (
           <div className="grid grid-cols-2 gap-4">
-            <div className="rounded-lg border border-border p-3 space-y-2">
+            <div className="rounded-xl border border-border p-3 space-y-2">
               <div className="flex items-center gap-2">
                 <Badge variant="outline">A</Badge>
                 <span className="text-xs text-muted-foreground">Original</span>
@@ -90,7 +84,7 @@ function VariantComparisonCard({
               <p className="text-sm font-medium truncate">{variant.variantA.subject}</p>
               <p className="text-xs text-muted-foreground line-clamp-2">{variant.variantA.body}</p>
             </div>
-            <div className="rounded-lg border border-border p-3 space-y-2">
+            <div className="rounded-xl border border-border p-3 space-y-2">
               <div className="flex items-center gap-2">
                 <Badge variant="secondary">B</Badge>
                 <span className="text-xs text-muted-foreground">Variant</span>
@@ -261,15 +255,15 @@ function FunnelChart({
         <div className="h-[250px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={funnel} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-              <XAxis dataKey="step" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip contentStyle={tooltipStyle} />
+              <CartesianGrid {...cartesianGridDefaults} />
+              <XAxis dataKey="step" {...xAxisDefaults} />
+              <YAxis {...yAxisDefaults} />
+              <Tooltip contentStyle={chartTooltipStyle} />
               <Legend />
-              <Bar dataKey="enrolled" name="Enrolled" fill="hsl(var(--primary))" radius={[2, 2, 0, 0]} />
-              <Bar dataKey="sent" name="Sent" fill="hsl(220 70% 55%)" radius={[2, 2, 0, 0]} />
-              <Bar dataKey="opened" name="Opened" fill="hsl(150 60% 45%)" radius={[2, 2, 0, 0]} />
-              <Bar dataKey="replied" name="Replied" fill="hsl(40 90% 55%)" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="enrolled" name="Enrolled" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} maxBarSize={48} animationDuration={800} />
+              <Bar dataKey="sent" name="Sent" fill="hsl(220 70% 55%)" radius={[6, 6, 0, 0]} maxBarSize={48} animationDuration={800} />
+              <Bar dataKey="opened" name="Opened" fill="hsl(150 60% 45%)" radius={[6, 6, 0, 0]} maxBarSize={48} animationDuration={800} />
+              <Bar dataKey="replied" name="Replied" fill="hsl(40 90% 55%)" radius={[6, 6, 0, 0]} maxBarSize={48} animationDuration={800} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -361,7 +355,7 @@ export function SequenceABPanel() {
 
       {/* Loading */}
       {isLoading && (
-        <div className="space-y-4">
+        <div className="space-y-5">
           <Skeleton className="h-32 w-full" />
           <Skeleton className="h-48 w-full" />
         </div>
@@ -369,7 +363,7 @@ export function SequenceABPanel() {
 
       {/* No sequence selected */}
       {!isLoading && !selectedId && (
-        <div className="rounded-lg border border-dashed border-border p-8 text-center">
+        <div className="rounded-xl border border-dashed border-border p-8 text-center">
           <FlaskConical className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
           <p className="text-sm text-muted-foreground">
             Select a sequence above to view or create A/B tests for individual steps.

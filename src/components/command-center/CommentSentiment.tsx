@@ -8,13 +8,16 @@ import {
 } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { useSentimentOverview } from "@/hooks/use-comment-sentiment";
-
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
+import {
+  chartTooltipStyle,
+  cartesianGridDefaults,
+  xAxisDefaults,
+  yAxisDefaults,
+  pieDefaults,
+  horizontalBarDefaults,
+  chartAnimationDefaults,
+  chartAxisTickSmall,
+} from "@/lib/chart-theme";
 
 const SENTIMENT_COLORS = ["#22c55e", "#64748b", "#ef4444"];
 
@@ -22,12 +25,12 @@ export function CommentSentiment() {
   const { data: overview, isLoading } = useSentimentOverview();
 
   if (isLoading) {
-    return <div className="rounded-lg border border-border bg-card p-6 animate-pulse h-96" />;
+    return <div className="rounded-xl border border-border bg-card p-6 animate-pulse h-96" />;
   }
 
   if (!overview) {
     return (
-      <div className="rounded-lg border border-border bg-card p-6 text-center text-muted-foreground">
+      <div className="rounded-xl border border-border bg-card p-6 text-center text-muted-foreground">
         <MessageSquare className="w-8 h-8 mx-auto mb-2 opacity-50" />
         <p>No comment sentiment data yet. Run sentiment analysis on your videos to see insights here.</p>
       </div>
@@ -41,10 +44,10 @@ export function CommentSentiment() {
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <MessageSquare className="w-3.5 h-3.5 text-blue-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Analyzed</p>
@@ -53,7 +56,7 @@ export function CommentSentiment() {
           <p className="text-xs text-muted-foreground">videos</p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Smile className="w-3.5 h-3.5 text-green-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Positive</p>
@@ -61,7 +64,7 @@ export function CommentSentiment() {
           <p className="text-lg font-bold font-mono text-green-400">{overview.overallPositivePercent.toFixed(1)}%</p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Minus className="w-3.5 h-3.5 text-gray-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Neutral</p>
@@ -69,7 +72,7 @@ export function CommentSentiment() {
           <p className="text-lg font-bold font-mono text-foreground">{overview.overallNeutralPercent.toFixed(1)}%</p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Frown className="w-3.5 h-3.5 text-red-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Negative</p>
@@ -80,7 +83,7 @@ export function CommentSentiment() {
 
       {/* Sentiment Distribution */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3">Overall Sentiment</h3>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
@@ -88,9 +91,7 @@ export function CommentSentiment() {
                 data={pieData}
                 dataKey="value"
                 nameKey="name"
-                cx="50%"
-                cy="50%"
-                outerRadius={70}
+                {...pieDefaults}
                 label={({ name, value }) => `${name} ${value.toFixed(0)}%`}
                 labelLine={false}
               >
@@ -98,14 +99,14 @@ export function CommentSentiment() {
                   <Cell key={i} fill={SENTIMENT_COLORS[i]} />
                 ))}
               </Pie>
-              <Tooltip contentStyle={tooltipStyle} />
+              <Tooltip contentStyle={chartTooltipStyle} />
             </PieChart>
           </ResponsiveContainer>
         </div>
 
         {/* Keyword Cloud */}
         {overview.commonKeywords.length > 0 && (
-          <div className="rounded-lg border border-border bg-card p-4">
+          <div className="rounded-xl border border-border bg-card p-4">
             <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-1.5">
               <Hash className="w-3.5 h-3.5 text-blue-500" />
               Top Keywords
@@ -132,7 +133,7 @@ export function CommentSentiment() {
 
       {/* Per-Video Sentiment */}
       {overview.videoSentiments.length > 0 && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3">Per-Video Sentiment</h3>
           <ResponsiveContainer width="100%" height={Math.min(300, overview.videoSentiments.length * 30 + 40)}>
             <BarChart
@@ -144,13 +145,13 @@ export function CommentSentiment() {
               }))}
               layout="vertical"
             >
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-              <XAxis type="number" tick={{ fontSize: 10 }} />
-              <YAxis type="category" dataKey="title" width={130} tick={{ fontSize: 9 }} />
-              <Tooltip contentStyle={tooltipStyle} />
-              <Bar dataKey="positive" stackId="a" fill="#22c55e" name="Positive" />
-              <Bar dataKey="neutral" stackId="a" fill="#64748b" name="Neutral" />
-              <Bar dataKey="negative" stackId="a" fill="#ef4444" name="Negative" />
+              <CartesianGrid {...cartesianGridDefaults} />
+              <XAxis type="number" {...xAxisDefaults} />
+              <YAxis type="category" dataKey="title" width={130} {...yAxisDefaults} tick={chartAxisTickSmall} />
+              <Tooltip contentStyle={chartTooltipStyle} />
+              <Bar dataKey="positive" stackId="a" fill="#22c55e" name="Positive" {...horizontalBarDefaults} {...chartAnimationDefaults} />
+              <Bar dataKey="neutral" stackId="a" fill="#64748b" name="Neutral" {...horizontalBarDefaults} {...chartAnimationDefaults} />
+              <Bar dataKey="negative" stackId="a" fill="#ef4444" name="Negative" {...horizontalBarDefaults} {...chartAnimationDefaults} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -158,7 +159,7 @@ export function CommentSentiment() {
 
       {/* Top Questions */}
       {overview.topQuestions.length > 0 && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-1.5">
             <HelpCircle className="w-3.5 h-3.5 text-yellow-500" />
             Top Questions from Comments

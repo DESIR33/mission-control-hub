@@ -33,6 +33,7 @@ import {
   type FunnelRange,
   type SubscriberFunnelData,
 } from "@/hooks/use-subscriber-funnel";
+import { fmtCount, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, lineDefaults, horizontalBarDefaults } from "@/lib/chart-theme";
 
 const FUNNEL_COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-4))", "hsl(var(--chart-3))", "hsl(var(--chart-2))"];
 
@@ -69,18 +70,6 @@ const TRAFFIC_COLORS = [
   "hsl(var(--chart-1))", "hsl(var(--chart-5))", "hsl(var(--chart-4))", "hsl(var(--chart-2))", "hsl(var(--chart-3))",
 ];
 
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
-
-const fmtCount = (n: number): string => {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return String(n);
-};
 
 const sourceLabel = (sourceType: string): string =>
   SOURCE_LABELS[sourceType] ?? sourceType.replace(/_/g, " ");
@@ -140,7 +129,7 @@ export function SubscriberFunnel() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="rounded-lg border border-dashed border-border p-8 text-center">
+          <div className="rounded-xl border border-dashed border-border p-8 text-center">
             <Users className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
             <p className="text-sm text-muted-foreground">
               No subscriber funnel data available. Sync YouTube Analytics to see your growth funnel.
@@ -173,7 +162,7 @@ export function SubscriberFunnel() {
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-5">
         {/* Funnel Visualization */}
         <FunnelVisualization funnel={data.funnel} />
 
@@ -234,9 +223,9 @@ function FunnelVisualization({ funnel }: { funnel: SubscriberFunnelData["funnel"
                   <ChangeIndicator changePercent={step.changePercent} />
                 </div>
               </div>
-              <div className="h-8 bg-muted/50 rounded-md overflow-hidden">
+              <div className="h-8 bg-muted/50 rounded-lg overflow-hidden">
                 <div
-                  className="h-full rounded-md transition-all duration-500 flex items-center px-3"
+                  className="h-full rounded-lg transition-all duration-500 flex items-center px-3"
                   style={{
                     width: `${widthPct}%`,
                     backgroundColor: FUNNEL_COLORS[i],
@@ -315,22 +304,22 @@ function DailyGrowthChart({
         Daily Subscriber Growth
       </h3>
       <ResponsiveContainer width="100%" height={280}>
-        <AreaChart data={chartData}>
+        <AreaChart data={chartData} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
           <defs>
             <linearGradient id="gainedGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="hsl(var(--chart-2))" stopOpacity={0.3} />
+              <stop offset="5%" stopColor="hsl(var(--chart-2))" stopOpacity={0.25} />
               <stop offset="95%" stopColor="hsl(var(--chart-2))" stopOpacity={0} />
             </linearGradient>
             <linearGradient id="lostGrad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor="hsl(var(--chart-5))" stopOpacity={0} />
-              <stop offset="95%" stopColor="hsl(var(--chart-5))" stopOpacity={0.3} />
+              <stop offset="95%" stopColor="hsl(var(--chart-5))" stopOpacity={0.25} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-          <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-          <YAxis tick={{ fontSize: 10 }} tickFormatter={fmtCount} />
+          <CartesianGrid {...cartesianGridDefaults} />
+          <XAxis dataKey="date" {...xAxisDefaults} />
+          <YAxis {...yAxisDefaults} tickFormatter={fmtCount} />
           <Tooltip
-            contentStyle={tooltipStyle}
+            contentStyle={chartTooltipStyle}
             formatter={(value: number, name: string) => {
               const labels: Record<string, string> = {
                 gained: "Gained",
@@ -341,7 +330,7 @@ function DailyGrowthChart({
             }}
           />
           <Legend
-            wrapperStyle={{ fontSize: 12 }}
+            wrapperStyle={{ fontSize: 11, paddingTop: 8 }}
             formatter={(value: string) => {
               const labels: Record<string, string> = {
                 gained: "Gained",
@@ -355,23 +344,29 @@ function DailyGrowthChart({
             type="monotone"
             dataKey="gained"
             stroke="hsl(var(--chart-2))"
-            strokeWidth={2}
+            strokeWidth={2.5}
             fill="url(#gainedGrad)"
+            dot={false}
+            activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }}
           />
           <Area
             type="monotone"
             dataKey="lost"
             stroke="hsl(var(--chart-5))"
-            strokeWidth={2}
+            strokeWidth={2.5}
             fill="url(#lostGrad)"
+            dot={false}
+            activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }}
           />
           <Area
             type="monotone"
             dataKey="net"
             stroke="hsl(var(--chart-1))"
-            strokeWidth={2}
+            strokeWidth={2.5}
             fill="none"
             strokeDasharray="4 2"
+            dot={false}
+            activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }}
           />
         </AreaChart>
       </ResponsiveContainer>
@@ -385,7 +380,7 @@ function MagnetVideosTable({
   magnetVideos: SubscriberFunnelData["magnetVideos"];
 }) {
   return (
-    <div className="rounded-lg border border-border bg-card p-4">
+    <div className="rounded-xl border border-border bg-card p-4">
       <div className="flex items-center gap-2 mb-3">
         <Magnet className="w-4 h-4 text-primary" />
         <h3 className="text-sm font-semibold text-foreground">
@@ -468,7 +463,7 @@ function TrafficConversionChart({
   }));
 
   return (
-    <div className="rounded-lg border border-border bg-card p-4">
+    <div className="rounded-xl border border-border bg-card p-4">
       <div className="flex items-center gap-2 mb-3">
         <Route className="w-4 h-4 text-primary" />
         <h3 className="text-sm font-semibold text-foreground">
@@ -480,29 +475,29 @@ function TrafficConversionChart({
       </p>
       <ResponsiveContainer width="100%" height={Math.max(chartData.length * 36, 200)}>
         <BarChart data={chartData} layout="vertical">
-          <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-          <XAxis type="number" tick={{ fontSize: 10 }} tickFormatter={fmtCount} />
+          <CartesianGrid {...cartesianGridDefaults} />
+          <XAxis type="number" {...xAxisDefaults} tickFormatter={fmtCount} />
           <YAxis
             type="category"
             dataKey="source"
-            tick={{ fontSize: 10 }}
+            {...yAxisDefaults}
             width={110}
           />
           <Tooltip
-            contentStyle={tooltipStyle}
+            contentStyle={chartTooltipStyle}
             formatter={(value: number, name: string) => {
               if (name === "views") return [value.toLocaleString(), "Views"];
               if (name === "estimated_subs") return [value.toLocaleString(), "Est. Subs"];
               return [value, name];
             }}
           />
-          <Legend wrapperStyle={{ fontSize: 12 }} />
-          <Bar dataKey="views" name="views" fill="hsl(var(--chart-1))" radius={[0, 4, 4, 0]}>
+          <Legend wrapperStyle={{ fontSize: 11, paddingTop: 8 }} />
+          <Bar dataKey="views" name="views" fill="hsl(var(--chart-1))" radius={[0, 6, 6, 0]} maxBarSize={32}>
             {chartData.map((_, i) => (
               <Cell key={i} fill={TRAFFIC_COLORS[i % TRAFFIC_COLORS.length]} />
             ))}
           </Bar>
-          <Bar dataKey="estimated_subs" name="estimated_subs" fill="hsl(var(--chart-2))" radius={[0, 4, 4, 0]} />
+          <Bar dataKey="estimated_subs" name="estimated_subs" fill="hsl(var(--chart-2))" radius={[0, 6, 6, 0]} maxBarSize={32} />
         </BarChart>
       </ResponsiveContainer>
     </div>

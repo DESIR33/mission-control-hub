@@ -6,13 +6,7 @@ import {
 } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { useEngagementScores } from "@/hooks/use-engagement-scores";
-
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
+import { chartTooltipStyle, cartesianGridDefaults, xAxisDefaults, yAxisDefaults } from "@/lib/chart-theme";
 
 const scoreBadge = (score: number) => {
   if (score >= 80) return { label: "Hot", className: "bg-green-500/15 text-green-400 border-green-500/30" };
@@ -25,12 +19,12 @@ export function EngagementDashboard() {
   const { data: dashboard, isLoading } = useEngagementScores();
 
   if (isLoading) {
-    return <div className="rounded-lg border border-border bg-card p-6 animate-pulse h-72" />;
+    return <div className="rounded-xl border border-border bg-card p-6 animate-pulse h-72" />;
   }
 
   if (!dashboard) {
     return (
-      <div className="rounded-lg border border-border bg-card p-6 text-center text-muted-foreground">
+      <div className="rounded-xl border border-border bg-card p-6 text-center text-muted-foreground">
         <Users className="w-8 h-8 mx-auto mb-2 opacity-50" />
         <p>No engagement data available. Run the scoring Edge Function first.</p>
       </div>
@@ -38,10 +32,10 @@ export function EngagementDashboard() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* KPI Row */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <BarChart3 className="w-3.5 h-3.5 text-blue-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Avg Score</p>
@@ -50,7 +44,7 @@ export function EngagementDashboard() {
           <p className="text-xs text-muted-foreground">across {dashboard.totalScored} contacts</p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Flame className="w-3.5 h-3.5 text-green-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Hot Leads</p>
@@ -59,7 +53,7 @@ export function EngagementDashboard() {
           <p className="text-xs text-muted-foreground">score 60+</p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <AlertTriangle className="w-3.5 h-3.5 text-red-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">At Risk</p>
@@ -70,15 +64,15 @@ export function EngagementDashboard() {
       </div>
 
       {/* Distribution Chart */}
-      <div className="rounded-lg border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-foreground mb-3">Score Distribution</h3>
         <ResponsiveContainer width="100%" height={180}>
           <BarChart data={dashboard.distribution}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-            <XAxis dataKey="range" tick={{ fontSize: 10 }} />
-            <YAxis tick={{ fontSize: 10 }} />
-            <Tooltip contentStyle={tooltipStyle} />
-            <Bar dataKey="count" name="Contacts" radius={[4, 4, 0, 0]}>
+            <CartesianGrid {...cartesianGridDefaults} />
+            <XAxis dataKey="range" {...xAxisDefaults} />
+            <YAxis {...yAxisDefaults} />
+            <Tooltip contentStyle={chartTooltipStyle} />
+            <Bar dataKey="count" name="Contacts" radius={[6, 6, 0, 0]} maxBarSize={48} animationDuration={800}>
               {dashboard.distribution.map((entry, i) => (
                 <Cell key={i} fill={entry.color} />
               ))}
@@ -89,7 +83,7 @@ export function EngagementDashboard() {
 
       {/* Hot Leads & At Risk */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-4">
+        <div className="rounded-xl border border-green-500/20 bg-green-500/5 p-4">
           <h3 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
             <Flame className="w-3.5 h-3.5 text-green-500" />
             Hot Leads
@@ -113,7 +107,7 @@ export function EngagementDashboard() {
           </div>
         </div>
 
-        <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-4">
+        <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4">
           <h3 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
             <AlertTriangle className="w-3.5 h-3.5 text-red-500" />
             At Risk

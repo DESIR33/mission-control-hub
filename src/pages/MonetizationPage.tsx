@@ -18,6 +18,9 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Area, AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import {
+  chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, lineDefaults,
+} from "@/lib/chart-theme";
 import { supabase } from "@/integrations/supabase/client";
 import { useContentRevenue } from "@/hooks/use-content-revenue";
 import { RateCardCalculator } from "@/components/crm/RateCardCalculator";
@@ -43,7 +46,7 @@ function TopEarningVideos() {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.1 }}
-      className="rounded-lg border border-border bg-card p-5"
+      className="rounded-xl border border-border bg-card p-5"
     >
       <div className="flex items-center gap-2 mb-4">
         <Trophy className="w-4 h-4 text-warning" />
@@ -592,12 +595,12 @@ export default function MonetizationPage() {
 
           {/* Overview Tab */}
           <TabsContent value="overview">
-            <div className="space-y-4">
+            <div className="space-y-5">
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4 }}
-                className="rounded-lg border border-border bg-card p-5"
+                className="rounded-xl border border-border bg-card p-5"
               >
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-sm font-semibold text-card-foreground">
@@ -689,7 +692,7 @@ export default function MonetizationPage() {
                 </div>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                   {metrics.map((metric) => (
-                    <div key={metric.id} className="rounded-lg border border-border bg-secondary/50 p-4">
+                    <div key={metric.id} className="rounded-xl border border-border bg-secondary/50 p-4">
                       <RevenueWidget
                         metric={metric}
                         onUpdate={handleUpdateWidget}
@@ -707,12 +710,12 @@ export default function MonetizationPage() {
 
           {/* Affiliate Programs Tab */}
           <TabsContent value="affiliate">
-            <div className="space-y-4">
+            <div className="space-y-5">
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4 }}
-                className="rounded-lg border border-border bg-card p-5"
+                className="rounded-xl border border-border bg-card p-5"
               >
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-sm font-semibold text-card-foreground">
@@ -814,12 +817,12 @@ export default function MonetizationPage() {
 
           {/* Sponsorships Tab */}
           <TabsContent value="sponsorships">
-            <div className="space-y-4">
+            <div className="space-y-5">
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4 }}
-                className="rounded-lg border border-border bg-card p-5"
+                className="rounded-xl border border-border bg-card p-5"
               >
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-sm font-semibold text-card-foreground">
@@ -889,12 +892,12 @@ export default function MonetizationPage() {
 
           {/* Products Tab */}
           <TabsContent value="products">
-            <div className="space-y-4">
+            <div className="space-y-5">
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4 }}
-                className="rounded-lg border border-border bg-card p-5"
+                className="rounded-xl border border-border bg-card p-5"
               >
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-sm font-semibold text-card-foreground">
@@ -945,111 +948,75 @@ export default function MonetizationPage() {
                 </div>
 
                 {activeProductTab === "products" && (
-                  <div className="space-y-4">
+                  <div className="space-y-5">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div className="rounded-lg border border-border bg-card p-5">
+                      <div className="rounded-xl border border-border bg-card p-5">
                         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Sales by Product</p>
                         <div className="h-[150px]">
                           <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={productSalesData}>
+                            <AreaChart data={productSalesData} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
                               <defs>
                                 <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.1}/>
+                                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.25}/>
                                   <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
                                 </linearGradient>
                               </defs>
-                              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                              <CartesianGrid {...cartesianGridDefaults} />
                               <XAxis
+                                {...xAxisDefaults}
                                 dataKey="name"
-                                tickLine={false}
-                                axisLine={false}
-                                fontSize={10}
                                 tickFormatter={(value) => value.length > 15 ? `${value.substring(0, 15)}...` : value}
-                                stroke="hsl(var(--muted-foreground))"
                               />
                               <YAxis
-                                tickLine={false}
-                                axisLine={false}
-                                fontSize={10}
+                                {...yAxisDefaults}
                                 tickFormatter={(value) => `$${value.toLocaleString()}`}
-                                stroke="hsl(var(--muted-foreground))"
                               />
                               <Tooltip
                                 formatter={(value) => [`$${Number(value).toLocaleString()}`, 'Sales']}
-                                contentStyle={{
-                                  background: 'hsl(var(--card))',
-                                  border: '1px solid hsl(var(--border))',
-                                  borderRadius: '6px',
-                                  fontSize: '11px',
-                                }}
+                                contentStyle={chartTooltipStyle}
                               />
                               <Area
                                 type="monotone"
                                 dataKey="total"
                                 stroke="hsl(var(--primary))"
-                                strokeWidth={2}
                                 fill="url(#colorTotal)"
-                                dot={false}
-                                activeDot={{
-                                  r: 3,
-                                  stroke: "hsl(var(--primary))",
-                                  strokeWidth: 2,
-                                  fill: "hsl(var(--card))"
-                                }}
+                                {...lineDefaults}
                               />
                             </AreaChart>
                           </ResponsiveContainer>
                         </div>
                       </div>
 
-                      <div className="rounded-lg border border-border bg-card p-5">
+                      <div className="rounded-xl border border-border bg-card p-5">
                         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Monthly Sales Trend</p>
                         <div className="h-[150px]">
                           <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={salesData}>
+                            <AreaChart data={salesData} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
                               <defs>
                                 <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.1}/>
+                                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.25}/>
                                   <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
                                 </linearGradient>
                               </defs>
-                              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                              <CartesianGrid {...cartesianGridDefaults} />
                               <XAxis
+                                {...xAxisDefaults}
                                 dataKey="month"
-                                tickLine={false}
-                                axisLine={false}
-                                fontSize={10}
-                                stroke="hsl(var(--muted-foreground))"
                               />
                               <YAxis
-                                tickLine={false}
-                                axisLine={false}
-                                fontSize={10}
+                                {...yAxisDefaults}
                                 tickFormatter={(value) => `$${value.toLocaleString()}`}
-                                stroke="hsl(var(--muted-foreground))"
                               />
                               <Tooltip
                                 formatter={(value) => [`$${Number(value).toLocaleString()}`, 'Revenue']}
-                                contentStyle={{
-                                  background: 'hsl(var(--card))',
-                                  border: '1px solid hsl(var(--border))',
-                                  borderRadius: '6px',
-                                  fontSize: '11px',
-                                }}
+                                contentStyle={chartTooltipStyle}
                               />
                               <Area
                                 type="monotone"
                                 dataKey="total"
                                 stroke="hsl(var(--primary))"
-                                strokeWidth={2}
                                 fill="url(#colorRevenue)"
-                                dot={false}
-                                activeDot={{
-                                  r: 3,
-                                  stroke: "hsl(var(--primary))",
-                                  strokeWidth: 2,
-                                  fill: "hsl(var(--card))"
-                                }}
+                                {...lineDefaults}
                               />
                             </AreaChart>
                           </ResponsiveContainer>
@@ -1133,7 +1100,7 @@ export default function MonetizationPage() {
                 )}
 
                 {activeProductTab === "transactions" && (
-                  <div className="space-y-4">
+                  <div className="space-y-5">
                     <div className="overflow-auto rounded-md border border-border">
                       <Table className="min-w-[800px]">
                         <TableHeader>
@@ -1218,7 +1185,7 @@ export default function MonetizationPage() {
 
           {/* Revenue Overview Tab */}
           <TabsContent value="revenue-overview">
-            <div className="space-y-4">
+            <div className="space-y-5">
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -1231,7 +1198,7 @@ export default function MonetizationPage() {
 
           {/* Rate Card Tab */}
           <TabsContent value="rate-card">
-            <div className="space-y-4">
+            <div className="space-y-5">
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -1281,7 +1248,7 @@ export default function MonetizationPage() {
                   variant: "destructive",
                 });
               });
-            }} className="space-y-4">
+            }} className="space-y-5">
               <div className="grid gap-4 py-4">
                 <div className="grid gap-2">
                   <Label htmlFor="name">Product Name</Label>
@@ -1380,8 +1347,8 @@ export default function MonetizationPage() {
                   variant: "destructive",
                 });
               }
-            }} className="space-y-4">
-              <div className="space-y-4">
+            }} className="space-y-5">
+              <div className="space-y-5">
                 <div className="grid w-full gap-1.5">
                   <Label htmlFor="transactionDate">Transaction Date</Label>
                   <Input

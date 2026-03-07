@@ -9,19 +9,13 @@ import {
 } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { useViralPotential, type ViralScore } from "@/hooks/use-viral-potential";
-
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
-
-const fmtCount = (n: number) => {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return String(Math.round(n));
-};
+import {
+  chartTooltipStyle,
+  fmtCount,
+  cartesianGridDefaults,
+  xAxisDefaults,
+  yAxisDefaults,
+} from "@/lib/chart-theme";
 
 const tierConfig: Record<string, { color: string; bg: string; label: string }> = {
   viral: { color: "text-yellow-400", bg: "bg-yellow-400/10 border-yellow-400/30", label: "Viral" },
@@ -60,12 +54,12 @@ export function ViralPredictor() {
   const [expanded, setExpanded] = useState<string | null>(null);
 
   if (isLoading) {
-    return <div className="rounded-lg border border-border bg-card p-6 animate-pulse h-96" />;
+    return <div className="rounded-xl border border-border bg-card p-6 animate-pulse h-96" />;
   }
 
   if (!analysis) {
     return (
-      <div className="rounded-lg border border-border bg-card p-6 text-center text-muted-foreground">
+      <div className="rounded-xl border border-border bg-card p-6 text-center text-muted-foreground">
         <Zap className="w-8 h-8 mx-auto mb-2 opacity-50" />
         <p>No video data available for viral prediction.</p>
       </div>
@@ -79,10 +73,10 @@ export function ViralPredictor() {
   }));
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Zap className="w-3.5 h-3.5 text-yellow-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Avg Score</p>
@@ -90,7 +84,7 @@ export function ViralPredictor() {
           <p className="text-lg font-bold font-mono text-foreground">{analysis.avgViralScore}</p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <TrendingUp className="w-3.5 h-3.5 text-green-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Viral Potential</p>
@@ -99,7 +93,7 @@ export function ViralPredictor() {
           <p className="text-xs text-muted-foreground">videos (75+ score)</p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-3 col-span-2">
+        <div className="rounded-xl border border-border bg-card p-3 col-span-2">
           <div className="flex items-center gap-1.5 mb-1">
             <Share2 className="w-3.5 h-3.5 text-purple-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Top Viral Factor</p>
@@ -115,7 +109,7 @@ export function ViralPredictor() {
 
       {/* Insights */}
       {analysis.insights.length > 0 && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-2">Insights</h3>
           <ul className="space-y-1">
             {analysis.insights.map((insight, i) => (
@@ -129,15 +123,15 @@ export function ViralPredictor() {
       )}
 
       {/* Viral Score Chart */}
-      <div className="rounded-lg border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-foreground mb-3">Viral Scores</h3>
         <ResponsiveContainer width="100%" height={250}>
           <BarChart data={chartData} layout="vertical">
-            <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-            <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 10 }} />
-            <YAxis type="category" dataKey="title" width={110} tick={{ fontSize: 9 }} />
-            <Tooltip contentStyle={tooltipStyle} />
-            <Bar dataKey="score" radius={[0, 4, 4, 0]} name="Viral Score">
+            <CartesianGrid {...cartesianGridDefaults} />
+            <XAxis {...xAxisDefaults} type="number" domain={[0, 100]} />
+            <YAxis {...yAxisDefaults} type="category" dataKey="title" width={110} />
+            <Tooltip contentStyle={chartTooltipStyle} />
+            <Bar dataKey="score" radius={[6, 6, 0, 0]} maxBarSize={48} animationDuration={800} name="Viral Score">
               {chartData.map((entry, i) => {
                 const color = entry.score >= 75 ? "#eab308" : entry.score >= 50 ? "#22c55e" : entry.score >= 30 ? "#3b82f6" : "#ef4444";
                 return <Cell key={i} fill={color} />;
@@ -149,7 +143,7 @@ export function ViralPredictor() {
 
       {/* Viral Factors */}
       {analysis.viralFactors.length > 0 && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3">Viral Factors</h3>
           <div className="space-y-2">
             {analysis.viralFactors.map((f) => (
@@ -175,7 +169,7 @@ export function ViralPredictor() {
         {analysis.videos.slice(0, 20).map((video) => {
           const tier = tierConfig[video.tier];
           return (
-            <div key={video.videoId} className="rounded-lg border border-border bg-card overflow-hidden">
+            <div key={video.videoId} className="rounded-xl border border-border bg-card overflow-hidden">
               <button
                 className="w-full flex items-center gap-3 p-3 text-left hover:bg-muted/50 transition-colors"
                 onClick={() => setExpanded(expanded === video.videoId ? null : video.videoId)}

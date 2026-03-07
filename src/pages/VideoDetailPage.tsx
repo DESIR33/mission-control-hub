@@ -8,6 +8,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
 import { format } from "date-fns";
+import { fmtCount, fmtMoney, fmtDuration, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, lineDefaults } from "@/lib/chart-theme";
 import { useVideoDetail, useVideoAnalyticsTrend } from "@/hooks/use-video-detail";
 import { useVideoNotes } from "@/hooks/use-video-notes";
 import { useVideoExperiments } from "@/hooks/use-video-experiments";
@@ -24,23 +25,6 @@ import { DealsAttributionPanel } from "@/components/video-detail/DealsAttributio
 import { RetentionCurve } from "@/components/video-detail/RetentionCurve";
 import { VideoCompaniesPanel } from "@/components/video-detail/VideoCompaniesPanel";
 
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
-
-const fmtCount = (n: number) => {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return String(n);
-};
-
-const fmtMoney = (n: number) => {
-  if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}K`;
-  return `$${n.toFixed(2)}`;
-};
 
 export default function VideoDetailPage() {
   const { youtubeVideoId } = useParams<{ youtubeVideoId: string }>();
@@ -111,7 +95,7 @@ export default function VideoDetailPage() {
         <Button variant="ghost" size="sm" onClick={() => navigate("/analytics")} className="mb-4">
           <ArrowLeft className="w-4 h-4 mr-1" /> Back to Analytics
         </Button>
-        <div className="rounded-lg border border-dashed border-border p-12 text-center">
+        <div className="rounded-xl border border-dashed border-border p-12 text-center">
           <AlertCircle className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
           <h2 className="text-lg font-semibold text-foreground">Video Not Found</h2>
           <p className="text-sm text-muted-foreground mt-1">
@@ -164,7 +148,7 @@ export default function VideoDetailPage() {
         </TabsList>
 
         {/* Overview */}
-        <TabsContent value="overview" className="space-y-4 mt-4">
+        <TabsContent value="overview" className="space-y-5 mt-4">
           {/* Summary cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <SummaryCard label="Engagement Rate" value={detail.views > 0 ? `${(((detail.likes + detail.comments) / detail.views) * 100).toFixed(2)}%` : "—"} />
@@ -175,26 +159,26 @@ export default function VideoDetailPage() {
 
           {/* Trend chart */}
           {trendChart.length > 1 ? (
-            <div className="rounded-lg border border-border bg-card p-4">
+            <div className="rounded-xl border border-border bg-card p-4">
               <h3 className="text-sm font-semibold text-foreground mb-3">Views Trend</h3>
               <ResponsiveContainer width="100%" height={200}>
-                <LineChart data={trendChart}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                  <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-                  <YAxis tick={{ fontSize: 10 }} tickFormatter={fmtCount} />
-                  <Tooltip contentStyle={tooltipStyle} />
-                  <Line type="monotone" dataKey="views" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
+                <LineChart data={trendChart} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+                  <CartesianGrid {...cartesianGridDefaults} />
+                  <XAxis dataKey="date" {...xAxisDefaults} />
+                  <YAxis {...yAxisDefaults} tickFormatter={fmtCount} />
+                  <Tooltip contentStyle={chartTooltipStyle} />
+                  <Line type="monotone" dataKey="views" stroke="hsl(var(--primary))" {...lineDefaults} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+            <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
               No trend data yet. Sync Analytics API for daily breakdowns.
             </div>
           )}
 
           {/* Insights */}
-          <div className="rounded-lg border border-border bg-card p-4">
+          <div className="rounded-xl border border-border bg-card p-4">
             <h3 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
               <Lightbulb className="w-4 h-4 text-amber-500" /> What To Do Next
             </h3>
@@ -210,7 +194,7 @@ export default function VideoDetailPage() {
         </TabsContent>
 
         {/* Performance */}
-        <TabsContent value="performance" className="space-y-4 mt-4">
+        <TabsContent value="performance" className="space-y-5 mt-4">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <SummaryCard label="Avg View Duration" value={detail.average_view_duration_seconds > 0 ? fmtDuration(detail.average_view_duration_seconds) : "—"} />
             <SummaryCard label="Avg View %" value={detail.average_view_percentage > 0 ? `${detail.average_view_percentage.toFixed(1)}%` : "—"} />
@@ -228,15 +212,15 @@ export default function VideoDetailPage() {
           />
 
           {/* Benchmarks vs channel median placeholder */}
-          <div className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+          <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
             Top moments and publish-time analysis will appear here when more data is available.
           </div>
         </TabsContent>
 
         {/* Audience */}
-        <TabsContent value="audience" className="space-y-4 mt-4">
+        <TabsContent value="audience" className="space-y-5 mt-4">
           {demographics.length > 0 ? (
-            <div className="rounded-lg border border-border bg-card p-4">
+            <div className="rounded-xl border border-border bg-card p-4">
               <h3 className="text-sm font-semibold text-foreground mb-3">Demographics (Channel-Level)</h3>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {demographics.map((d: any) => (
@@ -248,7 +232,7 @@ export default function VideoDetailPage() {
               </div>
             </div>
           ) : (
-            <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+            <div className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
               No demographics data. Sync Analytics API to see audience breakdown.
             </div>
           )}
@@ -256,9 +240,9 @@ export default function VideoDetailPage() {
         </TabsContent>
 
         {/* Traffic */}
-        <TabsContent value="traffic" className="space-y-4 mt-4">
+        <TabsContent value="traffic" className="space-y-5 mt-4">
           {trafficSources.length > 0 ? (
-            <div className="rounded-lg border border-border bg-card p-4">
+            <div className="rounded-xl border border-border bg-card p-4">
               <h3 className="text-sm font-semibold text-foreground mb-3">Traffic Sources (Channel-Level)</h3>
               <div className="space-y-2">
                 {trafficSources.map((ts: any) => (
@@ -270,17 +254,17 @@ export default function VideoDetailPage() {
               </div>
             </div>
           ) : (
-            <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+            <div className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
               No traffic source data. Sync Analytics API to see traffic breakdown.
             </div>
           )}
         </TabsContent>
 
         {/* Revenue — Enhanced with combined revenue (Feature 1 + 7 + 10) */}
-        <TabsContent value="revenue" className="space-y-4 mt-4">
+        <TabsContent value="revenue" className="space-y-5 mt-4">
           {/* Total Combined Revenue */}
           {totalCombinedRevenue > 0 && (
-            <div className="rounded-lg border-2 border-green-500/30 bg-green-500/5 p-4">
+            <div className="rounded-xl border-2 border-green-500/30 bg-green-500/5 p-4">
               <div className="flex items-center gap-2 mb-1">
                 <DollarSign className="w-5 h-5 text-green-500" />
                 <h3 className="text-sm font-semibold text-foreground">Total Combined Revenue</h3>
@@ -307,15 +291,15 @@ export default function VideoDetailPage() {
 
           {/* Revenue Trend Chart (Feature 7) */}
           {trendChart.some((d) => d.revenue > 0) && (
-            <div className="rounded-lg border border-border bg-card p-4">
+            <div className="rounded-xl border border-border bg-card p-4">
               <h3 className="text-sm font-semibold text-foreground mb-3">Daily Ad Revenue Trend</h3>
               <ResponsiveContainer width="100%" height={180}>
-                <LineChart data={trendChart}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                  <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-                  <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => `$${v}`} />
-                  <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => [`$${Number(v).toFixed(2)}`, "Revenue"]} />
-                  <Line type="monotone" dataKey="revenue" stroke="#22c55e" strokeWidth={2} dot={false} />
+                <LineChart data={trendChart} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+                  <CartesianGrid {...cartesianGridDefaults} />
+                  <XAxis dataKey="date" {...xAxisDefaults} />
+                  <YAxis {...yAxisDefaults} tickFormatter={(v) => `$${v}`} />
+                  <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => [`$${Number(v).toFixed(2)}`, "Revenue"]} />
+                  <Line type="monotone" dataKey="revenue" stroke="#22c55e" {...lineDefaults} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -362,16 +346,10 @@ export default function VideoDetailPage() {
 
 function SummaryCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-border bg-card p-3">
-      <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
+    <div className="rounded-xl border border-border bg-card p-3 transition-colors hover:bg-card/80">
+      <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-medium">{label}</p>
       <p className="text-lg font-bold font-mono text-foreground mt-0.5">{value}</p>
     </div>
   );
-}
-
-function fmtDuration(seconds: number) {
-  if (seconds >= 3600) return `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
-  if (seconds >= 60) return `${Math.floor(seconds / 60)}m ${Math.round(seconds % 60)}s`;
-  return `${Math.round(seconds)}s`;
 }
 

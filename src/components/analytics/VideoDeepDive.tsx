@@ -12,30 +12,7 @@ import {
 import type { VideoAnalytics } from "@/hooks/use-youtube-analytics-api";
 import { useVideoNotesCheck } from "@/hooks/use-video-notes";
 import { useVideoRevenueLookup } from "@/hooks/use-video-revenue-lookup";
-
-const fmtCount = (n: number) => {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return String(n);
-};
-
-const fmtDuration = (seconds: number) => {
-  if (seconds >= 3600) return `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
-  if (seconds >= 60) return `${Math.floor(seconds / 60)}m ${Math.round(seconds % 60)}s`;
-  return `${Math.round(seconds)}s`;
-};
-
-const fmtMoney = (n: number) => {
-  if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}K`;
-  return `$${n.toFixed(2)}`;
-};
-
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
+import { fmtCount, fmtDuration, fmtMoney, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, horizontalBarDefaults, SEMANTIC_COLORS } from "@/lib/chart-theme";
 
 type SortField = "views" | "impressions" | "ctr" | "avgDuration" | "subsGained" | "revenue" | "engagement";
 
@@ -240,7 +217,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
 
   if (data.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-border bg-card p-8 text-center">
+      <div className="rounded-xl border border-dashed border-border bg-card p-8 text-center">
         <Play className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
         <p className="text-sm text-muted-foreground">
           No video analytics data yet. Sync YouTube Analytics to see detailed per-video metrics.
@@ -250,7 +227,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Aggregate KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
         <MiniKpi label="Total Views" value={fmtCount(totals.views)} />
@@ -263,15 +240,15 @@ export function VideoDeepDive({ data, daysRange }: Props) {
 
       {/* Top 5 videos bar chart */}
       {top5.length > 0 && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3">Top Videos by Views</h3>
           <ResponsiveContainer width="100%" height={top5.length * 40 + 40}>
             <BarChart data={top5.map((v) => ({ title: truncate(v.title, 40), views: v.views }))} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-              <XAxis type="number" tick={{ fontSize: 10 }} tickFormatter={fmtCount} />
-              <YAxis type="category" dataKey="title" tick={{ fontSize: 10 }} width={250} />
-              <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => [v.toLocaleString(), "Views"]} />
-              <Bar dataKey="views" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
+              <CartesianGrid {...cartesianGridDefaults} />
+              <XAxis type="number" {...xAxisDefaults} tickFormatter={fmtCount} />
+              <YAxis type="category" dataKey="title" {...yAxisDefaults} width={250} />
+              <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => [v.toLocaleString(), "Views"]} />
+              <Bar dataKey="views" fill="#6366f1" radius={[0, 6, 6, 0]} maxBarSize={32} animationDuration={800} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -279,25 +256,25 @@ export function VideoDeepDive({ data, daysRange }: Props) {
 
       {/* Performance Quadrant: Views vs CTR */}
       {scatterData.length > 2 && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-1">Performance Quadrant</h3>
           <p className="text-xs text-muted-foreground mb-3">
             Views vs CTR — top-right = highest potential subscriber magnets
           </p>
           <ResponsiveContainer width="100%" height={260}>
-            <ScatterChart>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-              <XAxis dataKey="views" name="Views" tick={{ fontSize: 10 }} tickFormatter={fmtCount}
+            <ScatterChart margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+              <CartesianGrid {...cartesianGridDefaults} />
+              <XAxis dataKey="views" name="Views" {...xAxisDefaults} tickFormatter={fmtCount}
                 label={{ value: "Views", position: "insideBottom", offset: -5, fontSize: 10 }} />
-              <YAxis dataKey="ctr" name="CTR %" tick={{ fontSize: 10 }}
+              <YAxis dataKey="ctr" name="CTR %" {...yAxisDefaults}
                 label={{ value: "CTR %", angle: -90, position: "insideLeft", fontSize: 10 }} />
               <Tooltip
-                contentStyle={tooltipStyle}
+                contentStyle={chartTooltipStyle}
                 formatter={(v: number, name: string) =>
                   name === "Views" ? [v.toLocaleString(), "Views"] : [`${v}%`, "CTR"]
                 }
               />
-              <Scatter data={scatterData} fill="hsl(var(--primary))" fillOpacity={0.7} />
+              <Scatter data={scatterData} fill="#6366f1" fillOpacity={0.7} />
             </ScatterChart>
           </ResponsiveContainer>
         </div>
@@ -316,7 +293,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
             {/* Top CTR Performers */}
             {ctrAnalysis.topCTRPerformers.length > 0 && (
-              <div className="rounded-lg border-2 border-green-500/50 bg-card p-4">
+              <div className="rounded-xl border-2 border-green-500/50 bg-card p-4">
                 <h4 className="text-xs font-semibold text-green-600 dark:text-green-400 mb-2 flex items-center gap-1">
                   <TrendingUp className="w-3.5 h-3.5" />
                   Top CTR Performers
@@ -338,7 +315,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
 
             {/* Thumbnail Opportunities */}
             {ctrAnalysis.thumbnailOpportunities.length > 0 && (
-              <div className="rounded-lg border-2 border-amber-500/50 bg-card p-4">
+              <div className="rounded-xl border-2 border-amber-500/50 bg-card p-4">
                 <h4 className="text-xs font-semibold text-amber-600 dark:text-amber-400 mb-2 flex items-center gap-1">
                   <MousePointerClick className="w-3.5 h-3.5" />
                   Thumbnail Opportunities
@@ -372,7 +349,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
           placeholder="Search videos by title..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-9 pr-3 py-2 text-sm rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+          className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
         />
       </div>
 
@@ -391,7 +368,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
           <button
             key={field}
             onClick={() => setSortField(field)}
-            className={`px-2 py-1 text-xs rounded-md border transition-colors ${
+            className={`px-2 py-1 text-xs rounded-lg border transition-colors ${
               sortField === field
                 ? "bg-primary text-primary-foreground border-primary"
                 : "bg-card text-muted-foreground border-border hover:bg-muted"
@@ -403,7 +380,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
       </div>
 
       {/* Video table */}
-      <div className="rounded-lg border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-foreground mb-3">
           {searchQuery.trim()
             ? `Showing ${filteredVideos.length} of ${sorted.length} videos`
@@ -552,7 +529,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
 
 function MiniKpi({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-border bg-card p-3">
+    <div className="rounded-xl border border-border bg-card p-3 transition-colors hover:bg-card/80">
       <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
       <p className="text-lg font-bold font-mono text-foreground mt-0.5">{value}</p>
     </div>

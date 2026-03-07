@@ -30,19 +30,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useRevenueForecast } from "@/hooks/use-revenue-forecast";
 import { useUnifiedRevenue } from "@/hooks/use-unified-revenue";
 import { addMonths, format } from "date-fns";
-
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
-
-const fmtMoney = (n: number) => {
-  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}K`;
-  return `$${n.toFixed(2)}`;
-};
+import {
+  chartTooltipStyle,
+  fmtMoney,
+  cartesianGridDefaults,
+  xAxisDefaults,
+  yAxisDefaults,
+} from "@/lib/chart-theme";
 
 const PIE_COLORS = ["#3b82f6", "#a855f7", "#22c55e"];
 
@@ -147,7 +141,7 @@ export function RevenueForecast10Month() {
             10-Month Revenue Forecast
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-5">
           <Skeleton className="h-8 w-full" />
           <Skeleton className="h-64 w-full" />
           <Skeleton className="h-48 w-full" />
@@ -195,7 +189,7 @@ export function RevenueForecast10Month() {
       <CardContent className="space-y-6">
         {/* Key Metrics Row */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="rounded-lg border border-border bg-card p-3">
+          <div className="rounded-xl border border-border bg-card p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <DollarSign className="w-3.5 h-3.5 text-green-500" />
               <p className="text-xs text-muted-foreground uppercase tracking-wider">
@@ -208,7 +202,7 @@ export function RevenueForecast10Month() {
             <p className="text-xs text-muted-foreground">current</p>
           </div>
 
-          <div className="rounded-lg border border-border bg-card p-3">
+          <div className="rounded-xl border border-border bg-card p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <Calendar className="w-3.5 h-3.5 text-blue-500" />
               <p className="text-xs text-muted-foreground uppercase tracking-wider">
@@ -221,7 +215,7 @@ export function RevenueForecast10Month() {
             <p className="text-xs text-muted-foreground">at current pace</p>
           </div>
 
-          <div className="rounded-lg border border-border bg-card p-3">
+          <div className="rounded-xl border border-border bg-card p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <BarChart3 className="w-3.5 h-3.5 text-purple-500" />
               <p className="text-xs text-muted-foreground uppercase tracking-wider">
@@ -234,7 +228,7 @@ export function RevenueForecast10Month() {
             <p className="text-xs text-muted-foreground">avg per 1K views</p>
           </div>
 
-          <div className="rounded-lg border border-border bg-card p-3">
+          <div className="rounded-xl border border-border bg-card p-3">
             <div className="flex items-center gap-1.5 mb-1">
               {unified.momGrowth >= 0 ? (
                 <TrendingUp className="w-3.5 h-3.5 text-green-500" />
@@ -257,7 +251,7 @@ export function RevenueForecast10Month() {
         </div>
 
         {/* Revenue per 1K Subscribers */}
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
@@ -276,31 +270,31 @@ export function RevenueForecast10Month() {
 
         {/* 10-Month Projection Chart */}
         {projection.length > 0 && (
-          <div className="rounded-lg border border-border bg-card p-4">
+          <div className="rounded-xl border border-border bg-card p-4">
             <h3 className="text-sm font-semibold text-foreground mb-3">
               10-Month Revenue Projection (Stacked by Source)
             </h3>
             <ResponsiveContainer width="100%" height={320}>
-              <AreaChart data={projection}>
+              <AreaChart data={projection} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="grad10mAdSense" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4} />
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.25} />
                     <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="grad10mSponsors" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#a855f7" stopOpacity={0.4} />
+                    <stop offset="5%" stopColor="#a855f7" stopOpacity={0.25} />
                     <stop offset="95%" stopColor="#a855f7" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="grad10mAffiliates" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#22c55e" stopOpacity={0.4} />
+                    <stop offset="5%" stopColor="#22c55e" stopOpacity={0.25} />
                     <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis dataKey="month" tick={{ fontSize: 10 }} />
-                <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => `$${v}`} />
+                <CartesianGrid {...cartesianGridDefaults} />
+                <XAxis dataKey="month" {...xAxisDefaults} />
+                <YAxis {...yAxisDefaults} tickFormatter={(v) => `$${v}`} />
                 <Tooltip
-                  contentStyle={tooltipStyle}
+                  contentStyle={chartTooltipStyle}
                   formatter={(v: number, name: string) => [fmtMoney(v), name]}
                 />
                 <Legend />
@@ -309,6 +303,9 @@ export function RevenueForecast10Month() {
                   dataKey="adSense"
                   stackId="1"
                   stroke="#3b82f6"
+                  strokeWidth={2.5}
+                  dot={false}
+                  activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }}
                   fill="url(#grad10mAdSense)"
                   name="AdSense"
                 />
@@ -317,6 +314,9 @@ export function RevenueForecast10Month() {
                   dataKey="sponsors"
                   stackId="1"
                   stroke="#a855f7"
+                  strokeWidth={2.5}
+                  dot={false}
+                  activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }}
                   fill="url(#grad10mSponsors)"
                   name="Sponsors"
                 />
@@ -325,6 +325,9 @@ export function RevenueForecast10Month() {
                   dataKey="affiliates"
                   stackId="1"
                   stroke="#22c55e"
+                  strokeWidth={2.5}
+                  dot={false}
+                  activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }}
                   fill="url(#grad10mAffiliates)"
                   name="Affiliates"
                 />
@@ -340,7 +343,7 @@ export function RevenueForecast10Month() {
 
         {/* Revenue Source Pie Chart */}
         {pieData.length > 0 && (
-          <div className="rounded-lg border border-border bg-card p-4">
+          <div className="rounded-xl border border-border bg-card p-4">
             <h3 className="text-sm font-semibold text-foreground mb-3">
               Revenue Source Breakdown
             </h3>
@@ -361,7 +364,7 @@ export function RevenueForecast10Month() {
                     ))}
                   </Pie>
                   <Tooltip
-                    contentStyle={tooltipStyle}
+                    contentStyle={chartTooltipStyle}
                     formatter={(v: number) => fmtMoney(v)}
                   />
                 </PieChart>
@@ -385,7 +388,7 @@ export function RevenueForecast10Month() {
         )}
 
         {/* Breakeven Calculator */}
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-1.5">
             <Calculator className="w-3.5 h-3.5 text-yellow-500" />
             Breakeven Calculator
@@ -406,7 +409,7 @@ export function RevenueForecast10Month() {
             </div>
             {breakeven && (
               <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-lg border border-border p-3">
+                <div className="rounded-xl border border-border p-3">
                   <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
                     Views Needed / Month
                   </p>
@@ -417,7 +420,7 @@ export function RevenueForecast10Month() {
                     at ${forecast.avgRpm.toFixed(2)} RPM
                   </p>
                 </div>
-                <div className="rounded-lg border border-border p-3">
+                <div className="rounded-xl border border-border p-3">
                   <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
                     Videos Needed / Month
                   </p>
@@ -440,7 +443,7 @@ export function RevenueForecast10Month() {
 
         {/* Insights */}
         {forecast.insights.length > 0 && (
-          <div className="rounded-lg border border-border bg-card p-4">
+          <div className="rounded-xl border border-border bg-card p-4">
             <h3 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
               <Lightbulb className="w-3.5 h-3.5 text-yellow-500" />
               Forecast Insights

@@ -8,19 +8,14 @@ import {
 } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { useCtrOptimizer } from "@/hooks/use-ctr-optimizer";
-
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
-
-const fmtCount = (n: number) => {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return String(Math.round(n));
-};
+import {
+  chartTooltipStyle,
+  cartesianGridDefaults,
+  xAxisDefaults,
+  yAxisDefaults,
+  barDefaults,
+  fmtCount,
+} from "@/lib/chart-theme";
 
 const tierColor: Record<string, string> = {
   top: "text-yellow-400",
@@ -35,12 +30,12 @@ export function CtrOptimizer() {
   const [showPatterns, setShowPatterns] = useState(false);
 
   if (isLoading) {
-    return <div className="rounded-lg border border-border bg-card p-6 animate-pulse h-96" />;
+    return <div className="rounded-xl border border-border bg-card p-6 animate-pulse h-96" />;
   }
 
   if (!optimization) {
     return (
-      <div className="rounded-lg border border-border bg-card p-6 text-center text-muted-foreground">
+      <div className="rounded-xl border border-border bg-card p-6 text-center text-muted-foreground">
         <MousePointerClick className="w-8 h-8 mx-auto mb-2 opacity-50" />
         <p>No CTR data available yet.</p>
       </div>
@@ -48,10 +43,10 @@ export function CtrOptimizer() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <MousePointerClick className="w-3.5 h-3.5 text-blue-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Avg CTR</p>
@@ -60,7 +55,7 @@ export function CtrOptimizer() {
           <p className="text-xs text-muted-foreground">YouTube avg 4-5%</p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <TrendingUp className="w-3.5 h-3.5 text-green-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Top CTR Videos</p>
@@ -68,7 +63,7 @@ export function CtrOptimizer() {
           <p className="text-lg font-bold font-mono text-foreground">{optimization.topCtrVideos.length}</p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <AlertTriangle className="w-3.5 h-3.5 text-red-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Low CTR</p>
@@ -76,7 +71,7 @@ export function CtrOptimizer() {
           <p className="text-lg font-bold font-mono text-foreground">{optimization.lowCtrVideos.length}</p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Eye className="w-3.5 h-3.5 text-yellow-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Missed Views</p>
@@ -88,7 +83,7 @@ export function CtrOptimizer() {
 
       {/* Insights */}
       {optimization.insights.length > 0 && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-2">Insights</h3>
           <ul className="space-y-1">
             {optimization.insights.map((insight, i) => (
@@ -102,15 +97,15 @@ export function CtrOptimizer() {
       )}
 
       {/* CTR Distribution */}
-      <div className="rounded-lg border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-foreground mb-3">CTR Distribution</h3>
         <ResponsiveContainer width="100%" height={200}>
           <BarChart data={optimization.ctrDistribution}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-            <XAxis dataKey="range" tick={{ fontSize: 10 }} />
-            <YAxis tick={{ fontSize: 10 }} />
-            <Tooltip contentStyle={tooltipStyle} />
-            <Bar dataKey="count" name="Videos" radius={[4, 4, 0, 0]}>
+            <CartesianGrid {...cartesianGridDefaults} />
+            <XAxis dataKey="range" {...xAxisDefaults} />
+            <YAxis {...yAxisDefaults} />
+            <Tooltip contentStyle={chartTooltipStyle} />
+            <Bar dataKey="count" name="Videos" {...barDefaults} animationDuration={800}>
               {optimization.ctrDistribution.map((_, i) => (
                 <Cell key={i} fill={["#ef4444", "#eab308", "#3b82f6", "#22c55e", "#22c55e", "#22c55e"][i]} />
               ))}
@@ -121,7 +116,7 @@ export function CtrOptimizer() {
 
       {/* Title Patterns */}
       {optimization.titlePatterns.length > 0 && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <button
             className="w-full flex items-center justify-between"
             onClick={() => setShowPatterns(!showPatterns)}
@@ -152,7 +147,7 @@ export function CtrOptimizer() {
 
       {/* Top & Low CTR Videos */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-1.5">
             <TrendingUp className="w-3.5 h-3.5 text-green-500" />
             Best CTR Videos
@@ -168,7 +163,7 @@ export function CtrOptimizer() {
           </div>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-1.5">
             <AlertTriangle className="w-3.5 h-3.5 text-red-500" />
             Low CTR (Opportunity)

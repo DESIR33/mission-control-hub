@@ -9,13 +9,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEngagementScores } from "@/hooks/use-engagement-scores";
-
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
+import { chartTooltipStyle, cartesianGridDefaults, xAxisDefaults, yAxisDefaults } from "@/lib/chart-theme";
 
 function getScoreBadge(score: number): { label: string; className: string } {
   if (score >= 80)
@@ -39,7 +33,7 @@ export function EngagementScorePanel() {
             Engagement Scoring
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-5">
           <Skeleton className="h-8 w-full" />
           <Skeleton className="h-48 w-full" />
           <Skeleton className="h-32 w-full" />
@@ -82,7 +76,7 @@ export function EngagementScorePanel() {
       <CardContent className="space-y-6">
         {/* Average Score + KPI row */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="rounded-lg border border-border bg-card p-3">
+          <div className="rounded-xl border border-border bg-card p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <BarChart3 className="w-3.5 h-3.5 text-blue-500" />
               <p className="text-xs text-muted-foreground uppercase tracking-wider">
@@ -95,7 +89,7 @@ export function EngagementScorePanel() {
             <Progress value={dashboard.avgScore} className="h-1.5 mt-1" />
           </div>
 
-          <div className="rounded-lg border border-border bg-card p-3">
+          <div className="rounded-xl border border-border bg-card p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <Users className="w-3.5 h-3.5 text-purple-500" />
               <p className="text-xs text-muted-foreground uppercase tracking-wider">
@@ -108,7 +102,7 @@ export function EngagementScorePanel() {
             <p className="text-xs text-muted-foreground">contacts</p>
           </div>
 
-          <div className="rounded-lg border border-border bg-card p-3">
+          <div className="rounded-xl border border-border bg-card p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <Flame className="w-3.5 h-3.5 text-red-500" />
               <p className="text-xs text-muted-foreground uppercase tracking-wider">
@@ -121,7 +115,7 @@ export function EngagementScorePanel() {
             <p className="text-xs text-muted-foreground">score 60+</p>
           </div>
 
-          <div className="rounded-lg border border-border bg-card p-3">
+          <div className="rounded-xl border border-border bg-card p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <AlertTriangle className="w-3.5 h-3.5 text-yellow-500" />
               <p className="text-xs text-muted-foreground uppercase tracking-wider">
@@ -137,7 +131,7 @@ export function EngagementScorePanel() {
 
         {/* Needs Attention Alert */}
         {needsAttention.length > 0 && (
-          <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-4">
+          <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/5 p-4">
             <div className="flex items-center gap-2 mb-2">
               <AlertCircle className="w-4 h-4 text-yellow-500" />
               <h3 className="text-sm font-semibold text-foreground">
@@ -170,17 +164,17 @@ export function EngagementScorePanel() {
         )}
 
         {/* Distribution Chart */}
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3">
             Score Distribution
           </h3>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={dashboard.distribution}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-              <XAxis dataKey="range" tick={{ fontSize: 10 }} />
-              <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
-              <Tooltip contentStyle={tooltipStyle} />
-              <Bar dataKey="count" name="Contacts" radius={[4, 4, 0, 0]}>
+              <CartesianGrid {...cartesianGridDefaults} />
+              <XAxis dataKey="range" {...xAxisDefaults} />
+              <YAxis {...yAxisDefaults} allowDecimals={false} />
+              <Tooltip contentStyle={chartTooltipStyle} />
+              <Bar dataKey="count" name="Contacts" radius={[6, 6, 0, 0]} maxBarSize={48} animationDuration={800}>
                 {dashboard.distribution.map((entry, i) => (
                   <Cell key={i} fill={entry.color} />
                 ))}
@@ -192,7 +186,7 @@ export function EngagementScorePanel() {
         {/* Hot Leads & At-Risk */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {/* Hot Leads */}
-          <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-4">
+          <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4">
             <h3 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
               <Flame className="w-3.5 h-3.5 text-red-500" />
               Hot Leads
@@ -226,7 +220,7 @@ export function EngagementScorePanel() {
           </div>
 
           {/* At-Risk Contacts */}
-          <div className="rounded-lg border border-yellow-500/20 bg-yellow-500/5 p-4">
+          <div className="rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-4">
             <h3 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
               <AlertTriangle className="w-3.5 h-3.5 text-yellow-500" />
               At-Risk Contacts

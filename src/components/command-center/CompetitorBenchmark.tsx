@@ -15,19 +15,7 @@ import {
 import { useSyncCompetitors } from "@/hooks/use-competitor-benchmarking";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
-
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
-
-const fmtCount = (n: number) => {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return String(Math.round(n));
-};
+import { fmtCount, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, barDefaults } from "@/lib/chart-theme";
 
 const statusIcon: Record<string, any> = {
   ahead: TrendingUp,
@@ -78,13 +66,13 @@ export function CompetitorBenchmark() {
   };
 
   if (isLoading) {
-    return <div className="rounded-lg border border-border bg-card p-6 animate-pulse h-96" />;
+    return <div className="rounded-xl border border-border bg-card p-6 animate-pulse h-96" />;
   }
 
   if (!benchmark) {
     return (
-      <div className="space-y-4">
-        <div className="rounded-lg border border-border bg-card p-6 text-center text-muted-foreground">
+      <div className="space-y-5">
+        <div className="rounded-xl border border-border bg-card p-6 text-center text-muted-foreground">
           <Users className="w-8 h-8 mx-auto mb-2 opacity-50" />
           <p>Add competitor channels to see benchmarking data.</p>
         </div>
@@ -110,7 +98,7 @@ export function CompetitorBenchmark() {
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Sync Controls */}
       <div className="flex items-center justify-between">
         <p className="text-xs text-muted-foreground">
@@ -133,7 +121,7 @@ export function CompetitorBenchmark() {
         {benchmark.comparisons.map((comp) => {
           const Icon = statusIcon[comp.status];
           return (
-            <div key={comp.metric} className="rounded-lg border border-border bg-card p-3">
+            <div key={comp.metric} className="rounded-xl border border-border bg-card p-3">
               <div className="flex items-center gap-1.5 mb-1">
                 <Icon className={`w-3.5 h-3.5 ${statusColor[comp.status]}`} />
                 <p className="text-xs text-muted-foreground uppercase tracking-wider">{comp.metric}</p>
@@ -152,7 +140,7 @@ export function CompetitorBenchmark() {
 
       {/* Position */}
       {benchmark.yourPosition.length > 0 && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-1.5">
             <Medal className="w-3.5 h-3.5 text-yellow-500" />
             Your Position
@@ -170,7 +158,7 @@ export function CompetitorBenchmark() {
 
       {/* Insights */}
       {benchmark.insights.length > 0 && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-2">Insights</h3>
           <ul className="space-y-1">
             {benchmark.insights.map((insight, i) => (
@@ -184,15 +172,15 @@ export function CompetitorBenchmark() {
       )}
 
       {/* Subscriber Comparison Chart */}
-      <div className="rounded-lg border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-foreground mb-3">Subscriber Comparison</h3>
         <ResponsiveContainer width="100%" height={220}>
-          <BarChart data={subChartData}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-            <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-            <YAxis tick={{ fontSize: 10 }} tickFormatter={fmtCount} />
-            <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => fmtCount(v)} />
-            <Bar dataKey="value" radius={[4, 4, 0, 0]} name="Subscribers">
+          <BarChart data={subChartData} margin={{ top: 4, right: 4, bottom: 4, left: 4 }}>
+            <CartesianGrid {...cartesianGridDefaults} />
+            <XAxis dataKey="name" {...xAxisDefaults} />
+            <YAxis {...yAxisDefaults} tickFormatter={fmtCount} />
+            <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => fmtCount(v)} />
+            <Bar dataKey="value" {...barDefaults} name="Subscribers" animationDuration={800}>
               {subChartData.map((entry, i) => (
                 <Cell key={i} fill={i === 0 ? "#22c55e" : "#3b82f6"} />
               ))}
@@ -204,7 +192,7 @@ export function CompetitorBenchmark() {
       {/* Competitor List */}
       <div className="space-y-2">
         {benchmark.competitors.map((comp) => (
-          <div key={comp.id} className="rounded-lg border border-border bg-card p-3 flex items-center gap-3">
+          <div key={comp.id} className="rounded-xl border border-border bg-card p-3 flex items-center gap-3">
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground">{comp.channel_name}</p>
               <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
@@ -243,7 +231,7 @@ export function CompetitorBenchmark() {
 
 function AddForm({ showAdd, setShowAdd, form, setForm, handleAdd, isPending }: any) {
   return (
-    <div className="rounded-lg border border-border bg-card p-4">
+    <div className="rounded-xl border border-border bg-card p-4">
       {showAdd ? (
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-2">

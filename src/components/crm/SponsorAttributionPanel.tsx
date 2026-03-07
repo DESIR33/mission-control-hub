@@ -4,18 +4,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
 import { DollarSign, Users, TrendingUp, ChevronDown, ChevronUp } from "lucide-react";
-
-const fmtMoney = (n: number) => {
-  if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}K`;
-  return `$${n.toFixed(0)}`;
-};
-
-const tooltipStyle = {
-  backgroundColor: "hsl(var(--card))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 8,
-  fontSize: 12,
-};
+import { chartTooltipStyle, cartesianGridDefaults, xAxisDefaults, yAxisDefaults, fmtMoney } from "@/lib/chart-theme";
 
 export function SponsorAttributionPanel() {
   const { data: summary, isLoading } = useSponsorAttribution();
@@ -31,7 +20,7 @@ export function SponsorAttributionPanel() {
 
   if (!summary || summary.sponsors.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-border p-8 text-center">
+      <div className="rounded-xl border border-dashed border-border p-8 text-center">
         <Users className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
         <p className="text-sm text-muted-foreground">
           No sponsor attribution data yet. Link deals to videos to see sponsor performance.
@@ -47,31 +36,31 @@ export function SponsorAttributionPanel() {
   }));
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <DollarSign className="w-4 h-4 text-green-500" />
             <span className="text-xs text-muted-foreground uppercase tracking-wider">Total Sponsor Revenue</span>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{fmtMoney(summary.totalSponsorRevenue)}</p>
         </div>
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Users className="w-4 h-4 text-blue-500" />
             <span className="text-xs text-muted-foreground uppercase tracking-wider">Sponsors</span>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{summary.sponsors.length}</p>
         </div>
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <DollarSign className="w-4 h-4 text-purple-500" />
             <span className="text-xs text-muted-foreground uppercase tracking-wider">Avg Deal Size</span>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">{fmtMoney(summary.avgDealSize)}</p>
         </div>
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <TrendingUp className="w-4 h-4 text-amber-500" />
             <span className="text-xs text-muted-foreground uppercase tracking-wider">Repeat Rate</span>
@@ -82,25 +71,25 @@ export function SponsorAttributionPanel() {
 
       {/* Bar Chart */}
       {chartData.length > 0 && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3">Top Sponsors by Revenue</h3>
           <ResponsiveContainer width="100%" height={chartData.length * 35 + 40}>
             <BarChart data={chartData} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-              <XAxis type="number" tick={{ fontSize: 10 }} tickFormatter={fmtMoney} />
-              <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={160} />
+              <CartesianGrid {...cartesianGridDefaults} />
+              <XAxis type="number" {...xAxisDefaults} tickFormatter={fmtMoney} />
+              <YAxis type="category" dataKey="name" {...yAxisDefaults} width={160} />
               <Tooltip
-                contentStyle={tooltipStyle}
+                contentStyle={chartTooltipStyle}
                 formatter={(v: number) => [fmtMoney(v), "Deal Value"]}
               />
-              <Bar dataKey="value" fill="#3b82f6" radius={[0, 4, 4, 0]} />
+              <Bar dataKey="value" fill="#3b82f6" radius={[0, 6, 6, 0]} maxBarSize={32} animationDuration={800} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       )}
 
       {/* Sponsors Table */}
-      <div className="rounded-lg border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-foreground mb-3">All Sponsors</h3>
         <div className="space-y-1">
           {summary.sponsors.map((sponsor) => {
