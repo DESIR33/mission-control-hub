@@ -53,6 +53,7 @@ function ScoreRing({ score, size = 48 }: { score: number; size?: number }) {
 
 export function ViralPredictor() {
   const { data: analysis, isLoading } = useViralPotential();
+  const { lookup: companyLookup } = useAllVideoCompanies();
   const [expanded, setExpanded] = useState<string | null>(null);
 
   if (isLoading) {

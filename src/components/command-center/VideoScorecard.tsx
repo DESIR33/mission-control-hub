@@ -54,6 +54,7 @@ function ScoreBar({ label, score }: { label: string; score: number }) {
 
 export function VideoScorecard() {
   const { data: scorecard, isLoading } = useVideoScorecard();
+  const { lookup: companyLookup } = useAllVideoCompanies();
   const [expanded, setExpanded] = useState<string | null>(null);
   const [search, setSearch] = useState("");
 
