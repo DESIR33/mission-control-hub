@@ -42,6 +42,7 @@ import ChatPage from "./pages/ChatPage";
 import MemoryPage from "./pages/MemoryPage";
 import CollaborationsPage from "./pages/CollaborationsPage";
 import AgentHubPage from "./pages/AgentHubPage";
+import CommentsPage from "./pages/CommentsPage";
 
 const queryClient = new QueryClient();
 
@@ -124,6 +125,7 @@ const App = () => (
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/chat" element={<ChatPage />} />
               <Route path="/agents" element={<AgentHubPage />} />
+              <Route path="/comments" element={<CommentsPage />} />
               <Route path="/memory" element={<MemoryPage />} />
             </Route>
             <Route path="*" element={<NotFound />} />

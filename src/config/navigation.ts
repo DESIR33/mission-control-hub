@@ -102,6 +102,7 @@ export const navGroups: NavGroup[] = [
   {
     label: "Communication",
     items: [
+      { to: "/comments", icon: MessageSquare, label: "Comments" },
       { to: "/inbox", icon: Mail, label: "Inbox" },
       { to: "/notifications", icon: Bell, label: "Notifications" },
     ],
