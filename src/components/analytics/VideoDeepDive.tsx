@@ -12,9 +12,10 @@ import {
 import type { VideoAnalytics } from "@/hooks/use-youtube-analytics-api";
 import { useVideoNotesCheck } from "@/hooks/use-video-notes";
 import { useVideoRevenueLookup } from "@/hooks/use-video-revenue-lookup";
+import { useYouTubeVideoStats } from "@/hooks/use-youtube-analytics";
 import { fmtCount, fmtDuration, fmtMoney, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, horizontalBarDefaults, SEMANTIC_COLORS } from "@/lib/chart-theme";
 
-type SortField = "views" | "impressions" | "ctr" | "avgDuration" | "subsGained" | "revenue" | "engagement";
+type SortField = "views" | "impressions" | "ctr" | "avgDuration" | "subsGained" | "revenue" | "engagement" | "uploadDate";
 
 interface Props {
   data: VideoAnalytics[];
@@ -28,6 +29,17 @@ export function VideoDeepDive({ data, daysRange }: Props) {
   const [searchQuery, setSearchQuery] = useState("");
   const { data: notesSet } = useVideoNotesCheck();
   const { lookup: revenueLookup } = useVideoRevenueLookup();
+  const { data: videoStatsList } = useYouTubeVideoStats(500);
+
+  const publishedAtMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const v of videoStatsList ?? []) {
+      if (v.published_at && !map.has(v.youtube_video_id)) {
+        map.set(v.youtube_video_id, v.published_at);
+      }
+    }
+    return map;
+  }, [videoStatsList]);
 
   // Feature 2: Aggregation — group rows by youtube_video_id
   const aggregated = useMemo(() => {
@@ -124,10 +136,15 @@ export function VideoDeepDive({ data, daysRange }: Props) {
         case "subsGained": return (b.subscribers_gained - b.subscribers_lost) - (a.subscribers_gained - a.subscribers_lost);
         case "revenue": return b.estimated_revenue - a.estimated_revenue;
         case "engagement": return b.engagementRate - a.engagementRate;
+        case "uploadDate": {
+          const aDate = publishedAtMap.get(a.youtube_video_id) ?? "";
+          const bDate = publishedAtMap.get(b.youtube_video_id) ?? "";
+          return bDate.localeCompare(aDate); // newest first
+        }
         default: return b.views - a.views;
       }
     });
-  }, [enriched, sortField]);
+  }, [enriched, sortField, publishedAtMap]);
 
   // Feature 10: Video Search — filter sorted videos by title
   const filteredVideos = useMemo(() => {
@@ -364,6 +381,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
           ["subsGained", "Subs Gained"],
           ["engagement", "Engagement"],
           ["revenue", "Revenue"],
+          ["uploadDate", "Upload Date"],
         ] as [SortField, string][]).map(([field, label]) => (
           <button
             key={field}
