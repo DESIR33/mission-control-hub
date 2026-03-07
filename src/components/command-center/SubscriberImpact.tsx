@@ -4,6 +4,8 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
 } from "recharts";
 import { Users, TrendingUp, Award, Target } from "lucide-react";
+import { useAllVideoCompanies } from "@/hooks/use-all-video-companies";
+import { VideoCompanyLogos } from "@/components/VideoCompanyLogos";
 import {
   chartTooltipStyle,
   fmtCount,
