@@ -50,7 +50,7 @@ export function useSyncStatusData() {
         .order("completed_at", { ascending: false })
         .limit(50);
       if (error) throw error;
-      return (data ?? []) as Array<{
+      return (data ?? []) as unknown as Array<{
         id: string;
         workspace_id: string;
         sync_type: string;
