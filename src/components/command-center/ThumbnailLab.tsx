@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
+import { ThumbnailReferenceLibrary } from "./ThumbnailReferenceLibrary";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -178,7 +179,7 @@ export function ThumbnailLab() {
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="select" className="gap-1.5">
             <Image className="w-3.5 h-3.5" /> Select Video
           </TabsTrigger>
@@ -190,6 +191,9 @@ export function ThumbnailLab() {
           </TabsTrigger>
           <TabsTrigger value="compare" className="gap-1.5" disabled={Object.keys(generatedImages).length === 0}>
             <BarChart3 className="w-3.5 h-3.5" /> Compare
+          </TabsTrigger>
+          <TabsTrigger value="references" className="gap-1.5">
+            <Palette className="w-3.5 h-3.5" /> References
           </TabsTrigger>
         </TabsList>
 
@@ -494,6 +498,11 @@ export function ThumbnailLab() {
               })}
             </div>
           </Card>
+        </TabsContent>
+
+        {/* REFERENCES TAB */}
+        <TabsContent value="references" className="space-y-4">
+          <ThumbnailReferenceLibrary />
         </TabsContent>
       </Tabs>
     </div>
