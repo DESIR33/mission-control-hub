@@ -145,7 +145,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
       enriched
         .filter((v) => v.views > 0 && v.impressions_ctr > 0)
         .map((v) => ({
-          title: v.title || v.youtube_video_id,
+          title: v.title || "Untitled Video",
           views: v.views,
           ctr: v.impressions_ctr,
           subs: v.subscribers_gained - v.subscribers_lost,
