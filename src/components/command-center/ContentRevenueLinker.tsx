@@ -22,6 +22,7 @@ const COLORS = ["#22c55e", "#3b82f6", "#a855f7"];
 
 export function ContentRevenueLinker() {
   const { data: summary, isLoading } = useContentRevenue();
+  const { lookup: companyLookup } = useAllVideoCompanies();
 
   if (isLoading) {
     return <div className="rounded-xl border border-border bg-card p-6 animate-pulse h-96" />;
