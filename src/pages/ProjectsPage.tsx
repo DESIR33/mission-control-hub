@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import {
@@ -12,7 +12,9 @@ import {
   LayoutGrid,
   List,
   MoreHorizontal,
+  Kanban,
 } from "lucide-react";
+import { TaskBoardContent } from "@/components/projects/TaskBoardContent";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -83,8 +85,10 @@ function getStatusBgClass(status: string) {
 
 export default function ProjectsPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const initialView = (searchParams.get("view") as "cards" | "list" | "tasks") || "cards";
   const { toast } = useToast();
-  const [currentView, setCurrentView] = useState<"cards" | "list">("cards");
+  const [currentView, setCurrentView] = useState<"cards" | "list" | "tasks">(initialView);
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -269,13 +273,29 @@ export default function ProjectsPage() {
             >
               <List className="h-3.5 w-3.5" />
             </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "rounded-lg h-8 w-8",
+                currentView === "tasks"
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                  : "text-muted-foreground hover:bg-accent"
+              )}
+              onClick={() => setCurrentView("tasks")}
+              aria-label="Task board"
+            >
+              <Kanban className="h-3.5 w-3.5" />
+            </Button>
           </div>
         </div>
       </div>
 
       {/* Main content */}
       <main className="min-h-0 flex-1 overflow-y-auto bg-muted/10 p-4">
-        {isLoading ? (
+        {currentView === "tasks" ? (
+          <TaskBoardContent />
+        ) : isLoading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="rounded-2xl border border-border bg-card p-5">

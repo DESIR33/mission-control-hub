@@ -1,10 +1,8 @@
 import {
   LayoutDashboard,
-  Users,
   Film,
   DollarSign,
   Handshake,
-  CheckSquare,
   FolderKanban,
   Brain,
   Bell,
@@ -12,15 +10,8 @@ import {
   Settings,
   Zap,
   BarChart3,
-  Compass,
   Send,
-  FileText,
-  Rocket,
   Target,
-  MessageSquare,
-  BookOpen,
-  UserPlus,
-  Bot,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -38,23 +29,14 @@ export interface NavGroup {
 // Flat list used by the desktop sidebar
 export const navItems: NavItem[] = [
   { to: "/", icon: LayoutDashboard, label: "Mission Control" },
-  { to: "/relationships", icon: Users, label: "Relationships" },
-  { to: "/content", icon: Film, label: "Content Pipeline" },
-  { to: "/analytics", icon: BarChart3, label: "Analytics" },
-  { to: "/command-center", icon: Rocket, label: "Command Center" },
+  { to: "/partnerships", icon: Handshake, label: "Partnerships" },
   { to: "/monetization", icon: DollarSign, label: "Monetization" },
-  { to: "/deals", icon: Handshake, label: "Deals Pipeline" },
-  { to: "/discover", icon: Compass, label: "Discover" },
-  { to: "/collaborations", icon: UserPlus, label: "Collaborations" },
   { to: "/sequences", icon: Send, label: "Email Sequences" },
+  { to: "/content", icon: Film, label: "Content Pipeline" },
   { to: "/projects", icon: FolderKanban, label: "Projects" },
-  { to: "/tasks", icon: CheckSquare, label: "Tasks" },
   { to: "/sprints", icon: Target, label: "Growth Sprints" },
-  { to: "/ai-bridge", icon: Brain, label: "AI Bridge" },
-  { to: "/chat", icon: MessageSquare, label: "AI Chat" },
-  { to: "/agents", icon: Bot, label: "Agent Hub" },
-  { to: "/memory", icon: BookOpen, label: "Memory" },
-  { to: "/reports", icon: FileText, label: "Weekly Reports" },
+  { to: "/youtube", icon: BarChart3, label: "YouTube Hub" },
+  { to: "/ai", icon: Brain, label: "AI Hub" },
   { to: "/inbox", icon: Mail, label: "Inbox" },
   { to: "/notifications", icon: Bell, label: "Notifications" },
 ];
@@ -70,11 +52,8 @@ export const navGroups: NavGroup[] = [
   {
     label: "Business",
     items: [
-      { to: "/relationships", icon: Users, label: "Relationships" },
-      { to: "/deals", icon: Handshake, label: "Deals Pipeline" },
+      { to: "/partnerships", icon: Handshake, label: "Partnerships" },
       { to: "/monetization", icon: DollarSign, label: "Monetization" },
-      { to: "/discover", icon: Compass, label: "Discover" },
-      { to: "/collaborations", icon: UserPlus, label: "Collaborations" },
       { to: "/sequences", icon: Send, label: "Email Sequences" },
     ],
   },
@@ -82,27 +61,20 @@ export const navGroups: NavGroup[] = [
     label: "Content & Work",
     items: [
       { to: "/content", icon: Film, label: "Content Pipeline" },
-      { to: "/sprints", icon: Target, label: "Growth Sprints" },
       { to: "/projects", icon: FolderKanban, label: "Projects" },
-      { to: "/tasks", icon: CheckSquare, label: "Tasks" },
+      { to: "/sprints", icon: Target, label: "Growth Sprints" },
     ],
   },
   {
     label: "Insights",
     items: [
-      { to: "/analytics", icon: BarChart3, label: "Analytics" },
-      { to: "/command-center", icon: Rocket, label: "Command Center" },
-      { to: "/ai-bridge", icon: Brain, label: "AI Bridge" },
-      { to: "/chat", icon: MessageSquare, label: "AI Chat" },
-      { to: "/agents", icon: Bot, label: "Agent Hub" },
-      { to: "/memory", icon: BookOpen, label: "Memory" },
-      { to: "/reports", icon: FileText, label: "Weekly Reports" },
+      { to: "/youtube", icon: BarChart3, label: "YouTube Hub" },
+      { to: "/ai", icon: Brain, label: "AI Hub" },
     ],
   },
   {
     label: "Communication",
     items: [
-      { to: "/comments", icon: MessageSquare, label: "Comments" },
       { to: "/inbox", icon: Mail, label: "Inbox" },
       { to: "/notifications", icon: Bell, label: "Notifications" },
     ],

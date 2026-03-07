@@ -9,7 +9,6 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import AuthPage from "./pages/AuthPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
-import RelationshipsPage from "./pages/RelationshipsPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import IntegrationsPage from "./pages/IntegrationsPage";
 import Tasks from "./pages/Tasks";
@@ -17,7 +16,6 @@ import ProjectsPage from "./pages/ProjectsPage";
 import MonetizationPage from "./pages/MonetizationPage";
 import VideoQueuePage from "./pages/VideoQueuePage";
 import VideoQueueFormPage from "./pages/VideoQueueFormPage";
-import AiBridgePage from "./pages/AiBridgePage";
 import SettingsPage from "./pages/SettingsPage";
 import InboxPage from "./pages/InboxPage";
 import AffiliateProgramPage from "./pages/AffiliateProgramPage";
@@ -29,20 +27,15 @@ import AddCompanyPage from "./pages/AddCompanyPage";
 import AddContactPage from "./pages/AddContactPage";
 import AddProductTransactionPage from "./pages/AddProductTransactionPage";
 import NewSponsorshipPage from "./pages/NewSponsorshipPage";
-import DealsPage from "./pages/DealsPage";
-import AnalyticsPage from "./pages/AnalyticsPage";
-import SponsorDiscoveryPage from "./pages/SponsorDiscoveryPage";
 import EmailSequencesPage from "./pages/EmailSequencesPage";
-import WeeklyReportPage from "./pages/WeeklyReportPage";
 import VideoDetailPage from "./pages/VideoDetailPage";
-import YouTubeCommandCenterPage from "./pages/YouTubeCommandCenterPage";
 import WeeklySprintPage from "./pages/WeeklySprintPage";
 import CompanyProfilePage from "./pages/CompanyProfilePage";
-import ChatPage from "./pages/ChatPage";
-import MemoryPage from "./pages/MemoryPage";
-import CollaborationsPage from "./pages/CollaborationsPage";
-import AgentHubPage from "./pages/AgentHubPage";
-import CommentsPage from "./pages/CommentsPage";
+
+// Consolidated pages
+import PartnershipsPage from "./pages/PartnershipsPage";
+import YouTubeHubPage from "./pages/YouTubeHubPage";
+import AIHubPage from "./pages/AIHubPage";
 
 const queryClient = new QueryClient();
 
@@ -90,22 +83,24 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route path="/" element={<Index />} />
-              <Route path="/relationships" element={<RelationshipsPage />} />
+
+              {/* Partnerships (consolidated) */}
+              <Route path="/partnerships" element={<PartnershipsPage />} />
               <Route path="/relationships/new-company" element={<AddCompanyPage />} />
               <Route path="/relationships/new-contact" element={<AddContactPage />} />
               <Route path="/relationships/companies/:companyId" element={<CompanyProfilePage />} />
+
+              {/* Content Pipeline */}
               <Route path="/content" element={<VideoQueuePage />} />
               <Route path="/content/create" element={<VideoQueueFormPage />} />
               <Route path="/content/:id/edit" element={<VideoQueueFormPage />} />
-              <Route path="/analytics" element={<AnalyticsPage />} />
+
+              {/* YouTube Hub (consolidated) */}
+              <Route path="/youtube" element={<YouTubeHubPage />} />
               <Route path="/analytics/videos/:youtubeVideoId" element={<VideoDetailPage />} />
-              <Route path="/command-center" element={<YouTubeCommandCenterPage />} />
+
+              {/* Monetization */}
               <Route path="/monetization" element={<MonetizationPage />} />
-              <Route path="/deals" element={<DealsPage />} />
-              <Route path="/discover" element={<SponsorDiscoveryPage />} />
-              <Route path="/collaborations" element={<CollaborationsPage />} />
-              <Route path="/sequences" element={<EmailSequencesPage />} />
-              <Route path="/reports" element={<WeeklyReportPage />} />
               <Route path="/affiliate-program/new" element={<NewAffiliateProgramPage />} />
               <Route path="/affiliate-program/:id" element={<AffiliateProgramPage />} />
               <Route path="/affiliate-program/:id/edit" element={<EditAffiliateProgramPage />} />
@@ -114,19 +109,46 @@ const App = () => (
               <Route path="/sponsorship/new" element={<NewSponsorshipPage />} />
               <Route path="/add-transaction" element={<AddProductTransactionPage />} />
               <Route path="/add-transaction/:id" element={<AddProductTransactionPage />} />
+
+              {/* Email Sequences */}
+              <Route path="/sequences" element={<EmailSequencesPage />} />
+
+              {/* Projects (absorbs Tasks) */}
               <Route path="/projects" element={<ProjectsPage />} />
-              <Route path="/tasks" element={<Tasks />} />
+              {/* Keep task detail/create routes */}
+              <Route path="/tasks/:id" element={<Tasks />} />
+              <Route path="/tasks/create" element={<Tasks />} />
+              <Route path="/projects/:projectId/tasks/create" element={<Tasks />} />
+
+              {/* Growth Sprints */}
               <Route path="/sprints" element={<WeeklySprintPage />} />
-              <Route path="/ai-bridge" element={<AiBridgePage />} />
+
+              {/* AI Hub (consolidated) */}
+              <Route path="/ai" element={<AIHubPage />} />
+
+              {/* Communication */}
               <Route path="/inbox" element={<InboxPage />} />
               <Route path="/inbox/*" element={<InboxPage />} />
               <Route path="/notifications" element={<NotificationsPage />} />
+
+              {/* System */}
               <Route path="/integrations" element={<IntegrationsPage />} />
               <Route path="/settings" element={<SettingsPage />} />
-              <Route path="/chat" element={<ChatPage />} />
-              <Route path="/agents" element={<AgentHubPage />} />
-              <Route path="/comments" element={<CommentsPage />} />
-              <Route path="/memory" element={<MemoryPage />} />
+
+              {/* Backward-compatibility redirects */}
+              <Route path="/relationships" element={<Navigate to="/partnerships?tab=contacts" replace />} />
+              <Route path="/deals" element={<Navigate to="/partnerships?tab=pipeline" replace />} />
+              <Route path="/discover" element={<Navigate to="/partnerships?tab=discovery" replace />} />
+              <Route path="/collaborations" element={<Navigate to="/partnerships?tab=collaborations" replace />} />
+              <Route path="/analytics" element={<Navigate to="/youtube?section=dashboard" replace />} />
+              <Route path="/command-center" element={<Navigate to="/youtube?section=dashboard" replace />} />
+              <Route path="/comments" element={<Navigate to="/youtube?section=comments" replace />} />
+              <Route path="/reports" element={<Navigate to="/youtube?section=reports" replace />} />
+              <Route path="/tasks" element={<Navigate to="/projects?view=tasks" replace />} />
+              <Route path="/chat" element={<Navigate to="/ai?tab=chat" replace />} />
+              <Route path="/ai-bridge" element={<Navigate to="/ai?tab=proposals" replace />} />
+              <Route path="/agents" element={<Navigate to="/ai?tab=agents" replace />} />
+              <Route path="/memory" element={<Navigate to="/ai?tab=memory" replace />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
