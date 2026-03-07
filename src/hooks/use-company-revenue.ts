@@ -87,11 +87,19 @@ export function useCompanyRevenue() {
         revenueByVideo.set(a.youtube_video_id, prev + (Number(a.estimated_revenue) || 0));
       }
 
-      // Map to company
-      return links.map((l) => ({
-        company_id: l.company_id,
-        adRevenue: revenueByVideo.get(l.youtube_video_id) ?? 0,
-      }));
+      // Deduplicate video-company pairs to avoid counting revenue multiple times
+      const seen = new Set<string>();
+      const result: { company_id: string; adRevenue: number }[] = [];
+      for (const l of links) {
+        const key = `${l.company_id}::${l.youtube_video_id}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        result.push({
+          company_id: l.company_id,
+          adRevenue: revenueByVideo.get(l.youtube_video_id) ?? 0,
+        });
+      }
+      return result;
     },
     enabled: !!workspaceId,
   });
