@@ -425,6 +425,7 @@ function MagnetVideosTable({
                     <span className="font-medium text-foreground truncate" title={video.title}>
                       {video.title}
                     </span>
+                    <VideoCompanyLogos companies={companyLookup.get(video.youtube_video_id)} />
                   </div>
                 </td>
                 <td className="py-2 px-2 text-right font-mono text-foreground">
