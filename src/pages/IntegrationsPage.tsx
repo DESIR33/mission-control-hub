@@ -98,13 +98,15 @@ const INTEGRATIONS: IntegrationDef[] = [
     key: "twitter",
     name: "Twitter / X",
     description:
-      "Pull tweets, mentions, and follower data for contacts and track social engagement.",
+      "Monitor trending topics in AI, SaaS, and agents. Discover new tools, track competitor accounts, auto-generate content ideas from trends, and pull contact social data.",
     icon: "𝕏",
     iconBg: "linear-gradient(135deg, #1a1a1a 0%, #333333 100%)",
     docsUrl: "https://developer.twitter.com/en/docs",
-    usedFor: "Used for: contact social data · mention tracking · engagement",
+    usedFor: "Used for: trend monitoring · competitor tracking · content ideation · contact social data · engagement",
     connectHint:
-      "Provide your Twitter Developer app credentials to enable social data pulls.",
+      "Provide your Twitter Developer app credentials. Optionally add List IDs and search queries for automated monitoring.",
+    warningNote:
+      "Elevated or Pro API access may be required for search and trend endpoints. Basic access supports tweet lookup and user data only.",
     fields: [
       {
         name: "bearer_token",
@@ -127,6 +129,20 @@ const INTEGRATIONS: IntegrationDef[] = [
         placeholder: "Your API key secret",
         secret: true,
         required: false,
+      },
+      {
+        name: "list_ids",
+        label: "List IDs for Monitoring",
+        placeholder: "123456789,987654321",
+        required: false,
+        hint: "Comma-separated X List IDs to monitor for trends and competitor activity.",
+      },
+      {
+        name: "search_queries",
+        label: "Search Queries",
+        placeholder: "AI agents,SaaS tools,#buildinpublic",
+        required: false,
+        hint: "Comma-separated search terms for automated trend monitoring.",
       },
     ],
   },
@@ -186,7 +202,7 @@ const INTEGRATIONS: IntegrationDef[] = [
     ],
   },
   {
-    key: "convertkit" as IntegrationKey,
+    key: "convertkit",
     name: "ConvertKit",
     description:
       "Connect your ConvertKit account to sync email subscribers and automate newsletter delivery.",
@@ -216,7 +232,7 @@ const INTEGRATIONS: IntegrationDef[] = [
     ],
   },
   {
-    key: "beehiiv" as IntegrationKey,
+    key: "beehiiv",
     name: "Beehiiv",
     description:
       "Sync your Beehiiv newsletter subscribers and track email growth alongside YouTube.",
@@ -245,7 +261,7 @@ const INTEGRATIONS: IntegrationDef[] = [
     ],
   },
   {
-    key: "mailchimp" as IntegrationKey,
+    key: "mailchimp",
     name: "Mailchimp",
     description:
       "Connect Mailchimp to manage email campaigns, track subscriber growth, and automate newsletters.",
@@ -281,7 +297,7 @@ const INTEGRATIONS: IntegrationDef[] = [
     ],
   },
   {
-    key: "resend" as IntegrationKey,
+    key: "resend",
     name: "Resend",
     description:
       "Send transactional emails for brand outreach, follow-ups, and notifications.",
@@ -306,6 +322,256 @@ const INTEGRATIONS: IntegrationDef[] = [
         placeholder: "you@yourdomain.com",
         required: true,
         hint: "The verified email/domain you want to send from.",
+      },
+    ],
+  },
+  {
+    key: "slack",
+    name: "Slack",
+    description:
+      "Bidirectional communication with the AI agent. Send commands, receive alerts, get daily briefings, and approve agent actions directly from Slack.",
+    icon: "💬",
+    iconBg: "linear-gradient(135deg, #4a154b 0%, #611f69 100%)",
+    docsUrl: "https://api.slack.com/docs",
+    usedFor: "Used for: agent commands · alerts · daily briefings · action approvals",
+    connectHint:
+      "Create a Slack app at api.slack.com/apps, install it to your workspace, and paste the bot token and signing secret.",
+    warningNote:
+      "Bot must be invited to the default channel. Required OAuth scopes: chat:write, channels:read, commands, app_mentions:read.",
+    fields: [
+      {
+        name: "bot_token",
+        label: "Bot Token",
+        placeholder: "xoxb-••••••••••••",
+        secret: true,
+        required: true,
+        hint: "Slack App → OAuth & Permissions → Bot User OAuth Token (starts with xoxb-).",
+      },
+      {
+        name: "signing_secret",
+        label: "Signing Secret",
+        placeholder: "Your signing secret",
+        secret: true,
+        required: true,
+        hint: "Slack App → Basic Information → App Credentials → Signing Secret.",
+      },
+      {
+        name: "default_channel_id",
+        label: "Default Channel ID",
+        placeholder: "C01ABCDEFGH",
+        required: true,
+        hint: "Right-click the channel in Slack → View channel details → copy the Channel ID at the bottom.",
+      },
+    ],
+  },
+  {
+    key: "notion",
+    name: "Notion",
+    description:
+      "Persistent memory and knowledge base for AI agents. Transfer context between Mission Control Hub, Claude Code, and other AI tools. Maintain continuity across sessions.",
+    icon: "📝",
+    iconBg: "linear-gradient(135deg, #000000 0%, #191919 100%)",
+    docsUrl: "https://developers.notion.com",
+    usedFor: "Used for: agent memory · knowledge base · cross-tool context · session continuity",
+    connectHint:
+      "Create an internal integration at notion.so/my-integrations, then share your target database with it.",
+    warningNote:
+      "The integration must be explicitly shared with each Notion page or database it needs to access.",
+    fields: [
+      {
+        name: "integration_token",
+        label: "Integration Token",
+        placeholder: "ntn_••••••••••••••••••••••••••••••••",
+        secret: true,
+        required: true,
+        hint: "Notion → Settings → My Integrations → your integration → Internal Integration Secret.",
+      },
+      {
+        name: "default_database_id",
+        label: "Default Database ID",
+        placeholder: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        required: true,
+        hint: "Open your Notion database as a full page — the 32-character hex string in the URL is the database ID.",
+      },
+      {
+        name: "workspace_name",
+        label: "Workspace Name",
+        placeholder: "My Workspace",
+        required: false,
+        hint: "Optional label to identify which Notion workspace this connects to.",
+      },
+    ],
+  },
+  {
+    key: "github",
+    name: "GitHub",
+    description:
+      "Bridge to Claude Code and Claude Cowork. Sync repos, issues, and PRs. AI agent can track development progress, create issues from the hub, and read code context.",
+    icon: "🐙",
+    iconBg: "linear-gradient(135deg, #24292e 0%, #1b1f23 100%)",
+    docsUrl: "https://docs.github.com/en/rest",
+    usedFor: "Used for: repo sync · issue tracking · PR monitoring · Claude Code bridge · dev context",
+    connectHint:
+      "Generate a Personal Access Token (classic or fine-grained) at github.com/settings/tokens.",
+    warningNote:
+      "For fine-grained tokens, grant access to specific repositories only. Required permissions: Contents (read), Issues (read/write), Pull requests (read).",
+    fields: [
+      {
+        name: "personal_access_token",
+        label: "Personal Access Token",
+        placeholder: "ghp_••••••••••••••••••••••••••••••••••••",
+        secret: true,
+        required: true,
+        hint: "GitHub → Settings → Developer settings → Personal access tokens → Generate new token.",
+      },
+      {
+        name: "default_repo",
+        label: "Default Repository",
+        placeholder: "owner/repo",
+        required: false,
+        hint: "Optional — format: owner/repo (e.g. acme/mission-control). Used as the default for issue creation and code lookups.",
+      },
+    ],
+  },
+  {
+    key: "perplexity",
+    name: "Perplexity API",
+    description:
+      "AI-powered deep research. Agent uses it to research sponsors, competitors, market trends, and content ideas with structured, sourced analysis.",
+    icon: "🔍",
+    iconBg: "linear-gradient(135deg, #20b8cd 0%, #1a9aaf 100%)",
+    docsUrl: "https://docs.perplexity.ai",
+    usedFor: "Used for: sponsor research · competitor analysis · market trends · content ideation",
+    connectHint:
+      "Get your API key from the Perplexity developer dashboard.",
+    fields: [
+      {
+        name: "api_key",
+        label: "API Key",
+        placeholder: "pplx-••••••••••••••••••••••••••••••••",
+        secret: true,
+        required: true,
+        hint: "Found at perplexity.ai → Settings → API → API Keys.",
+      },
+    ],
+  },
+  {
+    key: "stripe",
+    name: "Stripe",
+    description:
+      "Track payments, subscriptions, and revenue from digital products. Revenue analytics and real-time payment notifications.",
+    icon: "💳",
+    iconBg: "linear-gradient(135deg, #635bff 0%, #4b45c6 100%)",
+    docsUrl: "https://stripe.com/docs/api",
+    usedFor: "Used for: payment tracking · subscription analytics · revenue dashboards · payment notifications",
+    connectHint:
+      "Find your API keys in the Stripe Dashboard under Developers → API keys.",
+    warningNote:
+      "Use restricted keys in production with only the permissions you need. Never use your full secret key in client-side code.",
+    fields: [
+      {
+        name: "secret_key",
+        label: "Secret Key",
+        placeholder: "sk_live_••••••••••••••••••••••••••••••••",
+        secret: true,
+        required: true,
+        hint: "Stripe Dashboard → Developers → API keys → Secret key. Use sk_test_ for testing.",
+      },
+      {
+        name: "publishable_key",
+        label: "Publishable Key",
+        placeholder: "pk_live_••••••••••••••••••••••••••••••••",
+        required: true,
+        hint: "Stripe Dashboard → Developers → API keys → Publishable key.",
+      },
+      {
+        name: "webhook_secret",
+        label: "Webhook Secret",
+        placeholder: "whsec_••••••••••••••••••••••••••••••••",
+        secret: true,
+        required: false,
+        hint: "Stripe Dashboard → Developers → Webhooks → your endpoint → Signing secret.",
+      },
+    ],
+  },
+  {
+    key: "paypal",
+    name: "PayPal",
+    description:
+      "Track PayPal payments and invoices. Covers revenue streams that don't go through Stripe for complete revenue visibility.",
+    icon: "🅿️",
+    iconBg: "linear-gradient(135deg, #003087 0%, #001f5c 100%)",
+    docsUrl: "https://developer.paypal.com/docs/api/overview",
+    usedFor: "Used for: payment tracking · invoice management · revenue analytics",
+    connectHint:
+      "Create a REST API app at developer.paypal.com to get your Client ID and Secret.",
+    fields: [
+      {
+        name: "client_id",
+        label: "Client ID",
+        placeholder: "Your PayPal Client ID",
+        required: true,
+        hint: "PayPal Developer Dashboard → My Apps & Credentials → your app → Client ID.",
+      },
+      {
+        name: "client_secret",
+        label: "Client Secret",
+        placeholder: "Your PayPal Client Secret",
+        secret: true,
+        required: true,
+        hint: "PayPal Developer Dashboard → My Apps & Credentials → your app → Secret.",
+      },
+      {
+        name: "environment",
+        label: "Environment",
+        placeholder: "sandbox or live",
+        required: false,
+        hint: "Enter 'sandbox' for testing or 'live' for production. Defaults to live if left blank.",
+      },
+    ],
+  },
+  {
+    key: "n8n",
+    name: "n8n",
+    description:
+      "Self-hosted workflow automation engine. Orchestrate cross-platform workflows: video publish → auto-post to X + Slack alert + Notion update + newsletter trigger. Schedule AI agent runs, automate sponsor outreach pipelines, reconcile Stripe/PayPal revenue, monitor YouTube comments for content ideas, and generate daily briefings from all connected data sources.",
+    icon: "⚡",
+    iconBg: "linear-gradient(135deg, #ea4b71 0%, #d6336c 100%)",
+    docsUrl: "https://docs.n8n.io",
+    usedFor: "Used for: workflow automation · video publish distribution · sponsor pipeline orchestration · revenue reconciliation · AI agent scheduling · daily briefings · comment-to-content pipeline · competitor monitoring · collaboration follow-ups · A/B test alerts",
+    connectHint:
+      "Provide your n8n instance URL and API key. Optionally configure a webhook URL for Mission Control to trigger workflows directly, and tag workflows for easier management.",
+    warningNote:
+      "Your n8n instance must be accessible from this application. For self-hosted instances, ensure the URL is reachable and CORS is configured. Webhook workflows require the n8n webhook node to be active.",
+    fields: [
+      {
+        name: "instance_url",
+        label: "Instance URL",
+        placeholder: "https://your-n8n.example.com",
+        required: true,
+        hint: "The base URL of your n8n instance (e.g. https://n8n.yourdomain.com or http://localhost:5678).",
+      },
+      {
+        name: "api_key",
+        label: "API Key",
+        placeholder: "n8n_api_••••••••••••••••••••••••••••",
+        secret: true,
+        required: true,
+        hint: "n8n → Settings → API → Create an API key.",
+      },
+      {
+        name: "webhook_base_url",
+        label: "Webhook Base URL",
+        placeholder: "https://your-n8n.example.com/webhook",
+        required: false,
+        hint: "Base URL for triggering n8n webhook workflows from Mission Control (e.g. on video publish, deal stage change, agent action).",
+      },
+      {
+        name: "workflow_tags",
+        label: "Workflow Tags",
+        placeholder: "mission-control,youtube,sponsors",
+        required: false,
+        hint: "Comma-separated tags to filter which n8n workflows Mission Control can see and trigger. Keeps your dashboard focused.",
       },
     ],
   },

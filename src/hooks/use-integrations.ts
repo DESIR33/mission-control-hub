@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 
-export type IntegrationKey = "ms_outlook" | "firecrawl" | "twitter" | "youtube" | "resend";
+export type IntegrationKey = "ms_outlook" | "firecrawl" | "twitter" | "youtube" | "resend" | "convertkit" | "beehiiv" | "mailchimp" | "slack" | "notion" | "perplexity" | "stripe" | "paypal" | "github" | "n8n";
 
 export interface WorkspaceIntegration {
   id: string;
