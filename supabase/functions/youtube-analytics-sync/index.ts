@@ -344,17 +344,33 @@ Deno.serve(async (req) => {
             annotationCtr, estRevenue,
           ] = row;
 
-          // Fetch video title
-          let title = videoId;
-          if (config.api_key) {
+          // Fetch video title from youtube_video_stats first, then API as fallback
+          let title: string | null = null;
+          
+          // Try to get title from youtube_video_stats table first (no quota cost)
+          try {
+            const { data: statsRow } = await supabase
+              .from("youtube_video_stats")
+              .select("title")
+              .eq("workspace_id", workspace_id)
+              .eq("youtube_video_id", videoId)
+              .maybeSingle();
+            if (statsRow?.title) title = statsRow.title;
+          } catch { /* ignore */ }
+
+          // Fallback to API only if we don't have a title yet
+          if (!title && config.api_key) {
             try {
               const titleRes = await fetch(
                 `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&fields=items/snippet/title&key=${config.api_key}`
               );
               const titleData = await titleRes.json();
-              title = titleData.items?.[0]?.snippet?.title || videoId;
+              title = titleData.items?.[0]?.snippet?.title || null;
             } catch { /* fallback */ }
           }
+          
+          // Never store the video ID as the title
+          if (!title) title = "Untitled Video";
 
           if (syncResult.videoRowsUpserted === 0) {
             syncResult.sampleVideoRow = {
