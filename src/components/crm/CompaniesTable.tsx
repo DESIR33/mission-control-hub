@@ -97,8 +97,8 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
           case "location":
             cmp = (a.location ?? "").localeCompare(b.location ?? "");
             break;
-          case "size":
-            cmp = (a.size ?? "").localeCompare(b.size ?? "");
+          case "videos":
+            cmp = (videoCountMap.get(a.id) ?? 0) - (videoCountMap.get(b.id) ?? 0);
             break;
           case "vip":
             cmp = tierOrder[a.vip_tier] - tierOrder[b.vip_tier];
