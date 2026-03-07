@@ -153,7 +153,7 @@ export function RevenueAnalytics({ channelData, videoData, daysRange }: Props) {
     return [...videoData]
       .filter((v) => v.estimated_revenue > 0 && v.views > 100)
       .map((v) => ({
-        title: v.title || v.youtube_video_id,
+        title: v.title || "Untitled Video",
         rpm: +((v.estimated_revenue / v.views) * 1000).toFixed(2),
         videoId: v.youtube_video_id,
       }))
