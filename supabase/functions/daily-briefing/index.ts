@@ -124,7 +124,7 @@ ${deals.filter((d) => openStages.includes(d.stage)).slice(0, 5).map((d) => `- "$
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            model: "anthropic/claude-sonnet-4-20250514",
+            model: "anthropic/claude-3.5-sonnet",
             max_tokens: 800,
             messages: [
               {
