@@ -50,6 +50,16 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
   const revenueMap = useCompanyRevenue();
+  const { data: allVideoLinks = [] } = useAllVideoCompanies();
+
+  // Build company_id → video count map
+  const videoCountMap = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const link of allVideoLinks) {
+      map.set(link.company_id, (map.get(link.company_id) ?? 0) + 1);
+    }
+    return map;
+  }, [allVideoLinks]);
 
   const industries = Array.from(new Set(companies.map((c) => c.industry).filter(Boolean))) as string[];
 
