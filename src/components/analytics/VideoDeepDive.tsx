@@ -381,6 +381,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
           ["subsGained", "Subs Gained"],
           ["engagement", "Engagement"],
           ["revenue", "Revenue"],
+          ["uploadDate", "Upload Date"],
         ] as [SortField, string][]).map(([field, label]) => (
           <button
             key={field}
