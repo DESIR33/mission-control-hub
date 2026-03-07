@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
+import { ThumbnailReferenceLibrary } from "./ThumbnailReferenceLibrary";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
