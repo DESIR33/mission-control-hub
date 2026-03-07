@@ -7,6 +7,8 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from "recharts";
 import { useContentRevenue } from "@/hooks/use-content-revenue";
+import { useAllVideoCompanies } from "@/hooks/use-all-video-companies";
+import { VideoCompanyLogos } from "@/components/VideoCompanyLogos";
 import {
   chartTooltipStyle,
   fmtMoney,
@@ -20,6 +22,7 @@ const COLORS = ["#22c55e", "#3b82f6", "#a855f7"];
 
 export function ContentRevenueLinker() {
   const { data: summary, isLoading } = useContentRevenue();
+  const { lookup: companyLookup } = useAllVideoCompanies();
 
   if (isLoading) {
     return <div className="rounded-xl border border-border bg-card p-6 animate-pulse h-96" />;
@@ -157,7 +160,12 @@ export function ContentRevenueLinker() {
             <tbody>
               {summary.links.slice(0, 20).map((link) => (
                 <tr key={link.videoQueueId} className="border-b border-border/50 hover:bg-muted/30">
-                  <td className="p-2 text-foreground max-w-[200px] truncate">{link.videoTitle}</td>
+                  <td className="p-2 text-foreground max-w-[200px]">
+                    <span className="flex items-center gap-1.5">
+                      <span className="truncate">{link.videoTitle}</span>
+                      {link.youtubeVideoId && <VideoCompanyLogos companies={companyLookup.get(link.youtubeVideoId)} />}
+                    </span>
+                  </td>
                   <td className="p-2 text-right font-mono text-green-400">{fmtMoney(link.adRevenue)}</td>
                   <td className="p-2 text-right font-mono text-blue-400">{fmtMoney(link.dealRevenue)}</td>
                   <td className="p-2 text-right font-mono text-purple-400">{fmtMoney(link.affiliateRevenue)}</td>

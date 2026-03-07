@@ -9,6 +9,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useVideoScorecard, type VideoScore } from "@/hooks/use-video-scorecard";
+import { useAllVideoCompanies } from "@/hooks/use-all-video-companies";
+import { VideoCompanyLogos } from "@/components/VideoCompanyLogos";
 import {
   chartTooltipStyle,
   cartesianGridDefaults,
@@ -52,6 +54,7 @@ function ScoreBar({ label, score }: { label: string; score: number }) {
 
 export function VideoScorecard() {
   const { data: scorecard, isLoading } = useVideoScorecard();
+  const { lookup: companyLookup } = useAllVideoCompanies();
   const [expanded, setExpanded] = useState<string | null>(null);
   const [search, setSearch] = useState("");
 
@@ -169,7 +172,10 @@ export function VideoScorecard() {
                 {video.grade}
               </span>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground truncate">{video.title}</p>
+                <div className="flex items-center gap-1.5">
+                  <p className="text-sm font-medium text-foreground truncate">{video.title}</p>
+                  <VideoCompanyLogos companies={companyLookup.get(video.youtube_video_id)} />
+                </div>
                 <p className="text-xs text-muted-foreground">
                   {fmtCount(video.views)} views · {video.ctr.toFixed(1)}% CTR · {video.avgViewPercent.toFixed(0)}% retention
                 </p>

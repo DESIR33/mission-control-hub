@@ -3,6 +3,8 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useContactImpact } from "@/hooks/use-contact-impact";
+import { useAllVideoCompanies } from "@/hooks/use-all-video-companies";
+import { VideoCompanyLogos } from "@/components/VideoCompanyLogos";
 
 const fmtCount = (n: number) => {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
@@ -14,6 +16,7 @@ const fmtDollar = (n: number) => `$${n.toLocaleString()}`;
 
 export function ContactImpactReport({ contactId }: { contactId: string }) {
   const { data: impact } = useContactImpact(contactId);
+  const { lookup: companyLookup } = useAllVideoCompanies();
 
   if (!impact) {
     return (
@@ -95,7 +98,10 @@ export function ContactImpactReport({ contactId }: { contactId: string }) {
               {impact.linkedVideos.map((video) => (
                 <tr key={video.youtubeVideoId}>
                   <td className="px-4 py-2.5">
-                    <p className="text-xs font-medium text-foreground truncate max-w-[200px]">{video.title}</p>
+                    <p className="text-xs font-medium text-foreground truncate max-w-[200px] flex items-center gap-1.5">
+                      {video.title}
+                      <VideoCompanyLogos companies={companyLookup.get(video.youtubeVideoId)} />
+                    </p>
                   </td>
                   <td className="px-4 py-2.5 text-right">
                     <span className="text-xs font-mono text-muted-foreground">{fmtCount(video.views)}</span>

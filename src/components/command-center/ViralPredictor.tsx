@@ -9,6 +9,8 @@ import {
 } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { useViralPotential, type ViralScore } from "@/hooks/use-viral-potential";
+import { useAllVideoCompanies } from "@/hooks/use-all-video-companies";
+import { VideoCompanyLogos } from "@/components/VideoCompanyLogos";
 import {
   chartTooltipStyle,
   fmtCount,
@@ -51,6 +53,7 @@ function ScoreRing({ score, size = 48 }: { score: number; size?: number }) {
 
 export function ViralPredictor() {
   const { data: analysis, isLoading } = useViralPotential();
+  const { lookup: companyLookup } = useAllVideoCompanies();
   const [expanded, setExpanded] = useState<string | null>(null);
 
   if (isLoading) {
@@ -176,7 +179,10 @@ export function ViralPredictor() {
               >
                 <ScoreRing score={video.viralScore} />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">{video.title}</p>
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-sm font-medium text-foreground truncate">{video.title}</p>
+                    <VideoCompanyLogos companies={companyLookup.get(video.videoId)} />
+                  </div>
                   <div className="flex items-center gap-2 mt-0.5">
                     <Badge variant="outline" className={`text-xs ${tier.bg} ${tier.color} border`}>
                       {tier.label}
