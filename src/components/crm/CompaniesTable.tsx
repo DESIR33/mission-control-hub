@@ -176,6 +176,7 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
               <TableHead className="text-muted-foreground font-semibold">Location</TableHead>
               <TableHead className="text-muted-foreground font-semibold">Size</TableHead>
               <TableHead className="text-muted-foreground font-semibold">VIP</TableHead>
+              <TableHead className="text-muted-foreground font-semibold">Revenue</TableHead>
               <TableHead className="text-muted-foreground font-semibold">Contacts</TableHead>
               <TableHead className="text-muted-foreground font-semibold">Last Contact</TableHead>
             </TableRow>
@@ -183,7 +184,7 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
           <TableBody>
             {filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">
+                <TableCell colSpan={8} className="text-center py-12 text-muted-foreground">
                   No companies found
                 </TableCell>
               </TableRow>
@@ -234,6 +235,9 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
                         {tierIcons[company.vip_tier]}
                       </span>
                     )}
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-sm text-muted-foreground">{company.revenue ?? "—"}</span>
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline" className="text-xs">
