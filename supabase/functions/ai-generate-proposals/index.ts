@@ -42,9 +42,9 @@ Deno.serve(async (req) => {
     const { workspace_id, request_type } = await req.json();
     if (!workspace_id) throw new Error("Missing workspace_id");
 
-    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
-    if (!ANTHROPIC_API_KEY) {
-      throw new Error("ANTHROPIC_API_KEY not configured. Set it as a Supabase secret.");
+    const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
+    if (!OPENROUTER_API_KEY) {
+      throw new Error("OPENROUTER_API_KEY not configured. Set it as a Supabase secret.");
     }
 
     // Gather context data
