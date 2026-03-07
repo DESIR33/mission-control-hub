@@ -74,17 +74,27 @@ export function useCompanyRevenue() {
       if (lErr) throw lErr;
       if (!links?.length) return [];
 
-      const { data: analytics, error: aErr } = await supabase
-        .from("youtube_video_analytics" as any)
-        .select("youtube_video_id, estimated_revenue")
-        .eq("workspace_id", workspaceId!);
-      if (aErr) throw aErr;
-
-      // Sum ad revenue per video
+      // Fetch only the latest analytics row per video (revenue is cumulative, not incremental)
+      const videoIds = [...new Set(links.map((l) => l.youtube_video_id))];
       const revenueByVideo = new Map<string, number>();
-      for (const a of (analytics ?? []) as any[]) {
-        const prev = revenueByVideo.get(a.youtube_video_id) ?? 0;
-        revenueByVideo.set(a.youtube_video_id, prev + (Number(a.estimated_revenue) || 0));
+
+      // For each linked video, get the most recent row which has the cumulative lifetime revenue
+      for (let i = 0; i < videoIds.length; i += 50) {
+        const batch = videoIds.slice(i, i + 50);
+        const { data: analytics, error: aErr } = await supabase
+          .from("youtube_video_analytics" as any)
+          .select("youtube_video_id, estimated_revenue, date")
+          .eq("workspace_id", workspaceId!)
+          .in("youtube_video_id", batch)
+          .order("date", { ascending: false });
+        if (aErr) throw aErr;
+
+        // Keep only the latest row per video (first encountered due to desc order)
+        for (const a of (analytics ?? []) as any[]) {
+          if (!revenueByVideo.has(a.youtube_video_id)) {
+            revenueByVideo.set(a.youtube_video_id, Number(a.estimated_revenue) || 0);
+          }
+        }
       }
 
       // Deduplicate video-company pairs to avoid counting revenue multiple times
