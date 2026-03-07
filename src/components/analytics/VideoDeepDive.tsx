@@ -13,6 +13,8 @@ import type { VideoAnalytics } from "@/hooks/use-youtube-analytics-api";
 import { useVideoNotesCheck } from "@/hooks/use-video-notes";
 import { useVideoRevenueLookup } from "@/hooks/use-video-revenue-lookup";
 import { useYouTubeVideoStats } from "@/hooks/use-youtube-analytics";
+import { useAllVideoCompanies } from "@/hooks/use-all-video-companies";
+import { VideoCompanyLogos } from "@/components/VideoCompanyLogos";
 import { fmtCount, fmtDuration, fmtMoney, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, horizontalBarDefaults, SEMANTIC_COLORS } from "@/lib/chart-theme";
 
 type SortField = "views" | "impressions" | "ctr" | "avgDuration" | "subsGained" | "revenue" | "engagement" | "uploadDate";
