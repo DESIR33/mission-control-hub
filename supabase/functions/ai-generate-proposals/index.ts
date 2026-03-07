@@ -157,13 +157,13 @@ Return ONLY a JSON array of proposals. No markdown, no explanation, just the arr
       }),
     });
 
-    if (!anthropicRes.ok) {
-      const errBody = await anthropicRes.text();
-      throw new Error(`Anthropic API error: ${anthropicRes.status} - ${errBody}`);
+    if (!openrouterRes.ok) {
+      const errBody = await openrouterRes.text();
+      throw new Error(`OpenRouter API error: ${openrouterRes.status} - ${errBody}`);
     }
 
-    const anthropicData = await anthropicRes.json();
-    const responseText = anthropicData.content?.[0]?.text ?? "[]";
+    const openrouterData = await openrouterRes.json();
+    const responseText = openrouterData.choices?.[0]?.message?.content ?? "[]";
 
     // Parse proposals from LLM response
     let proposals: any[];
