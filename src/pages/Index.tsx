@@ -14,6 +14,10 @@ import { SprintWidget } from "@/components/dashboard/SprintWidget";
 import { GoalPaceWidget } from "@/components/dashboard/GoalPaceWidget";
 import { GrowthCommandWidget } from "@/components/dashboard/GrowthCommandWidget";
 import { MilestoneProgressBar } from "@/components/dashboard/MilestoneProgressBar";
+import { GrowthCountdownTracker } from "@/components/dashboard/GrowthCountdownTracker";
+import { SyncStatusIndicator } from "@/components/dashboard/SyncStatusIndicator";
+import { AlertsNotificationPanel } from "@/components/dashboard/AlertsNotificationPanel";
+import { WeeklyActionPlanCard } from "@/components/dashboard/WeeklyActionPlanCard";
 import {
   useDashboardStats,
   usePipelineHealth,
@@ -21,6 +25,7 @@ import {
   useNeedsAttention,
   useAiBriefing,
 } from "@/hooks/use-dashboard-stats";
+import { NewsletterWidget } from "@/components/dashboard/NewsletterWidget";
 
 function Index() {
   const { data: stats } = useDashboardStats();
@@ -50,14 +55,23 @@ function Index() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <h1 className="text-2xl font-bold text-foreground">Mission Control</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-foreground">Mission Control</h1>
+          <SyncStatusIndicator />
+        </div>
         <p className="text-sm text-muted-foreground mt-0.5">
           {format(new Date(), "EEEE, MMM d")} · {greeting}
         </p>
       </motion.div>
 
+      {/* 50K Growth Countdown */}
+      <GrowthCountdownTracker />
+
       {/* Growth Alerts */}
       <GrowthAlertBanner />
+
+      {/* YouTube Notifications */}
+      <AlertsNotificationPanel />
 
       {/* Performance Alerts */}
       <AlertsPanel />
@@ -142,6 +156,7 @@ function Index() {
         {/* Left column */}
         <div className="lg:col-span-2 space-y-4">
           <AiBriefing items={briefingItems} attentionItems={attentionItems} />
+          <WeeklyActionPlanCard />
           <PipelineHealth
             contacts={pipeline?.contacts}
             content={pipeline?.content}
@@ -158,6 +173,7 @@ function Index() {
             affiliates={revenue?.affiliates}
             ads={revenue?.ads}
           />
+          <NewsletterWidget />
         </div>
       </div>
     </div>

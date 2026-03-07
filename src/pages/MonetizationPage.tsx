@@ -25,6 +25,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useContentRevenue } from "@/hooks/use-content-revenue";
 import { RateCardCalculator } from "@/components/crm/RateCardCalculator";
 import { RevenueOverview } from "@/components/monetization/RevenueOverview";
+import { RevenueGoalTracker } from "@/components/monetization/RevenueGoalTracker";
 import { useCompanies } from "@/hooks/use-companies";
 import { useWorkspace } from "@/hooks/use-workspace";
 
@@ -501,6 +502,9 @@ export default function MonetizationPage() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
+      {/* Revenue Goal Tracker */}
+      <RevenueGoalTracker />
+
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}

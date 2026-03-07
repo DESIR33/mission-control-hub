@@ -51,6 +51,8 @@ import {
   useDeleteCollaboration,
   type Collaboration,
 } from "@/hooks/use-collaborations";
+import { CollaborationMatchmaker } from "@/components/collaborations/CollaborationMatchmaker";
+import { CollabImpactTracker } from "@/components/collaborations/CollabImpactTracker";
 
 const STATUSES = [
   "prospect",
@@ -628,6 +630,7 @@ export default function CollaborationsPage() {
   const deleteCollab = useDeleteCollaboration();
 
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [matchmakerOpen, setMatchmakerOpen] = useState(false);
   const [addForm, setAddForm] = useState<CollabFormData>(EMPTY_FORM);
 
   const [selectedCollab, setSelectedCollab] = useState<Collaboration | null>(null);
@@ -755,10 +758,16 @@ export default function CollaborationsPage() {
             Track and manage YouTube creator collaborations through every stage.
           </p>
         </div>
-        <Button onClick={() => setAddDialogOpen(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          Add Collaboration
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => setMatchmakerOpen(true)}>
+            <Users className="w-4 h-4 mr-2" />
+            Find Collaborators
+          </Button>
+          <Button onClick={() => setAddDialogOpen(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Add Collaboration
+          </Button>
+        </div>
       </div>
 
       {/* Summary Stats */}
@@ -766,6 +775,12 @@ export default function CollaborationsPage() {
 
       {/* ROI Section */}
       <ROISection collaborations={collaborations} />
+
+      {/* Collaboration Impact Tracker */}
+      <CollabImpactTracker collaborations={collaborations} />
+
+      {/* Collaboration Matchmaker Dialog */}
+      <CollaborationMatchmaker open={matchmakerOpen} onOpenChange={setMatchmakerOpen} />
 
       {/* Kanban Board */}
       <div className="flex gap-4 overflow-x-auto pb-4">

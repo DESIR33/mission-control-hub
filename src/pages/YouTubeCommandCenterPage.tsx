@@ -4,7 +4,7 @@ import {
   Eye, MousePointerClick, Handshake, Users,
   Calendar, Brain, ChevronLeft, ChevronRight,
   MessageSquare, ListVideo, Upload, Crosshair, UserCheck,
-  Menu, RefreshCw, Mail, Zap, Sparkles,
+  Menu, RefreshCw, Mail, Zap, Sparkles, FlaskConical, Lightbulb,
 } from "lucide-react";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { useSyncYouTube } from "@/hooks/use-youtube-analytics";
@@ -29,6 +29,8 @@ import { ChannelPulse } from "@/components/command-center";
 import { AIGrowthCoach } from "@/components/command-center";
 import { SyncHistoryPanel } from "@/components/analytics/SyncHistoryPanel";
 import { SequenceHealthDashboard } from "@/components/command-center/SequenceHealthDashboard";
+import { ABTestingDashboard } from "@/components/command-center/sections/ABTestingDashboard";
+import { CommentIntelligence } from "@/components/command-center/sections/CommentIntelligence";
 
 type Tab =
   | "briefing"
@@ -45,7 +47,9 @@ type Tab =
   | "comments"
   | "playlists"
   | "sync_history"
-  | "sequences";
+  | "sequences"
+  | "ab_testing"
+  | "comment_intel";
 
 const TABS: { key: Tab; label: string; icon: React.ReactNode; group: string }[] = [
   // Mission
@@ -60,12 +64,14 @@ const TABS: { key: Tab; label: string; icon: React.ReactNode; group: string }[] 
   { key: "strategist", label: "AI Strategist", icon: <Brain className="w-3.5 h-3.5" />, group: "Content" },
   { key: "video_optimizer", label: "Video Optimizer", icon: <Sparkles className="w-3.5 h-3.5" />, group: "Content" },
   { key: "upload_thumbnails", label: "Upload & Thumbnails", icon: <Upload className="w-3.5 h-3.5" />, group: "Content" },
+  { key: "ab_testing", label: "A/B Testing", icon: <FlaskConical className="w-3.5 h-3.5" />, group: "Content" },
   // Revenue
   { key: "revenue", label: "Revenue Hub", icon: <DollarSign className="w-3.5 h-3.5" />, group: "Revenue" },
   // Planning
   { key: "planner", label: "Content Planner", icon: <Calendar className="w-3.5 h-3.5" />, group: "Planning" },
   // Audience
   { key: "comments", label: "Comments", icon: <MessageSquare className="w-3.5 h-3.5" />, group: "Audience" },
+  { key: "comment_intel", label: "Comment Intel", icon: <Lightbulb className="w-3.5 h-3.5" />, group: "Audience" },
   { key: "playlists", label: "Playlists", icon: <ListVideo className="w-3.5 h-3.5" />, group: "Audience" },
   // Operations
   { key: "sequences", label: "Email Sequences", icon: <Mail className="w-3.5 h-3.5" />, group: "Operations" },
@@ -88,6 +94,8 @@ const TAB_COMPONENTS: Record<Tab, React.ComponentType> = {
   playlists: PlaylistOptimizer,
   sync_history: SyncHistoryPanel,
   sequences: SequenceHealthDashboard,
+  ab_testing: ABTestingDashboard,
+  comment_intel: CommentIntelligence,
 };
 
 function SidebarNav({

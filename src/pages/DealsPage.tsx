@@ -8,6 +8,7 @@ import {
   Building2,
   User2,
   Calendar,
+  Mail,
 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -26,6 +27,8 @@ import { useDeals, useUpdateDeal, type Deal, type DealStage } from "@/hooks/use-
 import { AddDealDialog } from "@/components/deals/AddDealDialog";
 import { DealDetailSheet } from "@/components/deals/DealDetailSheet";
 import { PipelineVelocity } from "@/components/deals/PipelineVelocity";
+import { SponsorPipelineView } from "@/components/deals/SponsorPipelineView";
+import { SponsorOutreachGenerator } from "@/components/deals/SponsorOutreachGenerator";
 import { useSponsorMatchScore } from "@/hooks/use-sponsor-match-score";
 import { useToast } from "@/hooks/use-toast";
 
@@ -49,6 +52,8 @@ const stageColors: Record<string, string> = {
 
 export default function DealsPage() {
   const [view, setView] = useState<"kanban" | "list">("kanban");
+  const [pipelineMode, setPipelineMode] = useState<"all" | "sponsor">("all");
+  const [outreachOpen, setOutreachOpen] = useState(false);
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
 
@@ -161,31 +166,68 @@ export default function DealsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          {/* Pipeline Mode Toggle */}
           <div className="flex items-center border border-border rounded-md">
             <Button
               variant="ghost"
               size="sm"
-              className={cn("rounded-r-none h-8", view === "kanban" && "bg-muted")}
-              onClick={() => setView("kanban")}
-              aria-label="Kanban view"
+              className={cn("rounded-r-none h-8 text-xs", pipelineMode === "all" && "bg-muted")}
+              onClick={() => setPipelineMode("all")}
             >
-              <LayoutGrid className="w-4 h-4" />
+              All Deals
             </Button>
             <Button
               variant="ghost"
               size="sm"
-              className={cn("rounded-l-none h-8", view === "list" && "bg-muted")}
-              onClick={() => setView("list")}
-              aria-label="List view"
+              className={cn("rounded-l-none h-8 text-xs", pipelineMode === "sponsor" && "bg-muted")}
+              onClick={() => setPipelineMode("sponsor")}
             >
-              <List className="w-4 h-4" />
+              Sponsor Pipeline
             </Button>
           </div>
+
+          {pipelineMode === "all" && (
+            <div className="flex items-center border border-border rounded-md">
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn("rounded-r-none h-8", view === "kanban" && "bg-muted")}
+                onClick={() => setView("kanban")}
+                aria-label="Kanban view"
+              >
+                <LayoutGrid className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn("rounded-l-none h-8", view === "list" && "bg-muted")}
+                onClick={() => setView("list")}
+                aria-label="List view"
+              >
+                <List className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
+
+          <Button variant="outline" size="sm" onClick={() => setOutreachOpen(true)}>
+            <Mail className="w-4 h-4 mr-1" />
+            Generate Outreach
+          </Button>
+
           <AddDealDialog />
         </div>
       </div>
 
+      {/* Sponsor Pipeline View */}
+      {pipelineMode === "sponsor" && (
+        <SponsorPipelineView />
+      )}
+
+      {/* Outreach Generator Dialog */}
+      <SponsorOutreachGenerator open={outreachOpen} onOpenChange={setOutreachOpen} />
+
       {/* Pipeline Metrics */}
+      {pipelineMode === "all" && (<>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
         <div className="rounded-lg border border-border bg-card p-4">
           <div className="flex items-center gap-2 text-muted-foreground mb-1">
@@ -363,6 +405,7 @@ export default function DealsPage() {
           </Table>
         </div>
       )}
+      </>)}
 
       {/* Deal Detail Sheet */}
       <DealDetailSheet

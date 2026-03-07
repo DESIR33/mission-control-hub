@@ -186,6 +186,101 @@ const INTEGRATIONS: IntegrationDef[] = [
     ],
   },
   {
+    key: "convertkit" as IntegrationKey,
+    name: "ConvertKit",
+    description:
+      "Connect your ConvertKit account to sync email subscribers and automate newsletter delivery.",
+    icon: "📬",
+    iconBg: "linear-gradient(135deg, #fb6970 0%, #e04850 100%)",
+    docsUrl: "https://developers.convertkit.com",
+    usedFor: "Used for: email subscribers · newsletter automation · audience growth",
+    connectHint:
+      "Enter your ConvertKit API credentials to enable newsletter sync.",
+    fields: [
+      {
+        name: "api_key",
+        label: "API Key",
+        placeholder: "Your ConvertKit API key",
+        secret: true,
+        required: true,
+        hint: "Found at ConvertKit → Settings → Advanced → API.",
+      },
+      {
+        name: "api_secret",
+        label: "API Secret",
+        placeholder: "Your ConvertKit API secret",
+        secret: true,
+        required: true,
+        hint: "Found at ConvertKit → Settings → Advanced → API.",
+      },
+    ],
+  },
+  {
+    key: "beehiiv" as IntegrationKey,
+    name: "Beehiiv",
+    description:
+      "Sync your Beehiiv newsletter subscribers and track email growth alongside YouTube.",
+    icon: "🐝",
+    iconBg: "linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)",
+    docsUrl: "https://developers.beehiiv.com",
+    usedFor: "Used for: newsletter management · subscriber analytics · email growth",
+    connectHint:
+      "Provide your Beehiiv API key and publication ID to connect.",
+    fields: [
+      {
+        name: "api_key",
+        label: "API Key",
+        placeholder: "Your Beehiiv API key",
+        secret: true,
+        required: true,
+        hint: "Found at Beehiiv → Settings → Integrations → API.",
+      },
+      {
+        name: "publication_id",
+        label: "Publication ID",
+        placeholder: "pub_xxxxxxxx",
+        required: true,
+        hint: "Found in your Beehiiv dashboard URL or settings.",
+      },
+    ],
+  },
+  {
+    key: "mailchimp" as IntegrationKey,
+    name: "Mailchimp",
+    description:
+      "Connect Mailchimp to manage email campaigns, track subscriber growth, and automate newsletters.",
+    icon: "🐵",
+    iconBg: "linear-gradient(135deg, #ffe01b 0%, #f5c518 100%)",
+    docsUrl: "https://mailchimp.com/developer",
+    usedFor: "Used for: email campaigns · list management · subscriber analytics",
+    connectHint:
+      "Enter your Mailchimp API key, server prefix, and list ID.",
+    fields: [
+      {
+        name: "api_key",
+        label: "API Key",
+        placeholder: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-usXX",
+        secret: true,
+        required: true,
+        hint: "Found at Mailchimp → Account → Extras → API Keys.",
+      },
+      {
+        name: "server_prefix",
+        label: "Server Prefix",
+        placeholder: "us1",
+        required: true,
+        hint: "The 'usX' portion of your Mailchimp API URL (e.g. us1, us14).",
+      },
+      {
+        name: "list_id",
+        label: "List / Audience ID",
+        placeholder: "xxxxxxxxxx",
+        required: true,
+        hint: "Found at Audience → Settings → Audience name and defaults.",
+      },
+    ],
+  },
+  {
     key: "resend" as IntegrationKey,
     name: "Resend",
     description:
