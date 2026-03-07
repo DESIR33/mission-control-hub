@@ -23,6 +23,40 @@ interface CSVImportDialogProps {
   optionalFields?: { key: string; label: string }[];
 }
 
+/** RFC 4180–aware CSV line parser (handles quoted fields with commas) */
+function parseCSVLine(line: string): string[] {
+  const result: string[] = [];
+  let current = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inQuotes) {
+      if (ch === '"') {
+        if (i + 1 < line.length && line[i + 1] === '"') {
+          current += '"';
+          i++; // skip escaped quote
+        } else {
+          inQuotes = false;
+        }
+      } else {
+        current += ch;
+      }
+    } else {
+      if (ch === '"') {
+        inQuotes = true;
+      } else if (ch === ",") {
+        result.push(current.trim());
+        current = "";
+      } else {
+        current += ch;
+      }
+    }
+  }
+  result.push(current.trim());
+  return result;
+}
+
 export function CSVImportDialog({
   isOpen,
   onClose,
@@ -48,19 +82,24 @@ export function CSVImportDialog({
     reader.onload = (e) => {
       try {
         const csvText = e.target?.result as string;
-        const lines = csvText.split('\n').map(line =>
-          line.split(',').map(cell => cell.trim().replace(/^"|"$/g, ''))
-        );
+        const lines = csvText
+          .split(/\r?\n/)
+          .filter((l) => l.trim().length > 0)
+          .map(parseCSVLine);
+
         setPreviewData(lines);
 
-        // Try to auto-map columns based on header names
-        const headers = lines[0];
+        // Auto-map columns based on header names
+        const headers = lines[0] ?? [];
         const newMappings: Record<string, number> = {};
 
-        [...requiredFields, ...(optionalFields || [])].forEach(field => {
-          const index = headers.findIndex(header =>
-            header.toLowerCase() === field.label.toLowerCase() ||
-            header.toLowerCase() === field.key.toLowerCase()
+        [...requiredFields, ...(optionalFields || [])].forEach((field) => {
+          const index = headers.findIndex(
+            (header) =>
+              header.toLowerCase() === field.label.toLowerCase() ||
+              header.toLowerCase() === field.key.toLowerCase() ||
+              header.toLowerCase().replace(/[_\s]/g, "") ===
+                field.key.toLowerCase().replace(/[_\s]/g, "")
           );
           if (index !== -1) {
             newMappings[field.key] = index;
@@ -68,35 +107,39 @@ export function CSVImportDialog({
         });
 
         setColumnMappings(newMappings);
-      } catch (err) {
-        setError('Failed to parse CSV file. Please ensure it\'s a valid CSV format.');
+      } catch {
+        setError("Failed to parse CSV file. Please ensure it's a valid CSV format.");
         setFile(null);
         setPreviewData([]);
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
-        }
+        if (fileInputRef.current) fileInputRef.current.value = "";
       }
     };
     reader.readAsText(selectedFile);
   };
 
   const handleColumnMapping = (field: string, columnIndex: string) => {
-    setColumnMappings(prev => ({
-      ...prev,
-      [field]: parseInt(columnIndex)
-    }));
+    if (columnIndex === "__none__") {
+      setColumnMappings((prev) => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    } else {
+      setColumnMappings((prev) => ({ ...prev, [field]: parseInt(columnIndex) }));
+    }
   };
 
   const handleImport = async () => {
     if (!file || !previewData.length) return;
 
-    // Validate required fields are mapped
-    const missingFields = requiredFields.filter(field =>
-      columnMappings[field.key] === undefined
+    const missingFields = requiredFields.filter(
+      (field) => columnMappings[field.key] === undefined
     );
 
     if (missingFields.length > 0) {
-      setError(`Please map the following required fields: ${missingFields.map(f => f.label).join(', ')}`);
+      setError(
+        `Please map the following required fields: ${missingFields.map((f) => f.label).join(", ")}`
+      );
       return;
     }
 
@@ -104,13 +147,12 @@ export function CSVImportDialog({
     setError(null);
 
     try {
-      // Convert CSV data to objects using mappings
-      const data = previewData.slice(1).map(row => {
+      const data = previewData.slice(1).map((row) => {
         const obj: Record<string, string> = {};
-        [...requiredFields, ...optionalFields].forEach(field => {
+        [...requiredFields, ...optionalFields].forEach((field) => {
           const columnIndex = columnMappings[field.key];
           if (columnIndex !== undefined) {
-            obj[field.key] = row[columnIndex] || '';
+            obj[field.key] = row[columnIndex] || "";
           }
         });
         return obj;
@@ -119,7 +161,7 @@ export function CSVImportDialog({
       await onImport(data);
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to import data');
+      setError(err instanceof Error ? err.message : "Failed to import data");
     } finally {
       setImporting(false);
     }
@@ -129,19 +171,21 @@ export function CSVImportDialog({
     setFile(null);
     setPreviewData([]);
     setColumnMappings({});
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
+
+  const allFields = [...requiredFields, ...optionalFields];
+  const mappedCount = Object.keys(columnMappings).length;
+  const headers = previewData[0] ?? [];
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-4xl">
+      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle>Import CSV</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="flex-1 overflow-y-auto space-y-5 pr-1">
           {!file ? (
             <div className="border-2 border-dashed rounded-lg p-12 text-center">
               <Input
@@ -165,68 +209,79 @@ export function CSVImportDialog({
             </div>
           ) : (
             <div className="space-y-4">
+              {/* File info */}
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <FileUp className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">{file.name}</span>
+                <div className="flex items-center gap-2 min-w-0">
+                  <FileUp className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="font-medium text-sm truncate">{file.name}</span>
+                  <span className="text-xs text-muted-foreground shrink-0">
+                    {previewData.length - 1} rows · {headers.length} columns
+                  </span>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleRemoveFile}
-                  aria-label="Remove file"
-                >
+                <Button variant="ghost" size="icon" onClick={handleRemoveFile} aria-label="Remove file">
                   <X className="h-4 w-4" />
                 </Button>
               </div>
 
-              <div className="space-y-4">
-                <h4 className="font-medium">Map Columns</h4>
-                <div className="grid gap-4 md:grid-cols-2">
-                  {requiredFields.map((field) => (
-                    <div key={field.key} className="space-y-2">
-                      <Label htmlFor={`map-${field.key}`} className="text-sm font-medium">
-                        {field.label} <span className="text-destructive">*</span>
-                      </Label>
-                      <Select
-                        value={columnMappings[field.key]?.toString()}
-                        onValueChange={(value) => handleColumnMapping(field.key, value)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select column" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {previewData[0]?.map((header, index) => (
-                            <SelectItem key={index} value={index.toString()}>
-                              {header}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  ))}
-
-                  {optionalFields.map((field) => (
-                    <div key={field.key} className="space-y-2">
-                      <Label htmlFor={`map-${field.key}`} className="text-sm font-medium">{field.label}</Label>
-                      <Select
-                        value={columnMappings[field.key]?.toString()}
-                        onValueChange={(value) => handleColumnMapping(field.key, value)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select column" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {previewData[0]?.map((header, index) => (
-                            <SelectItem key={index} value={index.toString()}>
-                              {header}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  ))}
+              {/* Column mapping */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-medium">Map Columns</h4>
+                  <span className="text-xs text-muted-foreground">
+                    {mappedCount}/{allFields.length} mapped
+                  </span>
                 </div>
+
+                <ScrollArea className="max-h-[280px]">
+                  <div className="grid gap-3 sm:grid-cols-2 pr-3">
+                    {requiredFields.map((field) => (
+                      <div key={field.key} className="space-y-1">
+                        <Label className="text-xs font-medium">
+                          {field.label} <span className="text-destructive">*</span>
+                        </Label>
+                        <Select
+                          value={columnMappings[field.key]?.toString()}
+                          onValueChange={(value) => handleColumnMapping(field.key, value)}
+                        >
+                          <SelectTrigger className="h-8 text-xs">
+                            <SelectValue placeholder="Select column" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {headers.map((header, index) => (
+                              <SelectItem key={index} value={index.toString()} className="text-xs">
+                                {header}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    ))}
+
+                    {optionalFields.map((field) => (
+                      <div key={field.key} className="space-y-1">
+                        <Label className="text-xs font-medium">{field.label}</Label>
+                        <Select
+                          value={columnMappings[field.key]?.toString() ?? "__none__"}
+                          onValueChange={(value) => handleColumnMapping(field.key, value)}
+                        >
+                          <SelectTrigger className="h-8 text-xs">
+                            <SelectValue placeholder="Skip" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="__none__" className="text-xs text-muted-foreground">
+                              — Skip —
+                            </SelectItem>
+                            {headers.map((header, index) => (
+                              <SelectItem key={index} value={index.toString()} className="text-xs">
+                                {header}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
               </div>
 
               {error && (
@@ -236,36 +291,46 @@ export function CSVImportDialog({
                 </Alert>
               )}
 
+              {/* Preview */}
               <div className="space-y-2">
-                <h4 className="font-medium">Preview</h4>
-                <ScrollArea className="h-[200px] rounded-md border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        {previewData[0]?.map((header, index) => (
-                          <TableHead key={index}>{header}</TableHead>
-                        ))}
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {previewData.slice(1, 6).map((row, i) => (
-                        <TableRow key={i}>
-                          {row.map((cell, j) => (
-                            <TableCell key={j}>{cell}</TableCell>
+                <h4 className="text-sm font-medium">Preview (first 5 rows)</h4>
+                <div className="rounded-md border overflow-hidden">
+                  <ScrollArea className="h-[160px]">
+                    <div className="overflow-x-auto">
+                      <Table className="text-xs">
+                        <TableHeader>
+                          <TableRow>
+                            {headers.map((header, index) => (
+                              <TableHead key={index} className="whitespace-nowrap text-xs px-2 py-1.5">
+                                {header}
+                              </TableHead>
+                            ))}
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {previewData.slice(1, 6).map((row, i) => (
+                            <TableRow key={i}>
+                              {row.map((cell, j) => (
+                                <TableCell key={j} className="whitespace-nowrap px-2 py-1 max-w-[180px] truncate">
+                                  {cell}
+                                </TableCell>
+                              ))}
+                            </TableRow>
                           ))}
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </ScrollArea>
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </ScrollArea>
+                </div>
               </div>
 
-              <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={onClose}>
+              {/* Actions */}
+              <div className="flex justify-end gap-2 pt-1">
+                <Button variant="outline" size="sm" onClick={onClose}>
                   Cancel
                 </Button>
-                <Button onClick={handleImport} disabled={importing}>
-                  {importing ? "Importing..." : "Import"}
+                <Button size="sm" onClick={handleImport} disabled={importing}>
+                  {importing ? "Importing..." : `Import ${previewData.length - 1} rows`}
                 </Button>
               </div>
             </div>
