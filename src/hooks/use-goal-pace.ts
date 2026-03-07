@@ -1,8 +1,9 @@
 import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { differenceInWeeks, format, startOfWeek, addWeeks } from "date-fns";
+import { toast } from "sonner";
 
 export interface GoalPaceData {
   currentSubs: number;
@@ -11,9 +12,9 @@ export interface GoalPaceData {
   weeksRemaining: number;
   requiredWeeklyRate: number;
   actualWeeklyRate: number;
-  weeksAheadBehind: number; // positive = ahead, negative = behind
+  weeksAheadBehind: number;
   paceZone: "green" | "yellow" | "red";
-  pacePercent: number; // actual / required * 100
+  pacePercent: number;
   microTargets: Array<{ week: string; target: number; actual: number | null }>;
   progressPercent: number;
 }
@@ -52,6 +53,8 @@ export function useGoalPace() {
     enabled: !!workspaceId,
   });
 
+  const goalRecord = goals[0] || null;
+
   const pace = useMemo((): GoalPaceData | null => {
     const goal = goals[0];
     if (!goal) return null;
@@ -60,17 +63,14 @@ export function useGoalPace() {
     const targetDate = goal.target_date || "2027-01-01";
     const startDate = goal.start_date || "2026-03-01";
 
-    // Get current sub count
     const latestChannel = channelData[0];
-    const currentSubs = latestChannel?.subscribers || goal.current_value || 21000;
+    const currentSubs = latestChannel?.subscribers || goal.current_value || 0;
 
-    // Calculate weekly rates
     const now = new Date();
     const target = new Date(targetDate);
     const weeksRemaining = Math.max(1, differenceInWeeks(target, now));
     const requiredWeeklyRate = (targetSubs - currentSubs) / weeksRemaining;
 
-    // Calculate actual weekly rate from last 4 weeks
     let actualWeeklyRate = requiredWeeklyRate;
     if (channelData.length >= 14) {
       const fourWeeksAgo = channelData[Math.min(28, channelData.length - 1)];
@@ -84,17 +84,14 @@ export function useGoalPace() {
 
     const pacePercent = requiredWeeklyRate > 0 ? (actualWeeklyRate / requiredWeeklyRate) * 100 : 100;
 
-    // Calculate weeks ahead/behind
     const subsRemaining = targetSubs - currentSubs;
     const weeksNeeded = actualWeeklyRate > 0 ? subsRemaining / actualWeeklyRate : Infinity;
     const weeksAheadBehind = Math.round(weeksRemaining - weeksNeeded);
 
-    // Pace zone
     let paceZone: "green" | "yellow" | "red" = "yellow";
     if (pacePercent >= 110) paceZone = "green";
     else if (pacePercent < 90) paceZone = "red";
 
-    // Generate micro targets
     const start = new Date(startDate);
     const totalWeeks = differenceInWeeks(target, start);
     const subsToGain = targetSubs - (goal.current_value || currentSubs);
@@ -107,7 +104,6 @@ export function useGoalPace() {
       const weekKey = format(startOfWeek(weekDate, { weekStartsOn: 1 }), "yyyy-'W'II");
       const targetForWeek = Math.round(startingSubs + weeklyIncrement * i);
 
-      // Find actual data for this week
       let actual: number | null = null;
       const weekStr = format(weekDate, "yyyy-MM-dd");
       const channelEntry = channelData.find((c: any) => c.date <= weekStr);
@@ -118,7 +114,7 @@ export function useGoalPace() {
       microTargets.push({ week: weekKey, target: targetForWeek, actual });
     }
 
-    const progressPercent = targetSubs > 0 ? ((currentSubs - startingSubs) / subsToGain) * 100 : 0;
+    const progressPercent = subsToGain > 0 ? ((currentSubs - startingSubs) / subsToGain) * 100 : 0;
 
     return {
       currentSubs,
@@ -135,5 +131,53 @@ export function useGoalPace() {
     };
   }, [goals, channelData]);
 
-  return { data: pace, isLoading: goalsLoading || channelLoading };
+  return { data: pace, isLoading: goalsLoading || channelLoading, goalRecord };
+}
+
+export function useUpdateGoal() {
+  const { workspaceId } = useWorkspace();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (params: {
+      id?: string;
+      title: string;
+      target_value: number;
+      target_date: string;
+      current_value: number;
+    }) => {
+      if (params.id) {
+        const { error } = await supabase
+          .from("growth_goals" as any)
+          .update({
+            title: params.title,
+            target_value: params.target_value,
+            target_date: params.target_date,
+            current_value: params.current_value,
+          })
+          .eq("id", params.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("growth_goals" as any)
+          .insert({
+            workspace_id: workspaceId!,
+            title: params.title,
+            metric: "subscribers",
+            target_value: params.target_value,
+            target_date: params.target_date,
+            current_value: params.current_value,
+            start_date: new Date().toISOString().split("T")[0],
+          });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["goal-pace-goals"] });
+      toast.success("Goal updated");
+    },
+    onError: (err: any) => {
+      toast.error("Failed to update goal: " + err.message);
+    },
+  });
 }
