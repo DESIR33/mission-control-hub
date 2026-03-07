@@ -136,10 +136,15 @@ export function VideoDeepDive({ data, daysRange }: Props) {
         case "subsGained": return (b.subscribers_gained - b.subscribers_lost) - (a.subscribers_gained - a.subscribers_lost);
         case "revenue": return b.estimated_revenue - a.estimated_revenue;
         case "engagement": return b.engagementRate - a.engagementRate;
+        case "uploadDate": {
+          const aDate = publishedAtMap.get(a.youtube_video_id) ?? "";
+          const bDate = publishedAtMap.get(b.youtube_video_id) ?? "";
+          return bDate.localeCompare(aDate); // newest first
+        }
         default: return b.views - a.views;
       }
     });
-  }, [enriched, sortField]);
+  }, [enriched, sortField, publishedAtMap]);
 
   // Feature 10: Video Search — filter sorted videos by title
   const filteredVideos = useMemo(() => {
