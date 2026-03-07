@@ -534,15 +534,15 @@ const INTEGRATIONS: IntegrationDef[] = [
     key: "n8n",
     name: "n8n",
     description:
-      "Self-hosted workflow automation. Connect all your integrations with visual flows — when a video publishes, auto-post to X, notify Slack, update Notion, and trigger email sequences.",
+      "Self-hosted workflow automation engine. Orchestrate cross-platform workflows: video publish → auto-post to X + Slack alert + Notion update + newsletter trigger. Schedule AI agent runs, automate sponsor outreach pipelines, reconcile Stripe/PayPal revenue, monitor YouTube comments for content ideas, and generate daily briefings from all connected data sources.",
     icon: "⚡",
     iconBg: "linear-gradient(135deg, #ea4b71 0%, #d6336c 100%)",
     docsUrl: "https://docs.n8n.io",
-    usedFor: "Used for: workflow automation · cross-integration triggers · event orchestration · scheduled tasks",
+    usedFor: "Used for: workflow automation · video publish distribution · sponsor pipeline orchestration · revenue reconciliation · AI agent scheduling · daily briefings · comment-to-content pipeline · competitor monitoring · collaboration follow-ups · A/B test alerts",
     connectHint:
-      "Provide your n8n instance URL and an API key generated from the n8n settings.",
+      "Provide your n8n instance URL and API key. Optionally configure a webhook URL for Mission Control to trigger workflows directly, and tag workflows for easier management.",
     warningNote:
-      "Your n8n instance must be accessible from this application. For self-hosted instances, ensure the URL is reachable and CORS is configured.",
+      "Your n8n instance must be accessible from this application. For self-hosted instances, ensure the URL is reachable and CORS is configured. Webhook workflows require the n8n webhook node to be active.",
     fields: [
       {
         name: "instance_url",
@@ -558,6 +558,20 @@ const INTEGRATIONS: IntegrationDef[] = [
         secret: true,
         required: true,
         hint: "n8n → Settings → API → Create an API key.",
+      },
+      {
+        name: "webhook_base_url",
+        label: "Webhook Base URL",
+        placeholder: "https://your-n8n.example.com/webhook",
+        required: false,
+        hint: "Base URL for triggering n8n webhook workflows from Mission Control (e.g. on video publish, deal stage change, agent action).",
+      },
+      {
+        name: "workflow_tags",
+        label: "Workflow Tags",
+        placeholder: "mission-control,youtube,sponsors",
+        required: false,
+        hint: "Comma-separated tags to filter which n8n workflows Mission Control can see and trigger. Keeps your dashboard focused.",
       },
     ],
   },
