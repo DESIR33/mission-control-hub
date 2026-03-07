@@ -167,8 +167,8 @@ export function useAgentExecutions(agentSlug: string, limit = 10) {
 export function useRunAgent() {
   const { workspaceId } = useWorkspace();
   const queryClient = useQueryClient();
-  return useMutation<AgentRunResult, Error, { agent_slug: string; message: string }>({
-    mutationFn: async ({ agent_slug, message }) => {
+  return useMutation<AgentRunResult, Error, { agent_slug: string; message: string; model?: string }>({
+    mutationFn: async ({ agent_slug, message, model }) => {
       if (!workspaceId) throw new Error("No workspace");
       const { data, error } = await supabase.functions.invoke(
         "agent-orchestrator",
@@ -178,6 +178,7 @@ export function useRunAgent() {
             agent_slug,
             input: { message },
             trigger_type: "manual",
+            model,
           },
         }
       );

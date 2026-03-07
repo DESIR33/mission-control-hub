@@ -723,7 +723,7 @@ IMPORTANT RULES:
             "X-Title": `Agent: ${agentDef.name}`,
           },
           body: JSON.stringify({
-            model: agentDef.model || DEFAULT_MODEL,
+            model: requestModel || agentDef.model || DEFAULT_MODEL,
             max_tokens: 4096,
             messages,
             tools: coreToolDefinitions,
