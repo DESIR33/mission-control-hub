@@ -28,21 +28,14 @@ import {
   GeographyBreakdown, DeviceBreakdown, VideoDeepDive, RevenueAnalytics,
   SyncStatusBar, SubscriberFunnel, SyncDebugPanel,
 } from "@/components/analytics";
+import {
+  fmtCount, fmtDuration, chartTooltipStyle, xAxisDefaults, yAxisDefaults,
+  cartesianGridDefaults, lineDefaults, barDefaults, chartAnimationDefaults,
+  CHART_COLORS, SEMANTIC_COLORS,
+} from "@/lib/chart-theme";
 
 type TimeRange = "7d" | "30d" | "90d";
 type AnalyticsTab = "overview" | "channel" | "videos" | "audience" | "traffic" | "geography" | "devices" | "revenue" | "growth_funnel";
-
-const fmtCount = (n: number) => {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return String(n);
-};
-
-const fmtDuration = (seconds: number) => {
-  if (seconds >= 3600) return `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
-  if (seconds >= 60) return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
-  return `${seconds}s`;
-};
 
 const TABS: { key: AnalyticsTab; label: string; icon: React.ReactNode }[] = [
   { key: "overview", label: "Overview", icon: <BarChart3 className="w-3.5 h-3.5" /> },
@@ -317,15 +310,15 @@ export default function AnalyticsPage() {
         <Skeleton className="h-8 w-48" />
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-28 rounded-lg" />
+            <Skeleton key={i} className="h-28 rounded-xl" />
           ))}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <Skeleton className="h-72 rounded-lg" />
-          <Skeleton className="h-72 rounded-lg" />
+          <Skeleton className="h-72 rounded-xl" />
+          <Skeleton className="h-72 rounded-xl" />
         </div>
-        <Skeleton className="h-64 rounded-lg" />
-        <Skeleton className="h-64 rounded-lg" />
+        <Skeleton className="h-64 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
       </div>
     );
   }
@@ -511,12 +504,6 @@ function OverviewTab({
     });
   }, [sortedVideos, tableSortField, tableSortDir]);
 
-  const tooltipStyle = {
-    backgroundColor: "hsl(var(--card))",
-    border: "1px solid hsl(var(--border))",
-    borderRadius: 8,
-    fontSize: 12,
-  };
 
   // Content format analysis
   const formatAnalysis = useMemo(() => {
@@ -627,7 +614,7 @@ function OverviewTab({
     <>
       {/* Analytics API Enhanced KPIs (if available) */}
       {analyticsSummary && (
-        <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 mb-2">
+        <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 mb-2">
           <div className="flex items-center gap-2 mb-3">
             <Zap className="w-4 h-4 text-primary" />
             <h2 className="text-sm font-semibold text-foreground">YouTube Analytics API — {daysForRange} Day Summary</h2>
@@ -649,7 +636,7 @@ function OverviewTab({
 
       {/* Subscriber Growth KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <div className="flex items-center gap-1.5 mb-2">
             <Users className="w-3.5 h-3.5 text-red-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Subscribers</p>
@@ -679,7 +666,7 @@ function OverviewTab({
           )}
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <div className="flex items-center gap-1.5 mb-2">
             <Eye className="w-3.5 h-3.5 text-blue-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Views</p>
@@ -698,7 +685,7 @@ function OverviewTab({
           )}
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <div className="flex items-center gap-1.5 mb-2">
             <TrendingUp className="w-3.5 h-3.5 text-green-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Daily Growth</p>
@@ -715,7 +702,7 @@ function OverviewTab({
           )}
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <div className="flex items-center gap-1.5 mb-2">
             <Zap className="w-3.5 h-3.5 text-yellow-500" />
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Subs/Video</p>
@@ -729,7 +716,7 @@ function OverviewTab({
 
       {/* Goal Progress Bar */}
       {goal && latestSnapshot && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <Target className="w-4 h-4 text-primary" />
@@ -757,50 +744,50 @@ function OverviewTab({
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {subscriberTrend.length > 1 && (
-          <div className="rounded-lg border border-border bg-card p-4">
+          <div className="rounded-xl border border-border bg-card p-4">
             <h2 className="text-sm font-semibold text-foreground mb-4">Subscriber Growth</h2>
             <ResponsiveContainer width="100%" height={260}>
-              <AreaChart data={subscriberTrend}>
+              <AreaChart data={subscriberTrend} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
                 <defs>
                   <linearGradient id="subGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.25} />
                     <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis dataKey="date" tick={{ fontSize: 10 }} className="text-muted-foreground" />
-                <YAxis tick={{ fontSize: 10 }} className="text-muted-foreground" tickFormatter={fmtCount} />
+                <CartesianGrid {...cartesianGridDefaults} />
+                <XAxis {...xAxisDefaults} dataKey="date" />
+                <YAxis {...yAxisDefaults} tickFormatter={fmtCount} />
                 <Tooltip
-                  contentStyle={tooltipStyle}
+                  contentStyle={chartTooltipStyle}
                   labelStyle={{ color: "hsl(var(--foreground))" }}
                   formatter={(value: number) => [value.toLocaleString(), "Subscribers"]}
                 />
-                <Area type="monotone" dataKey="subscribers" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#subGradient)" />
+                <Area type="monotone" dataKey="subscribers" stroke="hsl(var(--primary))" {...lineDefaults} fill="url(#subGradient)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         )}
 
         {viewsTrend.length > 1 && (
-          <div className="rounded-lg border border-border bg-card p-4">
+          <div className="rounded-xl border border-border bg-card p-4">
             <h2 className="text-sm font-semibold text-foreground mb-4">Total Views Over Time</h2>
             <ResponsiveContainer width="100%" height={260}>
-              <AreaChart data={viewsTrend}>
+              <AreaChart data={viewsTrend} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
                 <defs>
                   <linearGradient id="viewsGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.25} />
                     <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis dataKey="date" tick={{ fontSize: 10 }} className="text-muted-foreground" />
-                <YAxis tick={{ fontSize: 10 }} className="text-muted-foreground" tickFormatter={fmtCount} />
+                <CartesianGrid {...cartesianGridDefaults} />
+                <XAxis {...xAxisDefaults} dataKey="date" />
+                <YAxis {...yAxisDefaults} tickFormatter={fmtCount} />
                 <Tooltip
-                  contentStyle={tooltipStyle}
+                  contentStyle={chartTooltipStyle}
                   labelStyle={{ color: "hsl(var(--foreground))" }}
                   formatter={(value: number) => [value.toLocaleString(), "Total Views"]}
                 />
-                <Area type="monotone" dataKey="views" stroke="#3b82f6" strokeWidth={2} fill="url(#viewsGradient)" />
+                <Area type="monotone" dataKey="views" stroke="#3b82f6" {...lineDefaults} fill="url(#viewsGradient)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -820,35 +807,35 @@ function OverviewTab({
             </p>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            <div className="rounded-lg border border-border bg-card p-3">
+            <div className="rounded-xl border border-border bg-card p-3">
               <p className="text-xs text-muted-foreground uppercase tracking-wider">Engagement Rate</p>
               <p className="text-lg font-bold text-foreground font-mono mt-0.5">
                 {videoEngagement.engagementRate}%
               </p>
               <p className="text-xs text-muted-foreground">(likes+comments)/views</p>
             </div>
-            <div className="rounded-lg border border-border bg-card p-3">
+            <div className="rounded-xl border border-border bg-card p-3">
               <p className="text-xs text-muted-foreground uppercase tracking-wider">Avg CTR</p>
               <p className="text-lg font-bold text-foreground font-mono mt-0.5">
                 {videoEngagement.avgCtr != null ? `${videoEngagement.avgCtr}%` : "--"}
               </p>
               <p className="text-xs text-muted-foreground">click-through rate</p>
             </div>
-            <div className="rounded-lg border border-border bg-card p-3">
+            <div className="rounded-xl border border-border bg-card p-3">
               <p className="text-xs text-muted-foreground uppercase tracking-wider">Avg Duration</p>
               <p className="text-lg font-bold text-foreground font-mono mt-0.5">
                 {videoEngagement.avgDuration != null ? fmtDuration(videoEngagement.avgDuration) : "--"}
               </p>
               <p className="text-xs text-muted-foreground">view duration</p>
             </div>
-            <div className="rounded-lg border border-border bg-card p-3">
+            <div className="rounded-xl border border-border bg-card p-3">
               <p className="text-xs text-muted-foreground uppercase tracking-wider">Like Ratio</p>
               <p className="text-lg font-bold text-foreground font-mono mt-0.5">
                 {videoEngagement.likesToViewsRatio}%
               </p>
               <p className="text-xs text-muted-foreground">likes/views</p>
             </div>
-            <div className="rounded-lg border border-border bg-card p-3">
+            <div className="rounded-xl border border-border bg-card p-3">
               <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Watch Time</p>
               <p className="text-lg font-bold text-foreground font-mono mt-0.5">
                 {videoEngagement.totalWatchTime >= 60
@@ -857,7 +844,7 @@ function OverviewTab({
               </p>
               <p className="text-xs text-muted-foreground">across all videos</p>
             </div>
-            <div className="rounded-lg border border-border bg-card p-3">
+            <div className="rounded-xl border border-border bg-card p-3">
               <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Comments</p>
               <p className="text-lg font-bold text-foreground font-mono mt-0.5">
                 {videoEngagement.totalComments.toLocaleString()}
@@ -870,7 +857,7 @@ function OverviewTab({
 
       {/* Top Performing Videos */}
       {topVideos.length > 0 && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <div className="flex items-center gap-2 mb-4">
             <Award className="w-4 h-4 text-yellow-500" />
             <h2 className="text-sm font-semibold text-foreground">Top Performing Videos</h2>
@@ -920,7 +907,7 @@ function OverviewTab({
       {/* Publish Cadence + Performance Quadrant */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {publishFrequency && publishFrequency.entries.length > 1 && (
-          <div className="rounded-lg border border-border bg-card p-4">
+          <div className="rounded-xl border border-border bg-card p-4">
             <div className="flex items-center justify-between mb-1">
               <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-primary" />
@@ -939,32 +926,32 @@ function OverviewTab({
             </div>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={publishFrequency.entries}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis dataKey="week" tick={{ fontSize: 10 }} className="text-muted-foreground" />
-                <YAxis tick={{ fontSize: 10 }} className="text-muted-foreground" allowDecimals={false} />
+                <CartesianGrid {...cartesianGridDefaults} />
+                <XAxis {...xAxisDefaults} dataKey="week" />
+                <YAxis {...yAxisDefaults} allowDecimals={false} />
                 <Tooltip
-                  contentStyle={tooltipStyle}
+                  contentStyle={chartTooltipStyle}
                   formatter={(value: number) => [value, "Videos"]}
                 />
-                <Bar dataKey="videos" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="videos" fill="hsl(var(--primary))" {...barDefaults} {...chartAnimationDefaults} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         )}
 
         {scatterData.length > 0 && (
-          <div className="rounded-lg border border-border bg-card p-4">
+          <div className="rounded-xl border border-border bg-card p-4">
             <h2 className="text-sm font-semibold text-foreground mb-1">Performance Quadrant</h2>
             <p className="text-xs text-muted-foreground mb-3">
               Views vs CTR — top-right = subscriber magnets
             </p>
             <ResponsiveContainer width="100%" height={200}>
               <ScatterChart>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis dataKey="views" name="Views" tick={{ fontSize: 10 }} label={{ value: "Views", position: "insideBottom", offset: -5, fontSize: 10 }} />
-                <YAxis dataKey="ctr" name="CTR %" tick={{ fontSize: 10 }} label={{ value: "CTR %", angle: -90, position: "insideLeft", fontSize: 10 }} />
+                <CartesianGrid {...cartesianGridDefaults} />
+                <XAxis {...xAxisDefaults} dataKey="views" name="Views" label={{ value: "Views", position: "insideBottom", offset: -5, fontSize: 10 }} />
+                <YAxis {...yAxisDefaults} dataKey="ctr" name="CTR %" label={{ value: "CTR %", angle: -90, position: "insideLeft", fontSize: 10 }} />
                 <Tooltip
-                  contentStyle={tooltipStyle}
+                  contentStyle={chartTooltipStyle}
                   formatter={(value: number, name: string) => [name === "views" ? value.toLocaleString() : `${value}%`, name === "views" ? "Views" : "CTR"]}
                 />
                 <Scatter data={scatterData} fill="hsl(var(--primary))" fillOpacity={0.7} />
@@ -976,7 +963,7 @@ function OverviewTab({
 
       {/* Content Format Analysis */}
       {formatAnalysis.length > 0 && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h2 className="text-sm font-semibold text-foreground mb-4">Content Format Analysis</h2>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -1015,7 +1002,7 @@ function OverviewTab({
 
       {/* All Videos Table */}
       {sortedVideos.length > 0 && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h2 className="text-sm font-semibold text-foreground mb-4">
             All Videos ({sortedVideos.length})
           </h2>
@@ -1078,7 +1065,7 @@ function OverviewTab({
 
       {/* Empty state */}
       {videoStats.length === 0 && channelSnapshots.length === 0 && (
-        <div className="rounded-lg border border-dashed border-border bg-card p-12 text-center">
+        <div className="rounded-xl border border-dashed border-border bg-card p-12 text-center">
           <BarChart3 className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
           <h3 className="text-sm font-semibold text-foreground">No analytics data yet</h3>
           <p className="text-xs text-muted-foreground mt-1">
