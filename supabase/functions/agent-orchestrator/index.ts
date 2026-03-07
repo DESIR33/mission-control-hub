@@ -590,7 +590,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { workspace_id, agent_slug, skill_slug, input, trigger_type } = await req.json();
+    const { workspace_id, agent_slug, skill_slug, input, trigger_type, model: requestModel } = await req.json();
 
     if (!workspace_id) {
       return new Response(
