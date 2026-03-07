@@ -136,7 +136,12 @@ export function SubscriberImpact() {
                   : 0;
                 return (
                   <tr key={item.youtubeVideoId} className="border-b border-border/50 hover:bg-muted/20">
-                    <td className="py-2 px-2 text-foreground truncate max-w-[200px]">{item.title}</td>
+                    <td className="py-2 px-2 text-foreground max-w-[200px]">
+                      <span className="flex items-center gap-1.5">
+                        <span className="truncate">{item.title}</span>
+                        <VideoCompanyLogos companies={companyLookup.get(item.youtubeVideoId)} />
+                      </span>
+                    </td>
                     <td className="py-2 px-2 text-right font-mono text-muted-foreground">{fmtCount(item.views)}</td>
                     <td className={`py-2 px-2 text-right font-mono font-semibold ${item.netSubscribers >= 0 ? "text-green-500" : "text-red-500"}`}>
                       {item.netSubscribers >= 0 ? "+" : ""}{item.netSubscribers}
