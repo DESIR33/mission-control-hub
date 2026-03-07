@@ -330,7 +330,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
                         ({fmtCount(v.impressions)} imp.)
                       </span>
                       <span className="text-xs text-foreground truncate">
-                        {v.title || v.youtube_video_id}
+                        {v.title || "Untitled Video"}
                       </span>
                     </div>
                   ))}
