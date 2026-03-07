@@ -1,51 +1,41 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { toast } from "sonner";
 
 export interface YouTubeComment {
   id: string;
   workspace_id: string;
-  youtube_comment_id: string;
-  youtube_video_id: string;
-  video_title: string | null;
+  video_id: string;
+  video_title: string;
+  comment_id: string;
   author_name: string;
-  author_channel_url: string | null;
-  author_avatar_url: string | null;
-  text_display: string;
+  author_channel_id: string | null;
+  author_profile_url: string | null;
+  text: string;
   like_count: number;
   reply_count: number;
-  is_pinned: boolean;
-  is_hearted: boolean;
-  our_reply: string | null;
-  sentiment: "positive" | "neutral" | "negative" | "question" | null;
-  status: "unread" | "read" | "replied" | "flagged";
   published_at: string;
-  synced_at: string;
+  sentiment: "positive" | "negative" | "question" | "neutral";
+  priority: "high" | "medium" | "low";
+  is_replied: boolean;
+  suggested_reply: string | null;
+  is_pinned: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
-export interface CommentFilters {
-  videoId?: string;
-  status?: string;
-  sentiment?: string;
-}
-
-export function useYouTubeComments(filters?: CommentFilters) {
+export function useYouTubeComments(videoId?: string) {
   const { workspaceId } = useWorkspace();
-
   return useQuery({
-    queryKey: ["youtube-comments", workspaceId, filters],
+    queryKey: ["youtube_comments", workspaceId, videoId],
     queryFn: async (): Promise<YouTubeComment[]> => {
       let query = supabase
         .from("youtube_comments" as any)
         .select("*")
         .eq("workspace_id", workspaceId!)
-        .order("published_at", { ascending: false })
-        .limit(200);
-
-      if (filters?.videoId) query = query.eq("youtube_video_id", filters.videoId);
-      if (filters?.status) query = query.eq("status", filters.status);
-      if (filters?.sentiment) query = query.eq("sentiment", filters.sentiment);
-
+        .order("published_at", { ascending: false });
+      if (videoId) query = query.eq("video_id", videoId);
       const { data, error } = await query;
       if (error) throw error;
       return (data ?? []) as unknown as YouTubeComment[];
@@ -54,50 +44,112 @@ export function useYouTubeComments(filters?: CommentFilters) {
   });
 }
 
-export function useCommentStats() {
+export function useSyncComments() {
   const { workspaceId } = useWorkspace();
-
-  return useQuery({
-    queryKey: ["youtube-comment-stats", workspaceId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("youtube_comments" as any)
-        .select("status, sentiment")
-        .eq("workspace_id", workspaceId!);
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      if (!workspaceId) throw new Error("No workspace");
+      const { data, error } = await supabase.functions.invoke(
+        "youtube-comments-sync",
+        { body: { workspace_id: workspaceId } }
+      );
       if (error) throw error;
-
-      const comments = (data ?? []) as any[];
-      const total = comments.length;
-      const unread = comments.filter((c) => c.status === "unread").length;
-      const replied = comments.filter((c) => c.status === "replied").length;
-      const flagged = comments.filter((c) => c.status === "flagged").length;
-      const positive = comments.filter((c) => c.sentiment === "positive").length;
-      const negative = comments.filter((c) => c.sentiment === "negative").length;
-      const questions = comments.filter((c) => c.sentiment === "question").length;
-      const replyRate = total > 0 ? (replied / total) * 100 : 0;
-
-      return { total, unread, replied, flagged, positive, negative, questions, replyRate };
+      return data;
     },
-    enabled: !!workspaceId,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["youtube_comments", workspaceId] });
+      toast.success("Comments synced successfully");
+    },
+    onError: (error: Error) => {
+      toast.error("Failed to sync comments: " + error.message);
+    },
+  });
+}
+
+export function useGenerateReply() {
+  const { workspaceId } = useWorkspace();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { commentId: string; comment_text: string; video_title: string }) => {
+      if (!workspaceId) throw new Error("No workspace");
+      const { data, error } = await supabase.functions.invoke(
+        "ai-generate-proposals",
+        {
+          body: {
+            workspace_id: workspaceId,
+            type: "comment_reply",
+            context: {
+              comment_text: input.comment_text,
+              video_title: input.video_title,
+            },
+          },
+        }
+      );
+      if (error) throw error;
+      if (data?.reply) {
+        await supabase
+          .from("youtube_comments" as any)
+          .update({ suggested_reply: data.reply } as any)
+          .eq("id", input.commentId);
+      }
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["youtube_comments", workspaceId] });
+      toast.success("Reply generated");
+    },
+    onError: (error: Error) => {
+      toast.error("Failed to generate reply: " + error.message);
+    },
+  });
+}
+
+export function useMarkReplied() {
+  const { workspaceId } = useWorkspace();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (commentId: string) => {
+      const { error } = await supabase
+        .from("youtube_comments" as any)
+        .update({ is_replied: true, updated_at: new Date().toISOString() } as any)
+        .eq("id", commentId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["youtube_comments", workspaceId] });
+      toast.success("Comment marked as replied");
+    },
+    onError: (error: Error) => {
+      toast.error("Failed to update comment: " + error.message);
+    },
   });
 }
 
 export function useUpdateCommentStatus() {
+  const { workspaceId } = useWorkspace();
   const qc = useQueryClient();
-
   return useMutation({
-    mutationFn: async ({ id, status, ourReply }: { id: string; status: string; ourReply?: string }) => {
-      const updates: Record<string, unknown> = { status };
-      if (ourReply !== undefined) updates.our_reply = ourReply;
+    mutationFn: async ({ id, ...updates }: { id: string; sentiment?: string; priority?: string; is_replied?: boolean; is_pinned?: boolean }) => {
       const { error } = await supabase
         .from("youtube_comments" as any)
-        .update(updates as any)
+        .update({ ...updates, updated_at: new Date().toISOString() } as any)
         .eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["youtube-comments"] });
-      qc.invalidateQueries({ queryKey: ["youtube-comment-stats"] });
+      qc.invalidateQueries({ queryKey: ["youtube_comments", workspaceId] });
     },
   });
+}
+
+export function useCommentStats() {
+  const { data: comments, isLoading } = useYouTubeComments();
+  const stats = {
+    total: comments?.length ?? 0,
+    unreplied: comments?.filter((c) => !c.is_replied).length ?? 0,
+    questions: comments?.filter((c) => c.sentiment === "question").length ?? 0,
+    highPriority: comments?.filter((c) => c.priority === "high").length ?? 0,
+  };
+  return { stats, isLoading };
 }
