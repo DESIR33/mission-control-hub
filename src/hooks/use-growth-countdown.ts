@@ -34,7 +34,7 @@ export function useGrowthCountdown() {
         .order("date", { ascending: false })
         .limit(60);
       if (error) throw error;
-      return (data ?? []) as Array<{
+      return (data ?? []) as unknown as Array<{
         date: string;
         subscribers: number;
         subscribers_gained: number | null;
@@ -57,7 +57,7 @@ export function useGrowthCountdown() {
         .order("created_at", { ascending: false })
         .limit(1);
       if (error) throw error;
-      return (data ?? []) as Array<{
+      return (data ?? []) as unknown as Array<{
         id: string;
         target_value: number;
         current_value: number;
