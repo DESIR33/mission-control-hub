@@ -18,6 +18,7 @@ import {
 
 export function SubscriberImpact() {
   const { data: summary } = useSubscriberImpact();
+  const { lookup: companyLookup } = useAllVideoCompanies();
 
   if (!summary || summary.items.length === 0) {
     return (
