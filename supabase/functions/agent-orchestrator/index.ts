@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
-const DEFAULT_MODEL = "anthropic/claude-3.5-sonnet";
+const DEFAULT_MODEL = "minimax/minimax-m2.5";
 
 function getSupabaseAdmin() {
   return createClient(
