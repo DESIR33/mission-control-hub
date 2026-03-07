@@ -3,11 +3,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Filter, Building2, MapPin, Users, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Search, Filter, Building2, MapPin, Users, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, Video } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Company, VipTier } from "@/types/crm";
 import { formatDistanceToNow } from "date-fns";
 import { useCompanyRevenue, type CompanyRevenueMap } from "@/hooks/use-company-revenue";
+import { useAllVideoCompanies } from "@/hooks/use-all-video-companies";
 
 const tierIcons: Record<VipTier, string> = {
   none: "",
