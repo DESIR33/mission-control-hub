@@ -51,7 +51,7 @@ export const MODEL_OPTIONS = [
   ]},
 ];
 
-const DEFAULT_MODEL = "anthropic/claude-sonnet-4-20250514";
+const DEFAULT_MODEL = "anthropic/claude-3.5-sonnet";
 
 interface Props {
   onSend: (message: string, model: string) => void;
