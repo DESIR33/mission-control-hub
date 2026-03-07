@@ -1238,6 +1238,56 @@ export type Database = {
           },
         ]
       }
+      thumbnail_references: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          label: string | null
+          notes: string | null
+          source_channel: string | null
+          source_video_url: string | null
+          storage_path: string
+          tags: string[] | null
+          url: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label?: string | null
+          notes?: string | null
+          source_channel?: string | null
+          source_video_url?: string | null
+          storage_path: string
+          tags?: string[] | null
+          url: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label?: string | null
+          notes?: string | null
+          source_channel?: string | null
+          source_video_url?: string | null
+          storage_path?: string
+          tags?: string[] | null
+          url?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "thumbnail_references_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       video_companies: {
         Row: {
           company_id: string
