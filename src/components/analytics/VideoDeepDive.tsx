@@ -133,7 +133,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
   const filteredVideos = useMemo(() => {
     if (!searchQuery.trim()) return sorted;
     const q = searchQuery.toLowerCase();
-    return sorted.filter((v) => (v.title || v.youtube_video_id).toLowerCase().includes(q));
+    return sorted.filter((v) => (v.title || "Untitled Video").toLowerCase().includes(q));
   }, [sorted, searchQuery]);
 
   // Top 5 by views for overview
