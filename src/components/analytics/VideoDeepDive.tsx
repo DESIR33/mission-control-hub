@@ -29,6 +29,17 @@ export function VideoDeepDive({ data, daysRange }: Props) {
   const [searchQuery, setSearchQuery] = useState("");
   const { data: notesSet } = useVideoNotesCheck();
   const { lookup: revenueLookup } = useVideoRevenueLookup();
+  const { data: videoStatsList } = useYouTubeVideoStats(500);
+
+  const publishedAtMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const v of videoStatsList ?? []) {
+      if (v.published_at && !map.has(v.youtube_video_id)) {
+        map.set(v.youtube_video_id, v.published_at);
+      }
+    }
+    return map;
+  }, [videoStatsList]);
 
   // Feature 2: Aggregation — group rows by youtube_video_id
   const aggregated = useMemo(() => {
