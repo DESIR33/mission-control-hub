@@ -229,6 +229,9 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
         </CardContent>
       </Card>
 
+      {/* Thread Timeline with CRM Context */}
+      <ThreadTimelineCRM email={email} />
+
       {/* Thread Summarizer */}
       <ThreadSummarizer email={email} />
 
