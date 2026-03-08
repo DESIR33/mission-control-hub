@@ -24,6 +24,9 @@ import { AgentAbTesting } from "@/components/agents/AgentAbTesting";
 import { PromptPlayground } from "@/components/agents/PromptPlayground";
 import { AutoExecutionPipeline } from "@/components/agents/AutoExecutionPipeline";
 import { AgentCollaborationThreads } from "@/components/agents/AgentCollaborationThreads";
+import { AgentMemoryTimeline } from "@/components/agents/AgentMemoryTimeline";
+import { AgentConfidenceCalibration } from "@/components/agents/AgentConfidenceCalibration";
+import { MultiAgentWorkflows } from "@/components/agents/MultiAgentWorkflows";
 import type { AgentDefinition, AgentSkill } from "@/types/agents";
 
 export function AgentHubContent() {
