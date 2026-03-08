@@ -17,6 +17,7 @@ import {
   TrendingUp,
   Tag,
   Target,
+  Video,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
@@ -47,6 +48,7 @@ const entityTypeConfig: Record<
   contact: { icon: User, label: "Contact" },
   company: { icon: Building2, label: "Company" },
   deal: { icon: Handshake, label: "Deal" },
+  video: { icon: Video, label: "Video" },
 };
 
 const proposalTypeConfig: Record<
@@ -82,6 +84,26 @@ const proposalTypeConfig: Record<
     icon: Sparkles,
     label: "Content",
     className: "bg-chart-3/10 text-chart-3",
+  },
+  video_title_optimization: {
+    icon: Video,
+    label: "Title Optimization",
+    className: "bg-chart-1/10 text-chart-1",
+  },
+  video_description_optimization: {
+    icon: Video,
+    label: "Description Optimization",
+    className: "bg-chart-2/10 text-chart-2",
+  },
+  video_thumbnail_optimization: {
+    icon: Video,
+    label: "Thumbnail Optimization",
+    className: "bg-chart-3/10 text-chart-3",
+  },
+  video_tags_optimization: {
+    icon: Tag,
+    label: "Tags Optimization",
+    className: "bg-chart-4/10 text-chart-4",
   },
 };
 

@@ -22,12 +22,18 @@ import {
   Clock,
   Shield,
   Calendar,
+  Video,
+  Eye,
+  ThumbsUp,
+  MessageSquare,
+  ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format, formatDistanceToNow } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { EditProposalDialog } from "@/components/ai-bridge/EditProposalDialog";
+import { useVideoStats } from "@/hooks/use-video-stats";
 import type { AiProposal } from "@/types/proposals";
 
 const statusConfig: Record<string, { label: string; className: string; icon: typeof Clock }> = {
@@ -40,7 +46,7 @@ const entityTypeConfig: Record<string, { icon: typeof User; label: string }> = {
   contact: { icon: User, label: "Contact" },
   company: { icon: Building2, label: "Company" },
   deal: { icon: Handshake, label: "Deal" },
-  video: { icon: Sparkles, label: "Video" },
+  video: { icon: Video, label: "Video" },
 };
 
 const proposalTypeConfig: Record<string, { icon: typeof Sparkles; label: string; className: string }> = {
@@ -50,16 +56,37 @@ const proposalTypeConfig: Record<string, { icon: typeof Sparkles; label: string;
   score_update: { icon: Target, label: "Score Update", className: "bg-warning/10 text-warning" },
   tag_suggestion: { icon: Tag, label: "Tag Suggestion", className: "bg-chart-5/10 text-chart-5" },
   content_suggestion: { icon: Sparkles, label: "Content", className: "bg-chart-3/10 text-chart-3" },
+  video_title_optimization: { icon: Video, label: "Title Optimization", className: "bg-chart-1/10 text-chart-1" },
+  video_description_optimization: { icon: Video, label: "Description Optimization", className: "bg-chart-2/10 text-chart-2" },
+  video_thumbnail_optimization: { icon: Video, label: "Thumbnail Optimization", className: "bg-chart-3/10 text-chart-3" },
+  video_tags_optimization: { icon: Tag, label: "Tags Optimization", className: "bg-chart-4/10 text-chart-4" },
 };
 
 function ProposedChangesRenderer({ changes }: { changes: Record<string, unknown> | null }) {
   if (!changes || Object.keys(changes).length === 0) {
-    return <p className="text-sm text-muted-foreground italic">No proposed changes.</p>;
+    return (
+      <div className="rounded-lg border border-dashed border-border p-6 text-center">
+        <Sparkles className="w-8 h-8 mx-auto mb-2 text-muted-foreground/50" />
+        <p className="text-sm text-muted-foreground font-medium">No proposed changes available.</p>
+        <p className="text-xs text-muted-foreground/70 mt-1">This proposal is missing its proposed changes data.</p>
+      </div>
+    );
+  }
+
+  // Filter out internal keys
+  const visibleChanges = Object.entries(changes).filter(([key]) => !key.startsWith("_"));
+
+  if (visibleChanges.length === 0) {
+    return (
+      <div className="rounded-lg border border-dashed border-border p-6 text-center">
+        <p className="text-sm text-muted-foreground italic">No proposed changes to display.</p>
+      </div>
+    );
   }
 
   return (
     <div className="space-y-3">
-      {Object.entries(changes).map(([key, value]) => (
+      {visibleChanges.map(([key, value]) => (
         <div key={key} className="rounded-lg border border-border bg-muted/30 p-4">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
             {key.replace(/_/g, " ")}
@@ -82,6 +109,128 @@ function ProposedChangesRenderer({ changes }: { changes: Record<string, unknown>
         </div>
       ))}
     </div>
+  );
+}
+
+function VideoDataCard({ videoId }: { videoId: string }) {
+  const { data: stats, isLoading } = useVideoStats(videoId);
+
+  if (isLoading) {
+    return (
+      <Card className="p-6 mb-6">
+        <h2 className="text-base font-semibold text-foreground mb-4 flex items-center gap-2">
+          <Video className="w-4 h-4" /> Video Details
+        </h2>
+        <div className="flex gap-4">
+          <Skeleton className="w-48 h-28 rounded-lg shrink-0" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-5 w-3/4" />
+            <Skeleton className="h-4 w-1/2" />
+            <Skeleton className="h-16 w-full" />
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <Card className="p-6 mb-6">
+        <h2 className="text-base font-semibold text-foreground mb-4 flex items-center gap-2">
+          <Video className="w-4 h-4" /> Video Details
+        </h2>
+        <div className="rounded-lg border border-dashed border-border p-4 text-center">
+          <p className="text-sm text-muted-foreground">Video data not available for ID: {videoId}</p>
+          <a
+            href={`https://youtube.com/watch?v=${videoId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-primary hover:underline inline-flex items-center gap-1 mt-2"
+          >
+            View on YouTube <ExternalLink className="w-3 h-3" />
+          </a>
+        </div>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="p-6 mb-6">
+      <h2 className="text-base font-semibold text-foreground mb-4 flex items-center gap-2">
+        <Video className="w-4 h-4" /> Video Details
+      </h2>
+      <div className="flex flex-col sm:flex-row gap-4">
+        {/* Thumbnail */}
+        <a
+          href={`https://youtube.com/watch?v=${videoId}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="relative shrink-0 group"
+        >
+          <img
+            src={stats.thumbnail_url || `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`}
+            alt={stats.title}
+            className="w-full sm:w-56 rounded-lg object-cover aspect-video border border-border group-hover:border-primary/50 transition-colors"
+          />
+          <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/20 transition-colors rounded-lg">
+            <ExternalLink className="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+          </div>
+        </a>
+
+        {/* Details */}
+        <div className="flex-1 min-w-0 space-y-3">
+          <div>
+            <h3 className="text-sm font-semibold text-foreground leading-tight line-clamp-2">{stats.title}</h3>
+            {stats.published_at && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Uploaded {format(new Date(stats.published_at), "MMM d, yyyy")} · {formatDistanceToNow(new Date(stats.published_at), { addSuffix: true })}
+              </p>
+            )}
+          </div>
+
+          {/* Stats row */}
+          <div className="flex flex-wrap gap-3">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Eye className="w-3.5 h-3.5" />
+              <span className="font-medium text-foreground">{stats.views?.toLocaleString() ?? "—"}</span> views
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <ThumbsUp className="w-3.5 h-3.5" />
+              <span className="font-medium text-foreground">{stats.likes?.toLocaleString() ?? "—"}</span> likes
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <MessageSquare className="w-3.5 h-3.5" />
+              <span className="font-medium text-foreground">{stats.comments?.toLocaleString() ?? "—"}</span> comments
+            </div>
+            {stats.ctr_percent != null && (
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Target className="w-3.5 h-3.5" />
+                <span className="font-medium text-foreground">{stats.ctr_percent.toFixed(1)}%</span> CTR
+              </div>
+            )}
+          </div>
+
+          {/* Description preview */}
+          {stats.description && (
+            <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">
+              {stats.description}
+            </p>
+          )}
+
+          {/* Tags */}
+          {stats.tags && stats.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {stats.tags.slice(0, 8).map((tag, i) => (
+                <Badge key={i} variant="secondary" className="text-[10px] px-1.5 py-0">{tag}</Badge>
+              ))}
+              {stats.tags.length > 8 && (
+                <Badge variant="outline" className="text-[10px] px-1.5 py-0">+{stats.tags.length - 8} more</Badge>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </Card>
   );
 }
 
@@ -122,12 +271,16 @@ export default function ProposalDetailPage() {
 
   const status = statusConfig[proposal.status] ?? statusConfig.pending;
   const entityType = entityTypeConfig[proposal.entity_type] ?? { icon: Sparkles, label: "Entity" };
-  const proposalType = proposalTypeConfig[proposal.proposal_type] ?? { icon: Sparkles, label: proposal.proposal_type || "Optimization", className: "bg-muted text-muted-foreground" };
+  const proposalType = proposalTypeConfig[proposal.proposal_type] ?? { icon: Sparkles, label: proposal.proposal_type?.replace(/_/g, " ") || "Optimization", className: "bg-muted text-muted-foreground" };
   const EntityIcon = entityType.icon;
   const TypeIcon = proposalType.icon;
   const StatusIcon = status.icon;
   const confidencePercent = proposal.confidence ? Math.round(proposal.confidence * 100) : null;
-  const execStatus = (proposal as any).execution_status;
+  const execStatus = proposal.execution_status;
+
+  // Determine video ID for video proposals
+  const isVideoProposal = proposal.entity_type === "video" || !!proposal.video_id || proposal.proposal_type?.startsWith("video_");
+  const videoId = proposal.video_id || (proposal.proposed_changes as any)?.youtube_video_id || (proposal.metadata as any)?.youtube_video_id || null;
 
   const handleApprove = () => {
     updateStatus.mutate(
@@ -249,10 +402,15 @@ export default function ProposalDetailPage() {
         )}
         <Card className="p-4 text-center">
           <TypeIcon className="w-5 h-5 mx-auto mb-1 text-muted-foreground" />
-          <p className="text-sm font-semibold text-foreground capitalize">{(proposal.proposal_type || "").replace(/_/g, " ")}</p>
+          <p className="text-sm font-semibold text-foreground capitalize">{proposalType.label}</p>
           <p className="text-xs text-muted-foreground">Proposal Type</p>
         </Card>
       </div>
+
+      {/* Video data card for video proposals */}
+      {isVideoProposal && videoId && (
+        <VideoDataCard videoId={videoId} />
+      )}
 
       {/* Proposed Changes */}
       <Card className="p-6 mb-6">
