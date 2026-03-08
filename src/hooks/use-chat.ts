@@ -26,9 +26,10 @@ export function useChat() {
     const map = new Map<string, ChatSession>();
     for (const msg of data as any[]) {
       if (!map.has(msg.session_id)) {
+        const renamedTitle = msg.metadata?.renamed_title;
         map.set(msg.session_id, {
           session_id: msg.session_id,
-          title: msg.content.slice(0, 60),
+          title: renamedTitle || msg.content.slice(0, 60),
           created_at: msg.created_at,
           message_count: 1,
         });
