@@ -38,7 +38,7 @@ export default function OutlookCallbackPage() {
     (async () => {
       try {
         const { data, error: fnError } = await supabase.functions.invoke("outlook-auth-callback", {
-          body: { workspace_id: state, code },
+          body: { workspace_id: state, code, redirect_uri: `${window.location.origin}/auth/outlook/callback` },
         });
         if (fnError) throw fnError;
         if (data?.error) throw new Error(data.error);
