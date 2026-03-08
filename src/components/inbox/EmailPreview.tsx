@@ -13,6 +13,7 @@ import {
   CalendarIcon,
 } from "lucide-react";
 import { AiEmailDrafter } from "@/components/inbox/AiEmailDrafter";
+import { EmailToContactActions } from "@/components/inbox/EmailToContactActions";
 import { useOutlookSend } from "@/hooks/use-smart-inbox";
 import type { SmartEmail } from "@/hooks/use-smart-inbox";
 
@@ -69,16 +70,19 @@ export default function EmailPreview({
             <Trash2Icon className="h-4 w-4" />
           </Button>
           {email && (
-            <AiEmailDrafter
-              email={email}
-              onSendDraft={(body) => {
-                outlookSend.mutate({
-                  reply_to_message_id: email.message_id,
-                  body_html: body.replace(/\n/g, "<br>"),
-                });
-              }}
-              isSending={outlookSend.isPending}
-            />
+            <>
+              <EmailToContactActions fromName={email.from_name} fromEmail={email.from_email} />
+              <AiEmailDrafter
+                email={email}
+                onSendDraft={(body) => {
+                  outlookSend.mutate({
+                    reply_to_message_id: email.message_id,
+                    body_html: body.replace(/\n/g, "<br>"),
+                  });
+                }}
+                isSending={outlookSend.isPending}
+              />
+            </>
           )}
         </div>
       </div>

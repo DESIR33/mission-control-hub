@@ -20,6 +20,10 @@ import { WorkflowChainManager } from "@/components/agents/WorkflowChainManager";
 import { NaturalLanguageTriggers } from "@/components/agents/NaturalLanguageTriggers";
 import { AgentActivityFeed } from "@/components/agents/AgentActivityFeed";
 import { AgentPerformanceScorecards } from "@/components/agents/AgentPerformanceScorecards";
+import { AgentAbTesting } from "@/components/agents/AgentAbTesting";
+import { PromptPlayground } from "@/components/agents/PromptPlayground";
+import { AutoExecutionPipeline } from "@/components/agents/AutoExecutionPipeline";
+import { AgentCollaborationThreads } from "@/components/agents/AgentCollaborationThreads";
 import type { AgentDefinition, AgentSkill } from "@/types/agents";
 
 export function AgentHubContent() {
@@ -125,6 +129,18 @@ export function AgentHubContent() {
           const lastExec = executions.find((e) => e.agent_slug === agent.slug);
           return (<AgentCard key={agent.id} agent={agent} lastExecution={lastExec} onRun={(a) => setRunDialogAgent(a)} onToggle={handleToggle} onViewDetail={(a) => setDetailAgent(a)} isRunning={runningAgentSlug === agent.slug} />);
         })}
+      </div>
+
+      {/* A/B Testing & Prompt Playground */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <AgentAbTesting />
+        <PromptPlayground />
+      </div>
+
+      {/* Auto-Execution & Collaboration */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <AutoExecutionPipeline />
+        <AgentCollaborationThreads />
       </div>
 
       {/* Workflows, Triggers, Activity Feed */}
