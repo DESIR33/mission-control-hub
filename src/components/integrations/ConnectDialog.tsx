@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,12 +11,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { IntegrationKey } from "@/hooks/use-integrations";
+import { useMaskedConfig, type IntegrationKey } from "@/hooks/use-integrations";
 import type { IntegrationDef, FieldDef } from "@/pages/IntegrationsPage";
 
 interface ConnectDialogProps {
   open: boolean;
   def: IntegrationDef | null;
+  isUpdate?: boolean;
   onClose: () => void;
   onSave: (key: IntegrationKey, values: Record<string, string>) => void;
   isSaving: boolean;
@@ -60,17 +61,41 @@ function SecretInput({
 export function ConnectDialog({
   open,
   def,
+  isUpdate,
   onClose,
   onSave,
   isSaving,
 }: ConnectDialogProps) {
   const [values, setValues] = useState<Record<string, string>>({});
+  const [touched, setTouched] = useState<Set<string>>(new Set());
+
+  // Fetch masked config for pre-fill when updating
+  const { data: maskedData } = useMaskedConfig(open && isUpdate && def ? def.key : null);
+
+  // Pre-fill non-secret values when updating
+  useEffect(() => {
+    if (isUpdate && maskedData && def) {
+      const prefill: Record<string, string> = {};
+      for (const field of def.fields) {
+        if (!field.secret && maskedData.raw_non_secret[field.name]) {
+          prefill[field.name] = maskedData.raw_non_secret[field.name];
+        }
+      }
+      setValues(prefill);
+    }
+  }, [maskedData, isUpdate, def]);
 
   const handleOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
       setValues({});
+      setTouched(new Set());
       onClose();
     }
+  };
+
+  const handleFieldChange = (name: string, value: string) => {
+    setValues((prev) => ({ ...prev, [name]: value }));
+    setTouched((prev) => new Set(prev).add(name));
   };
 
   const handleSave = () => {
@@ -80,7 +105,11 @@ export function ConnectDialog({
 
   const allRequired = def?.fields
     .filter((f: FieldDef) => f.required !== false)
-    .every((f: FieldDef) => (values[f.name] ?? "").trim().length > 0);
+    .every((f: FieldDef) => {
+      // When updating, secret fields that haven't been touched are OK (keeping existing value)
+      if (isUpdate && f.secret && !touched.has(f.name)) return true;
+      return (values[f.name] ?? "").trim().length > 0;
+    });
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -96,9 +125,13 @@ export function ConnectDialog({
                   {def.icon}
                 </div>
                 <div>
-                  <DialogTitle className="text-sm">Connect {def.name}</DialogTitle>
+                  <DialogTitle className="text-sm">
+                    {isUpdate ? `Update ${def.name}` : `Connect ${def.name}`}
+                  </DialogTitle>
                   <DialogDescription className="text-xs mt-0.5">
-                    {def.connectHint ?? "Enter your credentials to connect."}
+                    {isUpdate
+                      ? "Update your credentials. Leave secret fields empty to keep existing values."
+                      : def.connectHint ?? "Enter your credentials to connect."}
                   </DialogDescription>
                 </div>
               </div>
@@ -109,18 +142,20 @@ export function ConnectDialog({
                 <div key={field.name} className="space-y-1.5">
                   <Label htmlFor={field.name} className="text-xs font-medium">
                     {field.label}
-                    {field.required !== false && (
+                    {field.required !== false && !isUpdate && (
                       <span className="text-destructive ml-0.5">*</span>
                     )}
                   </Label>
                   {field.secret ? (
                     <SecretInput
                       id={field.name}
-                      placeholder={field.placeholder}
-                      value={values[field.name] ?? ""}
-                      onChange={(v) =>
-                        setValues((prev) => ({ ...prev, [field.name]: v }))
+                      placeholder={
+                        isUpdate && maskedData?.masked_config[field.name]
+                          ? maskedData.masked_config[field.name]
+                          : field.placeholder
                       }
+                      value={values[field.name] ?? ""}
+                      onChange={(v) => handleFieldChange(field.name, v)}
                     />
                   ) : (
                     <Input
@@ -128,12 +163,7 @@ export function ConnectDialog({
                       type="text"
                       placeholder={field.placeholder}
                       value={values[field.name] ?? ""}
-                      onChange={(e) =>
-                        setValues((prev) => ({
-                          ...prev,
-                          [field.name]: e.target.value,
-                        }))
-                      }
+                      onChange={(e) => handleFieldChange(field.name, e.target.value)}
                       className="text-sm"
                       autoComplete="off"
                     />
@@ -152,26 +182,17 @@ export function ConnectDialog({
             </div>
 
             <DialogFooter className="gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onClose}
-                disabled={isSaving}
-                className="text-xs"
-              >
+              <Button variant="outline" size="sm" onClick={onClose} disabled={isSaving} className="text-xs">
                 Cancel
               </Button>
-              <Button
-                size="sm"
-                onClick={handleSave}
-                disabled={isSaving || !allRequired}
-                className="text-xs"
-              >
+              <Button size="sm" onClick={handleSave} disabled={isSaving || !allRequired} className="text-xs">
                 {isSaving ? (
                   <>
                     <Loader2 className="w-3 h-3 animate-spin mr-1.5" />
                     Saving…
                   </>
+                ) : isUpdate ? (
+                  "Update"
                 ) : (
                   "Save & Connect"
                 )}
