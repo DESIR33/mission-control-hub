@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Search, Filter, Building2, MapPin, Users, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, Video, Trash2, Pencil, Sparkles, ExternalLink } from "lucide-react";
+import { Search, Filter, Building2, MapPin, Users, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, Video, Trash2, Sparkles, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Company, VipTier } from "@/types/crm";
 import { formatDistanceToNow } from "date-fns";
@@ -64,6 +64,7 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [deleteTarget, setDeleteTarget] = useState<Company | null>(null);
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; company: Company } | null>(null);
 
   const revenueMap = useCompanyRevenue();
   const { data: allVideoLinks = [] } = useAllVideoCompanies();
@@ -167,37 +168,14 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
     }
   };
 
-  const thClass = "text-muted-foreground font-semibold cursor-pointer select-none hover:text-foreground transition-colors";
+  const handleContextMenu = useCallback((e: React.MouseEvent, company: Company) => {
+    e.preventDefault();
+    setContextMenu({ x: e.clientX, y: e.clientY, company });
+  }, []);
 
-  const renderContextMenu = (company: Company, children: React.ReactNode) => (
-    <ContextMenu>
-      <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
-      <ContextMenuContent className="w-48">
-        <ContextMenuItem onClick={() => onSelectCompany(company)}>
-          <ExternalLink className="w-4 h-4 mr-2" />
-          View Details
-        </ContextMenuItem>
-        <ContextMenuItem onClick={() => handleEnrich(company)}>
-          <Sparkles className="w-4 h-4 mr-2" />
-          Enrich
-        </ContextMenuItem>
-        {company.website && (
-          <ContextMenuItem onClick={() => window.open(company.website!, "_blank")}>
-            <ExternalLink className="w-4 h-4 mr-2" />
-            Open Website
-          </ContextMenuItem>
-        )}
-        <ContextMenuSeparator />
-        <ContextMenuItem
-          className="text-destructive focus:text-destructive"
-          onClick={() => setDeleteTarget(company)}
-        >
-          <Trash2 className="w-4 h-4 mr-2" />
-          Delete
-        </ContextMenuItem>
-      </ContextMenuContent>
-    </ContextMenu>
-  );
+  const closeContextMenu = useCallback(() => setContextMenu(null), []);
+
+  const thClass = "text-muted-foreground font-semibold cursor-pointer select-none hover:text-foreground transition-colors";
 
   return (
     <div className="flex flex-col gap-4">
@@ -270,11 +248,11 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
         ) : (
           filtered.map((company) => {
             const rev = revenueMap[company.id];
-            return renderContextMenu(
-              company,
+            return (
               <button
                 key={company.id}
                 onClick={() => onSelectCompany(company)}
+                onContextMenu={(e) => handleContextMenu(e, company)}
                 className={cn(
                   "w-full flex items-center gap-3 px-4 py-3 text-left transition-colors",
                   selectedId === company.id ? "bg-primary/5" : "hover:bg-accent/50 active:bg-accent/70"
@@ -365,11 +343,11 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
             ) : (
               filtered.map((company) => {
                 const rev = revenueMap[company.id];
-                return renderContextMenu(
-                  company,
+                return (
                   <TableRow
                     key={company.id}
                     onClick={() => onSelectCompany(company)}
+                    onContextMenu={(e) => handleContextMenu(e, company)}
                     className={cn(
                       "cursor-pointer border-border transition-colors",
                       selectedIds.has(company.id) && "bg-primary/5",
@@ -448,11 +426,58 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
         </Table>
       </div>
 
+      {/* Custom right-click context menu */}
+      {contextMenu && (
+        <div
+          className="fixed inset-0 z-50"
+          onClick={closeContextMenu}
+          onContextMenu={(e) => { e.preventDefault(); closeContextMenu(); }}
+        >
+          <div
+            className="absolute z-50 min-w-[180px] rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md animate-in fade-in-80 zoom-in-95"
+            style={{ top: contextMenu.y, left: contextMenu.x }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground"
+              onClick={() => { onSelectCompany(contextMenu.company); closeContextMenu(); }}
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              View Details
+            </button>
+            <button
+              className="relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground"
+              onClick={() => { handleEnrich(contextMenu.company); closeContextMenu(); }}
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              Enrich
+            </button>
+            {contextMenu.company.website && (
+              <button
+                className="relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground"
+                onClick={() => { window.open(contextMenu.company.website!, "_blank"); closeContextMenu(); }}
+              >
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Open Website
+              </button>
+            )}
+            <div className="-mx-1 my-1 h-px bg-border" />
+            <button
+              className="relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none text-destructive hover:bg-destructive/10"
+              onClick={() => { setDeleteTarget(contextMenu.company); closeContextMenu(); }}
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Delete confirmation */}
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <AlertDialogContent className="bg-card border-border">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete "{deleteTarget?.name}"?</AlertDialogTitle>
+            <AlertDialogTitle>Delete &ldquo;{deleteTarget?.name}&rdquo;?</AlertDialogTitle>
             <AlertDialogDescription>
               This will soft-delete the company. This action can be reversed by an admin.
             </AlertDialogDescription>
