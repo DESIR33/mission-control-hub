@@ -13,6 +13,7 @@ import {
   useOutlookAuthUrl,
   type SmartEmail,
 } from "@/hooks/use-smart-inbox";
+import { useClassifyEmails } from "@/hooks/use-email-categories";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -44,12 +45,16 @@ import {
   MailIcon,
   SendIcon,
   LinkIcon,
+  SparklesIcon,
+  LayoutGridIcon,
+  ListIcon,
 } from "lucide-react";
 import FolderSidebar from "@/components/inbox/FolderSidebar";
 import EmailList from "@/components/inbox/EmailList";
 import EmailPreview from "@/components/inbox/EmailPreview";
 import { SmartInboxSidebar } from "@/components/inbox/SmartInboxSidebar";
 import { EmailSequencesContent } from "@/pages/EmailSequencesPage";
+import { InboxKanbanView } from "@/components/inbox/InboxKanbanView";
 
 export default function InboxPage() {
   const { toast } = useToast();
