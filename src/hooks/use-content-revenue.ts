@@ -37,9 +37,8 @@ export function useContentRevenue(days = 180) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("deals" as any)
-        .select("id, title, value, video_queue_id, stage")
-        .eq("workspace_id", workspaceId!)
-        .not("video_queue_id", "is", null);
+        .select("id, title, value, stage, company_id")
+        .eq("workspace_id", workspaceId!);
       if (error) throw error;
       return (data ?? []) as any[];
     },
