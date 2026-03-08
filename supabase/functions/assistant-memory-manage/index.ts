@@ -73,15 +73,18 @@ Deno.serve(async (req) => {
       }
       case "update": {
         const embedding = await getEmbedding(body.content);
+        const updateData: Record<string, unknown> = {
+          content: body.content,
+          origin: body.origin,
+          tags: body.tags || [],
+          updated_at: new Date().toISOString(),
+        };
+        if (embedding) {
+          updateData.embedding = `[${embedding.join(",")}]`;
+        }
         const { data, error } = await supabase
           .from("assistant_memory")
-          .update({
-            content: body.content,
-            origin: body.origin,
-            tags: body.tags || [],
-            embedding: `[${embedding.join(",")}]`,
-            updated_at: new Date().toISOString(),
-          })
+          .update(updateData)
           .eq("id", body.id)
           .select("id, content, origin, tags, created_at, updated_at")
           .single();
