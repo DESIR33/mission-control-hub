@@ -152,7 +152,6 @@ const App = () => (
               {/* Communication */}
               <Route path="/inbox" element={<LazyPage section="Inbox"><InboxPage /></LazyPage>} />
               <Route path="/inbox/*" element={<LazyPage section="Inbox"><InboxPage /></LazyPage>} />
-              <Route path="/auth/outlook/callback" element={<LazyPage section="Outlook"><OutlookCallbackPage /></LazyPage>} />
               <Route path="/notifications" element={<LazyPage section="Notifications"><NotificationsPage /></LazyPage>} />
 
               {/* Integrations */}
