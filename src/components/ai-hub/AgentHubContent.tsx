@@ -16,6 +16,9 @@ import { RunAgentDialog } from "@/components/agents/RunAgentDialog";
 import { CreateSkillDialog } from "@/components/agents/CreateSkillDialog";
 import { ImportSkillDialog } from "@/components/agents/ImportSkillDialog";
 import { SkillDetailSheet } from "@/components/agents/SkillDetailSheet";
+import { WorkflowChainManager } from "@/components/agents/WorkflowChainManager";
+import { NaturalLanguageTriggers } from "@/components/agents/NaturalLanguageTriggers";
+import { AgentActivityFeed } from "@/components/agents/AgentActivityFeed";
 import type { AgentDefinition, AgentSkill } from "@/types/agents";
 
 export function AgentHubContent() {
