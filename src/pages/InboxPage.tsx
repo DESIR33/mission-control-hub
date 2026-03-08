@@ -84,6 +84,15 @@ export default function InboxPage() {
     return () => mediaQuery.removeEventListener("change", update);
   }, []);
 
+  const { data: emails = [], isLoading } = useSmartInbox(selectedFolder, searchQuery);
+  const { data: stats } = useInboxStats();
+  const syncOutlook = useSyncOutlook();
+  const markRead = useMarkRead();
+  const togglePin = useTogglePin();
+  const moveEmail = useMoveEmail();
+  const deleteEmail = useDeleteEmail();
+  const outlookSend = useOutlookSend();
+
   // Show sequences page if selected
   if (selectedFolder === "sequences") {
     return (
@@ -107,15 +116,6 @@ export default function InboxPage() {
       </div>
     );
   }
-
-  const { data: emails = [], isLoading } = useSmartInbox(selectedFolder, searchQuery);
-  const { data: stats } = useInboxStats();
-  const syncOutlook = useSyncOutlook();
-  const markRead = useMarkRead();
-  const togglePin = useTogglePin();
-  const moveEmail = useMoveEmail();
-  const deleteEmail = useDeleteEmail();
-  const outlookSend = useOutlookSend();
 
   const handleSelectEmail = useCallback((email: SmartEmail) => {
     setSelectedEmail(email);
