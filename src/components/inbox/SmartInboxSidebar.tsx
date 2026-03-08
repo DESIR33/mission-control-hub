@@ -146,20 +146,20 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
           </CardContent>
         </Card>
       ) : (
-        <Card>
+        <Card className="overflow-hidden">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <User className="w-4 h-4" />
+              <User className="w-4 h-4 shrink-0" />
               Unknown Sender
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="min-w-0">
             <p className="text-sm text-muted-foreground mb-3">
               This sender is not in your CRM yet.
             </p>
-            <Button variant="outline" size="sm" className="w-full">
-              <Plus className="w-3.5 h-3.5 mr-2" />
-              Create Contact
+            <Button variant="outline" size="sm" className="w-full overflow-hidden">
+              <Plus className="w-3.5 h-3.5 mr-2 shrink-0" />
+              <span className="truncate">Create Contact</span>
             </Button>
           </CardContent>
         </Card>
