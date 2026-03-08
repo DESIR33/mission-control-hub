@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -12,7 +13,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Search, Filter, Building2, MapPin, Users, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, Video, Trash2, Sparkles, ExternalLink } from "lucide-react";
+import { Search, Filter, Building2, MapPin, Users, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, Video, Trash2, Sparkles, ExternalLink, Pencil, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Company, VipTier } from "@/types/crm";
 import { formatDistanceToNow } from "date-fns";
@@ -313,9 +314,6 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
               <TableHead className={thClass} onClick={() => handleSort("industry")}>
                 <div className="flex items-center">Industry<SortIcon column="industry" sortKey={sortKey} sortDir={sortDir} /></div>
               </TableHead>
-              <TableHead className={thClass} onClick={() => handleSort("location")}>
-                <div className="flex items-center">Location<SortIcon column="location" sortKey={sortKey} sortDir={sortDir} /></div>
-              </TableHead>
               <TableHead className={thClass} onClick={() => handleSort("videos")}>
                 <div className="flex items-center">Videos<SortIcon column="videos" sortKey={sortKey} sortDir={sortDir} /></div>
               </TableHead>
@@ -331,6 +329,7 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
               <TableHead className={thClass} onClick={() => handleSort("lastContact")}>
                 <div className="flex items-center">Last Contact<SortIcon column="lastContact" sortKey={sortKey} sortDir={sortDir} /></div>
               </TableHead>
+              <TableHead className="text-muted-foreground font-semibold w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -384,12 +383,6 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1.5">
-                        {company.location && <MapPin className="w-3 h-3 text-muted-foreground shrink-0" />}
-                        <span className="text-sm text-muted-foreground truncate">{company.location ?? "—"}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1.5">
                         <Video className="w-3.5 h-3.5 text-muted-foreground" />
                         <span className="text-sm text-foreground">{videoCountMap.get(company.id) ?? 0}</span>
                       </div>
@@ -417,6 +410,28 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
                           ? formatDistanceToNow(new Date(company.last_contact_date), { addSuffix: true })
                           : "Never"}
                       </span>
+                    </TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={() => onSelectCompany(company)}
+                          title="Edit"
+                        >
+                          <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 hover:bg-destructive/10 hover:text-destructive"
+                          onClick={() => setDeleteTarget(company)}
+                          title="Delete"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
