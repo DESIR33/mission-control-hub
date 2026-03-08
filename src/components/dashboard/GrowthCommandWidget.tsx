@@ -594,7 +594,7 @@ export function GrowthCommandWidget() {
           </div>
 
           {/* Stats row */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
             <div className="rounded-lg bg-muted/50 p-3 text-center">
               <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
                 Days Left
