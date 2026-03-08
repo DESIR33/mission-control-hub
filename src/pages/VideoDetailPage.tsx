@@ -322,6 +322,9 @@ export default function VideoDetailPage() {
           )}
 
           <DealsAttributionPanel deals={deals} isLoading={loadingDeals} />
+          
+          {/* Sponsor Segment Attribution */}
+          {youtubeVideoId && <SponsorSegmentTracker videoId={youtubeVideoId} />}
         </TabsContent>
 
         {/* AI Suggestions */}
