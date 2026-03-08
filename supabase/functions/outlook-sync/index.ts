@@ -184,10 +184,14 @@ Deno.serve(async (req) => {
         .upsert(rows, { onConflict: "workspace_id,message_id" });
 
       if (upsertError) {
-        console.error("Batch upsert error:", upsertError);
+        console.error("Batch upsert error:", JSON.stringify(upsertError));
+        throw new Error(`Failed to upsert emails: ${upsertError.message}`);
       } else {
         upsertedCount = rows.length;
+        console.log(`Successfully upserted ${upsertedCount} emails`);
       }
+    } else {
+      console.log("No messages returned from Outlook API");
     }
 
     return new Response(
