@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle2, Circle, ExternalLink, Loader2, FlaskConical, Settings, RefreshCw } from "lucide-react";
+import { CheckCircle2, Circle, ExternalLink, Loader2, FlaskConical, Settings, RefreshCw, LogIn } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +9,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useTestIntegration, type IntegrationKey, type WorkspaceIntegration } from "@/hooks/use-integrations";
 import { useStripeSync } from "@/hooks/use-stripe-sync";
 import { useSlackNotify } from "@/hooks/use-slack-notify";
+import { useWorkspace } from "@/hooks/use-workspace";
+import { supabase } from "@/integrations/supabase/client";
 import type { IntegrationDef } from "@/pages/IntegrationsPage";
 
 interface IntegrationCardProps {
