@@ -577,7 +577,7 @@ const INTEGRATIONS: IntegrationDef[] = [
   },
 ];
 
-/** Standalone content used by Settings > Integrations tab */
+/** Shared content used by Settings > Integrations tab AND standalone page */
 export function IntegrationsContent() {
   const { data: integrations = [], isLoading } = useIntegrations();
   const upsert = useUpsertIntegration();
@@ -591,6 +591,8 @@ export function IntegrationsContent() {
 
   const recordFor = (key: IntegrationKey) =>
     integrations.find((r) => r.integration_key === key);
+
+  const isUpdateMode = dialogKey ? !!recordFor(dialogKey)?.enabled : false;
 
   const handleConnect = (key: IntegrationKey) => setDialogKey(key);
 
@@ -667,6 +669,7 @@ export function IntegrationsContent() {
       <ConnectDialog
         open={dialogKey !== null}
         def={activeDef}
+        isUpdate={isUpdateMode}
         onClose={() => setDialogKey(null)}
         onSave={handleSave}
         isSaving={upsert.isPending}
@@ -676,48 +679,6 @@ export function IntegrationsContent() {
 }
 
 export default function IntegrationsPage() {
-  const { data: integrations = [], isLoading } = useIntegrations();
-  const upsert = useUpsertIntegration();
-  const disconnect = useDisconnectIntegration();
-
-  const [dialogKey, setDialogKey] = useState<IntegrationKey | null>(null);
-
-  const activeDef = dialogKey
-    ? INTEGRATIONS.find((d) => d.key === dialogKey) ?? null
-    : null;
-
-  const recordFor = (key: IntegrationKey) =>
-    integrations.find((r) => r.integration_key === key);
-
-  const handleConnect = (key: IntegrationKey) => setDialogKey(key);
-
-  const handleDisconnect = (key: IntegrationKey) => {
-    disconnect.mutate(key, {
-      onSuccess: () =>
-        toast.success(
-          `${INTEGRATIONS.find((d) => d.key === key)?.name} disconnected.`
-        ),
-      onError: (err) => toast.error(`Disconnect failed: ${err.message}`),
-    });
-  };
-
-  const handleSave = (key: IntegrationKey, values: Record<string, string>) => {
-    upsert.mutate(
-      { integration_key: key, enabled: true, config: values },
-      {
-        onSuccess: () => {
-          setDialogKey(null);
-          toast.success(
-            `${INTEGRATIONS.find((d) => d.key === key)?.name} connected!`
-          );
-        },
-        onError: (err) => toast.error(`Connection failed: ${err.message}`),
-      }
-    );
-  };
-
-  const connectedCount = integrations.filter((r) => r.enabled).length;
-
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
       <motion.div
@@ -729,53 +690,9 @@ export default function IntegrationsPage() {
           <Zap className="w-5 h-5 text-primary" />
           <h1 className="text-2xl font-bold text-foreground">Integrations</h1>
         </div>
-        <p className="text-sm text-muted-foreground mt-0.5">
-          Connect your tools to power enrichment, outreach, and automation.
-          {connectedCount > 0 && (
-            <span className="ml-2 text-green-400">
-              {connectedCount} of {INTEGRATIONS.length} connected
-            </span>
-          )}
-        </p>
       </motion.div>
 
-      {isLoading ? (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {INTEGRATIONS.map((d) => (
-            <Skeleton key={d.key} className="h-52 rounded-lg" />
-          ))}
-        </div>
-      ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {INTEGRATIONS.map((def, i) => (
-            <motion.div
-              key={def.key}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25, delay: i * 0.06 }}
-            >
-              <IntegrationCard
-                def={def}
-                record={recordFor(def.key)}
-                onConnect={handleConnect}
-                onDisconnect={handleDisconnect}
-                isDisconnecting={
-                  disconnect.isPending &&
-                  disconnect.variables === def.key
-                }
-              />
-            </motion.div>
-          ))}
-        </div>
-      )}
-
-      <ConnectDialog
-        open={dialogKey !== null}
-        def={activeDef}
-        onClose={() => setDialogKey(null)}
-        onSave={handleSave}
-        isSaving={upsert.isPending}
-      />
+      <IntegrationsContent />
     </div>
   );
 }
