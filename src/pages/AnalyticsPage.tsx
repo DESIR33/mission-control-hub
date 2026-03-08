@@ -26,7 +26,7 @@ import { format, differenceInDays, subDays, parseISO } from "date-fns";
 import {
   ChannelOverview, AudienceDemographics, TrafficSources,
   GeographyBreakdown, DeviceBreakdown, VideoDeepDive, RevenueAnalytics,
-  SyncStatusBar, SubscriberFunnel, SyncDebugPanel,
+  SyncStatusBar, SubscriberFunnel,
 } from "@/components/analytics";
 import {
   fmtCount, fmtDuration, chartTooltipStyle, xAxisDefaults, yAxisDefaults,
