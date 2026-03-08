@@ -8,11 +8,9 @@ export interface VideoComparisonData {
   likes: number;
   comments: number;
   ctr_percent: number;
-  avg_view_percent: number;
-  estimated_revenue: number;
-  subscribers_gained: number;
+  avg_view_duration_seconds: number | null;
+  watch_time_minutes: number;
   published_at: string | null;
-  thumbnail_url: string | null;
 }
 
 export function useVideoComparison() {
@@ -26,11 +24,9 @@ export function useVideoComparison() {
       likes: v.likes,
       comments: v.comments,
       ctr_percent: v.ctr_percent,
-      avg_view_percent: v.average_view_percentage,
-      estimated_revenue: v.estimated_revenue,
-      subscribers_gained: v.subscribers_gained,
+      avg_view_duration_seconds: v.avg_view_duration_seconds,
+      watch_time_minutes: v.watch_time_minutes,
       published_at: v.published_at,
-      thumbnail_url: v.thumbnail_url ?? null,
     }));
   }, [videos]);
 

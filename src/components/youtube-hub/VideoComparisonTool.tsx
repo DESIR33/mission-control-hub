@@ -44,7 +44,7 @@ function MetricRow({ label, valueA, valueB, format }: { label: string; valueA: n
 }
 
 export function VideoComparisonTool() {
-  const { data: videos, isLoading } = useVideoComparison();
+  const { data: videos } = useVideoComparison();
   const [videoA, setVideoA] = useState<string>("");
   const [videoB, setVideoB] = useState<string>("");
 
@@ -98,11 +98,9 @@ export function VideoComparisonTool() {
             </div>
             <MetricRow label="Views" valueA={a.views} valueB={b.views} />
             <MetricRow label="CTR" valueA={a.ctr_percent} valueB={b.ctr_percent} format={(n) => `${n.toFixed(1)}%`} />
-            <MetricRow label="Retention" valueA={a.avg_view_percent} valueB={b.avg_view_percent} format={(n) => `${n.toFixed(1)}%`} />
             <MetricRow label="Likes" valueA={a.likes} valueB={b.likes} />
             <MetricRow label="Comments" valueA={a.comments} valueB={b.comments} />
-            <MetricRow label="Subs Gained" valueA={a.subscribers_gained} valueB={b.subscribers_gained} />
-            <MetricRow label="Revenue" valueA={a.estimated_revenue} valueB={b.estimated_revenue} format={(n) => `$${formatNum(n)}`} />
+            <MetricRow label="Watch Time" valueA={a.watch_time_minutes} valueB={b.watch_time_minutes} format={(n) => `${formatNum(n)} min`} />
           </div>
         ) : (
           <p className="text-xs text-muted-foreground text-center py-4">

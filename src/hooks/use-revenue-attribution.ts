@@ -19,7 +19,6 @@ export function useRevenueAttribution() {
   const { workspaceId } = useWorkspace();
   const { data: videos = [], isLoading: videosLoading } = useYouTubeVideoStats(100);
 
-  // Fetch deal revenue linked to videos
   const { data: videoCompanies = [] } = useQuery({
     queryKey: ["video-companies-revenue", workspaceId],
     queryFn: async () => {
@@ -48,7 +47,6 @@ export function useRevenueAttribution() {
   });
 
   const attribution = useMemo((): RevenueAttribution[] => {
-    // Build company_id -> total deal value map
     const companyRevenue = new Map<string, number>();
     for (const d of deals) {
       if (d.company_id && d.value) {
@@ -56,7 +54,6 @@ export function useRevenueAttribution() {
       }
     }
 
-    // Build video -> sponsor revenue
     const videoSponsorRevenue = new Map<string, number>();
     for (const vc of videoCompanies) {
       const rev = companyRevenue.get(vc.company_id) ?? 0;
@@ -67,7 +64,8 @@ export function useRevenueAttribution() {
 
     return videos
       .map((v) => {
-        const adRevenue = v.estimated_revenue ?? 0;
+        // watch_time_minutes as a proxy for ad revenue estimate (no direct field)
+        const adRevenue = v.watch_time_minutes * 0.01; // rough RPM estimate
         const sponsorRevenue = videoSponsorRevenue.get(v.youtube_video_id) ?? 0;
         const totalRevenue = adRevenue + sponsorRevenue;
         return {
