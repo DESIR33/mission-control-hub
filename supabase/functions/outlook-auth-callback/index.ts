@@ -11,7 +11,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { workspace_id, code } = await req.json();
+    const { workspace_id, code, redirect_uri: clientRedirectUri } = await req.json();
 
     if (!workspace_id || !code) {
       return new Response(JSON.stringify({ error: "Missing workspace_id or code" }), {
