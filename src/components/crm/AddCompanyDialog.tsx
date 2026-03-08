@@ -41,6 +41,10 @@ export function AddCompanyDialog() {
         website: (form.get("website") as string) || undefined,
         size: form.get("size") as string || undefined,
         location: (form.get("location") as string) || undefined,
+        country: (form.get("country") as string) || undefined,
+        state: (form.get("state") as string) || undefined,
+        city: (form.get("city") as string) || undefined,
+        phone: (form.get("phone") as string) || undefined,
         primary_email: (form.get("primary_email") as string) || undefined,
         revenue: (form.get("revenue") as string) || undefined,
         vip_tier: form.get("vip_tier") as string,
@@ -52,6 +56,7 @@ export function AddCompanyDialog() {
         social_facebook: (form.get("social_facebook") as string) || undefined,
         social_tiktok: (form.get("social_tiktok") as string) || undefined,
         social_producthunt: (form.get("social_producthunt") as string) || undefined,
+        social_whatsapp: (form.get("social_whatsapp") as string) || undefined,
         notes: (form.get("notes") as string) || undefined,
       });
       toast({ title: "Company created" });
