@@ -27,6 +27,8 @@ import { ExecutionTimeline } from "@/components/agents/ExecutionTimeline";
 import { SkillManager } from "@/components/agents/SkillManager";
 import { RunAgentDialog } from "@/components/agents/RunAgentDialog";
 import { CreateSkillDialog } from "@/components/agents/CreateSkillDialog";
+import { ImportSkillDialog } from "@/components/agents/ImportSkillDialog";
+import { SkillDetailSheet } from "@/components/agents/SkillDetailSheet";
 import type { AgentDefinition, AgentSkill } from "@/types/agents";
 
 export default function AgentHubPage() {
