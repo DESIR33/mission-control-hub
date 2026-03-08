@@ -27,6 +27,7 @@ export default function ChatPage() {
         chat.newSession();
         setShowSidebar(false);
       }}
+      onDeleteSession={chat.deleteSession}
     />
   );
 
