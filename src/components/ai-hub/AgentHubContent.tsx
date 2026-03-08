@@ -27,6 +27,9 @@ import { AgentCollaborationThreads } from "@/components/agents/AgentCollaboratio
 import { AgentMemoryTimeline } from "@/components/agents/AgentMemoryTimeline";
 import { AgentConfidenceCalibration } from "@/components/agents/AgentConfidenceCalibration";
 import { MultiAgentWorkflows } from "@/components/agents/MultiAgentWorkflows";
+import { AgentActionReplay } from "@/components/agents/AgentActionReplay";
+import { ProactiveAlertDigest } from "@/components/agents/ProactiveAlertDigest";
+import { AgentSkillMarketplace } from "@/components/agents/AgentSkillMarketplace";
 import type { AgentDefinition, AgentSkill } from "@/types/agents";
 
 export function AgentHubContent() {
