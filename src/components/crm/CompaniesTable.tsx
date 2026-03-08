@@ -3,12 +3,26 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Filter, Building2, MapPin, Users, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, Video } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  ContextMenu, ContextMenuContent, ContextMenuItem,
+  ContextMenuSeparator, ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Search, Filter, Building2, MapPin, Users, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, Video, Trash2, Pencil, Sparkles, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Company, VipTier } from "@/types/crm";
 import { formatDistanceToNow } from "date-fns";
-import { useCompanyRevenue, type CompanyRevenueMap } from "@/hooks/use-company-revenue";
+import { useCompanyRevenue } from "@/hooks/use-company-revenue";
 import { useAllVideoCompanies } from "@/hooks/use-all-video-companies";
+import { useDeleteCompany } from "@/hooks/use-companies";
+import { useWorkspace } from "@/hooks/use-workspace";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { BulkActionsBar } from "./BulkActionsBar";
 
 const tierIcons: Record<VipTier, string> = {
   none: "",
@@ -48,11 +62,15 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
   const [sizeFilter, setSizeFilter] = useState<string>("all");
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("desc");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [deleteTarget, setDeleteTarget] = useState<Company | null>(null);
 
   const revenueMap = useCompanyRevenue();
   const { data: allVideoLinks = [] } = useAllVideoCompanies();
+  const deleteCompany = useDeleteCompany();
+  const { workspaceId } = useWorkspace();
+  const { toast } = useToast();
 
-  // Build company_id → video count map
   const videoCountMap = useMemo(() => {
     const map = new Map<string, number>();
     for (const link of allVideoLinks) {
@@ -72,6 +90,15 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
     }
   };
 
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
   const filtered = useMemo(() => {
     let list = companies.filter((c) => {
       const matchesSearch =
@@ -88,27 +115,13 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
       list = [...list].sort((a, b) => {
         let cmp = 0;
         switch (sortKey) {
-          case "name":
-            cmp = a.name.localeCompare(b.name);
-            break;
-          case "industry":
-            cmp = (a.industry ?? "").localeCompare(b.industry ?? "");
-            break;
-          case "location":
-            cmp = (a.location ?? "").localeCompare(b.location ?? "");
-            break;
-          case "videos":
-            cmp = (videoCountMap.get(a.id) ?? 0) - (videoCountMap.get(b.id) ?? 0);
-            break;
-          case "vip":
-            cmp = tierOrder[a.vip_tier] - tierOrder[b.vip_tier];
-            break;
-          case "revenue":
-            cmp = (revenueMap[a.id]?.total ?? 0) - (revenueMap[b.id]?.total ?? 0);
-            break;
-          case "contacts":
-            cmp = (a.contacts?.length ?? 0) - (b.contacts?.length ?? 0);
-            break;
+          case "name": cmp = a.name.localeCompare(b.name); break;
+          case "industry": cmp = (a.industry ?? "").localeCompare(b.industry ?? ""); break;
+          case "location": cmp = (a.location ?? "").localeCompare(b.location ?? ""); break;
+          case "videos": cmp = (videoCountMap.get(a.id) ?? 0) - (videoCountMap.get(b.id) ?? 0); break;
+          case "vip": cmp = tierOrder[a.vip_tier] - tierOrder[b.vip_tier]; break;
+          case "revenue": cmp = (revenueMap[a.id]?.total ?? 0) - (revenueMap[b.id]?.total ?? 0); break;
+          case "contacts": cmp = (a.contacts?.length ?? 0) - (b.contacts?.length ?? 0); break;
           case "lastContact": {
             const da = a.last_contact_date ? new Date(a.last_contact_date).getTime() : 0;
             const db = b.last_contact_date ? new Date(b.last_contact_date).getTime() : 0;
@@ -121,9 +134,70 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
     }
 
     return list;
-  }, [companies, search, industryFilter, sizeFilter, sortKey, sortDir, revenueMap]);
+  }, [companies, search, industryFilter, sizeFilter, sortKey, sortDir, revenueMap, videoCountMap]);
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === filtered.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filtered.map((c) => c.id)));
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return;
+    try {
+      await deleteCompany.mutateAsync(deleteTarget.id);
+      toast({ title: `Deleted "${deleteTarget.name}"` });
+    } catch {
+      toast({ title: "Failed to delete company", variant: "destructive" });
+    }
+    setDeleteTarget(null);
+  };
+
+  const handleEnrich = async (company: Company) => {
+    if (!workspaceId) return;
+    try {
+      await supabase.functions.invoke("enrich-company", {
+        body: { workspace_id: workspaceId, company_id: company.id },
+      });
+      toast({ title: `Enriching "${company.name}"…` });
+    } catch {
+      toast({ title: "Enrichment failed", variant: "destructive" });
+    }
+  };
 
   const thClass = "text-muted-foreground font-semibold cursor-pointer select-none hover:text-foreground transition-colors";
+
+  const renderContextMenu = (company: Company, children: React.ReactNode) => (
+    <ContextMenu>
+      <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
+      <ContextMenuContent className="w-48">
+        <ContextMenuItem onClick={() => onSelectCompany(company)}>
+          <ExternalLink className="w-4 h-4 mr-2" />
+          View Details
+        </ContextMenuItem>
+        <ContextMenuItem onClick={() => handleEnrich(company)}>
+          <Sparkles className="w-4 h-4 mr-2" />
+          Enrich
+        </ContextMenuItem>
+        {company.website && (
+          <ContextMenuItem onClick={() => window.open(company.website!, "_blank")}>
+            <ExternalLink className="w-4 h-4 mr-2" />
+            Open Website
+          </ContextMenuItem>
+        )}
+        <ContextMenuSeparator />
+        <ContextMenuItem
+          className="text-destructive focus:text-destructive"
+          onClick={() => setDeleteTarget(company)}
+        >
+          <Trash2 className="w-4 h-4 mr-2" />
+          Delete
+        </ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
+  );
 
   return (
     <div className="flex flex-col gap-4">
@@ -179,6 +253,14 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
         {search || industryFilter !== "all" || sizeFilter !== "all" ? " (filtered)" : ""}
       </p>
 
+      {/* Bulk Actions */}
+      <BulkActionsBar
+        selectedCount={selectedIds.size}
+        selectedIds={selectedIds}
+        onClearSelection={() => setSelectedIds(new Set())}
+        entityType="company"
+      />
+
       {/* Mobile card list */}
       <div className="md:hidden rounded-lg border border-border bg-card overflow-hidden divide-y divide-border">
         {filtered.length === 0 ? (
@@ -188,15 +270,14 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
         ) : (
           filtered.map((company) => {
             const rev = revenueMap[company.id];
-            return (
+            return renderContextMenu(
+              company,
               <button
                 key={company.id}
                 onClick={() => onSelectCompany(company)}
                 className={cn(
                   "w-full flex items-center gap-3 px-4 py-3 text-left transition-colors",
-                  selectedId === company.id
-                    ? "bg-primary/5"
-                    : "hover:bg-accent/50 active:bg-accent/70"
+                  selectedId === company.id ? "bg-primary/5" : "hover:bg-accent/50 active:bg-accent/70"
                 )}
               >
                 <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
@@ -242,6 +323,12 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent border-border">
+              <TableHead className="w-[40px]">
+                <Checkbox
+                  checked={filtered.length > 0 && selectedIds.size === filtered.length}
+                  onCheckedChange={toggleSelectAll}
+                />
+              </TableHead>
               <TableHead className={thClass} onClick={() => handleSort("name")}>
                 <div className="flex items-center">Company<SortIcon column="name" sortKey={sortKey} sortDir={sortDir} /></div>
               </TableHead>
@@ -271,24 +358,32 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
           <TableBody>
             {filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-12 text-muted-foreground">
+                <TableCell colSpan={9} className="text-center py-12 text-muted-foreground">
                   No companies found
                 </TableCell>
               </TableRow>
             ) : (
               filtered.map((company) => {
                 const rev = revenueMap[company.id];
-                return (
+                return renderContextMenu(
+                  company,
                   <TableRow
                     key={company.id}
                     onClick={() => onSelectCompany(company)}
                     className={cn(
                       "cursor-pointer border-border transition-colors",
+                      selectedIds.has(company.id) && "bg-primary/5",
                       selectedId === company.id
                         ? "bg-primary/5 border-l-2 border-l-primary"
                         : "hover:bg-accent/50"
                     )}
                   >
+                    <TableCell className="w-[40px]" onClick={(e) => e.stopPropagation()}>
+                      <Checkbox
+                        checked={selectedIds.has(company.id)}
+                        onCheckedChange={() => toggleSelect(company.id)}
+                      />
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
@@ -352,6 +447,27 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
           </TableBody>
         </Table>
       </div>
+
+      {/* Delete confirmation */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent className="bg-card border-border">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete "{deleteTarget?.name}"?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will soft-delete the company. This action can be reversed by an admin.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

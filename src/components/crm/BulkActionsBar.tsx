@@ -14,6 +14,7 @@ import {
 import { X, Trash2, UserCheck, Tag, Sparkles, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useUpdateContact, useDeleteContact } from "@/hooks/use-contacts";
+import { useDeleteCompany } from "@/hooks/use-companies";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -32,6 +33,7 @@ export function BulkActionsBar({ selectedCount, selectedIds, onClearSelection, e
   const [isEnriching, setIsEnriching] = useState(false);
   const updateContact = useUpdateContact();
   const deleteContact = useDeleteContact();
+  const deleteCompany = useDeleteCompany();
   const { toast } = useToast();
   const { workspaceId } = useWorkspace();
 
@@ -92,9 +94,10 @@ export function BulkActionsBar({ selectedCount, selectedIds, onClearSelection, e
 
   const handleBulkDelete = async () => {
     let successCount = 0;
+    const deleteFn = entityType === "company" ? deleteCompany : deleteContact;
     for (const id of selectedIds) {
       try {
-        await deleteContact.mutateAsync(id);
+        await deleteFn.mutateAsync(id);
         successCount++;
       } catch {
         // continue
