@@ -10,6 +10,7 @@ import {
   useDeleteEmail,
   useSyncOutlook,
   useOutlookSend,
+  useOutlookAuthUrl,
   type SmartEmail,
 } from "@/hooks/use-smart-inbox";
 import { Button } from "@/components/ui/button";
