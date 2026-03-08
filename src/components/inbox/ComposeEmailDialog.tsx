@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -13,6 +13,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Send } from "lucide-react";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { useToast } from "@/hooks/use-toast";
+import { useIntegrations } from "@/hooks/use-integrations";
+import { useOutlookSend } from "@/hooks/use-smart-inbox";
 import { supabase } from "@/integrations/supabase/client";
 
 interface ComposeEmailDialogProps {
@@ -36,6 +38,12 @@ export function ComposeEmailDialog({
 }: ComposeEmailDialogProps) {
   const { workspaceId } = useWorkspace();
   const { toast } = useToast();
+  const { data: integrations = [] } = useIntegrations();
+  const outlookConnected = integrations.some(
+    (i) => i.integration_key === "ms_outlook" && i.enabled,
+  );
+  const outlookSend = useOutlookSend();
+
   const [isSending, setIsSending] = useState(false);
   const [to, setTo] = useState(prefillTo);
   const [subject, setSubject] = useState(prefillSubject);
@@ -64,19 +72,29 @@ export function ComposeEmailDialog({
 
     setIsSending(true);
     try {
-      const { data, error } = await supabase.functions.invoke("send-email", {
-        body: {
-          workspace_id: workspaceId,
+      if (outlookConnected) {
+        // Send via Outlook (Microsoft Graph)
+        await outlookSend.mutateAsync({
           to: to.trim(),
           subject: subject.trim(),
           body_html: body.replace(/\n/g, "<br>"),
-          contact_id: contactId || undefined,
-          deal_id: dealId || undefined,
-        },
-      });
+        });
+      } else {
+        // Fallback to Resend
+        const { data, error } = await supabase.functions.invoke("send-email", {
+          body: {
+            workspace_id: workspaceId,
+            to: to.trim(),
+            subject: subject.trim(),
+            body_html: body.replace(/\n/g, "<br>"),
+            contact_id: contactId || undefined,
+            deal_id: dealId || undefined,
+          },
+        });
 
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
+        if (error) throw error;
+        if (data?.error) throw new Error(data.error);
+      }
 
       toast({ title: "Email sent successfully" });
       onOpenChange(false);
@@ -95,7 +113,12 @@ export function ComposeEmailDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[520px] bg-card border-border">
         <DialogHeader>
-          <DialogTitle className="text-foreground">Compose Email</DialogTitle>
+          <DialogTitle className="text-foreground">
+            Compose Email
+            {outlookConnected && (
+              <span className="ml-2 text-xs font-normal text-muted-foreground">via Outlook</span>
+            )}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 py-2">

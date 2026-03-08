@@ -22,12 +22,17 @@ interface OutlookMessage {
   parentFolderId?: string;
 }
 
+interface TokenResponse {
+  access_token: string;
+  refresh_token?: string;
+}
+
 async function refreshAccessToken(
   tenantId: string,
   clientId: string,
   clientSecret: string,
   refreshToken: string,
-): Promise<string> {
+): Promise<TokenResponse> {
   const tokenUrl = `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`;
   const body = new URLSearchParams({
     grant_type: "refresh_token",
@@ -49,7 +54,7 @@ async function refreshAccessToken(
   }
 
   const data = await response.json();
-  return data.access_token;
+  return { access_token: data.access_token, refresh_token: data.refresh_token };
 }
 
 async function fetchOutlookMessages(
@@ -129,15 +134,24 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Get access token
-    const accessToken = await refreshAccessToken(tenant_id, client_id, client_secret, refresh_token);
+    // Get access token (and possibly rotated refresh token)
+    const tokenResult = await refreshAccessToken(tenant_id, client_id, client_secret, refresh_token);
+
+    // Persist rotated refresh token if Microsoft returned a new one
+    if (tokenResult.refresh_token && tokenResult.refresh_token !== refresh_token) {
+      const updatedConfig = { ...config, refresh_token: tokenResult.refresh_token };
+      await supabase
+        .from("workspace_integrations")
+        .update({ config: updatedConfig })
+        .eq("workspace_id", workspace_id)
+        .eq("integration_key", "ms_outlook");
+    }
 
     // Fetch messages from Outlook
-    const messages = await fetchOutlookMessages(accessToken, folder, max_messages);
+    const messages = await fetchOutlookMessages(tokenResult.access_token, folder, max_messages);
 
-    // Upsert into inbox_emails
-    let upsertedCount = 0;
-    for (const msg of messages) {
+    // Batch upsert into inbox_emails
+    const rows = messages.map((msg) => {
       const fromEmail = msg.from?.emailAddress?.address || "";
       const fromName = msg.from?.emailAddress?.name || "";
       const toRecipients = (msg.toRecipients || []).map((r) => ({
@@ -145,33 +159,36 @@ Deno.serve(async (req) => {
         email: r.emailAddress?.address || "",
       }));
 
-      const { error: upsertError } = await supabase
+      return {
+        workspace_id,
+        message_id: msg.id,
+        conversation_id: msg.conversationId || null,
+        from_email: fromEmail,
+        from_name: fromName,
+        to_recipients: toRecipients,
+        subject: msg.subject || "",
+        preview: msg.bodyPreview || "",
+        body_html: msg.body?.content || null,
+        received_at: msg.receivedDateTime || new Date().toISOString(),
+        is_read: msg.isRead ?? false,
+        importance: msg.importance || "normal",
+        has_attachments: msg.hasAttachments ?? false,
+        folder: mapFolderIdToName(msg.parentFolderId),
+      };
+    });
+
+    let upsertedCount = 0;
+    if (rows.length > 0) {
+      const { data: upsertData, error: upsertError } = await supabase
         .from("inbox_emails")
-        .upsert(
-          {
-            workspace_id,
-            message_id: msg.id,
-            conversation_id: msg.conversationId || null,
-            from_email: fromEmail,
-            from_name: fromName,
-            to_recipients: toRecipients,
-            subject: msg.subject || "",
-            preview: msg.bodyPreview || "",
-            body_html: msg.body?.content || null,
-            received_at: msg.receivedDateTime || new Date().toISOString(),
-            is_read: msg.isRead ?? false,
-            importance: msg.importance || "normal",
-            has_attachments: msg.hasAttachments ?? false,
-            folder: mapFolderIdToName(msg.parentFolderId),
-          },
-          { onConflict: "workspace_id,message_id" },
-        );
+        .upsert(rows, { onConflict: "workspace_id,message_id" });
 
-      if (!upsertError) upsertedCount++;
+      if (upsertError) {
+        console.error("Batch upsert error:", upsertError);
+      } else {
+        upsertedCount = rows.length;
+      }
     }
-
-    // Update the new refresh token if returned
-    // (Microsoft sometimes returns a new one)
 
     return new Response(
       JSON.stringify({

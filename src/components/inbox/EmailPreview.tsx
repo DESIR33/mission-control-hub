@@ -126,7 +126,7 @@ export default function EmailPreview({
           {email.body_html ? (
             <div
               className="prose prose-sm max-w-none text-foreground prose-headings:text-foreground prose-p:text-foreground prose-a:text-primary"
-              dangerouslySetInnerHTML={{ __html: email.body_html }}
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(email.body_html) }}
             />
           ) : (
             <p className="text-sm text-muted-foreground whitespace-pre-wrap">
