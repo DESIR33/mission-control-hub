@@ -40,6 +40,7 @@ const NetworkPage = lazy(() => import("./pages/NetworkPage"));
 const YouTubeHubPage = lazy(() => import("./pages/YouTubeHubPage").then(m => ({ default: m.default })));
 const GrowthPage = lazy(() => import("./pages/YouTubeHubPage").then(m => ({ default: m.GrowthPage })));
 const AIHubPage = lazy(() => import("./pages/AIHubPage"));
+const ProposalDetailPage = lazy(() => import("./pages/ProposalDetailPage"));
 
 const queryClient = new QueryClient();
 
@@ -139,6 +140,7 @@ const App = () => (
 
               {/* AI Hub */}
               <Route path="/ai" element={<Navigate to="/ai/chat" replace />} />
+              <Route path="/ai/proposals/:proposalId" element={<LazyPage section="Proposal Detail"><ProposalDetailPage /></LazyPage>} />
               <Route path="/ai/:tab" element={<LazyPage section="AI Hub"><AIHubPage /></LazyPage>} />
 
               {/* Task detail/create routes */}
