@@ -82,6 +82,30 @@ export function useChat() {
     [workspaceId, sessionId, newSession, loadSessions]
   );
 
+  const renameSession = useCallback(
+    async (sid: string, newTitle: string) => {
+      setSessions((prev) =>
+        prev.map((s) => (s.session_id === sid ? { ...s, title: newTitle } : s))
+      );
+      // Persist: update the first user message content's first 60 chars won't work,
+      // so we store rename as a metadata update on the first message of the session
+      if (!workspaceId) return;
+      const { data } = await query("assistant_conversations")
+        .select("id")
+        .eq("session_id", sid)
+        .eq("workspace_id", workspaceId)
+        .eq("role", "user")
+        .order("created_at", { ascending: true })
+        .limit(1);
+      if (data && data.length > 0) {
+        await query("assistant_conversations")
+          .update({ metadata: { renamed_title: newTitle } })
+          .eq("id", data[0].id);
+      }
+    },
+    [workspaceId]
+  );
+
   const sendMessage = useCallback(
     async (content: string, model?: string) => {
       if (!workspaceId || !content.trim()) return;
