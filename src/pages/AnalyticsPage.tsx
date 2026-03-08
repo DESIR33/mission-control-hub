@@ -645,7 +645,7 @@ function OverviewTab({
             <Zap className="w-4 h-4 text-primary" />
             <h2 className="text-sm font-semibold text-foreground">YouTube Analytics API — {daysForRange} Day Summary</h2>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 sm:gap-3">
             <MiniStat label="Views" value={fmtCount(analyticsSummary.views)} />
             <MiniStat label="Watch Time" value={analyticsSummary.watchTime >= 60 ? `${Math.round(analyticsSummary.watchTime / 60)}h` : `${analyticsSummary.watchTime}m`} />
             <MiniStat label="Subs Gained" value={`+${fmtCount(analyticsSummary.subsGained)}`} />

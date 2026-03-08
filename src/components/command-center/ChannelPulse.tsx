@@ -82,7 +82,7 @@ export function ChannelPulse() {
     : null;
 
   return (
-    <div className="flex items-center gap-4 px-4 py-1.5 bg-muted/50 border-b overflow-x-auto max-h-12">
+    <div className="flex items-center gap-4 px-4 py-1.5 bg-muted/50 border-b overflow-x-auto scrollbar-hide max-h-12">
       {/* Subscribers */}
       <div className="flex items-center gap-1.5 shrink-0">
         <Users className="w-3.5 h-3.5 text-muted-foreground" />

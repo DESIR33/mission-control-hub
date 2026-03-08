@@ -185,7 +185,7 @@ function GlobalHeader({
 
       <button
         onClick={() => {}}
-        className="flex items-center gap-2 h-7 px-3 rounded-md bg-sidebar-accent/60 border border-sidebar-border text-sidebar-foreground text-xs hover:bg-sidebar-accent transition-colors ml-1"
+        className="hidden sm:flex items-center gap-2 h-7 px-3 rounded-md bg-sidebar-accent/60 border border-sidebar-border text-sidebar-foreground text-xs hover:bg-sidebar-accent transition-colors ml-1"
       >
         <Search className="w-3 h-3 text-muted-foreground" />
         <span className="text-muted-foreground">Search</span>
