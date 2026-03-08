@@ -81,13 +81,11 @@ function ChatContent() {
 }
 
 export default function AIHubPage() {
-  const [searchParams] = useSearchParams();
-  const initialTab = searchParams.get("tab") || "chat";
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get("tab") || "chat";
 
   const updateTab = (v: string) => {
-    const sp = new URLSearchParams(window.location.search);
-    sp.set("tab", v);
-    window.history.replaceState({}, "", `?${sp.toString()}`);
+    setSearchParams({ tab: v }, { replace: true });
   };
 
   return (
