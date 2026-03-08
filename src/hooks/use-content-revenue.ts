@@ -159,13 +159,17 @@ export function useContentRevenue(days = 180) {
       videoToCompanies.set(vc.youtube_video_id, set);
     }
 
-    // 4) Attribute deal revenue via video_companies
+    // 4) Attribute deal revenue via video_companies (each deal assigned to one video only)
+    const assignedDealIds = new Set<string>();
     for (const [ytId, entry] of videoMap) {
       const linkedCompanyIds = videoToCompanies.get(ytId);
       if (linkedCompanyIds) {
         entry.dealRevenue = deals
-          .filter((d: any) => d.stage === "closed_won" && d.company_id && linkedCompanyIds.has(d.company_id))
-          .reduce((s: number, d: any) => s + (Number(d.value) || 0), 0);
+          .filter((d: any) => d.stage === "closed_won" && d.company_id && linkedCompanyIds.has(d.company_id) && !assignedDealIds.has(d.id))
+          .reduce((s: number, d: any) => {
+            assignedDealIds.add(d.id);
+            return s + (Number(d.value) || 0);
+          }, 0);
       }
     }
 
