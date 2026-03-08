@@ -18,11 +18,11 @@ const statusColors: Record<ContactStatus, string> = {
   inactive: "bg-muted text-muted-foreground border-border",
 };
 
-const tierIcons: Record<VipTier, string> = {
-  none: "",
-  silver: "🥈",
-  gold: "🥇",
-  platinum: "💎",
+const tierConfig: Record<VipTier, { icon: string; label: string; className: string }> = {
+  none: { icon: "", label: "", className: "" },
+  silver: { icon: "🥈", label: "Silver", className: "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700" },
+  gold: { icon: "🥇", label: "Gold", className: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800" },
+  platinum: { icon: "💎", label: "Platinum", className: "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-900/30 dark:text-violet-400 dark:border-violet-800" },
 };
 
 interface ContactsTableProps {
@@ -161,7 +161,7 @@ export function ContactsTable({ contacts, onSelectContact, selectedId, addButton
                     {contact.first_name} {contact.last_name}
                   </p>
                   {contact.vip_tier !== "none" && (
-                    <span className="text-sm leading-none">{tierIcons[contact.vip_tier]}</span>
+                    <span className="text-sm leading-none">{tierConfig[contact.vip_tier].icon}</span>
                   )}
                 </div>
                 <div className="flex items-center gap-2 mt-0.5 flex-wrap">
@@ -279,9 +279,9 @@ export function ContactsTable({ contacts, onSelectContact, selectedId, addButton
                   </TableCell>
                   <TableCell>
                     {contact.vip_tier !== "none" && (
-                      <span className="text-sm" title={contact.vip_tier}>
-                        {tierIcons[contact.vip_tier]}
-                      </span>
+                      <Badge variant="outline" className={cn("text-xs font-medium", tierConfig[contact.vip_tier].className)}>
+                        {tierConfig[contact.vip_tier].icon} {tierConfig[contact.vip_tier].label}
+                      </Badge>
                     )}
                   </TableCell>
                   <TableCell>
