@@ -189,16 +189,20 @@ Deno.serve(async (req) => {
 
     let upsertedCount = 0;
     if (rows.length > 0) {
-      const { data: upsertData, error: upsertError } = await supabase
-        .from("inbox_emails")
-        .upsert(rows, { onConflict: "workspace_id,message_id" });
+      // Batch upsert in chunks of 200 to avoid payload limits
+      const CHUNK_SIZE = 200;
+      for (let i = 0; i < rows.length; i += CHUNK_SIZE) {
+        const chunk = rows.slice(i, i + CHUNK_SIZE);
+        const { error: upsertError } = await supabase
+          .from("inbox_emails")
+          .upsert(chunk, { onConflict: "workspace_id,message_id" });
 
-      if (upsertError) {
-        console.error("Batch upsert error:", JSON.stringify(upsertError));
-        throw new Error(`Failed to upsert emails: ${upsertError.message}`);
-      } else {
-        upsertedCount = rows.length;
-        console.log(`Successfully upserted ${upsertedCount} emails`);
+        if (upsertError) {
+          console.error(`Batch upsert error (chunk ${i / CHUNK_SIZE + 1}):`, JSON.stringify(upsertError));
+          throw new Error(`Failed to upsert emails: ${upsertError.message}`);
+        }
+        upsertedCount += chunk.length;
+        console.log(`Upserted chunk ${i / CHUNK_SIZE + 1}: ${chunk.length} emails (total: ${upsertedCount})`);
       }
     } else {
       console.log("No messages returned from Outlook API");
