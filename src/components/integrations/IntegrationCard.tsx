@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useTestIntegration, type IntegrationKey, type WorkspaceIntegration } from "@/hooks/use-integrations";
 import { useStripeSync } from "@/hooks/use-stripe-sync";
+import { useSlackNotify } from "@/hooks/use-slack-notify";
 import type { IntegrationDef } from "@/pages/IntegrationsPage";
 
 interface IntegrationCardProps {
@@ -29,6 +30,7 @@ export function IntegrationCard({
   const { toast } = useToast();
   const testMutation = useTestIntegration();
   const stripeSync = useStripeSync();
+  const slackNotify = useSlackNotify();
   const [testResult, setTestResult] = useState<any>(null);
 
   const handleTest = async () => {
@@ -165,6 +167,34 @@ export function IntegrationCard({
                       <RefreshCw className="w-3 h-3 mr-1" />
                     )}
                     Sync Now
+                  </Button>
+                )}
+                {def.key === "slack" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-xs"
+                    onClick={() => {
+                      slackNotify.mutate(
+                        { type: "test" },
+                        {
+                          onSuccess: () => {
+                            toast({ title: "✅ Test message sent to Slack!" });
+                          },
+                          onError: (err) => {
+                            toast({ title: "Slack test failed", description: err.message, variant: "destructive" });
+                          },
+                        }
+                      );
+                    }}
+                    disabled={slackNotify.isPending}
+                  >
+                    {slackNotify.isPending ? (
+                      <Loader2 className="w-3 h-3 animate-spin mr-1" />
+                    ) : (
+                      <RefreshCw className="w-3 h-3 mr-1" />
+                    )}
+                    Send Test
                   </Button>
                 )}
                 <Button
