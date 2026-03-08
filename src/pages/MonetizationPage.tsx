@@ -521,10 +521,10 @@ export default function MonetizationPage() {
         </Button>
       </motion.div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+      <Tabs value={activeTab} onValueChange={(v) => navigate(`/revenue/${v}`)}>
         <div className="inline-flex flex-wrap gap-1 rounded-lg border border-border bg-secondary p-1">
           <button
-            onClick={() => setActiveTab("overview")}
+            onClick={() => navigate("/revenue/overview")}
             className={cn(
               "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
               activeTab === "overview"
@@ -535,7 +535,7 @@ export default function MonetizationPage() {
             Overview
           </button>
           <button
-            onClick={() => setActiveTab("affiliate")}
+            onClick={() => navigate("/revenue/affiliate")}
             className={cn(
               "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
               activeTab === "affiliate"
@@ -546,7 +546,7 @@ export default function MonetizationPage() {
             Affiliate Programs
           </button>
           <button
-            onClick={() => setActiveTab("sponsorships")}
+            onClick={() => navigate("/revenue/sponsorships")}
             className={cn(
               "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
               activeTab === "sponsorships"
@@ -557,7 +557,7 @@ export default function MonetizationPage() {
             Sponsorships
           </button>
           <button
-            onClick={() => setActiveTab("products")}
+            onClick={() => navigate("/revenue/products")}
             className={cn(
               "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
               activeTab === "products"
@@ -568,7 +568,7 @@ export default function MonetizationPage() {
             Products
           </button>
           <button
-            onClick={() => setActiveTab("revenue-overview")}
+            onClick={() => navigate("/revenue/overview")}
             className={cn(
               "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
               activeTab === "revenue-overview"
@@ -579,7 +579,7 @@ export default function MonetizationPage() {
             Revenue Overview
           </button>
           <button
-            onClick={() => setActiveTab("rate-card")}
+            onClick={() => navigate("/revenue/rate-card")}
             className={cn(
               "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
               activeTab === "rate-card"
