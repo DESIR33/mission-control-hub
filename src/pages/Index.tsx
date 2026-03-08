@@ -48,7 +48,7 @@ function Index() {
       : `$${pipelineValue}`;
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen overflow-x-hidden">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}
@@ -87,7 +87,7 @@ function Index() {
       </div>
 
       {/* KPI Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-2 sm:gap-3">
         <KpiCard
           title="Deal Pipeline"
           value={pipelineDisplay}
@@ -154,7 +154,7 @@ function Index() {
       {/* Main Grid */}
       <div className="grid lg:grid-cols-3 gap-4">
         {/* Left column */}
-        <div className="lg:col-span-2 space-y-4">
+        <div className="lg:col-span-2 space-y-4 min-w-0">
           <AiBriefing items={briefingItems} attentionItems={attentionItems} />
           <WeeklyActionPlanCard />
           <PipelineHealth
@@ -165,7 +165,7 @@ function Index() {
         </div>
 
         {/* Right column */}
-        <div className="space-y-4">
+        <div className="space-y-4 min-w-0">
           <TopContentRevenue />
           <RevenueChart
             monthly={revenue?.monthly}

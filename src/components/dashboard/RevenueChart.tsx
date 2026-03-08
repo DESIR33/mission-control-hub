@@ -29,7 +29,7 @@ export function RevenueChart({ monthly = [], sponsors = 0, affiliates = 0, ads =
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.25 }}
-      className="rounded-lg border border-border bg-card p-5"
+      className="rounded-lg border border-border bg-card p-4 sm:p-5 overflow-hidden"
     >
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold text-card-foreground">Revenue (6mo)</h3>
@@ -41,10 +41,10 @@ export function RevenueChart({ monthly = [], sponsors = 0, affiliates = 0, ads =
       </div>
 
       {hasData ? (
-        <div className="flex items-end gap-2 h-32">
+        <div className="flex items-end gap-1 sm:gap-2 h-32">
           {revenue.map((val, i) => (
-            <div key={i} className="flex-1 flex flex-col items-center gap-1">
-              <span className="text-xs font-mono text-muted-foreground">
+            <div key={i} className="flex-1 flex flex-col items-center gap-1 min-w-0">
+              <span className="text-[10px] sm:text-xs font-mono text-muted-foreground truncate w-full text-center">
                 {formatCurrency(val)}
               </span>
               <motion.div
@@ -53,7 +53,7 @@ export function RevenueChart({ monthly = [], sponsors = 0, affiliates = 0, ads =
                 transition={{ duration: 0.6, delay: 0.3 + i * 0.05 }}
                 className="w-full rounded-t-sm bg-primary/80 hover:bg-primary transition-colors min-h-[4px]"
               />
-              <span className="text-xs text-muted-foreground">{months[i]}</span>
+              <span className="text-[10px] sm:text-xs text-muted-foreground truncate w-full text-center">{months[i]}</span>
             </div>
           ))}
         </div>
@@ -63,17 +63,17 @@ export function RevenueChart({ monthly = [], sponsors = 0, affiliates = 0, ads =
         </div>
       )}
 
-      <div className="mt-4 pt-3 border-t border-border grid grid-cols-3 gap-3">
+      <div className="mt-4 pt-3 border-t border-border grid grid-cols-3 gap-2 sm:gap-3">
         <div>
-          <p className="text-xs text-muted-foreground uppercase tracking-wider">Sponsors</p>
+          <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider">Sponsors</p>
           <p className="text-sm font-mono font-semibold text-card-foreground">{formatCurrency(sponsors)}</p>
         </div>
         <div>
-          <p className="text-xs text-muted-foreground uppercase tracking-wider">Affiliates</p>
+          <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider">Affiliates</p>
           <p className="text-sm font-mono font-semibold text-card-foreground">{formatCurrency(affiliates)}</p>
         </div>
         <div>
-          <p className="text-xs text-muted-foreground uppercase tracking-wider">Ad Revenue</p>
+          <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider">Ad Revenue</p>
           <p className="text-sm font-mono font-semibold text-card-foreground">{formatCurrency(ads)}</p>
         </div>
       </div>

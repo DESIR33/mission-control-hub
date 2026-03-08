@@ -39,20 +39,20 @@ export function NewsletterWidget() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
-        <div className="rounded-lg bg-muted/50 p-2 text-center">
-          <FileText className="w-3.5 h-3.5 text-muted-foreground mx-auto mb-1" />
-          <p className="text-base font-bold text-foreground">{stats.totalDrafts}</p>
+      <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+        <div className="rounded-lg bg-muted/50 p-1.5 sm:p-2 text-center">
+          <FileText className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-muted-foreground mx-auto mb-1" />
+          <p className="text-sm sm:text-base font-bold text-foreground">{stats.totalDrafts}</p>
           <p className="text-[10px] text-muted-foreground">Drafts</p>
         </div>
-        <div className="rounded-lg bg-muted/50 p-2 text-center">
-          <Send className="w-3.5 h-3.5 text-muted-foreground mx-auto mb-1" />
-          <p className="text-base font-bold text-foreground">{stats.totalSent}</p>
+        <div className="rounded-lg bg-muted/50 p-1.5 sm:p-2 text-center">
+          <Send className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-muted-foreground mx-auto mb-1" />
+          <p className="text-sm sm:text-base font-bold text-foreground">{stats.totalSent}</p>
           <p className="text-[10px] text-muted-foreground">Sent</p>
         </div>
-        <div className="rounded-lg bg-muted/50 p-2 text-center">
-          <Mail className="w-3.5 h-3.5 text-amber-400 mx-auto mb-1" />
-          <p className="text-base font-bold text-foreground">{stats.videosWithoutNewsletter.length}</p>
+        <div className="rounded-lg bg-muted/50 p-1.5 sm:p-2 text-center">
+          <Mail className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-400 mx-auto mb-1" />
+          <p className="text-sm sm:text-base font-bold text-foreground">{stats.videosWithoutNewsletter.length}</p>
           <p className="text-[10px] text-muted-foreground">Pending</p>
         </div>
       </div>

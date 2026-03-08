@@ -130,11 +130,11 @@ export function MilestoneProgressBar() {
         </div>
 
         {/* Stats row */}
-        <div className="grid grid-cols-3 gap-3">
-          <div className="rounded-lg border border-border bg-card p-2.5">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+          <div className="rounded-lg border border-border bg-card p-2 sm:p-2.5">
             <div className="flex items-center gap-1 mb-0.5">
-              <TrendingUp className="w-3 h-3 text-green-500" />
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">
+              <TrendingUp className="w-3 h-3 text-green-500 shrink-0" />
+              <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider truncate">
                 Daily Rate
               </p>
             </div>
@@ -143,10 +143,10 @@ export function MilestoneProgressBar() {
             </p>
           </div>
 
-          <div className="rounded-lg border border-border bg-card p-2.5">
+          <div className="rounded-lg border border-border bg-card p-2 sm:p-2.5">
             <div className="flex items-center gap-1 mb-0.5">
-              <Calendar className="w-3 h-3 text-blue-500" />
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">
+              <Calendar className="w-3 h-3 text-blue-500 shrink-0" />
+              <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider">
                 ETA
               </p>
             </div>
@@ -154,23 +154,23 @@ export function MilestoneProgressBar() {
               {nextMilestone.daysAway != null ? `${nextMilestone.daysAway}d` : "--"}
             </p>
             {nextMilestone.estimatedDate && (
-              <p className="text-xs text-muted-foreground">
+              <p className="text-[10px] sm:text-xs text-muted-foreground">
                 {nextMilestone.estimatedDate}
               </p>
             )}
           </div>
 
-          <div className="rounded-lg border border-border bg-card p-2.5">
+          <div className="rounded-lg border border-border bg-card p-2 sm:p-2.5">
             <div className="flex items-center gap-1 mb-0.5">
-              <Flame className="w-3 h-3 text-orange-500" />
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">
+              <Flame className="w-3 h-3 text-orange-500 shrink-0" />
+              <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider">
                 Streak
               </p>
             </div>
             <p className="text-sm font-bold font-mono text-foreground">
               {streakDays}d
             </p>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-[10px] sm:text-xs text-muted-foreground">
               consecutive growth
             </p>
           </div>

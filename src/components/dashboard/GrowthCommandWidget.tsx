@@ -423,7 +423,7 @@ function GrowthCommandSkeleton() {
           <Skeleton className="h-8 w-36" />
           <Skeleton className="h-3 w-full" />
         </div>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 sm:gap-3 gap-2">
           <Skeleton className="h-16 rounded-lg" />
           <Skeleton className="h-16 rounded-lg" />
           <Skeleton className="h-16 rounded-lg" />
@@ -594,31 +594,31 @@ export function GrowthCommandWidget() {
           </div>
 
           {/* Stats row */}
-          <div className="grid grid-cols-3 gap-3">
-            <div className="rounded-lg bg-muted/50 p-3 text-center">
-              <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
+            <div className="rounded-lg bg-muted/50 p-2 sm:p-3 text-center">
+              <p className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium">
                 Days Left
               </p>
-              <p className="text-lg font-bold font-mono text-foreground mt-0.5">
+              <p className="text-base sm:text-lg font-bold font-mono text-foreground mt-0.5">
                 {data.daysRemaining}
               </p>
             </div>
 
-            <div className="rounded-lg bg-muted/50 p-3 text-center">
-              <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
+            <div className="rounded-lg bg-muted/50 p-2 sm:p-3 text-center">
+              <p className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium">
                 Need/Day
               </p>
-              <p className="text-lg font-bold font-mono text-foreground mt-0.5">
+              <p className="text-base sm:text-lg font-bold font-mono text-foreground mt-0.5">
                 +{fmtRate(data.requiredDailyRate)}
               </p>
             </div>
 
-            <div className="rounded-lg bg-muted/50 p-3 text-center">
-              <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
+            <div className="rounded-lg bg-muted/50 p-2 sm:p-3 text-center">
+              <p className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium">
                 Avg 7d/Day
               </p>
               <p
-                className={`text-lg font-bold font-mono mt-0.5 ${
+                className={`text-base sm:text-lg font-bold font-mono mt-0.5 ${
                   data.actualDailyAvg7d >= data.requiredDailyRate
                     ? "text-emerald-400"
                     : data.actualDailyAvg7d >= data.requiredDailyRate * 0.65
