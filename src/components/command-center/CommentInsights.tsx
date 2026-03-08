@@ -3,9 +3,7 @@ import {
   MessageSquare, Star, AlertCircle, Handshake, HelpCircle,
   Heart, TrendingUp, Users, Flame,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { useYouTubeComments, useCommentStats } from "@/hooks/use-youtube-comments";
 import type { YouTubeComment } from "@/hooks/use-youtube-comments";
 
@@ -18,8 +16,7 @@ const categoryConfig: Record<string, { label: string; icon: typeof Star; color: 
 
 interface SuperFan {
   name: string;
-  channelUrl: string | null;
-  avatarUrl: string | null;
+  channelId: string | null;
   commentCount: number;
   totalLikes: number;
   latestComment: string;
@@ -32,21 +29,18 @@ interface BusinessOpportunity {
 }
 
 function detectBusinessOpportunity(comment: YouTubeComment): BusinessOpportunity | null {
-  const text = comment.text_display.toLowerCase();
+  const text = comment.text.toLowerCase();
 
-  // Collaboration signals
   const collabSignals = ["collab", "collaborate", "let's work together", "partner", "would love to work", "feature you", "have you on"];
   if (collabSignals.some((s) => text.includes(s))) {
     return { comment, type: "collab_request", confidence: "high" };
   }
 
-  // Sponsor interest signals
   const sponsorSignals = ["sponsor", "brand deal", "partnership opportunity", "would like to sponsor", "advertising", "promote our"];
   if (sponsorSignals.some((s) => text.includes(s))) {
     return { comment, type: "sponsor_interest", confidence: "high" };
   }
 
-  // Feature/content request signals
   const requestSignals = ["can you make a video", "please cover", "tutorial on", "would love to see", "can you do", "video about"];
   if (requestSignals.some((s) => text.includes(s))) {
     return { comment, type: "feature_request", confidence: "medium" };
@@ -57,10 +51,9 @@ function detectBusinessOpportunity(comment: YouTubeComment): BusinessOpportunity
 
 export function CommentInsights() {
   const { data: comments = [] } = useYouTubeComments();
-  const { data: stats } = useCommentStats();
+  const { stats } = useCommentStats();
 
   const { superFans, opportunities, sentimentBreakdown } = useMemo(() => {
-    // Find super fans (3+ comments)
     const authorMap = new Map<string, SuperFan>();
     for (const comment of comments) {
       const key = comment.author_name;
@@ -68,15 +61,14 @@ export function CommentInsights() {
       if (existing) {
         existing.commentCount++;
         existing.totalLikes += comment.like_count;
-        existing.latestComment = comment.text_display;
+        existing.latestComment = comment.text;
       } else {
         authorMap.set(key, {
           name: comment.author_name,
-          channelUrl: comment.author_channel_url,
-          avatarUrl: comment.author_avatar_url,
+          channelId: comment.author_channel_id,
           commentCount: 1,
           totalLikes: comment.like_count,
-          latestComment: comment.text_display,
+          latestComment: comment.text,
         });
       }
     }
@@ -86,14 +78,12 @@ export function CommentInsights() {
       .sort((a, b) => b.commentCount - a.commentCount)
       .slice(0, 10);
 
-    // Detect business opportunities
     const opportunities: BusinessOpportunity[] = [];
     for (const comment of comments) {
       const opp = detectBusinessOpportunity(comment);
       if (opp) opportunities.push(opp);
     }
 
-    // Sentiment breakdown
     const sentimentBreakdown = {
       positive: comments.filter((c) => c.sentiment === "positive").length,
       negative: comments.filter((c) => c.sentiment === "negative").length,
@@ -120,9 +110,9 @@ export function CommentInsights() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <TrendingUp className="w-3.5 h-3.5 text-green-500" />
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">Reply Rate</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Unreplied</p>
           </div>
-          <p className="text-lg font-bold font-mono text-foreground">{(stats?.replyRate ?? 0).toFixed(1)}%</p>
+          <p className="text-lg font-bold font-mono text-foreground">{stats?.unreplied ?? 0}</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
@@ -179,16 +169,11 @@ export function CommentInsights() {
           </h3>
           <div className="space-y-2">
             {opportunities.slice(0, 8).map((opp) => (
-              <div
-                key={opp.comment.id}
-                className="rounded-md border border-border bg-card p-2.5"
-              >
+              <div key={opp.comment.id} className="rounded-md border border-border bg-card p-2.5">
                 <div className="flex items-start gap-2">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-xs font-medium text-foreground">
-                        {opp.comment.author_name}
-                      </span>
+                      <span className="text-xs font-medium text-foreground">{opp.comment.author_name}</span>
                       <Badge
                         variant="outline"
                         className={`text-xs ${
@@ -199,30 +184,15 @@ export function CommentInsights() {
                             : "bg-amber-500/15 text-amber-400 border-amber-400/30"
                         }`}
                       >
-                        {opp.type === "collab_request"
-                          ? "Collab Request"
-                          : opp.type === "sponsor_interest"
-                          ? "Sponsor Interest"
-                          : "Content Request"}
+                        {opp.type === "collab_request" ? "Collab Request" : opp.type === "sponsor_interest" ? "Sponsor Interest" : "Content Request"}
                       </Badge>
-                      <Badge
-                        variant="outline"
-                        className={`text-xs ${
-                          opp.confidence === "high"
-                            ? "bg-green-500/15 text-green-400"
-                            : "bg-amber-500/15 text-amber-400"
-                        }`}
-                      >
+                      <Badge variant="outline" className={`text-xs ${opp.confidence === "high" ? "bg-green-500/15 text-green-400" : "bg-amber-500/15 text-amber-400"}`}>
                         {opp.confidence}
                       </Badge>
                     </div>
-                    <p className="text-xs text-muted-foreground line-clamp-2">
-                      {opp.comment.text_display}
-                    </p>
+                    <p className="text-xs text-muted-foreground line-clamp-2">{opp.comment.text}</p>
                     {opp.comment.video_title && (
-                      <p className="text-xs text-muted-foreground/60 mt-0.5">
-                        on: {opp.comment.video_title}
-                      </p>
+                      <p className="text-xs text-muted-foreground/60 mt-0.5">on: {opp.comment.video_title}</p>
                     )}
                   </div>
                 </div>
@@ -241,33 +211,16 @@ export function CommentInsights() {
           </h3>
           <div className="space-y-2">
             {superFans.map((fan) => (
-              <div
-                key={fan.name}
-                className="flex items-center gap-3 rounded-md border border-border bg-card p-2"
-              >
-                {fan.avatarUrl ? (
-                  <img
-                    src={fan.avatarUrl}
-                    alt={fan.name}
-                    className="w-7 h-7 rounded-full shrink-0"
-                  />
-                ) : (
-                  <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center shrink-0">
-                    <Users className="w-3.5 h-3.5 text-muted-foreground" />
-                  </div>
-                )}
+              <div key={fan.name} className="flex items-center gap-3 rounded-md border border-border bg-card p-2">
+                <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center shrink-0">
+                  <Users className="w-3.5 h-3.5 text-muted-foreground" />
+                </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium text-foreground truncate">
-                    {fan.name}
-                  </p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {fan.latestComment}
-                  </p>
+                  <p className="text-xs font-medium text-foreground truncate">{fan.name}</p>
+                  <p className="text-xs text-muted-foreground truncate">{fan.latestComment}</p>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-xs font-mono font-bold text-foreground">
-                    {fan.commentCount}
-                  </p>
+                  <p className="text-xs font-mono font-bold text-foreground">{fan.commentCount}</p>
                   <p className="text-xs text-muted-foreground">comments</p>
                 </div>
               </div>
@@ -276,7 +229,6 @@ export function CommentInsights() {
         </div>
       )}
 
-      {/* Empty state */}
       {total === 0 && (
         <div className="rounded-lg border border-dashed border-border bg-card p-8 text-center">
           <MessageSquare className="w-8 h-8 mx-auto mb-2 text-muted-foreground opacity-50" />

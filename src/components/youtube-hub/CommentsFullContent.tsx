@@ -1,38 +1,18 @@
-/**
- * Wraps the full Comments page content for embedding in YouTube Hub.
- * Re-exports the standalone CommentsPage content without the page wrapper.
- */
 import { useState, useMemo } from "react";
 import {
-  MessageSquare,
-  RefreshCw,
-  ThumbsUp,
-  ThumbsDown,
-  HelpCircle,
-  Filter,
-  Copy,
-  Check,
-  Bot,
-  Star,
+  MessageSquare, RefreshCw, ThumbsUp, ThumbsDown, HelpCircle,
+  Filter, Copy, Check, Bot, Star,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
-  useYouTubeComments,
-  useSyncComments,
-  useGenerateReply,
-  useMarkReplied,
-  useCommentStats,
-  YouTubeComment,
+  useYouTubeComments, useSyncComments, useGenerateReply,
+  useMarkReplied, useCommentStats, YouTubeComment,
 } from "@/hooks/use-youtube-comments";
 import { toast } from "sonner";
 
@@ -96,7 +76,7 @@ function CommentCard({
                   <Star className="w-3 h-3 mr-1" /> Pinned
                 </Badge>
               )}
-              {comment.replied && (
+              {comment.is_replied && (
                 <Badge variant="outline" className="bg-green-50 text-green-700">
                   <Check className="w-3 h-3 mr-1" /> Replied
                 </Badge>
@@ -107,18 +87,18 @@ function CommentCard({
               <span>{comment.like_count} likes</span>
               <span>on: {comment.video_title}</span>
             </div>
-            {comment.ai_reply && (
+            {comment.suggested_reply && (
               <div className="bg-muted/50 rounded-lg p-3 mb-2">
                 <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
                   <Bot className="w-3 h-3" /> AI Suggested Reply
                 </div>
-                <p className="text-sm">{comment.ai_reply}</p>
+                <p className="text-sm">{comment.suggested_reply}</p>
                 <div className="flex gap-2 mt-2">
-                  <Button size="sm" variant="outline" onClick={() => handleCopy(comment.ai_reply!)}>
+                  <Button size="sm" variant="outline" onClick={() => handleCopy(comment.suggested_reply!)}>
                     {copied ? <Check className="w-3 h-3 mr-1" /> : <Copy className="w-3 h-3 mr-1" />}
                     {copied ? "Copied" : "Copy"}
                   </Button>
-                  {!comment.replied && (
+                  {!comment.is_replied && (
                     <Button size="sm" variant="outline" onClick={() => onMarkReplied(comment.id)}>
                       <Check className="w-3 h-3 mr-1" /> Mark Replied
                     </Button>
@@ -127,12 +107,12 @@ function CommentCard({
               </div>
             )}
             <div className="flex gap-2">
-              {!comment.ai_reply && (
+              {!comment.suggested_reply && (
                 <Button size="sm" variant="outline" onClick={() => onGenerateReply(comment)} disabled={isGenerating}>
                   <Bot className="w-3 h-3 mr-1" /> Generate Reply
                 </Button>
               )}
-              {!comment.replied && !comment.ai_reply && (
+              {!comment.is_replied && !comment.suggested_reply && (
                 <Button size="sm" variant="ghost" onClick={() => onMarkReplied(comment.id)}>
                   <Check className="w-3 h-3 mr-1" /> Mark Replied
                 </Button>
@@ -150,7 +130,7 @@ export function CommentsFullContent() {
   const syncComments = useSyncComments();
   const generateReply = useGenerateReply();
   const markReplied = useMarkReplied();
-  const { data: stats } = useCommentStats();
+  const { stats } = useCommentStats();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [sentimentFilter, setSentimentFilter] = useState<string>("all");
@@ -163,8 +143,8 @@ export function CommentsFullContent() {
       if (searchQuery && !c.text.toLowerCase().includes(searchQuery.toLowerCase()) && !c.author_name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
       if (sentimentFilter !== "all" && c.sentiment !== sentimentFilter) return false;
       if (priorityFilter !== "all" && c.priority !== priorityFilter) return false;
-      if (repliedFilter === "replied" && !c.replied) return false;
-      if (repliedFilter === "unreplied" && c.replied) return false;
+      if (repliedFilter === "replied" && !c.is_replied) return false;
+      if (repliedFilter === "unreplied" && c.is_replied) return false;
       return true;
     });
   }, [comments, searchQuery, sentimentFilter, priorityFilter, repliedFilter]);
@@ -182,7 +162,11 @@ export function CommentsFullContent() {
   const handleGenerateReply = async (comment: YouTubeComment) => {
     setGeneratingId(comment.id);
     try {
-      await generateReply.mutateAsync(comment.id);
+      await generateReply.mutateAsync({
+        commentId: comment.id,
+        comment_text: comment.text,
+        video_title: comment.video_title,
+      });
       toast.success("Reply generated!");
     } catch (err: any) {
       toast.error("Failed to generate reply", { description: err.message });
@@ -202,7 +186,6 @@ export function CommentsFullContent() {
 
   return (
     <div className="space-y-6">
-      {/* Stats */}
       {stats && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="rounded-lg border border-border bg-card p-3">
@@ -224,14 +207,8 @@ export function CommentsFullContent() {
         </div>
       )}
 
-      {/* Filters */}
       <div className="flex flex-wrap items-center gap-2">
-        <Input
-          placeholder="Search comments or authors..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-64 bg-secondary"
-        />
+        <Input placeholder="Search comments or authors..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-64 bg-secondary" />
         <Select value={sentimentFilter} onValueChange={setSentimentFilter}>
           <SelectTrigger className="w-36"><SelectValue placeholder="Sentiment" /></SelectTrigger>
           <SelectContent>
@@ -259,18 +236,12 @@ export function CommentsFullContent() {
             <SelectItem value="unreplied">Unreplied</SelectItem>
           </SelectContent>
         </Select>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => syncComments.mutate()}
-          disabled={syncComments.isPending}
-        >
+        <Button variant="outline" size="sm" onClick={() => syncComments.mutate()} disabled={syncComments.isPending}>
           <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${syncComments.isPending ? "animate-spin" : ""}`} />
           Sync
         </Button>
       </div>
 
-      {/* Comments grouped by video */}
       {isLoading ? (
         <p className="text-sm text-muted-foreground">Loading comments...</p>
       ) : grouped.length === 0 ? (

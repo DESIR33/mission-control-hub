@@ -3,8 +3,14 @@ import {
   AudienceDemographics, TrafficSources,
   GeographyBreakdown, DeviceBreakdown,
 } from "@/components/analytics";
+import { useDemographics, useTrafficSources, useGeography, useDeviceTypes } from "@/hooks/use-youtube-analytics-api";
 
 export function DemographicsReachSection() {
+  const { data: demographics = [] } = useDemographics();
+  const { data: trafficSources = [] } = useTrafficSources();
+  const { data: geography = [] } = useGeography();
+  const { data: devices = [] } = useDeviceTypes();
+
   return (
     <Tabs defaultValue="demographics">
       <TabsList>
@@ -14,16 +20,16 @@ export function DemographicsReachSection() {
         <TabsTrigger value="devices">Devices</TabsTrigger>
       </TabsList>
       <TabsContent value="demographics">
-        <AudienceDemographics />
+        <AudienceDemographics data={demographics} />
       </TabsContent>
       <TabsContent value="traffic">
-        <TrafficSources />
+        <TrafficSources data={trafficSources} daysRange={28} />
       </TabsContent>
       <TabsContent value="geography">
-        <GeographyBreakdown />
+        <GeographyBreakdown data={geography} />
       </TabsContent>
       <TabsContent value="devices">
-        <DeviceBreakdown />
+        <DeviceBreakdown data={devices} />
       </TabsContent>
     </Tabs>
   );

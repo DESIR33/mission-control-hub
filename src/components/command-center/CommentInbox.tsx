@@ -18,18 +18,20 @@ const sentimentConfig: Record<string, { icon: any; color: string; label: string 
 };
 
 export function CommentInbox() {
-  const [statusFilter, setStatusFilter] = useState<string>("");
   const [sentimentFilter, setSentimentFilter] = useState<string>("");
-  const { data: comments = [], isLoading } = useYouTubeComments({
-    status: statusFilter || undefined,
-    sentiment: sentimentFilter || undefined,
-  });
-  const { data: stats } = useCommentStats();
+  const { data: allComments = [], isLoading } = useYouTubeComments();
+  const { stats } = useCommentStats();
   const updateStatus = useUpdateCommentStatus();
 
-  const handleStatusChange = (id: string, status: string) => {
-    updateStatus.mutate({ id, status }, {
-      onSuccess: () => toast.success(`Comment marked as ${status}`),
+  // Client-side filtering
+  const comments = allComments.filter((c) => {
+    if (sentimentFilter && c.sentiment !== sentimentFilter) return false;
+    return true;
+  });
+
+  const handleStatusChange = (id: string, updates: { is_replied?: boolean; is_pinned?: boolean }) => {
+    updateStatus.mutate({ id, ...updates }, {
+      onSuccess: () => toast.success("Comment updated"),
     });
   };
 
@@ -52,19 +54,17 @@ export function CommentInbox() {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Eye className="w-3.5 h-3.5 text-yellow-500" />
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">Unread</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Unreplied</p>
           </div>
-          <p className="text-lg font-bold font-mono text-foreground">{stats?.unread ?? 0}</p>
+          <p className="text-lg font-bold font-mono text-foreground">{stats?.unreplied ?? 0}</p>
         </div>
 
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Check className="w-3.5 h-3.5 text-green-500" />
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">Reply Rate</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">High Priority</p>
           </div>
-          <p className="text-lg font-bold font-mono text-foreground">
-            {(stats?.replyRate ?? 0).toFixed(1)}%
-          </p>
+          <p className="text-lg font-bold font-mono text-foreground">{stats?.highPriority ?? 0}</p>
         </div>
 
         <div className="rounded-lg border border-border bg-card p-3">
@@ -79,18 +79,6 @@ export function CommentInbox() {
       {/* Filters */}
       <div className="rounded-lg border border-border bg-card p-3 flex items-center gap-2 flex-wrap">
         <Filter className="w-3.5 h-3.5 text-muted-foreground" />
-        <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v === "all" ? "" : v)}>
-          <SelectTrigger className="bg-muted/50 text-xs w-auto">
-            <SelectValue placeholder="All Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="unread">Unread</SelectItem>
-            <SelectItem value="read">Read</SelectItem>
-            <SelectItem value="replied">Replied</SelectItem>
-            <SelectItem value="flagged">Flagged</SelectItem>
-          </SelectContent>
-        </Select>
         <Select value={sentimentFilter} onValueChange={(v) => setSentimentFilter(v === "all" ? "" : v)}>
           <SelectTrigger className="bg-muted/50 text-xs w-auto">
             <SelectValue placeholder="All Sentiment" />
@@ -123,13 +111,9 @@ export function CommentInbox() {
                 <div className="flex items-start gap-3">
                   {/* Avatar */}
                   <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0 overflow-hidden">
-                    {comment.author_avatar_url ? (
-                      <img src={comment.author_avatar_url} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-xs font-bold text-muted-foreground">
-                        {comment.author_name.charAt(0).toUpperCase()}
-                      </span>
-                    )}
+                    <span className="text-xs font-bold text-muted-foreground">
+                      {comment.author_name.charAt(0).toUpperCase()}
+                    </span>
                   </div>
 
                   <div className="flex-1 min-w-0">
@@ -137,14 +121,14 @@ export function CommentInbox() {
                       <p className="text-xs font-semibold text-foreground">{comment.author_name}</p>
                       <SentimentIcon className={`w-3 h-3 ${sentiment.color}`} />
                       <Badge variant="outline" className="text-xs">
-                        {comment.status}
+                        {comment.is_replied ? "Replied" : "Unreplied"}
                       </Badge>
                       <span className="text-xs text-muted-foreground ml-auto">
                         {formatDistanceToNow(new Date(comment.published_at), { addSuffix: true })}
                       </span>
                     </div>
 
-                    <p className="text-xs text-muted-foreground mt-1 line-clamp-3">{comment.text_display}</p>
+                    <p className="text-xs text-muted-foreground mt-1 line-clamp-3">{comment.text}</p>
 
                     <div className="flex items-center gap-3 mt-2">
                       <span className="text-xs text-muted-foreground flex items-center gap-1">
@@ -159,22 +143,16 @@ export function CommentInbox() {
 
                     {/* Actions */}
                     <div className="flex items-center gap-1.5 mt-2">
-                      {comment.status === "unread" && (
+                      {!comment.is_replied && (
                         <Button size="sm" variant="ghost" className="h-6 text-xs px-2"
-                          onClick={() => handleStatusChange(comment.id, "read")}>
-                          <Eye className="w-3 h-3 mr-1" /> Read
+                          onClick={() => handleStatusChange(comment.id, { is_replied: true })}>
+                          <Check className="w-3 h-3 mr-1" /> Mark Replied
                         </Button>
                       )}
-                      {comment.status !== "replied" && (
+                      {!comment.is_pinned && (
                         <Button size="sm" variant="ghost" className="h-6 text-xs px-2"
-                          onClick={() => handleStatusChange(comment.id, "replied")}>
-                          <Check className="w-3 h-3 mr-1" /> Replied
-                        </Button>
-                      )}
-                      {comment.status !== "flagged" && (
-                        <Button size="sm" variant="ghost" className="h-6 text-xs px-2"
-                          onClick={() => handleStatusChange(comment.id, "flagged")}>
-                          <Flag className="w-3 h-3 mr-1" /> Flag
+                          onClick={() => handleStatusChange(comment.id, { is_pinned: true })}>
+                          <Flag className="w-3 h-3 mr-1" /> Pin
                         </Button>
                       )}
                     </div>

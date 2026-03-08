@@ -2,37 +2,21 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import {
-  Sparkles,
-  Trash2,
-  ExternalLink,
-  Loader2,
-  CheckCircle2,
-  BarChart3,
+  Sparkles, Trash2, ExternalLink, Loader2, CheckCircle2, BarChart3,
 } from "lucide-react";
 import {
-  SiYoutube,
-  SiTiktok,
-  SiInstagram,
-  SiX,
-  SiLinkedin,
+  SiYoutube, SiTiktok, SiInstagram, SiX, SiLinkedin,
 } from "react-icons/si";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
-  useRepurposingWorkflow,
-  REPURPOSE_PLATFORMS,
-  REPURPOSE_STATUSES,
-  type RepurposeStatus,
+  REPURPOSE_PLATFORMS, REPURPOSE_STATUSES, type RepurposeStatus,
 } from "@/hooks/use-repurposing-workflow";
-import type { VideoRepurpose } from "@/hooks/use-video-repurposes";
+import { useVideoRepurposes } from "@/hooks/use-video-repurposes";
 
 const PLATFORM_ICONS: Record<string, React.ReactNode> = {
   youtube_shorts: <SiYoutube className="w-4 h-4 text-red-600" />,
@@ -64,21 +48,30 @@ interface RepurposingWorkflowProps {
 }
 
 export function RepurposingWorkflow({ youtubeVideoId }: RepurposingWorkflowProps) {
-  const {
-    repurposes,
-    isLoading,
-    coverageScore,
-    generateSuggestions,
-    updateStatus,
-    updateItem,
-    removeItem,
-  } = useRepurposingWorkflow(youtubeVideoId);
+  const { repurposes, isLoading, create, update, remove } = useVideoRepurposes(youtubeVideoId);
 
   const [editingUrl, setEditingUrl] = useState<Record<string, string>>({});
 
+  const coverageScore = {
+    percentage: repurposes.length > 0
+      ? Math.round(
+          (repurposes.filter((r) => r.status === "published" || r.status === "tracked").length /
+            REPURPOSE_PLATFORMS.length) *
+            100
+        )
+      : 0,
+    published: repurposes.filter((r) => r.status === "published" || r.status === "tracked").length,
+    total: REPURPOSE_PLATFORMS.length,
+  };
+
   const handleGenerateAll = async () => {
+    if (!youtubeVideoId) return;
     try {
-      await generateSuggestions.mutateAsync();
+      const existingTypes = new Set(repurposes.map((r) => r.repurpose_type));
+      const toCreate = REPURPOSE_PLATFORMS.filter((p) => !existingTypes.has(p.id));
+      for (const platform of toCreate) {
+        await create.mutateAsync({ repurpose_type: platform.id, status: "planned" } as any);
+      }
       toast.success("Generated repurposing suggestions for all platforms");
     } catch (err: any) {
       toast.error("Failed to generate suggestions", { description: err.message });
@@ -87,7 +80,7 @@ export function RepurposingWorkflow({ youtubeVideoId }: RepurposingWorkflowProps
 
   const handleStatusChange = async (id: string, newStatus: string) => {
     try {
-      await updateStatus.mutateAsync({ id, status: newStatus });
+      await update.mutateAsync({ id, status: newStatus } as any);
       toast.success(`Status updated to ${newStatus}`);
     } catch (err: any) {
       toast.error("Failed to update status", { description: err.message });
@@ -98,7 +91,7 @@ export function RepurposingWorkflow({ youtubeVideoId }: RepurposingWorkflowProps
     const url = editingUrl[id];
     if (url === undefined) return;
     try {
-      await updateItem.mutateAsync({ id, url: url || null } as any);
+      await update.mutateAsync({ id, url: url || null } as any);
       setEditingUrl((prev) => {
         const next = { ...prev };
         delete next[id];
@@ -112,7 +105,7 @@ export function RepurposingWorkflow({ youtubeVideoId }: RepurposingWorkflowProps
 
   const handleRemove = async (id: string) => {
     try {
-      await removeItem.mutateAsync(id);
+      await remove.mutateAsync(id);
       toast.success("Repurpose item removed");
     } catch (err: any) {
       toast.error("Failed to remove item", { description: err.message });
@@ -143,7 +136,6 @@ export function RepurposingWorkflow({ youtubeVideoId }: RepurposingWorkflowProps
 
   return (
     <div className="space-y-4">
-      {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h3 className="text-sm font-semibold text-foreground">
@@ -155,13 +147,8 @@ export function RepurposingWorkflow({ youtubeVideoId }: RepurposingWorkflowProps
             </p>
           )}
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleGenerateAll}
-          disabled={generateSuggestions.isPending}
-        >
-          {generateSuggestions.isPending ? (
+        <Button variant="outline" size="sm" onClick={handleGenerateAll} disabled={create.isPending}>
+          {create.isPending ? (
             <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" />
           ) : (
             <Sparkles className="w-3.5 h-3.5 mr-1" />
@@ -170,7 +157,6 @@ export function RepurposingWorkflow({ youtubeVideoId }: RepurposingWorkflowProps
         </Button>
       </div>
 
-      {/* Repurposing Score */}
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -186,17 +172,13 @@ export function RepurposingWorkflow({ youtubeVideoId }: RepurposingWorkflowProps
           </Badge>
         </div>
         <div className="w-full bg-muted rounded-full h-2">
-          <div
-            className="bg-primary rounded-full h-2 transition-all duration-500"
-            style={{ width: `${coverageScore.percentage}%` }}
-          />
+          <div className="bg-primary rounded-full h-2 transition-all duration-500" style={{ width: `${coverageScore.percentage}%` }} />
         </div>
         <p className="text-xs text-muted-foreground mt-1.5">
           {coverageScore.published} of {coverageScore.total} platforms covered
         </p>
       </motion.div>
 
-      {/* Repurpose Items Grid */}
       {repurposes.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border p-8 text-center">
           <Sparkles className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
@@ -214,50 +196,28 @@ export function RepurposingWorkflow({ youtubeVideoId }: RepurposingWorkflowProps
               transition={{ delay: idx * 0.03 }}
               className="rounded-lg border border-border bg-card p-3 space-y-2"
             >
-              {/* Platform header */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="flex items-center justify-center w-7 h-7 rounded-full border border-border bg-background">
-                    {PLATFORM_ICONS[item.repurpose_type] ?? (
-                      <CheckCircle2 className="w-4 h-4 text-muted-foreground" />
-                    )}
+                    {PLATFORM_ICONS[item.repurpose_type] ?? <CheckCircle2 className="w-4 h-4 text-muted-foreground" />}
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-foreground">
-                      {getPlatformLabel(item.repurpose_type)}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {getPlatformFormat(item.repurpose_type)}
-                    </p>
+                    <p className="text-xs font-semibold text-foreground">{getPlatformLabel(item.repurpose_type)}</p>
+                    <p className="text-xs text-muted-foreground">{getPlatformFormat(item.repurpose_type)}</p>
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7"
-                  onClick={() => handleRemove(item.id)}
-                  aria-label="Remove"
-                >
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleRemove(item.id)} aria-label="Remove">
                   <Trash2 className="w-3 h-3 text-muted-foreground" />
                 </Button>
               </div>
 
-              {/* Status */}
               <div className="flex items-center gap-2">
-                <Select
-                  value={item.status}
-                  onValueChange={(v) => handleStatusChange(item.id, v)}
-                >
-                  <SelectTrigger className="h-7 text-xs w-28">
-                    <SelectValue />
-                  </SelectTrigger>
+                <Select value={item.status} onValueChange={(v) => handleStatusChange(item.id, v)}>
+                  <SelectTrigger className="h-7 text-xs w-28"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {REPURPOSE_STATUSES.map((s) => (
-                      <SelectItem key={s} value={s}>
-                        {s.charAt(0).toUpperCase() + s.slice(1)}
-                      </SelectItem>
+                      <SelectItem key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</SelectItem>
                     ))}
-                    {/* Also support legacy statuses */}
                     <SelectItem value="planned">Planned</SelectItem>
                     <SelectItem value="in_progress">In Progress</SelectItem>
                   </SelectContent>
@@ -267,36 +227,20 @@ export function RepurposingWorkflow({ youtubeVideoId }: RepurposingWorkflowProps
                 </Badge>
               </div>
 
-              {/* URL */}
               <div className="flex items-center gap-1">
                 {editingUrl[item.id] !== undefined ? (
                   <>
-                    <Input
-                      value={editingUrl[item.id]}
-                      onChange={(e) => setEditingUrl((prev) => ({ ...prev, [item.id]: e.target.value }))}
-                      placeholder="https://..."
-                      className="h-7 text-xs flex-1"
-                    />
-                    <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => handleUrlSave(item.id)}>
-                      Save
-                    </Button>
+                    <Input value={editingUrl[item.id]} onChange={(e) => setEditingUrl((prev) => ({ ...prev, [item.id]: e.target.value }))} placeholder="https://..." className="h-7 text-xs flex-1" />
+                    <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => handleUrlSave(item.id)}>Save</Button>
                   </>
                 ) : (
                   <>
                     {item.url ? (
-                      <a
-                        href={item.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary hover:underline flex items-center gap-0.5 text-xs"
-                      >
+                      <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-0.5 text-xs">
                         <ExternalLink className="w-3 h-3" /> Link
                       </a>
                     ) : (
-                      <button
-                        className="text-xs text-muted-foreground hover:text-foreground"
-                        onClick={() => setEditingUrl((prev) => ({ ...prev, [item.id]: item.url ?? "" }))}
-                      >
+                      <button className="text-xs text-muted-foreground hover:text-foreground" onClick={() => setEditingUrl((prev) => ({ ...prev, [item.id]: item.url ?? "" }))}>
                         + Add link
                       </button>
                     )}
@@ -304,16 +248,12 @@ export function RepurposingWorkflow({ youtubeVideoId }: RepurposingWorkflowProps
                 )}
               </div>
 
-              {/* Views */}
               {(item.views ?? 0) > 0 && (
                 <p className="text-xs text-muted-foreground font-mono">{fmtCount(item.views)} views</p>
               )}
 
-              {/* Notes */}
               {item.notes && (
-                <p className="text-xs text-muted-foreground truncate" title={item.notes}>
-                  {item.notes}
-                </p>
+                <p className="text-xs text-muted-foreground truncate" title={item.notes}>{item.notes}</p>
               )}
             </motion.div>
           ))}
