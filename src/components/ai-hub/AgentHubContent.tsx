@@ -19,6 +19,7 @@ import { SkillDetailSheet } from "@/components/agents/SkillDetailSheet";
 import { WorkflowChainManager } from "@/components/agents/WorkflowChainManager";
 import { NaturalLanguageTriggers } from "@/components/agents/NaturalLanguageTriggers";
 import { AgentActivityFeed } from "@/components/agents/AgentActivityFeed";
+import { AgentPerformanceScorecards } from "@/components/agents/AgentPerformanceScorecards";
 import type { AgentDefinition, AgentSkill } from "@/types/agents";
 
 export function AgentHubContent() {
