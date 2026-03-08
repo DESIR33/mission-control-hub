@@ -154,5 +154,6 @@ export function useChat() {
     sendMessage,
     loadSession,
     newSession,
+    deleteSession,
   };
 }
