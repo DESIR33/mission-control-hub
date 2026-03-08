@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useParams, Navigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageSquare, Brain, Bot, Wrench, BookOpen } from "lucide-react";
+import { MessageSquare, Brain, Bot, BookOpen } from "lucide-react";
 
 // Chat components
 import { ChatSidebar } from "@/components/chat/ChatSidebar";
@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { PanelRightOpen, PanelRightClose, Menu } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
+import { useNavigate } from "react-router-dom";
 
 // AI Bridge (Proposals) content
 import { AiBridgeContent } from "@/components/ai-hub/AiBridgeContent";
@@ -80,12 +81,19 @@ function ChatContent() {
   );
 }
 
+const VALID_TABS = new Set(["chat", "proposals", "agents", "memory"]);
+
 export default function AIHubPage() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = searchParams.get("tab") || "chat";
+  const { tab } = useParams<{ tab: string }>();
+  const navigate = useNavigate();
+  const activeTab = tab && VALID_TABS.has(tab) ? tab : null;
+
+  if (!activeTab) {
+    return <Navigate to="/ai/chat" replace />;
+  }
 
   const updateTab = (v: string) => {
-    setSearchParams({ tab: v }, { replace: true });
+    navigate(`/ai/${v}`, { replace: true });
   };
 
   return (
