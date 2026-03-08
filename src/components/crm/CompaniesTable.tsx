@@ -307,7 +307,7 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
                   onCheckedChange={toggleSelectAll}
                 />
               </TableHead>
-              <TableHead className={thClass} onClick={() => handleSort("name")}>
+              <TableHead className={cn(thClass, "max-w-[200px]")} onClick={() => handleSort("name")}>
                 <div className="flex items-center">Company<SortIcon column="name" sortKey={sortKey} sortDir={sortDir} /></div>
               </TableHead>
               <TableHead className={thClass} onClick={() => handleSort("industry")}>
