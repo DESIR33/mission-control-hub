@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound";
 import AuthPage from "./pages/AuthPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import NotificationsPage from "./pages/NotificationsPage";
+import OutlookCallbackPage from "./pages/OutlookCallbackPage";
 
 import Tasks from "./pages/Tasks";
 import MonetizationPage from "./pages/MonetizationPage";
