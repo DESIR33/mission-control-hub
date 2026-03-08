@@ -24,6 +24,7 @@ import {
   Mail, Globe, Linkedin, Twitter, Instagram, MapPin, Building2,
   Users, DollarSign, Clock, Pencil, Trash2, Loader2, Sparkles,
   Film, Play, Lightbulb, TrendingUp, Target, BarChart3,
+  Phone, MessageCircle, Facebook, Youtube,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useWorkspace } from "@/hooks/use-workspace";
