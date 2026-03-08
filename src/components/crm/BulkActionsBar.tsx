@@ -32,6 +32,7 @@ export function BulkActionsBar({ selectedCount, selectedIds, onClearSelection, e
   const [isEnriching, setIsEnriching] = useState(false);
   const updateContact = useUpdateContact();
   const deleteContact = useDeleteContact();
+  const deleteCompany = useDeleteCompany();
   const { toast } = useToast();
   const { workspaceId } = useWorkspace();
 
