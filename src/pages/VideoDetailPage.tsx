@@ -114,9 +114,20 @@ export default function VideoDetailPage() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
-      <Button variant="ghost" size="sm" onClick={() => navigate("/analytics")} className="-ml-2">
-        <ArrowLeft className="w-4 h-4 mr-1" /> Analytics
-      </Button>
+      <div className="flex items-center justify-between">
+        <Button variant="ghost" size="sm" onClick={() => navigate("/analytics")} className="-ml-2">
+          <ArrowLeft className="w-4 h-4 mr-1" /> Analytics
+        </Button>
+        <Button
+          size="sm"
+          onClick={() => runOptimizer.mutate({ max_videos: 1 })}
+          disabled={runOptimizer.isPending}
+          className="gap-1.5"
+        >
+          <Sparkles className="w-4 h-4" />
+          {runOptimizer.isPending ? "Optimizing…" : "Optimize Video"}
+        </Button>
+      </div>
 
       <VideoHeaderCard
         title={detail.title}
