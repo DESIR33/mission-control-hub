@@ -28,6 +28,7 @@ export default function ChatPage() {
         setShowSidebar(false);
       }}
       onDeleteSession={chat.deleteSession}
+      onRenameSession={chat.renameSession}
     />
   );
 

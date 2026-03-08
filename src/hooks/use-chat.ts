@@ -180,5 +180,6 @@ export function useChat() {
     loadSession,
     newSession,
     deleteSession,
+    renameSession,
   };
 }
