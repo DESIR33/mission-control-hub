@@ -48,14 +48,7 @@ export function GrowthCountdownTracker() {
   }
 
   if (!data) {
-    return (
-      <div className="rounded-xl border border-dashed border-muted-foreground/30 bg-card/50 backdrop-blur-sm p-6 text-center">
-        <Target className="w-6 h-6 mx-auto mb-2 text-muted-foreground" />
-        <p className="text-sm text-muted-foreground">
-          No subscriber data yet. Set up YouTube sync to track growth.
-        </p>
-      </div>
-    );
+    return null;
   }
 
   const pace = paceConfig[data.paceStatus];
