@@ -157,63 +157,77 @@ Deno.serve(async (req) => {
         .eq("integration_key", "ms_outlook");
     }
 
-    // Fetch ALL messages from Outlook (paginated)
-    const messages = await fetchAllOutlookMessages(tokenResult.access_token, folder);
+    // Determine which folders to sync
+    const foldersToSync = sync_all_folders
+      ? ["inbox", "sentitems", "junkemail", "deleteditems", "archive"]
+      : [folder];
 
-    // Batch upsert into inbox_emails
-    const rows = messages.map((msg) => {
-      const fromEmail = msg.from?.emailAddress?.address || "";
-      const fromName = msg.from?.emailAddress?.name || "";
-      const toRecipients = (msg.toRecipients || []).map((r) => ({
-        name: r.emailAddress?.name || "",
-        email: r.emailAddress?.address || "",
-      }));
+    let totalFetched = 0;
+    let totalUpserted = 0;
 
-      return {
-        workspace_id,
-        message_id: msg.id,
-        conversation_id: msg.conversationId || null,
-        from_email: fromEmail,
-        from_name: fromName,
-        to_recipients: toRecipients,
-        subject: msg.subject || "",
-        preview: msg.bodyPreview || "",
-        body_html: msg.body?.content || null,
-        received_at: msg.receivedDateTime || new Date().toISOString(),
-        is_read: msg.isRead ?? false,
-        importance: msg.importance || "normal",
-        has_attachments: msg.hasAttachments ?? false,
-        folder: mapFolderIdToName(msg.parentFolderId),
-      };
-    });
+    for (const syncFolder of foldersToSync) {
+      console.log(`Syncing folder: ${syncFolder}`);
 
-    let upsertedCount = 0;
-    if (rows.length > 0) {
-      // Batch upsert in chunks of 200 to avoid payload limits
-      const CHUNK_SIZE = 200;
-      for (let i = 0; i < rows.length; i += CHUNK_SIZE) {
-        const chunk = rows.slice(i, i + CHUNK_SIZE);
-        const { error: upsertError } = await supabase
-          .from("inbox_emails")
-          .upsert(chunk, { onConflict: "workspace_id,message_id" });
+      // Fetch ALL messages from Outlook (paginated)
+      const messages = await fetchAllOutlookMessages(tokenResult.access_token, syncFolder);
+      totalFetched += messages.length;
 
-        if (upsertError) {
-          console.error(`Batch upsert error (chunk ${i / CHUNK_SIZE + 1}):`, JSON.stringify(upsertError));
-          throw new Error(`Failed to upsert emails: ${upsertError.message}`);
+      // Map folder name for DB storage
+      const dbFolder = mapGraphFolderToDb(syncFolder);
+
+      // Batch upsert into inbox_emails
+      const rows = messages.map((msg) => {
+        const fromEmail = msg.from?.emailAddress?.address || "";
+        const fromName = msg.from?.emailAddress?.name || "";
+        const toRecipients = (msg.toRecipients || []).map((r) => ({
+          name: r.emailAddress?.name || "",
+          email: r.emailAddress?.address || "",
+        }));
+
+        return {
+          workspace_id,
+          message_id: msg.id,
+          conversation_id: msg.conversationId || null,
+          from_email: fromEmail,
+          from_name: fromName,
+          to_recipients: toRecipients,
+          subject: msg.subject || "",
+          preview: msg.bodyPreview || "",
+          body_html: msg.body?.content || null,
+          received_at: msg.receivedDateTime || new Date().toISOString(),
+          is_read: msg.isRead ?? false,
+          importance: msg.importance || "normal",
+          has_attachments: msg.hasAttachments ?? false,
+          folder: dbFolder,
+        };
+      });
+
+      if (rows.length > 0) {
+        const CHUNK_SIZE = 200;
+        for (let i = 0; i < rows.length; i += CHUNK_SIZE) {
+          const chunk = rows.slice(i, i + CHUNK_SIZE);
+          const { error: upsertError } = await supabase
+            .from("inbox_emails")
+            .upsert(chunk, { onConflict: "workspace_id,message_id" });
+
+          if (upsertError) {
+            console.error(`Batch upsert error (${syncFolder}, chunk ${i / CHUNK_SIZE + 1}):`, JSON.stringify(upsertError));
+            throw new Error(`Failed to upsert emails: ${upsertError.message}`);
+          }
+          totalUpserted += chunk.length;
+          console.log(`Upserted ${syncFolder} chunk: ${chunk.length} emails (total: ${totalUpserted})`);
         }
-        upsertedCount += chunk.length;
-        console.log(`Upserted chunk ${i / CHUNK_SIZE + 1}: ${chunk.length} emails (total: ${upsertedCount})`);
+      } else {
+        console.log(`No messages in folder: ${syncFolder}`);
       }
-    } else {
-      console.log("No messages returned from Outlook API");
     }
 
     return new Response(
       JSON.stringify({
         success: true,
-        fetched: messages.length,
-        upserted: upsertedCount,
-        folder,
+        fetched: totalFetched,
+        upserted: totalUpserted,
+        folders_synced: foldersToSync,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
