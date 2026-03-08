@@ -1921,6 +1921,38 @@ export type Database = {
           },
         ]
       }
+      workspace_identity: {
+        Row: {
+          content: string
+          document_type: string
+          id: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          content?: string
+          document_type: string
+          id?: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          content?: string
+          document_type?: string
+          id?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_identity_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workspace_integrations: {
         Row: {
           config: Json | null
