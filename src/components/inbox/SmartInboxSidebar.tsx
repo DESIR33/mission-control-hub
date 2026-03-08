@@ -17,6 +17,7 @@ import { EmailTemplateManager } from "@/components/inbox/EmailTemplateManager";
 import { EmailCategoryBadge } from "@/components/inbox/EmailCategoryBadge";
 import { ThreadSummarizer } from "@/components/inbox/ThreadSummarizer";
 import { SmartReplySuggestions } from "@/components/inbox/SmartReplySuggestions";
+import { ThreadTimelineCRM } from "@/components/inbox/ThreadTimelineCRM";
 import { FollowUpRadar } from "@/components/inbox/FollowUpRadar";
 import { ConversationIntelligence } from "@/components/inbox/ConversationIntelligence";
 import { useOutlookSend } from "@/hooks/use-smart-inbox";
@@ -227,6 +228,9 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
           </Button>
         </CardContent>
       </Card>
+
+      {/* Thread Timeline with CRM Context */}
+      <ThreadTimelineCRM email={email} />
 
       {/* Thread Summarizer */}
       <ThreadSummarizer email={email} />

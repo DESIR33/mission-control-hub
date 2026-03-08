@@ -13,6 +13,8 @@ import { ThumbnailAbTestTracker } from "@/components/youtube-hub/ThumbnailAbTest
 import { ContentDnaFingerprint } from "@/components/youtube-hub/ContentDnaFingerprint";
 import { LaunchMonitor } from "@/components/youtube-hub/LaunchMonitor";
 import { CrossVideoAudienceFlow } from "@/components/youtube-hub/CrossVideoAudienceFlow";
+import { PublishCalendarOverlay } from "@/components/youtube-hub/PublishCalendarOverlay";
+import { RevenuePerVideo } from "@/components/youtube-hub/RevenuePerVideo";
 import { SubtitleUploader } from "@/components/video-detail/SubtitleUploader";
 
 export function AnalyticsOverviewContent() {
@@ -48,6 +50,12 @@ export function AnalyticsOverviewContent() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <VideoComparisonTool />
         <RevenueAttributionDashboard />
+      </div>
+
+      {/* Publish Calendar & Revenue Per Video */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <PublishCalendarOverlay />
+        <RevenuePerVideo />
       </div>
 
       {/* Subtitles */}

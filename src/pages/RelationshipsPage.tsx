@@ -14,6 +14,9 @@ import { PartnershipPipeline } from "@/components/crm/PartnershipPipeline";
 import { YouTubeLeadInbox } from "@/components/crm/YouTubeLeadInbox";
 import { EngagementScorePanel } from "@/components/crm/EngagementScorePanel";
 import { BulkImportWizard } from "@/components/crm/BulkImportWizard";
+import { CompanyHealthScore } from "@/components/companies/CompanyHealthScore";
+import { RelationshipMap } from "@/components/companies/RelationshipMap";
+import { AutoEnrichmentPipeline } from "@/components/companies/AutoEnrichmentPipeline";
 import { useContacts, useActivities } from "@/hooks/use-contacts";
 import { useCompanies } from "@/hooks/use-companies";
 import { useDeals } from "@/hooks/use-deals";
@@ -153,6 +156,13 @@ export default function RelationshipsPage() {
 
         <TabsContent value="engagement" className="mt-4">
           <EngagementScorePanel />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+            <CompanyHealthScore />
+            <RelationshipMap />
+          </div>
+          <div className="mt-4">
+            <AutoEnrichmentPipeline />
+          </div>
         </TabsContent>
       </Tabs>
 
