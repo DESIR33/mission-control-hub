@@ -526,7 +526,7 @@ export default function MonetizationPage() {
           <button
             onClick={() => navigate("/revenue/overview")}
             className={cn(
-              "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+              "rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap shrink-0",
               activeTab === "overview"
                 ? "bg-card text-card-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground"
@@ -537,7 +537,7 @@ export default function MonetizationPage() {
           <button
             onClick={() => navigate("/revenue/affiliate")}
             className={cn(
-              "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+              "rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap shrink-0",
               activeTab === "affiliate"
                 ? "bg-card text-card-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground"
@@ -548,7 +548,7 @@ export default function MonetizationPage() {
           <button
             onClick={() => navigate("/revenue/sponsorships")}
             className={cn(
-              "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+              "rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap shrink-0",
               activeTab === "sponsorships"
                 ? "bg-card text-card-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground"
@@ -559,7 +559,7 @@ export default function MonetizationPage() {
           <button
             onClick={() => navigate("/revenue/products")}
             className={cn(
-              "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+              "rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap shrink-0",
               activeTab === "products"
                 ? "bg-card text-card-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground"
@@ -570,7 +570,7 @@ export default function MonetizationPage() {
           <button
             onClick={() => navigate("/revenue/overview")}
             className={cn(
-              "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+              "rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap shrink-0",
               activeTab === "revenue-overview"
                 ? "bg-card text-card-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground"
@@ -581,7 +581,7 @@ export default function MonetizationPage() {
           <button
             onClick={() => navigate("/revenue/rate-card")}
             className={cn(
-              "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+              "rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap shrink-0",
               activeTab === "rate-card"
                 ? "bg-card text-card-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground"
