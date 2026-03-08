@@ -134,25 +134,14 @@ interface Product {
 }
 
 export default function MonetizationPage() {
-  const [searchParams] = useSearchParams();
+  const { tab: urlTab } = useParams<{ tab: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Parse the tab from the URL query parameter
-  const tabParam = useMemo(() => {
-    const t = searchParams.get('tab');
-    return t === 'products' || t === 'affiliate' || t === 'sponsorships' || t === 'revenue-overview' || t === 'rate-card'
-      ? t
-      : "overview";
-  }, [searchParams]);
+  const VALID_TABS = new Set(["overview", "analytics", "affiliate", "sponsorships", "products", "rate-card"]);
+  const activeTab = urlTab && VALID_TABS.has(urlTab) ? urlTab : "overview";
 
-  const [activeTab, setActiveTab] = useState(tabParam);
-
-  // Sync state when URL search params change (e.g. sidebar navigation)
-  useEffect(() => {
-    setActiveTab(tabParam);
-  }, [tabParam]);
   const [isAddingWidget, setIsAddingWidget] = useState(false);
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
 
