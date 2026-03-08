@@ -43,6 +43,7 @@ import {
   Loader2Icon,
   MailIcon,
   SendIcon,
+  LinkIcon,
 } from "lucide-react";
 import FolderSidebar from "@/components/inbox/FolderSidebar";
 import EmailList from "@/components/inbox/EmailList";
