@@ -95,13 +95,13 @@ export function EmailToDealPipeline({ email }: Props) {
     <Button
       variant="outline"
       size="sm"
-      className="w-full justify-start gap-2"
+      className="w-full justify-start gap-2 overflow-hidden"
       onClick={() => createDeal.mutate()}
       disabled={createDeal.isPending}
     >
-      {createDeal.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <DollarSign className="w-3.5 h-3.5" />}
-      Create Deal from Email
-      <ArrowRight className="w-3 h-3 ml-auto" />
+      {createDeal.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" /> : <DollarSign className="w-3.5 h-3.5 shrink-0" />}
+      <span className="truncate">Create Deal from Email</span>
+      <ArrowRight className="w-3 h-3 ml-auto shrink-0" />
     </Button>
   );
 }

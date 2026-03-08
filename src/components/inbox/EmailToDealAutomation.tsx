@@ -87,14 +87,14 @@ export function EmailToDealAutomation({ email }: Props) {
       <Button
         variant="outline"
         size="sm"
-        className="w-full justify-start"
+        className="w-full justify-start overflow-hidden"
         onClick={() => {
           setDealTitle(`Sponsorship - ${email.from_name || email.from_email}`);
           setShowDialog(true);
         }}
       >
-        <Sparkles className="w-3.5 h-3.5 mr-2" />
-        Create Deal from Email
+        <Sparkles className="w-3.5 h-3.5 mr-2 shrink-0" />
+        <span className="truncate">Create Deal from Email</span>
       </Button>
 
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
