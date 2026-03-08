@@ -52,6 +52,12 @@ export function AnalyticsOverviewContent() {
         <RevenueAttributionDashboard />
       </div>
 
+      {/* Publish Calendar & Revenue Per Video */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <PublishCalendarOverlay />
+        <RevenuePerVideo />
+      </div>
+
       {/* Subtitles */}
       <SubtitleUploader />
 
