@@ -9,7 +9,7 @@ import {
 import { useWorkspace } from "@/hooks/use-workspace";
 import { useSyncYouTube } from "@/hooks/use-youtube-analytics";
 import { useSyncYouTubeAnalytics } from "@/hooks/use-youtube-analytics-api";
-import { GroupedNavBar } from "@/components/shared/GroupedNavBar";
+
 
 import { GrowthForecastSection } from "@/components/command-center/sections/GrowthForecastSection";
 import { SubscriberIntelSection } from "@/components/command-center/sections/SubscriberIntelSection";
@@ -139,11 +139,6 @@ export default function YouTubeCommandCenterPage() {
           </div>
         </div>
 
-        <GroupedNavBar
-          sections={TABS}
-          activeKey={activeTab}
-          onSelect={(key) => setActiveTab(key as Tab)}
-        />
 
         <div className="mt-4 md:mt-6">
           <ActiveComponent />

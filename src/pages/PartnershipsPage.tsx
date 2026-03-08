@@ -26,7 +26,7 @@ import type { Contact, Company } from "@/types/crm";
 import { DealsContent } from "@/components/partnerships/DealsContent";
 import { DiscoveryContent } from "@/components/partnerships/DiscoveryContent";
 import { CollaborationsContent } from "@/components/partnerships/CollaborationsContent";
-import { GroupedNavBar } from "@/components/shared/GroupedNavBar";
+
 
 type Section =
   | "contacts"
@@ -185,11 +185,6 @@ export default function PartnershipsPage() {
           </div>
         </div>
 
-        <GroupedNavBar
-          sections={SECTIONS}
-          activeKey={activeSection}
-          onSelect={(key) => setActiveSection(key as Section)}
-        />
 
         <div className="mt-4 md:mt-6">
           {renderContent()}

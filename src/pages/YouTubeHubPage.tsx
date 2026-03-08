@@ -10,7 +10,7 @@ import {
 import { useWorkspace } from "@/hooks/use-workspace";
 import { useSyncYouTube } from "@/hooks/use-youtube-analytics";
 import { useSyncYouTubeAnalytics } from "@/hooks/use-youtube-analytics-api";
-import { GroupedNavBar } from "@/components/shared/GroupedNavBar";
+
 
 // Command Center section components
 import { GrowthForecastSection } from "@/components/command-center/sections/GrowthForecastSection";
@@ -143,11 +143,6 @@ export default function YouTubeHubPage() {
           </div>
         </div>
 
-        <GroupedNavBar
-          sections={SECTIONS}
-          activeKey={activeSection}
-          onSelect={(key) => setActiveSection(key as Section)}
-        />
 
         <div className="mt-4 md:mt-6">
           <ActiveComponent />
