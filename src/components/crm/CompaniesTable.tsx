@@ -382,12 +382,6 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1.5">
-                        {company.location && <MapPin className="w-3 h-3 text-muted-foreground shrink-0" />}
-                        <span className="text-sm text-muted-foreground truncate">{company.location ?? "—"}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1.5">
                         <Video className="w-3.5 h-3.5 text-muted-foreground" />
                         <span className="text-sm text-foreground">{videoCountMap.get(company.id) ?? 0}</span>
                       </div>
