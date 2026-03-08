@@ -142,7 +142,7 @@ export function ProposalCard({
                 <span>
                   {entityType.label}:{" "}
                   <span className="text-foreground font-medium">
-                    {proposal.entity_name ?? proposal.entity_id.slice(0, 8)}
+                    {proposal.entity_name ?? proposal.entity_id?.slice(0, 8) ?? "—"}
                   </span>
                 </span>
               </div>
