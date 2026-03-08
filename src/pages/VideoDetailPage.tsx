@@ -116,8 +116,8 @@ export default function VideoDetailPage() {
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
       <div className="flex items-center justify-between">
-        <Button variant="ghost" size="sm" onClick={() => navigate("/analytics")} className="-ml-2">
-          <ArrowLeft className="w-4 h-4 mr-1" /> Analytics
+        <Button variant="ghost" size="sm" onClick={() => navigate("/youtube/channel-videos?tab=videos")} className="-ml-2">
+          <ArrowLeft className="w-4 h-4 mr-1" /> Channel & Videos
         </Button>
         <Button
           size="sm"
