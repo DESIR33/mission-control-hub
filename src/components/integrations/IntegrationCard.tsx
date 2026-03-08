@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle2, Circle, ExternalLink, Loader2, FlaskConical, Settings, RefreshCw } from "lucide-react";
+import { CheckCircle2, Circle, ExternalLink, Loader2, FlaskConical, Settings, RefreshCw, LogIn } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +9,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useTestIntegration, type IntegrationKey, type WorkspaceIntegration } from "@/hooks/use-integrations";
 import { useStripeSync } from "@/hooks/use-stripe-sync";
 import { useSlackNotify } from "@/hooks/use-slack-notify";
+import { useWorkspace } from "@/hooks/use-workspace";
+import { supabase } from "@/integrations/supabase/client";
 import type { IntegrationDef } from "@/pages/IntegrationsPage";
 
 interface IntegrationCardProps {
@@ -28,10 +30,31 @@ export function IntegrationCard({
 }: IntegrationCardProps) {
   const isConnected = record?.enabled ?? false;
   const { toast } = useToast();
+  const { workspaceId } = useWorkspace();
   const testMutation = useTestIntegration();
   const stripeSync = useStripeSync();
   const slackNotify = useSlackNotify();
   const [testResult, setTestResult] = useState<any>(null);
+  const [oauthLoading, setOauthLoading] = useState(false);
+
+  const handleOutlookOAuth = async () => {
+    if (!workspaceId) return;
+    setOauthLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("outlook-auth-url", {
+        body: { workspace_id: workspaceId },
+      });
+      if (error) throw error;
+      if (data?.auth_url) {
+        window.location.href = data.auth_url;
+      } else {
+        throw new Error(data?.error || "Failed to generate auth URL");
+      }
+    } catch (err: any) {
+      toast({ title: "OAuth failed", description: err.message, variant: "destructive" });
+      setOauthLoading(false);
+    }
+  };
 
   const handleTest = async () => {
     setTestResult(null);
@@ -195,6 +218,22 @@ export function IntegrationCard({
                       <RefreshCw className="w-3 h-3 mr-1" />
                     )}
                     Send Test
+                  </Button>
+                )}
+                {def.key === "ms_outlook" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-xs bg-[#0078d4]/10 border-[#0078d4]/30 text-[#0078d4] hover:bg-[#0078d4]/20"
+                    onClick={handleOutlookOAuth}
+                    disabled={oauthLoading}
+                  >
+                    {oauthLoading ? (
+                      <Loader2 className="w-3 h-3 animate-spin mr-1" />
+                    ) : (
+                      <LogIn className="w-3 h-3 mr-1" />
+                    )}
+                    Authorize Outlook
                   </Button>
                 )}
                 <Button
