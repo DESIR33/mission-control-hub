@@ -157,8 +157,8 @@ Deno.serve(async (req) => {
         .eq("integration_key", "ms_outlook");
     }
 
-    // Fetch messages from Outlook
-    const messages = await fetchOutlookMessages(tokenResult.access_token, folder, max_messages);
+    // Fetch ALL messages from Outlook (paginated)
+    const messages = await fetchAllOutlookMessages(tokenResult.access_token, folder);
 
     // Batch upsert into inbox_emails
     const rows = messages.map((msg) => {
