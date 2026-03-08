@@ -362,6 +362,59 @@ export type Database = {
           },
         ]
       }
+      agent_scorecards: {
+        Row: {
+          accepted_proposals: number
+          agent_slug: string
+          avg_confidence: number | null
+          created_at: string
+          id: string
+          outcome_success_rate: number | null
+          outcomes_tracked: number
+          period_end: string
+          period_start: string
+          rejected_proposals: number
+          total_proposals: number
+          workspace_id: string
+        }
+        Insert: {
+          accepted_proposals?: number
+          agent_slug: string
+          avg_confidence?: number | null
+          created_at?: string
+          id?: string
+          outcome_success_rate?: number | null
+          outcomes_tracked?: number
+          period_end: string
+          period_start: string
+          rejected_proposals?: number
+          total_proposals?: number
+          workspace_id: string
+        }
+        Update: {
+          accepted_proposals?: number
+          agent_slug?: string
+          avg_confidence?: number | null
+          created_at?: string
+          id?: string
+          outcome_success_rate?: number | null
+          outcomes_tracked?: number
+          period_end?: string
+          period_start?: string
+          rejected_proposals?: number
+          total_proposals?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_scorecards_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agent_skills: {
         Row: {
           category: string
@@ -1227,6 +1280,53 @@ export type Database = {
           },
         ]
       }
+      email_templates: {
+        Row: {
+          body_template: string
+          category: string
+          created_at: string
+          id: string
+          name: string
+          subject_template: string
+          updated_at: string
+          usage_count: number
+          variables: Json
+          workspace_id: string
+        }
+        Insert: {
+          body_template?: string
+          category?: string
+          created_at?: string
+          id?: string
+          name: string
+          subject_template?: string
+          updated_at?: string
+          usage_count?: number
+          variables?: Json
+          workspace_id: string
+        }
+        Update: {
+          body_template?: string
+          category?: string
+          created_at?: string
+          id?: string
+          name?: string
+          subject_template?: string
+          updated_at?: string
+          usage_count?: number
+          variables?: Json
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_templates_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       entity_tags: {
         Row: {
           created_at: string
@@ -1311,6 +1411,8 @@ export type Database = {
       }
       inbox_emails: {
         Row: {
+          ai_category: string | null
+          ai_summary: string | null
           body_html: string | null
           conversation_id: string | null
           created_at: string
@@ -1333,6 +1435,8 @@ export type Database = {
           workspace_id: string
         }
         Insert: {
+          ai_category?: string | null
+          ai_summary?: string | null
           body_html?: string | null
           conversation_id?: string | null
           created_at?: string
@@ -1355,6 +1459,8 @@ export type Database = {
           workspace_id: string
         }
         Update: {
+          ai_category?: string | null
+          ai_summary?: string | null
           body_html?: string | null
           conversation_id?: string | null
           created_at?: string
@@ -2321,6 +2427,56 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "video_repurposes_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      video_revenue_attribution: {
+        Row: {
+          ad_revenue: number | null
+          affiliate_revenue: number | null
+          created_at: string
+          id: string
+          period_end: string
+          period_start: string
+          sponsor_revenue: number | null
+          total_revenue: number | null
+          video_title: string
+          workspace_id: string
+          youtube_video_id: string
+        }
+        Insert: {
+          ad_revenue?: number | null
+          affiliate_revenue?: number | null
+          created_at?: string
+          id?: string
+          period_end: string
+          period_start: string
+          sponsor_revenue?: number | null
+          total_revenue?: number | null
+          video_title?: string
+          workspace_id: string
+          youtube_video_id: string
+        }
+        Update: {
+          ad_revenue?: number | null
+          affiliate_revenue?: number | null
+          created_at?: string
+          id?: string
+          period_end?: string
+          period_start?: string
+          sponsor_revenue?: number | null
+          total_revenue?: number | null
+          video_title?: string
+          workspace_id?: string
+          youtube_video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_revenue_attribution_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
