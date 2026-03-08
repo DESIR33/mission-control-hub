@@ -200,7 +200,16 @@ export function useContentRevenue(days = 180) {
     });
 
     links.sort((a, b) => b.totalRevenue - a.totalRevenue);
-    const withRevenue = links.filter((l) => l.totalRevenue > 0);
+
+    // Deduplicate by title (same video can appear via multiple sources)
+    const seenTitles = new Set<string>();
+    const withRevenue = links.filter((l) => {
+      if (l.totalRevenue <= 0) return false;
+      const key = l.videoTitle.toLowerCase().trim();
+      if (seenTitles.has(key)) return false;
+      seenTitles.add(key);
+      return true;
+    });
 
     const totalAdRevenue = withRevenue.reduce((s, l) => s + l.adRevenue, 0);
     const totalDealRevenue = withRevenue.reduce((s, l) => s + l.dealRevenue, 0);
