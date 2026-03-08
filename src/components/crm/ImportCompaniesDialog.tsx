@@ -14,8 +14,12 @@ const OPTIONAL_FIELDS = [
   { key: "website", label: "Website" },
   { key: "size", label: "Size" },
   { key: "location", label: "Location" },
+  { key: "country", label: "Country" },
+  { key: "state", label: "State" },
+  { key: "city", label: "City" },
+  { key: "phone", label: "Phone Number" },
   { key: "description", label: "Description" },
-  { key: "primary_email", label: "Primary Email" },
+  { key: "primary_email", label: "Email Address" },
   { key: "secondary_email", label: "Secondary Email" },
   { key: "revenue", label: "Revenue" },
   { key: "notes", label: "Notes" },
@@ -27,6 +31,7 @@ const OPTIONAL_FIELDS = [
   { key: "social_youtube", label: "YouTube" },
   { key: "social_tiktok", label: "TikTok" },
   { key: "social_producthunt", label: "Product Hunt" },
+  { key: "social_whatsapp", label: "WhatsApp" },
 ];
 
 export function ImportCompaniesDialog() {
