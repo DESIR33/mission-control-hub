@@ -17,6 +17,7 @@ import {
   TrendingUp,
   Tag,
   Target,
+  Video,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
