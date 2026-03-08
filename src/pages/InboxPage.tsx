@@ -94,6 +94,7 @@ export default function InboxPage() {
   const moveEmail = useMoveEmail();
   const deleteEmailMut = useDeleteEmail();
   const outlookSend = useOutlookSend();
+  const outlookAuth = useOutlookAuthUrl();
 
   const handleSelectEmail = useCallback((email: SmartEmail) => {
     setSelectedEmail(email);
