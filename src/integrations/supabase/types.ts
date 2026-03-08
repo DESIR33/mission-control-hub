@@ -2537,6 +2537,10 @@ export type Database = {
         }[]
       }
       is_workspace_member: { Args: { ws_id: string }; Returns: boolean }
+      soft_delete_company: {
+        Args: { company_id: string; ws_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

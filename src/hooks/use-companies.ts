@@ -180,11 +180,10 @@ export function useDeleteCompany() {
     mutationFn: async (id: string) => {
       if (!workspaceId) throw new Error("No workspace");
 
-      const { error } = await supabase
-        .from("companies")
-        .update({ deleted_at: new Date().toISOString() })
-        .eq("id", id)
-        .eq("workspace_id", workspaceId);
+      const { error } = await supabase.rpc("soft_delete_company", {
+        company_id: id,
+        ws_id: workspaceId,
+      });
 
       if (error) throw error;
     },
