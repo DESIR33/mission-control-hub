@@ -55,7 +55,7 @@ export default function AddCompanyPage() {
         notes: (form.get("notes") as string) || undefined,
       });
       toast({ title: "Company created" });
-      navigate("/relationships?tab=companies");
+      navigate("/network/companies");
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
     }
