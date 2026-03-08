@@ -96,7 +96,7 @@ No other text.`,
         continue;
       }
 
-      // Update each email
+      // Update each email and also apply category to all emails from same sender
       for (const c of classifications) {
         const email = batch[c.index - 1];
         if (!email) continue;
@@ -111,6 +111,7 @@ No other text.`,
           ? c.category
           : "marketing";
 
+        // Update this specific email
         const { error } = await supabase
           .from("inbox_emails")
           .update({
@@ -120,6 +121,25 @@ No other text.`,
           .eq("id", email.id);
 
         if (!error) totalClassified++;
+
+        // Also classify all other uncategorized emails from the same sender
+        if (!error && email.from_email) {
+          const { data: samesender } = await supabase
+            .from("inbox_emails")
+            .update({
+              ai_category: category,
+            })
+            .eq("workspace_id", workspace_id)
+            .eq("from_email", email.from_email)
+            .is("ai_category", null)
+            .neq("id", email.id)
+            .select("id");
+
+          if (samesender?.length) {
+            totalClassified += samesender.length;
+            console.log(`Auto-classified ${samesender.length} more emails from ${email.from_email} as ${category}`);
+          }
+        }
       }
     }
 

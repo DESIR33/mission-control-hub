@@ -144,8 +144,13 @@ export default function EmailPreview({
         <div className="border-t border-border pt-4">
           {email.body_html ? (
             <div
-              className="prose prose-sm max-w-none text-foreground prose-headings:text-foreground prose-p:text-foreground prose-a:text-primary"
-              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(email.body_html) }}
+              className="prose prose-sm max-w-none text-foreground prose-headings:text-foreground prose-p:text-foreground prose-a:text-primary [&_*]:!text-foreground [&_a]:!text-primary email-body-override"
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(email.body_html, {
+                  FORBID_ATTR: ['color', 'bgcolor'],
+                  FORBID_TAGS: ['style'],
+                }),
+              }}
             />
           ) : (
             <p className="text-sm text-muted-foreground whitespace-pre-wrap">
