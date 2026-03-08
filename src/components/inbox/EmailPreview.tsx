@@ -33,6 +33,7 @@ export default function EmailPreview({
   onArchive,
   onTogglePinned,
 }: EmailPreviewProps) {
+  const outlookSend = useOutlookSend();
   if (!email) {
     return (
       <div className="h-full flex flex-col items-center justify-center bg-card px-8 text-center">
