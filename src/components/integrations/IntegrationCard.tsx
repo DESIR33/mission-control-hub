@@ -30,6 +30,7 @@ export function IntegrationCard({
   const { toast } = useToast();
   const testMutation = useTestIntegration();
   const stripeSync = useStripeSync();
+  const slackNotify = useSlackNotify();
   const [testResult, setTestResult] = useState<any>(null);
 
   const handleTest = async () => {
