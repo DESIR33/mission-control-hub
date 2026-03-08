@@ -10,6 +10,7 @@ import { Search, Filter, Sparkles, Loader2, Check } from "lucide-react";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { supabase } from "@/integrations/supabase/client";
 import { useProposals, useUpdateProposalStatus, useUpdateProposal } from "@/hooks/use-proposals";
+import { useSubmitFeedback } from "@/hooks/use-agent-feedback";
 import { ProposalCard } from "@/components/ai-bridge/ProposalCard";
 import { ProposalStats } from "@/components/ai-bridge/ProposalStats";
 import { EditProposalDialog } from "@/components/ai-bridge/EditProposalDialog";
