@@ -65,3 +65,15 @@ verify_jwt = false
 
 [functions.slack-notify]
 verify_jwt = false
+
+[functions.outlook-sync]
+verify_jwt = false
+
+[functions.outlook-send]
+verify_jwt = false
+
+[functions.outlook-auth-url]
+verify_jwt = false
+
+[functions.outlook-auth-callback]
+verify_jwt = false
