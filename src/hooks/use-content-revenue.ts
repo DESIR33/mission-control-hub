@@ -87,22 +87,71 @@ export function useContentRevenue(days = 180) {
   });
 
   const summary = useMemo((): ContentRevenueSummary | null => {
-    if (!videoQueue.length) return null;
+    // Build a unified map of all videos keyed by youtube_video_id
+    // Sources: video_queue (has queue id + optional yt id) and video_analytics (has yt id + title)
+    const videoMap = new Map<string, {
+      videoTitle: string;
+      videoQueueId: number;
+      youtubeVideoId: string;
+      adRevenue: number;
+      dealRevenue: number;
+      affiliateRevenue: number;
+      views: number;
+    }>();
 
-    const adRevenueByVideoId = new Map<string, number>();
-    const viewsByVideoId = new Map<string, number>();
-    videoAnalytics.forEach((v) => {
-      adRevenueByVideoId.set(
-        v.youtube_video_id,
-        (adRevenueByVideoId.get(v.youtube_video_id) ?? 0) + v.estimated_revenue
-      );
-      viewsByVideoId.set(
-        v.youtube_video_id,
-        (viewsByVideoId.get(v.youtube_video_id) ?? 0) + v.views
-      );
-    });
+    // Index video_queue by youtube_video_id for lookups
+    const queueByYtId = new Map<string, any>();
+    const queueById = new Map<string, any>();
+    for (const vq of videoQueue) {
+      queueById.set(String(vq.id), vq);
+      if (vq.youtube_video_id) {
+        queueByYtId.set(vq.youtube_video_id, vq);
+      }
+    }
 
-    // Map youtube_video_id -> company_ids for linking deals
+    // 1) Seed from video_analytics (primary source of ad revenue + views)
+    for (const va of videoAnalytics) {
+      const ytId = va.youtube_video_id;
+      const existing = videoMap.get(ytId);
+      const queueEntry = queueByYtId.get(ytId);
+      if (existing) {
+        existing.adRevenue += va.estimated_revenue || 0;
+        existing.views += va.views || 0;
+        // Prefer queue title if available
+        if (queueEntry && !existing.videoTitle) {
+          existing.videoTitle = queueEntry.title;
+        }
+      } else {
+        videoMap.set(ytId, {
+          videoTitle: queueEntry?.title || va.title || "Untitled Video",
+          videoQueueId: queueEntry ? Number(queueEntry.id) : 0,
+          youtubeVideoId: ytId,
+          adRevenue: va.estimated_revenue || 0,
+          dealRevenue: 0,
+          affiliateRevenue: 0,
+          views: va.views || 0,
+        });
+      }
+    }
+
+    // 2) Also seed from video_queue entries that have no analytics yet
+    for (const vq of videoQueue) {
+      if (vq.youtube_video_id && !videoMap.has(vq.youtube_video_id)) {
+        videoMap.set(vq.youtube_video_id, {
+          videoTitle: vq.title,
+          videoQueueId: Number(vq.id),
+          youtubeVideoId: vq.youtube_video_id,
+          adRevenue: 0,
+          dealRevenue: 0,
+          affiliateRevenue: 0,
+          views: 0,
+        });
+      }
+    }
+
+    if (videoMap.size === 0) return null;
+
+    // 3) Map youtube_video_id -> company_ids for linking deals
     const videoToCompanies = new Map<string, Set<string>>();
     for (const vc of videoCompanies) {
       const set = videoToCompanies.get(vc.youtube_video_id) ?? new Set();
@@ -110,31 +159,38 @@ export function useContentRevenue(days = 180) {
       videoToCompanies.set(vc.youtube_video_id, set);
     }
 
-    const links: ContentRevenueLink[] = videoQueue.map((vq: any) => {
-      // Link deals to this video via video_companies (company_id match)
-      const linkedCompanyIds = vq.youtube_video_id ? videoToCompanies.get(vq.youtube_video_id) : undefined;
-      const dealRevenue = deals
-        .filter((d: any) => d.stage === "closed_won" && d.company_id && linkedCompanyIds?.has(d.company_id))
-        .reduce((s: number, d: any) => s + (Number(d.value) || 0), 0);
+    // 4) Attribute deal revenue via video_companies
+    for (const [ytId, entry] of videoMap) {
+      const linkedCompanyIds = videoToCompanies.get(ytId);
+      if (linkedCompanyIds) {
+        entry.dealRevenue = deals
+          .filter((d: any) => d.stage === "closed_won" && d.company_id && linkedCompanyIds.has(d.company_id))
+          .reduce((s: number, d: any) => s + (Number(d.value) || 0), 0);
+      }
+    }
 
-      const affiliateRevenue = affiliateTxns
-        .filter((t: any) => t.video_queue_id === vq.id && t.status !== "cancelled")
-        .reduce((s: number, t: any) => s + (Number(t.amount) || 0), 0);
+    // 5) Attribute affiliate revenue via video_queue_id
+    for (const txn of affiliateTxns) {
+      if (txn.status === "cancelled") continue;
+      const queueEntry = queueById.get(String(txn.video_queue_id));
+      if (queueEntry?.youtube_video_id && videoMap.has(queueEntry.youtube_video_id)) {
+        videoMap.get(queueEntry.youtube_video_id)!.affiliateRevenue += Number(txn.amount) || 0;
+      }
+    }
 
-      const adRevenue = vq.youtube_video_id ? (adRevenueByVideoId.get(vq.youtube_video_id) ?? 0) : 0;
-      const views = vq.youtube_video_id ? (viewsByVideoId.get(vq.youtube_video_id) ?? 0) : 0;
-      const totalRevenue = adRevenue + dealRevenue + affiliateRevenue;
-
+    // 6) Build final links
+    const links: ContentRevenueLink[] = Array.from(videoMap.values()).map((entry) => {
+      const totalRevenue = entry.adRevenue + entry.dealRevenue + entry.affiliateRevenue;
       return {
-        videoTitle: vq.title,
-        videoQueueId: vq.id,
-        youtubeVideoId: vq.youtube_video_id ?? undefined,
-        adRevenue,
-        dealRevenue,
-        affiliateRevenue,
+        videoTitle: entry.videoTitle,
+        videoQueueId: entry.videoQueueId,
+        youtubeVideoId: entry.youtubeVideoId,
+        adRevenue: entry.adRevenue,
+        dealRevenue: entry.dealRevenue,
+        affiliateRevenue: entry.affiliateRevenue,
         totalRevenue,
-        views,
-        revenuePerView: views > 0 ? totalRevenue / views : 0,
+        views: entry.views,
+        revenuePerView: entry.views > 0 ? totalRevenue / entry.views : 0,
         roi: 0,
       };
     });
