@@ -150,10 +150,29 @@ async function queryExperiments(supabase: any, workspaceId: string, input: any) 
   if (input?.status && input.status !== "all") query = query.eq("status", input.status);
   const { data, error } = await query;
   if (error) return { error: error.message };
+
+  // Include lessons learned as feedback for agent context
+  const lessons = (data ?? [])
+    .filter((e: any) => e.lesson_learned)
+    .map((e: any) => ({
+      video_title: e.video_title,
+      experiment_type: e.experiment_type,
+      lesson: e.lesson_learned,
+      status: e.status,
+      ctr_delta: e.result_ctr != null ? (e.result_ctr - e.baseline_ctr).toFixed(2) : null,
+      views_delta: e.result_views != null && e.baseline_views > 0
+        ? (((e.result_views - e.baseline_views) / e.baseline_views) * 100).toFixed(1) + "%"
+        : null,
+    }));
+
   return {
     experiments: data ?? [],
     active_count: (data ?? []).filter((e: any) => e.status === "active").length,
     completed_count: (data ?? []).filter((e: any) => e.status === "completed").length,
+    lessons_learned: lessons,
+    feedback_summary: lessons.length > 0
+      ? `Based on ${lessons.length} past experiments: ${lessons.map((l: any) => l.lesson).join("; ")}`
+      : "No experiment feedback available yet.",
   };
 }
 
