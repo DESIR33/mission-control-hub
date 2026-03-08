@@ -82,7 +82,7 @@ export default function AnalyticsPage() {
     const lastSync = Number(localStorage.getItem(lastSyncKey) || "0");
     const now = Date.now();
 
-    if (now - lastSync < THIRTY_MINUTES) return;
+    if (now - lastSync < THROTTLE_MS) return;
 
     localStorage.setItem(lastSyncKey, String(now));
     syncYouTube.mutate();
