@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle2, Circle, ExternalLink, Loader2, FlaskConical, Settings } from "lucide-react";
+import { CheckCircle2, Circle, ExternalLink, Loader2, FlaskConical, Settings, RefreshCw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { useWorkspace } from "@/hooks/use-workspace";
 import { useToast } from "@/hooks/use-toast";
 import { useTestIntegration, type IntegrationKey, type WorkspaceIntegration } from "@/hooks/use-integrations";
+import { useStripeSync } from "@/hooks/use-stripe-sync";
 import type { IntegrationDef } from "@/pages/IntegrationsPage";
 
 interface IntegrationCardProps {
@@ -28,6 +28,7 @@ export function IntegrationCard({
   const isConnected = record?.enabled ?? false;
   const { toast } = useToast();
   const testMutation = useTestIntegration();
+  const stripeSync = useStripeSync();
   const [testResult, setTestResult] = useState<any>(null);
 
   const handleTest = async () => {
@@ -141,6 +142,31 @@ export function IntegrationCard({
                   )}
                   Test
                 </Button>
+                {def.key === "stripe" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-xs"
+                    onClick={() => {
+                      stripeSync.mutate(undefined, {
+                        onSuccess: (data) => {
+                          toast({ title: `✅ Synced ${data.charges_synced} charges, ${data.subscriptions_synced} subscriptions` });
+                        },
+                        onError: (err) => {
+                          toast({ title: "Stripe sync failed", description: err.message, variant: "destructive" });
+                        },
+                      });
+                    }}
+                    disabled={stripeSync.isPending}
+                  >
+                    {stripeSync.isPending ? (
+                      <Loader2 className="w-3 h-3 animate-spin mr-1" />
+                    ) : (
+                      <RefreshCw className="w-3 h-3 mr-1" />
+                    )}
+                    Sync Now
+                  </Button>
+                )}
                 <Button
                   size="sm"
                   variant="outline"
