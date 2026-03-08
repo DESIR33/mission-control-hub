@@ -62,7 +62,36 @@ Deno.serve(async (req) => {
     );
 
     const body = await req.json();
-    const { workspace_id, max_videos = 10, model } = body;
+    const { workspace_id, max_videos = 10, model, run_all_workspaces } = body;
+
+    // If triggered by cron, run for all workspaces that have videos
+    if (run_all_workspaces) {
+      const { data: workspaces } = await supabase
+        .from("youtube_video_stats")
+        .select("workspace_id")
+        .limit(1000);
+      
+      const uniqueWsIds = [...new Set((workspaces || []).map((w: any) => w.workspace_id))];
+      const allResults = [];
+      
+      for (const wsId of uniqueWsIds) {
+        try {
+          const res = await fetch(req.url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: req.headers.get("Authorization") || "" },
+            body: JSON.stringify({ workspace_id: wsId, max_videos, model }),
+          });
+          allResults.push({ workspace_id: wsId, ...(await res.json()) });
+        } catch (e: any) {
+          allResults.push({ workspace_id: wsId, success: false, error: e.message });
+        }
+      }
+      
+      return new Response(JSON.stringify({ success: true, workspaces_processed: uniqueWsIds.length, results: allResults }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     if (!workspace_id) throw new Error("Missing workspace_id");
 
     const openrouterKey = Deno.env.get("OPENROUTER_API_KEY");
