@@ -99,34 +99,34 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
       </div>
 
       {/* Sender Info */}
-      <Card>
+      <Card className="overflow-hidden">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium flex items-center gap-2">
-            <Mail className="w-4 h-4" />
+            <Mail className="w-4 h-4 shrink-0" />
             Sender
           </CardTitle>
         </CardHeader>
-        <CardContent className="text-sm space-y-1">
-          <p className="font-medium">{email.from_name || email.from_email}</p>
-          <p className="text-muted-foreground">{email.from_email}</p>
+        <CardContent className="text-sm space-y-1 min-w-0">
+          <p className="font-medium truncate">{email.from_name || email.from_email}</p>
+          <p className="text-muted-foreground truncate">{email.from_email}</p>
         </CardContent>
       </Card>
 
       {/* Matched Contact */}
       {email.matched_contact ? (
-        <Card>
+        <Card className="overflow-hidden">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <User className="w-4 h-4" />
+              <User className="w-4 h-4 shrink-0" />
               Contact
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-sm space-y-2">
-            <p className="font-medium">
+          <CardContent className="text-sm space-y-2 min-w-0">
+            <p className="font-medium truncate">
               {email.matched_contact.first_name}{" "}
               {email.matched_contact.last_name ?? ""}
             </p>
-            <p className="text-muted-foreground">{email.from_email}</p>
+            <p className="text-muted-foreground truncate">{email.from_email}</p>
             {email.matched_contact.tier &&
               email.matched_contact.tier !== "none" && (
                 <Badge
@@ -146,20 +146,20 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
           </CardContent>
         </Card>
       ) : (
-        <Card>
+        <Card className="overflow-hidden">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <User className="w-4 h-4" />
+              <User className="w-4 h-4 shrink-0" />
               Unknown Sender
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="min-w-0">
             <p className="text-sm text-muted-foreground mb-3">
               This sender is not in your CRM yet.
             </p>
-            <Button variant="outline" size="sm" className="w-full">
-              <Plus className="w-3.5 h-3.5 mr-2" />
-              Create Contact
+            <Button variant="outline" size="sm" className="w-full overflow-hidden">
+              <Plus className="w-3.5 h-3.5 mr-2 shrink-0" />
+              <span className="truncate">Create Contact</span>
             </Button>
           </CardContent>
         </Card>
@@ -193,19 +193,19 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
       )}
 
       {/* Quick Actions */}
-      <Card>
+      <Card className="overflow-hidden">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium">Quick Actions</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-1.5">
+        <CardContent className="space-y-1.5 min-w-0">
           {!email.matched_contact && (
             <Button
               variant="outline"
               size="sm"
-              className="w-full justify-start"
+              className="w-full justify-start overflow-hidden"
             >
-              <Plus className="w-3.5 h-3.5 mr-2" />
-              Create Contact
+              <Plus className="w-3.5 h-3.5 mr-2 shrink-0" />
+              <span className="truncate">Create Contact</span>
             </Button>
           )}
           <EmailToDealAutomation email={email} />
@@ -213,18 +213,18 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
           <Button
             variant="outline"
             size="sm"
-            className="w-full justify-start"
+            className="w-full justify-start overflow-hidden"
           >
-            <ArrowRight className="w-3.5 h-3.5 mr-2" />
-            Add to Sequence
+            <ArrowRight className="w-3.5 h-3.5 mr-2 shrink-0" />
+            <span className="truncate">Add to Sequence</span>
           </Button>
           <Button
             variant="outline"
             size="sm"
-            className="w-full justify-start"
+            className="w-full justify-start overflow-hidden"
           >
-            <Building2 className="w-3.5 h-3.5 mr-2" />
-            Log Activity
+            <Building2 className="w-3.5 h-3.5 mr-2 shrink-0" />
+            <span className="truncate">Log Activity</span>
           </Button>
         </CardContent>
       </Card>
