@@ -41,7 +41,9 @@ Deno.serve(async (req) => {
     }
 
     const config = integration.config as Record<string, string>;
-    const { client_id, client_secret, tenant_id = "common", redirect_uri } = config;
+    const { client_id, client_secret, tenant_id = "common" } = config;
+    // Prefer client-provided redirect_uri (matches the one used in the auth URL), fall back to config
+    const redirect_uri = clientRedirectUri || config.redirect_uri;
 
     if (!client_id || !client_secret || !redirect_uri) {
       return new Response(
