@@ -48,11 +48,8 @@ function formatStage(stage: string): string {
 export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
   if (!email) {
     return (
-      <div className="flex flex-col items-center justify-center h-full p-6 text-muted-foreground">
-        <Mail className="w-10 h-10 mb-3 opacity-40" />
-        <p className="text-sm text-center">
-          Select an email to see CRM context
-        </p>
+      <div className="space-y-4 p-4 overflow-y-auto h-full">
+        <SmartFollowUpQueue />
       </div>
     );
   }
