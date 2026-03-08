@@ -244,7 +244,7 @@ export default function CompanyProfilePage() {
   return (
     <div className="p-4 sm:p-6 lg:p-8 min-h-screen">
       {/* Back navigation */}
-      <Button variant="ghost" size="sm" onClick={() => navigate("/relationships?tab=companies")} className="gap-1.5 mb-6 text-muted-foreground hover:text-foreground">
+      <Button variant="ghost" size="sm" onClick={() => navigate("/network/companies")} className="gap-1.5 mb-6 text-muted-foreground hover:text-foreground">
         <ArrowLeft className="w-4 h-4" /> Back to Companies
       </Button>
 
