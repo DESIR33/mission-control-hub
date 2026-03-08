@@ -25,6 +25,7 @@ export function AgentHubContent() {
   const { data: executions = [], isLoading: execLoading } = useExecutions(30);
   const runAgent = useRunAgent();
   const runAll = useRunAllAgents();
+  const runVideoOptimizer = useRunVideoOptimizer();
   const toggleAgent = useToggleAgent();
   const createSkill = useCreateSkill();
   const deleteSkill = useDeleteSkill();
