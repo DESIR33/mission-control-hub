@@ -26,7 +26,7 @@ import type { Contact, Company } from "@/types/crm";
 import { DealsContent } from "@/components/partnerships/DealsContent";
 import { DiscoveryContent } from "@/components/partnerships/DiscoveryContent";
 import { CollaborationsContent } from "@/components/partnerships/CollaborationsContent";
-import { GroupedNavBar } from "@/components/shared/GroupedNavBar";
+
 
 type Section =
   | "contacts"
