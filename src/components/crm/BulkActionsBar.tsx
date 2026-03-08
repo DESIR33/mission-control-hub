@@ -94,9 +94,10 @@ export function BulkActionsBar({ selectedCount, selectedIds, onClearSelection, e
 
   const handleBulkDelete = async () => {
     let successCount = 0;
+    const deleteFn = entityType === "company" ? deleteCompany : deleteContact;
     for (const id of selectedIds) {
       try {
-        await deleteContact.mutateAsync(id);
+        await deleteFn.mutateAsync(id);
         successCount++;
       } catch {
         // continue
