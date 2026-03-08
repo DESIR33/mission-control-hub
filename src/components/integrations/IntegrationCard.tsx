@@ -46,7 +46,7 @@ export function IntegrationCard({
       });
       if (error) throw error;
       if (data?.auth_url) {
-        window.location.href = data.auth_url;
+        window.open(data.auth_url, "_blank");
       } else {
         throw new Error(data?.error || "Failed to generate auth URL");
       }
