@@ -21,14 +21,12 @@ import {
   Plus, Users, Building2, GitGraph,
   Kanban, Handshake, Search,
   Megaphone, Activity, Youtube,
-  ChevronLeft, ChevronRight, Menu,
 } from "lucide-react";
 import type { Contact, Company } from "@/types/crm";
 import { DealsContent } from "@/components/partnerships/DealsContent";
 import { DiscoveryContent } from "@/components/partnerships/DiscoveryContent";
 import { CollaborationsContent } from "@/components/partnerships/CollaborationsContent";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { GroupedNavBar } from "@/components/shared/GroupedNavBar";
 
 type Section =
   | "contacts"
@@ -56,76 +54,11 @@ const SECTIONS: { key: Section; label: string; icon: React.ReactNode; group: str
   { key: "yt_leads", label: "YouTube Leads", icon: <Youtube className="w-3.5 h-3.5" />, group: "Intelligence" },
 ];
 
-function SidebarNav({
-  activeSection,
-  setActiveSection,
-  sidebarCollapsed,
-  setSidebarCollapsed,
-  onSelect,
-}: {
-  activeSection: Section;
-  setActiveSection: (s: Section) => void;
-  sidebarCollapsed: boolean;
-  setSidebarCollapsed: (v: boolean) => void;
-  onSelect?: () => void;
-}) {
-  const groups = Array.from(new Set(SECTIONS.map((s) => s.group)));
-
-  return (
-    <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between p-3 border-b border-border">
-        {!sidebarCollapsed && (
-          <div className="flex items-center gap-2">
-            <Handshake className="w-4 h-4 text-primary" />
-            <span className="text-xs font-semibold text-foreground">Partnerships</span>
-          </div>
-        )}
-        <button
-          onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-          className="p-1 rounded hover:bg-muted transition-colors text-muted-foreground hidden md:block"
-        >
-          {sidebarCollapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
-        </button>
-      </div>
-
-      <nav className="p-2 space-y-3 overflow-y-auto flex-1">
-        {groups.map((group) => (
-          <div key={group}>
-            {!sidebarCollapsed && (
-              <p className="text-xs text-muted-foreground uppercase tracking-wider px-2 mb-1">{group}</p>
-            )}
-            <div className="space-y-0.5">
-              {SECTIONS.filter((s) => s.group === group).map((section) => (
-                <button
-                  key={section.key}
-                  onClick={() => { setActiveSection(section.key); onSelect?.(); }}
-                  className={`w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs transition-colors ${
-                    activeSection === section.key
-                      ? "bg-primary/10 text-primary font-medium"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                  }`}
-                  title={sidebarCollapsed ? section.label : undefined}
-                >
-                  {section.icon}
-                  {!sidebarCollapsed && <span>{section.label}</span>}
-                </button>
-              ))}
-            </div>
-          </div>
-        ))}
-      </nav>
-    </div>
-  );
-}
-
 export default function PartnershipsPage() {
   const [searchParams] = useSearchParams();
   const initialTab = (searchParams.get("tab") as Section) || "contacts";
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState<Section>(initialTab);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const isMobile = useIsMobile();
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [contactSheetOpen, setContactSheetOpen] = useState(false);
 
@@ -242,58 +175,23 @@ export default function PartnershipsPage() {
   };
 
   return (
-    <div className="flex h-full">
-      {/* Desktop Sidebar */}
-      {!isMobile && (
-        <div
-          className={`shrink-0 border-r border-border bg-card/50 transition-all duration-200 ${
-            sidebarCollapsed ? "w-12" : "w-56"
-          }`}
-        >
-          <SidebarNav
-            activeSection={activeSection}
-            setActiveSection={setActiveSection}
-            sidebarCollapsed={sidebarCollapsed}
-            setSidebarCollapsed={setSidebarCollapsed}
-          />
-        </div>
-      )}
-
-      {/* Mobile Nav Sheet */}
-      {isMobile && (
-        <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
-          <SheetContent side="left" className="p-0 w-64 bg-card border-border">
-            <SidebarNav
-              activeSection={activeSection}
-              setActiveSection={setActiveSection}
-              sidebarCollapsed={false}
-              setSidebarCollapsed={() => {}}
-              onSelect={() => setMobileNavOpen(false)}
-            />
-          </SheetContent>
-        </Sheet>
-      )}
-
-      {/* Main Content */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="p-4 sm:p-6 lg:p-8">
-          <div className="flex items-center gap-3 mb-4 md:mb-6">
-            {isMobile && (
-              <button
-                onClick={() => setMobileNavOpen(true)}
-                className="p-1.5 rounded-md hover:bg-muted transition-colors text-muted-foreground shrink-0"
-                aria-label="Open Partnerships menu"
-              >
-                <Menu className="w-5 h-5" />
-              </button>
-            )}
-            {activeSectionInfo.icon}
-            <div className="min-w-0">
-              <h1 className="text-base md:text-lg font-bold text-foreground truncate">{activeSectionInfo.label}</h1>
-              <p className="text-xs text-muted-foreground">Partnerships</p>
-            </div>
+    <div className="flex-1 overflow-y-auto">
+      <div className="p-4 sm:p-6 lg:p-8">
+        <div className="flex items-center gap-3 mb-4">
+          {activeSectionInfo.icon}
+          <div className="min-w-0">
+            <h1 className="text-base md:text-lg font-bold text-foreground truncate">{activeSectionInfo.label}</h1>
+            <p className="text-xs text-muted-foreground">Partnerships</p>
           </div>
+        </div>
 
+        <GroupedNavBar
+          sections={SECTIONS}
+          activeKey={activeSection}
+          onSelect={(key) => setActiveSection(key as Section)}
+        />
+
+        <div className="mt-4 md:mt-6">
           {renderContent()}
         </div>
       </div>
