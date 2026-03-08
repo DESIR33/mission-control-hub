@@ -96,6 +96,7 @@ const App = () => (
           <Routes>
             <Route path="/auth" element={<PublicRoute><LazyPage section="Auth"><AuthPage /></LazyPage></PublicRoute>} />
             <Route path="/reset-password" element={<LazyPage section="Reset Password"><ResetPasswordPage /></LazyPage>} />
+            <Route path="/auth/outlook/callback" element={<LazyPage section="Outlook"><OutlookCallbackPage /></LazyPage>} />
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route path="/" element={<LazyPage section="Dashboard"><Index /></LazyPage>} />
 
@@ -151,7 +152,6 @@ const App = () => (
               {/* Communication */}
               <Route path="/inbox" element={<LazyPage section="Inbox"><InboxPage /></LazyPage>} />
               <Route path="/inbox/*" element={<LazyPage section="Inbox"><InboxPage /></LazyPage>} />
-              <Route path="/auth/outlook/callback" element={<LazyPage section="Outlook"><OutlookCallbackPage /></LazyPage>} />
               <Route path="/notifications" element={<LazyPage section="Notifications"><NotificationsPage /></LazyPage>} />
 
               {/* Integrations */}
