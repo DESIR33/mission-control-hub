@@ -220,6 +220,22 @@ export function IntegrationCard({
                     Send Test
                   </Button>
                 )}
+                {def.key === "ms_outlook" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-xs bg-[#0078d4]/10 border-[#0078d4]/30 text-[#0078d4] hover:bg-[#0078d4]/20"
+                    onClick={handleOutlookOAuth}
+                    disabled={oauthLoading}
+                  >
+                    {oauthLoading ? (
+                      <Loader2 className="w-3 h-3 animate-spin mr-1" />
+                    ) : (
+                      <LogIn className="w-3 h-3 mr-1" />
+                    )}
+                    Authorize Outlook
+                  </Button>
+                )}
                 <Button
                   size="sm"
                   variant="outline"
