@@ -1,12 +1,17 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { format, parseISO } from "date-fns";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ArrowLeft, CalendarIcon, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 interface AffiliateProgram {
   id: number;
@@ -25,13 +30,11 @@ export default function AddTransactionPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const [formData, setFormData] = useState({
-    transactionDate: new Date().toISOString().split("T")[0],
-    commission: 0,
-    approximatePayoutDate: "",
-    isRecurring: false,
-    recurringMonths: 1,
-  });
+  const [transactionDate, setTransactionDate] = useState<Date>(new Date());
+  const [payoutDate, setPayoutDate] = useState<Date | undefined>();
+  const [commission, setCommission] = useState(0);
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [recurringMonths, setRecurringMonths] = useState(1);
 
   const { data: program } = useQuery<AffiliateProgram>({
     queryKey: [`/api/affiliate-programs/${id}`],
@@ -57,12 +60,12 @@ export default function AddTransactionPage() {
             "X-CSRF-Token": csrfToken,
           },
           body: JSON.stringify({
-            ...formData,
-            commission: parseFloat(formData.commission.toString()),
+            transactionDate: format(transactionDate, "yyyy-MM-dd"),
+            commission: parseFloat(commission.toString()),
+            approximatePayoutDate: payoutDate ? format(payoutDate, "yyyy-MM-dd") : "",
+            isRecurring,
             affiliateProgramId: parseInt(id!),
-            recurringMonths: formData.isRecurring
-              ? formData.recurringMonths
-              : null,
+            recurringMonths: isRecurring ? recurringMonths : null,
             status: "pending",
           }),
           credentials: "include",
@@ -96,136 +99,163 @@ export default function AddTransactionPage() {
   });
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="border-b border-border bg-card">
-        <div className="container px-4 md:px-8 py-8">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 mb-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate(`/affiliate-program/${id}`)}
-                className="gap-1.5"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Back to Program
-              </Button>
-            </div>
-            <h1 className="text-4xl font-bold text-foreground">Add Transaction</h1>
-            <p className="text-muted-foreground text-lg">
-              {company?.name ? `Record a new commission for ${company.name}` : "Record a new commission transaction"}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="container px-4 md:px-8 py-8 max-w-2xl">
-        <div className="rounded-lg border border-border bg-card p-6">
-          <form
-            onSubmit={async (e) => {
-              e.preventDefault();
-              await createTransaction.mutateAsync();
-            }}
-            className="space-y-6"
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30 p-4 sm:p-6 lg:p-8">
+      <div className="max-w-2xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="space-y-1">
+          <button
+            onClick={() => navigate(`/affiliate-program/${id}`)}
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
           >
-            <div className="space-y-2">
-              <Label htmlFor="transactionDate">Transaction Date</Label>
-              <Input
-                id="transactionDate"
-                type="date"
-                value={formData.transactionDate}
-                onChange={(e) =>
-                  setFormData({ ...formData, transactionDate: e.target.value })
-                }
-                required
-              />
-            </div>
+            <ArrowLeft className="h-4 w-4" />
+            Back to Program
+          </button>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            Add Transaction
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {company?.name
+              ? `Record a new commission for ${company.name}`
+              : "Record a new commission transaction"}
+          </p>
+        </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="commission">Commission Amount ($)</Label>
-              <Input
-                id="commission"
-                type="number"
-                min="0"
-                step="0.01"
-                value={formData.commission}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    commission: parseFloat(e.target.value),
-                  })
-                }
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="approximatePayoutDate">
-                Approximate Payout Date
-              </Label>
-              <Input
-                id="approximatePayoutDate"
-                type="date"
-                value={formData.approximatePayoutDate}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    approximatePayoutDate: e.target.value,
-                  })
-                }
-                required
-              />
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="isRecurring"
-                checked={formData.isRecurring}
-                onCheckedChange={(checked) =>
-                  setFormData({ ...formData, isRecurring: checked })
-                }
-              />
-              <Label htmlFor="isRecurring">Recurring Transaction</Label>
-            </div>
-
-            {formData.isRecurring && (
+        {/* Form Card */}
+        <Card>
+          <CardContent className="pt-6">
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                await createTransaction.mutateAsync();
+              }}
+              className="space-y-6"
+            >
+              {/* Transaction Date */}
               <div className="space-y-2">
-                <Label htmlFor="recurringMonths">Number of Months</Label>
+                <Label>Transaction Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !transactionDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {transactionDate
+                        ? format(transactionDate, "PPP")
+                        : "Pick a date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={transactionDate}
+                      onSelect={(d) => d && setTransactionDate(d)}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              {/* Commission */}
+              <div className="space-y-2">
+                <Label htmlFor="commission">Commission Amount ($)</Label>
                 <Input
-                  id="recurringMonths"
+                  id="commission"
                   type="number"
-                  min="1"
-                  value={formData.recurringMonths}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      recurringMonths: parseInt(e.target.value),
-                    })
-                  }
+                  min="0"
+                  step="0.01"
+                  value={commission}
+                  onChange={(e) => setCommission(parseFloat(e.target.value))}
                   required
                 />
               </div>
-            )}
 
-            <div className="flex gap-3 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => navigate(`/affiliate-program/${id}`)}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={createTransaction.isPending}
-              >
-                {createTransaction.isPending
-                  ? "Adding..."
-                  : "Add Transaction"}
-              </Button>
-            </div>
-          </form>
-        </div>
+              {/* Payout Date */}
+              <div className="space-y-2">
+                <Label>Approximate Payout Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !payoutDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {payoutDate
+                        ? format(payoutDate, "PPP")
+                        : "Pick a date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={payoutDate}
+                      onSelect={setPayoutDate}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              {/* Recurring */}
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="isRecurring"
+                  checked={isRecurring}
+                  onCheckedChange={setIsRecurring}
+                />
+                <Label htmlFor="isRecurring">Recurring Transaction</Label>
+              </div>
+
+              {isRecurring && (
+                <div className="space-y-2">
+                  <Label htmlFor="recurringMonths">Number of Months</Label>
+                  <Input
+                    id="recurringMonths"
+                    type="number"
+                    min="1"
+                    value={recurringMonths}
+                    onChange={(e) =>
+                      setRecurringMonths(parseInt(e.target.value))
+                    }
+                    required
+                  />
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate(`/affiliate-program/${id}`)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={createTransaction.isPending}
+                >
+                  {createTransaction.isPending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Adding…
+                    </>
+                  ) : (
+                    "Add Transaction"
+                  )}
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
