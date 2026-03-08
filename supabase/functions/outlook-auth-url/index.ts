@@ -36,11 +36,26 @@ Deno.serve(async (req) => {
     const config = (integration?.config as Record<string, string>) || {};
     const clientId = config.client_id;
     const tenantId = config.tenant_id || "common";
-    const redirectUri = config.redirect_uri;
 
-    if (!clientId || !redirectUri) {
+    // Auto-derive redirect_uri from config or request origin
+    let redirectUri = config.redirect_uri;
+    if (!redirectUri) {
+      const origin = req.headers.get("origin") || req.headers.get("referer");
+      if (origin) {
+        const url = new URL(origin);
+        redirectUri = `${url.origin}/auth/outlook/callback`;
+      }
+    }
+
+    if (!clientId) {
       return new Response(
-        JSON.stringify({ error: "Outlook integration requires client_id and redirect_uri to be configured first." }),
+        JSON.stringify({ error: "Outlook integration requires client_id to be configured first." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+    if (!redirectUri) {
+      return new Response(
+        JSON.stringify({ error: "Could not determine redirect_uri. Please update your Outlook integration." }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
