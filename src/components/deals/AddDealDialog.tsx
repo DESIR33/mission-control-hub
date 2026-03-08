@@ -20,7 +20,6 @@ import {
 import { useCreateDeal } from "@/hooks/use-deals";
 import { useContacts } from "@/hooks/use-contacts";
 import { useCompanies } from "@/hooks/use-companies";
-import { useVideoQueue } from "@/hooks/use-video-queue";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Loader2 } from "lucide-react";
 
