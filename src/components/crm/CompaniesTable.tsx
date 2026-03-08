@@ -313,9 +313,6 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
               <TableHead className={thClass} onClick={() => handleSort("industry")}>
                 <div className="flex items-center">Industry<SortIcon column="industry" sortKey={sortKey} sortDir={sortDir} /></div>
               </TableHead>
-              <TableHead className={thClass} onClick={() => handleSort("location")}>
-                <div className="flex items-center">Location<SortIcon column="location" sortKey={sortKey} sortDir={sortDir} /></div>
-              </TableHead>
               <TableHead className={thClass} onClick={() => handleSort("videos")}>
                 <div className="flex items-center">Videos<SortIcon column="videos" sortKey={sortKey} sortDir={sortDir} /></div>
               </TableHead>
