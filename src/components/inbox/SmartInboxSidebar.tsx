@@ -52,6 +52,8 @@ function formatStage(stage: string): string {
 }
 
 export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
+  const outlookSend = useOutlookSend();
+
   if (!email) {
     return (
       <div className="space-y-4 p-4 overflow-y-auto h-full">
