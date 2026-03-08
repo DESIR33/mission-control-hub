@@ -142,6 +142,31 @@ export function IntegrationCard({
                   )}
                   Test
                 </Button>
+                {def.key === "stripe" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-xs"
+                    onClick={() => {
+                      stripeSync.mutate(undefined, {
+                        onSuccess: (data) => {
+                          toast({ title: `✅ Synced ${data.charges_synced} charges, ${data.subscriptions_synced} subscriptions` });
+                        },
+                        onError: (err) => {
+                          toast({ title: "Stripe sync failed", description: err.message, variant: "destructive" });
+                        },
+                      });
+                    }}
+                    disabled={stripeSync.isPending}
+                  >
+                    {stripeSync.isPending ? (
+                      <Loader2 className="w-3 h-3 animate-spin mr-1" />
+                    ) : (
+                      <RefreshCw className="w-3 h-3 mr-1" />
+                    )}
+                    Sync Now
+                  </Button>
+                )}
                 <Button
                   size="sm"
                   variant="outline"
