@@ -10,12 +10,21 @@ import { VideoComparisonTool } from "@/components/youtube-hub/VideoComparisonToo
 import { RevenueAttributionDashboard } from "@/components/youtube-hub/RevenueAttributionDashboard";
 import { ContentLifecycleDashboard } from "@/components/youtube-hub/ContentLifecycleDashboard";
 import { ThumbnailAbTestTracker } from "@/components/youtube-hub/ThumbnailAbTestTracker";
+import { ContentDnaFingerprint } from "@/components/youtube-hub/ContentDnaFingerprint";
+import { LaunchMonitor } from "@/components/youtube-hub/LaunchMonitor";
+import { CrossVideoAudienceFlow } from "@/components/youtube-hub/CrossVideoAudienceFlow";
 import { SubtitleUploader } from "@/components/video-detail/SubtitleUploader";
 
 export function AnalyticsOverviewContent() {
   return (
     <div className="space-y-6">
       <SyncStatusBar />
+
+      {/* Launch Monitor & Content DNA */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <LaunchMonitor />
+        <ContentDnaFingerprint />
+      </div>
 
       {/* Performance Alerts & Decay Detection */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -29,17 +38,20 @@ export function AnalyticsOverviewContent() {
         <ThumbnailAbTestTracker />
       </div>
 
-      {/* Publish Time Optimizer & Video Comparison */}
+      {/* Audience Flow & Publish Time */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <CrossVideoAudienceFlow />
         <PublishTimeOptimizer />
-        <VideoComparisonTool />
       </div>
 
-      {/* Revenue Attribution & Subtitles */}
+      {/* Video Comparison & Revenue */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <VideoComparisonTool />
         <RevenueAttributionDashboard />
-        <SubtitleUploader />
       </div>
+
+      {/* Subtitles */}
+      <SubtitleUploader />
 
       <MissionBriefing />
     </div>

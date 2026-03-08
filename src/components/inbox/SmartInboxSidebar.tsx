@@ -208,6 +208,7 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
             </Button>
           )}
           <EmailToDealAutomation email={email} />
+          <EmailToDealPipeline email={email} />
           <Button
             variant="outline"
             size="sm"
