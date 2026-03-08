@@ -618,7 +618,7 @@ export function GrowthCommandWidget() {
                 Avg 7d/Day
               </p>
               <p
-                className={`text-lg font-bold font-mono mt-0.5 ${
+                className={`text-base sm:text-lg font-bold font-mono mt-0.5 ${
                   data.actualDailyAvg7d >= data.requiredDailyRate
                     ? "text-emerald-400"
                     : data.actualDailyAvg7d >= data.requiredDailyRate * 0.65
