@@ -55,6 +55,10 @@ export function ImportCompaniesDialog() {
           industry: trimOrUndefined(row.industry),
           website: trimOrUndefined(row.website),
           location: trimOrUndefined(row.location),
+          country: trimOrUndefined(row.country),
+          state: trimOrUndefined(row.state),
+          city: trimOrUndefined(row.city),
+          phone: trimOrUndefined(row.phone),
           size: trimOrUndefined(row.size),
           revenue: trimOrUndefined(row.revenue),
           primary_email: trimOrUndefined(row.primary_email),
@@ -69,6 +73,7 @@ export function ImportCompaniesDialog() {
           social_youtube: trimOrUndefined(row.social_youtube),
           social_tiktok: trimOrUndefined(row.social_tiktok),
           social_producthunt: trimOrUndefined(row.social_producthunt),
+          social_whatsapp: trimOrUndefined(row.social_whatsapp),
         });
       } catch {
         failed++;

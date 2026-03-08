@@ -102,6 +102,10 @@ export function useUpdateCompany() {
       size?: string;
       revenue?: string;
       location?: string;
+      country?: string;
+      state?: string;
+      city?: string;
+      phone?: string;
       primary_email?: string;
       secondary_email?: string;
       social_twitter?: string;
@@ -111,6 +115,7 @@ export function useUpdateCompany() {
       social_facebook?: string;
       social_tiktok?: string;
       social_producthunt?: string;
+      social_whatsapp?: string;
       vip_tier?: string;
       response_sla_minutes?: number | null;
       notes?: string;
