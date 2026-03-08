@@ -17,7 +17,7 @@ export function useChat() {
   const loadSessions = useCallback(async () => {
     if (!workspaceId) return;
     const { data } = await query("assistant_conversations")
-      .select("session_id, content, role, created_at")
+      .select("session_id, content, role, created_at, metadata")
       .eq("workspace_id", workspaceId)
       .eq("role", "user")
       .order("created_at", { ascending: true });
@@ -26,9 +26,10 @@ export function useChat() {
     const map = new Map<string, ChatSession>();
     for (const msg of data as any[]) {
       if (!map.has(msg.session_id)) {
+        const renamedTitle = msg.metadata?.renamed_title;
         map.set(msg.session_id, {
           session_id: msg.session_id,
-          title: msg.content.slice(0, 60),
+          title: renamedTitle || msg.content.slice(0, 60),
           created_at: msg.created_at,
           message_count: 1,
         });
@@ -80,6 +81,30 @@ export function useChat() {
       loadSessions();
     },
     [workspaceId, sessionId, newSession, loadSessions]
+  );
+
+  const renameSession = useCallback(
+    async (sid: string, newTitle: string) => {
+      setSessions((prev) =>
+        prev.map((s) => (s.session_id === sid ? { ...s, title: newTitle } : s))
+      );
+      // Persist: update the first user message content's first 60 chars won't work,
+      // so we store rename as a metadata update on the first message of the session
+      if (!workspaceId) return;
+      const { data } = await query("assistant_conversations")
+        .select("id")
+        .eq("session_id", sid)
+        .eq("workspace_id", workspaceId)
+        .eq("role", "user")
+        .order("created_at", { ascending: true })
+        .limit(1);
+      if (data && data.length > 0) {
+        await query("assistant_conversations")
+          .update({ metadata: { renamed_title: newTitle } })
+          .eq("id", data[0].id);
+      }
+    },
+    [workspaceId]
   );
 
   const sendMessage = useCallback(
@@ -155,5 +180,6 @@ export function useChat() {
     loadSession,
     newSession,
     deleteSession,
+    renameSession,
   };
 }
