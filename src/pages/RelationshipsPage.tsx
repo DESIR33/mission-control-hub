@@ -17,6 +17,11 @@ import { BulkImportWizard } from "@/components/crm/BulkImportWizard";
 import { CompanyHealthScore } from "@/components/companies/CompanyHealthScore";
 import { RelationshipMap } from "@/components/companies/RelationshipMap";
 import { AutoEnrichmentPipeline } from "@/components/companies/AutoEnrichmentPipeline";
+import { ContactEngagementScore } from "@/components/contacts/ContactEngagementScore";
+import { SmartContactMerge } from "@/components/contacts/SmartContactMerge";
+import { ContactLifecycleTimeline } from "@/components/contacts/ContactLifecycleTimeline";
+import { CompanyRevenueDashboard } from "@/components/companies/CompanyRevenueDashboard";
+import { StakeholderMap } from "@/components/companies/StakeholderMap";
 import { useContacts, useActivities } from "@/hooks/use-contacts";
 import { useCompanies } from "@/hooks/use-companies";
 import { useDeals } from "@/hooks/use-deals";
@@ -157,7 +162,18 @@ export default function RelationshipsPage() {
         <TabsContent value="engagement" className="mt-4">
           <EngagementScorePanel />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+            <ContactEngagementScore />
+            <SmartContactMerge />
+          </div>
+          <div className="mt-4">
+            <ContactLifecycleTimeline />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
             <CompanyHealthScore />
+            <CompanyRevenueDashboard />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+            <StakeholderMap />
             <RelationshipMap />
           </div>
           <div className="mt-4">

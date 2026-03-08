@@ -15,6 +15,8 @@ import { LaunchMonitor } from "@/components/youtube-hub/LaunchMonitor";
 import { CrossVideoAudienceFlow } from "@/components/youtube-hub/CrossVideoAudienceFlow";
 import { PublishCalendarOverlay } from "@/components/youtube-hub/PublishCalendarOverlay";
 import { RevenuePerVideo } from "@/components/youtube-hub/RevenuePerVideo";
+import { VideoAbTestTracker } from "@/components/youtube-hub/VideoAbTestTracker";
+import { AudienceRetentionHeatmap } from "@/components/youtube-hub/AudienceRetentionHeatmap";
 import { SubtitleUploader } from "@/components/video-detail/SubtitleUploader";
 
 export function AnalyticsOverviewContent() {
@@ -56,6 +58,12 @@ export function AnalyticsOverviewContent() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <PublishCalendarOverlay />
         <RevenuePerVideo />
+      </div>
+
+      {/* A/B Test Tracker & Retention Heatmap */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <VideoAbTestTracker />
+        <AudienceRetentionHeatmap />
       </div>
 
       {/* Subtitles */}
