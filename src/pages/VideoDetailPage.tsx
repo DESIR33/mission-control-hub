@@ -26,6 +26,7 @@ import { RepurposingWorkflow } from "@/components/video-detail/RepurposingWorkfl
 import { DealsAttributionPanel } from "@/components/video-detail/DealsAttributionPanel";
 import { RetentionCurve } from "@/components/video-detail/RetentionCurve";
 import { VideoCompaniesPanel } from "@/components/video-detail/VideoCompaniesPanel";
+import { VideoOptimizationPanel } from "@/components/video-detail/VideoOptimizationPanel";
 
 
 export default function VideoDetailPage() {
