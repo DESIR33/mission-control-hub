@@ -6,7 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Bot, Zap, Activity, FileText, Rocket, Loader2 } from "lucide-react";
 import {
   useAgents, useSkills, useExecutions, useRunAgent,
-  useRunAllAgents, useToggleAgent, useCreateSkill, useDeleteSkill,
+  useRunAllAgents, useRunVideoOptimizer, useToggleAgent, useCreateSkill, useDeleteSkill,
 } from "@/hooks/use-agents";
 import { AgentCard } from "@/components/agents/AgentCard";
 import { AgentDetailSheet } from "@/components/agents/AgentDetailSheet";

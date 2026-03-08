@@ -249,6 +249,10 @@ Deno.serve(async (req) => {
               video.snippet?.thumbnails?.default?.url ||
               null;
 
+            // Extract description and tags
+            const videoDescription = video.snippet?.description || null;
+            const videoTags = video.snippet?.tags || null;
+
             const { error: upsertError } = await supabase
               .from("youtube_video_stats")
               .upsert(
@@ -256,6 +260,8 @@ Deno.serve(async (req) => {
                   workspace_id,
                   youtube_video_id: video.id,
                   title: video.snippet?.title || "Untitled",
+                  description: videoDescription,
+                  tags: videoTags,
                   views: parseInt(videoStats.viewCount, 10) || 0,
                   likes: parseInt(videoStats.likeCount, 10) || 0,
                   comments: parseInt(videoStats.commentCount, 10) || 0,
