@@ -90,32 +90,8 @@ export default function InboxPage() {
   const markRead = useMarkRead();
   const togglePin = useTogglePin();
   const moveEmail = useMoveEmail();
-  const deleteEmail = useDeleteEmail();
+  const deleteEmailMut = useDeleteEmail();
   const outlookSend = useOutlookSend();
-
-  // Show sequences page if selected
-  if (selectedFolder === "sequences") {
-    return (
-      <div className="flex flex-col h-[calc(100vh-64px)] pb-20 sm:pb-0">
-        <header className="flex-shrink-0 px-4 py-2 border-b border-border bg-card">
-          <div className="flex items-center gap-3">
-            <h1 className="text-lg font-bold flex items-center gap-2 text-foreground">
-              <InboxIcon className="h-5 w-5" />
-              Inbox
-            </h1>
-          </div>
-        </header>
-        <div className="flex-1 flex overflow-hidden">
-          <div className="w-48 shrink-0 hidden md:block">
-            <FolderSidebar selectedFolder={selectedFolder} onSelectFolder={setSelectedFolder} />
-          </div>
-          <div className="flex-1 overflow-auto p-4">
-            <EmailSequencesContent />
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   const handleSelectEmail = useCallback((email: SmartEmail) => {
     setSelectedEmail(email);
@@ -143,7 +119,7 @@ export default function InboxPage() {
   const handleDelete = useCallback(() => {
     if (!selectedEmail) return;
     if (selectedFolder === "trash") {
-      deleteEmail.mutate([selectedEmail.id], {
+      deleteEmailMut.mutate([selectedEmail.id], {
         onSuccess: () => {
           toast({ title: "Email permanently deleted" });
           setSelectedEmail(null);
@@ -159,7 +135,7 @@ export default function InboxPage() {
         },
       });
     }
-  }, [selectedEmail, selectedFolder, deleteEmail, moveEmail, toast]);
+  }, [selectedEmail, selectedFolder, deleteEmailMut, moveEmail, toast]);
 
   const handleArchive = useCallback(() => {
     if (!selectedEmail) return;
@@ -239,6 +215,30 @@ export default function InboxPage() {
   useEffect(() => {
     document.title = "Inbox | Desmily CRM";
   }, []);
+
+  // Show sequences page if selected
+  if (selectedFolder === "sequences") {
+    return (
+      <div className="flex flex-col h-[calc(100vh-64px)] pb-20 sm:pb-0">
+        <header className="flex-shrink-0 px-4 py-2 border-b border-border bg-card">
+          <div className="flex items-center gap-3">
+            <h1 className="text-lg font-bold flex items-center gap-2 text-foreground">
+              <InboxIcon className="h-5 w-5" />
+              Inbox
+            </h1>
+          </div>
+        </header>
+        <div className="flex-1 flex overflow-hidden">
+          <div className="w-48 shrink-0 hidden md:block">
+            <FolderSidebar selectedFolder={selectedFolder} onSelectFolder={setSelectedFolder} />
+          </div>
+          <div className="flex-1 overflow-auto p-4">
+            <EmailSequencesContent />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Mobile: show preview or list
   if (isMobileViewport && mobileShowPreview && selectedEmail) {
