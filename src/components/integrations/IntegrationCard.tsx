@@ -30,10 +30,31 @@ export function IntegrationCard({
 }: IntegrationCardProps) {
   const isConnected = record?.enabled ?? false;
   const { toast } = useToast();
+  const { workspaceId } = useWorkspace();
   const testMutation = useTestIntegration();
   const stripeSync = useStripeSync();
   const slackNotify = useSlackNotify();
   const [testResult, setTestResult] = useState<any>(null);
+  const [oauthLoading, setOauthLoading] = useState(false);
+
+  const handleOutlookOAuth = async () => {
+    if (!workspaceId) return;
+    setOauthLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("outlook-auth-url", {
+        body: { workspace_id: workspaceId },
+      });
+      if (error) throw error;
+      if (data?.auth_url) {
+        window.location.href = data.auth_url;
+      } else {
+        throw new Error(data?.error || "Failed to generate auth URL");
+      }
+    } catch (err: any) {
+      toast({ title: "OAuth failed", description: err.message, variant: "destructive" });
+      setOauthLoading(false);
+    }
+  };
 
   const handleTest = async () => {
     setTestResult(null);
