@@ -139,11 +139,6 @@ export default function YouTubeCommandCenterPage() {
           </div>
         </div>
 
-        <GroupedNavBar
-          sections={TABS}
-          activeKey={activeTab}
-          onSelect={(key) => setActiveTab(key as Tab)}
-        />
 
         <div className="mt-4 md:mt-6">
           <ActiveComponent />

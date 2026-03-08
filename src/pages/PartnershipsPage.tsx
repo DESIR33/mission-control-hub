@@ -185,11 +185,6 @@ export default function PartnershipsPage() {
           </div>
         </div>
 
-        <GroupedNavBar
-          sections={SECTIONS}
-          activeKey={activeSection}
-          onSelect={(key) => setActiveSection(key as Section)}
-        />
 
         <div className="mt-4 md:mt-6">
           {renderContent()}
