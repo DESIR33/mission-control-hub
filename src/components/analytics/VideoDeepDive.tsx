@@ -26,7 +26,7 @@ interface Props {
 
 export function VideoDeepDive({ data, daysRange }: Props) {
   const navigate = useNavigate();
-  const [sortField, setSortField] = useState<SortField>("views");
+  const [sortField, setSortField] = useState<SortField>("uploadDate");
   const [expandedVideo, setExpandedVideo] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const { data: notesSet } = useVideoNotesCheck();
