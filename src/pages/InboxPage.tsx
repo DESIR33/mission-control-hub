@@ -441,6 +441,14 @@ export default function InboxPage() {
               searchQuery={searchQuery}
             />
           </div>
+        ) : viewMode === "kanban" ? (
+          <div className="flex-1 overflow-hidden p-3">
+            <InboxKanbanView
+              emails={emails}
+              onSelectEmail={handleSelectEmail}
+              selectedEmailId={selectedEmail?.id ?? null}
+            />
+          </div>
         ) : (
           <ResizablePanelGroup direction="horizontal" className="flex-1">
             <ResizablePanel defaultSize={35} minSize={25}>
