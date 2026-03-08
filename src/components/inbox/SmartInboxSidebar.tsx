@@ -114,19 +114,19 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
 
       {/* Matched Contact */}
       {email.matched_contact ? (
-        <Card>
+        <Card className="overflow-hidden">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <User className="w-4 h-4" />
+              <User className="w-4 h-4 shrink-0" />
               Contact
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-sm space-y-2">
-            <p className="font-medium">
+          <CardContent className="text-sm space-y-2 min-w-0">
+            <p className="font-medium truncate">
               {email.matched_contact.first_name}{" "}
               {email.matched_contact.last_name ?? ""}
             </p>
-            <p className="text-muted-foreground">{email.from_email}</p>
+            <p className="text-muted-foreground truncate">{email.from_email}</p>
             {email.matched_contact.tier &&
               email.matched_contact.tier !== "none" && (
                 <Badge
