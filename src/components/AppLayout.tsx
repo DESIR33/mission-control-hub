@@ -8,19 +8,12 @@ import {
   CollapsibleContent,
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
-import { Bell, LogOut, Menu, ChevronDown, Search, User } from "lucide-react";
+import { Bell, LogOut, Menu, ChevronDown, Search } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useNotifications } from "@/hooks/use-notifications";
 import { WorkspaceProvider } from "@/hooks/use-workspace";
 import { mainNavItems, bottomItems } from "@/config/navigation";
 import { NotificationsPanel } from "@/components/NotificationsPanel";
-
-function isChildActive(childTo: string, pathname: string, search: string) {
-  const [path, query] = childTo.split("?");
-  if (pathname !== path) return false;
-  if (!query) return true;
-  return search.includes(query);
-}
 
 function MobileNav({
   onClose,
@@ -31,14 +24,11 @@ function MobileNav({
 }) {
   const { signOut } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
 
   const initialOpen = mainNavItems.reduce<Record<string, boolean>>(
     (acc, item) => {
       if (item.children) {
-        const hasActive = item.children.some((c) =>
-          isChildActive(c.to, location.pathname, location.search)
-        );
+        const hasActive = item.children.some((c) => location.pathname.startsWith(c.to));
         acc[item.label] = hasActive;
       }
       return acc;
@@ -50,12 +40,6 @@ function MobileNav({
 
   const toggleGroup = (label: string) => {
     setOpenGroups((prev) => ({ ...prev, [label]: !prev[label] }));
-  };
-
-  const handleChildClick = (to: string) => {
-    const [path, query] = to.split("?");
-    navigate(query ? `${path}?${query}` : path);
-    onClose();
   };
 
   return (
@@ -110,13 +94,14 @@ function MobileNav({
               </CollapsibleTrigger>
               <CollapsibleContent className="space-y-0.5 mt-0.5">
                 {item.children.map((child) => {
-                  const active = isChildActive(child.to, location.pathname, location.search);
+                  const active = location.pathname === child.to;
                   return (
-                    <button
+                    <RouterNavLink
                       key={child.to}
-                      onClick={() => handleChildClick(child.to)}
+                      to={child.to}
+                      onClick={onClose}
                       className={cn(
-                        "flex items-center gap-3 pl-7 pr-3 py-2 rounded-md text-sm transition-colors w-full text-left",
+                        "flex items-center gap-3 pl-7 pr-3 py-2 rounded-md text-sm transition-colors w-full",
                         active
                           ? "bg-sidebar-accent text-sidebar-primary"
                           : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
@@ -124,7 +109,7 @@ function MobileNav({
                     >
                       <child.icon className="w-3.5 h-3.5 shrink-0" />
                       <span className="flex-1">{child.label}</span>
-                    </button>
+                    </RouterNavLink>
                   );
                 })}
               </CollapsibleContent>

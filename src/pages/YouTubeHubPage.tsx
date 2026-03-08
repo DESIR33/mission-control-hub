@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useEffect, useRef } from "react";
+import { useParams, Navigate } from "react-router-dom";
 import {
   BarChart3, TrendingUp, DollarSign,
   MousePointerClick, Users,
@@ -10,7 +10,6 @@ import {
 import { useWorkspace } from "@/hooks/use-workspace";
 import { useSyncYouTube } from "@/hooks/use-youtube-analytics";
 import { useSyncYouTubeAnalytics } from "@/hooks/use-youtube-analytics-api";
-
 
 // Command Center section components
 import { GrowthForecastSection } from "@/components/command-center/sections/GrowthForecastSection";
@@ -27,7 +26,6 @@ import { SubscriberFunnel } from "@/components/analytics";
 
 // Standalone page content wrappers
 import { AnalyticsOverviewContent } from "@/components/youtube-hub/AnalyticsOverviewContent";
-import { WeeklyReportsContent } from "@/components/youtube-hub/WeeklyReportsContent";
 
 // Combined section wrappers
 import { ChannelVideosSection } from "@/components/youtube-hub/ChannelVideosSection";
@@ -38,69 +36,45 @@ import { UploadPlaylistsSection } from "@/components/youtube-hub/UploadPlaylists
 
 type Section =
   | "dashboard"
-  | "reports"
-  | "channel_videos"
-  | "ctr_viral"
-  | "ab_testing"
-  | "demographics_reach"
+  | "channel-videos"
+  | "ctr-virality"
+  | "ab-testing"
+  | "demographics"
   | "subscribers"
-  | "comments_all"
-  | "growth_forecast"
-  | "growth_funnel"
-  | "competitors"
-  | "revenue"
-  | "content_strategy"
-  | "upload_playlists";
+  | "comments"
+  | "uploads"
+  | "strategy";
 
-const SECTIONS: { key: Section; label: string; icon: React.ReactNode; group: string }[] = [
-  // Overview
-  { key: "dashboard", label: "Dashboard", icon: <Zap className="w-3.5 h-3.5" />, group: "Overview" },
-  { key: "reports", label: "Weekly Reports", icon: <FileText className="w-3.5 h-3.5" />, group: "Overview" },
-  // Performance
-  { key: "channel_videos", label: "Channel & Videos", icon: <Tv className="w-3.5 h-3.5" />, group: "Performance" },
-  { key: "ctr_viral", label: "CTR & Virality", icon: <MousePointerClick className="w-3.5 h-3.5" />, group: "Performance" },
-  { key: "ab_testing", label: "A/B Testing", icon: <FlaskConical className="w-3.5 h-3.5" />, group: "Performance" },
-  // Audience
-  { key: "demographics_reach", label: "Demographics & Reach", icon: <Users className="w-3.5 h-3.5" />, group: "Audience" },
-  { key: "subscribers", label: "Subscriber Intel", icon: <UserCheck className="w-3.5 h-3.5" />, group: "Audience" },
-  { key: "comments_all", label: "Comments", icon: <MessageSquare className="w-3.5 h-3.5" />, group: "Audience" },
-  // Growth
-  { key: "growth_forecast", label: "Growth Forecast", icon: <TrendingUp className="w-3.5 h-3.5" />, group: "Growth" },
-  { key: "growth_funnel", label: "Growth Funnel", icon: <Target className="w-3.5 h-3.5" />, group: "Growth" },
-  { key: "competitors", label: "Competitor Intel", icon: <Crosshair className="w-3.5 h-3.5" />, group: "Growth" },
-  // Revenue
-  { key: "revenue", label: "Revenue Analytics", icon: <DollarSign className="w-3.5 h-3.5" />, group: "Revenue" },
-  // Content Tools
-  { key: "content_strategy", label: "Content & Strategy", icon: <Wrench className="w-3.5 h-3.5" />, group: "Content Tools" },
-  { key: "upload_playlists", label: "Upload & Playlists", icon: <Wrench className="w-3.5 h-3.5" />, group: "Content Tools" },
-];
+const SECTION_LABELS: Record<Section, string> = {
+  dashboard: "Dashboard",
+  "channel-videos": "Channel & Videos",
+  "ctr-virality": "CTR & Virality",
+  "ab-testing": "A/B Testing",
+  demographics: "Demographics & Reach",
+  subscribers: "Subscriber Intel",
+  comments: "Comments",
+  uploads: "Upload & Playlists",
+  strategy: "Content & Strategy",
+};
 
 const SECTION_COMPONENTS: Record<Section, React.ComponentType> = {
   dashboard: AnalyticsOverviewContent,
-  reports: WeeklyReportsContent,
-  channel_videos: ChannelVideosSection,
-  ctr_viral: CtrViralitySection,
-  ab_testing: ABTestingDashboard,
-  demographics_reach: DemographicsReachSection,
+  "channel-videos": ChannelVideosSection,
+  "ctr-virality": CtrViralitySection,
+  "ab-testing": ABTestingDashboard,
+  demographics: DemographicsReachSection,
   subscribers: SubscriberIntelSection,
-  comments_all: CommentsSection,
-  growth_forecast: GrowthForecastSection,
-  growth_funnel: SubscriberFunnel,
-  competitors: CompetitorIntelSection,
-  revenue: RevenueHubSection,
-  content_strategy: ContentStrategySection,
-  upload_playlists: UploadPlaylistsSection,
+  comments: CommentsSection,
+  uploads: UploadPlaylistsSection,
+  strategy: ContentStrategySection,
 };
 
-export default function YouTubeHubPage() {
-  const [searchParams] = useSearchParams();
-  const sectionParam = (searchParams.get("section") as Section) || "dashboard";
-  const [activeSection, setActiveSection] = useState<Section>(sectionParam);
+const VALID_SECTIONS = new Set(Object.keys(SECTION_COMPONENTS));
 
-  // Sync state when URL search params change (e.g. sidebar navigation)
-  useEffect(() => {
-    setActiveSection(sectionParam);
-  }, [sectionParam]);
+export default function YouTubeHubPage() {
+  const { section } = useParams<{ section: string }>();
+  const activeSection = (section && VALID_SECTIONS.has(section) ? section : null) as Section | null;
+
   const { isLoading: workspaceLoading } = useWorkspace();
   const syncYouTube = useSyncYouTube();
   const syncAnalytics = useSyncYouTubeAnalytics();
@@ -114,12 +88,10 @@ export default function YouTubeHubPage() {
     syncAnalytics.mutate({});
   }, [workspaceLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Update URL when section changes
-  useEffect(() => {
-    const sp = new URLSearchParams(window.location.search);
-    sp.set("section", activeSection);
-    window.history.replaceState({}, "", `?${sp.toString()}`);
-  }, [activeSection]);
+  // Redirect bare /youtube to /youtube/dashboard
+  if (!activeSection) {
+    return <Navigate to="/youtube/dashboard" replace />;
+  }
 
   if (workspaceLoading) {
     return (
@@ -130,32 +102,71 @@ export default function YouTubeHubPage() {
   }
 
   const ActiveComponent = SECTION_COMPONENTS[activeSection];
-  const activeSectionInfo = SECTIONS.find((s) => s.key === activeSection)!;
+  const label = SECTION_LABELS[activeSection];
 
   return (
     <div className="flex-1 overflow-y-auto">
-      {/* Channel Pulse - persistent KPI header */}
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border">
         <ChannelPulse />
       </div>
 
       <div className="p-4 md:p-6">
         <div className="flex items-center gap-3 mb-4">
-          {activeSectionInfo.icon}
           <div className="min-w-0">
-            <h1 className="text-base md:text-lg font-bold text-foreground truncate">{activeSectionInfo.label}</h1>
-            <p className="text-xs text-muted-foreground">YouTube Hub</p>
+            <h1 className="text-base md:text-lg font-bold text-foreground truncate">{label}</h1>
+            <p className="text-xs text-muted-foreground">Content Management</p>
           </div>
         </div>
-
 
         <div className="mt-4 md:mt-6">
           <ActiveComponent />
         </div>
       </div>
 
-      {/* AI Growth Coach - floating panel */}
       <AIGrowthCoach />
+    </div>
+  );
+}
+
+// Growth page reuses YouTube Hub section components
+export function GrowthPage() {
+  const { section } = useParams<{ section: string }>();
+
+  const GROWTH_COMPONENTS: Record<string, React.ComponentType> = {
+    forecast: GrowthForecastSection,
+    funnel: SubscriberFunnel,
+    competitors: CompetitorIntelSection,
+  };
+
+  const GROWTH_LABELS: Record<string, string> = {
+    forecast: "Growth Forecast",
+    funnel: "Growth Funnel",
+    competitors: "Competitor Intel",
+  };
+
+  const activeSection = section && GROWTH_COMPONENTS[section] ? section : null;
+
+  if (!activeSection) {
+    return <Navigate to="/growth/forecast" replace />;
+  }
+
+  const ActiveComponent = GROWTH_COMPONENTS[activeSection];
+  const label = GROWTH_LABELS[activeSection];
+
+  return (
+    <div className="flex-1 overflow-y-auto">
+      <div className="p-4 md:p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <TrendingUp className="w-5 h-5 text-primary" />
+          <div className="min-w-0">
+            <h1 className="text-base md:text-lg font-bold text-foreground truncate">{label}</h1>
+            <p className="text-xs text-muted-foreground">Growth</p>
+          </div>
+        </div>
+        <div className="mt-4 md:mt-6">
+          <ActiveComponent />
+        </div>
+      </div>
     </div>
   );
 }

@@ -55,25 +55,25 @@ export const mainNavItems: NavItem[] = [
     icon: Tv,
     label: "Content Management",
     children: [
-      { to: "/youtube?section=dashboard", label: "Dashboard", icon: Zap },
-      { to: "/youtube?section=channel_videos", label: "Channel & Videos", icon: Tv },
-      { to: "/youtube?section=ctr_viral", label: "CTR & Virality", icon: MousePointerClick },
-      { to: "/youtube?section=ab_testing", label: "A/B Testing", icon: FlaskConical },
-      { to: "/youtube?section=demographics_reach", label: "Demographics & Reach", icon: Users },
-      { to: "/youtube?section=subscribers", label: "Subscriber Intel", icon: UserCheck },
-      { to: "/youtube?section=upload_playlists", label: "Upload & Playlists", icon: ListVideo },
-      { to: "/youtube?section=content_strategy", label: "Content & Strategy", icon: Wrench },
-      { to: "/youtube?section=comments_all", label: "Comments", icon: MessageSquare },
+      { to: "/youtube/dashboard", label: "Dashboard", icon: Zap },
+      { to: "/youtube/channel-videos", label: "Channel & Videos", icon: Tv },
+      { to: "/youtube/ctr-virality", label: "CTR & Virality", icon: MousePointerClick },
+      { to: "/youtube/ab-testing", label: "A/B Testing", icon: FlaskConical },
+      { to: "/youtube/demographics", label: "Demographics & Reach", icon: Users },
+      { to: "/youtube/subscribers", label: "Subscriber Intel", icon: UserCheck },
+      { to: "/youtube/uploads", label: "Upload & Playlists", icon: ListVideo },
+      { to: "/youtube/strategy", label: "Content & Strategy", icon: Wrench },
+      { to: "/youtube/comments", label: "Comments", icon: MessageSquare },
     ],
   },
   {
-    to: "/youtube",
+    to: "/growth",
     icon: TrendingUp,
     label: "Growth",
     children: [
-      { to: "/youtube?section=growth_forecast", label: "Growth Forecast", icon: TrendingUp },
-      { to: "/youtube?section=growth_funnel", label: "Growth Funnel", icon: Target },
-      { to: "/youtube?section=competitors", label: "Competitor Intel", icon: Crosshair },
+      { to: "/growth/forecast", label: "Growth Forecast", icon: TrendingUp },
+      { to: "/growth/funnel", label: "Growth Funnel", icon: Target },
+      { to: "/growth/competitors", label: "Competitor Intel", icon: Crosshair },
     ],
   },
   {
@@ -81,24 +81,24 @@ export const mainNavItems: NavItem[] = [
     icon: DollarSign,
     label: "Revenue",
     children: [
-      { to: "/youtube?section=revenue", label: "Revenue Analytics", icon: BarChart3 },
-      { to: "/revenue?tab=affiliate", label: "Affiliate Programs", icon: Handshake },
-      { to: "/revenue?tab=sponsorships", label: "Sponsorships", icon: Megaphone },
-      { to: "/revenue?tab=products", label: "Products", icon: ShoppingBag },
-      { to: "/revenue?tab=revenue-overview", label: "Revenue Overview", icon: DollarSign },
-      { to: "/revenue?tab=rate-card", label: "Rate Card", icon: CreditCard },
+      { to: "/revenue/analytics", label: "Revenue Analytics", icon: BarChart3 },
+      { to: "/revenue/affiliate", label: "Affiliate Programs", icon: Handshake },
+      { to: "/revenue/sponsorships", label: "Sponsorships", icon: Megaphone },
+      { to: "/revenue/products", label: "Products", icon: ShoppingBag },
+      { to: "/revenue/overview", label: "Revenue Overview", icon: DollarSign },
+      { to: "/revenue/rate-card", label: "Rate Card", icon: CreditCard },
     ],
   },
   {
-    to: "/partnerships",
+    to: "/network",
     icon: Users,
     label: "Network",
     children: [
-      { to: "/partnerships?tab=contacts", label: "Contacts", icon: Users },
-      { to: "/partnerships?tab=companies", label: "Companies", icon: Building2 },
-      { to: "/partnerships?tab=graph", label: "Relationship Graph", icon: GitGraph },
-      { to: "/partnerships?tab=sponsors", label: "Sponsors", icon: Megaphone },
-      { to: "/partnerships?tab=engagement", label: "Engagement", icon: Activity },
+      { to: "/network/contacts", label: "Contacts", icon: Users },
+      { to: "/network/companies", label: "Companies", icon: Building2 },
+      { to: "/network/graph", label: "Relationship Graph", icon: GitGraph },
+      { to: "/network/sponsors", label: "Sponsors", icon: Megaphone },
+      { to: "/network/engagement", label: "Engagement", icon: Activity },
     ],
   },
   {
@@ -106,7 +106,7 @@ export const mainNavItems: NavItem[] = [
     icon: FileText,
     label: "Reports",
     children: [
-      { to: "/reports", label: "Weekly Reports", icon: FileText },
+      { to: "/reports/weekly", label: "Weekly Reports", icon: FileText },
     ],
   },
   {
@@ -114,10 +114,10 @@ export const mainNavItems: NavItem[] = [
     icon: Brain,
     label: "AI Hub",
     children: [
-      { to: "/ai?tab=chat", label: "Chat", icon: MessageCircle },
-      { to: "/ai?tab=proposals", label: "Proposals", icon: Brain },
-      { to: "/ai?tab=agents", label: "Agents", icon: Bot },
-      { to: "/ai?tab=memory", label: "Memory", icon: BookOpen },
+      { to: "/ai/chat", label: "Chat", icon: MessageCircle },
+      { to: "/ai/proposals", label: "Proposals", icon: Brain },
+      { to: "/ai/agents", label: "Agents", icon: Bot },
+      { to: "/ai/memory", label: "Memory", icon: BookOpen },
     ],
   },
   { to: "/integrations", icon: Zap, label: "Integrations" },
@@ -127,13 +127,3 @@ export const mainNavItems: NavItem[] = [
 export const bottomItems: NavItem[] = [
   { to: "/settings", icon: Settings, label: "Settings" },
 ];
-
-// Legacy exports for backward compatibility
-export const navItems = mainNavItems;
-export type { NavItem as NavGroup };
-export const navGroups = mainNavItems.map((item) => ({
-  label: item.label,
-  items: item.children
-    ? item.children.map((c) => ({ to: c.to, icon: c.icon, label: c.label }))
-    : [{ to: item.to, icon: item.icon, label: item.label }],
-}));
