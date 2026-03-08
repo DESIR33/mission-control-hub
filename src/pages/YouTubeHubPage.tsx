@@ -10,7 +10,7 @@ import {
 import { useWorkspace } from "@/hooks/use-workspace";
 import { useSyncYouTube } from "@/hooks/use-youtube-analytics";
 import { useSyncYouTubeAnalytics } from "@/hooks/use-youtube-analytics-api";
-import { GroupedNavBar } from "@/components/shared/GroupedNavBar";
+
 
 // Command Center section components
 import { GrowthForecastSection } from "@/components/command-center/sections/GrowthForecastSection";
