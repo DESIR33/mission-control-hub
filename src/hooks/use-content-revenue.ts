@@ -72,6 +72,20 @@ export function useContentRevenue(days = 180) {
     enabled: !!workspaceId,
   });
 
+  // Fetch video_companies to link deals to videos via company_id
+  const { data: videoCompanies = [] } = useQuery({
+    queryKey: ["content-revenue-vc", workspaceId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("video_companies")
+        .select("company_id, youtube_video_id")
+        .eq("workspace_id", workspaceId!);
+      if (error) throw error;
+      return (data ?? []) as any[];
+    },
+    enabled: !!workspaceId,
+  });
+
   const summary = useMemo((): ContentRevenueSummary | null => {
     if (!videoQueue.length) return null;
 
@@ -88,9 +102,19 @@ export function useContentRevenue(days = 180) {
       );
     });
 
+    // Map youtube_video_id -> company_ids for linking deals
+    const videoToCompanies = new Map<string, Set<string>>();
+    for (const vc of videoCompanies) {
+      const set = videoToCompanies.get(vc.youtube_video_id) ?? new Set();
+      set.add(vc.company_id);
+      videoToCompanies.set(vc.youtube_video_id, set);
+    }
+
     const links: ContentRevenueLink[] = videoQueue.map((vq: any) => {
+      // Link deals to this video via video_companies (company_id match)
+      const linkedCompanyIds = vq.youtube_video_id ? videoToCompanies.get(vq.youtube_video_id) : undefined;
       const dealRevenue = deals
-        .filter((d: any) => d.video_queue_id === vq.id && d.stage === "closed_won")
+        .filter((d: any) => d.stage === "closed_won" && d.company_id && linkedCompanyIds?.has(d.company_id))
         .reduce((s: number, d: any) => s + (Number(d.value) || 0), 0);
 
       const affiliateRevenue = affiliateTxns
