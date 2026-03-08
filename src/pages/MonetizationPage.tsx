@@ -147,8 +147,7 @@ export default function MonetizationPage() {
 
   // Initialize product tab based on URL parameters
   const getInitialProductTab = useMemo(() => {
-    const tabParam = searchParams.get('tab');
-    return tabParam === 'products' ? "transactions" : "products";
+    return urlTab === 'products' ? "transactions" : "products";
   }, []);
 
   const [activeProductTab, setActiveProductTab] = useState<"products" | "transactions">(getInitialProductTab);
