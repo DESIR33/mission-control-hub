@@ -24,7 +24,6 @@ export interface Deal {
   expected_close_date: string | null;
   closed_at: string | null;
   notes: string | null;
-  video_queue_id?: string | null;
   deleted_at: string | null;
   created_by: string | null;
   created_at: string;
