@@ -15,7 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Trash2, Pencil, Receipt, ArrowUpDown, Film, Trophy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { RevenueWidget, type RevenueMetric } from "@/components/revenue/RevenueWidget";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { } from "react-router-dom";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Area, AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
