@@ -17,7 +17,7 @@ export function useChat() {
   const loadSessions = useCallback(async () => {
     if (!workspaceId) return;
     const { data } = await query("assistant_conversations")
-      .select("session_id, content, role, created_at")
+      .select("session_id, content, role, created_at, metadata")
       .eq("workspace_id", workspaceId)
       .eq("role", "user")
       .order("created_at", { ascending: true });
