@@ -62,3 +62,6 @@ verify_jwt = false
 
 [functions.stripe-sync]
 verify_jwt = false
+
+[functions.slack-notify]
+verify_jwt = false
