@@ -26,6 +26,7 @@ import { RepurposingWorkflow } from "@/components/video-detail/RepurposingWorkfl
 import { DealsAttributionPanel } from "@/components/video-detail/DealsAttributionPanel";
 import { RetentionCurve } from "@/components/video-detail/RetentionCurve";
 import { VideoCompaniesPanel } from "@/components/video-detail/VideoCompaniesPanel";
+import { VideoOptimizationPanel } from "@/components/video-detail/VideoOptimizationPanel";
 
 
 export default function VideoDetailPage() {
@@ -150,7 +151,7 @@ export default function VideoDetailPage() {
 
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="flex flex-wrap h-auto gap-1 bg-transparent p-0 border-b border-border rounded-none pb-2">
-          {["Overview", "Performance", "Audience", "Traffic", "Revenue", "Notes", "Experiments", "Repurposing"].map((tab) => (
+          {["Overview", "Performance", "Audience", "Traffic", "Revenue", "AI Suggestions", "Notes", "Experiments", "Repurposing"].map((tab) => (
             <TabsTrigger
               key={tab}
               value={tab.toLowerCase()}
@@ -320,6 +321,11 @@ export default function VideoDetailPage() {
           )}
 
           <DealsAttributionPanel deals={deals} isLoading={loadingDeals} />
+        </TabsContent>
+
+        {/* AI Suggestions */}
+        <TabsContent value="ai suggestions" className="mt-4">
+          <VideoOptimizationPanel youtubeVideoId={youtubeVideoId} />
         </TabsContent>
 
         {/* Notes */}
