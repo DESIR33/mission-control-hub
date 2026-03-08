@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { Bot, Zap, Activity, FileText, Rocket, Loader2 } from "lucide-react";
+import { Bot, Zap, Activity, FileText, Rocket, Loader2, Video } from "lucide-react";
 import {
   useAgents, useSkills, useExecutions, useRunAgent,
   useRunAllAgents, useRunVideoOptimizer, useToggleAgent, useCreateSkill, useDeleteSkill,
