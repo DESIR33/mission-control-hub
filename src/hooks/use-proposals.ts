@@ -10,11 +10,20 @@ export function useProposals() {
     queryFn: async (): Promise<AiProposal[]> => {
       const { data, error } = await supabase
         .from("ai_proposals")
-        .select("*")
+        .select("*, companies:company_id(name), contacts:contact_id(first_name, last_name)")
         .eq("workspace_id", workspaceId!)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as unknown as AiProposal[];
+      return (data ?? []).map((row: any) => {
+        let entity_name: string | undefined;
+        if (row.companies?.name) {
+          entity_name = row.companies.name;
+        } else if (row.contacts?.first_name) {
+          entity_name = [row.contacts.first_name, row.contacts.last_name].filter(Boolean).join(" ");
+        }
+        const { companies, contacts, ...rest } = row;
+        return { ...rest, entity_name } as AiProposal;
+      });
     },
     enabled: !!workspaceId,
   });
