@@ -334,50 +334,7 @@ export function DealDetailSheet({ deal, open, onOpenChange, onDeleted }: DealDet
                     </div>
                   </div>
 
-                  {/* Linked Video */}
-                  <Separator className="bg-border" />
-                  <div>
-                    <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Linked Video</h4>
-                    {deal.video_queue_id ? (
-                      <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/30 px-3 py-2">
-                        <Film className="w-3.5 h-3.5 text-primary shrink-0" />
-                        <span className="text-sm text-foreground truncate flex-1">
-                          {videos.find((v) => String(v.id) === String(deal.video_queue_id))?.title ?? `Video #${deal.video_queue_id}`}
-                        </span>
-                        <button
-                          onClick={async () => {
-                            try {
-                              await updateDeal.mutateAsync({ id: deal.id, video_queue_id: null } as any);
-                              toast({ title: "Video unlinked" });
-                            } catch {}
-                          }}
-                          className="text-xs text-muted-foreground hover:text-destructive"
-                        >
-                          Unlink
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="space-y-1.5 max-h-40 overflow-y-auto">
-                        {videos.slice(0, 20).map((v) => (
-                          <button
-                            key={v.id}
-                            onClick={async () => {
-                              try {
-                                await updateDeal.mutateAsync({ id: deal.id, video_queue_id: v.id } as any);
-                                toast({ title: "Video linked", description: v.title });
-                              } catch {}
-                            }}
-                            className="w-full text-left flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-1.5 hover:bg-muted/50 transition-colors"
-                          >
-                            <Film className="w-3 h-3 text-muted-foreground shrink-0" />
-                            <span className="text-xs text-foreground truncate flex-1">{v.title}</span>
-                            <span className="text-xs text-muted-foreground capitalize shrink-0">{v.status}</span>
-                          </button>
-                        ))}
-                        {videos.length === 0 && (
-                          <p className="text-xs text-muted-foreground">No videos in queue.</p>
-                        )}
-                      </div>
+                  {/* Linked Video - removed (video_queue_id not in schema) */}
                     )}
                   </div>
 

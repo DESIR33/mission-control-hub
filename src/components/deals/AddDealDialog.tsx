@@ -125,22 +125,6 @@ export function AddDealDialog() {
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <Label>Linked Video</Label>
-            <Select value={videoQueueId} onValueChange={setVideoQueueId}>
-              <SelectTrigger className="bg-secondary border-border">
-                <SelectValue placeholder="Select video (optional)" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">No Video</SelectItem>
-                {videos.map((v) => (
-                  <SelectItem key={v.id} value={v.id}>
-                    {v.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
 
           <div className="space-y-1.5">
             <Label htmlFor="expected_close_date">Expected Close Date</Label>
