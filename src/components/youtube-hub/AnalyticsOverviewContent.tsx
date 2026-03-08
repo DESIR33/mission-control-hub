@@ -60,6 +60,12 @@ export function AnalyticsOverviewContent() {
         <RevenuePerVideo />
       </div>
 
+      {/* A/B Test Tracker & Retention Heatmap */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <VideoAbTestTracker />
+        <AudienceRetentionHeatmap />
+      </div>
+
       {/* Subtitles */}
       <SubtitleUploader />
 

@@ -180,6 +180,15 @@ export function AgentHubContent() {
       {/* Skill Marketplace */}
       <AgentSkillMarketplace />
 
+      {/* Goal Tracker & NL Builder */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <AgentGoalTracker />
+        <NaturalLanguageAgentBuilder />
+      </div>
+
+      {/* Impact Attribution */}
+      <AgentImpactAttribution />
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <ExecutionTimeline executions={executions} isLoading={execLoading} />
         <SkillManager skills={skills} onCreateSkill={() => setShowCreateSkill(true)} onImportSkill={() => setShowImportSkill(true)} onDeleteSkill={handleDeleteSkill} onViewSkill={(s) => setViewSkill(s)} />
