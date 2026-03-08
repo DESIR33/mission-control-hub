@@ -12,6 +12,7 @@ import { fmtCount, fmtMoney, fmtDuration, chartTooltipStyle, xAxisDefaults, yAxi
 import { useVideoDetail, useVideoAnalyticsTrend } from "@/hooks/use-video-detail";
 import { useVideoNotes } from "@/hooks/use-video-notes";
 import { useVideoExperiments } from "@/hooks/use-video-experiments";
+import { useRunVideoOptimizer } from "@/hooks/use-agents";
 import { useVideoRepurposes } from "@/hooks/use-video-repurposes";
 import { useVideoDeals } from "@/hooks/use-video-deals";
 import { useDemographics, useTrafficSources } from "@/hooks/use-youtube-analytics-api";
