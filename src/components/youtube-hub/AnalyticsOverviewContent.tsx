@@ -15,6 +15,8 @@ import { LaunchMonitor } from "@/components/youtube-hub/LaunchMonitor";
 import { CrossVideoAudienceFlow } from "@/components/youtube-hub/CrossVideoAudienceFlow";
 import { PublishCalendarOverlay } from "@/components/youtube-hub/PublishCalendarOverlay";
 import { RevenuePerVideo } from "@/components/youtube-hub/RevenuePerVideo";
+import { VideoAbTestTracker } from "@/components/youtube-hub/VideoAbTestTracker";
+import { AudienceRetentionHeatmap } from "@/components/youtube-hub/AudienceRetentionHeatmap";
 import { SubtitleUploader } from "@/components/video-detail/SubtitleUploader";
 
 export function AnalyticsOverviewContent() {
