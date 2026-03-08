@@ -88,8 +88,8 @@ export function GrowthCountdownTracker() {
         </div>
 
         {/* Subscribers to go */}
-        <div>
-          <p className="text-2xl font-bold font-mono text-foreground">
+        <div className="min-w-0">
+          <p className="text-xl sm:text-2xl font-bold font-mono text-foreground truncate">
             {fmtCount(data.subsToGo)}
           </p>
           <p className="text-xs text-muted-foreground mt-0.5">to go</p>
