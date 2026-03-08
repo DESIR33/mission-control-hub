@@ -140,6 +140,7 @@ const App = () => (
 
               {/* AI Hub */}
               <Route path="/ai" element={<Navigate to="/ai/chat" replace />} />
+              <Route path="/ai/proposals/:proposalId" element={<LazyPage section="Proposal Detail"><ProposalDetailPage /></LazyPage>} />
               <Route path="/ai/:tab" element={<LazyPage section="AI Hub"><AIHubPage /></LazyPage>} />
 
               {/* Task detail/create routes */}
