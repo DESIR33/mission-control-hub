@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -5,39 +6,40 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { AppLayout } from "@/components/AppLayout";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import AuthPage from "./pages/AuthPage";
-import ResetPasswordPage from "./pages/ResetPasswordPage";
-import NotificationsPage from "./pages/NotificationsPage";
-import OutlookCallbackPage from "./pages/OutlookCallbackPage";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { PageSkeleton } from "@/components/ui/page-skeleton";
 
-import Tasks from "./pages/Tasks";
-import MonetizationPage from "./pages/MonetizationPage";
-import ContentProjectsPage from "./pages/ContentProjectsPage";
-import VideoQueueFormPage from "./pages/VideoQueueFormPage";
-import SettingsPage from "./pages/SettingsPage";
-import InboxPage from "./pages/InboxPage";
-import IntegrationsPage from "./pages/IntegrationsPage";
-import WeeklyReportPage from "./pages/WeeklyReportPage";
-import AffiliateProgramPage from "./pages/AffiliateProgramPage";
-import NewAffiliateProgramPage from "./pages/NewAffiliateProgramPage";
-import EditAffiliateProgramPage from "./pages/EditAffiliateProgramPage";
-import AddTransactionPage from "./pages/AddTransactionPage";
-import EditTransactionPage from "./pages/EditTransactionPage";
-import AddCompanyPage from "./pages/AddCompanyPage";
-import AddContactPage from "./pages/AddContactPage";
-import AddProductTransactionPage from "./pages/AddProductTransactionPage";
-import NewSponsorshipPage from "./pages/NewSponsorshipPage";
-
-import VideoDetailPage from "./pages/VideoDetailPage";
-import WeeklySprintPage from "./pages/WeeklySprintPage";
-import CompanyProfilePage from "./pages/CompanyProfilePage";
-
-// Consolidated pages
-import NetworkPage from "./pages/NetworkPage";
-import YouTubeHubPage, { GrowthPage } from "./pages/YouTubeHubPage";
-import AIHubPage from "./pages/AIHubPage";
+// Lazy-loaded pages
+const Index = lazy(() => import("./pages/Index"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const AuthPage = lazy(() => import("./pages/AuthPage"));
+const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
+const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
+const OutlookCallbackPage = lazy(() => import("./pages/OutlookCallbackPage"));
+const Tasks = lazy(() => import("./pages/Tasks"));
+const MonetizationPage = lazy(() => import("./pages/MonetizationPage"));
+const ContentProjectsPage = lazy(() => import("./pages/ContentProjectsPage"));
+const VideoQueueFormPage = lazy(() => import("./pages/VideoQueueFormPage"));
+const SettingsPage = lazy(() => import("./pages/SettingsPage"));
+const InboxPage = lazy(() => import("./pages/InboxPage"));
+const IntegrationsPage = lazy(() => import("./pages/IntegrationsPage"));
+const WeeklyReportPage = lazy(() => import("./pages/WeeklyReportPage"));
+const AffiliateProgramPage = lazy(() => import("./pages/AffiliateProgramPage"));
+const NewAffiliateProgramPage = lazy(() => import("./pages/NewAffiliateProgramPage"));
+const EditAffiliateProgramPage = lazy(() => import("./pages/EditAffiliateProgramPage"));
+const AddTransactionPage = lazy(() => import("./pages/AddTransactionPage"));
+const EditTransactionPage = lazy(() => import("./pages/EditTransactionPage"));
+const AddCompanyPage = lazy(() => import("./pages/AddCompanyPage"));
+const AddContactPage = lazy(() => import("./pages/AddContactPage"));
+const AddProductTransactionPage = lazy(() => import("./pages/AddProductTransactionPage"));
+const NewSponsorshipPage = lazy(() => import("./pages/NewSponsorshipPage"));
+const VideoDetailPage = lazy(() => import("./pages/VideoDetailPage"));
+const WeeklySprintPage = lazy(() => import("./pages/WeeklySprintPage"));
+const CompanyProfilePage = lazy(() => import("./pages/CompanyProfilePage"));
+const NetworkPage = lazy(() => import("./pages/NetworkPage"));
+const YouTubeHubPage = lazy(() => import("./pages/YouTubeHubPage").then(m => ({ default: m.default })));
+const GrowthPage = lazy(() => import("./pages/YouTubeHubPage").then(m => ({ default: m.GrowthPage })));
+const AIHubPage = lazy(() => import("./pages/AIHubPage"));
 
 const queryClient = new QueryClient();
 
@@ -73,6 +75,17 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+/** Wraps a lazy page in Suspense + ErrorBoundary */
+function LazyPage({ children, section }: { children: React.ReactNode; section?: string }) {
+  return (
+    <ErrorBoundary section={section}>
+      <Suspense fallback={<PageSkeleton />}>
+        {children}
+      </Suspense>
+    </ErrorBoundary>
+  );
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -81,71 +94,71 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
-            <Route path="/auth" element={<PublicRoute><AuthPage /></PublicRoute>} />
-            <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="/auth" element={<PublicRoute><LazyPage section="Auth"><AuthPage /></LazyPage></PublicRoute>} />
+            <Route path="/reset-password" element={<LazyPage section="Reset Password"><ResetPasswordPage /></LazyPage>} />
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-              <Route path="/" element={<Index />} />
+              <Route path="/" element={<LazyPage section="Dashboard"><Index /></LazyPage>} />
 
               {/* Content Pipeline */}
-              <Route path="/content" element={<ContentProjectsPage />} />
-              <Route path="/content/create" element={<VideoQueueFormPage />} />
-              <Route path="/content/:id/edit" element={<VideoQueueFormPage />} />
+              <Route path="/content" element={<LazyPage section="Content"><ContentProjectsPage /></LazyPage>} />
+              <Route path="/content/create" element={<LazyPage section="Create Content"><VideoQueueFormPage /></LazyPage>} />
+              <Route path="/content/:id/edit" element={<LazyPage section="Edit Content"><VideoQueueFormPage /></LazyPage>} />
 
               {/* Content Management (YouTube Hub) */}
               <Route path="/youtube" element={<Navigate to="/youtube/dashboard" replace />} />
-              <Route path="/youtube/:section" element={<YouTubeHubPage />} />
-              <Route path="/analytics/videos/:youtubeVideoId" element={<VideoDetailPage />} />
+              <Route path="/youtube/:section" element={<LazyPage section="YouTube Hub"><YouTubeHubPage /></LazyPage>} />
+              <Route path="/analytics/videos/:youtubeVideoId" element={<LazyPage section="Video Detail"><VideoDetailPage /></LazyPage>} />
 
               {/* Growth */}
               <Route path="/growth" element={<Navigate to="/growth/forecast" replace />} />
-              <Route path="/growth/:section" element={<GrowthPage />} />
+              <Route path="/growth/:section" element={<LazyPage section="Growth"><GrowthPage /></LazyPage>} />
 
               {/* Revenue */}
               <Route path="/revenue" element={<Navigate to="/revenue/overview" replace />} />
-              <Route path="/revenue/:tab" element={<MonetizationPage />} />
-              <Route path="/affiliate-program/new" element={<NewAffiliateProgramPage />} />
-              <Route path="/affiliate-program/:id" element={<AffiliateProgramPage />} />
-              <Route path="/affiliate-program/:id/edit" element={<EditAffiliateProgramPage />} />
-              <Route path="/affiliate-program/:id/add-transaction" element={<AddTransactionPage />} />
-              <Route path="/affiliate-program/:id/edit-transaction" element={<EditTransactionPage />} />
-              <Route path="/sponsorship/new" element={<NewSponsorshipPage />} />
-              <Route path="/add-transaction" element={<AddProductTransactionPage />} />
-              <Route path="/add-transaction/:id" element={<AddProductTransactionPage />} />
+              <Route path="/revenue/:tab" element={<LazyPage section="Revenue"><MonetizationPage /></LazyPage>} />
+              <Route path="/affiliate-program/new" element={<LazyPage section="New Affiliate"><NewAffiliateProgramPage /></LazyPage>} />
+              <Route path="/affiliate-program/:id" element={<LazyPage section="Affiliate Program"><AffiliateProgramPage /></LazyPage>} />
+              <Route path="/affiliate-program/:id/edit" element={<LazyPage section="Edit Affiliate"><EditAffiliateProgramPage /></LazyPage>} />
+              <Route path="/affiliate-program/:id/add-transaction" element={<LazyPage section="Add Transaction"><AddTransactionPage /></LazyPage>} />
+              <Route path="/affiliate-program/:id/edit-transaction" element={<LazyPage section="Edit Transaction"><EditTransactionPage /></LazyPage>} />
+              <Route path="/sponsorship/new" element={<LazyPage section="New Sponsorship"><NewSponsorshipPage /></LazyPage>} />
+              <Route path="/add-transaction" element={<LazyPage section="Add Transaction"><AddProductTransactionPage /></LazyPage>} />
+              <Route path="/add-transaction/:id" element={<LazyPage section="Add Transaction"><AddProductTransactionPage /></LazyPage>} />
 
               {/* Network */}
               <Route path="/network" element={<Navigate to="/network/contacts" replace />} />
-              <Route path="/network/:section" element={<NetworkPage />} />
-              <Route path="/relationships/new-company" element={<AddCompanyPage />} />
-              <Route path="/relationships/new-contact" element={<AddContactPage />} />
-              <Route path="/relationships/companies/:companyId" element={<CompanyProfilePage />} />
+              <Route path="/network/:section" element={<LazyPage section="Network"><NetworkPage /></LazyPage>} />
+              <Route path="/relationships/new-company" element={<LazyPage section="Add Company"><AddCompanyPage /></LazyPage>} />
+              <Route path="/relationships/new-contact" element={<LazyPage section="Add Contact"><AddContactPage /></LazyPage>} />
+              <Route path="/relationships/companies/:companyId" element={<LazyPage section="Company Profile"><CompanyProfilePage /></LazyPage>} />
 
               {/* Reports */}
               <Route path="/reports" element={<Navigate to="/reports/weekly" replace />} />
-              <Route path="/reports/weekly" element={<WeeklyReportPage />} />
+              <Route path="/reports/weekly" element={<LazyPage section="Weekly Report"><WeeklyReportPage /></LazyPage>} />
 
               {/* AI Hub */}
               <Route path="/ai" element={<Navigate to="/ai/chat" replace />} />
-              <Route path="/ai/:tab" element={<AIHubPage />} />
+              <Route path="/ai/:tab" element={<LazyPage section="AI Hub"><AIHubPage /></LazyPage>} />
 
               {/* Task detail/create routes */}
-              <Route path="/tasks/:id" element={<Tasks />} />
-              <Route path="/tasks/create" element={<Tasks />} />
-              <Route path="/projects/:projectId/tasks/create" element={<Tasks />} />
+              <Route path="/tasks/:id" element={<LazyPage section="Tasks"><Tasks /></LazyPage>} />
+              <Route path="/tasks/create" element={<LazyPage section="Tasks"><Tasks /></LazyPage>} />
+              <Route path="/projects/:projectId/tasks/create" element={<LazyPage section="Tasks"><Tasks /></LazyPage>} />
 
               {/* Growth Sprints */}
-              <Route path="/sprints" element={<WeeklySprintPage />} />
+              <Route path="/sprints" element={<LazyPage section="Sprints"><WeeklySprintPage /></LazyPage>} />
 
               {/* Communication */}
-              <Route path="/inbox" element={<InboxPage />} />
-              <Route path="/inbox/*" element={<InboxPage />} />
-              <Route path="/auth/outlook/callback" element={<OutlookCallbackPage />} />
-              <Route path="/notifications" element={<NotificationsPage />} />
+              <Route path="/inbox" element={<LazyPage section="Inbox"><InboxPage /></LazyPage>} />
+              <Route path="/inbox/*" element={<LazyPage section="Inbox"><InboxPage /></LazyPage>} />
+              <Route path="/auth/outlook/callback" element={<LazyPage section="Outlook"><OutlookCallbackPage /></LazyPage>} />
+              <Route path="/notifications" element={<LazyPage section="Notifications"><NotificationsPage /></LazyPage>} />
 
               {/* Integrations */}
-              <Route path="/integrations" element={<IntegrationsPage />} />
+              <Route path="/integrations" element={<LazyPage section="Integrations"><IntegrationsPage /></LazyPage>} />
 
               {/* System */}
-              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/settings" element={<LazyPage section="Settings"><SettingsPage /></LazyPage>} />
 
               {/* Backward-compatibility redirects */}
               <Route path="/partnerships" element={<Navigate to="/network/contacts" replace />} />
@@ -165,7 +178,7 @@ const App = () => (
               <Route path="/sequences" element={<Navigate to="/inbox" replace />} />
               <Route path="/projects" element={<Navigate to="/content" replace />} />
             </Route>
-            <Route path="*" element={<NotFound />} />
+            <Route path="*" element={<LazyPage section="Not Found"><NotFound /></LazyPage>} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>
