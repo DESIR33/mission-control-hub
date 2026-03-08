@@ -102,8 +102,8 @@ export function ProposalCard({
   const [expanded, setExpanded] = useState(false);
 
   const status = statusConfig[proposal.status];
-  const entityType = entityTypeConfig[proposal.entity_type];
-  const proposalType = proposalTypeConfig[proposal.proposal_type];
+  const entityType = entityTypeConfig[proposal.entity_type] || { icon: Sparkles, label: "Video", className: "bg-muted text-muted-foreground" };
+  const proposalType = proposalTypeConfig[proposal.proposal_type] || { icon: Sparkles, label: proposal.proposal_type || "Optimization", className: "bg-muted text-muted-foreground" };
   const EntityIcon = entityType.icon;
   const TypeIcon = proposalType.icon;
 
