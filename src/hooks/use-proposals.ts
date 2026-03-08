@@ -21,10 +21,19 @@ export function useProposals() {
         } else if (row.contacts?.first_name) {
           entity_name = [row.contacts.first_name, row.contacts.last_name].filter(Boolean).join(" ");
         }
+        // Fallback: use video_id for video proposals, or entity_id slice
+        if (!entity_name && row.video_id) {
+          entity_name = row.video_id;
+        }
+        if (!entity_name && row.entity_id) {
+          entity_name = row.entity_id.slice(0, 12);
+        }
         const { companies, contacts, ...rest } = row;
         // Merge content into proposed_changes as fallback
         const proposed_changes = rest.proposed_changes ?? rest.content ?? null;
-        return { ...rest, entity_name, proposed_changes } as AiProposal;
+        // Normalize entity_type: use "company" if company_id is set, "video" if video_id is set
+        const entity_type = rest.entity_type || (rest.video_id ? "video" : rest.company_id ? "company" : rest.contact_id ? "contact" : null);
+        return { ...rest, entity_name, proposed_changes, entity_type } as AiProposal;
       });
     },
     enabled: !!workspaceId,
