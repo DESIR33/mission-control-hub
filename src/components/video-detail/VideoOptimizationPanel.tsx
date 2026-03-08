@@ -4,10 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import {
   Sparkles, Type, FileText, Tags, Image, Check, X, Copy,
-  ChevronDown, ChevronUp, AlertTriangle, Loader2,
+  ChevronDown, ChevronUp, AlertTriangle, Loader2, Users, Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from "sonner";
 
 interface VideoProposal {
@@ -56,14 +57,14 @@ function useVideoProposals(videoId?: string) {
 function useApplyProposal() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, videoId }: { id: string; videoId: string }) => {
+    mutationFn: async ({ id }: { id: string; videoId: string }) => {
       const { error } = await (supabase as any)
         .from("ai_proposals")
         .update({ status: "approved", reviewed_at: new Date().toISOString() })
         .eq("id", id);
       if (error) throw error;
     },
-    onSuccess: (_, vars) => {
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["video-proposals"] });
       toast.success("Proposal approved");
     },
@@ -90,6 +91,42 @@ function useDismissProposal() {
 function copyToClipboard(text: string) {
   navigator.clipboard.writeText(text);
   toast.success("Copied to clipboard");
+}
+
+// ── Competitor Insights Section ──
+function CompetitorInsights({ metadata }: { metadata: Record<string, any> }) {
+  const competitorData = metadata?.competitor_data as Array<{ title: string; channel: string; views: number; published?: string }> | undefined;
+  const insights = metadata?.competitor_insights as string | undefined;
+
+  if (!competitorData?.length && !insights) return null;
+
+  return (
+    <Collapsible>
+      <CollapsibleTrigger asChild>
+        <Button variant="ghost" size="sm" className="h-7 text-xs gap-1.5 text-muted-foreground hover:text-foreground w-full justify-start">
+          <Users className="w-3 h-3" />
+          Competitor Comparison ({competitorData?.length || 0} videos)
+          <ChevronDown className="w-3 h-3 ml-auto" />
+        </Button>
+      </CollapsibleTrigger>
+      <CollapsibleContent className="space-y-2 mt-2">
+        {insights && (
+          <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg p-2.5 leading-relaxed">{insights}</p>
+        )}
+        {competitorData?.map((cv, i) => (
+          <div key={i} className="flex items-start gap-2 rounded-lg border border-border bg-muted/30 p-2">
+            <Eye className="w-3.5 h-3.5 mt-0.5 shrink-0 text-muted-foreground" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-foreground truncate">{cv.title}</p>
+              <p className="text-[10px] text-muted-foreground">
+                {cv.channel} · {cv.views?.toLocaleString()} views{cv.published ? ` · ${cv.published}` : ""}
+              </p>
+            </div>
+          </div>
+        ))}
+      </CollapsibleContent>
+    </Collapsible>
+  );
 }
 
 // ── Title Proposal Card ──
@@ -198,6 +235,7 @@ function ProposalCard({ proposal, videoId }: { proposal: VideoProposal; videoId:
   const apply = useApplyProposal();
   const dismiss = useDismissProposal();
   const content = proposal.content || {};
+  const metadata = proposal.metadata || {};
   const isActioned = proposal.status !== "pending";
 
   return (
@@ -211,9 +249,9 @@ function ProposalCard({ proposal, videoId }: { proposal: VideoProposal; videoId:
               {Math.round(proposal.confidence * 100)}% conf
             </Badge>
           )}
-          {proposal.metadata?.health_score != null && (
-            <Badge variant={proposal.metadata.health_score < 30 ? "destructive" : "secondary"} className="text-[10px] h-5">
-              Health: {Math.round(proposal.metadata.health_score)}
+          {metadata.health_score != null && (
+            <Badge variant={metadata.health_score < 30 ? "destructive" : "secondary"} className="text-[10px] h-5">
+              Health: {Math.round(metadata.health_score)}
             </Badge>
           )}
         </div>
@@ -257,6 +295,8 @@ function ProposalCard({ proposal, videoId }: { proposal: VideoProposal; videoId:
       {proposal.type === "video_description_optimization" && <DescriptionProposalContent content={content} />}
       {proposal.type === "video_tags_optimization" && <TagsProposalContent content={content} />}
       {proposal.type === "video_thumbnail_optimization" && <ThumbnailProposalContent content={content} />}
+
+      <CompetitorInsights metadata={metadata} />
     </div>
   );
 }

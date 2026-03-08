@@ -8,6 +8,7 @@ const corsHeaders = {
 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 const DEFAULT_MODEL = "minimax/minimax-m2.5";
+const YOUTUBE_API_BASE = "https://www.googleapis.com/youtube/v3";
 
 interface VideoWithScore {
   youtube_video_id: string;
@@ -31,16 +32,24 @@ interface VideoWithScore {
   channel_avg_ctr_30d: number;
 }
 
+interface CompetitorVideo {
+  title: string;
+  videoId: string;
+  channelTitle: string;
+  viewCount: number;
+  likeCount: number;
+  publishedAt: string;
+}
+
 function computeHealthScore(
   video: { views_30d: number; ctr_30d: number; subs_gained_30d: number; subs_lost_30d: number; impressions_30d: number },
   channelAvgViews: number,
   channelAvgCtr: number
 ): number {
-  // Score 0-100 where lower = worse performing
   const viewsRatio = channelAvgViews > 0 ? video.views_30d / channelAvgViews : 0;
   const ctrRatio = channelAvgCtr > 0 ? video.ctr_30d / channelAvgCtr : 0;
   const subRatio = video.subs_gained_30d > 0 ? video.subs_gained_30d / (video.subs_gained_30d + video.subs_lost_30d) : 0;
-  const hasImpressions = video.impressions_30d > 100; // needs meaningful impressions
+  const hasImpressions = video.impressions_30d > 100;
 
   const viewsScore = Math.min(viewsRatio * 40, 40);
   const ctrScore = Math.min(ctrRatio * 30, 30);
@@ -48,6 +57,68 @@ function computeHealthScore(
   const impressionPenalty = hasImpressions ? 0 : -10;
 
   return Math.max(0, viewsScore + ctrScore + subScore + impressionPenalty + 10);
+}
+
+function extractKeywords(title: string): string[] {
+  const stopWords = new Set([
+    "the", "a", "an", "is", "are", "was", "were", "in", "on", "at", "to", "for",
+    "of", "with", "by", "from", "and", "or", "but", "not", "this", "that", "it",
+    "my", "your", "we", "i", "you", "how", "what", "why", "when", "where", "who",
+    "do", "does", "did", "will", "can", "could", "should", "would", "have", "has",
+    "be", "been", "being", "get", "got", "just", "so", "if", "up", "out", "about",
+  ]);
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, "")
+    .split(/\s+/)
+    .filter((w) => w.length > 2 && !stopWords.has(w))
+    .slice(0, 3);
+}
+
+async function fetchCompetitorVideos(
+  apiKey: string,
+  competitors: Array<{ youtube_channel_id: string; channel_name: string }>,
+  keywords: string[],
+  maxCompetitors = 2,
+  maxResultsPerSearch = 3
+): Promise<CompetitorVideo[]> {
+  if (!apiKey || !competitors.length || !keywords.length) return [];
+
+  const query = keywords.join(" ");
+  const results: CompetitorVideo[] = [];
+  const searchCompetitors = competitors.slice(0, maxCompetitors);
+
+  for (const comp of searchCompetitors) {
+    if (!comp.youtube_channel_id) continue;
+    try {
+      const searchUrl = `${YOUTUBE_API_BASE}/search?part=snippet&channelId=${comp.youtube_channel_id}&q=${encodeURIComponent(query)}&type=video&maxResults=${maxResultsPerSearch}&order=viewCount&key=${apiKey}`;
+      const searchRes = await fetch(searchUrl);
+      if (!searchRes.ok) continue;
+      const searchData = await searchRes.json();
+      const videoIds = (searchData.items || []).map((item: any) => item.id?.videoId).filter(Boolean);
+      if (!videoIds.length) continue;
+
+      const statsUrl = `${YOUTUBE_API_BASE}/videos?part=statistics,snippet&id=${videoIds.join(",")}&key=${apiKey}`;
+      const statsRes = await fetch(statsUrl);
+      if (!statsRes.ok) continue;
+      const statsData = await statsRes.json();
+
+      for (const item of statsData.items || []) {
+        results.push({
+          title: item.snippet?.title || "",
+          videoId: item.id,
+          channelTitle: item.snippet?.channelTitle || comp.channel_name,
+          viewCount: parseInt(item.statistics?.viewCount || "0", 10),
+          likeCount: parseInt(item.statistics?.likeCount || "0", 10),
+          publishedAt: item.snippet?.publishedAt || "",
+        });
+      }
+    } catch (e) {
+      console.warn(`Competitor search failed for ${comp.channel_name}:`, e);
+    }
+  }
+
+  return results;
 }
 
 Deno.serve(async (req) => {
@@ -62,7 +133,7 @@ Deno.serve(async (req) => {
     );
 
     const body = await req.json();
-    const { workspace_id, max_videos = 10, model, run_all_workspaces } = body;
+    const { workspace_id, max_videos = 10, model, run_all_workspaces, skip_competitor_analysis = false } = body;
 
     // If triggered by cron, run for all workspaces that have videos
     if (run_all_workspaces) {
@@ -145,6 +216,21 @@ Deno.serve(async (req) => {
       analyticsMap.set(row.youtube_video_id, existing);
     }
 
+    // ── 2b. Fetch competitor channels & YouTube API key ──────────
+    let competitors: Array<{ youtube_channel_id: string; channel_name: string }> = [];
+    let youtubeApiKey = "";
+
+    if (!skip_competitor_analysis) {
+      const [compRes, integRes] = await Promise.all([
+        supabase.from("competitor_channels").select("youtube_channel_id, channel_name").eq("workspace_id", workspace_id),
+        supabase.from("workspace_integrations").select("config").eq("workspace_id", workspace_id).eq("integration_key", "youtube").single(),
+      ]);
+      competitors = (compRes.data || []).filter((c: any) => c.youtube_channel_id);
+      youtubeApiKey = integRes.data?.config?.api_key || "";
+    }
+
+    const competitorEnabled = !skip_competitor_analysis && competitors.length > 0 && !!youtubeApiKey;
+
     // ── 3. Score & rank ──────────────────────────────────────────
     const totalViews30d = Array.from(analyticsMap.values()).reduce((s, a) => s + a.views, 0);
     const videosWithAnalytics = Array.from(analyticsMap.keys()).length || 1;
@@ -200,6 +286,24 @@ Deno.serve(async (req) => {
       });
     }
 
+    // ── 3b. Fetch competitor videos for top 5 underperformers ────
+    const competitorDataMap = new Map<string, CompetitorVideo[]>();
+    if (competitorEnabled) {
+      const topForCompetitor = underperformers.slice(0, 5);
+      for (const video of topForCompetitor) {
+        const keywords = extractKeywords(video.title);
+        if (keywords.length === 0) continue;
+        try {
+          const compVideos = await fetchCompetitorVideos(youtubeApiKey, competitors, keywords);
+          if (compVideos.length > 0) {
+            competitorDataMap.set(video.youtube_video_id, compVideos);
+          }
+        } catch (e) {
+          console.warn(`Competitor fetch failed for ${video.youtube_video_id}:`, e);
+        }
+      }
+    }
+
     // ── 4. AI Analysis for each underperformer ───────────────────
     const toolDefs = [
       {
@@ -249,6 +353,10 @@ Deno.serve(async (req) => {
                 },
                 description: "2-3 thumbnail concepts",
               },
+              competitor_insights: {
+                type: "string",
+                description: "Summary of how competitors handle similar topics, what's working for them, and what you can learn",
+              },
               priority: { type: "string", enum: ["critical", "high", "medium", "low"], description: "Optimization priority" },
               diagnosis: { type: "string", description: "Brief diagnosis of why this video is underperforming" },
             },
@@ -257,6 +365,14 @@ Deno.serve(async (req) => {
         },
       },
     ];
+
+    const competitorPromptSection = competitorEnabled
+      ? `\n\nCOMPETITOR ANALYSIS:
+- Compare each video against competitor videos on similar topics when competitor data is provided.
+- Reference specific competitor video performance (view counts, titles, approaches) in your recommendations.
+- Explain what competitors are doing differently that's working and how the user can adapt those strategies.
+- Include your competitor analysis in the competitor_insights field.`
+      : "";
 
     const systemPrompt = `You are a YouTube optimization expert. You analyze video performance data and provide specific, actionable optimization recommendations.
 
@@ -268,6 +384,7 @@ RULES:
 - Thumbnail concepts should prioritize high contrast, emotional faces, minimal text (3-5 words max), and curiosity gaps.
 - Consider the video's age — older videos can be revived with metadata updates.
 - For each video, call create_video_optimization with your complete analysis.
+${competitorPromptSection}
 
 CHANNEL CONTEXT:
 - Channel average 30-day views: ${Math.round(channelAvgViews)}
@@ -281,7 +398,13 @@ CHANNEL CONTEXT:
     for (let i = 0; i < underperformers.length; i += 3) {
       const batch = underperformers.slice(i, i + 3);
 
-      const videoContexts = batch.map((v) => `
+      const videoContexts = batch.map((v) => {
+        const compVideos = competitorDataMap.get(v.youtube_video_id);
+        const competitorSection = compVideos?.length
+          ? `\nCompetitor Videos on Similar Topics:\n${compVideos.map((cv) => `  - "${cv.title}" by ${cv.channelTitle} — ${cv.viewCount.toLocaleString()} views (published ${cv.publishedAt?.split("T")[0] || "unknown"})`).join("\n")}`
+          : "";
+
+        return `
 VIDEO: ${v.title}
 ID: ${v.youtube_video_id}
 Published: ${v.published_at || "unknown"}
@@ -305,7 +428,8 @@ Lifetime Stats:
 - Views: ${v.lifetime_views}
 - Likes: ${v.lifetime_likes}
 - Comments: ${v.lifetime_comments}
-`).join("\n---\n");
+${competitorSection}`;
+      }).join("\n---\n");
 
       try {
         const aiRes = await fetch(OPENROUTER_URL, {
@@ -345,6 +469,20 @@ Lifetime Stats:
           try {
             const args = JSON.parse(tc.function.arguments);
             const video = batch.find((v) => v.youtube_video_id === args.youtube_video_id) || batch[0];
+            const compVideos = competitorDataMap.get(video.youtube_video_id) || [];
+
+            // Build competitor metadata
+            const competitorMeta = compVideos.length > 0
+              ? {
+                  competitor_data: compVideos.map((cv) => ({
+                    title: cv.title,
+                    channel: cv.channelTitle,
+                    views: cv.viewCount,
+                    published: cv.publishedAt?.split("T")[0],
+                  })),
+                  competitor_insights: args.competitor_insights || null,
+                }
+              : {};
 
             // Create title optimization proposal
             if (args.title_options?.length) {
@@ -361,7 +499,7 @@ Lifetime Stats:
                   priority: args.priority,
                 },
                 confidence: args.priority === "critical" ? 0.95 : args.priority === "high" ? 0.85 : 0.7,
-                metadata: { health_score: video.health_score, views_30d: video.views_30d, ctr_30d: video.ctr_30d },
+                metadata: { health_score: video.health_score, views_30d: video.views_30d, ctr_30d: video.ctr_30d, ...competitorMeta },
               });
               if (!tErr) totalProposals++;
             }
@@ -381,7 +519,7 @@ Lifetime Stats:
                   rationale: args.description_rationale,
                 },
                 confidence: 0.8,
-                metadata: { health_score: video.health_score },
+                metadata: { health_score: video.health_score, ...competitorMeta },
               });
               if (!dErr) totalProposals++;
             }
@@ -401,7 +539,7 @@ Lifetime Stats:
                   rationale: args.tags_rationale,
                 },
                 confidence: 0.8,
-                metadata: { health_score: video.health_score },
+                metadata: { health_score: video.health_score, ...competitorMeta },
               });
               if (!tagErr) totalProposals++;
             }
@@ -420,7 +558,7 @@ Lifetime Stats:
                   thumbnail_concepts: args.thumbnail_concepts,
                 },
                 confidence: 0.85,
-                metadata: { health_score: video.health_score, ctr_30d: video.ctr_30d, channel_avg_ctr: video.channel_avg_ctr_30d },
+                metadata: { health_score: video.health_score, ctr_30d: video.ctr_30d, channel_avg_ctr: video.channel_avg_ctr_30d, ...competitorMeta },
               });
               if (!thErr) totalProposals++;
             }
@@ -437,7 +575,8 @@ Lifetime Stats:
     }
 
     // ── 5. Save summary to memory ────────────────────────────────
-    const summaryContent = `Video Optimization Run: Analyzed ${underperformers.length} underperforming videos, created ${totalProposals} optimization proposals. Top underperformers: ${underperformers.slice(0, 3).map(v => `"${v.title}" (score: ${v.health_score.toFixed(0)})`).join(", ")}`;
+    const competitorNote = competitorEnabled ? ` Competitor analysis included from ${competitors.length} competitor channel(s).` : "";
+    const summaryContent = `Video Optimization Run: Analyzed ${underperformers.length} underperforming videos, created ${totalProposals} optimization proposals.${competitorNote} Top underperformers: ${underperformers.slice(0, 3).map(v => `"${v.title}" (score: ${v.health_score.toFixed(0)})`).join(", ")}`;
 
     await supabase.from("assistant_memory").insert({
       workspace_id,
@@ -452,7 +591,7 @@ Lifetime Stats:
       agent_slug: "video-optimizer",
       trigger_type: "manual",
       status: "completed",
-      input: { max_videos, videos_analyzed: underperformers.length },
+      input: { max_videos, videos_analyzed: underperformers.length, competitor_analysis: competitorEnabled },
       output: { proposals_created: totalProposals, results },
       proposals_created: totalProposals,
       started_at: new Date().toISOString(),
@@ -464,6 +603,8 @@ Lifetime Stats:
         success: true,
         videos_analyzed: underperformers.length,
         proposals_created: totalProposals,
+        competitor_analysis: competitorEnabled,
+        competitors_used: competitorEnabled ? competitors.length : 0,
         results,
         scored_videos: underperformers.map((v) => ({
           video_id: v.youtube_video_id,
