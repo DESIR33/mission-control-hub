@@ -78,10 +78,10 @@ export function GrowthCountdownTracker() {
       </div>
 
       {/* Main stats row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-4">
         {/* Current subscribers */}
-        <div>
-          <p className="text-3xl sm:text-4xl font-bold font-mono text-foreground tracking-tight">
+        <div className="min-w-0">
+          <p className="text-2xl sm:text-4xl font-bold font-mono text-foreground tracking-tight truncate">
             {fmtCount(data.currentSubs)}
           </p>
           <p className="text-xs text-muted-foreground mt-0.5">subscribers</p>
