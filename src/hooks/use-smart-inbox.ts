@@ -1,20 +1,36 @@
-import { useMemo } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useMemo, useCallback } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { useContacts } from "@/hooks/use-contacts";
-import { useDeals, type Deal } from "@/hooks/use-deals";
+import { useDeals } from "@/hooks/use-deals";
 
 export type EmailPriority = "P1" | "P2" | "P3" | "P4";
 
-export interface SmartEmail {
+export interface InboxEmail {
   id: string;
+  workspace_id: string;
+  message_id: string;
+  conversation_id: string | null;
   from_email: string;
   from_name: string;
+  to_recipients: Array<{ name: string; email: string }>;
   subject: string;
   preview: string;
+  body_html: string | null;
   received_at: string;
   is_read: boolean;
+  is_pinned: boolean;
+  importance: string;
+  has_attachments: boolean;
+  folder: string;
+  labels: string[];
+  metadata: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SmartEmail extends InboxEmail {
   priority: EmailPriority;
   matched_contact: {
     id: string;
@@ -28,18 +44,6 @@ export interface SmartEmail {
     stage: string;
     value: number | null;
   } | null;
-  labels: string[];
-}
-
-interface RawInboxEmail {
-  id: string;
-  from_email: string;
-  from_name: string;
-  subject: string;
-  preview: string;
-  received_at: string;
-  is_read: boolean;
-  labels: string[];
 }
 
 const ACTIVE_DEAL_STAGES: string[] = [
@@ -49,42 +53,62 @@ const ACTIVE_DEAL_STAGES: string[] = [
   "negotiation",
 ];
 
-export function useSmartInbox() {
+export function useInboxEmails(folder: string = "inbox", searchQuery: string = "") {
   const { workspaceId } = useWorkspace();
-  const { data: contacts = [] } = useContacts();
-  const { data: deals = [] } = useDeals();
 
-  const rawEmailsQuery = useQuery({
-    queryKey: ["inbox-emails", workspaceId],
-    queryFn: async (): Promise<RawInboxEmail[]> => {
+  return useQuery({
+    queryKey: ["inbox-emails", workspaceId, folder, searchQuery],
+    queryFn: async (): Promise<InboxEmail[]> => {
       if (!workspaceId) return [];
 
-      const { data, error } = await supabase
+      let query = supabase
         .from("inbox_emails" as any)
         .select("*")
         .eq("workspace_id", workspaceId)
+        .eq("folder", folder)
         .order("received_at", { ascending: false })
-        .limit(100);
+        .limit(200);
 
+      if (searchQuery) {
+        query = query.or(`subject.ilike.%${searchQuery}%,from_name.ilike.%${searchQuery}%,from_email.ilike.%${searchQuery}%,preview.ilike.%${searchQuery}%`);
+      }
+
+      const { data, error } = await query;
       if (error) throw error;
+
       return ((data as any[]) ?? []).map((row) => ({
         id: row.id as string,
+        workspace_id: row.workspace_id as string,
+        message_id: (row.message_id as string) ?? "",
+        conversation_id: (row.conversation_id as string) ?? null,
         from_email: (row.from_email as string) ?? "",
         from_name: (row.from_name as string) ?? "",
+        to_recipients: (row.to_recipients as any[]) ?? [],
         subject: (row.subject as string) ?? "",
         preview: (row.preview as string) ?? "",
+        body_html: (row.body_html as string) ?? null,
         received_at: (row.received_at as string) ?? "",
         is_read: (row.is_read as boolean) ?? false,
+        is_pinned: (row.is_pinned as boolean) ?? false,
+        importance: (row.importance as string) ?? "normal",
+        has_attachments: (row.has_attachments as boolean) ?? false,
+        folder: (row.folder as string) ?? "inbox",
         labels: (row.labels as string[]) ?? [],
+        metadata: (row.metadata as Record<string, unknown>) ?? {},
+        created_at: (row.created_at as string) ?? "",
+        updated_at: (row.updated_at as string) ?? "",
       }));
     },
     enabled: !!workspaceId,
   });
+}
+
+export function useSmartInbox(folder: string = "inbox", searchQuery: string = "") {
+  const { data: rawEmails = [], isLoading, error } = useInboxEmails(folder, searchQuery);
+  const { data: contacts = [] } = useContacts();
+  const { data: deals = [] } = useDeals();
 
   const smartEmails = useMemo((): SmartEmail[] => {
-    const rawEmails = rawEmailsQuery.data ?? [];
-
-    // Build a lookup of contacts by email (lowercased)
     const contactByEmail = new Map<
       string,
       { id: string; first_name: string; last_name: string | null; tier: string | null }
@@ -100,7 +124,6 @@ export function useSmartInbox() {
       }
     }
 
-    // Build a lookup of active deals by contact_id
     const activeDealByContactId = new Map<
       string,
       { id: string; title: string; stage: string; value: number | null }
@@ -116,10 +139,8 @@ export function useSmartInbox() {
       }
     }
 
-    const enriched: SmartEmail[] = rawEmails.map((email) => {
-      const matchedContact =
-        contactByEmail.get(email.from_email.toLowerCase()) ?? null;
-
+    return rawEmails.map((email) => {
+      const matchedContact = contactByEmail.get(email.from_email.toLowerCase()) ?? null;
       const matchedDeal = matchedContact
         ? activeDealByContactId.get(matchedContact.id) ?? null
         : null;
@@ -127,11 +148,7 @@ export function useSmartInbox() {
       let priority: EmailPriority;
       if (matchedDeal) {
         priority = "P1";
-      } else if (
-        matchedContact &&
-        matchedContact.tier &&
-        matchedContact.tier !== "none"
-      ) {
+      } else if (matchedContact && matchedContact.tier && matchedContact.tier !== "none") {
         priority = "P2";
       } else if (matchedContact) {
         priority = "P3";
@@ -139,63 +156,178 @@ export function useSmartInbox() {
         priority = "P4";
       }
 
-      return {
-        ...email,
-        priority,
-        matched_contact: matchedContact,
-        matched_deal: matchedDeal,
-        labels: email.labels ?? [],
-      };
+      return { ...email, priority, matched_contact: matchedContact, matched_deal: matchedDeal };
     });
+  }, [rawEmails, contacts, deals]);
 
-    // Sort by priority (P1 first), then by date descending
-    const priorityOrder: Record<EmailPriority, number> = {
-      P1: 1,
-      P2: 2,
-      P3: 3,
-      P4: 4,
-    };
-
-    return enriched.sort((a, b) => {
-      const pDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
-      if (pDiff !== 0) return pDiff;
-      return (
-        new Date(b.received_at).getTime() - new Date(a.received_at).getTime()
-      );
-    });
-  }, [rawEmailsQuery.data, contacts, deals]);
-
-  return {
-    data: smartEmails,
-    isLoading: rawEmailsQuery.isLoading,
-    error: rawEmailsQuery.error,
-  };
+  return { data: smartEmails, isLoading, error };
 }
 
-export function useSyncOutlook() {
+export function useInboxStats(folder?: string) {
   const { workspaceId } = useWorkspace();
+
+  return useQuery({
+    queryKey: ["inbox-stats", workspaceId],
+    queryFn: async () => {
+      if (!workspaceId) return { total: 0, unread: 0 };
+
+      const { count: total } = await supabase
+        .from("inbox_emails" as any)
+        .select("*", { count: "exact", head: true })
+        .eq("workspace_id", workspaceId)
+        .eq("folder", "inbox");
+
+      const { count: unread } = await supabase
+        .from("inbox_emails" as any)
+        .select("*", { count: "exact", head: true })
+        .eq("workspace_id", workspaceId)
+        .eq("folder", "inbox")
+        .eq("is_read", false);
+
+      return { total: total ?? 0, unread: unread ?? 0 };
+    },
+    enabled: !!workspaceId,
+  });
+}
+
+export function useFolderCounts() {
+  const { workspaceId } = useWorkspace();
+
+  return useQuery({
+    queryKey: ["inbox-folder-counts", workspaceId],
+    queryFn: async () => {
+      if (!workspaceId) return {};
+
+      const folders = ["inbox", "sent", "drafts", "junk", "archive", "trash"];
+      const counts: Record<string, number> = {};
+
+      for (const folder of folders) {
+        const { count } = await supabase
+          .from("inbox_emails" as any)
+          .select("*", { count: "exact", head: true })
+          .eq("workspace_id", workspaceId)
+          .eq("folder", folder);
+        counts[folder] = count ?? 0;
+      }
+
+      return counts;
+    },
+    enabled: !!workspaceId,
+  });
+}
+
+export function useMarkRead() {
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke("outlook-sync", {
-        body: { workspace_id: workspaceId },
-      });
+    mutationFn: async ({ ids, is_read }: { ids: string[]; is_read: boolean }) => {
+      const { error } = await supabase
+        .from("inbox_emails" as any)
+        .update({ is_read })
+        .in("id", ids);
       if (error) throw error;
-      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["inbox-emails"] });
+      queryClient.invalidateQueries({ queryKey: ["inbox-stats"] });
     },
   });
 }
 
-export function useInboxStats() {
-  const { data: emails = [] } = useSmartInbox();
+export function useTogglePin() {
+  const queryClient = useQueryClient();
 
-  return useMemo(() => {
-    const total = emails.length;
-    const unread = emails.filter((e) => !e.is_read).length;
-    const p1Count = emails.filter((e) => e.priority === "P1").length;
-    const p2Count = emails.filter((e) => e.priority === "P2").length;
-    const p3Count = emails.filter((e) => e.priority === "P3").length;
-    const p4Count = emails.filter((e) => e.priority === "P4").length;
+  return useMutation({
+    mutationFn: async ({ id, is_pinned }: { id: string; is_pinned: boolean }) => {
+      const { error } = await supabase
+        .from("inbox_emails" as any)
+        .update({ is_pinned })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["inbox-emails"] });
+    },
+  });
+}
 
-    return { total, unread, p1Count, p2Count, p3Count, p4Count };
-  }, [emails]);
+export function useMoveEmail() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ ids, folder }: { ids: string[]; folder: string }) => {
+      const { error } = await supabase
+        .from("inbox_emails" as any)
+        .update({ folder })
+        .in("id", ids);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["inbox-emails"] });
+      queryClient.invalidateQueries({ queryKey: ["inbox-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["inbox-folder-counts"] });
+    },
+  });
+}
+
+export function useDeleteEmail() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase
+        .from("inbox_emails" as any)
+        .delete()
+        .in("id", ids);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["inbox-emails"] });
+      queryClient.invalidateQueries({ queryKey: ["inbox-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["inbox-folder-counts"] });
+    },
+  });
+}
+
+export function useSyncOutlook() {
+  const { workspaceId } = useWorkspace();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (folder: string = "inbox") => {
+      const { data, error } = await supabase.functions.invoke("outlook-sync", {
+        body: { workspace_id: workspaceId, folder },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data as { success: boolean; fetched: number; upserted: number };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["inbox-emails"] });
+      queryClient.invalidateQueries({ queryKey: ["inbox-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["inbox-folder-counts"] });
+    },
+  });
+}
+
+export function useOutlookSend() {
+  const { workspaceId } = useWorkspace();
+
+  return useMutation({
+    mutationFn: async (args: {
+      to?: string;
+      subject?: string;
+      body_html?: string;
+      reply_to_message_id?: string;
+      forward_to?: string;
+      comment?: string;
+    }) => {
+      const { data, error } = await supabase.functions.invoke("outlook-send", {
+        body: { workspace_id: workspaceId, ...args },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data;
+    },
+  });
 }
