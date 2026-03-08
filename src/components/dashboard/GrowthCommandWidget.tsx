@@ -595,26 +595,26 @@ export function GrowthCommandWidget() {
 
           {/* Stats row */}
           <div className="grid grid-cols-3 gap-2 sm:gap-3">
-            <div className="rounded-lg bg-muted/50 p-3 text-center">
-              <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
+            <div className="rounded-lg bg-muted/50 p-2 sm:p-3 text-center min-w-0">
+              <p className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium truncate">
                 Days Left
               </p>
-              <p className="text-lg font-bold font-mono text-foreground mt-0.5">
+              <p className="text-base sm:text-lg font-bold font-mono text-foreground mt-0.5">
                 {data.daysRemaining}
               </p>
             </div>
 
-            <div className="rounded-lg bg-muted/50 p-3 text-center">
-              <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
+            <div className="rounded-lg bg-muted/50 p-2 sm:p-3 text-center min-w-0">
+              <p className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium truncate">
                 Need/Day
               </p>
-              <p className="text-lg font-bold font-mono text-foreground mt-0.5">
+              <p className="text-base sm:text-lg font-bold font-mono text-foreground mt-0.5">
                 +{fmtRate(data.requiredDailyRate)}
               </p>
             </div>
 
-            <div className="rounded-lg bg-muted/50 p-3 text-center">
-              <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
+            <div className="rounded-lg bg-muted/50 p-2 sm:p-3 text-center min-w-0">
+              <p className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium truncate">
                 Avg 7d/Day
               </p>
               <p

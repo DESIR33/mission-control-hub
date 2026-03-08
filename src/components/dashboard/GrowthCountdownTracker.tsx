@@ -96,8 +96,8 @@ export function GrowthCountdownTracker() {
         </div>
 
         {/* Daily growth rate */}
-        <div>
-          <p className={`text-lg font-bold font-mono ${pace.color}`}>
+        <div className="min-w-0">
+          <p className={`text-base sm:text-lg font-bold font-mono truncate ${pace.color}`}>
             +{Math.round(data.dailyGrowthRate)}/day
           </p>
           <p className="text-xs text-muted-foreground mt-0.5">

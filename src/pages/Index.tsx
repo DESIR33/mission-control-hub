@@ -48,7 +48,7 @@ function Index() {
       : `$${pipelineValue}`;
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen overflow-hidden min-w-0">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}
