@@ -57,24 +57,34 @@ async function refreshAccessToken(
   return { access_token: data.access_token, refresh_token: data.refresh_token };
 }
 
-async function fetchOutlookMessages(
+async function fetchAllOutlookMessages(
   accessToken: string,
   folder: string = "inbox",
-  top: number = 50,
 ): Promise<OutlookMessage[]> {
-  const url = `${GRAPH_BASE}/me/mailFolders/${folder}/messages?$top=${top}&$orderby=receivedDateTime desc&$select=id,conversationId,from,toRecipients,subject,bodyPreview,body,receivedDateTime,isRead,importance,hasAttachments,parentFolderId`;
+  const allMessages: OutlookMessage[] = [];
+  const pageSize = 250; // max allowed by Graph API
+  let url: string | null = `${GRAPH_BASE}/me/mailFolders/${folder}/messages?$top=${pageSize}&$orderby=receivedDateTime desc&$select=id,conversationId,from,toRecipients,subject,bodyPreview,body,receivedDateTime,isRead,importance,hasAttachments,parentFolderId`;
 
-  const response = await fetch(url, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
+  while (url) {
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Graph API error: ${response.status} ${errorText}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Graph API error: ${response.status} ${errorText}`);
+    }
+
+    const data = await response.json();
+    const messages: OutlookMessage[] = data.value || [];
+    allMessages.push(...messages);
+
+    // Follow @odata.nextLink for pagination
+    url = data["@odata.nextLink"] || null;
+    console.log(`Fetched page: ${messages.length} messages (total so far: ${allMessages.length})`);
   }
 
-  const data = await response.json();
-  return data.value || [];
+  return allMessages;
 }
 
 function mapFolderIdToName(folderId: string | undefined): string {
@@ -95,7 +105,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { workspace_id, folder = "inbox", max_messages = 50 } = await req.json();
+    const { workspace_id, folder = "inbox" } = await req.json();
 
     if (!workspace_id) {
       return new Response(JSON.stringify({ error: "Missing workspace_id" }), {
@@ -147,8 +157,8 @@ Deno.serve(async (req) => {
         .eq("integration_key", "ms_outlook");
     }
 
-    // Fetch messages from Outlook
-    const messages = await fetchOutlookMessages(tokenResult.access_token, folder, max_messages);
+    // Fetch ALL messages from Outlook (paginated)
+    const messages = await fetchAllOutlookMessages(tokenResult.access_token, folder);
 
     // Batch upsert into inbox_emails
     const rows = messages.map((msg) => {
@@ -179,16 +189,20 @@ Deno.serve(async (req) => {
 
     let upsertedCount = 0;
     if (rows.length > 0) {
-      const { data: upsertData, error: upsertError } = await supabase
-        .from("inbox_emails")
-        .upsert(rows, { onConflict: "workspace_id,message_id" });
+      // Batch upsert in chunks of 200 to avoid payload limits
+      const CHUNK_SIZE = 200;
+      for (let i = 0; i < rows.length; i += CHUNK_SIZE) {
+        const chunk = rows.slice(i, i + CHUNK_SIZE);
+        const { error: upsertError } = await supabase
+          .from("inbox_emails")
+          .upsert(chunk, { onConflict: "workspace_id,message_id" });
 
-      if (upsertError) {
-        console.error("Batch upsert error:", JSON.stringify(upsertError));
-        throw new Error(`Failed to upsert emails: ${upsertError.message}`);
-      } else {
-        upsertedCount = rows.length;
-        console.log(`Successfully upserted ${upsertedCount} emails`);
+        if (upsertError) {
+          console.error(`Batch upsert error (chunk ${i / CHUNK_SIZE + 1}):`, JSON.stringify(upsertError));
+          throw new Error(`Failed to upsert emails: ${upsertError.message}`);
+        }
+        upsertedCount += chunk.length;
+        console.log(`Upserted chunk ${i / CHUNK_SIZE + 1}: ${chunk.length} emails (total: ${upsertedCount})`);
       }
     } else {
       console.log("No messages returned from Outlook API");
