@@ -76,7 +76,7 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
     let list = companies.filter((c) => {
       const matchesSearch =
         !search ||
-        `${c.name} ${c.industry ?? ""} ${c.location ?? ""} ${c.primary_email ?? ""}`
+        `${c.name} ${c.industry ?? ""} ${c.location ?? ""} ${c.primary_email ?? ""} ${c.country ?? ""} ${c.state ?? ""} ${c.city ?? ""} ${c.phone ?? ""}`
           .toLowerCase()
           .includes(search.toLowerCase());
       const matchesIndustry = industryFilter === "all" || c.industry === industryFilter;
