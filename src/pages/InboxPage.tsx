@@ -81,6 +81,7 @@ export default function InboxPage() {
     () => typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches,
   );
   const [mobileShowPreview, setMobileShowPreview] = useState(false);
+  const [viewMode, setViewMode] = useState<"list" | "kanban">("list");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
