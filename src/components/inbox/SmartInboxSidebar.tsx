@@ -12,10 +12,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SmartFollowUpQueue } from "@/components/inbox/SmartFollowUpQueue";
 import { EmailToDealAutomation } from "@/components/inbox/EmailToDealAutomation";
+import { EmailToDealPipeline } from "@/components/inbox/EmailToDealPipeline";
 import { EmailTemplateManager } from "@/components/inbox/EmailTemplateManager";
 import { EmailCategoryBadge } from "@/components/inbox/EmailCategoryBadge";
 import { ThreadSummarizer } from "@/components/inbox/ThreadSummarizer";
 import { SmartReplySuggestions } from "@/components/inbox/SmartReplySuggestions";
+import { FollowUpRadar } from "@/components/inbox/FollowUpRadar";
+import { ConversationIntelligence } from "@/components/inbox/ConversationIntelligence";
 import { useOutlookSend } from "@/hooks/use-smart-inbox";
 import type { SmartEmail } from "@/hooks/use-smart-inbox";
 
@@ -57,6 +60,8 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
   if (!email) {
     return (
       <div className="space-y-4 p-4 overflow-y-auto h-full">
+        <FollowUpRadar />
+        <ConversationIntelligence />
         <SmartFollowUpQueue />
       </div>
     );
@@ -203,6 +208,7 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
             </Button>
           )}
           <EmailToDealAutomation email={email} />
+          <EmailToDealPipeline email={email} />
           <Button
             variant="outline"
             size="sm"
