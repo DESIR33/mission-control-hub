@@ -126,6 +126,13 @@ export function AgentHubContent() {
         })}
       </div>
 
+      {/* Workflows, Triggers, Activity Feed */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <WorkflowChainManager />
+        <NaturalLanguageTriggers />
+        <AgentActivityFeed />
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <ExecutionTimeline executions={executions} isLoading={execLoading} />
         <SkillManager skills={skills} onCreateSkill={() => setShowCreateSkill(true)} onImportSkill={() => setShowImportSkill(true)} onDeleteSkill={handleDeleteSkill} onViewSkill={(s) => setViewSkill(s)} />
