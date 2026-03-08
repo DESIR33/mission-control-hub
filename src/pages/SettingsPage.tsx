@@ -38,13 +38,13 @@ export default function SettingsPage() {
 
       {/* Tabs */}
       <Tabs defaultValue={initialTab} onValueChange={updateTab} className="space-y-6">
-        <TabsList className="w-full sm:w-auto overflow-x-auto flex-nowrap">
-          <TabsTrigger value="profile" className="flex-1 sm:flex-none">Profile</TabsTrigger>
-          <TabsTrigger value="workspace" className="flex-1 sm:flex-none">Workspace</TabsTrigger>
-          <TabsTrigger value="members" className="flex-1 sm:flex-none">Members</TabsTrigger>
-          <TabsTrigger value="billing" className="flex-1 sm:flex-none">Billing</TabsTrigger>
-          <TabsTrigger value="automation" className="flex-1 sm:flex-none">Automation</TabsTrigger>
-          <TabsTrigger value="integrations" className="flex-1 sm:flex-none">Integrations</TabsTrigger>
+        <TabsList className="w-full sm:w-auto overflow-x-auto flex-nowrap scrollbar-hide">
+          <TabsTrigger value="profile" className="shrink-0">Profile</TabsTrigger>
+          <TabsTrigger value="workspace" className="shrink-0">Workspace</TabsTrigger>
+          <TabsTrigger value="members" className="shrink-0">Members</TabsTrigger>
+          <TabsTrigger value="billing" className="shrink-0">Billing</TabsTrigger>
+          <TabsTrigger value="automation" className="shrink-0">Automation</TabsTrigger>
+          <TabsTrigger value="integrations" className="shrink-0">Integrations</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile">

@@ -396,7 +396,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex items-center gap-1 overflow-x-auto pb-1 border-b border-border">
+      <div className="flex items-center gap-1 overflow-x-auto pb-1 border-b border-border scrollbar-hide">
         {TABS.map((tab) => (
           <button
             key={tab.key}
@@ -645,7 +645,7 @@ function OverviewTab({
             <Zap className="w-4 h-4 text-primary" />
             <h2 className="text-sm font-semibold text-foreground">YouTube Analytics API — {daysForRange} Day Summary</h2>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 sm:gap-3">
             <MiniStat label="Views" value={fmtCount(analyticsSummary.views)} />
             <MiniStat label="Watch Time" value={analyticsSummary.watchTime >= 60 ? `${Math.round(analyticsSummary.watchTime / 60)}h` : `${analyticsSummary.watchTime}m`} />
             <MiniStat label="Subs Gained" value={`+${fmtCount(analyticsSummary.subsGained)}`} />
@@ -992,7 +992,7 @@ function OverviewTab({
         <div className="rounded-xl border border-border bg-card p-4">
           <h2 className="text-sm font-semibold text-foreground mb-4">Content Format Analysis</h2>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm min-w-[500px]">
               <thead>
                 <tr className="border-b border-border">
                   <th className="text-left py-2 px-2 text-xs text-muted-foreground font-medium">Format</th>
@@ -1033,7 +1033,7 @@ function OverviewTab({
             All Videos ({sortedVideos.length})
           </h2>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm min-w-[700px]">
               <thead>
                 <tr className="border-b border-border">
                   <SortableTh field="title" label="Title" align="left" currentField={tableSortField} currentDir={tableSortDir} onSort={handleTableSort} />
