@@ -39,7 +39,7 @@ async function refreshAccessToken(
     client_id: clientId,
     client_secret: clientSecret,
     refresh_token: refreshToken,
-    scope: "https://graph.microsoft.com/.default offline_access",
+    scope: "openid profile email offline_access https://graph.microsoft.com/Mail.Read https://graph.microsoft.com/Mail.Send https://graph.microsoft.com/Mail.ReadWrite",
   });
 
   const response = await fetch(tokenUrl, {
