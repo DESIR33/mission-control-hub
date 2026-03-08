@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound";
 import AuthPage from "./pages/AuthPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import NotificationsPage from "./pages/NotificationsPage";
+import OutlookCallbackPage from "./pages/OutlookCallbackPage";
 
 import Tasks from "./pages/Tasks";
 import MonetizationPage from "./pages/MonetizationPage";
@@ -137,6 +138,7 @@ const App = () => (
               {/* Communication */}
               <Route path="/inbox" element={<InboxPage />} />
               <Route path="/inbox/*" element={<InboxPage />} />
+              <Route path="/auth/outlook/callback" element={<OutlookCallbackPage />} />
               <Route path="/notifications" element={<NotificationsPage />} />
 
               {/* Integrations */}

@@ -1,4 +1,4 @@
-import { useMemo, useCallback } from "react";
+import { useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
@@ -198,18 +198,19 @@ export function useFolderCounts() {
     queryFn: async () => {
       if (!workspaceId) return {};
 
-      const folders = ["inbox", "sent", "drafts", "junk", "archive", "trash"];
+      // Single query: fetch all emails' folder field and count client-side
+      const { data, error } = await supabase
+        .from("inbox_emails" as any)
+        .select("folder")
+        .eq("workspace_id", workspaceId);
+
+      if (error) throw error;
+
       const counts: Record<string, number> = {};
-
-      for (const folder of folders) {
-        const { count } = await supabase
-          .from("inbox_emails" as any)
-          .select("*", { count: "exact", head: true })
-          .eq("workspace_id", workspaceId)
-          .eq("folder", folder);
-        counts[folder] = count ?? 0;
+      for (const row of (data as any[]) ?? []) {
+        const f = (row.folder as string) ?? "inbox";
+        counts[f] = (counts[f] || 0) + 1;
       }
-
       return counts;
     },
     enabled: !!workspaceId,
@@ -323,6 +324,36 @@ export function useOutlookSend() {
       comment?: string;
     }) => {
       const { data, error } = await supabase.functions.invoke("outlook-send", {
+        body: { workspace_id: workspaceId, ...args },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data;
+    },
+  });
+}
+
+export function useOutlookAuthUrl() {
+  const { workspaceId } = useWorkspace();
+
+  return useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke("outlook-auth-url", {
+        body: { workspace_id: workspaceId },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data as { url: string };
+    },
+  });
+}
+
+export function useOutlookAuthCallback() {
+  const { workspaceId } = useWorkspace();
+
+  return useMutation({
+    mutationFn: async (args: { code: string; state: string }) => {
+      const { data, error } = await supabase.functions.invoke("outlook-auth-callback", {
         body: { workspace_id: workspaceId, ...args },
       });
       if (error) throw error;

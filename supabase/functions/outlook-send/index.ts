@@ -7,12 +7,17 @@ const corsHeaders = {
 
 const GRAPH_BASE = "https://graph.microsoft.com/v1.0";
 
+interface TokenResponse {
+  access_token: string;
+  refresh_token?: string;
+}
+
 async function refreshAccessToken(
   tenantId: string,
   clientId: string,
   clientSecret: string,
   refreshToken: string,
-): Promise<string> {
+): Promise<TokenResponse> {
   const tokenUrl = `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`;
   const body = new URLSearchParams({
     grant_type: "refresh_token",
@@ -34,7 +39,7 @@ async function refreshAccessToken(
   }
 
   const data = await response.json();
-  return data.access_token;
+  return { access_token: data.access_token, refresh_token: data.refresh_token };
 }
 
 Deno.serve(async (req) => {
@@ -82,8 +87,19 @@ Deno.serve(async (req) => {
       );
     }
 
-    const accessToken = await refreshAccessToken(tenant_id, client_id, client_secret, refresh_token);
+    const tokenResult = await refreshAccessToken(tenant_id, client_id, client_secret, refresh_token);
 
+    // Persist rotated refresh token if Microsoft returned a new one
+    if (tokenResult.refresh_token && tokenResult.refresh_token !== refresh_token) {
+      const updatedConfig = { ...config, refresh_token: tokenResult.refresh_token };
+      await supabase
+        .from("workspace_integrations")
+        .update({ config: updatedConfig })
+        .eq("workspace_id", workspace_id)
+        .eq("integration_key", "ms_outlook");
+    }
+
+    const accessToken = tokenResult.access_token;
     let graphResponse: Response;
 
     if (reply_to_message_id) {
@@ -102,8 +118,6 @@ Deno.serve(async (req) => {
         },
       );
     } else if (forward_to) {
-      // Forward a message (requires a message_id in forward context)
-      // For simplicity, we treat forward_to as a new send with the forwarded content
       graphResponse = await fetch(`${GRAPH_BASE}/me/sendMail`, {
         method: "POST",
         headers: {
