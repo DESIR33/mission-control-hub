@@ -3,20 +3,14 @@ import { format } from "date-fns";
 import { DollarSign, Users, Film, CheckSquare, TrendingUp, AlertTriangle } from "lucide-react";
 import { KpiCard } from "@/components/dashboard/KpiCard";
 import { AiBriefing } from "@/components/dashboard/AiBriefing";
-// NeedsAttention merged into AiBriefing
 import { PipelineHealth } from "@/components/dashboard/PipelineHealth";
 import { RevenueChart } from "@/components/dashboard/RevenueChart";
-import { YouTubeGrowth } from "@/components/dashboard/YouTubeGrowth";
 import { TopContentRevenue } from "@/components/dashboard/TopContentRevenue";
-import { GrowthAlertBanner } from "@/components/dashboard/GrowthAlertBanner";
-import { AlertsPanel } from "@/components/dashboard/AlertsPanel";
+import { UnifiedAlertHub } from "@/components/dashboard/UnifiedAlertHub";
 import { SprintWidget } from "@/components/dashboard/SprintWidget";
 import { GoalPaceWidget } from "@/components/dashboard/GoalPaceWidget";
 import { GrowthCommandWidget } from "@/components/dashboard/GrowthCommandWidget";
-import { MilestoneProgressBar } from "@/components/dashboard/MilestoneProgressBar";
-import { GrowthCountdownTracker } from "@/components/dashboard/GrowthCountdownTracker";
 import { SyncStatusIndicator } from "@/components/dashboard/SyncStatusIndicator";
-import { AlertsNotificationPanel } from "@/components/dashboard/AlertsNotificationPanel";
 import { WeeklyActionPlanCard } from "@/components/dashboard/WeeklyActionPlanCard";
 import {
   useDashboardStats,
@@ -64,21 +58,11 @@ function Index() {
         </p>
       </motion.div>
 
-      {/* 50K Growth Countdown */}
-      <GrowthCountdownTracker />
-
-      {/* Growth Alerts */}
-      <GrowthAlertBanner />
-
-      {/* YouTube Notifications */}
-      <AlertsNotificationPanel />
-
-      {/* Performance Alerts */}
-      <AlertsPanel />
-
-      {/* Growth Command Widget */}
+      {/* Growth Command Widget (consolidated countdown + command center) */}
       <GrowthCommandWidget />
 
+      {/* Unified Alerts Hub (consolidates Growth Alerts, YouTube Alerts, Notifications) */}
+      <UnifiedAlertHub />
 
       {/* Sprint + Goal Pace Widgets */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
