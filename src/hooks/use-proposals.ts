@@ -22,7 +22,9 @@ export function useProposals() {
           entity_name = [row.contacts.first_name, row.contacts.last_name].filter(Boolean).join(" ");
         }
         const { companies, contacts, ...rest } = row;
-        return { ...rest, entity_name } as AiProposal;
+        // Merge content into proposed_changes as fallback
+        const proposed_changes = rest.proposed_changes ?? rest.content ?? null;
+        return { ...rest, entity_name, proposed_changes } as AiProposal;
       });
     },
     enabled: !!workspaceId,
