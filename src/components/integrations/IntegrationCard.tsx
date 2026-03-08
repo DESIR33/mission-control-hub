@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useTestIntegration, type IntegrationKey, type WorkspaceIntegration } from "@/hooks/use-integrations";
 import { useStripeSync } from "@/hooks/use-stripe-sync";
+import { useSlackNotify } from "@/hooks/use-slack-notify";
 import type { IntegrationDef } from "@/pages/IntegrationsPage";
 
 interface IntegrationCardProps {
