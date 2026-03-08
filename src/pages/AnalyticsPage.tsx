@@ -992,7 +992,7 @@ function OverviewTab({
         <div className="rounded-xl border border-border bg-card p-4">
           <h2 className="text-sm font-semibold text-foreground mb-4">Content Format Analysis</h2>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm min-w-[500px]">
               <thead>
                 <tr className="border-b border-border">
                   <th className="text-left py-2 px-2 text-xs text-muted-foreground font-medium">Format</th>
