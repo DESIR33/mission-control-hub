@@ -27,6 +27,7 @@ import { DealsAttributionPanel } from "@/components/video-detail/DealsAttributio
 import { RetentionCurve } from "@/components/video-detail/RetentionCurve";
 import { VideoCompaniesPanel } from "@/components/video-detail/VideoCompaniesPanel";
 import { VideoOptimizationPanel } from "@/components/video-detail/VideoOptimizationPanel";
+import { VideoOptimizationTracker } from "@/components/video-detail/VideoOptimizationTracker";
 import { SponsorSegmentTracker } from "@/components/video-detail/SponsorSegmentTracker";
 import { SubtitleUploader } from "@/components/video-detail/SubtitleUploader";
 
