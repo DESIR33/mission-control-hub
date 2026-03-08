@@ -216,6 +216,9 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
           </Button>
         </CardContent>
       </Card>
+
+      {/* Email Templates */}
+      <EmailTemplateManager />
     </div>
   );
 }
