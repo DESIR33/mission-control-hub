@@ -13,9 +13,9 @@ export interface VideoDeal {
 }
 
 /**
- * Fetches deals linked to this video via both:
- * 1. The video_queue_id FK path (proper structural link)
- * 2. Notes containing the YouTube video ID (legacy text search)
+ * Fetches deals linked to this video via:
+ * 1. video_companies table (company_id match)
+ * 2. Notes containing the YouTube video ID (text search)
  * Results are deduplicated by deal ID.
  */
 export function useVideoDeals(youtubeVideoId: string | undefined) {
