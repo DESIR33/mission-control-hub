@@ -279,9 +279,9 @@ export function ContactsTable({ contacts, onSelectContact, selectedId, addButton
                   </TableCell>
                   <TableCell>
                     {contact.vip_tier !== "none" && (
-                      <span className="text-sm" title={contact.vip_tier}>
-                        {tierIcons[contact.vip_tier]}
-                      </span>
+                      <Badge variant="outline" className={cn("text-xs font-medium", tierConfig[contact.vip_tier].className)}>
+                        {tierConfig[contact.vip_tier].icon} {tierConfig[contact.vip_tier].label}
+                      </Badge>
                     )}
                   </TableCell>
                   <TableCell>
