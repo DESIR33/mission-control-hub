@@ -90,9 +90,18 @@ export function AppSidebar({ headerless }: AppSidebarProps) {
 
           const isOpen = openGroups[item.label] ?? false;
 
+          const hasActiveChild = item.children.some((c) => location.pathname.startsWith(c.to));
+
           return (
             <Collapsible key={item.label} open={isOpen} onOpenChange={() => toggleGroup(item.label)}>
-              <CollapsibleTrigger className="flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
+              <CollapsibleTrigger
+                className={cn(
+                  "flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm transition-colors",
+                  hasActiveChild
+                    ? "bg-sidebar-accent text-sidebar-primary font-medium"
+                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                )}
+              >
                 <item.icon className="w-4 h-4 shrink-0" />
                 <span className="flex-1 text-left truncate">{item.label}</span>
                 <ChevronDown
@@ -104,7 +113,7 @@ export function AppSidebar({ headerless }: AppSidebarProps) {
               </CollapsibleTrigger>
               <CollapsibleContent className="space-y-0.5 mt-0.5">
                 {item.children.map((child) => {
-                  const active = location.pathname === child.to;
+                  const active = location.pathname.startsWith(child.to);
                   return (
                     <RouterNavLink
                       key={child.to}
