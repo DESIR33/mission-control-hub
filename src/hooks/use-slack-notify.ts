@@ -43,9 +43,9 @@ export function useSlackNotify() {
   const { workspaceId } = useWorkspace();
 
   return useMutation({
-    mutationFn: async <T extends SlackNotifyType>(args: {
-      type: T;
-      payload?: PayloadMap[T];
+    mutationFn: async (args: {
+      type: SlackNotifyType;
+      payload?: SlackAlertPayload | SlackBriefingPayload | SlackApprovalPayload | SlackCustomPayload;
       channel_id?: string;
     }) => {
       const { data, error } = await supabase.functions.invoke("slack-notify", {
