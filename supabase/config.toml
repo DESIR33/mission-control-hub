@@ -59,3 +59,6 @@ verify_jwt = false
 
 [functions.integration-test]
 verify_jwt = false
+
+[functions.stripe-sync]
+verify_jwt = false
