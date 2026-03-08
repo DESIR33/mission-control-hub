@@ -3,7 +3,7 @@
  * The MissionBriefing already provides a comprehensive channel overview with KPIs.
  */
 import { MissionBriefing } from "@/components/command-center";
-import { SyncStatusBar, SyncDebugPanel } from "@/components/analytics";
+import { SyncStatusBar } from "@/components/analytics";
 
 export function AnalyticsOverviewContent() {
   return (
