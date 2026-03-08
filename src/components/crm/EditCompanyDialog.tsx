@@ -125,6 +125,32 @@ export function EditCompanyDialog({ company, open, onOpenChange }: EditCompanyDi
             </div>
           </div>
 
+          <div className="grid grid-cols-3 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="edit_country" className="text-xs">Country</Label>
+              <Input id="edit_country" name="country" defaultValue={company.country ?? ""} className="bg-secondary border-border" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit_state" className="text-xs">State</Label>
+              <Input id="edit_state" name="state" defaultValue={company.state ?? ""} className="bg-secondary border-border" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit_city" className="text-xs">City</Label>
+              <Input id="edit_city" name="city" defaultValue={company.city ?? ""} className="bg-secondary border-border" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="edit_phone">Phone Number</Label>
+              <Input id="edit_phone" name="phone" type="tel" defaultValue={company.phone ?? ""} className="bg-secondary border-border" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit_social_whatsapp">WhatsApp</Label>
+              <Input id="edit_social_whatsapp" name="social_whatsapp" defaultValue={company.social_whatsapp ?? ""} className="bg-secondary border-border" />
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Size</Label>
