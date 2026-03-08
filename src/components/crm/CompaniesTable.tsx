@@ -499,15 +499,13 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={(e) => {
-                e.preventDefault();
-                handleDeleteConfirm();
-              }}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            <Button
+              variant="destructive"
+              onClick={handleDeleteConfirm}
+              disabled={deleteCompany.isPending}
             >
-              Delete
-            </AlertDialogAction>
+              {deleteCompany.isPending ? "Deleting…" : "Delete"}
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
