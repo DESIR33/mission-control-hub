@@ -353,7 +353,7 @@ export default function AnalyticsPage() {
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
       {/* Sync Status Bar */}
       <SyncStatusBar />
-      <SyncDebugPanel />
+      
 
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
