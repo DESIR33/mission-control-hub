@@ -28,6 +28,7 @@ export function IntegrationCard({
   const isConnected = record?.enabled ?? false;
   const { toast } = useToast();
   const testMutation = useTestIntegration();
+  const stripeSync = useStripeSync();
   const [testResult, setTestResult] = useState<any>(null);
 
   const handleTest = async () => {
