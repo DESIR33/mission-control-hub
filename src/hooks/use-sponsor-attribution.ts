@@ -166,7 +166,7 @@ export function useSponsorAttribution() {
       totalSponsorRevenue,
       sponsorRetentionRate,
     };
-  }, [deals, revenueSummary, videoQueue]);
+  }, [deals, revenueSummary, videoQueue, videoCompanies]);
 
   return { data: summary, isLoading };
 }
