@@ -100,7 +100,7 @@ export default function AIHubPage() {
         </p>
       </div>
 
-      <Tabs defaultValue={initialTab} onValueChange={updateTab}>
+      <Tabs value={activeTab} onValueChange={updateTab}>
         <TabsList className="overflow-x-auto flex-nowrap scrollbar-hide w-full justify-start">
           <TabsTrigger value="chat" className="flex-shrink-0 gap-1.5">
             <MessageSquare className="h-3.5 w-3.5" /> Chat
