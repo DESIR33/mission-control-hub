@@ -14,6 +14,9 @@ import { SmartFollowUpQueue } from "@/components/inbox/SmartFollowUpQueue";
 import { EmailToDealAutomation } from "@/components/inbox/EmailToDealAutomation";
 import { EmailTemplateManager } from "@/components/inbox/EmailTemplateManager";
 import { EmailCategoryBadge } from "@/components/inbox/EmailCategoryBadge";
+import { ThreadSummarizer } from "@/components/inbox/ThreadSummarizer";
+import { SmartReplySuggestions } from "@/components/inbox/SmartReplySuggestions";
+import { useOutlookSend } from "@/hooks/use-smart-inbox";
 import type { SmartEmail } from "@/hooks/use-smart-inbox";
 
 interface SmartInboxSidebarProps {
