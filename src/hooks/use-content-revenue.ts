@@ -161,7 +161,7 @@ export function useContentRevenue(days = 180) {
         { source: "Affiliates", amount: totalAffiliateRevenue },
       ],
     };
-  }, [videoQueue, deals, affiliateTxns, videoAnalytics]);
+  }, [videoQueue, deals, affiliateTxns, videoAnalytics, videoCompanies]);
 
   return { data: summary, isLoading: dealsLoading || affLoading || queueLoading };
 }

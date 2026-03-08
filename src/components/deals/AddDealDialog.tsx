@@ -56,7 +56,6 @@ export function AddDealDialog() {
       setCompanyId("");
       setStage("prospecting");
       setForecastCategory("");
-      setVideoQueueId("");
       setOpen(false);
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });

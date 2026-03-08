@@ -119,7 +119,6 @@ export function useUpdateDeal() {
       owner_id?: string | null;
       expected_close_date?: string | null;
       closed_at?: string | null;
-      video_queue_id?: string | null;
       notes?: string | null;
     }) => {
       if (!workspaceId) throw new Error("No workspace");
