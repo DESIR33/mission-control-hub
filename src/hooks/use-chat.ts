@@ -67,6 +67,21 @@ export function useChat() {
     setToolsCalled([]);
   }, []);
 
+  const deleteSession = useCallback(
+    async (sid: string) => {
+      if (!workspaceId) return;
+      await query("assistant_conversations")
+        .delete()
+        .eq("session_id", sid)
+        .eq("workspace_id", workspaceId);
+      if (sid === sessionId) {
+        newSession();
+      }
+      loadSessions();
+    },
+    [workspaceId, sessionId, newSession, loadSessions]
+  );
+
   const sendMessage = useCallback(
     async (content: string, model?: string) => {
       if (!workspaceId || !content.trim()) return;

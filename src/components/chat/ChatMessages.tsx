@@ -45,7 +45,7 @@ export function ChatMessages({ messages, isLoading }: Props) {
 
             <div
               className={cn(
-                "rounded-lg px-4 py-3 max-w-[85%] text-sm",
+                "rounded-lg px-4 py-3 max-w-[85%] text-sm overflow-hidden break-words",
                 msg.role === "user"
                   ? "bg-primary text-primary-foreground"
                   : "bg-muted/50 border border-border"
@@ -53,7 +53,7 @@ export function ChatMessages({ messages, isLoading }: Props) {
             >
               {msg.role === "assistant" ? (
                 <>
-                  <div className="prose prose-sm prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
+                  <div className="prose prose-sm prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 overflow-x-auto [&_pre]:overflow-x-auto [&_table]:overflow-x-auto [&_code]:break-all">
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
                       {msg.content}
                     </ReactMarkdown>
