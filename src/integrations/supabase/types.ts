@@ -996,6 +996,83 @@ export type Database = {
           },
         ]
       }
+      inbox_emails: {
+        Row: {
+          body_html: string | null
+          conversation_id: string | null
+          created_at: string
+          folder: string
+          from_email: string
+          from_name: string
+          has_attachments: boolean
+          id: string
+          importance: string
+          is_pinned: boolean
+          is_read: boolean
+          labels: string[] | null
+          message_id: string
+          metadata: Json | null
+          preview: string
+          received_at: string
+          subject: string
+          to_recipients: Json | null
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          body_html?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          folder?: string
+          from_email?: string
+          from_name?: string
+          has_attachments?: boolean
+          id?: string
+          importance?: string
+          is_pinned?: boolean
+          is_read?: boolean
+          labels?: string[] | null
+          message_id: string
+          metadata?: Json | null
+          preview?: string
+          received_at?: string
+          subject?: string
+          to_recipients?: Json | null
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          body_html?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          folder?: string
+          from_email?: string
+          from_name?: string
+          has_attachments?: boolean
+          id?: string
+          importance?: string
+          is_pinned?: boolean
+          is_read?: boolean
+          labels?: string[] | null
+          message_id?: string
+          metadata?: Json | null
+          preview?: string
+          received_at?: string
+          subject?: string
+          to_recipients?: Json | null
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inbox_emails_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           body: string | null
