@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SmartFollowUpQueue } from "@/components/inbox/SmartFollowUpQueue";
+import { EmailToDealAutomation } from "@/components/inbox/EmailToDealAutomation";
 import type { SmartEmail } from "@/hooks/use-smart-inbox";
 
 interface SmartInboxSidebarProps {
