@@ -59,6 +59,15 @@ export function AgentHubContent() {
     }
   };
 
+  const handleOptimizeVideos = async () => {
+    try {
+      const result = await runVideoOptimizer.mutateAsync({ max_videos: 10 });
+      toast({ title: "Video optimization complete", description: `Analyzed ${result.videos_analyzed} videos, created ${result.proposals_created} proposals` });
+    } catch (err: any) {
+      toast({ title: "Video optimization failed", description: err.message, variant: "destructive" });
+    }
+  };
+
   const handleToggle = (agent: AgentDefinition, enabled: boolean) => { toggleAgent.mutate({ id: agent.id, enabled }); };
 
   const handleCreateSkill = (skill: { name: string; slug: string; description: string; category: AgentSkill["category"] }) => {
