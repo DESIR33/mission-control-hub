@@ -13,6 +13,7 @@ import {
   CalendarIcon,
 } from "lucide-react";
 import { AiEmailDrafter } from "@/components/inbox/AiEmailDrafter";
+import { EmailToContactActions } from "@/components/inbox/EmailToContactActions";
 import { useOutlookSend } from "@/hooks/use-smart-inbox";
 import type { SmartEmail } from "@/hooks/use-smart-inbox";
 
