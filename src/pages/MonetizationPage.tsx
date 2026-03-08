@@ -522,7 +522,7 @@ export default function MonetizationPage() {
       </motion.div>
 
       <Tabs value={activeTab} onValueChange={(v) => navigate(`/revenue/${v}`)}>
-        <div className="inline-flex flex-wrap gap-1 rounded-lg border border-border bg-secondary p-1">
+        <div className="flex overflow-x-auto scrollbar-hide gap-1 rounded-lg border border-border bg-secondary p-1">
           <button
             onClick={() => navigate("/revenue/overview")}
             className={cn(
