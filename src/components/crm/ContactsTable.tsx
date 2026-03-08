@@ -161,7 +161,7 @@ export function ContactsTable({ contacts, onSelectContact, selectedId, addButton
                     {contact.first_name} {contact.last_name}
                   </p>
                   {contact.vip_tier !== "none" && (
-                    <span className="text-sm leading-none">{tierIcons[contact.vip_tier]}</span>
+                    <span className="text-sm leading-none">{tierConfig[contact.vip_tier].icon}</span>
                   )}
                 </div>
                 <div className="flex items-center gap-2 mt-0.5 flex-wrap">
