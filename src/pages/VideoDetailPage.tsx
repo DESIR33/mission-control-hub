@@ -42,6 +42,7 @@ export default function VideoDetailPage() {
   const { data: trafficSources = [] } = useTrafficSources();
   const { data: retentionData = [] } = useVideoRetention(youtubeVideoId);
   const { lookup: revenueLookup } = useVideoRevenueLookup();
+  const runOptimizer = useRunVideoOptimizer();
 
   // Get combined revenue data for this video
   const videoRevenue = youtubeVideoId ? revenueLookup.get(youtubeVideoId) : undefined;
