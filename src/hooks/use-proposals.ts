@@ -21,12 +21,17 @@ export function useProposals() {
         } else if (row.contacts?.first_name) {
           entity_name = [row.contacts.first_name, row.contacts.last_name].filter(Boolean).join(" ");
         }
-        // Fallback: use video_id for video proposals, or entity_id slice
+        // Fallback: for video proposals, extract title from proposal title or metadata
         if (!entity_name && row.video_id) {
-          entity_name = row.video_id;
+          // Try to extract video title from metadata or proposal title
+          const metaTitle = row.metadata?.video_title;
+          const titleMatch = row.title?.match(/:\s*(.+)$/);
+          entity_name = metaTitle || (titleMatch ? titleMatch[1] : row.video_id);
         }
         if (!entity_name && row.entity_id) {
-          entity_name = row.entity_id.slice(0, 12);
+          // Try proposal title as a better fallback than raw ID
+          const titleMatch = row.title?.match(/:\s*(.+)$/);
+          entity_name = titleMatch ? titleMatch[1] : row.title || row.entity_id.slice(0, 12);
         }
         const { companies, contacts, ...rest } = row;
         // Merge content into proposed_changes as fallback
