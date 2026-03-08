@@ -28,9 +28,9 @@ export interface ContentRevenueSummary {
   revenueBySource: { source: string; amount: number }[];
 }
 
-export function useContentRevenue() {
+export function useContentRevenue(days = 180) {
   const { workspaceId } = useWorkspace();
-  const { data: videoAnalytics = [] } = useVideoAnalytics(180);
+  const { data: videoAnalytics = [] } = useVideoAnalytics(days);
 
   const { data: deals = [], isLoading: dealsLoading } = useQuery({
     queryKey: ["content-revenue-deals", workspaceId],

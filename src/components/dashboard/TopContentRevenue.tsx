@@ -7,7 +7,7 @@ const fmtMoney = (n: number) => {
 };
 
 export function TopContentRevenue() {
-  const { data: summary, isLoading } = useContentRevenue();
+  const { data: summary, isLoading } = useContentRevenue(30);
 
   if (isLoading) {
     return (
