@@ -24,6 +24,7 @@ import {
   Mail, Globe, Linkedin, Twitter, Instagram, MapPin, Building2,
   Users, DollarSign, Clock, Pencil, Trash2, Loader2, Sparkles,
   Film, Play, Lightbulb, TrendingUp, Target, BarChart3,
+  Phone, MessageCircle, Facebook, Youtube,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useWorkspace } from "@/hooks/use-workspace";
@@ -343,7 +344,12 @@ export function CompanyDetailSheet({ company, activities, companyContacts, open,
                   <DetailRow icon={Globe} label="Website" value={company.website} href={company.website ?? undefined} />
                   <DetailRow icon={Mail} label="Email" value={company.primary_email} href={company.primary_email ? `mailto:${company.primary_email}` : undefined} />
                   <DetailRow icon={Mail} label="Secondary Email" value={company.secondary_email} href={company.secondary_email ? `mailto:${company.secondary_email}` : undefined} />
+                  <DetailRow icon={Phone} label="Phone" value={company.phone} href={company.phone ? `tel:${company.phone}` : undefined} />
+                  <DetailRow icon={MessageCircle} label="WhatsApp" value={company.social_whatsapp} href={company.social_whatsapp ? `https://wa.me/${company.social_whatsapp.replace(/\D/g, "")}` : undefined} />
                   <DetailRow icon={MapPin} label="Location" value={company.location} />
+                  <DetailRow icon={MapPin} label="Country" value={company.country} />
+                  <DetailRow icon={MapPin} label="State" value={company.state} />
+                  <DetailRow icon={MapPin} label="City" value={company.city} />
                   <DetailRow icon={Users} label="Size" value={company.size} />
                   <DetailRow icon={DollarSign} label="Revenue" value={company.revenue} />
                 </div>
@@ -368,6 +374,10 @@ export function CompanyDetailSheet({ company, activities, companyContacts, open,
                   <DetailRow icon={Twitter} label="Twitter / X" value={company.social_twitter} href={company.social_twitter ? `https://x.com/${company.social_twitter.replace("@", "")}` : undefined} />
                   <DetailRow icon={Linkedin} label="LinkedIn" value={company.social_linkedin} href={company.social_linkedin ? `https://linkedin.com/company/${company.social_linkedin}` : undefined} />
                   <DetailRow icon={Instagram} label="Instagram" value={company.social_instagram} href={company.social_instagram ? `https://instagram.com/${company.social_instagram.replace("@", "")}` : undefined} />
+                  <DetailRow icon={Facebook} label="Facebook" value={company.social_facebook} href={company.social_facebook ? `https://facebook.com/${company.social_facebook}` : undefined} />
+                  <DetailRow icon={Youtube} label="YouTube" value={company.social_youtube} href={company.social_youtube ?? undefined} />
+                  <DetailRow icon={Globe} label="TikTok" value={company.social_tiktok} href={company.social_tiktok ? `https://tiktok.com/@${company.social_tiktok.replace("@", "")}` : undefined} />
+                  <DetailRow icon={Globe} label="Product Hunt" value={company.social_producthunt} href={company.social_producthunt ?? undefined} />
                 </div>
               </div>
 

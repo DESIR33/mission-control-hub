@@ -57,6 +57,10 @@ export function EditCompanyDialog({ company, open, onOpenChange }: EditCompanyDi
         website: (form.get("website") as string) || undefined,
         size: size || undefined,
         location: (form.get("location") as string) || undefined,
+        country: (form.get("country") as string) || undefined,
+        state: (form.get("state") as string) || undefined,
+        city: (form.get("city") as string) || undefined,
+        phone: (form.get("phone") as string) || undefined,
         primary_email: (form.get("primary_email") as string) || undefined,
         secondary_email: (form.get("secondary_email") as string) || undefined,
         revenue: (form.get("revenue") as string) || undefined,
@@ -68,6 +72,7 @@ export function EditCompanyDialog({ company, open, onOpenChange }: EditCompanyDi
         social_facebook: (form.get("social_facebook") as string) || undefined,
         social_tiktok: (form.get("social_tiktok") as string) || undefined,
         social_producthunt: (form.get("social_producthunt") as string) || undefined,
+        social_whatsapp: (form.get("social_whatsapp") as string) || undefined,
         notes: (form.get("notes") as string) || undefined,
       });
       toast({ title: "Company updated" });
@@ -117,6 +122,32 @@ export function EditCompanyDialog({ company, open, onOpenChange }: EditCompanyDi
             <div className="space-y-1.5">
               <Label htmlFor="edit_primary_email">Email</Label>
               <Input id="edit_primary_email" name="primary_email" type="email" defaultValue={company.primary_email ?? ""} className="bg-secondary border-border" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="edit_country" className="text-xs">Country</Label>
+              <Input id="edit_country" name="country" defaultValue={company.country ?? ""} className="bg-secondary border-border" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit_state" className="text-xs">State</Label>
+              <Input id="edit_state" name="state" defaultValue={company.state ?? ""} className="bg-secondary border-border" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit_city" className="text-xs">City</Label>
+              <Input id="edit_city" name="city" defaultValue={company.city ?? ""} className="bg-secondary border-border" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="edit_phone">Phone Number</Label>
+              <Input id="edit_phone" name="phone" type="tel" defaultValue={company.phone ?? ""} className="bg-secondary border-border" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit_social_whatsapp">WhatsApp</Label>
+              <Input id="edit_social_whatsapp" name="social_whatsapp" defaultValue={company.social_whatsapp ?? ""} className="bg-secondary border-border" />
             </div>
           </div>
 

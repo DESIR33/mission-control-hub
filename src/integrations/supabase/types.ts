@@ -586,6 +586,8 @@ export type Database = {
       }
       companies: {
         Row: {
+          city: string | null
+          country: string | null
           created_at: string
           created_by: string | null
           deleted_at: string | null
@@ -600,6 +602,7 @@ export type Database = {
           logo_url: string | null
           name: string
           notes: string | null
+          phone: string | null
           primary_email: string | null
           response_sla_minutes: number | null
           revenue: string | null
@@ -611,13 +614,17 @@ export type Database = {
           social_producthunt: string | null
           social_tiktok: string | null
           social_twitter: string | null
+          social_whatsapp: string | null
           social_youtube: string | null
+          state: string | null
           updated_at: string
           vip_tier: string | null
           website: string | null
           workspace_id: string
         }
         Insert: {
+          city?: string | null
+          country?: string | null
           created_at?: string
           created_by?: string | null
           deleted_at?: string | null
@@ -632,6 +639,7 @@ export type Database = {
           logo_url?: string | null
           name: string
           notes?: string | null
+          phone?: string | null
           primary_email?: string | null
           response_sla_minutes?: number | null
           revenue?: string | null
@@ -643,13 +651,17 @@ export type Database = {
           social_producthunt?: string | null
           social_tiktok?: string | null
           social_twitter?: string | null
+          social_whatsapp?: string | null
           social_youtube?: string | null
+          state?: string | null
           updated_at?: string
           vip_tier?: string | null
           website?: string | null
           workspace_id: string
         }
         Update: {
+          city?: string | null
+          country?: string | null
           created_at?: string
           created_by?: string | null
           deleted_at?: string | null
@@ -664,6 +676,7 @@ export type Database = {
           logo_url?: string | null
           name?: string
           notes?: string | null
+          phone?: string | null
           primary_email?: string | null
           response_sla_minutes?: number | null
           revenue?: string | null
@@ -675,7 +688,9 @@ export type Database = {
           social_producthunt?: string | null
           social_tiktok?: string | null
           social_twitter?: string | null
+          social_whatsapp?: string | null
           social_youtube?: string | null
+          state?: string | null
           updated_at?: string
           vip_tier?: string | null
           website?: string | null

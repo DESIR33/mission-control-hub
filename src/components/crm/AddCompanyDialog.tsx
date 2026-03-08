@@ -41,6 +41,10 @@ export function AddCompanyDialog() {
         website: (form.get("website") as string) || undefined,
         size: form.get("size") as string || undefined,
         location: (form.get("location") as string) || undefined,
+        country: (form.get("country") as string) || undefined,
+        state: (form.get("state") as string) || undefined,
+        city: (form.get("city") as string) || undefined,
+        phone: (form.get("phone") as string) || undefined,
         primary_email: (form.get("primary_email") as string) || undefined,
         revenue: (form.get("revenue") as string) || undefined,
         vip_tier: form.get("vip_tier") as string,
@@ -52,6 +56,7 @@ export function AddCompanyDialog() {
         social_facebook: (form.get("social_facebook") as string) || undefined,
         social_tiktok: (form.get("social_tiktok") as string) || undefined,
         social_producthunt: (form.get("social_producthunt") as string) || undefined,
+        social_whatsapp: (form.get("social_whatsapp") as string) || undefined,
         notes: (form.get("notes") as string) || undefined,
       });
       toast({ title: "Company created" });
@@ -109,6 +114,32 @@ export function AddCompanyDialog() {
             <div className="space-y-1.5">
               <Label htmlFor="primary_email">Email</Label>
               <Input id="primary_email" name="primary_email" type="email" className="bg-secondary border-border" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="country" className="text-xs">Country</Label>
+              <Input id="country" name="country" placeholder="e.g. US" className="bg-secondary border-border" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="state" className="text-xs">State</Label>
+              <Input id="state" name="state" placeholder="e.g. CA" className="bg-secondary border-border" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="city" className="text-xs">City</Label>
+              <Input id="city" name="city" placeholder="e.g. San Francisco" className="bg-secondary border-border" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="phone">Phone Number</Label>
+              <Input id="phone" name="phone" type="tel" placeholder="+1 555-0100" className="bg-secondary border-border" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="social_whatsapp" className="text-xs">WhatsApp</Label>
+              <Input id="social_whatsapp" name="social_whatsapp" placeholder="+1 555-0100" className="bg-secondary border-border" />
             </div>
           </div>
 

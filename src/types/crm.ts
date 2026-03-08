@@ -53,6 +53,10 @@ export interface Company {
   size: string | null;
   revenue: string | null;
   location: string | null;
+  country: string | null;
+  state: string | null;
+  city: string | null;
+  phone: string | null;
   primary_email: string | null;
   secondary_email: string | null;
   social_twitter: string | null;
@@ -62,6 +66,7 @@ export interface Company {
   social_facebook: string | null;
   social_tiktok: string | null;
   social_producthunt: string | null;
+  social_whatsapp: string | null;
   vip_tier: 'none' | 'silver' | 'gold' | 'platinum';
   response_sla_minutes: number | null;
   enrichment_brandfetch: Record<string, unknown> | null;

@@ -14,8 +14,12 @@ const OPTIONAL_FIELDS = [
   { key: "website", label: "Website" },
   { key: "size", label: "Size" },
   { key: "location", label: "Location" },
+  { key: "country", label: "Country" },
+  { key: "state", label: "State" },
+  { key: "city", label: "City" },
+  { key: "phone", label: "Phone Number" },
   { key: "description", label: "Description" },
-  { key: "primary_email", label: "Primary Email" },
+  { key: "primary_email", label: "Email Address" },
   { key: "secondary_email", label: "Secondary Email" },
   { key: "revenue", label: "Revenue" },
   { key: "notes", label: "Notes" },
@@ -27,6 +31,7 @@ const OPTIONAL_FIELDS = [
   { key: "social_youtube", label: "YouTube" },
   { key: "social_tiktok", label: "TikTok" },
   { key: "social_producthunt", label: "Product Hunt" },
+  { key: "social_whatsapp", label: "WhatsApp" },
 ];
 
 export function ImportCompaniesDialog() {
@@ -50,6 +55,10 @@ export function ImportCompaniesDialog() {
           industry: trimOrUndefined(row.industry),
           website: trimOrUndefined(row.website),
           location: trimOrUndefined(row.location),
+          country: trimOrUndefined(row.country),
+          state: trimOrUndefined(row.state),
+          city: trimOrUndefined(row.city),
+          phone: trimOrUndefined(row.phone),
           size: trimOrUndefined(row.size),
           revenue: trimOrUndefined(row.revenue),
           primary_email: trimOrUndefined(row.primary_email),
@@ -64,6 +73,7 @@ export function ImportCompaniesDialog() {
           social_youtube: trimOrUndefined(row.social_youtube),
           social_tiktok: trimOrUndefined(row.social_tiktok),
           social_producthunt: trimOrUndefined(row.social_producthunt),
+          social_whatsapp: trimOrUndefined(row.social_whatsapp),
         });
       } catch {
         failed++;
