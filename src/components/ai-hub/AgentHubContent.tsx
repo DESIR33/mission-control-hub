@@ -111,12 +111,29 @@ export function AgentHubContent() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <ExecutionTimeline executions={executions} isLoading={execLoading} />
-        <SkillManager skills={skills} onCreateSkill={() => setShowCreateSkill(true)} onDeleteSkill={handleDeleteSkill} />
+        <SkillManager skills={skills} onCreateSkill={() => setShowCreateSkill(true)} onImportSkill={() => setShowImportSkill(true)} onDeleteSkill={handleDeleteSkill} onViewSkill={(s) => setViewSkill(s)} />
       </div>
 
       <RunAgentDialog agent={runDialogAgent} open={!!runDialogAgent} onOpenChange={(open) => { if (!open) setRunDialogAgent(null); }} onRun={handleRunAgent} isRunning={runAgent.isPending} />
       <AgentDetailSheet agent={detailAgent} open={!!detailAgent} onOpenChange={(open) => { if (!open) setDetailAgent(null); }} executions={executions.filter((e) => e.agent_slug === detailAgent?.slug)} skills={skills} />
       <CreateSkillDialog open={showCreateSkill} onOpenChange={setShowCreateSkill} onSave={handleCreateSkill} isLoading={createSkill.isPending} />
+      <ImportSkillDialog
+        open={showImportSkill}
+        onOpenChange={setShowImportSkill}
+        onImport={(skill) => {
+          createSkill.mutate(skill, {
+            onSuccess: () => {
+              setShowImportSkill(false);
+              toast({ title: "Skill imported", description: `${skill.name} is now available.` });
+            },
+            onError: (err) => {
+              toast({ title: "Import failed", description: err.message, variant: "destructive" });
+            },
+          });
+        }}
+        isLoading={createSkill.isPending}
+      />
+      <SkillDetailSheet skill={viewSkill} open={!!viewSkill} onOpenChange={(open) => { if (!open) setViewSkill(null); }} />
     </div>
   );
 }
