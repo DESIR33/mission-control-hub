@@ -99,16 +99,16 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
       </div>
 
       {/* Sender Info */}
-      <Card>
+      <Card className="overflow-hidden">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium flex items-center gap-2">
-            <Mail className="w-4 h-4" />
+            <Mail className="w-4 h-4 shrink-0" />
             Sender
           </CardTitle>
         </CardHeader>
-        <CardContent className="text-sm space-y-1">
-          <p className="font-medium">{email.from_name || email.from_email}</p>
-          <p className="text-muted-foreground">{email.from_email}</p>
+        <CardContent className="text-sm space-y-1 min-w-0">
+          <p className="font-medium truncate">{email.from_name || email.from_email}</p>
+          <p className="text-muted-foreground truncate">{email.from_email}</p>
         </CardContent>
       </Card>
 
