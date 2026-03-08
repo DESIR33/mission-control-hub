@@ -137,7 +137,7 @@ No other text.`,
 
           if (samesender?.length) {
             totalClassified += samesender.length;
-            console.log(`Auto-classified ${sameender.length} more emails from ${email.from_email} as ${category}`);
+            console.log(`Auto-classified ${samesender.length} more emails from ${email.from_email} as ${category}`);
           }
         }
       }

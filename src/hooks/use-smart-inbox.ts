@@ -297,11 +297,11 @@ export function useSyncOutlook() {
   return useMutation({
     mutationFn: async (folder: string = "inbox") => {
       const { data, error } = await supabase.functions.invoke("outlook-sync", {
-        body: { workspace_id: workspaceId, folder },
+        body: { workspace_id: workspaceId, folder, sync_all_folders: true },
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-      return data as { success: boolean; fetched: number; upserted: number };
+      return data as { success: boolean; fetched: number; upserted: number; folders_synced: string[] };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["inbox-emails"] });
