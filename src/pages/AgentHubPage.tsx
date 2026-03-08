@@ -230,7 +230,9 @@ export default function AgentHubPage() {
             <SkillManager
               skills={skills}
               onCreateSkill={() => setShowCreateSkill(true)}
+              onImportSkill={() => setShowImportSkill(true)}
               onDeleteSkill={handleDeleteSkill}
+              onViewSkill={(s) => setViewSkill(s)}
             />
           </div>
         </>
@@ -258,6 +260,29 @@ export default function AgentHubPage() {
         onOpenChange={setShowCreateSkill}
         onSave={handleCreateSkill}
         isLoading={createSkill.isPending}
+      />
+
+      <ImportSkillDialog
+        open={showImportSkill}
+        onOpenChange={setShowImportSkill}
+        onImport={(skill) => {
+          createSkill.mutate(skill, {
+            onSuccess: () => {
+              setShowImportSkill(false);
+              toast({ title: "Skill imported", description: `${skill.name} is now available.` });
+            },
+            onError: (err) => {
+              toast({ title: "Import failed", description: err.message, variant: "destructive" });
+            },
+          });
+        }}
+        isLoading={createSkill.isPending}
+      />
+
+      <SkillDetailSheet
+        skill={viewSkill}
+        open={!!viewSkill}
+        onOpenChange={(open) => { if (!open) setViewSkill(null); }}
       />
     </div>
   );
