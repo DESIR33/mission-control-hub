@@ -334,9 +334,6 @@ export function DealDetailSheet({ deal, open, onOpenChange, onDeleted }: DealDet
                     </div>
                   </div>
 
-                  {/* Linked Video - removed (video_queue_id not in schema) */}
-                    )}
-                  </div>
 
                   <Separator className="bg-border" />
 
