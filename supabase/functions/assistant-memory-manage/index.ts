@@ -52,15 +52,18 @@ Deno.serve(async (req) => {
     switch (action) {
       case "create": {
         const embedding = await getEmbedding(body.content);
+        const insertData: Record<string, unknown> = {
+          workspace_id,
+          content: body.content,
+          origin: body.origin || "manual",
+          tags: body.tags || [],
+        };
+        if (embedding) {
+          insertData.embedding = `[${embedding.join(",")}]`;
+        }
         const { data, error } = await supabase
           .from("assistant_memory")
-          .insert({
-            workspace_id,
-            content: body.content,
-            origin: body.origin || "manual",
-            tags: body.tags || [],
-            embedding: `[${embedding.join(",")}]`,
-          })
+          .insert(insertData)
           .select("id, content, origin, tags, created_at, updated_at")
           .single();
         if (error) throw error;
