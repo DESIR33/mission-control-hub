@@ -6,6 +6,7 @@ import {
   Loader2Icon,
 } from "lucide-react";
 import type { SmartEmail, EmailPriority } from "@/hooks/use-smart-inbox";
+import { EmailCategoryBadge } from "./EmailCategoryBadge";
 
 interface EmailListProps {
   emails: SmartEmail[];
