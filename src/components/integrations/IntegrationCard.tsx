@@ -5,10 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { useToast } from "@/hooks/use-toast";
-import type { IntegrationKey, WorkspaceIntegration } from "@/hooks/use-integrations";
+import { useTestIntegration, type IntegrationKey, type WorkspaceIntegration } from "@/hooks/use-integrations";
 import type { IntegrationDef } from "@/pages/IntegrationsPage";
 
 interface IntegrationCardProps {
@@ -27,31 +26,25 @@ export function IntegrationCard({
   isDisconnecting,
 }: IntegrationCardProps) {
   const isConnected = record?.enabled ?? false;
-  const { workspaceId } = useWorkspace();
   const { toast } = useToast();
-  const [isTesting, setIsTesting] = useState(false);
+  const testMutation = useTestIntegration();
   const [testResult, setTestResult] = useState<any>(null);
 
   const handleTest = async () => {
-    if (!workspaceId || def.key !== "youtube") return;
-    setIsTesting(true);
     setTestResult(null);
-    try {
-      const { data, error } = await supabase.functions.invoke("youtube-sync", {
-        body: { workspace_id: workspaceId, action: "test" },
-      });
-      if (error) throw error;
-      setTestResult(data.test);
-      if (data.test?.api_key_valid && data.test?.channel_found) {
-        toast({ title: `✅ Connected to ${data.test.channel_name || "YouTube"}` });
-      } else {
-        toast({ title: "Connection issues found", description: data.test?.errors?.[0], variant: "destructive" });
-      }
-    } catch (err: any) {
-      toast({ title: "Test failed", description: err.message, variant: "destructive" });
-    } finally {
-      setIsTesting(false);
-    }
+    testMutation.mutate(def.key, {
+      onSuccess: (data) => {
+        setTestResult(data);
+        if (data.valid) {
+          toast({ title: `✅ ${def.name} connection verified` });
+        } else {
+          toast({ title: "Connection issues found", description: data.errors?.[0], variant: "destructive" });
+        }
+      },
+      onError: (err) => {
+        toast({ title: "Test failed", description: err.message, variant: "destructive" });
+      },
+    });
   };
 
   return (
@@ -63,27 +56,21 @@ export function IntegrationCard({
       <Card
         className={cn(
           "relative border transition-colors",
-          isConnected
-            ? "border-green-800/60 bg-card"
-            : "border-border bg-card"
+          isConnected ? "border-green-800/60 bg-card" : "border-border bg-card"
         )}
       >
-        {/* Connected glow strip */}
         {isConnected && (
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-green-500/60 to-transparent rounded-t-lg" />
         )}
 
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-3">
-            {/* Icon */}
             <div
               className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 text-lg"
               style={{ background: def.iconBg }}
             >
               {def.icon}
             </div>
-
-            {/* Status badge */}
             <Badge
               variant="outline"
               className={cn(
@@ -93,11 +80,7 @@ export function IntegrationCard({
                   : "border-border text-muted-foreground"
               )}
             >
-              {isConnected ? (
-                <CheckCircle2 className="w-3 h-3" />
-              ) : (
-                <Circle className="w-3 h-3" />
-              )}
+              {isConnected ? <CheckCircle2 className="w-3 h-3" /> : <Circle className="w-3 h-3" />}
               {isConnected ? "Connected" : "Not connected"}
             </Badge>
           </div>
@@ -117,14 +100,11 @@ export function IntegrationCard({
                 </a>
               )}
             </CardTitle>
-            <CardDescription className="text-xs leading-relaxed">
-              {def.description}
-            </CardDescription>
+            <CardDescription className="text-xs leading-relaxed">{def.description}</CardDescription>
           </div>
         </CardHeader>
 
         <CardContent className="pt-0 space-y-3">
-          {/* Connected detail */}
           {isConnected && record?.connected_at && (
             <p className="text-xs text-muted-foreground">
               Connected{" "}
@@ -136,42 +116,31 @@ export function IntegrationCard({
             </p>
           )}
 
-          {/* Uses line */}
           {def.usedFor && (
-            <p className="text-xs text-muted-foreground border-t border-border pt-2">
-              {def.usedFor}
-            </p>
+            <p className="text-xs text-muted-foreground border-t border-border pt-2">{def.usedFor}</p>
           )}
 
-          {/* Actions */}
           <div className="flex flex-wrap gap-2 pt-1">
             {isConnected ? (
               <>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  className="h-7 text-xs"
-                  onClick={() => onConnect(def.key)}
-                >
+                <Button size="sm" variant="secondary" className="h-7 text-xs" onClick={() => onConnect(def.key)}>
                   <Settings className="w-3 h-3 mr-1" />
                   Update
                 </Button>
-                {def.key === "youtube" && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-7 text-xs"
-                    onClick={handleTest}
-                    disabled={isTesting}
-                  >
-                    {isTesting ? (
-                      <Loader2 className="w-3 h-3 animate-spin mr-1" />
-                    ) : (
-                      <FlaskConical className="w-3 h-3 mr-1" />
-                    )}
-                    Test
-                  </Button>
-                )}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-7 text-xs"
+                  onClick={handleTest}
+                  disabled={testMutation.isPending}
+                >
+                  {testMutation.isPending ? (
+                    <Loader2 className="w-3 h-3 animate-spin mr-1" />
+                  ) : (
+                    <FlaskConical className="w-3 h-3 mr-1" />
+                  )}
+                  Test
+                </Button>
                 <Button
                   size="sm"
                   variant="outline"
@@ -179,47 +148,30 @@ export function IntegrationCard({
                   onClick={() => onDisconnect(def.key)}
                   disabled={isDisconnecting}
                 >
-                  {isDisconnecting ? (
-                    <Loader2 className="w-3 h-3 animate-spin mr-1" />
-                  ) : null}
+                  {isDisconnecting ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : null}
                   Disconnect
                 </Button>
               </>
             ) : (
-              <Button
-                size="sm"
-                variant="secondary"
-                className="h-7 text-xs"
-                onClick={() => onConnect(def.key)}
-              >
+              <Button size="sm" variant="secondary" className="h-7 text-xs" onClick={() => onConnect(def.key)}>
                 Connect
               </Button>
             )}
           </div>
 
           {/* Test Results */}
-          {testResult && def.key === "youtube" && (
+          {testResult && (
             <div className="rounded-lg border border-border p-3 space-y-2 text-xs">
               <div className="flex items-center gap-2">
-                <span className={testResult.api_key_valid ? "text-green-500" : "text-destructive"}>
-                  {testResult.api_key_valid ? "✓" : "✗"} API Key
-                </span>
-                <span className={testResult.channel_found ? "text-green-500" : "text-destructive"}>
-                  {testResult.channel_found ? "✓" : "✗"} Channel
-                  {testResult.channel_name && ` (${testResult.channel_name})`}
+                <span className={testResult.valid ? "text-green-500" : "text-destructive"}>
+                  {testResult.valid ? "✓" : "✗"} {testResult.valid ? "Connection valid" : "Connection failed"}
                 </span>
               </div>
-              <div className="flex items-center gap-2">
-                <span className={testResult.oauth_configured ? (testResult.oauth_valid ? "text-green-500" : "text-destructive") : "text-muted-foreground"}>
-                  {testResult.oauth_configured ? (testResult.oauth_valid ? "✓" : "✗") : "○"} OAuth
-                  {!testResult.oauth_configured && " (not configured)"}
-                </span>
-              </div>
-              {testResult.oauth_scopes && (
-                <p className="text-xs text-muted-foreground break-all">
-                  Scopes: {testResult.oauth_scopes}
+              {testResult.details && Object.entries(testResult.details).map(([k, v]) => (
+                <p key={k} className="text-xs text-muted-foreground">
+                  {k}: {String(v)}
                 </p>
-              )}
+              ))}
               {testResult.errors?.length > 0 && (
                 <div className="space-y-1">
                   {testResult.errors.map((err: string, i: number) => (

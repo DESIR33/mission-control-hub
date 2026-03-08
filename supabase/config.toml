@@ -53,3 +53,9 @@ verify_jwt = false
 
 [functions.daily-briefing]
 verify_jwt = false
+
+[functions.integration-config-read]
+verify_jwt = false
+
+[functions.integration-test]
+verify_jwt = false
