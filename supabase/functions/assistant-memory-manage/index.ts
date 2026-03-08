@@ -6,10 +6,20 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-async function getEmbedding(text: string): Promise<number[]> {
-  const key = Deno.env.get("OPENAI_API_KEY");
-  if (!key) throw new Error("OPENAI_API_KEY not set");
-  const res = await fetch("https://api.openai.com/v1/embeddings", {
+async function getEmbedding(text: string): Promise<number[] | null> {
+  const key = Deno.env.get("OPENAI_API_KEY") || Deno.env.get("OPENROUTER_API_KEY");
+  if (!key) {
+    console.warn("No embedding API key set – skipping embedding generation");
+    return null;
+  }
+
+  // Use OpenAI directly if OPENAI_API_KEY is set, otherwise route through OpenRouter
+  const isOpenAI = !!Deno.env.get("OPENAI_API_KEY");
+  const url = isOpenAI
+    ? "https://api.openai.com/v1/embeddings"
+    : "https://openrouter.ai/api/v1/embeddings";
+
+  const res = await fetch(url, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${key}`,
@@ -17,7 +27,10 @@ async function getEmbedding(text: string): Promise<number[]> {
     },
     body: JSON.stringify({ model: "text-embedding-3-small", input: text }),
   });
-  if (!res.ok) throw new Error(`Embedding API error: ${res.status}`);
+  if (!res.ok) {
+    console.warn(`Embedding API error: ${res.status} – saving without embedding`);
+    return null;
+  }
   const data = await res.json();
   return data.data[0].embedding;
 }
@@ -39,15 +52,18 @@ Deno.serve(async (req) => {
     switch (action) {
       case "create": {
         const embedding = await getEmbedding(body.content);
+        const insertData: Record<string, unknown> = {
+          workspace_id,
+          content: body.content,
+          origin: body.origin || "manual",
+          tags: body.tags || [],
+        };
+        if (embedding) {
+          insertData.embedding = `[${embedding.join(",")}]`;
+        }
         const { data, error } = await supabase
           .from("assistant_memory")
-          .insert({
-            workspace_id,
-            content: body.content,
-            origin: body.origin || "manual",
-            tags: body.tags || [],
-            embedding: `[${embedding.join(",")}]`,
-          })
+          .insert(insertData)
           .select("id, content, origin, tags, created_at, updated_at")
           .single();
         if (error) throw error;
@@ -57,15 +73,18 @@ Deno.serve(async (req) => {
       }
       case "update": {
         const embedding = await getEmbedding(body.content);
+        const updateData: Record<string, unknown> = {
+          content: body.content,
+          origin: body.origin,
+          tags: body.tags || [],
+          updated_at: new Date().toISOString(),
+        };
+        if (embedding) {
+          updateData.embedding = `[${embedding.join(",")}]`;
+        }
         const { data, error } = await supabase
           .from("assistant_memory")
-          .update({
-            content: body.content,
-            origin: body.origin,
-            tags: body.tags || [],
-            embedding: `[${embedding.join(",")}]`,
-            updated_at: new Date().toISOString(),
-          })
+          .update(updateData)
           .eq("id", body.id)
           .select("id, content, origin, tags, created_at, updated_at")
           .single();
