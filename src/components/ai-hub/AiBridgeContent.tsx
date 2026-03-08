@@ -80,18 +80,38 @@ export function AiBridgeContent() {
 
   const handleApprove = (id: string) => {
     setLocalStatuses((prev) => ({ ...prev, [id]: "approved" }));
+    const proposal = proposals.find(p => p.id === id);
     updateStatus.mutate({ id, status: "approved" }, {
       onSuccess: () => toast({ title: "Proposal approved", description: "The AI proposal has been approved and changes will be applied." }),
       onError: () => toast({ title: "Proposal approved", description: "Approved locally (demo mode)." }),
     });
+    // Submit feedback for learning loop
+    if (proposal) {
+      submitFeedback.mutate({
+        proposal_id: id,
+        agent_slug: (proposal as any).created_by ?? "unknown",
+        action: "accepted",
+        original_content: proposal.proposed_changes ?? {},
+      });
+    }
   };
 
   const handleReject = (id: string) => {
     setLocalStatuses((prev) => ({ ...prev, [id]: "rejected" }));
+    const proposal = proposals.find(p => p.id === id);
     updateStatus.mutate({ id, status: "rejected" }, {
       onSuccess: () => toast({ title: "Proposal rejected", description: "The AI proposal has been rejected." }),
       onError: () => toast({ title: "Proposal rejected", description: "Rejected locally (demo mode)." }),
     });
+    // Submit feedback for learning loop
+    if (proposal) {
+      submitFeedback.mutate({
+        proposal_id: id,
+        agent_slug: (proposal as any).created_by ?? "unknown",
+        action: "rejected",
+        original_content: proposal.proposed_changes ?? {},
+      });
+    }
   };
 
   const handleEdit = (proposal: AiProposal) => { setEditingProposal(proposal); setEditDialogOpen(true); };
