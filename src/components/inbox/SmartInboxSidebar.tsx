@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SmartFollowUpQueue } from "@/components/inbox/SmartFollowUpQueue";
 import { EmailToDealAutomation } from "@/components/inbox/EmailToDealAutomation";
+import { EmailTemplateManager } from "@/components/inbox/EmailTemplateManager";
+import { EmailCategoryBadge } from "@/components/inbox/EmailCategoryBadge";
 import type { SmartEmail } from "@/hooks/use-smart-inbox";
 
 interface SmartInboxSidebarProps {
@@ -57,6 +59,21 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
 
   return (
     <div className="space-y-4 p-4 overflow-y-auto">
+      {/* AI Summary & Category */}
+      {((email as any).ai_summary || (email as any).ai_category) && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">AI Analysis</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <EmailCategoryBadge category={(email as any).ai_category} />
+            {(email as any).ai_summary && (
+              <p className="text-xs text-muted-foreground">{(email as any).ai_summary}</p>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Priority & Labels */}
       <div className="flex items-center gap-2 flex-wrap">
         <Badge variant="outline" className={priorityColors[email.priority]}>
@@ -199,6 +216,9 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
           </Button>
         </CardContent>
       </Card>
+
+      {/* Email Templates */}
+      <EmailTemplateManager />
     </div>
   );
 }

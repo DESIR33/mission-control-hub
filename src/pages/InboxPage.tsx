@@ -13,6 +13,7 @@ import {
   useOutlookAuthUrl,
   type SmartEmail,
 } from "@/hooks/use-smart-inbox";
+import { useClassifyEmails } from "@/hooks/use-email-categories";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -44,12 +45,16 @@ import {
   MailIcon,
   SendIcon,
   LinkIcon,
+  SparklesIcon,
+  LayoutGridIcon,
+  ListIcon,
 } from "lucide-react";
 import FolderSidebar from "@/components/inbox/FolderSidebar";
 import EmailList from "@/components/inbox/EmailList";
 import EmailPreview from "@/components/inbox/EmailPreview";
 import { SmartInboxSidebar } from "@/components/inbox/SmartInboxSidebar";
 import { EmailSequencesContent } from "@/pages/EmailSequencesPage";
+import { InboxKanbanView } from "@/components/inbox/InboxKanbanView";
 
 export default function InboxPage() {
   const { toast } = useToast();
@@ -76,6 +81,7 @@ export default function InboxPage() {
     () => typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches,
   );
   const [mobileShowPreview, setMobileShowPreview] = useState(false);
+  const [viewMode, setViewMode] = useState<"list" | "kanban">("list");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -95,6 +101,7 @@ export default function InboxPage() {
   const deleteEmailMut = useDeleteEmail();
   const outlookSend = useOutlookSend();
   const outlookAuth = useOutlookAuthUrl();
+  const classifyEmails = useClassifyEmails();
 
   const handleSelectEmail = useCallback((email: SmartEmail) => {
     setSelectedEmail(email);
@@ -346,6 +353,25 @@ export default function InboxPage() {
             <Button
               variant="outline"
               size="sm"
+              onClick={() => setViewMode(viewMode === "list" ? "kanban" : "list")}
+              className="gap-1.5"
+            >
+              {viewMode === "list" ? <LayoutGridIcon className="h-3.5 w-3.5" /> : <ListIcon className="h-3.5 w-3.5" />}
+              <span className="hidden sm:inline">{viewMode === "list" ? "Kanban" : "List"}</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => classifyEmails.mutate()}
+              disabled={classifyEmails.isPending}
+              className="gap-1.5"
+            >
+              {classifyEmails.isPending ? <Loader2Icon className="h-3.5 w-3.5 animate-spin" /> : <SparklesIcon className="h-3.5 w-3.5" />}
+              <span className="hidden sm:inline">Classify</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={handleSync}
               disabled={syncOutlook.isPending}
               className="gap-1.5"
@@ -413,6 +439,14 @@ export default function InboxPage() {
               selectedEmailId={selectedEmail?.id ?? null}
               onSelectEmail={handleSelectEmail}
               searchQuery={searchQuery}
+            />
+          </div>
+        ) : viewMode === "kanban" ? (
+          <div className="flex-1 overflow-hidden p-3">
+            <InboxKanbanView
+              emails={emails}
+              onSelectEmail={handleSelectEmail}
+              selectedEmailId={selectedEmail?.id ?? null}
             />
           </div>
         ) : (

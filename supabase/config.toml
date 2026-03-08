@@ -80,3 +80,6 @@ verify_jwt = false
 
 [functions.video-optimizer-agent]
 verify_jwt = false
+
+[functions.classify-emails]
+verify_jwt = false

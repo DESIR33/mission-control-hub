@@ -6,6 +6,7 @@ import {
   Loader2Icon,
 } from "lucide-react";
 import type { SmartEmail, EmailPriority } from "@/hooks/use-smart-inbox";
+import { EmailCategoryBadge } from "./EmailCategoryBadge";
 
 interface EmailListProps {
   emails: SmartEmail[];
@@ -124,6 +125,7 @@ export default function EmailList({
                     {email.importance === "high" && (
                       <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
                     )}
+                    <EmailCategoryBadge category={(email as any).ai_category} />
                     {email.matched_contact && (
                       <span className="rounded px-1 py-0.5 text-[10px] font-medium bg-primary/10 text-primary">
                         CRM
