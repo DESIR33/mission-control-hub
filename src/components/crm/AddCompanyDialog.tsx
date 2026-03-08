@@ -117,6 +117,32 @@ export function AddCompanyDialog() {
             </div>
           </div>
 
+          <div className="grid grid-cols-3 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="country" className="text-xs">Country</Label>
+              <Input id="country" name="country" placeholder="e.g. US" className="bg-secondary border-border" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="state" className="text-xs">State</Label>
+              <Input id="state" name="state" placeholder="e.g. CA" className="bg-secondary border-border" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="city" className="text-xs">City</Label>
+              <Input id="city" name="city" placeholder="e.g. San Francisco" className="bg-secondary border-border" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="phone">Phone Number</Label>
+              <Input id="phone" name="phone" type="tel" placeholder="+1 555-0100" className="bg-secondary border-border" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="social_whatsapp" className="text-xs">WhatsApp</Label>
+              <Input id="social_whatsapp" name="social_whatsapp" placeholder="+1 555-0100" className="bg-secondary border-border" />
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Size</Label>
