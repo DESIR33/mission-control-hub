@@ -12,6 +12,8 @@ import {
   Loader2Icon,
   CalendarIcon,
 } from "lucide-react";
+import { AiEmailDrafter } from "@/components/inbox/AiEmailDrafter";
+import { useOutlookSend } from "@/hooks/use-smart-inbox";
 import type { SmartEmail } from "@/hooks/use-smart-inbox";
 
 interface EmailPreviewProps {
