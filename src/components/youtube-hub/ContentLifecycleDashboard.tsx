@@ -29,7 +29,7 @@ export function ContentLifecycleDashboard() {
   const lifecycleData = useMemo(() => {
     return videos.slice(0, 20).map((video) => {
       const revenue = video.youtubeVideoId ? lookup.get(video.youtubeVideoId) : undefined;
-      const publishDate = video.publishedAt ? new Date(video.publishedAt) : new Date(video.createdAt);
+      const publishDate = video.targetPublishDate ? new Date(video.targetPublishDate) : new Date(video.created_at);
       const daysOld = Math.floor((Date.now() - publishDate.getTime()) / (1000 * 60 * 60 * 24));
       const views = revenue?.views ?? 0;
       const lifecycle = getLifecycle(views, daysOld);
