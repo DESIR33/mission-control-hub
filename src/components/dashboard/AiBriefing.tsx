@@ -30,7 +30,7 @@ export function AiBriefing({ items = [], attentionItems = [] }: AiBriefingProps)
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.15 }}
-      className="rounded-lg border border-border bg-card p-5"
+      className="rounded-lg border border-border bg-card p-3 sm:p-5 overflow-hidden min-w-0"
     >
       {/* Header */}
       <div className="flex items-center gap-2 mb-4">
