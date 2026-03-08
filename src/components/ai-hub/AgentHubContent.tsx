@@ -3,10 +3,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { Bot, Zap, Activity, FileText, Rocket, Loader2 } from "lucide-react";
+import { Bot, Zap, Activity, FileText, Rocket, Loader2, Video } from "lucide-react";
 import {
   useAgents, useSkills, useExecutions, useRunAgent,
-  useRunAllAgents, useToggleAgent, useCreateSkill, useDeleteSkill,
+  useRunAllAgents, useRunVideoOptimizer, useToggleAgent, useCreateSkill, useDeleteSkill,
 } from "@/hooks/use-agents";
 import { AgentCard } from "@/components/agents/AgentCard";
 import { AgentDetailSheet } from "@/components/agents/AgentDetailSheet";
@@ -25,6 +25,7 @@ export function AgentHubContent() {
   const { data: executions = [], isLoading: execLoading } = useExecutions(30);
   const runAgent = useRunAgent();
   const runAll = useRunAllAgents();
+  const runVideoOptimizer = useRunVideoOptimizer();
   const toggleAgent = useToggleAgent();
   const createSkill = useCreateSkill();
   const deleteSkill = useDeleteSkill();
@@ -58,6 +59,15 @@ export function AgentHubContent() {
     }
   };
 
+  const handleOptimizeVideos = async () => {
+    try {
+      const result = await runVideoOptimizer.mutateAsync({ max_videos: 10 });
+      toast({ title: "Video optimization complete", description: `Analyzed ${result.videos_analyzed} videos, created ${result.proposals_created} proposals` });
+    } catch (err: any) {
+      toast({ title: "Video optimization failed", description: err.message, variant: "destructive" });
+    }
+  };
+
   const handleToggle = (agent: AgentDefinition, enabled: boolean) => { toggleAgent.mutate({ id: agent.id, enabled }); };
 
   const handleCreateSkill = (skill: { name: string; slug: string; description: string; category: AgentSkill["category"] }) => {
@@ -88,7 +98,11 @@ export function AgentHubContent() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        <Button onClick={handleOptimizeVideos} disabled={runVideoOptimizer.isPending} size="sm" variant="outline">
+          {runVideoOptimizer.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Video className="h-4 w-4 mr-2" />}
+          Optimize Videos
+        </Button>
         <Button onClick={handleRunAll} disabled={runAll.isPending} size="sm">
           {runAll.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Rocket className="h-4 w-4 mr-2" />}
           Run All Agents

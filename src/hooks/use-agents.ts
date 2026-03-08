@@ -192,6 +192,29 @@ export function useRunAgent() {
   });
 }
 
+export function useRunVideoOptimizer() {
+  const { workspaceId } = useWorkspace();
+  const queryClient = useQueryClient();
+  return useMutation<
+    { success: boolean; videos_analyzed: number; proposals_created: number; results: any[] },
+    Error,
+    { max_videos?: number; model?: string }
+  >({
+    mutationFn: async ({ max_videos = 10, model }) => {
+      if (!workspaceId) throw new Error("No workspace");
+      const { data, error } = await supabase.functions.invoke("video-optimizer-agent", {
+        body: { workspace_id: workspaceId, max_videos, model },
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["agent-executions"] });
+      queryClient.invalidateQueries({ queryKey: ["ai_proposals"] });
+    },
+  });
+}
+
 export function useRunAllAgents() {
   const { workspaceId } = useWorkspace();
   const queryClient = useQueryClient();

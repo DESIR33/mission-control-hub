@@ -77,3 +77,6 @@ verify_jwt = false
 
 [functions.outlook-auth-callback]
 verify_jwt = false
+
+[functions.video-optimizer-agent]
+verify_jwt = false
