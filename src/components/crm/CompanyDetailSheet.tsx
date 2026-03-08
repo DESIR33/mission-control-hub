@@ -374,6 +374,10 @@ export function CompanyDetailSheet({ company, activities, companyContacts, open,
                   <DetailRow icon={Twitter} label="Twitter / X" value={company.social_twitter} href={company.social_twitter ? `https://x.com/${company.social_twitter.replace("@", "")}` : undefined} />
                   <DetailRow icon={Linkedin} label="LinkedIn" value={company.social_linkedin} href={company.social_linkedin ? `https://linkedin.com/company/${company.social_linkedin}` : undefined} />
                   <DetailRow icon={Instagram} label="Instagram" value={company.social_instagram} href={company.social_instagram ? `https://instagram.com/${company.social_instagram.replace("@", "")}` : undefined} />
+                  <DetailRow icon={Facebook} label="Facebook" value={company.social_facebook} href={company.social_facebook ? `https://facebook.com/${company.social_facebook}` : undefined} />
+                  <DetailRow icon={Youtube} label="YouTube" value={company.social_youtube} href={company.social_youtube ?? undefined} />
+                  <DetailRow icon={Globe} label="TikTok" value={company.social_tiktok} href={company.social_tiktok ? `https://tiktok.com/@${company.social_tiktok.replace("@", "")}` : undefined} />
+                  <DetailRow icon={Globe} label="Product Hunt" value={company.social_producthunt} href={company.social_producthunt ?? undefined} />
                 </div>
               </div>
 
