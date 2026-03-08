@@ -39,7 +39,7 @@ async function refreshAccessToken(
     client_id: clientId,
     client_secret: clientSecret,
     refresh_token: refreshToken,
-    scope: "https://graph.microsoft.com/.default offline_access",
+    scope: "openid profile email offline_access https://graph.microsoft.com/Mail.Read https://graph.microsoft.com/Mail.Send https://graph.microsoft.com/Mail.ReadWrite",
   });
 
   const response = await fetch(tokenUrl, {
@@ -184,10 +184,14 @@ Deno.serve(async (req) => {
         .upsert(rows, { onConflict: "workspace_id,message_id" });
 
       if (upsertError) {
-        console.error("Batch upsert error:", upsertError);
+        console.error("Batch upsert error:", JSON.stringify(upsertError));
+        throw new Error(`Failed to upsert emails: ${upsertError.message}`);
       } else {
         upsertedCount = rows.length;
+        console.log(`Successfully upserted ${upsertedCount} emails`);
       }
+    } else {
+      console.log("No messages returned from Outlook API");
     }
 
     return new Response(
