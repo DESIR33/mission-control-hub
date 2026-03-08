@@ -28,7 +28,7 @@ import { RetentionCurve } from "@/components/video-detail/RetentionCurve";
 import { VideoCompaniesPanel } from "@/components/video-detail/VideoCompaniesPanel";
 import { VideoOptimizationPanel } from "@/components/video-detail/VideoOptimizationPanel";
 import { SponsorSegmentTracker } from "@/components/video-detail/SponsorSegmentTracker";
-
+import { SubtitleUploader } from "@/components/video-detail/SubtitleUploader";
 
 export default function VideoDetailPage() {
   const { youtubeVideoId } = useParams<{ youtubeVideoId: string }>();
