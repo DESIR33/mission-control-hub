@@ -48,6 +48,7 @@ const entityTypeConfig: Record<
   contact: { icon: User, label: "Contact" },
   company: { icon: Building2, label: "Company" },
   deal: { icon: Handshake, label: "Deal" },
+  video: { icon: Video, label: "Video" },
 };
 
 const proposalTypeConfig: Record<
