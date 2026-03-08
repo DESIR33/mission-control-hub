@@ -344,7 +344,12 @@ export function CompanyDetailSheet({ company, activities, companyContacts, open,
                   <DetailRow icon={Globe} label="Website" value={company.website} href={company.website ?? undefined} />
                   <DetailRow icon={Mail} label="Email" value={company.primary_email} href={company.primary_email ? `mailto:${company.primary_email}` : undefined} />
                   <DetailRow icon={Mail} label="Secondary Email" value={company.secondary_email} href={company.secondary_email ? `mailto:${company.secondary_email}` : undefined} />
+                  <DetailRow icon={Phone} label="Phone" value={company.phone} href={company.phone ? `tel:${company.phone}` : undefined} />
+                  <DetailRow icon={MessageCircle} label="WhatsApp" value={company.social_whatsapp} href={company.social_whatsapp ? `https://wa.me/${company.social_whatsapp.replace(/\D/g, "")}` : undefined} />
                   <DetailRow icon={MapPin} label="Location" value={company.location} />
+                  <DetailRow icon={MapPin} label="Country" value={company.country} />
+                  <DetailRow icon={MapPin} label="State" value={company.state} />
+                  <DetailRow icon={MapPin} label="City" value={company.city} />
                   <DetailRow icon={Users} label="Size" value={company.size} />
                   <DetailRow icon={DollarSign} label="Revenue" value={company.revenue} />
                 </div>
