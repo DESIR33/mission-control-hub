@@ -307,7 +307,7 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
                   onCheckedChange={toggleSelectAll}
                 />
               </TableHead>
-              <TableHead className={thClass} onClick={() => handleSort("name")}>
+              <TableHead className={cn(thClass, "max-w-[200px]")} onClick={() => handleSort("name")}>
                 <div className="flex items-center">Company<SortIcon column="name" sortKey={sortKey} sortDir={sortDir} /></div>
               </TableHead>
               <TableHead className={thClass} onClick={() => handleSort("industry")}>
@@ -362,7 +362,7 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
                         onCheckedChange={() => toggleSelect(company.id)}
                       />
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="max-w-[200px]">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
                           {company.logo_url ? (
