@@ -72,7 +72,7 @@ interface WeeklyVelocityPoint {
 
 function BriefingSkeleton() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Priorities skeleton */}
       <Card>
         <CardHeader className="pb-3">
@@ -80,8 +80,8 @@ function BriefingSkeleton() {
         </CardHeader>
         <CardContent className="space-y-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-3">
-              <Skeleton className="h-8 w-8 rounded-lg" />
+            <div key={i} className="flex items-center gap-2 sm:gap-3">
+              <Skeleton className="h-6 w-6 sm:h-8 sm:w-8 rounded-lg" />
               <Skeleton className="h-4 w-full max-w-xs" />
             </div>
           ))}
@@ -94,9 +94,9 @@ function BriefingSkeleton() {
           <Skeleton className="h-5 w-36" />
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="rounded-xl border border-border p-3 space-y-2">
+              <div key={i} className="rounded-xl border border-border p-2.5 sm:p-3 space-y-2">
                 <Skeleton className="h-4 w-full" />
                 <Skeleton className="h-3 w-20" />
                 <Skeleton className="h-3 w-16" />
@@ -107,10 +107,10 @@ function BriefingSkeleton() {
       </Card>
 
       {/* Quick stats skeleton */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
         {Array.from({ length: 4 }).map((_, i) => (
           <Card key={i}>
-            <CardContent className="p-4 space-y-2">
+            <CardContent className="p-3 sm:p-4 space-y-2">
               <Skeleton className="h-3 w-24" />
               <Skeleton className="h-7 w-20" />
             </CardContent>
@@ -322,10 +322,10 @@ export function MissionBriefing() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <div className="flex items-center gap-2 mb-2">
-          <Rocket className="w-5 h-5 text-blue-500" />
-          <h2 className="text-lg font-semibold text-foreground">Mission Briefing</h2>
+          <Rocket className="w-5 h-5 text-blue-500 shrink-0" />
+          <h2 className="text-base sm:text-lg font-semibold text-foreground">Mission Briefing</h2>
         </div>
         <BriefingSkeleton />
       </div>
@@ -335,13 +335,16 @@ export function MissionBriefing() {
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
       <div className="flex items-center gap-2">
-        <Rocket className="w-5 h-5 text-blue-500" />
-        <h2 className="text-lg font-semibold text-foreground">Mission Briefing</h2>
-        <Badge variant="outline" className="ml-auto text-xs border-blue-400/40 text-blue-400">
+        <Rocket className="w-5 h-5 text-blue-500 shrink-0" />
+        <h2 className="text-base sm:text-lg font-semibold text-foreground truncate">Mission Briefing</h2>
+        <Badge variant="outline" className="ml-auto text-xs border-blue-400/40 text-blue-400 shrink-0 hidden sm:inline-flex">
           {format(new Date(), "EEEE, MMM d")}
+        </Badge>
+        <Badge variant="outline" className="ml-auto text-xs border-blue-400/40 text-blue-400 shrink-0 sm:hidden">
+          {format(new Date(), "MMM d")}
         </Badge>
       </div>
 
@@ -363,13 +366,13 @@ export function MissionBriefing() {
               {priorities.map((p, i) => (
                 <div
                   key={p.id}
-                  className="flex items-center gap-3 rounded-xl border border-border bg-muted/30 px-3 py-2.5 transition-colors hover:bg-muted/50"
+                  className="flex items-center gap-2 sm:gap-3 rounded-xl border border-border bg-muted/30 px-2.5 sm:px-3 py-2 sm:py-2.5 transition-colors hover:bg-muted/50"
                 >
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-muted text-xs font-bold text-muted-foreground shrink-0">
+                  <span className="flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-muted text-[10px] sm:text-xs font-bold text-muted-foreground shrink-0">
                     {i + 1}
                   </span>
                   {p.icon}
-                  <p className="text-sm text-foreground flex-1">{p.label}</p>
+                  <p className="text-xs sm:text-sm text-foreground flex-1 min-w-0 truncate">{p.label}</p>
                   <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
                 </div>
               ))}
@@ -392,38 +395,38 @@ export function MissionBriefing() {
               No upcoming videos in the queue.
             </p>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
               {pipeline.map((v) => (
                 <div
                   key={v.id}
-                  className="rounded-xl border border-border bg-muted/20 p-3 space-y-2"
+                  className="rounded-xl border border-border bg-muted/20 p-2.5 sm:p-3 space-y-1.5 sm:space-y-2"
                 >
                   <p className="text-sm font-medium text-foreground truncate">
                     {truncate(v.title, 36)}
                   </p>
-                  <div className="flex items-center gap-2 flex-wrap">
+                  <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
                     <Badge
                       variant="outline"
-                      className={`text-xs ${STATUS_COLORS[v.status] ?? ""}`}
+                      className={`text-[10px] sm:text-xs ${STATUS_COLORS[v.status] ?? ""}`}
                     >
                       {v.status}
                     </Badge>
                     <Badge
                       variant="outline"
-                      className={`text-xs ${PRIORITY_ICON_COLOR[v.priority] ?? "text-slate-400"} border-current/30`}
+                      className={`text-[10px] sm:text-xs ${PRIORITY_ICON_COLOR[v.priority] ?? "text-slate-400"} border-current/30`}
                     >
                       {v.priority}
                     </Badge>
                   </div>
                   <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <Clock className="w-3 h-3" />
+                    <Clock className="w-3 h-3 shrink-0" />
                     {v.daysUntil < 0
                       ? <span className="text-red-400">{Math.abs(v.daysUntil)}d overdue</span>
                       : v.daysUntil === 0
                         ? <span className="text-orange-400">Due today</span>
                         : v.daysUntil === 1
                           ? <span className="text-yellow-400">Due tomorrow</span>
-                          : <span>{v.daysUntil} days left</span>
+                          : <span>{v.daysUntil}d left</span>
                     }
                   </div>
                 </div>
@@ -434,58 +437,58 @@ export function MissionBriefing() {
       </Card>
 
       {/* 3. Quick Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-1.5 mb-1">
-              <Users className="w-3.5 h-3.5 text-blue-500" />
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-1 sm:gap-1.5 mb-1">
+              <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-500 shrink-0" />
+              <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider truncate">
                 Subscribers
               </p>
             </div>
-            <p className="text-xl font-bold font-mono text-foreground">
+            <p className="text-lg sm:text-xl font-bold font-mono text-foreground">
               {fmtCount(quickStats.subscribers)}
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-1.5 mb-1">
-              <BarChart3 className="w-3.5 h-3.5 text-green-500" />
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-1 sm:gap-1.5 mb-1">
+              <BarChart3 className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-green-500 shrink-0" />
+              <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider truncate">
                 Total Views
               </p>
             </div>
-            <p className="text-xl font-bold font-mono text-foreground">
+            <p className="text-lg sm:text-xl font-bold font-mono text-foreground">
               {fmtCount(quickStats.views)}
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-1.5 mb-1">
-              <DollarSign className="w-3.5 h-3.5 text-yellow-500" />
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">
-                Revenue This Month
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-1 sm:gap-1.5 mb-1">
+              <DollarSign className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-yellow-500 shrink-0" />
+              <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider truncate">
+                Revenue
               </p>
             </div>
-            <p className="text-xl font-bold font-mono text-foreground">
+            <p className="text-lg sm:text-xl font-bold font-mono text-foreground">
               {fmtCurrency(quickStats.revenueThisMonth)}
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-1.5 mb-1">
-              <Target className="w-3.5 h-3.5 text-purple-500" />
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-1 sm:gap-1.5 mb-1">
+              <Target className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-purple-500 shrink-0" />
+              <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider truncate">
                 Active Deals
               </p>
             </div>
-            <p className="text-xl font-bold font-mono text-foreground">
+            <p className="text-lg sm:text-xl font-bold font-mono text-foreground">
               {quickStats.activeDeals}
             </p>
           </CardContent>
@@ -512,14 +515,14 @@ export function MissionBriefing() {
               {attentionItems.map((item) => (
                 <div
                   key={item.id}
-                  className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 ${
+                  className={`flex items-center gap-2 sm:gap-3 rounded-xl border px-2.5 sm:px-3 py-2 sm:py-2.5 ${
                     item.severity === "danger"
                       ? "border-red-400/30 bg-red-400/5"
                       : "border-orange-400/30 bg-orange-400/5"
                   }`}
                 >
-                  {item.icon}
-                  <p className="text-xs text-foreground flex-1">{item.label}</p>
+                  <span className="shrink-0">{item.icon}</span>
+                  <p className="text-[11px] sm:text-xs text-foreground flex-1 min-w-0 break-words">{item.label}</p>
                 </div>
               ))}
             </div>
@@ -531,24 +534,25 @@ export function MissionBriefing() {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-sm">
-            <BarChart3 className="w-4 h-4 text-green-500" />
-            Weekly Velocity
-            <span className="text-xs text-muted-foreground font-normal ml-1">
+            <BarChart3 className="w-4 h-4 text-green-500 shrink-0" />
+            <span className="truncate">Weekly Velocity</span>
+            <span className="text-xs text-muted-foreground font-normal ml-1 hidden sm:inline">
               Videos published / week (last 8 weeks)
             </span>
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={180}>
-            <BarChart data={weeklyVelocity} barSize={28}>
+        <CardContent className="-mx-2 sm:mx-0">
+          <ResponsiveContainer width="100%" height={150} className="sm:!h-[180px]">
+            <BarChart data={weeklyVelocity} barSize={20}>
               <XAxis
                 dataKey="week"
                 {...xAxisDefaults}
+                tick={{ ...xAxisDefaults.tick, fontSize: 10 }}
               />
               <YAxis
                 allowDecimals={false}
                 {...yAxisDefaults}
-                width={24}
+                width={20}
               />
               <Tooltip
                 contentStyle={chartTooltipStyle}
