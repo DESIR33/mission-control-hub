@@ -193,19 +193,19 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
       )}
 
       {/* Quick Actions */}
-      <Card>
+      <Card className="overflow-hidden">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium">Quick Actions</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-1.5">
+        <CardContent className="space-y-1.5 min-w-0">
           {!email.matched_contact && (
             <Button
               variant="outline"
               size="sm"
-              className="w-full justify-start"
+              className="w-full justify-start overflow-hidden"
             >
-              <Plus className="w-3.5 h-3.5 mr-2" />
-              Create Contact
+              <Plus className="w-3.5 h-3.5 mr-2 shrink-0" />
+              <span className="truncate">Create Contact</span>
             </Button>
           )}
           <EmailToDealAutomation email={email} />
@@ -213,18 +213,18 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
           <Button
             variant="outline"
             size="sm"
-            className="w-full justify-start"
+            className="w-full justify-start overflow-hidden"
           >
-            <ArrowRight className="w-3.5 h-3.5 mr-2" />
-            Add to Sequence
+            <ArrowRight className="w-3.5 h-3.5 mr-2 shrink-0" />
+            <span className="truncate">Add to Sequence</span>
           </Button>
           <Button
             variant="outline"
             size="sm"
-            className="w-full justify-start"
+            className="w-full justify-start overflow-hidden"
           >
-            <Building2 className="w-3.5 h-3.5 mr-2" />
-            Log Activity
+            <Building2 className="w-3.5 h-3.5 mr-2 shrink-0" />
+            <span className="truncate">Log Activity</span>
           </Button>
         </CardContent>
       </Card>
