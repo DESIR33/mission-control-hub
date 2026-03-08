@@ -328,6 +328,7 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
               <TableHead className={thClass} onClick={() => handleSort("lastContact")}>
                 <div className="flex items-center">Last Contact<SortIcon column="lastContact" sortKey={sortKey} sortDir={sortDir} /></div>
               </TableHead>
+              <TableHead className="text-muted-foreground font-semibold w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
