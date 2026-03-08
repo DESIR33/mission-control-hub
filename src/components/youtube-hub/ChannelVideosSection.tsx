@@ -1,11 +1,12 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ChannelOverview, VideoDeepDive } from "@/components/analytics";
 import { VideoPerformanceSection } from "@/components/command-center/sections/VideoPerformanceSection";
-import { useYouTubeAnalyticsApi } from "@/hooks/use-youtube-analytics-api";
+import { useChannelAnalytics, useVideoAnalytics } from "@/hooks/use-youtube-analytics-api";
 
 export function ChannelVideosSection() {
-  const { data, daysRange } = useYouTubeAnalyticsApi?.() ?? { data: { channelAnalytics: [], videoAnalytics: [] }, daysRange: 28 };
-  
+  const { data: channelData = [] } = useChannelAnalytics();
+  const { data: videoData = [] } = useVideoAnalytics();
+
   return (
     <Tabs defaultValue="channel">
       <TabsList>
@@ -14,10 +15,10 @@ export function ChannelVideosSection() {
         <TabsTrigger value="performance">Video Performance</TabsTrigger>
       </TabsList>
       <TabsContent value="channel">
-        <ChannelOverview data={data?.channelAnalytics ?? []} daysRange={daysRange ?? 28} />
+        <ChannelOverview data={channelData} daysRange={28} />
       </TabsContent>
       <TabsContent value="videos">
-        <VideoDeepDive data={data?.videoAnalytics ?? []} />
+        <VideoDeepDive data={videoData} />
       </TabsContent>
       <TabsContent value="performance">
         <VideoPerformanceSection />
