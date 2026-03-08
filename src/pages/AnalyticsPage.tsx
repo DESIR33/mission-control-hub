@@ -77,7 +77,7 @@ export default function AnalyticsPage() {
     if (hasSynced.current || workspaceLoading) return;
     hasSynced.current = true;
 
-    const THIRTY_MINUTES = 30 * 60 * 1000;
+    const THROTTLE_MS = 120 * 60 * 1000; // 120 minutes
     const lastSyncKey = "yt_last_sync_ts";
     const lastSync = Number(localStorage.getItem(lastSyncKey) || "0");
     const now = Date.now();
