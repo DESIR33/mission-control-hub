@@ -2,17 +2,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Zap, Plus, Trash2 } from "lucide-react";
+import { Zap, Plus, Trash2, Package } from "lucide-react";
 import type { AgentSkill } from "@/types/agents";
 import { CATEGORY_LABELS } from "@/types/agents";
 
 interface SkillManagerProps {
   skills: AgentSkill[];
   onCreateSkill: () => void;
+  onImportSkill: () => void;
   onDeleteSkill: (id: string) => void;
+  onViewSkill: (skill: AgentSkill) => void;
 }
 
-export function SkillManager({ skills, onCreateSkill, onDeleteSkill }: SkillManagerProps) {
+export function SkillManager({ skills, onCreateSkill, onImportSkill, onDeleteSkill, onViewSkill }: SkillManagerProps) {
   const grouped = skills.reduce<Record<string, AgentSkill[]>>((acc, skill) => {
     const cat = skill.category;
     if (!acc[cat]) acc[cat] = [];
@@ -28,10 +30,16 @@ export function SkillManager({ skills, onCreateSkill, onDeleteSkill }: SkillMana
             <Zap className="h-4 w-4" />
             Skills Registry
           </CardTitle>
-          <Button size="sm" variant="outline" className="h-7 text-xs" onClick={onCreateSkill}>
-            <Plus className="h-3 w-3 mr-1" />
-            New Skill
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button size="sm" variant="outline" className="h-7 text-xs" onClick={onImportSkill}>
+              <Package className="h-3 w-3 mr-1" />
+              Import
+            </Button>
+            <Button size="sm" variant="outline" className="h-7 text-xs" onClick={onCreateSkill}>
+              <Plus className="h-3 w-3 mr-1" />
+              New
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="pt-0">
@@ -46,7 +54,8 @@ export function SkillManager({ skills, onCreateSkill, onDeleteSkill }: SkillMana
                   {catSkills.map((skill) => (
                     <div
                       key={skill.id}
-                      className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors group"
+                      className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors group cursor-pointer"
+                      onClick={() => onViewSkill(skill)}
                     >
                       <div className="flex items-center gap-2 min-w-0">
                         <Zap className="h-3 w-3 text-amber-400 shrink-0" />
@@ -60,7 +69,7 @@ export function SkillManager({ skills, onCreateSkill, onDeleteSkill }: SkillMana
                           variant="ghost"
                           size="sm"
                           className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={() => onDeleteSkill(skill.id)}
+                          onClick={(e) => { e.stopPropagation(); onDeleteSkill(skill.id); }}
                         >
                           <Trash2 className="h-3 w-3 text-muted-foreground" />
                         </Button>

@@ -27,6 +27,8 @@ import { ExecutionTimeline } from "@/components/agents/ExecutionTimeline";
 import { SkillManager } from "@/components/agents/SkillManager";
 import { RunAgentDialog } from "@/components/agents/RunAgentDialog";
 import { CreateSkillDialog } from "@/components/agents/CreateSkillDialog";
+import { ImportSkillDialog } from "@/components/agents/ImportSkillDialog";
+import { SkillDetailSheet } from "@/components/agents/SkillDetailSheet";
 import type { AgentDefinition, AgentSkill } from "@/types/agents";
 
 export default function AgentHubPage() {
@@ -48,6 +50,8 @@ export default function AgentHubPage() {
   const [runDialogAgent, setRunDialogAgent] = useState<AgentDefinition | null>(null);
   const [detailAgent, setDetailAgent] = useState<AgentDefinition | null>(null);
   const [showCreateSkill, setShowCreateSkill] = useState(false);
+  const [showImportSkill, setShowImportSkill] = useState(false);
+  const [viewSkill, setViewSkill] = useState<AgentSkill | null>(null);
   const [runningAgentSlug, setRunningAgentSlug] = useState<string | null>(null);
 
   const handleRunAgent = async (agentSlug: string, message: string, model?: string) => {
@@ -226,7 +230,9 @@ export default function AgentHubPage() {
             <SkillManager
               skills={skills}
               onCreateSkill={() => setShowCreateSkill(true)}
+              onImportSkill={() => setShowImportSkill(true)}
               onDeleteSkill={handleDeleteSkill}
+              onViewSkill={(s) => setViewSkill(s)}
             />
           </div>
         </>
@@ -254,6 +260,29 @@ export default function AgentHubPage() {
         onOpenChange={setShowCreateSkill}
         onSave={handleCreateSkill}
         isLoading={createSkill.isPending}
+      />
+
+      <ImportSkillDialog
+        open={showImportSkill}
+        onOpenChange={setShowImportSkill}
+        onImport={(skill) => {
+          createSkill.mutate(skill, {
+            onSuccess: () => {
+              setShowImportSkill(false);
+              toast({ title: "Skill imported", description: `${skill.name} is now available.` });
+            },
+            onError: (err) => {
+              toast({ title: "Import failed", description: err.message, variant: "destructive" });
+            },
+          });
+        }}
+        isLoading={createSkill.isPending}
+      />
+
+      <SkillDetailSheet
+        skill={viewSkill}
+        open={!!viewSkill}
+        onOpenChange={(open) => { if (!open) setViewSkill(null); }}
       />
     </div>
   );
