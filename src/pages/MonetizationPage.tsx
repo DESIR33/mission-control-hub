@@ -138,15 +138,20 @@ export default function MonetizationPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Parse the tab from the URL query parameter once during initialization
-  const getInitialTab = useMemo(() => {
-    const tabParam = searchParams.get('tab');
-    return tabParam === 'products' || tabParam === 'affiliate' || tabParam === 'sponsorships' || tabParam === 'revenue-overview' || tabParam === 'rate-card'
-      ? tabParam
+  // Parse the tab from the URL query parameter
+  const tabParam = useMemo(() => {
+    const t = searchParams.get('tab');
+    return t === 'products' || t === 'affiliate' || t === 'sponsorships' || t === 'revenue-overview' || t === 'rate-card'
+      ? t
       : "overview";
-  }, []);
+  }, [searchParams]);
 
-  const [activeTab, setActiveTab] = useState(getInitialTab);
+  const [activeTab, setActiveTab] = useState(tabParam);
+
+  // Sync state when URL search params change (e.g. sidebar navigation)
+  useEffect(() => {
+    setActiveTab(tabParam);
+  }, [tabParam]);
   const [isAddingWidget, setIsAddingWidget] = useState(false);
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
 
