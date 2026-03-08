@@ -32,6 +32,8 @@ export function AgentHubContent() {
   const [runDialogAgent, setRunDialogAgent] = useState<AgentDefinition | null>(null);
   const [detailAgent, setDetailAgent] = useState<AgentDefinition | null>(null);
   const [showCreateSkill, setShowCreateSkill] = useState(false);
+  const [showImportSkill, setShowImportSkill] = useState(false);
+  const [viewSkill, setViewSkill] = useState<AgentSkill | null>(null);
   const [runningAgentSlug, setRunningAgentSlug] = useState<string | null>(null);
 
   const handleRunAgent = async (agentSlug: string, message: string, model?: string) => {
