@@ -35,7 +35,15 @@ export function AppSidebar({ headerless }: AppSidebarProps) {
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(initialOpen);
 
   const toggleGroup = (label: string) => {
-    setOpenGroups((prev) => ({ ...prev, [label]: !prev[label] }));
+    setOpenGroups((prev) => {
+      const isCurrentlyOpen = prev[label];
+      // Close all groups, then toggle the clicked one
+      const allClosed = Object.keys(prev).reduce<Record<string, boolean>>((acc, key) => {
+        acc[key] = false;
+        return acc;
+      }, {});
+      return { ...allClosed, [label]: !isCurrentlyOpen };
+    });
   };
 
   return (
