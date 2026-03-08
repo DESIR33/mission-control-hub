@@ -336,6 +336,11 @@ export default function VideoDetailPage() {
           <VideoOptimizationPanel youtubeVideoId={youtubeVideoId} />
         </TabsContent>
 
+        {/* Optimization Tracker */}
+        <TabsContent value="optimization tracker" className="mt-4">
+          <VideoOptimizationTracker youtubeVideoId={youtubeVideoId} />
+        </TabsContent>
+
         {/* Notes */}
         <TabsContent value="notes" className="mt-4">
           <NotesEditor

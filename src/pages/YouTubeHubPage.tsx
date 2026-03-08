@@ -33,6 +33,7 @@ import { DemographicsReachSection } from "@/components/youtube-hub/DemographicsR
 import { CommentsSection } from "@/components/youtube-hub/CommentsSection";
 import { ContentStrategySection } from "@/components/youtube-hub/ContentStrategySection";
 import { UploadPlaylistsSection } from "@/components/youtube-hub/UploadPlaylistsSection";
+import { ExperimentsComparisonContent } from "@/components/youtube-hub/ExperimentsComparisonContent";
 
 type Section =
   | "dashboard"
@@ -43,7 +44,8 @@ type Section =
   | "subscribers"
   | "comments"
   | "uploads"
-  | "strategy";
+  | "strategy"
+  | "experiments";
 
 const SECTION_LABELS: Record<Section, string> = {
   dashboard: "Dashboard",
@@ -55,6 +57,7 @@ const SECTION_LABELS: Record<Section, string> = {
   comments: "Comments",
   uploads: "Upload & Playlists",
   strategy: "Content & Strategy",
+  experiments: "Optimization Experiments",
 };
 
 const SECTION_COMPONENTS: Record<Section, React.ComponentType> = {
@@ -67,6 +70,7 @@ const SECTION_COMPONENTS: Record<Section, React.ComponentType> = {
   comments: CommentsSection,
   uploads: UploadPlaylistsSection,
   strategy: ContentStrategySection,
+  experiments: ExperimentsComparisonContent,
 };
 
 const VALID_SECTIONS = new Set(Object.keys(SECTION_COMPONENTS));
