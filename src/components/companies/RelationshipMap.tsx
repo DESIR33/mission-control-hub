@@ -64,7 +64,7 @@ export function RelationshipMap() {
             }
           }
           if (contact.company_id && companyMap.has(contact.company_id)) {
-            conns.push({ targetId: contact.company_id, targetName: companyMap.get(contact.company_id)!, targetType: "company", relation: "works at" });
+            conns.push({ targetId: contact.company_id, targetName: companyMap.get(contact.company_id) || "Unknown", targetType: "company", relation: "works at" });
           }
           if (conns.length > 0) {
             result.push({ id: contact.id, type: "contact", name: `${contact.first_name} ${contact.last_name || ""}`.trim(), connections: conns });
