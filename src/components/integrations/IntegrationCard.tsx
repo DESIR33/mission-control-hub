@@ -169,6 +169,34 @@ export function IntegrationCard({
                     Sync Now
                   </Button>
                 )}
+                {def.key === "slack" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-xs"
+                    onClick={() => {
+                      slackNotify.mutate(
+                        { type: "test" },
+                        {
+                          onSuccess: () => {
+                            toast({ title: "✅ Test message sent to Slack!" });
+                          },
+                          onError: (err) => {
+                            toast({ title: "Slack test failed", description: err.message, variant: "destructive" });
+                          },
+                        }
+                      );
+                    }}
+                    disabled={slackNotify.isPending}
+                  >
+                    {slackNotify.isPending ? (
+                      <Loader2 className="w-3 h-3 animate-spin mr-1" />
+                    ) : (
+                      <RefreshCw className="w-3 h-3 mr-1" />
+                    )}
+                    Send Test
+                  </Button>
+                )}
                 <Button
                   size="sm"
                   variant="outline"
