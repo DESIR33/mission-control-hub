@@ -29,12 +29,10 @@ export function AddDealDialog() {
   const [companyId, setCompanyId] = useState<string>("");
   const [stage, setStage] = useState("prospecting");
   const [forecastCategory, setForecastCategory] = useState<string>("");
-  const [videoQueueId, setVideoQueueId] = useState<string>("");
 
   const createDeal = useCreateDeal();
   const { data: contacts = [] } = useContacts();
   const { data: companies = [] } = useCompanies();
-  const { data: videos = [] } = useVideoQueue();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
