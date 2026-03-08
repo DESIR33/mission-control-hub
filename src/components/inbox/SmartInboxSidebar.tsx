@@ -60,6 +60,8 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
   if (!email) {
     return (
       <div className="space-y-4 p-4 overflow-y-auto h-full">
+        <FollowUpRadar />
+        <ConversationIntelligence />
         <SmartFollowUpQueue />
       </div>
     );
