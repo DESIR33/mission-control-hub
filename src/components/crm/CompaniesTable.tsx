@@ -489,26 +489,35 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
       )}
 
       {/* Delete confirmation */}
-      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
-        <AlertDialogContent className="bg-card border-border">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete &ldquo;{deleteTarget?.name}&rdquo;?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will soft-delete the company. This action can be reversed by an admin.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <Button
-              variant="destructive"
-              onClick={handleDeleteConfirm}
-              disabled={deleteCompany.isPending}
-            >
-              {deleteCompany.isPending ? "Deleting…" : "Delete"}
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {deleteTarget && (
+        <AlertDialog open onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
+          <AlertDialogContent className="bg-card border-border">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete &ldquo;{deleteTarget.name}&rdquo;?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will soft-delete the company. This action can be reversed by an admin.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                onClick={async () => {
+                  try {
+                    await deleteCompany.mutateAsync(deleteTarget.id);
+                    toast({ title: `Deleted "${deleteTarget.name}"` });
+                  } catch {
+                    toast({ title: "Failed to delete company", variant: "destructive" });
+                  }
+                  setDeleteTarget(null);
+                }}
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </div>
   );
 }
