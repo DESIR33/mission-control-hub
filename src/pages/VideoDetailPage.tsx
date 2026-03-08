@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useCallback, useMemo } from "react";
-import { ArrowLeft, TrendingUp, Lightbulb, AlertCircle, DollarSign } from "lucide-react";
+import { ArrowLeft, TrendingUp, Lightbulb, AlertCircle, DollarSign, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -12,6 +12,7 @@ import { fmtCount, fmtMoney, fmtDuration, chartTooltipStyle, xAxisDefaults, yAxi
 import { useVideoDetail, useVideoAnalyticsTrend } from "@/hooks/use-video-detail";
 import { useVideoNotes } from "@/hooks/use-video-notes";
 import { useVideoExperiments } from "@/hooks/use-video-experiments";
+import { useRunVideoOptimizer } from "@/hooks/use-agents";
 import { useVideoRepurposes } from "@/hooks/use-video-repurposes";
 import { useVideoDeals } from "@/hooks/use-video-deals";
 import { useDemographics, useTrafficSources } from "@/hooks/use-youtube-analytics-api";
@@ -41,6 +42,7 @@ export default function VideoDetailPage() {
   const { data: trafficSources = [] } = useTrafficSources();
   const { data: retentionData = [] } = useVideoRetention(youtubeVideoId);
   const { lookup: revenueLookup } = useVideoRevenueLookup();
+  const runOptimizer = useRunVideoOptimizer();
 
   // Get combined revenue data for this video
   const videoRevenue = youtubeVideoId ? revenueLookup.get(youtubeVideoId) : undefined;
@@ -112,9 +114,20 @@ export default function VideoDetailPage() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
-      <Button variant="ghost" size="sm" onClick={() => navigate("/analytics")} className="-ml-2">
-        <ArrowLeft className="w-4 h-4 mr-1" /> Analytics
-      </Button>
+      <div className="flex items-center justify-between">
+        <Button variant="ghost" size="sm" onClick={() => navigate("/analytics")} className="-ml-2">
+          <ArrowLeft className="w-4 h-4 mr-1" /> Analytics
+        </Button>
+        <Button
+          size="sm"
+          onClick={() => runOptimizer.mutate({ max_videos: 1 })}
+          disabled={runOptimizer.isPending}
+          className="gap-1.5"
+        >
+          <Sparkles className="w-4 h-4" />
+          {runOptimizer.isPending ? "Optimizing…" : "Optimize Video"}
+        </Button>
+      </div>
 
       <VideoHeaderCard
         title={detail.title}
