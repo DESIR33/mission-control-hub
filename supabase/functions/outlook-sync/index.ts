@@ -105,7 +105,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { workspace_id, folder = "inbox", max_messages = 50 } = await req.json();
+    const { workspace_id, folder = "inbox" } = await req.json();
 
     if (!workspace_id) {
       return new Response(JSON.stringify({ error: "Missing workspace_id" }), {
