@@ -57,24 +57,34 @@ async function refreshAccessToken(
   return { access_token: data.access_token, refresh_token: data.refresh_token };
 }
 
-async function fetchOutlookMessages(
+async function fetchAllOutlookMessages(
   accessToken: string,
   folder: string = "inbox",
-  top: number = 50,
 ): Promise<OutlookMessage[]> {
-  const url = `${GRAPH_BASE}/me/mailFolders/${folder}/messages?$top=${top}&$orderby=receivedDateTime desc&$select=id,conversationId,from,toRecipients,subject,bodyPreview,body,receivedDateTime,isRead,importance,hasAttachments,parentFolderId`;
+  const allMessages: OutlookMessage[] = [];
+  const pageSize = 250; // max allowed by Graph API
+  let url: string | null = `${GRAPH_BASE}/me/mailFolders/${folder}/messages?$top=${pageSize}&$orderby=receivedDateTime desc&$select=id,conversationId,from,toRecipients,subject,bodyPreview,body,receivedDateTime,isRead,importance,hasAttachments,parentFolderId`;
 
-  const response = await fetch(url, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
+  while (url) {
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Graph API error: ${response.status} ${errorText}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Graph API error: ${response.status} ${errorText}`);
+    }
+
+    const data = await response.json();
+    const messages: OutlookMessage[] = data.value || [];
+    allMessages.push(...messages);
+
+    // Follow @odata.nextLink for pagination
+    url = data["@odata.nextLink"] || null;
+    console.log(`Fetched page: ${messages.length} messages (total so far: ${allMessages.length})`);
   }
 
-  const data = await response.json();
-  return data.value || [];
+  return allMessages;
 }
 
 function mapFolderIdToName(folderId: string | undefined): string {
