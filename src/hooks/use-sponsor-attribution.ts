@@ -39,11 +39,10 @@ export function useSponsorAttribution() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("deals")
-        .select("id, title, value, stage, video_queue_id, contact_id, company_id, closed_at, companies(id, name), contacts(id, first_name, last_name)")
+        .select("id, title, value, stage, contact_id, company_id, closed_at, companies(id, name), contacts(id, first_name, last_name)")
         .eq("workspace_id", workspaceId!)
         .eq("stage", "closed_won")
-        .is("deleted_at", null)
-        .not("video_queue_id", "is", null);
+        .is("deleted_at", null);
       if (error) throw error;
       return (data ?? []) as any[];
     },
