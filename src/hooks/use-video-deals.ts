@@ -13,9 +13,9 @@ export interface VideoDeal {
 }
 
 /**
- * Fetches deals linked to this video via both:
- * 1. The video_queue_id FK path (proper structural link)
- * 2. Notes containing the YouTube video ID (legacy text search)
+ * Fetches deals linked to this video via:
+ * 1. video_companies table (company_id match)
+ * 2. Notes containing the YouTube video ID (text search)
  * Results are deduplicated by deal ID.
  */
 export function useVideoDeals(youtubeVideoId: string | undefined) {
@@ -36,31 +36,30 @@ export function useVideoDeals(youtubeVideoId: string | undefined) {
         company: d.companies ?? null,
       });
 
-      // Path 1: Find video_queue row by youtube_video_id, then find deals by video_queue_id
-      const { data: vqRows } = await supabase
-        .from("video_queue")
-        .select("id")
-        .eq("workspace_id", workspaceId)
-        .filter("metadata->>youtubeVideoId", "eq", youtubeVideoId)
-        .limit(1);
-
       const dealMap = new Map<string, VideoDeal>();
 
-      if (vqRows && vqRows.length > 0) {
-        const vqId = vqRows[0].id;
-        const { data: fkDeals } = await supabase
+      // Path 1: Find deals via video_companies (company_id match)
+      const { data: vcRows } = await supabase
+        .from("video_companies")
+        .select("company_id")
+        .eq("workspace_id", workspaceId)
+        .eq("youtube_video_id", youtubeVideoId);
+
+      if (vcRows && vcRows.length > 0) {
+        const companyIds = vcRows.map((r) => r.company_id);
+        const { data: companyDeals } = await supabase
           .from("deals")
-          .select("id, title, value, currency, stage, expected_close_date")
+          .select("id, title, value, currency, stage, expected_close_date, companies(id, name, logo_url)")
           .eq("workspace_id", workspaceId)
           .is("deleted_at", null)
-          .ilike("notes", `%${vqId}%`);
+          .in("company_id", companyIds);
 
-        for (const d of fkDeals ?? []) {
+        for (const d of companyDeals ?? []) {
           dealMap.set(d.id, mapDeal(d));
         }
       }
 
-      // Path 2: Search deals whose notes mention this video ID (legacy approach)
+      // Path 2: Search deals whose notes mention this video ID
       const { data: noteDeals } = await supabase
         .from("deals")
         .select("id, title, value, currency, stage, expected_close_date")

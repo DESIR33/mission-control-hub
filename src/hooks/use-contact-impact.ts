@@ -31,7 +31,7 @@ export function useContactImpact(contactId: string | null) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("deals")
-        .select("id, title, value, stage, video_queue_id")
+        .select("id, title, value, stage, company_id")
         .eq("workspace_id", workspaceId!)
         .eq("contact_id", contactId!)
         .is("deleted_at", null);
@@ -41,25 +41,43 @@ export function useContactImpact(contactId: string | null) {
     enabled: !!workspaceId && !!contactId,
   });
 
-  const { data: videoQueue = [] } = useQuery({
-    queryKey: ["contact-impact-queue", workspaceId, contactId],
+  // Link deals to videos via video_companies (company_id -> youtube_video_id)
+  const { data: videoCompanies = [] } = useQuery({
+    queryKey: ["contact-impact-vc", workspaceId, contactId],
     queryFn: async () => {
-      const queueIds = deals.filter((d: any) => d.video_queue_id).map((d: any) => d.video_queue_id);
-      if (!queueIds.length) return [];
+      const companyIds = [...new Set(deals.filter((d: any) => d.company_id).map((d: any) => d.company_id))];
+      if (!companyIds.length) return [];
       const { data, error } = await supabase
-        .from("video_queue")
-        .select("id, title, youtube_video_id")
-        .in("id", queueIds);
+        .from("video_companies")
+        .select("company_id, youtube_video_id")
+        .eq("workspace_id", workspaceId!)
+        .in("company_id", companyIds);
       if (error) throw error;
       return (data ?? []) as any[];
     },
     enabled: deals.length > 0,
   });
 
+  const { data: videoQueue = [] } = useQuery({
+    queryKey: ["contact-impact-queue", workspaceId, contactId],
+    queryFn: async () => {
+      const ytIds = videoCompanies.map((vc: any) => vc.youtube_video_id);
+      if (!ytIds.length) return [];
+      const { data, error } = await supabase
+        .from("video_queue" as any)
+        .select("id, title, youtube_video_id")
+        .eq("workspace_id", workspaceId!)
+        .in("youtube_video_id", ytIds);
+      if (error) throw error;
+      return (data ?? []) as any[];
+    },
+    enabled: videoCompanies.length > 0,
+  });
+
   const { data: videoAnalytics = [] } = useQuery({
     queryKey: ["contact-impact-analytics", workspaceId, contactId],
     queryFn: async () => {
-      const ytIds = videoQueue.filter((v: any) => v.youtube_video_id).map((v: any) => v.youtube_video_id);
+      const ytIds = videoCompanies.map((vc: any) => vc.youtube_video_id);
       if (!ytIds.length) return [];
       const { data, error } = await supabase
         .from("youtube_video_analytics" as any)

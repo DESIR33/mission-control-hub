@@ -24,7 +24,6 @@ export interface Deal {
   expected_close_date: string | null;
   closed_at: string | null;
   notes: string | null;
-  video_queue_id?: string | null;
   deleted_at: string | null;
   created_by: string | null;
   created_at: string;
@@ -76,7 +75,6 @@ export function useCreateDeal() {
       contact_id?: string | null;
       company_id?: string | null;
       expected_close_date?: string | null;
-      video_queue_id?: string | null;
       notes?: string;
     }) => {
       if (!workspaceId) throw new Error("No workspace");
@@ -121,7 +119,6 @@ export function useUpdateDeal() {
       owner_id?: string | null;
       expected_close_date?: string | null;
       closed_at?: string | null;
-      video_queue_id?: string | null;
       notes?: string | null;
     }) => {
       if (!workspaceId) throw new Error("No workspace");

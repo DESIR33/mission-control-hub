@@ -20,7 +20,6 @@ import {
 import { useCreateDeal } from "@/hooks/use-deals";
 import { useContacts } from "@/hooks/use-contacts";
 import { useCompanies } from "@/hooks/use-companies";
-import { useVideoQueue } from "@/hooks/use-video-queue";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Loader2 } from "lucide-react";
 
@@ -30,12 +29,10 @@ export function AddDealDialog() {
   const [companyId, setCompanyId] = useState<string>("");
   const [stage, setStage] = useState("prospecting");
   const [forecastCategory, setForecastCategory] = useState<string>("");
-  const [videoQueueId, setVideoQueueId] = useState<string>("");
 
   const createDeal = useCreateDeal();
   const { data: contacts = [] } = useContacts();
   const { data: companies = [] } = useCompanies();
-  const { data: videos = [] } = useVideoQueue();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -51,7 +48,6 @@ export function AddDealDialog() {
         forecast_category: forecastCategory && forecastCategory !== "none" ? forecastCategory : undefined,
         contact_id: contactId && contactId !== "none" ? contactId : undefined,
         company_id: companyId && companyId !== "none" ? companyId : undefined,
-        video_queue_id: videoQueueId && videoQueueId !== "none" ? videoQueueId : undefined,
         expected_close_date: (form.get("expected_close_date") as string) || undefined,
         notes: (form.get("notes") as string) || undefined,
       });
@@ -60,7 +56,6 @@ export function AddDealDialog() {
       setCompanyId("");
       setStage("prospecting");
       setForecastCategory("");
-      setVideoQueueId("");
       setOpen(false);
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -130,22 +125,6 @@ export function AddDealDialog() {
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <Label>Linked Video</Label>
-            <Select value={videoQueueId} onValueChange={setVideoQueueId}>
-              <SelectTrigger className="bg-secondary border-border">
-                <SelectValue placeholder="Select video (optional)" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">No Video</SelectItem>
-                {videos.map((v) => (
-                  <SelectItem key={v.id} value={v.id}>
-                    {v.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
 
           <div className="space-y-1.5">
             <Label htmlFor="expected_close_date">Expected Close Date</Label>

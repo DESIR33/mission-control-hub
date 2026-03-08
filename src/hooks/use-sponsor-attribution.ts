@@ -39,11 +39,10 @@ export function useSponsorAttribution() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("deals")
-        .select("id, title, value, stage, video_queue_id, contact_id, company_id, closed_at, companies(id, name), contacts(id, first_name, last_name)")
+        .select("id, title, value, stage, contact_id, company_id, closed_at, companies(id, name), contacts(id, first_name, last_name)")
         .eq("workspace_id", workspaceId!)
         .eq("stage", "closed_won")
-        .is("deleted_at", null)
-        .not("video_queue_id", "is", null);
+        .is("deleted_at", null);
       if (error) throw error;
       return (data ?? []) as any[];
     },
@@ -63,6 +62,20 @@ export function useSponsorAttribution() {
     enabled: !!workspaceId,
   });
 
+  // Fetch video_companies to link deals (via company_id) to videos
+  const { data: videoCompanies = [] } = useQuery({
+    queryKey: ["sponsor-attribution-vc", workspaceId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("video_companies")
+        .select("company_id, youtube_video_id")
+        .eq("workspace_id", workspaceId!);
+      if (error) throw error;
+      return (data ?? []) as any[];
+    },
+    enabled: !!workspaceId,
+  });
+
   const summary = useMemo((): SponsorAttributionSummary | null => {
     if (!deals.length) return null;
 
@@ -74,8 +87,18 @@ export function useSponsorAttribution() {
     }
 
     const queueTitles = new Map<number, string>();
+    const queueByYtId = new Map<string, number>();
     for (const vq of videoQueue) {
       queueTitles.set(Number(vq.id), vq.title);
+      if (vq.youtube_video_id) queueByYtId.set(vq.youtube_video_id, Number(vq.id));
+    }
+
+    // Map company_id -> youtube_video_ids
+    const companyToVideos = new Map<string, string[]>();
+    for (const vc of videoCompanies) {
+      const list = companyToVideos.get(vc.company_id) ?? [];
+      list.push(vc.youtube_video_id);
+      companyToVideos.set(vc.company_id, list);
     }
 
     const sponsorMap = new Map<string, SponsorAttribution>();
@@ -104,8 +127,12 @@ export function useSponsorAttribution() {
 
       const sponsor = sponsorMap.get(key)!;
       const dealValue = Number(deal.value) || 0;
-      const videoRevenue = revenueByQueueId.get(Number(deal.video_queue_id)) ?? 0;
-      const videoTitle = queueTitles.get(Number(deal.video_queue_id)) ?? "Unknown Video";
+
+      // Link deal to video via video_companies (company_id -> youtube_video_id -> queue)
+      const linkedYtIds = deal.company_id ? (companyToVideos.get(deal.company_id) ?? []) : [];
+      const linkedQueueId = linkedYtIds.length > 0 ? queueByYtId.get(linkedYtIds[0]) : undefined;
+      const videoRevenue = linkedQueueId ? (revenueByQueueId.get(linkedQueueId) ?? 0) : 0;
+      const videoTitle = linkedQueueId ? (queueTitles.get(linkedQueueId) ?? deal.title) : deal.title;
 
       sponsor.totalDealValue += dealValue;
       sponsor.videosSponsored += 1;
@@ -139,7 +166,7 @@ export function useSponsorAttribution() {
       totalSponsorRevenue,
       sponsorRetentionRate,
     };
-  }, [deals, revenueSummary, videoQueue]);
+  }, [deals, revenueSummary, videoQueue, videoCompanies]);
 
   return { data: summary, isLoading };
 }
