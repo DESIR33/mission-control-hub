@@ -75,7 +75,6 @@ export function useCreateDeal() {
       contact_id?: string | null;
       company_id?: string | null;
       expected_close_date?: string | null;
-      video_queue_id?: string | null;
       notes?: string;
     }) => {
       if (!workspaceId) throw new Error("No workspace");
