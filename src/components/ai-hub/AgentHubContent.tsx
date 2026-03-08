@@ -98,7 +98,11 @@ export function AgentHubContent() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        <Button onClick={handleOptimizeVideos} disabled={runVideoOptimizer.isPending} size="sm" variant="outline">
+          {runVideoOptimizer.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Video className="h-4 w-4 mr-2" />}
+          Optimize Videos
+        </Button>
         <Button onClick={handleRunAll} disabled={runAll.isPending} size="sm">
           {runAll.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Rocket className="h-4 w-4 mr-2" />}
           Run All Agents
