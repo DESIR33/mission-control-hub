@@ -20,6 +20,10 @@ import { WorkflowChainManager } from "@/components/agents/WorkflowChainManager";
 import { NaturalLanguageTriggers } from "@/components/agents/NaturalLanguageTriggers";
 import { AgentActivityFeed } from "@/components/agents/AgentActivityFeed";
 import { AgentPerformanceScorecards } from "@/components/agents/AgentPerformanceScorecards";
+import { AgentAbTesting } from "@/components/agents/AgentAbTesting";
+import { PromptPlayground } from "@/components/agents/PromptPlayground";
+import { AutoExecutionPipeline } from "@/components/agents/AutoExecutionPipeline";
+import { AgentCollaborationThreads } from "@/components/agents/AgentCollaborationThreads";
 import type { AgentDefinition, AgentSkill } from "@/types/agents";
 
 export function AgentHubContent() {
