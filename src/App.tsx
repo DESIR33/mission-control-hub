@@ -17,6 +17,8 @@ import ContentProjectsPage from "./pages/ContentProjectsPage";
 import VideoQueueFormPage from "./pages/VideoQueueFormPage";
 import SettingsPage from "./pages/SettingsPage";
 import InboxPage from "./pages/InboxPage";
+import IntegrationsPage from "./pages/IntegrationsPage";
+import WeeklyReportPage from "./pages/WeeklyReportPage";
 import AffiliateProgramPage from "./pages/AffiliateProgramPage";
 import NewAffiliateProgramPage from "./pages/NewAffiliateProgramPage";
 import EditAffiliateProgramPage from "./pages/EditAffiliateProgramPage";
