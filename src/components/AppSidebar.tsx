@@ -15,13 +15,6 @@ interface AppSidebarProps {
   headerless?: boolean;
 }
 
-function isChildActive(childTo: string, pathname: string, search: string) {
-  const [path, query] = childTo.split("?");
-  if (pathname !== path) return false;
-  if (!query) return true;
-  return search.includes(query);
-}
-
 export function AppSidebar({ headerless }: AppSidebarProps) {
   const { signOut } = useAuth();
   const { unreadCount } = useNotifications();
@@ -31,9 +24,7 @@ export function AppSidebar({ headerless }: AppSidebarProps) {
   const initialOpen = mainNavItems.reduce<Record<string, boolean>>(
     (acc, item) => {
       if (item.children) {
-        const hasActive = item.children.some((c) =>
-          isChildActive(c.to, location.pathname, location.search)
-        );
+        const hasActive = item.children.some((c) => location.pathname.startsWith(c.to));
         acc[item.label] = hasActive;
       }
       return acc;
@@ -45,11 +36,6 @@ export function AppSidebar({ headerless }: AppSidebarProps) {
 
   const toggleGroup = (label: string) => {
     setOpenGroups((prev) => ({ ...prev, [label]: !prev[label] }));
-  };
-
-  const handleChildClick = (to: string) => {
-    const [path, query] = to.split("?");
-    navigate(query ? `${path}?${query}` : path);
   };
 
   return (
@@ -66,7 +52,6 @@ export function AppSidebar({ headerless }: AppSidebarProps) {
 
       <nav className="flex-1 py-3 px-2 overflow-y-auto space-y-0.5">
         {mainNavItems.map((item) => {
-          // Items without children render as simple links
           if (!item.children) {
             const isInbox = item.to === "/inbox";
             const showBadge = isInbox && unreadCount > 0;
@@ -95,7 +80,6 @@ export function AppSidebar({ headerless }: AppSidebarProps) {
             );
           }
 
-          // Items with children render as collapsible groups
           const isOpen = openGroups[item.label] ?? false;
 
           return (
@@ -112,13 +96,13 @@ export function AppSidebar({ headerless }: AppSidebarProps) {
               </CollapsibleTrigger>
               <CollapsibleContent className="space-y-0.5 mt-0.5">
                 {item.children.map((child) => {
-                  const active = isChildActive(child.to, location.pathname, location.search);
+                  const active = location.pathname === child.to;
                   return (
-                    <button
+                    <RouterNavLink
                       key={child.to}
-                      onClick={() => handleChildClick(child.to)}
+                      to={child.to}
                       className={cn(
-                        "flex items-center gap-3 pl-7 pr-3 py-1.5 rounded-md text-sm transition-colors w-full text-left",
+                        "flex items-center gap-3 pl-7 pr-3 py-1.5 rounded-md text-sm transition-colors w-full",
                         active
                           ? "bg-sidebar-accent text-sidebar-primary"
                           : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
@@ -126,7 +110,7 @@ export function AppSidebar({ headerless }: AppSidebarProps) {
                     >
                       <child.icon className="w-3.5 h-3.5 shrink-0" />
                       <span className="truncate">{child.label}</span>
-                    </button>
+                    </RouterNavLink>
                   );
                 })}
               </CollapsibleContent>
@@ -135,7 +119,6 @@ export function AppSidebar({ headerless }: AppSidebarProps) {
         })}
       </nav>
 
-      {/* Bottom */}
       <div className="py-3 px-2 space-y-0.5 border-t border-sidebar-border">
         {bottomItems.map((item) => (
           <RouterNavLink
