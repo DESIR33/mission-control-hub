@@ -96,8 +96,8 @@ export default function VideoDetailPage() {
   if (!detail) {
     return (
       <div className="p-4 sm:p-6 lg:p-8">
-        <Button variant="ghost" size="sm" onClick={() => navigate("/analytics")} className="mb-4">
-          <ArrowLeft className="w-4 h-4 mr-1" /> Back to Analytics
+        <Button variant="ghost" size="sm" onClick={() => navigate("/youtube/channel-videos?tab=videos")} className="mb-4">
+          <ArrowLeft className="w-4 h-4 mr-1" /> Back to Channel & Videos
         </Button>
         <div className="rounded-xl border border-dashed border-border p-12 text-center">
           <AlertCircle className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
@@ -116,8 +116,8 @@ export default function VideoDetailPage() {
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
       <div className="flex items-center justify-between">
-        <Button variant="ghost" size="sm" onClick={() => navigate("/analytics")} className="-ml-2">
-          <ArrowLeft className="w-4 h-4 mr-1" /> Analytics
+        <Button variant="ghost" size="sm" onClick={() => navigate("/youtube/channel-videos?tab=videos")} className="-ml-2">
+          <ArrowLeft className="w-4 h-4 mr-1" /> Channel & Videos
         </Button>
         <Button
           size="sm"
