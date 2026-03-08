@@ -34,8 +34,8 @@ import WeeklySprintPage from "./pages/WeeklySprintPage";
 import CompanyProfilePage from "./pages/CompanyProfilePage";
 
 // Consolidated pages
-import PartnershipsPage from "./pages/PartnershipsPage";
-import YouTubeHubPage from "./pages/YouTubeHubPage";
+import NetworkPage from "./pages/NetworkPage";
+import YouTubeHubPage, { GrowthPage } from "./pages/YouTubeHubPage";
 import AIHubPage from "./pages/AIHubPage";
 
 const queryClient = new QueryClient();
@@ -85,23 +85,23 @@ const App = () => (
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route path="/" element={<Index />} />
 
-              {/* Partnerships (consolidated) */}
-              <Route path="/partnerships" element={<PartnershipsPage />} />
-              <Route path="/relationships/new-company" element={<AddCompanyPage />} />
-              <Route path="/relationships/new-contact" element={<AddContactPage />} />
-              <Route path="/relationships/companies/:companyId" element={<CompanyProfilePage />} />
-
-              {/* Content & Projects (consolidated) */}
+              {/* Content Pipeline */}
               <Route path="/content" element={<ContentProjectsPage />} />
               <Route path="/content/create" element={<VideoQueueFormPage />} />
               <Route path="/content/:id/edit" element={<VideoQueueFormPage />} />
 
-              {/* YouTube Hub (consolidated) */}
-              <Route path="/youtube" element={<YouTubeHubPage />} />
+              {/* Content Management (YouTube Hub) */}
+              <Route path="/youtube" element={<Navigate to="/youtube/dashboard" replace />} />
+              <Route path="/youtube/:section" element={<YouTubeHubPage />} />
               <Route path="/analytics/videos/:youtubeVideoId" element={<VideoDetailPage />} />
 
-              {/* Revenue (renamed from Monetization) */}
-              <Route path="/revenue" element={<MonetizationPage />} />
+              {/* Growth */}
+              <Route path="/growth" element={<Navigate to="/growth/forecast" replace />} />
+              <Route path="/growth/:section" element={<GrowthPage />} />
+
+              {/* Revenue */}
+              <Route path="/revenue" element={<Navigate to="/revenue/overview" replace />} />
+              <Route path="/revenue/:tab" element={<MonetizationPage />} />
               <Route path="/affiliate-program/new" element={<NewAffiliateProgramPage />} />
               <Route path="/affiliate-program/:id" element={<AffiliateProgramPage />} />
               <Route path="/affiliate-program/:id/edit" element={<EditAffiliateProgramPage />} />
@@ -111,7 +111,22 @@ const App = () => (
               <Route path="/add-transaction" element={<AddProductTransactionPage />} />
               <Route path="/add-transaction/:id" element={<AddProductTransactionPage />} />
 
-              {/* Task detail/create routes (projects absorbed into /content) */}
+              {/* Network */}
+              <Route path="/network" element={<Navigate to="/network/contacts" replace />} />
+              <Route path="/network/:section" element={<NetworkPage />} />
+              <Route path="/relationships/new-company" element={<AddCompanyPage />} />
+              <Route path="/relationships/new-contact" element={<AddContactPage />} />
+              <Route path="/relationships/companies/:companyId" element={<CompanyProfilePage />} />
+
+              {/* Reports */}
+              <Route path="/reports" element={<Navigate to="/reports/weekly" replace />} />
+              <Route path="/reports/weekly" element={<WeeklyReportPage />} />
+
+              {/* AI Hub */}
+              <Route path="/ai" element={<Navigate to="/ai/chat" replace />} />
+              <Route path="/ai/:tab" element={<AIHubPage />} />
+
+              {/* Task detail/create routes */}
               <Route path="/tasks/:id" element={<Tasks />} />
               <Route path="/tasks/create" element={<Tasks />} />
               <Route path="/projects/:projectId/tasks/create" element={<Tasks />} />
@@ -119,16 +134,10 @@ const App = () => (
               {/* Growth Sprints */}
               <Route path="/sprints" element={<WeeklySprintPage />} />
 
-              {/* AI Hub (consolidated) */}
-              <Route path="/ai" element={<AIHubPage />} />
-
               {/* Communication */}
               <Route path="/inbox" element={<InboxPage />} />
               <Route path="/inbox/*" element={<InboxPage />} />
               <Route path="/notifications" element={<NotificationsPage />} />
-
-              {/* Reports */}
-              <Route path="/reports" element={<WeeklyReportPage />} />
 
               {/* Integrations */}
               <Route path="/integrations" element={<IntegrationsPage />} />
@@ -137,21 +146,22 @@ const App = () => (
               <Route path="/settings" element={<SettingsPage />} />
 
               {/* Backward-compatibility redirects */}
-              <Route path="/relationships" element={<Navigate to="/partnerships?tab=contacts" replace />} />
-              <Route path="/deals" element={<Navigate to="/partnerships?tab=pipeline" replace />} />
-              <Route path="/discover" element={<Navigate to="/partnerships?tab=discovery" replace />} />
-              <Route path="/collaborations" element={<Navigate to="/partnerships?tab=collaborations" replace />} />
-              <Route path="/analytics" element={<Navigate to="/youtube?section=dashboard" replace />} />
-              <Route path="/command-center" element={<Navigate to="/youtube?section=dashboard" replace />} />
-              <Route path="/comments" element={<Navigate to="/youtube?section=comments" replace />} />
-              <Route path="/tasks" element={<Navigate to="/content?tab=projects" replace />} />
-              <Route path="/chat" element={<Navigate to="/ai?tab=chat" replace />} />
-              <Route path="/ai-bridge" element={<Navigate to="/ai?tab=proposals" replace />} />
-              <Route path="/agents" element={<Navigate to="/ai?tab=agents" replace />} />
-              <Route path="/memory" element={<Navigate to="/ai?tab=memory" replace />} />
-              <Route path="/monetization" element={<Navigate to="/revenue" replace />} />
-              <Route path="/sequences" element={<Navigate to="/inbox?folder=sequences" replace />} />
-              <Route path="/projects" element={<Navigate to="/content?tab=projects" replace />} />
+              <Route path="/partnerships" element={<Navigate to="/network/contacts" replace />} />
+              <Route path="/relationships" element={<Navigate to="/network/contacts" replace />} />
+              <Route path="/deals" element={<Navigate to="/network/contacts" replace />} />
+              <Route path="/discover" element={<Navigate to="/network/contacts" replace />} />
+              <Route path="/collaborations" element={<Navigate to="/network/contacts" replace />} />
+              <Route path="/analytics" element={<Navigate to="/youtube/dashboard" replace />} />
+              <Route path="/command-center" element={<Navigate to="/youtube/dashboard" replace />} />
+              <Route path="/comments" element={<Navigate to="/youtube/comments" replace />} />
+              <Route path="/tasks" element={<Navigate to="/content" replace />} />
+              <Route path="/chat" element={<Navigate to="/ai/chat" replace />} />
+              <Route path="/ai-bridge" element={<Navigate to="/ai/proposals" replace />} />
+              <Route path="/agents" element={<Navigate to="/ai/agents" replace />} />
+              <Route path="/memory" element={<Navigate to="/ai/memory" replace />} />
+              <Route path="/monetization" element={<Navigate to="/revenue/overview" replace />} />
+              <Route path="/sequences" element={<Navigate to="/inbox" replace />} />
+              <Route path="/projects" element={<Navigate to="/content" replace />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
