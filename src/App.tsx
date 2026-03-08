@@ -40,6 +40,7 @@ const NetworkPage = lazy(() => import("./pages/NetworkPage"));
 const YouTubeHubPage = lazy(() => import("./pages/YouTubeHubPage").then(m => ({ default: m.default })));
 const GrowthPage = lazy(() => import("./pages/YouTubeHubPage").then(m => ({ default: m.GrowthPage })));
 const AIHubPage = lazy(() => import("./pages/AIHubPage"));
+const ProposalDetailPage = lazy(() => import("./pages/ProposalDetailPage"));
 
 const queryClient = new QueryClient();
 
