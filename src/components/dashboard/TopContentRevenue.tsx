@@ -54,7 +54,7 @@ export function TopContentRevenue() {
           const barWidth = (video.totalRevenue / maxRevenue) * 100;
 
           return (
-            <div key={video.videoQueueId} className="space-y-1">
+            <div key={video.youtubeVideoId ?? `q-${video.videoQueueId}-${i}`} className="space-y-1">
               <div className="flex items-center justify-between gap-2">
                 <p className="text-xs text-foreground truncate flex-1">
                   <span className="text-muted-foreground mr-1">#{i + 1}</span>
