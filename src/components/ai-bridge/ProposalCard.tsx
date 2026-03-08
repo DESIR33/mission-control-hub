@@ -101,6 +101,7 @@ export function ProposalCard({
   isActioning,
 }: ProposalCardProps) {
   const [expanded, setExpanded] = useState(false);
+  const navigate = useNavigate();
 
   const status = statusConfig[proposal.status];
   const entityType = entityTypeConfig[proposal.entity_type] || { icon: Sparkles, label: "Video", className: "bg-muted text-muted-foreground" };
