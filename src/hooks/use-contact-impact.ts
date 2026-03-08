@@ -64,7 +64,7 @@ export function useContactImpact(contactId: string | null) {
       const ytIds = videoCompanies.map((vc: any) => vc.youtube_video_id);
       if (!ytIds.length) return [];
       const { data, error } = await supabase
-        .from("video_queue")
+        .from("video_queue" as any)
         .select("id, title, youtube_video_id")
         .eq("workspace_id", workspaceId!)
         .in("youtube_video_id", ytIds);
