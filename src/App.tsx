@@ -138,6 +138,7 @@ const App = () => (
               {/* Communication */}
               <Route path="/inbox" element={<InboxPage />} />
               <Route path="/inbox/*" element={<InboxPage />} />
+              <Route path="/auth/outlook/callback" element={<OutlookCallbackPage />} />
               <Route path="/notifications" element={<NotificationsPage />} />
 
               {/* Integrations */}

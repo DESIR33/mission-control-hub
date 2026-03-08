@@ -361,9 +361,34 @@ export default function InboxPage() {
         </div>
 
         {!outlookIntegration && (
-          <div className="mt-2 rounded-lg bg-amber-500/10 border border-amber-500/30 px-3 py-2 text-xs text-amber-700">
-            <MailIcon className="inline h-3.5 w-3.5 mr-1.5" />
-            Microsoft Outlook is not connected. Go to <strong>Settings → Integrations</strong> to connect your email account and enable syncing.
+          <div className="mt-2 rounded-lg bg-amber-500/10 border border-amber-500/30 px-3 py-2 text-xs text-amber-700 flex items-center justify-between">
+            <span>
+              <MailIcon className="inline h-3.5 w-3.5 mr-1.5" />
+              Microsoft Outlook is not connected. Connect your email account to enable syncing.
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              className="ml-3 gap-1.5 text-xs"
+              disabled={outlookAuth.isPending}
+              onClick={() => {
+                outlookAuth.mutate(undefined, {
+                  onSuccess: (data) => {
+                    window.open(data.url, "_blank");
+                  },
+                  onError: (err) => {
+                    toast({
+                      title: "Failed to start authorization",
+                      description: err instanceof Error ? err.message : "Unknown error",
+                      variant: "destructive",
+                    });
+                  },
+                });
+              }}
+            >
+              <LinkIcon className="h-3 w-3" />
+              Authorize Outlook
+            </Button>
           </div>
         )}
       </header>
