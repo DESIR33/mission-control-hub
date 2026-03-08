@@ -1070,6 +1070,83 @@ export type Database = {
         }
         Relationships: []
       }
+      revenue_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          customer_email: string | null
+          customer_id: string | null
+          customer_name: string | null
+          description: string | null
+          external_created_at: string | null
+          external_id: string
+          id: string
+          interval: string | null
+          metadata: Json | null
+          price_id: string | null
+          product_name: string | null
+          source: string
+          status: string
+          subscription_id: string | null
+          type: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          customer_email?: string | null
+          customer_id?: string | null
+          customer_name?: string | null
+          description?: string | null
+          external_created_at?: string | null
+          external_id: string
+          id?: string
+          interval?: string | null
+          metadata?: Json | null
+          price_id?: string | null
+          product_name?: string | null
+          source?: string
+          status?: string
+          subscription_id?: string | null
+          type?: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          customer_email?: string | null
+          customer_id?: string | null
+          customer_name?: string | null
+          description?: string | null
+          external_created_at?: string | null
+          external_id?: string
+          id?: string
+          interval?: string | null
+          metadata?: Json | null
+          price_id?: string | null
+          product_name?: string | null
+          source?: string
+          status?: string
+          subscription_id?: string | null
+          type?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "revenue_transactions_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       strategist_daily_runs: {
         Row: {
           completed_at: string | null
@@ -1158,6 +1235,50 @@ export type Database = {
           },
           {
             foreignKeyName: "strategist_notifications_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stripe_sync_log: {
+        Row: {
+          charges_synced: number | null
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          started_at: string
+          status: string
+          subscriptions_synced: number | null
+          workspace_id: string
+        }
+        Insert: {
+          charges_synced?: number | null
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          started_at?: string
+          status?: string
+          subscriptions_synced?: number | null
+          workspace_id: string
+        }
+        Update: {
+          charges_synced?: number | null
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          started_at?: string
+          status?: string
+          subscriptions_synced?: number | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stripe_sync_log_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
