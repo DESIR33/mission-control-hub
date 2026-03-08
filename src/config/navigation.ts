@@ -64,6 +64,7 @@ export const mainNavItems: NavItem[] = [
       { to: "/youtube/uploads", label: "Upload & Playlists", icon: ListVideo },
       { to: "/youtube/strategy", label: "Content & Strategy", icon: Wrench },
       { to: "/youtube/comments", label: "Comments", icon: MessageSquare },
+      { to: "/youtube/experiments", label: "Optimization Experiments", icon: Activity },
     ],
   },
   {
