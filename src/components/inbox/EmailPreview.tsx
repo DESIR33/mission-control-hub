@@ -12,6 +12,8 @@ import {
   Loader2Icon,
   CalendarIcon,
 } from "lucide-react";
+import { AiEmailDrafter } from "@/components/inbox/AiEmailDrafter";
+import { useOutlookSend } from "@/hooks/use-smart-inbox";
 import type { SmartEmail } from "@/hooks/use-smart-inbox";
 
 interface EmailPreviewProps {
@@ -31,6 +33,7 @@ export default function EmailPreview({
   onArchive,
   onTogglePinned,
 }: EmailPreviewProps) {
+  const outlookSend = useOutlookSend();
   if (!email) {
     return (
       <div className="h-full flex flex-col items-center justify-center bg-card px-8 text-center">
@@ -65,6 +68,18 @@ export default function EmailPreview({
           <Button size="sm" variant="ghost" onClick={onDelete} title="Delete">
             <Trash2Icon className="h-4 w-4" />
           </Button>
+          {email && (
+            <AiEmailDrafter
+              email={email}
+              onSendDraft={(body) => {
+                outlookSend.mutate({
+                  reply_to_message_id: email.message_id,
+                  body_html: body.replace(/\n/g, "<br>"),
+                });
+              }}
+              isSending={outlookSend.isPending}
+            />
+          )}
         </div>
       </div>
 

@@ -10,6 +10,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { SmartFollowUpQueue } from "@/components/inbox/SmartFollowUpQueue";
+import { EmailToDealAutomation } from "@/components/inbox/EmailToDealAutomation";
 import type { SmartEmail } from "@/hooks/use-smart-inbox";
 
 interface SmartInboxSidebarProps {
@@ -47,11 +49,8 @@ function formatStage(stage: string): string {
 export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
   if (!email) {
     return (
-      <div className="flex flex-col items-center justify-center h-full p-6 text-muted-foreground">
-        <Mail className="w-10 h-10 mb-3 opacity-40" />
-        <p className="text-sm text-center">
-          Select an email to see CRM context
-        </p>
+      <div className="space-y-4 p-4 overflow-y-auto h-full">
+        <SmartFollowUpQueue />
       </div>
     );
   }
@@ -181,14 +180,7 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
               Create Contact
             </Button>
           )}
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full justify-start"
-          >
-            <Handshake className="w-3.5 h-3.5 mr-2" />
-            Create Deal
-          </Button>
+          <EmailToDealAutomation email={email} />
           <Button
             variant="outline"
             size="sm"

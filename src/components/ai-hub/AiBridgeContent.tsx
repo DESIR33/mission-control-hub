@@ -10,6 +10,7 @@ import { Search, Filter, Sparkles, Loader2, Check } from "lucide-react";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { supabase } from "@/integrations/supabase/client";
 import { useProposals, useUpdateProposalStatus, useUpdateProposal } from "@/hooks/use-proposals";
+import { useSubmitFeedback } from "@/hooks/use-agent-feedback";
 import { ProposalCard } from "@/components/ai-bridge/ProposalCard";
 import { ProposalStats } from "@/components/ai-bridge/ProposalStats";
 import { EditProposalDialog } from "@/components/ai-bridge/EditProposalDialog";
@@ -27,6 +28,7 @@ export function AiBridgeContent() {
   const { data: proposals = [], isLoading } = useProposals();
   const updateStatus = useUpdateProposalStatus();
   const updateProposal = useUpdateProposal();
+  const submitFeedback = useSubmitFeedback();
   const { toast } = useToast();
 
   const handleGenerate = async () => {
@@ -78,18 +80,38 @@ export function AiBridgeContent() {
 
   const handleApprove = (id: string) => {
     setLocalStatuses((prev) => ({ ...prev, [id]: "approved" }));
+    const proposal = proposals.find(p => p.id === id);
     updateStatus.mutate({ id, status: "approved" }, {
       onSuccess: () => toast({ title: "Proposal approved", description: "The AI proposal has been approved and changes will be applied." }),
       onError: () => toast({ title: "Proposal approved", description: "Approved locally (demo mode)." }),
     });
+    // Submit feedback for learning loop
+    if (proposal) {
+      submitFeedback.mutate({
+        proposal_id: id,
+        agent_slug: (proposal as any).created_by ?? "unknown",
+        action: "accepted",
+        original_content: proposal.proposed_changes ?? {},
+      });
+    }
   };
 
   const handleReject = (id: string) => {
     setLocalStatuses((prev) => ({ ...prev, [id]: "rejected" }));
+    const proposal = proposals.find(p => p.id === id);
     updateStatus.mutate({ id, status: "rejected" }, {
       onSuccess: () => toast({ title: "Proposal rejected", description: "The AI proposal has been rejected." }),
       onError: () => toast({ title: "Proposal rejected", description: "Rejected locally (demo mode)." }),
     });
+    // Submit feedback for learning loop
+    if (proposal) {
+      submitFeedback.mutate({
+        proposal_id: id,
+        agent_slug: (proposal as any).created_by ?? "unknown",
+        action: "rejected",
+        original_content: proposal.proposed_changes ?? {},
+      });
+    }
   };
 
   const handleEdit = (proposal: AiProposal) => { setEditingProposal(proposal); setEditDialogOpen(true); };

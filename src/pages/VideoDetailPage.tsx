@@ -27,6 +27,7 @@ import { DealsAttributionPanel } from "@/components/video-detail/DealsAttributio
 import { RetentionCurve } from "@/components/video-detail/RetentionCurve";
 import { VideoCompaniesPanel } from "@/components/video-detail/VideoCompaniesPanel";
 import { VideoOptimizationPanel } from "@/components/video-detail/VideoOptimizationPanel";
+import { SponsorSegmentTracker } from "@/components/video-detail/SponsorSegmentTracker";
 
 
 export default function VideoDetailPage() {
@@ -321,6 +322,9 @@ export default function VideoDetailPage() {
           )}
 
           <DealsAttributionPanel deals={deals} isLoading={loadingDeals} />
+          
+          {/* Sponsor Segment Attribution */}
+          {youtubeVideoId && <SponsorSegmentTracker videoId={youtubeVideoId} />}
         </TabsContent>
 
         {/* AI Suggestions */}

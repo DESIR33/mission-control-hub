@@ -16,6 +16,9 @@ import { RunAgentDialog } from "@/components/agents/RunAgentDialog";
 import { CreateSkillDialog } from "@/components/agents/CreateSkillDialog";
 import { ImportSkillDialog } from "@/components/agents/ImportSkillDialog";
 import { SkillDetailSheet } from "@/components/agents/SkillDetailSheet";
+import { WorkflowChainManager } from "@/components/agents/WorkflowChainManager";
+import { NaturalLanguageTriggers } from "@/components/agents/NaturalLanguageTriggers";
+import { AgentActivityFeed } from "@/components/agents/AgentActivityFeed";
 import type { AgentDefinition, AgentSkill } from "@/types/agents";
 
 export function AgentHubContent() {
@@ -121,6 +124,13 @@ export function AgentHubContent() {
           const lastExec = executions.find((e) => e.agent_slug === agent.slug);
           return (<AgentCard key={agent.id} agent={agent} lastExecution={lastExec} onRun={(a) => setRunDialogAgent(a)} onToggle={handleToggle} onViewDetail={(a) => setDetailAgent(a)} isRunning={runningAgentSlug === agent.slug} />);
         })}
+      </div>
+
+      {/* Workflows, Triggers, Activity Feed */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <WorkflowChainManager />
+        <NaturalLanguageTriggers />
+        <AgentActivityFeed />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
