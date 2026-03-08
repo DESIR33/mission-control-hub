@@ -323,6 +323,11 @@ export default function VideoDetailPage() {
           <DealsAttributionPanel deals={deals} isLoading={loadingDeals} />
         </TabsContent>
 
+        {/* AI Suggestions */}
+        <TabsContent value="ai suggestions" className="mt-4">
+          <VideoOptimizationPanel youtubeVideoId={youtubeVideoId} />
+        </TabsContent>
+
         {/* Notes */}
         <TabsContent value="notes" className="mt-4">
           <NotesEditor
