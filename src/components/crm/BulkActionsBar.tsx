@@ -14,6 +14,7 @@ import {
 import { X, Trash2, UserCheck, Tag, Sparkles, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useUpdateContact, useDeleteContact } from "@/hooks/use-contacts";
+import { useDeleteCompany } from "@/hooks/use-companies";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
