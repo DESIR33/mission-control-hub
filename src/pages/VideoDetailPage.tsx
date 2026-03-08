@@ -27,6 +27,7 @@ import { DealsAttributionPanel } from "@/components/video-detail/DealsAttributio
 import { RetentionCurve } from "@/components/video-detail/RetentionCurve";
 import { VideoCompaniesPanel } from "@/components/video-detail/VideoCompaniesPanel";
 import { VideoOptimizationPanel } from "@/components/video-detail/VideoOptimizationPanel";
+import { VideoOptimizationTracker } from "@/components/video-detail/VideoOptimizationTracker";
 import { SponsorSegmentTracker } from "@/components/video-detail/SponsorSegmentTracker";
 import { SubtitleUploader } from "@/components/video-detail/SubtitleUploader";
 
@@ -152,7 +153,7 @@ export default function VideoDetailPage() {
 
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="flex flex-wrap h-auto gap-1 bg-transparent p-0 border-b border-border rounded-none pb-2">
-          {["Overview", "Performance", "Audience", "Traffic", "Revenue", "AI Suggestions", "Notes", "Experiments", "Repurposing"].map((tab) => (
+          {["Overview", "Performance", "Audience", "Traffic", "Revenue", "AI Suggestions", "Optimization Tracker", "Notes", "Experiments", "Repurposing"].map((tab) => (
             <TabsTrigger
               key={tab}
               value={tab.toLowerCase()}
@@ -333,6 +334,11 @@ export default function VideoDetailPage() {
         {/* AI Suggestions */}
         <TabsContent value="ai suggestions" className="mt-4">
           <VideoOptimizationPanel youtubeVideoId={youtubeVideoId} />
+        </TabsContent>
+
+        {/* Optimization Tracker */}
+        <TabsContent value="optimization tracker" className="mt-4">
+          <VideoOptimizationTracker youtubeVideoId={youtubeVideoId} />
         </TabsContent>
 
         {/* Notes */}
