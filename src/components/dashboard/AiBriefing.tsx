@@ -68,7 +68,7 @@ export function AiBriefing({ items = [], attentionItems = [] }: AiBriefingProps)
                   item.type === "action" ? "bg-warning" : "bg-primary"
                 )}
               />
-              <p className="text-muted-foreground leading-relaxed">{item.text}</p>
+              <p className="text-muted-foreground leading-relaxed break-words">{item.text}</p>
             </div>
           ))}
         </div>
