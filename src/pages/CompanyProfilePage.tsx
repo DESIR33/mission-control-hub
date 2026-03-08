@@ -229,7 +229,7 @@ export default function CompanyProfilePage() {
   if (!company) {
     return (
       <div className="p-4 sm:p-6 lg:p-8 min-h-screen">
-        <Button variant="ghost" size="sm" onClick={() => navigate("/relationships?tab=companies")} className="gap-1.5 mb-6 text-muted-foreground hover:text-foreground">
+        <Button variant="ghost" size="sm" onClick={() => navigate("/network/companies")} className="gap-1.5 mb-6 text-muted-foreground hover:text-foreground">
           <ArrowLeft className="w-4 h-4" /> Back to Companies
         </Button>
         <div className="flex flex-col items-center justify-center py-24 text-center">
