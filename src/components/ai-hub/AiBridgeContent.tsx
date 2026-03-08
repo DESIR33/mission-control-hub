@@ -28,6 +28,7 @@ export function AiBridgeContent() {
   const { data: proposals = [], isLoading } = useProposals();
   const updateStatus = useUpdateProposalStatus();
   const updateProposal = useUpdateProposal();
+  const submitFeedback = useSubmitFeedback();
   const { toast } = useToast();
 
   const handleGenerate = async () => {
