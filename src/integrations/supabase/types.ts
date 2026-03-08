@@ -2491,10 +2491,12 @@ export type Database = {
           avg_view_duration_seconds: number | null
           comments: number
           ctr_percent: number
+          description: string | null
           fetched_at: string
           id: string
           likes: number
           published_at: string | null
+          tags: string[] | null
           thumbnail_url: string | null
           title: string
           views: number
@@ -2506,10 +2508,12 @@ export type Database = {
           avg_view_duration_seconds?: number | null
           comments?: number
           ctr_percent?: number
+          description?: string | null
           fetched_at?: string
           id?: string
           likes?: number
           published_at?: string | null
+          tags?: string[] | null
           thumbnail_url?: string | null
           title?: string
           views?: number
@@ -2521,10 +2525,12 @@ export type Database = {
           avg_view_duration_seconds?: number | null
           comments?: number
           ctr_percent?: number
+          description?: string | null
           fetched_at?: string
           id?: string
           likes?: number
           published_at?: string | null
+          tags?: string[] | null
           thumbnail_url?: string | null
           title?: string
           views?: number
