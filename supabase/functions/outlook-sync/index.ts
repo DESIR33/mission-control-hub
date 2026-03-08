@@ -99,6 +99,18 @@ function mapFolderIdToName(folderId: string | undefined): string {
   return "inbox";
 }
 
+function mapGraphFolderToDb(graphFolder: string): string {
+  const map: Record<string, string> = {
+    inbox: "inbox",
+    sentitems: "sent",
+    junkemail: "junk",
+    deleteditems: "trash",
+    archive: "archive",
+    drafts: "drafts",
+  };
+  return map[graphFolder.toLowerCase()] || graphFolder;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
