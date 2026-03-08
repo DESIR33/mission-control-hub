@@ -180,14 +180,7 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
               Create Contact
             </Button>
           )}
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full justify-start"
-          >
-            <Handshake className="w-3.5 h-3.5 mr-2" />
-            Create Deal
-          </Button>
+          <EmailToDealAutomation email={email} />
           <Button
             variant="outline"
             size="sm"
