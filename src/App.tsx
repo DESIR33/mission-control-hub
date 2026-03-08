@@ -127,6 +127,12 @@ const App = () => (
               <Route path="/inbox/*" element={<InboxPage />} />
               <Route path="/notifications" element={<NotificationsPage />} />
 
+              {/* Reports */}
+              <Route path="/reports" element={<WeeklyReportPage />} />
+
+              {/* Integrations */}
+              <Route path="/integrations" element={<IntegrationsPage />} />
+
               {/* System */}
               <Route path="/settings" element={<SettingsPage />} />
 
@@ -138,14 +144,12 @@ const App = () => (
               <Route path="/analytics" element={<Navigate to="/youtube?section=dashboard" replace />} />
               <Route path="/command-center" element={<Navigate to="/youtube?section=dashboard" replace />} />
               <Route path="/comments" element={<Navigate to="/youtube?section=comments" replace />} />
-              <Route path="/reports" element={<Navigate to="/youtube?section=reports" replace />} />
               <Route path="/tasks" element={<Navigate to="/content?tab=projects" replace />} />
               <Route path="/chat" element={<Navigate to="/ai?tab=chat" replace />} />
               <Route path="/ai-bridge" element={<Navigate to="/ai?tab=proposals" replace />} />
               <Route path="/agents" element={<Navigate to="/ai?tab=agents" replace />} />
               <Route path="/memory" element={<Navigate to="/ai?tab=memory" replace />} />
               <Route path="/monetization" element={<Navigate to="/revenue" replace />} />
-              <Route path="/integrations" element={<Navigate to="/settings?tab=integrations" replace />} />
               <Route path="/sequences" element={<Navigate to="/inbox?folder=sequences" replace />} />
               <Route path="/projects" element={<Navigate to="/content?tab=projects" replace />} />
             </Route>
