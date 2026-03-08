@@ -1,19 +1,18 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { useOutlookAuthCallback } from "@/hooks/use-smart-inbox";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { Loader2, CheckCircle2, XCircle } from "lucide-react";
 
 export default function OutlookCallbackPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const authCallback = useOutlookAuthCallback();
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
 
   useEffect(() => {
     const code = searchParams.get("code");
-    const state = searchParams.get("state");
+    const state = searchParams.get("state"); // workspace_id
     const error = searchParams.get("error");
 
     if (error) {
@@ -36,24 +35,25 @@ export default function OutlookCallbackPage() {
       return;
     }
 
-    authCallback.mutate(
-      { code, state },
-      {
-        onSuccess: () => {
-          setStatus("success");
-          toast({ title: "Outlook connected successfully!" });
-          setTimeout(() => navigate("/inbox"), 2000);
-        },
-        onError: (err) => {
-          setStatus("error");
-          toast({
-            title: "Failed to connect Outlook",
-            description: err instanceof Error ? err.message : "Unknown error",
-            variant: "destructive",
-          });
-        },
-      },
-    );
+    (async () => {
+      try {
+        const { data, error: fnError } = await supabase.functions.invoke("outlook-auth-callback", {
+          body: { workspace_id: state, code },
+        });
+        if (fnError) throw fnError;
+        if (data?.error) throw new Error(data.error);
+        setStatus("success");
+        toast({ title: "Outlook connected successfully!" });
+        setTimeout(() => navigate("/inbox"), 2000);
+      } catch (err) {
+        setStatus("error");
+        toast({
+          title: "Failed to connect Outlook",
+          description: err instanceof Error ? err.message : "Unknown error",
+          variant: "destructive",
+        });
+      }
+    })();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
