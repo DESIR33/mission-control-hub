@@ -30,6 +30,9 @@ import { MultiAgentWorkflows } from "@/components/agents/MultiAgentWorkflows";
 import { AgentActionReplay } from "@/components/agents/AgentActionReplay";
 import { ProactiveAlertDigest } from "@/components/agents/ProactiveAlertDigest";
 import { AgentSkillMarketplace } from "@/components/agents/AgentSkillMarketplace";
+import { AgentGoalTracker } from "@/components/agents/AgentGoalTracker";
+import { NaturalLanguageAgentBuilder } from "@/components/agents/NaturalLanguageAgentBuilder";
+import { AgentImpactAttribution } from "@/components/agents/AgentImpactAttribution";
 import type { AgentDefinition, AgentSkill } from "@/types/agents";
 
 export function AgentHubContent() {
