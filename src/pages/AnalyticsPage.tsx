@@ -1033,7 +1033,7 @@ function OverviewTab({
             All Videos ({sortedVideos.length})
           </h2>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm min-w-[700px]">
               <thead>
                 <tr className="border-b border-border">
                   <SortableTh field="title" label="Title" align="left" currentField={tableSortField} currentDir={tableSortDir} onSort={handleTableSort} />
