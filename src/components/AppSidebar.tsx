@@ -42,9 +42,7 @@ export function AppSidebar({ headerless }: AppSidebarProps) {
       {/* Optional logo header — hidden when headerless (global header takes over) */}
       {!headerless && (
         <div className="flex items-center gap-3 px-4 h-14 border-b border-sidebar-border shrink-0">
-          <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center shrink-0">
-            <span className="text-primary-foreground font-bold text-xs">D</span>
-          </div>
+          <img src="/logo.png" alt="Logo" className="w-7 h-7 rounded-lg object-contain shrink-0" />
           <div className="overflow-hidden">
             <h1 className="text-sm font-semibold text-sidebar-accent-foreground truncate">Desmily</h1>
             <p className="text-xs text-sidebar-foreground truncate">Mission Control</p>

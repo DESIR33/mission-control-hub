@@ -186,9 +186,7 @@ function GlobalHeader({
 
       {/* Logo */}
       <div className="flex items-center gap-2 shrink-0">
-        <div className="w-6 h-6 rounded-md bg-primary flex items-center justify-center">
-          <span className="text-primary-foreground font-bold text-[10px]">D</span>
-        </div>
+        <img src="/logo.png" alt="Logo" className="w-7 h-7 rounded-md object-contain" />
       </div>
 
       {/* Search bar */}
