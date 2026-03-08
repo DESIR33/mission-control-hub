@@ -222,6 +222,21 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
         </CardContent>
       </Card>
 
+      {/* Thread Summarizer */}
+      <ThreadSummarizer email={email} />
+
+      {/* Smart Reply Suggestions */}
+      <SmartReplySuggestions
+        email={email}
+        onSendReply={(body) => {
+          outlookSend.mutate({
+            reply_to_message_id: email.message_id,
+            body_html: body,
+          });
+        }}
+        isSending={outlookSend.isPending}
+      />
+
       {/* Email Templates */}
       <EmailTemplateManager />
     </div>
