@@ -56,11 +56,16 @@ const SECTIONS: { key: Section; label: string; icon: React.ReactNode; group: str
 
 export default function PartnershipsPage() {
   const [searchParams] = useSearchParams();
-  const initialTab = (searchParams.get("tab") as Section) || "contacts";
+  const tabParam = (searchParams.get("tab") as Section) || "contacts";
   const navigate = useNavigate();
-  const [activeSection, setActiveSection] = useState<Section>(initialTab);
+  const [activeSection, setActiveSection] = useState<Section>(tabParam);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [contactSheetOpen, setContactSheetOpen] = useState(false);
+
+  // Sync state when URL search params change (e.g. sidebar navigation)
+  useEffect(() => {
+    setActiveSection(tabParam);
+  }, [tabParam]);
 
   const { data: contacts = [], isLoading: contactsLoading } = useContacts();
   const { data: contactActivities = [] } = useActivities(selectedContact?.id ?? null);

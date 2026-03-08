@@ -94,8 +94,13 @@ const SECTION_COMPONENTS: Record<Section, React.ComponentType> = {
 
 export default function YouTubeHubPage() {
   const [searchParams] = useSearchParams();
-  const initialSection = (searchParams.get("section") as Section) || "dashboard";
-  const [activeSection, setActiveSection] = useState<Section>(initialSection);
+  const sectionParam = (searchParams.get("section") as Section) || "dashboard";
+  const [activeSection, setActiveSection] = useState<Section>(sectionParam);
+
+  // Sync state when URL search params change (e.g. sidebar navigation)
+  useEffect(() => {
+    setActiveSection(sectionParam);
+  }, [sectionParam]);
   const { isLoading: workspaceLoading } = useWorkspace();
   const syncYouTube = useSyncYouTube();
   const syncAnalytics = useSyncYouTubeAnalytics();
