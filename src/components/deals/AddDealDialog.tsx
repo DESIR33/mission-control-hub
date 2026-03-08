@@ -48,7 +48,6 @@ export function AddDealDialog() {
         forecast_category: forecastCategory && forecastCategory !== "none" ? forecastCategory : undefined,
         contact_id: contactId && contactId !== "none" ? contactId : undefined,
         company_id: companyId && companyId !== "none" ? companyId : undefined,
-        video_queue_id: videoQueueId && videoQueueId !== "none" ? videoQueueId : undefined,
         expected_close_date: (form.get("expected_close_date") as string) || undefined,
         notes: (form.get("notes") as string) || undefined,
       });
