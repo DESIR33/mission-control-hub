@@ -27,7 +27,7 @@ export function KpiCard({ title, value, change, changeType = "neutral", icon: Ic
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
             {title}
           </p>
-          <p className="text-2xl font-bold font-mono text-card-foreground">{value}</p>
+          <p className="text-lg sm:text-2xl font-bold font-mono text-card-foreground">{value}</p>
           {change && (
             <p
               className={cn(
