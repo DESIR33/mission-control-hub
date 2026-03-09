@@ -304,29 +304,11 @@ Deno.serve(async (req) => {
     const transcriptMap = new Map<string, string>();
     for (const t of (subtitlesRes.data || [])) {
       const segs = (t.parsed_segments as any[]) || [];
-      const text = segs.map((s: any) => s.text).join(" ").substring(0, 1200);
+      const text = segs.map((s: any) => s.text).join(" ").substring(0, 800);
       transcriptMap.set(t.youtube_video_id, `[${t.language}] ${text}`);
     }
-    for (const t of (altTransRes.data || [])) {
-      if (transcriptMap.has(t.youtube_video_id)) continue;
-      const segs = (t.parsed_segments as any[]) || [];
-      const text = segs.map((s: any) => s.text).join(" ").substring(0, 1200);
-      if (text) transcriptMap.set(t.youtube_video_id, text);
-    }
 
-    const retentionMap = new Map<string, string>();
-    for (const r of (retentionRes.data || [])) {
-      const points = (r.retention_points as any[]) || [];
-      if (!points.length) continue;
-      const summary = points
-        .filter((_: any, i: number) => i % Math.max(1, Math.floor(points.length / 10)) === 0)
-        .map((p: any) => `${Math.round(p.elapsed_seconds)}s:${p.retention_percent.toFixed(0)}%`)
-        .join(", ");
-      retentionMap.set(r.youtube_video_id, summary);
-    }
-
-    const bestPracticesContext = (bestPracticesRes.data || []).map((m: any) => m.content).join("\n- ");
-    const learningsContext = (learningsRes.data || []).map((m: any) => m.content).join("\n- ");
+    const bestPracticesContext = (bestPracticesRes.data || []).slice(0, 5).map((m: any) => m.content).join("; ");
 
     // ── 3c. Fetch competitor videos for top 5 underperformers ────
     const competitorDataMap = new Map<string, CompetitorVideo[]>();
