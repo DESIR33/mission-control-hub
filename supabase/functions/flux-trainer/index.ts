@@ -3,6 +3,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
+const MAX_TRAINING_IMAGES = 20;
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -19,14 +21,18 @@ Deno.serve(async (req) => {
     const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
 
     const { action, session_id, workspace_id } = await req.json();
+    console.log(`[flux-trainer] action=${action} session=${session_id}`);
 
-    // ── Resolve the Replicate username from the API token ──
     async function getReplicateUsername(): Promise<string> {
       const res = await fetch('https://api.replicate.com/v1/account', {
         headers: { 'Authorization': `Bearer ${REPLICATE_API_TOKEN}` },
       });
-      if (!res.ok) throw new Error('Failed to get Replicate account info');
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(`Failed to get Replicate account: ${res.status} ${txt}`);
+      }
       const data = await res.json();
+      console.log('[flux-trainer] Replicate username:', data.username);
       return data.username;
     }
 
@@ -43,26 +49,33 @@ Deno.serve(async (req) => {
         .eq('id', session_id)
         .single();
       if (sErr || !session) {
+        console.error('[flux-trainer] Session not found:', sErr);
         return new Response(JSON.stringify({ success: false, error: 'Session not found' }),
           { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
 
-      const { data: images } = await supabase
+      console.log('[flux-trainer] Session found:', session.name, 'trigger:', session.trigger_word);
+
+      const { data: allImages } = await supabase
         .from('flux_training_images')
         .select('storage_path, file_name')
         .eq('session_id', session_id);
 
-      if (!images?.length || images.length < 3) {
+      if (!allImages?.length || allImages.length < 3) {
         return new Response(JSON.stringify({ success: false, error: 'Need at least 3 training images' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
+
+      // Cap images to prevent memory issues
+      const images = allImages.slice(0, MAX_TRAINING_IMAGES);
+      console.log(`[flux-trainer] Using ${images.length} of ${allImages.length} images (max ${MAX_TRAINING_IMAGES})`);
 
       // Update status to training
       await supabase.from('flux_training_sessions')
         .update({ status: 'training', training_started_at: new Date().toISOString(), image_count: images.length, error_message: null })
         .eq('id', session_id);
 
-      // Build zip from training images
+      // Build zip from training images — download one at a time to save memory
       const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
       const { default: JSZip } = await import("https://esm.sh/jszip@3.10.1");
       const zip = new JSZip();
@@ -71,14 +84,20 @@ Deno.serve(async (req) => {
       for (let i = 0; i < images.length; i++) {
         try {
           const publicUrl = `${supabaseUrl}/storage/v1/object/public/training-images/${images[i].storage_path}`;
+          console.log(`[flux-trainer] Downloading image ${i + 1}/${images.length}`);
           const imgRes = await fetch(publicUrl);
-          if (!imgRes.ok) { console.warn(`Skip image ${i}: ${imgRes.status}`); continue; }
+          if (!imgRes.ok) {
+            console.warn(`[flux-trainer] Skip image ${i}: HTTP ${imgRes.status}`);
+            await imgRes.text(); // consume body
+            continue;
+          }
           const imgBytes = new Uint8Array(await imgRes.arrayBuffer());
           const ext = images[i].file_name.split('.').pop() || 'jpg';
           zip.file(`img_${addedCount}.${ext}`, imgBytes);
           addedCount++;
+          console.log(`[flux-trainer] Added image ${addedCount} (${(imgBytes.length / 1024).toFixed(0)}KB)`);
         } catch (e) {
-          console.warn(`Failed to fetch image ${i}:`, e);
+          console.warn(`[flux-trainer] Failed to fetch image ${i}:`, e);
         }
       }
 
@@ -90,12 +109,15 @@ Deno.serve(async (req) => {
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
 
+      console.log(`[flux-trainer] Generating zip with ${addedCount} images...`);
       const zipBlob = await zip.generateAsync({ type: "uint8array" });
+      console.log(`[flux-trainer] Zip size: ${(zipBlob.length / 1024 / 1024).toFixed(2)}MB`);
 
       // Upload zip to Replicate Files API
       const formData = new FormData();
       formData.append('content', new Blob([zipBlob], { type: 'application/zip' }), 'training_data.zip');
 
+      console.log('[flux-trainer] Uploading zip to Replicate...');
       const uploadRes = await fetch('https://api.replicate.com/v1/files', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${REPLICATE_API_TOKEN}` },
@@ -104,6 +126,7 @@ Deno.serve(async (req) => {
 
       if (!uploadRes.ok) {
         const errText = await uploadRes.text();
+        console.error('[flux-trainer] File upload failed:', uploadRes.status, errText);
         await supabase.from('flux_training_sessions')
           .update({ status: 'failed', error_message: `File upload failed: ${errText}` })
           .eq('id', session_id);
@@ -113,14 +136,14 @@ Deno.serve(async (req) => {
 
       const uploadData = await uploadRes.json();
       const zipUrl = uploadData.urls?.get || uploadData.url;
-      console.log('Zip uploaded to Replicate:', zipUrl);
+      console.log('[flux-trainer] Zip uploaded to Replicate:', zipUrl);
 
-      // Get the actual Replicate username from the API token
+      // Get Replicate username
       let owner: string;
       try {
         owner = await getReplicateUsername();
-        console.log('Replicate owner:', owner);
       } catch (e) {
+        console.error('[flux-trainer] Replicate account error:', e);
         await supabase.from('flux_training_sessions')
           .update({ status: 'failed', error_message: 'Could not resolve Replicate account. Check API token.' })
           .eq('id', session_id);
@@ -132,8 +155,9 @@ Deno.serve(async (req) => {
       const modelSlug = (session.replicate_model_name || `flux-lora-${session_id.slice(0, 8)}`)
         .toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').slice(0, 64);
       const destination = `${owner}/${modelSlug}`;
+      console.log('[flux-trainer] Destination model:', destination);
 
-      // Create the destination model (ignore if exists)
+      // Create the destination model (ignore 409 = already exists)
       const createModelRes = await fetch('https://api.replicate.com/v1/models', {
         method: 'POST',
         headers: {
@@ -148,15 +172,14 @@ Deno.serve(async (req) => {
           hardware: 'gpu-a40-large',
         }),
       });
-      if (!createModelRes.ok) {
-        const body = await createModelRes.text();
-        // 409 = already exists, that's fine
-        if (createModelRes.status !== 409) {
-          console.warn('Model creation warning:', createModelRes.status, body);
-        }
+      const createModelBody = await createModelRes.text();
+      if (!createModelRes.ok && createModelRes.status !== 409) {
+        console.warn('[flux-trainer] Model creation warning:', createModelRes.status, createModelBody);
+      } else {
+        console.log('[flux-trainer] Model ready (status:', createModelRes.status, ')');
       }
 
-      // Start Flux LoRA training via ostris/flux-dev-lora-trainer
+      // Start Flux LoRA training
       const trainBody = {
         destination,
         input: {
@@ -173,7 +196,7 @@ Deno.serve(async (req) => {
         },
       };
 
-      console.log('Starting training with destination:', destination);
+      console.log('[flux-trainer] Starting training with destination:', destination);
 
       const trainRes = await fetch(
         'https://api.replicate.com/v1/models/ostris/flux-dev-lora-trainer/versions/d995297071a44dcb72244e6c19462111649ec86a9646c32df56daa7f14801199/trainings',
@@ -189,7 +212,7 @@ Deno.serve(async (req) => {
 
       if (!trainRes.ok) {
         const errText = await trainRes.text();
-        console.error('Training API error:', trainRes.status, errText);
+        console.error('[flux-trainer] Training API error:', trainRes.status, errText);
         await supabase.from('flux_training_sessions')
           .update({ status: 'failed', error_message: `Training API error (${trainRes.status}): ${errText}` })
           .eq('id', session_id);
@@ -198,7 +221,7 @@ Deno.serve(async (req) => {
       }
 
       const trainData = await trainRes.json();
-      console.log('Training started:', trainData.id, trainData.status);
+      console.log('[flux-trainer] ✅ Training started! ID:', trainData.id, 'Status:', trainData.status);
 
       await supabase.from('flux_training_sessions')
         .update({
@@ -234,19 +257,21 @@ Deno.serve(async (req) => {
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
 
+      console.log('[flux-trainer] Checking status for training:', session.replicate_training_id);
+
       const statusRes = await fetch(`https://api.replicate.com/v1/trainings/${session.replicate_training_id}`, {
         headers: { 'Authorization': `Bearer ${REPLICATE_API_TOKEN}` },
       });
 
       if (!statusRes.ok) {
         const errText = await statusRes.text();
-        console.error('Status check failed:', statusRes.status, errText);
+        console.error('[flux-trainer] Status check failed:', statusRes.status, errText);
         return new Response(JSON.stringify({ success: false, error: `Failed to check status: ${errText}` }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
 
       const statusData = await statusRes.json();
-      console.log('Training status:', statusData.status, 'ID:', session.replicate_training_id);
+      console.log('[flux-trainer] Training status:', statusData.status, 'ID:', session.replicate_training_id);
 
       if (statusData.status === 'succeeded') {
         const version = statusData.output?.version || statusData.version;
@@ -279,7 +304,7 @@ Deno.serve(async (req) => {
       { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   } catch (error) {
     const msg = error instanceof Error ? error.message : 'Unknown error';
-    console.error('flux-trainer error:', error);
+    console.error('[flux-trainer] Unhandled error:', error);
     return new Response(JSON.stringify({ success: false, error: msg }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   }
