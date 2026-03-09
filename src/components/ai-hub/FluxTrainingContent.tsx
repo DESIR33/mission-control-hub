@@ -73,38 +73,40 @@ function SessionDetail({ session, onBack }: { session: FluxTrainingSession; onBa
   const canTrain = images.length >= 3 && (session.status === "pending" || session.status === "failed");
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <Button variant="ghost" size="sm" onClick={onBack} className="mb-2">← Back to sessions</Button>
-          <h2 className="text-xl font-bold text-foreground">{session.name}</h2>
-          <div className="flex items-center gap-2 mt-1">
-            <StatusBadge status={session.status} />
-            <span className="text-sm text-muted-foreground">
-              Trigger word: <code className="bg-muted px-1 rounded">{session.trigger_word}</code>
-            </span>
+    <div className="space-y-4 sm:space-y-6">
+      <div className="space-y-3">
+        <Button variant="ghost" size="sm" onClick={onBack}>← Back to sessions</Button>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h2 className="text-lg sm:text-xl font-bold text-foreground">{session.name}</h2>
+            <div className="flex flex-wrap items-center gap-2 mt-1">
+              <StatusBadge status={session.status} />
+              <span className="text-xs sm:text-sm text-muted-foreground">
+                Trigger: <code className="bg-muted px-1 rounded">{session.trigger_word}</code>
+              </span>
+            </div>
           </div>
-        </div>
-        <div className="flex gap-2">
-          {session.status === "training" && (
+          <div className="flex gap-2">
+            {session.status === "training" && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => checkStatus.mutate(session.id)}
+                disabled={checkStatus.isPending}
+              >
+                <RefreshCw className={`h-4 w-4 mr-1 ${checkStatus.isPending ? "animate-spin" : ""}`} />
+                Check Status
+              </Button>
+            )}
             <Button
-              variant="outline"
               size="sm"
-              onClick={() => checkStatus.mutate(session.id)}
-              disabled={checkStatus.isPending}
+              onClick={() => startTraining.mutate(session.id)}
+              disabled={!canTrain || startTraining.isPending}
             >
-              <RefreshCw className={`h-4 w-4 mr-1 ${checkStatus.isPending ? "animate-spin" : ""}`} />
-              Check Status
+              {startTraining.isPending ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Sparkles className="h-4 w-4 mr-1" />}
+              Start Training
             </Button>
-          )}
-          <Button
-            size="sm"
-            onClick={() => startTraining.mutate(session.id)}
-            disabled={!canTrain || startTraining.isPending}
-          >
-            {startTraining.isPending ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Sparkles className="h-4 w-4 mr-1" />}
-            Start Training
-          </Button>
+          </div>
         </div>
       </div>
 
@@ -139,7 +141,7 @@ function SessionDetail({ session, onBack }: { session: FluxTrainingSession; onBa
           <div
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleDrop}
-            className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary/50 transition-colors cursor-pointer"
+            className="border-2 border-dashed border-border rounded-lg p-4 sm:p-8 text-center hover:border-primary/50 transition-colors cursor-pointer"
             onClick={() => document.getElementById("training-file-input")?.click()}
           >
             <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
@@ -168,7 +170,7 @@ function SessionDetail({ session, onBack }: { session: FluxTrainingSession; onBa
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : images.length > 0 ? (
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 mt-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3 mt-4">
               {images.map((img) => (
                 <div key={img.id} className="relative group aspect-square rounded-lg overflow-hidden border border-border">
                   <img

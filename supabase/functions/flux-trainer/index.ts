@@ -20,14 +20,23 @@ Deno.serve(async (req) => {
 
     const { action, session_id, workspace_id } = await req.json();
 
-    // ── ACTION: create_zip_and_train ──
+    // ── Resolve the Replicate username from the API token ──
+    async function getReplicateUsername(): Promise<string> {
+      const res = await fetch('https://api.replicate.com/v1/account', {
+        headers: { 'Authorization': `Bearer ${REPLICATE_API_TOKEN}` },
+      });
+      if (!res.ok) throw new Error('Failed to get Replicate account info');
+      const data = await res.json();
+      return data.username;
+    }
+
+    // ── ACTION: train ──
     if (action === 'train') {
       if (!session_id || !workspace_id) {
         return new Response(JSON.stringify({ success: false, error: 'session_id and workspace_id required' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
 
-      // Get session info
       const { data: session, error: sErr } = await supabase
         .from('flux_training_sessions')
         .select('*')
@@ -38,7 +47,6 @@ Deno.serve(async (req) => {
           { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
 
-      // Get training images
       const { data: images } = await supabase
         .from('flux_training_images')
         .select('storage_path, file_name')
@@ -49,12 +57,12 @@ Deno.serve(async (req) => {
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
 
-      // Update status
+      // Update status to training
       await supabase.from('flux_training_sessions')
-        .update({ status: 'training', training_started_at: new Date().toISOString(), image_count: images.length })
+        .update({ status: 'training', training_started_at: new Date().toISOString(), image_count: images.length, error_message: null })
         .eq('id', session_id);
 
-      // Build zip by downloading images one at a time to minimize memory
+      // Build zip from training images
       const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
       const { default: JSZip } = await import("https://esm.sh/jszip@3.10.1");
       const zip = new JSZip();
@@ -76,7 +84,7 @@ Deno.serve(async (req) => {
 
       if (addedCount < 3) {
         await supabase.from('flux_training_sessions')
-          .update({ status: 'failed', error_message: 'Could not download enough images' })
+          .update({ status: 'failed', error_message: 'Could not download enough images from storage' })
           .eq('id', session_id);
         return new Response(JSON.stringify({ success: false, error: 'Could not download enough images' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
@@ -105,81 +113,98 @@ Deno.serve(async (req) => {
 
       const uploadData = await uploadRes.json();
       const zipUrl = uploadData.urls?.get || uploadData.url;
+      console.log('Zip uploaded to Replicate:', zipUrl);
 
-      // Get feedback to include negative prompts
-      const { data: feedback } = await supabase
-        .from('flux_generation_feedback')
-        .select('prompt, is_positive')
-        .eq('workspace_id', workspace_id)
-        .eq('is_positive', false)
-        .order('created_at', { ascending: false })
-        .limit(10);
-
-      const negativePatterns = (feedback || []).map((f: any) => f.prompt).filter(Boolean).join(', ');
-
-      // Create a destination model on Replicate (or use existing)
-      const modelName = session.replicate_model_name || `flux-selfie-${session_id.slice(0, 8)}`;
-      
-      // Try to create the model first
+      // Get the actual Replicate username from the API token
+      let owner: string;
       try {
-        await fetch('https://api.replicate.com/v1/models', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${REPLICATE_API_TOKEN}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            owner: 'your-username', // Will be overridden by the API based on token
-            name: modelName,
-            description: 'Fine-tuned Flux for thumbnail selfies',
-            visibility: 'private',
-            hardware: 'gpu-a40-large',
-          }),
-        });
+        owner = await getReplicateUsername();
+        console.log('Replicate owner:', owner);
       } catch (e) {
-        // Model might already exist, that's fine
-        console.log('Model creation attempt:', e);
+        await supabase.from('flux_training_sessions')
+          .update({ status: 'failed', error_message: 'Could not resolve Replicate account. Check API token.' })
+          .eq('id', session_id);
+        return new Response(JSON.stringify({ success: false, error: 'Invalid Replicate API token' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
 
-      // Start training using replicate/fast-flux-trainer
-      const trainRes = await fetch('https://api.replicate.com/v1/models/ostris/flux-dev-lora-trainer/versions/d995297071a44dcb72244e6c19462111649ec86a9646c32df56daa7f14801199/trainings', {
+      // Sanitize model name
+      const modelSlug = (session.replicate_model_name || `flux-lora-${session_id.slice(0, 8)}`)
+        .toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').slice(0, 64);
+      const destination = `${owner}/${modelSlug}`;
+
+      // Create the destination model (ignore if exists)
+      const createModelRes = await fetch('https://api.replicate.com/v1/models', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${REPLICATE_API_TOKEN}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          input: {
-            input_images: zipUrl,
-            trigger_word: session.trigger_word || 'MYFACE',
-            steps: 1000,
-            lora_rank: 16,
-            optimizer: 'adamw8bit',
-            batch_size: 1,
-            resolution: '512,768,1024',
-            autocaption: true,
-            autocaption_prefix: `a photo of ${session.trigger_word || 'MYFACE'}, `,
-            learning_rate: 0.0004,
-          },
+          owner,
+          name: modelSlug,
+          description: `Fine-tuned Flux LoRA – trigger: ${session.trigger_word}`,
+          visibility: 'private',
+          hardware: 'gpu-a40-large',
         }),
       });
+      if (!createModelRes.ok) {
+        const body = await createModelRes.text();
+        // 409 = already exists, that's fine
+        if (createModelRes.status !== 409) {
+          console.warn('Model creation warning:', createModelRes.status, body);
+        }
+      }
+
+      // Start Flux LoRA training via ostris/flux-dev-lora-trainer
+      const trainBody = {
+        destination,
+        input: {
+          input_images: zipUrl,
+          trigger_word: session.trigger_word || 'MYFACE',
+          steps: 1000,
+          lora_rank: 16,
+          optimizer: 'adamw8bit',
+          batch_size: 1,
+          resolution: '512,768,1024',
+          autocaption: true,
+          autocaption_prefix: `a photo of ${session.trigger_word || 'MYFACE'}, `,
+          learning_rate: 0.0004,
+        },
+      };
+
+      console.log('Starting training with destination:', destination);
+
+      const trainRes = await fetch(
+        'https://api.replicate.com/v1/models/ostris/flux-dev-lora-trainer/versions/d995297071a44dcb72244e6c19462111649ec86a9646c32df56daa7f14801199/trainings',
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${REPLICATE_API_TOKEN}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(trainBody),
+        }
+      );
 
       if (!trainRes.ok) {
         const errText = await trainRes.text();
+        console.error('Training API error:', trainRes.status, errText);
         await supabase.from('flux_training_sessions')
-          .update({ status: 'failed', error_message: `Training API error: ${errText}` })
+          .update({ status: 'failed', error_message: `Training API error (${trainRes.status}): ${errText}` })
           .eq('id', session_id);
         return new Response(JSON.stringify({ success: false, error: `Training failed: ${errText}` }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
 
       const trainData = await trainRes.json();
+      console.log('Training started:', trainData.id, trainData.status);
 
       await supabase.from('flux_training_sessions')
         .update({
           replicate_training_id: trainData.id,
-          replicate_model_name: modelName,
-          metadata: { ...session.metadata, negative_patterns: negativePatterns, zip_url: zipUrl },
+          replicate_model_name: destination,
+          metadata: { ...(session.metadata || {}), zip_url: zipUrl, replicate_url: trainData.urls?.get },
         })
         .eq('id', session_id);
 
@@ -187,7 +212,7 @@ Deno.serve(async (req) => {
         success: true,
         training_id: trainData.id,
         status: trainData.status,
-        model_name: modelName,
+        destination,
       }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
@@ -205,7 +230,7 @@ Deno.serve(async (req) => {
         .single();
 
       if (!session?.replicate_training_id) {
-        return new Response(JSON.stringify({ success: true, status: session?.status || 'pending' }),
+        return new Response(JSON.stringify({ success: true, status: session?.status || 'pending', message: 'No Replicate training ID found. Training may not have started.' }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
 
@@ -214,11 +239,14 @@ Deno.serve(async (req) => {
       });
 
       if (!statusRes.ok) {
-        return new Response(JSON.stringify({ success: false, error: 'Failed to check status' }),
+        const errText = await statusRes.text();
+        console.error('Status check failed:', statusRes.status, errText);
+        return new Response(JSON.stringify({ success: false, error: `Failed to check status: ${errText}` }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
 
       const statusData = await statusRes.json();
+      console.log('Training status:', statusData.status, 'ID:', session.replicate_training_id);
 
       if (statusData.status === 'succeeded') {
         const version = statusData.output?.version || statusData.version;
@@ -227,19 +255,23 @@ Deno.serve(async (req) => {
             status: 'completed',
             training_completed_at: new Date().toISOString(),
             replicate_model_version: version,
+            error_message: null,
           })
           .eq('id', session_id);
       } else if (statusData.status === 'failed' || statusData.status === 'canceled') {
         await supabase.from('flux_training_sessions')
-          .update({ status: 'failed', error_message: statusData.error || 'Training failed' })
+          .update({ status: 'failed', error_message: statusData.error || `Training ${statusData.status}` })
           .eq('id', session_id);
       }
 
       return new Response(JSON.stringify({
         success: true,
         status: statusData.status,
-        logs: statusData.logs?.substring(0, 500),
-        version: statusData.output?.version,
+        logs: statusData.logs?.substring(statusData.logs.length - 500),
+        metrics: statusData.metrics || null,
+        version: statusData.output?.version || null,
+        started_at: statusData.started_at,
+        completed_at: statusData.completed_at,
       }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 

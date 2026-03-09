@@ -195,7 +195,15 @@ export function useCheckTrainingStatus() {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      const status = data?.status || 'unknown';
+      const msg = status === 'succeeded' ? '✅ Training completed!'
+        : status === 'failed' || status === 'canceled' ? `❌ Training ${status}`
+        : `⏳ Training status: ${status}`;
+      toast.info(msg);
+      if (data?.logs) {
+        console.log('[flux-training] Logs:', data.logs);
+      }
       qc.invalidateQueries({ queryKey: ["flux-sessions"] });
     },
   });

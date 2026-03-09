@@ -101,3 +101,6 @@ verify_jwt = false
 
 [functions.sync-competitor-stats]
 verify_jwt = false
+
+[functions.flux-trainer]
+verify_jwt = false
