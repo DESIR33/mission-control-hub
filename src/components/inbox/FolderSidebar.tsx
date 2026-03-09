@@ -9,6 +9,7 @@ import {
   ArchiveIcon,
   Trash2Icon,
   ListOrdered,
+  ClockIcon,
 } from "lucide-react";
 
 interface FolderSidebarProps {
@@ -18,6 +19,7 @@ interface FolderSidebarProps {
 
 const systemFolders = [
   { key: "inbox", label: "Inbox", icon: InboxIcon },
+  { key: "snoozed", label: "Snoozed", icon: ClockIcon },
   { key: "sent", label: "Sent", icon: SendIcon },
   { key: "drafts", label: "Drafts", icon: FileIcon },
   { key: "junk", label: "Junk", icon: AlertTriangleIcon },
@@ -57,6 +59,20 @@ export default function FolderSidebar({ selectedFolder, onSelectFolder }: Folder
             </button>
           );
         })}
+      </div>
+
+      {/* Keyboard shortcuts hint */}
+      <div className="mt-4 mb-2 px-2">
+        <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Shortcuts</p>
+      </div>
+      <div className="px-3 space-y-1 text-[10px] text-muted-foreground">
+        <div className="flex justify-between"><span>Command bar</span><kbd className="bg-muted px-1 rounded">⌘K</kbd></div>
+        <div className="flex justify-between"><span>Compose</span><kbd className="bg-muted px-1 rounded">C</kbd></div>
+        <div className="flex justify-between"><span>Reply</span><kbd className="bg-muted px-1 rounded">R</kbd></div>
+        <div className="flex justify-between"><span>Archive</span><kbd className="bg-muted px-1 rounded">E</kbd></div>
+        <div className="flex justify-between"><span>Delete</span><kbd className="bg-muted px-1 rounded">#</kbd></div>
+        <div className="flex justify-between"><span>Snooze</span><kbd className="bg-muted px-1 rounded">H</kbd></div>
+        <div className="flex justify-between"><span>Search</span><kbd className="bg-muted px-1 rounded">/</kbd></div>
       </div>
 
       {/* Automation */}
