@@ -64,6 +64,9 @@ const SECTION_LABELS: Record<Section, string> = {
   uploads: "Upload & Playlists",
   strategy: "Content & Strategy",
   experiments: "Optimization Experiments",
+  decay: "Performance Decay",
+  series: "Video Series",
+  overlap: "Audience Overlap",
 };
 
 const SECTION_COMPONENTS: Record<Section, React.ComponentType> = {
