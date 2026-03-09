@@ -45,7 +45,7 @@ export function AudienceOverlapDetection() {
                       </p>
                       <ArrowRight className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                       <p className="text-sm font-medium text-foreground truncate max-w-[200px]">
-                        {getTitle(overlap.video_b_id)}
+                        {resolveTitle(overlap.video_b_id)}
                       </p>
                     </div>
 

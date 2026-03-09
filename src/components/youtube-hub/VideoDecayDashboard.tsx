@@ -41,7 +41,7 @@ export function VideoDecayDashboard() {
                     <div className="flex items-center gap-2">
                       <AlertTriangle className="w-4 h-4 text-destructive shrink-0" />
                       <p className="text-sm font-medium text-foreground truncate">
-                        {alert.video_title || getTitle(alert.youtube_video_id)}
+                        {alert.video_title || resolveTitle(alert.youtube_video_id)}
                       </p>
                     </div>
                     <div className="flex items-center gap-2 mt-1.5">

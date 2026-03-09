@@ -74,7 +74,7 @@ export function VideoSeriesDashboard() {
                   <div className="mt-3 space-y-1">
                     {s.items.slice(0, 3).map((item) => (
                       <p key={item.id} className="text-[11px] text-muted-foreground truncate">
-                        • {getTitle(item.youtube_video_id)}
+                        • {resolveTitle(item.youtube_video_id)}
                       </p>
                     ))}
                     {s.items.length > 3 && (
