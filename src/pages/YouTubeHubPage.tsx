@@ -80,6 +80,9 @@ const SECTION_COMPONENTS: Record<Section, React.ComponentType> = {
   uploads: UploadPlaylistsSection,
   strategy: ContentStrategySection,
   experiments: ExperimentsComparisonContent,
+  decay: VideoDecayDashboard,
+  series: VideoSeriesDashboard,
+  overlap: AudienceOverlapDetection,
 };
 
 const VALID_SECTIONS = new Set(Object.keys(SECTION_COMPONENTS));
