@@ -107,6 +107,7 @@ const App = () => (
               <Route path="/content" element={<LazyPage section="Content"><ContentProjectsPage /></LazyPage>} />
               <Route path="/content/create" element={<LazyPage section="Create Content"><VideoQueueFormPage /></LazyPage>} />
               <Route path="/content/:id/edit" element={<LazyPage section="Edit Content"><VideoQueueFormPage /></LazyPage>} />
+              <Route path="/trends" element={<LazyPage section="Trend Scanner"><TrendScannerPage /></LazyPage>} />
 
               {/* Content Management (YouTube Hub) */}
               <Route path="/youtube" element={<Navigate to="/youtube/dashboard" replace />} />
