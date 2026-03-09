@@ -48,6 +48,39 @@ function SessionDetail({ session, onBack }: { session: FluxTrainingSession; onBa
   const deleteImage = useDeleteTrainingImage();
   const startTraining = useStartTraining();
   const checkStatus = useCheckTrainingStatus();
+  const [trainingProgress, setTrainingProgress] = useState<number | null>(null);
+  const [trainingStep, setTrainingStep] = useState<string | null>(null);
+
+  // Auto-poll training progress every 15 seconds
+  useEffect(() => {
+    if (session.status !== "training") {
+      setTrainingProgress(null);
+      setTrainingStep(null);
+      return;
+    }
+
+    const poll = () => {
+      checkStatus.mutate(session.id, {
+        onSuccess: (data) => {
+          if (data?.progress != null) {
+            setTrainingProgress(data.progress);
+            setTrainingStep(`${data.current_step} / ${data.total_steps} steps`);
+          }
+          if (data?.status === "succeeded") {
+            toast.success("✅ Training completed!");
+            setTrainingProgress(100);
+          } else if (data?.status === "failed" || data?.status === "canceled") {
+            toast.error(`❌ Training ${data.status}`);
+          }
+        },
+      });
+    };
+
+    // Initial check
+    poll();
+    const interval = setInterval(poll, 15000);
+    return () => clearInterval(interval);
+  }, [session.id, session.status]);
 
   const handleFiles = useCallback(async (files: FileList | null) => {
     if (!files) return;
