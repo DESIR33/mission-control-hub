@@ -67,9 +67,11 @@ import { MassArchiveDialog } from "@/components/inbox/MassArchiveDialog";
 import { ShareAvailabilityButton } from "@/components/inbox/ShareAvailabilityButton";
 import { SmartSendSuggestion } from "@/components/inbox/SmartSendSuggestion";
 import { toast as sonnerToast } from "sonner";
+import { useInboxRealtime } from "@/hooks/use-inbox-realtime";
 
 export default function InboxPage() {
   const { toast } = useToast();
+  useInboxRealtime();
   const { data: integrations = [] } = useIntegrations();
   const outlookIntegration = integrations.find((i) => i.integration_key === "ms_outlook" && i.enabled);
 
