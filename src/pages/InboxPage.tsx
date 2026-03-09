@@ -552,6 +552,7 @@ export default function InboxPage() {
               <RefreshCwIcon className={`h-3.5 w-3.5 ${syncOutlook.isPending ? "animate-spin" : ""}`} />
               <span className="hidden sm:inline">Sync</span>
             </Button>
+            <MassArchiveDialog emails={filteredEmails} />
             <Button size="sm" onClick={() => setComposeOpen(true)} className="gap-1.5">
               <PlusIcon className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Compose</span>
