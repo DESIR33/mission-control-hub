@@ -272,6 +272,17 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
       {/* Engagement Dashboard */}
       <EngagementDashboard />
 
+      {/* AI Deal Suggestions */}
+      <EmailDealSuggestions />
+
+      {/* Smart Reply with CRM Context */}
+      <SmartReplyComposer
+        emailSubject={email.subject}
+        emailBody={email.preview}
+        senderName={email.from_name}
+        senderEmail={email.from_email}
+      />
+
       {/* Email Templates */}
       <EmailTemplateManager />
     </div>
