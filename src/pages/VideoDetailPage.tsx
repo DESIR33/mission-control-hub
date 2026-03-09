@@ -33,6 +33,7 @@ import { SubtitleUploader } from "@/components/video-detail/SubtitleUploader";
 export default function VideoDetailPage() {
   const { youtubeVideoId } = useParams<{ youtubeVideoId: string }>();
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("overview");
 
   const { data: detail, isLoading: loadingDetail } = useVideoDetail(youtubeVideoId);
   const { data: trend = [] } = useVideoAnalyticsTrend(youtubeVideoId);
