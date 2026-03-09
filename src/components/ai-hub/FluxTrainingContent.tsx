@@ -289,9 +289,14 @@ export function FluxTrainingContent() {
                 <Button
                   onClick={async () => {
                     if (!newName.trim()) { toast.error("Name required"); return; }
-                    const res = await createSession.mutateAsync({ name: newName, trigger_word: triggerWord });
-                    setNewName("");
-                    setShowCreate(false);
+                    try {
+                      await createSession.mutateAsync({ name: newName, trigger_word: triggerWord });
+                      setNewName("");
+                      setShowCreate(false);
+                    } catch (e: any) {
+                      console.error("Create session error:", e);
+                      toast.error(`Failed to create session: ${e.message}`);
+                    }
                   }}
                   disabled={createSession.isPending}
                 >

@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { toast } from "sonner";
 
-const query = (table: string) => (supabase as any).from(table);
+const query = (table: string) => supabase.from(table as any);
 
 export interface FluxTrainingSession {
   id: string;
@@ -86,7 +86,7 @@ export function useCreateFluxSession() {
         trigger_word: input.trigger_word || "MYFACE",
       }).select("id").single();
       if (error) throw error;
-      return data as { id: string };
+      return data as unknown as { id: string };
     },
     onSuccess: () => {
       toast.success("Training session created");
