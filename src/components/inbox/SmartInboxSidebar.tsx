@@ -347,6 +347,24 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
 
       {/* Email Templates */}
       <EmailTemplateManager />
+
+      {/* Duplicate Override Dialog */}
+      <AlertDialog open={!!dupDialog} onOpenChange={(open) => !open && setDupDialog(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Duplicate Found</AlertDialogTitle>
+            <AlertDialogDescription>
+              A {dupDialog?.type} named <strong>"{dupDialog?.existingName}"</strong> already exists with this email domain. Would you like to update the existing record instead?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleOverride}>
+              Update Existing
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
