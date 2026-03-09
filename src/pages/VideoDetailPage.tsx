@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { ArrowLeft, TrendingUp, Lightbulb, AlertCircle, DollarSign, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -26,14 +26,14 @@ import { RepurposingWorkflow } from "@/components/video-detail/RepurposingWorkfl
 import { DealsAttributionPanel } from "@/components/video-detail/DealsAttributionPanel";
 import { RetentionCurve } from "@/components/video-detail/RetentionCurve";
 import { VideoCompaniesPanel } from "@/components/video-detail/VideoCompaniesPanel";
-import { VideoOptimizationPanel } from "@/components/video-detail/VideoOptimizationPanel";
-import { VideoOptimizationTracker } from "@/components/video-detail/VideoOptimizationTracker";
+import { VideoOptimizationHub } from "@/components/video-detail/VideoOptimizationHub";
 import { SponsorSegmentTracker } from "@/components/video-detail/SponsorSegmentTracker";
 import { SubtitleUploader } from "@/components/video-detail/SubtitleUploader";
 
 export default function VideoDetailPage() {
   const { youtubeVideoId } = useParams<{ youtubeVideoId: string }>();
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("overview");
 
   const { data: detail, isLoading: loadingDetail } = useVideoDetail(youtubeVideoId);
   const { data: trend = [] } = useVideoAnalyticsTrend(youtubeVideoId);
@@ -123,7 +123,10 @@ export default function VideoDetailPage() {
         </Button>
         <Button
           size="sm"
-          onClick={() => runOptimizer.mutate({ max_videos: 1 })}
+          onClick={() => {
+            runOptimizer.mutate({ max_videos: 1 });
+            setActiveTab("optimization");
+          }}
           disabled={runOptimizer.isPending}
           className="gap-1.5"
         >
@@ -151,9 +154,9 @@ export default function VideoDetailPage() {
 
       <VideoCompaniesPanel youtubeVideoId={detail.youtube_video_id} />
 
-      <Tabs defaultValue="overview" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="flex flex-wrap h-auto gap-1 bg-transparent p-0 border-b border-border rounded-none pb-2">
-          {["Overview", "Performance", "Audience", "Traffic", "Revenue", "AI Suggestions", "Optimization Tracker", "Notes", "Experiments", "Repurposing"].map((tab) => (
+          {["Overview", "Performance", "Audience", "Traffic", "Revenue", "Optimization", "Notes", "Experiments", "Repurposing"].map((tab) => (
             <TabsTrigger
               key={tab}
               value={tab.toLowerCase()}
@@ -332,13 +335,9 @@ export default function VideoDetailPage() {
         </TabsContent>
 
         {/* AI Suggestions */}
-        <TabsContent value="ai suggestions" className="mt-4">
-          <VideoOptimizationPanel youtubeVideoId={youtubeVideoId} />
-        </TabsContent>
-
-        {/* Optimization Tracker */}
-        <TabsContent value="optimization tracker" className="mt-4">
-          <VideoOptimizationTracker youtubeVideoId={youtubeVideoId} />
+        {/* Optimization (unified suggestions + experiment tracking) */}
+        <TabsContent value="optimization" className="mt-4">
+          <VideoOptimizationHub youtubeVideoId={youtubeVideoId} />
         </TabsContent>
 
         {/* Notes */}
