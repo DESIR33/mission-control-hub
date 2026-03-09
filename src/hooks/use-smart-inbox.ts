@@ -253,10 +253,25 @@ export function useTogglePin() {
 }
 
 export function useMoveEmail() {
+  const { workspaceId } = useWorkspace();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({ ids, folder }: { ids: string[]; folder: string }) => {
+      // If moving to junk, also report on Outlook
+      if (folder === "junk" && workspaceId) {
+        const { data: emails } = await supabase
+          .from("inbox_emails" as any)
+          .select("message_id")
+          .in("id", ids);
+        const messageIds = ((emails as any[]) ?? []).map((e) => e.message_id).filter(Boolean);
+        if (messageIds.length > 0) {
+          supabase.functions.invoke("outlook-manage", {
+            body: { workspace_id: workspaceId, action: "junk", message_ids: messageIds },
+          }).catch((err) => console.error("Outlook junk sync failed:", err));
+        }
+      }
+
       const { error } = await supabase
         .from("inbox_emails" as any)
         .update({ folder })
@@ -272,10 +287,25 @@ export function useMoveEmail() {
 }
 
 export function useDeleteEmail() {
+  const { workspaceId } = useWorkspace();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (ids: string[]) => {
+      // Get message_ids before deleting locally, then sync to Outlook
+      if (workspaceId) {
+        const { data: emails } = await supabase
+          .from("inbox_emails" as any)
+          .select("message_id")
+          .in("id", ids);
+        const messageIds = ((emails as any[]) ?? []).map((e) => e.message_id).filter(Boolean);
+        if (messageIds.length > 0) {
+          supabase.functions.invoke("outlook-manage", {
+            body: { workspace_id: workspaceId, action: "delete", message_ids: messageIds },
+          }).catch((err) => console.error("Outlook delete sync failed:", err));
+        }
+      }
+
       const { error } = await supabase
         .from("inbox_emails" as any)
         .delete()
