@@ -461,6 +461,16 @@ CHANNEL CONTEXT:
           ? `\nCompetitor Videos on Similar Topics:\n${compVideos.map((cv) => `  - "${cv.title}" by ${cv.channelTitle} — ${cv.viewCount.toLocaleString()} views (published ${cv.publishedAt?.split("T")[0] || "unknown"})`).join("\n")}`
           : "";
 
+        const transcript = transcriptMap.get(v.youtube_video_id);
+        const transcriptSection = transcript
+          ? `\nTranscript (excerpt):\n${transcript}`
+          : "";
+
+        const retention = retentionMap.get(v.youtube_video_id);
+        const retentionSection = retention
+          ? `\nRetention Curve (time:retention%): ${retention}`
+          : "";
+
         return `
 VIDEO: ${v.title}
 ID: ${v.youtube_video_id}
@@ -485,6 +495,8 @@ Lifetime Stats:
 - Views: ${v.lifetime_views}
 - Likes: ${v.lifetime_likes}
 - Comments: ${v.lifetime_comments}
+${retentionSection}
+${transcriptSection}
 ${competitorSection}`;
       }).join("\n---\n");
 
