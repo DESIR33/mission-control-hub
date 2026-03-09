@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageSquare, Brain, Bot, BookOpen } from "lucide-react";
+import { MessageSquare, Brain, Bot, BookOpen, Sparkles } from "lucide-react";
 
 // Chat components
 import { ChatSidebar } from "@/components/chat/ChatSidebar";
@@ -23,6 +23,9 @@ import { AgentHubContent } from "@/components/ai-hub/AgentHubContent";
 
 // Memory content
 import { MemoryContent } from "@/components/ai-hub/MemoryContent";
+
+// Flux Training content
+import { FluxTrainingContent } from "@/components/ai-hub/FluxTrainingContent";
 
 function ChatContent() {
   const chat = useChat();
@@ -81,7 +84,7 @@ function ChatContent() {
   );
 }
 
-const VALID_TABS = new Set(["chat", "proposals", "agents", "memory"]);
+const VALID_TABS = new Set(["chat", "proposals", "agents", "memory", "training"]);
 
 export default function AIHubPage() {
   const { tab } = useParams<{ tab: string }>();
@@ -122,6 +125,9 @@ export default function AIHubPage() {
           <TabsTrigger value="memory" className="flex-shrink-0 gap-1.5">
             <BookOpen className="h-3.5 w-3.5" /> Memory
           </TabsTrigger>
+          <TabsTrigger value="training" className="flex-shrink-0 gap-1.5">
+            <Sparkles className="h-3.5 w-3.5" /> Training
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="chat" className="mt-4">
@@ -138,6 +144,10 @@ export default function AIHubPage() {
 
         <TabsContent value="memory" className="mt-4">
           <MemoryContent />
+        </TabsContent>
+
+        <TabsContent value="training" className="mt-4">
+          <FluxTrainingContent />
         </TabsContent>
       </Tabs>
     </div>
