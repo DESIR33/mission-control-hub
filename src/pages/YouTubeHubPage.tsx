@@ -34,6 +34,9 @@ import { CommentsSection } from "@/components/youtube-hub/CommentsSection";
 import { ContentStrategySection } from "@/components/youtube-hub/ContentStrategySection";
 import { UploadPlaylistsSection } from "@/components/youtube-hub/UploadPlaylistsSection";
 import { ExperimentsComparisonContent } from "@/components/youtube-hub/ExperimentsComparisonContent";
+import { VideoDecayDashboard } from "@/components/youtube-hub/VideoDecayDashboard";
+import { VideoSeriesDashboard } from "@/components/youtube-hub/VideoSeriesDashboard";
+import { AudienceOverlapDetection } from "@/components/youtube-hub/AudienceOverlapDetection";
 
 type Section =
   | "dashboard"
