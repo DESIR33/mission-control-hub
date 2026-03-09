@@ -169,13 +169,29 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
               Unknown Sender
             </CardTitle>
           </CardHeader>
-          <CardContent className="min-w-0">
-            <p className="text-sm text-muted-foreground mb-3">
+          <CardContent className="min-w-0 space-y-2">
+            <p className="text-sm text-muted-foreground">
               This sender is not in your CRM yet.
             </p>
-            <Button variant="outline" size="sm" className="w-full overflow-hidden">
-              <Plus className="w-3.5 h-3.5 mr-2 shrink-0" />
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full overflow-hidden"
+              disabled={createContact.isPending}
+              onClick={() => createContact.mutate({ from_name: email.from_name || "", from_email: email.from_email })}
+            >
+              {createContact.isPending ? <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin shrink-0" /> : <Plus className="w-3.5 h-3.5 mr-2 shrink-0" />}
               <span className="truncate">Create Contact</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full overflow-hidden"
+              disabled={createCompany.isPending}
+              onClick={() => createCompany.mutate({ from_email: email.from_email, from_name: email.from_name || "" })}
+            >
+              {createCompany.isPending ? <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin shrink-0" /> : <Building2 className="w-3.5 h-3.5 mr-2 shrink-0" />}
+              <span className="truncate">Create Company</span>
             </Button>
           </CardContent>
         </Card>
