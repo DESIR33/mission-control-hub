@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { BestPracticesPanel } from "./BestPracticesPanel";
 import {
   Sparkles, FlaskConical, ChevronDown, ChevronRight,
   Check, X, Copy, Loader2, AlertTriangle, RotateCcw,
