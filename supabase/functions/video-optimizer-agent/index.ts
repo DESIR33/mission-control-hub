@@ -403,27 +403,20 @@ Deno.serve(async (req) => {
       : "";
 
     const bestPracticesSection = bestPracticesContext
-      ? `\n\nCHANNEL BEST PRACTICES (learned from past data — follow these patterns):\n- ${bestPracticesContext}`
+      ? `\nBest practices: ${bestPracticesContext.substring(0, 500)}`
       : "";
 
-    const learningsSection = learningsContext
-      ? `\n\nCHANNEL STRATEGY & INSIGHTS:\n- ${learningsContext}`
-      : "";
-
-    const systemPrompt = `You are a YouTube optimization expert. Analyze video data and provide actionable recommendations. Be decisive.
-
-RULES: Titles: curiosity-driven, <70 chars. Descriptions: SEO-optimized, keywords first 2 lines, CTAs. Tags: broad+niche, up to 30. Thumbnails: high contrast, minimal text (3-5 words), curiosity gaps. Use transcript/retention/best practices when provided. Call create_video_optimization for each video.
-
-THUMBNAIL PROMPTS: Generate BACKGROUND SCENE ONLY (person composited separately). Styles: 1) EXPLOSION: dark cinematic, fire/sparks/smoke, teal-orange grading 2) SPOTLIGHT: dark stage, spotlights, bokeh, lens flares 3) TECH: bright clean, glowing elements, light rays. Prompts must be 50+ words with: background, lighting, color grading, VFX, camera style, quality keywords. NO person/face. text_overlay: ALL CAPS 3-5 words, emotional/curiosity. text_style: font, color, outline, position.${competitorPromptSection}${bestPracticesSection}${learningsSection}
-
-Channel avg views: ${Math.round(channelAvgViews)}, avg CTR: ${(channelAvgCtr * 100).toFixed(2)}%`;
+    const systemPrompt = `YouTube optimization expert. Be decisive. Call create_video_optimization for each video.
+Titles: curiosity-driven, <70 chars. Descriptions: SEO keywords first 2 lines. Tags: up to 30.
+THUMBNAIL PROMPTS: BACKGROUND SCENE ONLY. Styles: EXPLOSION(fire,teal-orange), SPOTLIGHT(bokeh,flares), TECH(clean,glow). 50+ words, no person/face.${competitorEnabled ? " Include competitor_insights." : ""}${bestPracticesSection}
+Channel avg views: ${Math.round(channelAvgViews)}, CTR: ${(channelAvgCtr * 100).toFixed(1)}%`;
 
     let totalProposals = 0;
     const results: Array<{ video_id: string; title: string; success: boolean; error?: string }> = [];
 
-    // Process videos in batches of 3 to avoid timeout
-    for (let i = 0; i < underperformers.length; i += 3) {
-      const batch = underperformers.slice(i, i + 3);
+    // Process videos ONE AT A TIME to stay within compute limits
+    for (let i = 0; i < underperformers.length; i += 1) {
+      const batch = underperformers.slice(i, i + 1);
 
       const videoContexts = batch.map((v) => {
         const compVideos = competitorDataMap.get(v.youtube_video_id);
