@@ -123,7 +123,10 @@ export default function VideoDetailPage() {
         </Button>
         <Button
           size="sm"
-          onClick={() => runOptimizer.mutate({ max_videos: 1 })}
+          onClick={() => {
+            runOptimizer.mutate({ max_videos: 1 });
+            setActiveTab("optimization");
+          }}
           disabled={runOptimizer.isPending}
           className="gap-1.5"
         >
