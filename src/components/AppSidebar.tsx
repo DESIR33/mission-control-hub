@@ -6,7 +6,6 @@ import { useAuth } from "@/hooks/use-auth";
 import { useNotifications } from "@/hooks/use-notifications";
 import { mainNavItems, bottomItems } from "@/config/navigation";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
-import { mainNavItems, bottomItems } from "@/config/navigation";
 import {
   Collapsible,
   CollapsibleTrigger,
