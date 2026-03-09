@@ -30,6 +30,7 @@ const SECTION_LABELS: Record<Section, string> = {
   graph: "Relationship Graph",
   sponsors: "Sponsors",
   engagement: "Engagement",
+  health: "Company Health",
 };
 
 const VALID_SECTIONS = new Set<string>(Object.keys(SECTION_LABELS));
