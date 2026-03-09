@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useIntegrations } from "@/hooks/use-integrations";
 import {
@@ -48,6 +48,7 @@ import {
   SparklesIcon,
   LayoutGridIcon,
   ListIcon,
+  CommandIcon,
 } from "lucide-react";
 import FolderSidebar from "@/components/inbox/FolderSidebar";
 import EmailList from "@/components/inbox/EmailList";
@@ -55,6 +56,14 @@ import EmailPreview from "@/components/inbox/EmailPreview";
 import { SmartInboxSidebar } from "@/components/inbox/SmartInboxSidebar";
 import { EmailSequencesContent } from "@/pages/EmailSequencesPage";
 import { InboxKanbanView } from "@/components/inbox/InboxKanbanView";
+import { SplitInboxTabs, filterBySplit, type SplitCategory } from "@/components/inbox/SplitInboxTabs";
+import { InboxCommandBar } from "@/components/inbox/InboxCommandBar";
+import { UndoSendToast } from "@/components/inbox/UndoSendToast";
+import { ScheduleSendMenu } from "@/components/inbox/ScheduleSendMenu";
+import { SnoozeMenu } from "@/components/inbox/SnoozeMenu";
+import { AskAiSearch } from "@/components/inbox/AskAiSearch";
+import { SnippetsWithVariables } from "@/components/inbox/SnippetsWithVariables";
+import { toast as sonnerToast } from "sonner";
 
 export default function InboxPage() {
   const { toast } = useToast();
@@ -64,11 +73,13 @@ export default function InboxPage() {
   const [selectedFolder, setSelectedFolder] = useState("inbox");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedEmail, setSelectedEmail] = useState<SmartEmail | null>(null);
+  const [splitTab, setSplitTab] = useState<SplitCategory>("all");
 
   const [composeOpen, setComposeOpen] = useState(false);
   const [replyOpen, setReplyOpen] = useState(false);
   const [forwardOpen, setForwardOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [snoozeDialogEmailId, setSnoozeDialogEmailId] = useState<string | null>(null);
 
   const [composeTo, setComposeTo] = useState("");
   const [composeSubject, setComposeSubject] = useState("");
@@ -77,11 +88,18 @@ export default function InboxPage() {
   const [forwardTo, setForwardTo] = useState("");
   const [forwardBody, setForwardBody] = useState("");
 
+  // Undo send state
+  const [undoSendVisible, setUndoSendVisible] = useState(false);
+  const [pendingSend, setPendingSend] = useState<{ to: string; subject: string; body_html: string } | null>(null);
+  const undoRef = useRef(false);
+
   const [isMobileViewport, setIsMobileViewport] = useState(
     () => typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches,
   );
   const [mobileShowPreview, setMobileShowPreview] = useState(false);
   const [viewMode, setViewMode] = useState<"list" | "kanban">("list");
+
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -102,6 +120,9 @@ export default function InboxPage() {
   const outlookSend = useOutlookSend();
   const outlookAuth = useOutlookAuthUrl();
   const classifyEmails = useClassifyEmails();
+
+  // Apply split inbox filter
+  const filteredEmails = filterBySplit(emails, splitTab);
 
   const handleSelectEmail = useCallback((email: SmartEmail) => {
     setSelectedEmail(email);
@@ -127,15 +148,14 @@ export default function InboxPage() {
   }, [outlookIntegration, syncOutlook, selectedFolder, toast]);
 
   const selectNextEmail = useCallback((currentEmailId: string) => {
-    const currentIndex = emails.findIndex(e => e.id === currentEmailId);
+    const currentIndex = filteredEmails.findIndex(e => e.id === currentEmailId);
     if (currentIndex === -1) {
       setSelectedEmail(null);
       return;
     }
-    // Try next email, then previous, then null
-    const nextEmail = emails[currentIndex + 1] || emails[currentIndex - 1] || null;
+    const nextEmail = filteredEmails[currentIndex + 1] || filteredEmails[currentIndex - 1] || null;
     setSelectedEmail(nextEmail);
-  }, [emails]);
+  }, [filteredEmails]);
 
   const handleDelete = useCallback(() => {
     if (!selectedEmail) return;
@@ -179,41 +199,106 @@ export default function InboxPage() {
     });
   }, [selectedEmail, togglePin]);
 
+  // Undo send flow
+  const initiateUndoSend = useCallback((payload: { to: string; subject: string; body_html: string }) => {
+    undoRef.current = false;
+    setPendingSend(payload);
+    setUndoSendVisible(true);
+  }, []);
+
+  const handleUndoExpire = useCallback(async () => {
+    setUndoSendVisible(false);
+    if (undoRef.current || !pendingSend) {
+      setPendingSend(null);
+      return;
+    }
+    try {
+      await outlookSend.mutateAsync(pendingSend);
+      sonnerToast.success("Email sent");
+    } catch (err: any) {
+      sonnerToast.error(`Send failed: ${err.message}`);
+    }
+    setPendingSend(null);
+  }, [pendingSend, outlookSend]);
+
+  const handleUndoCancel = useCallback(() => {
+    undoRef.current = true;
+    setUndoSendVisible(false);
+    setPendingSend(null);
+    sonnerToast.info("Send cancelled");
+  }, []);
+
   const handleComposeSend = useCallback(async () => {
     if (!composeTo.trim()) {
       toast({ title: "Recipient required", variant: "destructive" });
       return;
     }
-    try {
-      await outlookSend.mutateAsync({
-        to: composeTo,
-        subject: composeSubject,
-        body_html: composeBody.replace(/\n/g, "<br>"),
-      });
-      toast({ title: "Email sent" });
-      setComposeOpen(false);
-      setComposeTo("");
-      setComposeSubject("");
-      setComposeBody("");
-    } catch (err: any) {
-      toast({ title: "Send failed", description: err.message, variant: "destructive" });
+    initiateUndoSend({
+      to: composeTo,
+      subject: composeSubject,
+      body_html: composeBody.replace(/\n/g, "<br>"),
+    });
+    setComposeOpen(false);
+    setComposeTo("");
+    setComposeSubject("");
+    setComposeBody("");
+  }, [composeTo, composeSubject, composeBody, toast, initiateUndoSend]);
+
+  const handleScheduleSend = useCallback(async (date: Date) => {
+    if (!composeTo.trim()) {
+      toast({ title: "Recipient required", variant: "destructive" });
+      return;
     }
+    // For now, use setTimeout-based scheduling (client-side)
+    const delay = date.getTime() - Date.now();
+    if (delay <= 0) {
+      toast({ title: "Scheduled time must be in the future", variant: "destructive" });
+      return;
+    }
+    sonnerToast.success(`Email scheduled for ${date.toLocaleString([], { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}`);
+    const payload = {
+      to: composeTo,
+      subject: composeSubject,
+      body_html: composeBody.replace(/\n/g, "<br>"),
+    };
+    setComposeOpen(false);
+    setComposeTo("");
+    setComposeSubject("");
+    setComposeBody("");
+
+    setTimeout(async () => {
+      try {
+        await outlookSend.mutateAsync(payload);
+        sonnerToast.success("Scheduled email sent!");
+      } catch (err: any) {
+        sonnerToast.error(`Scheduled send failed: ${err.message}`);
+      }
+    }, delay);
   }, [composeTo, composeSubject, composeBody, outlookSend, toast]);
 
   const handleReplySend = useCallback(async () => {
     if (!selectedEmail) return;
+    initiateUndoSend({
+      to: selectedEmail.from_email,
+      subject: `Re: ${selectedEmail.subject}`,
+      body_html: replyBody.replace(/\n/g, "<br>"),
+    });
+    // Actually use reply_to_message_id
+    undoRef.current = false;
+    setPendingSend(null);
+    setUndoSendVisible(false);
     try {
       await outlookSend.mutateAsync({
         reply_to_message_id: selectedEmail.message_id,
         body_html: replyBody.replace(/\n/g, "<br>"),
       });
-      toast({ title: "Reply sent" });
-      setReplyOpen(false);
-      setReplyBody("");
+      sonnerToast.success("Reply sent");
     } catch (err: any) {
-      toast({ title: "Reply failed", description: err.message, variant: "destructive" });
+      sonnerToast.error(`Reply failed: ${err.message}`);
     }
-  }, [selectedEmail, replyBody, outlookSend, toast]);
+    setReplyOpen(false);
+    setReplyBody("");
+  }, [selectedEmail, replyBody, outlookSend, initiateUndoSend]);
 
   const handleForwardSend = useCallback(async () => {
     if (!forwardTo.trim()) {
@@ -226,14 +311,45 @@ export default function InboxPage() {
         subject: `Fwd: ${selectedEmail?.subject || ""}`,
         body_html: `${forwardBody.replace(/\n/g, "<br>")}<br><br>--- Forwarded message ---<br>${selectedEmail?.body_html || selectedEmail?.preview || ""}`,
       });
-      toast({ title: "Email forwarded" });
+      sonnerToast.success("Email forwarded");
       setForwardOpen(false);
       setForwardTo("");
       setForwardBody("");
     } catch (err: any) {
-      toast({ title: "Forward failed", description: err.message, variant: "destructive" });
+      sonnerToast.error(`Forward failed: ${err.message}`);
     }
   }, [forwardTo, forwardBody, selectedEmail, outlookSend, toast]);
+
+  const handleMarkRead = useCallback(() => {
+    if (selectedEmail) markRead.mutate({ ids: [selectedEmail.id], is_read: true });
+  }, [selectedEmail, markRead]);
+
+  const handleMarkUnread = useCallback(() => {
+    if (selectedEmail) markRead.mutate({ ids: [selectedEmail.id], is_read: false });
+  }, [selectedEmail, markRead]);
+
+  const handleMoveToJunk = useCallback(() => {
+    if (selectedEmail) {
+      moveEmail.mutate({ ids: [selectedEmail.id], folder: "junk" }, {
+        onSuccess: () => {
+          sonnerToast.success("Moved to junk");
+          selectNextEmail(selectedEmail.id);
+        },
+      });
+    }
+  }, [selectedEmail, moveEmail, selectNextEmail]);
+
+  const handleMoveToInbox = useCallback(() => {
+    if (selectedEmail) {
+      moveEmail.mutate({ ids: [selectedEmail.id], folder: "inbox" }, {
+        onSuccess: () => sonnerToast.success("Moved to inbox"),
+      });
+    }
+  }, [selectedEmail, moveEmail]);
+
+  const handleFocusSearch = useCallback(() => {
+    searchInputRef.current?.focus();
+  }, []);
 
   useEffect(() => {
     document.title = "Inbox | Desmily CRM";
@@ -283,7 +399,6 @@ export default function InboxPage() {
           />
         </div>
 
-        {/* Delete dialog */}
         <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -299,7 +414,6 @@ export default function InboxPage() {
           </AlertDialogContent>
         </AlertDialog>
 
-        {/* Reply dialog */}
         <Dialog open={replyOpen} onOpenChange={setReplyOpen}>
           <DialogContent className="sm:max-w-[520px]">
             <DialogHeader><DialogTitle>Reply</DialogTitle></DialogHeader>
@@ -317,7 +431,6 @@ export default function InboxPage() {
           </DialogContent>
         </Dialog>
 
-        {/* Forward dialog */}
         <Dialog open={forwardOpen} onOpenChange={setForwardOpen}>
           <DialogContent className="sm:max-w-[520px]">
             <DialogHeader><DialogTitle>Forward</DialogTitle></DialogHeader>
@@ -340,6 +453,32 @@ export default function InboxPage() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-64px)] pb-20 sm:pb-0">
+      {/* Command Bar (Cmd+K) */}
+      <InboxCommandBar
+        onCompose={() => setComposeOpen(true)}
+        onReply={() => setReplyOpen(true)}
+        onForward={() => setForwardOpen(true)}
+        onArchive={handleArchive}
+        onDelete={() => setDeleteDialogOpen(true)}
+        onTogglePin={handleTogglePinned}
+        onMarkRead={handleMarkRead}
+        onMarkUnread={handleMarkUnread}
+        onSnooze={() => selectedEmail && setSnoozeDialogEmailId(selectedEmail.id)}
+        onSync={handleSync}
+        onClassify={() => classifyEmails.mutate()}
+        onMoveToJunk={handleMoveToJunk}
+        onMoveToInbox={handleMoveToInbox}
+        onFocusSearch={handleFocusSearch}
+        hasSelectedEmail={!!selectedEmail}
+      />
+
+      {/* Undo Send Toast */}
+      <UndoSendToast
+        visible={undoSendVisible}
+        onUndo={handleUndoCancel}
+        onExpire={handleUndoExpire}
+      />
+
       {/* Header */}
       <header className="flex-shrink-0 px-4 py-2 border-b border-border bg-card">
         <div className="flex items-center gap-3 flex-wrap">
@@ -355,7 +494,8 @@ export default function InboxPage() {
           <div className="relative flex-1 max-w-xs">
             <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <Input
-              placeholder="Search emails..."
+              ref={searchInputRef}
+              placeholder="Search emails... (press /)"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9 h-8 text-sm"
@@ -363,6 +503,18 @@ export default function InboxPage() {
           </div>
 
           <div className="flex items-center gap-2 ml-auto">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1 text-xs text-muted-foreground hidden sm:flex"
+              onClick={() => {
+                const event = new KeyboardEvent("keydown", { key: "k", metaKey: true });
+                document.dispatchEvent(event);
+              }}
+            >
+              <CommandIcon className="h-3 w-3" />
+              <kbd className="text-[10px] bg-muted px-1 rounded">⌘K</kbd>
+            </Button>
             <Button
               variant="outline"
               size="sm"
@@ -432,22 +584,26 @@ export default function InboxPage() {
         )}
       </header>
 
+      {/* Split Inbox Tabs */}
+      {selectedFolder === "inbox" && (
+        <SplitInboxTabs emails={emails} activeTab={splitTab} onTabChange={setSplitTab} />
+      )}
+
       {/* Main content */}
       <div className="flex-1 flex overflow-hidden">
         {/* Folder sidebar - hidden on mobile */}
         <div className="w-48 shrink-0 hidden md:block">
-          <FolderSidebar selectedFolder={selectedFolder} onSelectFolder={setSelectedFolder} />
+          <FolderSidebar selectedFolder={selectedFolder} onSelectFolder={(f) => { setSelectedFolder(f); setSplitTab("all"); }} />
         </div>
 
         {/* Mobile folder tabs */}
         <div className="md:hidden flex-shrink-0 border-b border-border bg-card overflow-x-auto scrollbar-hide" style={{ display: isMobileViewport ? undefined : "none" }}>
-          {/* Handled via folder sidebar on desktop */}
         </div>
 
         {isMobileViewport ? (
           <div className="flex-1 overflow-hidden">
             <EmailList
-              emails={emails}
+              emails={filteredEmails}
               isLoading={isLoading}
               selectedEmailId={selectedEmail?.id ?? null}
               onSelectEmail={handleSelectEmail}
@@ -457,7 +613,7 @@ export default function InboxPage() {
         ) : viewMode === "kanban" ? (
           <div className="flex-1 overflow-hidden p-3">
             <InboxKanbanView
-              emails={emails}
+              emails={filteredEmails}
               onSelectEmail={handleSelectEmail}
               selectedEmailId={selectedEmail?.id ?? null}
             />
@@ -466,7 +622,7 @@ export default function InboxPage() {
           <ResizablePanelGroup direction="horizontal" className="flex-1">
             <ResizablePanel defaultSize={35} minSize={25}>
               <EmailList
-                emails={emails}
+                emails={filteredEmails}
                 isLoading={isLoading}
                 selectedEmailId={selectedEmail?.id ?? null}
                 onSelectEmail={handleSelectEmail}
@@ -492,17 +648,19 @@ export default function InboxPage() {
         )}
       </div>
 
-      {/* Compose dialog */}
+      {/* Compose dialog with Undo Send + Schedule Send + Snippets */}
       <Dialog open={composeOpen} onOpenChange={setComposeOpen}>
-        <DialogContent className="sm:max-w-[520px]">
+        <DialogContent className="sm:max-w-[560px]">
           <DialogHeader><DialogTitle>Compose Email</DialogTitle></DialogHeader>
           <div className="space-y-3">
             <div><Label>To *</Label><Input value={composeTo} onChange={(e) => setComposeTo(e.target.value)} placeholder="recipient@example.com" /></div>
             <div><Label>Subject</Label><Input value={composeSubject} onChange={(e) => setComposeSubject(e.target.value)} placeholder="Subject" /></div>
             <div><Label>Body</Label><Textarea value={composeBody} onChange={(e) => setComposeBody(e.target.value)} rows={8} placeholder="Write your email..." /></div>
+            <SnippetsWithVariables onInsert={(text) => setComposeBody((prev) => prev + "\n" + text)} />
           </div>
-          <DialogFooter>
+          <DialogFooter className="flex-wrap gap-2">
             <Button variant="outline" onClick={() => setComposeOpen(false)}>Cancel</Button>
+            <ScheduleSendMenu onSchedule={handleScheduleSend} disabled={!composeTo.trim()} />
             <Button onClick={handleComposeSend} disabled={outlookSend.isPending}>
               {outlookSend.isPending ? <Loader2Icon className="h-4 w-4 animate-spin mr-2" /> : <SendIcon className="h-4 w-4 mr-2" />}
               Send
@@ -518,6 +676,7 @@ export default function InboxPage() {
           <div className="space-y-3">
             <p className="text-xs text-muted-foreground">Re: {selectedEmail?.subject}</p>
             <Textarea placeholder="Your reply..." value={replyBody} onChange={(e) => setReplyBody(e.target.value)} rows={6} />
+            <SnippetsWithVariables onInsert={(text) => setReplyBody((prev) => prev + "\n" + text)} />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setReplyOpen(false)}>Cancel</Button>
