@@ -206,7 +206,7 @@ export default function EmailList({
               className="h-7 px-2 text-xs text-destructive hover:text-destructive"
               onClick={() =>
                 bulkAction(() =>
-                  deleteEmail.mutate(ids, { onSuccess: () => toast.success(`${ids.length} emails deleted`) })
+                  moveEmail.mutate({ ids, folder: "trash" }, { onSuccess: () => toast.success(`${ids.length} emails moved to trash`) })
                 )
               }
             >
