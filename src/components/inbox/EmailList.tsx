@@ -82,6 +82,8 @@ export default function EmailList({
   const markRead = useMarkRead();
   const togglePin = useTogglePin();
   const moveEmail = useMoveEmail();
+  const snoozeEmail = useSnoozeEmail();
+  const snoozeOptions = getSnoozeOptions();
 
   const toggleSelect = useCallback((id: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
