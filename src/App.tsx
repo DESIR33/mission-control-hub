@@ -42,6 +42,7 @@ const YouTubeHubPage = lazy(() => import("./pages/YouTubeHubPage").then(m => ({ 
 const GrowthPage = lazy(() => import("./pages/YouTubeHubPage").then(m => ({ default: m.GrowthPage })));
 const AIHubPage = lazy(() => import("./pages/AIHubPage"));
 const ProposalDetailPage = lazy(() => import("./pages/ProposalDetailPage"));
+const TrendScannerPage = lazy(() => import("./pages/TrendScannerPage"));
 
 const queryClient = new QueryClient();
 
@@ -106,6 +107,7 @@ const App = () => (
               <Route path="/content" element={<LazyPage section="Content"><ContentProjectsPage /></LazyPage>} />
               <Route path="/content/create" element={<LazyPage section="Create Content"><VideoQueueFormPage /></LazyPage>} />
               <Route path="/content/:id/edit" element={<LazyPage section="Edit Content"><VideoQueueFormPage /></LazyPage>} />
+              <Route path="/trends" element={<LazyPage section="Trend Scanner"><TrendScannerPage /></LazyPage>} />
 
               {/* Content Management (YouTube Hub) */}
               <Route path="/youtube" element={<Navigate to="/youtube/dashboard" replace />} />

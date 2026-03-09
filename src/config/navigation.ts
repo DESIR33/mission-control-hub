@@ -50,6 +50,7 @@ export const mainNavItems: NavItem[] = [
   { to: "/", icon: LayoutDashboard, label: "Mission Control" },
   { to: "/inbox", icon: Mail, label: "Inbox" },
   { to: "/content", icon: Film, label: "Content Pipeline" },
+  { to: "/trends", icon: Crosshair, label: "Trend Scanner" },
   {
     to: "/youtube",
     icon: Tv,
