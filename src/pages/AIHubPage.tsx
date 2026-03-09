@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageSquare, Brain, Bot, BookOpen } from "lucide-react";
+import { MessageSquare, Brain, Bot, BookOpen, Sparkles } from "lucide-react";
 
 // Chat components
 import { ChatSidebar } from "@/components/chat/ChatSidebar";
