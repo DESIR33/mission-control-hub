@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { format, differenceInDays, formatDistanceToNow } from "date-fns";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -29,6 +30,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import type { InboxEmail } from "@/hooks/use-smart-inbox";
 import {
   ArrowLeft,
   Mail,
@@ -137,6 +139,29 @@ export default function CompanyProfilePage() {
   const { data: allDeals = [] } = useDeals();
   const { data: linkedYTVideos = [] } = useCompanyLinkedVideos(companyId);
   const deleteCompany = useDeleteCompany();
+
+  // Fetch emails from linked contacts
+  const contactEmails = useMemo(
+    () => companyContacts.map((c) => c.email).filter(Boolean) as string[],
+    [companyContacts]
+  );
+
+  const { data: companyEmails = [] } = useQuery({
+    queryKey: ["company-emails", companyId, contactEmails],
+    queryFn: async (): Promise<InboxEmail[]> => {
+      if (!workspaceId || contactEmails.length === 0) return [];
+      const { data, error } = await supabase
+        .from("inbox_emails" as any)
+        .select("*")
+        .eq("workspace_id", workspaceId)
+        .in("from_email", contactEmails)
+        .order("received_at", { ascending: false })
+        .limit(100);
+      if (error) throw error;
+      return (data as any[]) ?? [];
+    },
+    enabled: !!workspaceId && contactEmails.length > 0,
+  });
 
   // Filter videos from video_queue linked to this company
   const companyVideos = useMemo(() => {
@@ -548,6 +573,7 @@ export default function CompanyProfilePage() {
           <Tabs defaultValue="contacts">
             <TabsList>
               <TabsTrigger value="contacts">Contacts ({companyContacts.length})</TabsTrigger>
+              <TabsTrigger value="emails">Emails ({companyEmails.length})</TabsTrigger>
               <TabsTrigger value="videos">Videos ({companyVideos.length + linkedYTVideos.length})</TabsTrigger>
               <TabsTrigger value="timeline">Timeline</TabsTrigger>
             </TabsList>
@@ -590,6 +616,51 @@ export default function CompanyProfilePage() {
                     </div>
                   ))}
                 </div>
+              )}
+            </TabsContent>
+
+            {/* Emails Tab */}
+            <TabsContent value="emails" className="mt-4 space-y-2">
+              {companyEmails.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 text-sm text-muted-foreground border border-dashed border-border rounded-lg">
+                  <Mail className="w-8 h-8 mb-3 text-muted-foreground/50" />
+                  <p>No emails from linked contacts</p>
+                  {companyContacts.length === 0 && (
+                    <p className="text-xs mt-1">Associate contacts to see their emails here</p>
+                  )}
+                </div>
+              ) : (
+                companyEmails.map((email: any) => (
+                  <div
+                    key={email.id}
+                    className={cn(
+                      "flex items-start gap-3 p-3 rounded-lg border border-border bg-card hover:bg-secondary/30 transition-colors cursor-pointer",
+                      !email.is_read && "border-primary/30 bg-primary/5"
+                    )}
+                    onClick={() => navigate("/inbox")}
+                  >
+                    <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <Mail className="w-4 h-4 text-primary" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className={cn("text-sm truncate", !email.is_read ? "font-semibold text-foreground" : "font-medium text-foreground")}>
+                          {email.from_name || email.from_email}
+                        </p>
+                        <span className="text-xs text-muted-foreground shrink-0">
+                          {format(new Date(email.received_at), "MMM d")}
+                        </span>
+                      </div>
+                      <p className={cn("text-sm truncate", !email.is_read ? "text-foreground" : "text-muted-foreground")}>
+                        {email.subject}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate mt-0.5">{email.preview}</p>
+                    </div>
+                    {email.has_attachments && (
+                      <Badge variant="outline" className="text-xs shrink-0">📎</Badge>
+                    )}
+                  </div>
+                ))
               )}
             </TabsContent>
 
