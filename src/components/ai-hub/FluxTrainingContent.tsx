@@ -1,10 +1,11 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Upload, Sparkles, Trash2, RefreshCw, ThumbsUp, ThumbsDown,
@@ -47,6 +48,39 @@ function SessionDetail({ session, onBack }: { session: FluxTrainingSession; onBa
   const deleteImage = useDeleteTrainingImage();
   const startTraining = useStartTraining();
   const checkStatus = useCheckTrainingStatus();
+  const [trainingProgress, setTrainingProgress] = useState<number | null>(null);
+  const [trainingStep, setTrainingStep] = useState<string | null>(null);
+
+  // Auto-poll training progress every 15 seconds
+  useEffect(() => {
+    if (session.status !== "training") {
+      setTrainingProgress(null);
+      setTrainingStep(null);
+      return;
+    }
+
+    const poll = () => {
+      checkStatus.mutate(session.id, {
+        onSuccess: (data) => {
+          if (data?.progress != null) {
+            setTrainingProgress(data.progress);
+            setTrainingStep(`${data.current_step} / ${data.total_steps} steps`);
+          }
+          if (data?.status === "succeeded") {
+            toast.success("✅ Training completed!");
+            setTrainingProgress(100);
+          } else if (data?.status === "failed" || data?.status === "canceled") {
+            toast.error(`❌ Training ${data.status}`);
+          }
+        },
+      });
+    };
+
+    // Initial check
+    poll();
+    const interval = setInterval(poll, 15000);
+    return () => clearInterval(interval);
+  }, [session.id, session.status]);
 
   const handleFiles = useCallback(async (files: FileList | null) => {
     if (!files) return;
@@ -87,28 +121,46 @@ function SessionDetail({ session, onBack }: { session: FluxTrainingSession; onBa
             </div>
           </div>
           <div className="flex gap-2">
-            {session.status === "training" && (
+            {session.status !== "training" && (
               <Button
-                variant="outline"
                 size="sm"
-                onClick={() => checkStatus.mutate(session.id)}
-                disabled={checkStatus.isPending}
+                onClick={() => startTraining.mutate(session.id)}
+                disabled={!canTrain || startTraining.isPending}
               >
-                <RefreshCw className={`h-4 w-4 mr-1 ${checkStatus.isPending ? "animate-spin" : ""}`} />
-                Check Status
+                {startTraining.isPending ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Sparkles className="h-4 w-4 mr-1" />}
+                Start Training
               </Button>
             )}
-            <Button
-              size="sm"
-              onClick={() => startTraining.mutate(session.id)}
-              disabled={!canTrain || startTraining.isPending}
-            >
-              {startTraining.isPending ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Sparkles className="h-4 w-4 mr-1" />}
-              Start Training
-            </Button>
           </div>
         </div>
       </div>
+
+      {/* Training Progress Bar */}
+      {session.status === "training" && (
+        <Card className="border-primary/30">
+          <CardContent className="pt-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                <span className="text-sm font-medium text-foreground">Training in progress...</span>
+              </div>
+              <span className="text-sm font-bold text-primary">
+                {trainingProgress != null ? `${trainingProgress}%` : "Starting..."}
+              </span>
+            </div>
+            <Progress value={trainingProgress ?? 0} className="h-3" />
+            {trainingStep && (
+              <p className="text-xs text-muted-foreground text-right">{trainingStep}</p>
+            )}
+            {checkStatus.isPending && (
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                <RefreshCw className="h-3 w-3 animate-spin" /> Checking status...
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
 
       {session.error_message && (
         <Card className="border-destructive">
