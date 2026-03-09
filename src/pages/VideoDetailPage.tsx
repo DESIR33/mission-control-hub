@@ -154,9 +154,9 @@ export default function VideoDetailPage() {
 
       <VideoCompaniesPanel youtubeVideoId={detail.youtube_video_id} />
 
-      <Tabs defaultValue="overview" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="flex flex-wrap h-auto gap-1 bg-transparent p-0 border-b border-border rounded-none pb-2">
-          {["Overview", "Performance", "Audience", "Traffic", "Revenue", "AI Suggestions", "Optimization Tracker", "Notes", "Experiments", "Repurposing"].map((tab) => (
+          {["Overview", "Performance", "Audience", "Traffic", "Revenue", "Optimization", "Notes", "Experiments", "Repurposing"].map((tab) => (
             <TabsTrigger
               key={tab}
               value={tab.toLowerCase()}
