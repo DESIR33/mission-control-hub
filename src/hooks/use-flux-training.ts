@@ -193,14 +193,16 @@ export function useCheckTrainingStatus() {
         body: { action: "check_status", session_id: sessionId },
       });
       if (error) throw error;
-      return data;
+      return data as {
+        success: boolean;
+        status: string;
+        progress: number | null;
+        current_step: number | null;
+        total_steps: number | null;
+        logs?: string;
+      };
     },
     onSuccess: (data) => {
-      const status = data?.status || 'unknown';
-      const msg = status === 'succeeded' ? '✅ Training completed!'
-        : status === 'failed' || status === 'canceled' ? `❌ Training ${status}`
-        : `⏳ Training status: ${status}`;
-      toast.info(msg);
       if (data?.logs) {
         console.log('[flux-training] Logs:', data.logs);
       }
