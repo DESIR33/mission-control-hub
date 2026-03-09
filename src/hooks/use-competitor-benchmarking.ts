@@ -145,6 +145,9 @@ export function useCreateCompetitor() {
       return data;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["competitor-channels"] }),
+    onError: (error: any) => {
+      console.error("Failed to create competitor:", error);
+    },
   });
 }
 
