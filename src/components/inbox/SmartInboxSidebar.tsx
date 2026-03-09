@@ -21,6 +21,9 @@ import { SmartReplySuggestions } from "@/components/inbox/SmartReplySuggestions"
 import { ThreadTimelineCRM } from "@/components/inbox/ThreadTimelineCRM";
 import { FollowUpRadar } from "@/components/inbox/FollowUpRadar";
 import { ConversationIntelligence } from "@/components/inbox/ConversationIntelligence";
+import { TeamCommentsPanel } from "@/components/inbox/TeamCommentsPanel";
+import { SharedDraftsPanel } from "@/components/inbox/SharedDraftsPanel";
+import { EngagementDashboard } from "@/components/inbox/EngagementDashboard";
 import { useOutlookSend } from "@/hooks/use-smart-inbox";
 import type { SmartEmail } from "@/hooks/use-smart-inbox";
 
