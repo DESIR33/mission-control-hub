@@ -19,6 +19,9 @@ import { InstantReplyBar } from "@/components/inbox/InstantReplyBar";
 import { AutoDraftReply } from "@/components/inbox/AutoDraftReply";
 import { InstantIntroDialog } from "@/components/inbox/InstantIntroDialog";
 import { ReadStatusIndicator } from "@/components/inbox/ReadStatusIndicator";
+import { MuteConversationButton } from "@/components/inbox/MuteConversationButton";
+import { QuickQuoteReply } from "@/components/inbox/QuickQuoteReply";
+import { AutoReminderBanner } from "@/components/inbox/AutoReminderBanner";
 import { useOutlookSend } from "@/hooks/use-smart-inbox";
 import type { SmartEmail } from "@/hooks/use-smart-inbox";
 
