@@ -144,13 +144,14 @@ function EditDialog({
   onClose: () => void;
 }) {
   const updateCompetitor = useUpdateCompetitor();
-  const [form, setForm] = useState({ channel_name: "", channel_url: "", primary_niche: "" });
+  const [form, setForm] = useState({ channel_name: "", channel_url: "", youtube_channel_id: "", primary_niche: "" });
 
   // Sync form when comp changes
   if (comp && form.channel_name === "" && open) {
     setForm({
       channel_name: comp.channel_name,
       channel_url: comp.channel_url || "",
+      youtube_channel_id: comp.youtube_channel_id || "",
       primary_niche: comp.primary_niche || "",
     });
   }
