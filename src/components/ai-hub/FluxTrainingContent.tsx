@@ -159,7 +159,8 @@ function SessionDetail({ session, onBack }: { session: FluxTrainingSession; onBa
             )}
           </CardContent>
         </Card>
-      )
+      )}
+
 
       {session.error_message && (
         <Card className="border-destructive">
