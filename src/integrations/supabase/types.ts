@@ -2093,6 +2093,164 @@ export type Database = {
           },
         ]
       }
+      flux_generation_feedback: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          image_url: string
+          is_positive: boolean
+          prompt: string | null
+          session_id: string | null
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          image_url: string
+          is_positive: boolean
+          prompt?: string | null
+          session_id?: string | null
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          image_url?: string
+          is_positive?: boolean
+          prompt?: string | null
+          session_id?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flux_generation_feedback_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "flux_training_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "flux_generation_feedback_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      flux_training_images: {
+        Row: {
+          caption: string | null
+          created_at: string | null
+          file_name: string
+          file_size: number | null
+          id: string
+          session_id: string
+          storage_path: string
+          workspace_id: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string | null
+          file_name: string
+          file_size?: number | null
+          id?: string
+          session_id: string
+          storage_path: string
+          workspace_id: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string | null
+          file_name?: string
+          file_size?: number | null
+          id?: string
+          session_id?: string
+          storage_path?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flux_training_images_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "flux_training_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "flux_training_images_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      flux_training_sessions: {
+        Row: {
+          created_at: string | null
+          error_message: string | null
+          id: string
+          image_count: number | null
+          metadata: Json | null
+          name: string
+          replicate_model_name: string | null
+          replicate_model_version: string | null
+          replicate_training_id: string | null
+          status: string
+          training_completed_at: string | null
+          training_started_at: string | null
+          trigger_word: string
+          updated_at: string | null
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          image_count?: number | null
+          metadata?: Json | null
+          name?: string
+          replicate_model_name?: string | null
+          replicate_model_version?: string | null
+          replicate_training_id?: string | null
+          status?: string
+          training_completed_at?: string | null
+          training_started_at?: string | null
+          trigger_word?: string
+          updated_at?: string | null
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          image_count?: number | null
+          metadata?: Json | null
+          name?: string
+          replicate_model_name?: string | null
+          replicate_model_version?: string | null
+          replicate_training_id?: string | null
+          status?: string
+          training_completed_at?: string | null
+          training_started_at?: string | null
+          trigger_word?: string
+          updated_at?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flux_training_sessions_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       growth_goals: {
         Row: {
           created_at: string
