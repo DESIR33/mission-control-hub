@@ -306,13 +306,13 @@ Deno.serve(async (req) => {
     const transcriptMap = new Map<string, string>();
     for (const t of (subtitlesRes.data || [])) {
       const segs = (t.parsed_segments as any[]) || [];
-      const text = segs.map((s: any) => s.text).join(" ").substring(0, 3000);
+      const text = segs.map((s: any) => s.text).join(" ").substring(0, 1200);
       transcriptMap.set(t.youtube_video_id, `[${t.language}] ${text}`);
     }
     for (const t of (altTransRes.data || [])) {
       if (transcriptMap.has(t.youtube_video_id)) continue;
       const segs = (t.parsed_segments as any[]) || [];
-      const text = segs.map((s: any) => s.text).join(" ").substring(0, 3000);
+      const text = segs.map((s: any) => s.text).join(" ").substring(0, 1200);
       if (text) transcriptMap.set(t.youtube_video_id, text);
     }
 
