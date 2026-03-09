@@ -191,6 +191,12 @@ export function AgentHubContent() {
       {/* Impact Attribution */}
       <AgentImpactAttribution />
 
+      {/* Agent Learning & Chain Workflows */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <AgentLearningPanel />
+        <AgentChainWorkflows />
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <ExecutionTimeline executions={executions} isLoading={execLoading} />
         <SkillManager skills={skills} onCreateSkill={() => setShowCreateSkill(true)} onImportSkill={() => setShowImportSkill(true)} onDeleteSkill={handleDeleteSkill} onViewSkill={(s) => setViewSkill(s)} />
