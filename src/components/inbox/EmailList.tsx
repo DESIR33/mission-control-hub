@@ -426,6 +426,28 @@ export default function EmailList({
                   Move to inbox
                 </ContextMenuItem>
 
+                <ContextMenuSub>
+                  <ContextMenuSubTrigger>
+                    <ClockIcon className="h-4 w-4 mr-2" />
+                    Snooze
+                  </ContextMenuSubTrigger>
+                  <ContextMenuSubContent className="w-48">
+                    {snoozeOptions.map((opt) => (
+                      <ContextMenuItem
+                        key={opt.label}
+                        onClick={() => {
+                          snoozeEmail.mutate(
+                            { id: email.id, snoozed_until: opt.getValue().toISOString() },
+                            { onSuccess: () => toast.success(`Snoozed: ${opt.label}`) }
+                          );
+                        }}
+                      >
+                        {opt.label}
+                      </ContextMenuItem>
+                    ))}
+                  </ContextMenuSubContent>
+                </ContextMenuSub>
+
                 <ContextMenuSeparator />
 
                 <ContextMenuItem
