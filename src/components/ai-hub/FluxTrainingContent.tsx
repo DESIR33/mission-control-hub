@@ -244,6 +244,7 @@ function FeedbackGallery() {
 export function FluxTrainingContent() {
   const { data: sessions = [], isLoading, error, isPending, isFetching, isError } = useFluxSessions();
   const createSession = useCreateFluxSession();
+  const deleteSession = useDeleteFluxSession();
   const [selectedSession, setSelectedSession] = useState<FluxTrainingSession | null>(null);
   const [newName, setNewName] = useState("");
   const [triggerWord, setTriggerWord] = useState("MYFACE");
