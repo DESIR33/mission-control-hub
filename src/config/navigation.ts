@@ -29,6 +29,7 @@ import {
   ShoppingBag,
   BarChart3,
   ListVideo,
+  Sparkles,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
