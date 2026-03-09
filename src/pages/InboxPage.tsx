@@ -63,6 +63,9 @@ import { ScheduleSendMenu } from "@/components/inbox/ScheduleSendMenu";
 import { SnoozeMenu } from "@/components/inbox/SnoozeMenu";
 import { AskAiSearch } from "@/components/inbox/AskAiSearch";
 import { SnippetsWithVariables } from "@/components/inbox/SnippetsWithVariables";
+import { MassArchiveDialog } from "@/components/inbox/MassArchiveDialog";
+import { ShareAvailabilityButton } from "@/components/inbox/ShareAvailabilityButton";
+import { SmartSendSuggestion } from "@/components/inbox/SmartSendSuggestion";
 import { toast as sonnerToast } from "sonner";
 
 export default function InboxPage() {
