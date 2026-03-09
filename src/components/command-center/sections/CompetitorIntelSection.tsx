@@ -29,6 +29,7 @@ import { formatDistanceToNow } from "date-fns";
 const emptyForm = {
   channel_name: "",
   channel_url: "",
+  youtube_channel_id: "",
   subscriber_count: "",
   video_count: "",
   total_view_count: "",
@@ -143,13 +144,14 @@ function EditDialog({
   onClose: () => void;
 }) {
   const updateCompetitor = useUpdateCompetitor();
-  const [form, setForm] = useState({ channel_name: "", channel_url: "", primary_niche: "" });
+  const [form, setForm] = useState({ channel_name: "", channel_url: "", youtube_channel_id: "", primary_niche: "" });
 
   // Sync form when comp changes
   if (comp && form.channel_name === "" && open) {
     setForm({
       channel_name: comp.channel_name,
       channel_url: comp.channel_url || "",
+      youtube_channel_id: comp.youtube_channel_id || "",
       primary_niche: comp.primary_niche || "",
     });
   }
@@ -161,6 +163,7 @@ function EditDialog({
         id: comp.id,
         channel_name: form.channel_name.trim(),
         channel_url: form.channel_url || null,
+        youtube_channel_id: form.youtube_channel_id.trim() || null,
         primary_niche: form.primary_niche || null,
       },
       {
@@ -174,7 +177,7 @@ function EditDialog({
 
   const handleOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
-      setForm({ channel_name: "", channel_url: "", primary_niche: "" });
+      setForm({ channel_name: "", channel_url: "", youtube_channel_id: "", primary_niche: "" });
       onClose();
     }
   };
@@ -196,6 +199,11 @@ function EditDialog({
             placeholder="Channel URL"
             value={form.channel_url}
             onChange={(e) => setForm({ ...form, channel_url: e.target.value })}
+          />
+          <Input
+            placeholder="YouTube Channel ID (e.g. UCxxxx…)"
+            value={form.youtube_channel_id}
+            onChange={(e) => setForm({ ...form, youtube_channel_id: e.target.value })}
           />
           <Input
             placeholder="Niche"
@@ -302,6 +310,7 @@ export function CompetitorIntelSection() {
       {
         channel_name: form.channel_name.trim(),
         channel_url: form.channel_url || null,
+        youtube_channel_id: form.youtube_channel_id?.trim() || null,
         subscriber_count: form.subscriber_count ? Number(form.subscriber_count) : null,
         video_count: form.video_count ? Number(form.video_count) : null,
         total_view_count: form.total_view_count ? Number(form.total_view_count) : null,
@@ -361,6 +370,12 @@ export function CompetitorIntelSection() {
                 placeholder="Channel URL (e.g. https://youtube.com/@channel)"
                 value={form.channel_url}
                 onChange={(e) => setForm({ ...form, channel_url: e.target.value })}
+              />
+              <Input
+                className="col-span-2"
+                placeholder="YouTube Channel ID (e.g. UCxxxx…)"
+                value={form.youtube_channel_id}
+                onChange={(e) => setForm({ ...form, youtube_channel_id: e.target.value })}
               />
               <Input
                 placeholder="Subscribers"
