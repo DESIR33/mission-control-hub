@@ -163,6 +163,7 @@ function EditDialog({
         id: comp.id,
         channel_name: form.channel_name.trim(),
         channel_url: form.channel_url || null,
+        youtube_channel_id: form.youtube_channel_id.trim() || null,
         primary_niche: form.primary_niche || null,
       },
       {
