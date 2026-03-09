@@ -389,13 +389,21 @@ Deno.serve(async (req) => {
                   type: "object",
                   properties: {
                     concept: { type: "string", description: "Thumbnail concept description" },
-                    text_overlay: { type: "string", description: "Text to show on thumbnail" },
+                    text_overlay: { type: "string", description: "Bold text to show on thumbnail (3-5 words max, ALL CAPS)" },
                     emotional_hook: { type: "string", description: "What emotion this targets" },
                     composition: { type: "string", description: "Layout and visual composition" },
+                    nano_banana_prompt: {
+                      type: "string",
+                      description: "Detailed, specific Nano Banana 2 / SDXL image generation prompt for the BACKGROUND SCENE ONLY (the person/selfie will be composited separately). Must describe: dramatic cinematic background, lighting, color grading, visual effects (explosions, particles, bokeh, lens flares), product/icon placement, mood. Use photorealistic style keywords. Example: 'cinematic dark moody background with fiery orange explosion and sparks, volumetric lighting, lens flare, dramatic smoke clouds, product icons floating in air, 8k uhd, photorealistic, shallow depth of field, color graded teal and orange'. Do NOT include any person or face in this prompt."
+                    },
+                    text_style: {
+                      type: "string",
+                      description: "Describe how the text overlay should look: font style (bold sans-serif, impact), color (white with black outline, red with white outline), size (large/massive), position (top, center), effects (drop shadow, glow, 3D). Example: 'Massive bold Impact font, white text with thick black outline and red highlight on key word, positioned at top center, slight 3D extrusion effect'"
+                    },
                   },
-                  required: ["concept", "text_overlay", "emotional_hook", "composition"],
+                  required: ["concept", "text_overlay", "emotional_hook", "composition", "nano_banana_prompt", "text_style"],
                 },
-                description: "2-3 thumbnail concepts",
+                description: "2-3 thumbnail concepts with detailed Nano Banana 2 prompts",
               },
               competitor_insights: {
                 type: "string",
@@ -439,6 +447,30 @@ RULES:
 - When retention data is provided, identify drop-off points and suggest content structure improvements.
 - When best practices are provided, ensure your recommendations align with what has been proven to work on this specific channel.
 - For each video, call create_video_optimization with your complete analysis.
+
+THUMBNAIL PROMPT RULES (CRITICAL — follow exactly):
+Your nano_banana_prompt must generate a BACKGROUND SCENE ONLY. The creator's selfie/face will be composited on top separately.
+Study these high-performing thumbnail styles and generate prompts that produce similar results:
+
+Style patterns to replicate:
+1. DRAMATIC EXPLOSION STYLE: Dark cinematic background with fiery orange/red explosions, sparks, embers, smoke. Product/app icons floating. Bold dramatic lighting. Example keywords: "cinematic explosion background, fire particles, volumetric smoke, dramatic orange teal color grading, 8k photorealistic"
+2. SPOTLIGHT/STAGE STYLE: Dark background with bright stage spotlights, lens flares, bokeh lights, fashion runway or performance vibe. Example: "dark stage background with dramatic spotlights, bokeh lights, lens flares, theatrical lighting, high contrast"  
+3. COLLAGE/COMPARISON STYLE: Split frame with multiple images or screenshots arranged in grid/collage, dark background. Example: "dark background with 3 screenshot frames arranged in row, subtle glow, cinematic vignette"
+4. CLEAN TECH STYLE: Bright clean background with glowing tech elements, light rays, software icons, futuristic energy effect. Example: "clean bright tech background, glowing energy burst, light rays, software interface elements floating, white and blue color scheme"
+5. MILITARY/DOCUMENTARY STYLE: Real-world settings, inside vehicles/locations, gritty photojournalistic look
+
+For each concept, the nano_banana_prompt MUST be at least 50 words and include:
+- Specific background scene description
+- Lighting type (volumetric, rim, dramatic, spotlight)
+- Color grading (teal/orange, dark moody, bright clean)
+- Visual effects (particles, bokeh, lens flares, smoke, sparks)
+- Camera/lens style (shallow DOF, wide angle, cinematic)
+- Quality keywords (8k, photorealistic, ultra detailed, professional)
+- Any product icons or elements relevant to the video topic
+- NEVER include any person, face, or human figure in the prompt
+
+The text_overlay should be punchy, ALL CAPS, 3-5 words that create curiosity or shock value. DO NOT repeat the video title — instead trigger emotion or highlight a pain point/transformation.
+The text_style should describe exactly how to render the text: font, color, outline, position, effects.
 ${competitorPromptSection}
 ${bestPracticesSection}
 ${learningsSection}
