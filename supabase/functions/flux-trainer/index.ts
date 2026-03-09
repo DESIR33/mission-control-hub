@@ -199,7 +199,7 @@ Deno.serve(async (req) => {
       console.log('[flux-trainer] Starting training with destination:', destination);
 
       const trainRes = await fetch(
-        'https://api.replicate.com/v1/models/ostris/flux-dev-lora-trainer/versions/d995297071a44dcb72244e6c19462111649ec86a9646c32df56daa7f14801199/trainings',
+        'https://api.replicate.com/v1/models/ostris/flux-dev-lora-trainer/versions/e440909d7512c4b9d86c2412c92e11ab5e26e726697637c1156be41e7a07b19c/trainings',
         {
           method: 'POST',
           headers: {
