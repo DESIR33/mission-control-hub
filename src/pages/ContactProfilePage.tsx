@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { EditContactDialog } from "@/components/crm/EditContactDialog";
 import { useParams, useNavigate } from "react-router-dom";
 import { format, differenceInDays, formatDistanceToNow } from "date-fns";
 import { motion } from "framer-motion";
