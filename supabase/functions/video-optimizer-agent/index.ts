@@ -133,7 +133,7 @@ Deno.serve(async (req) => {
     );
 
     const body = await req.json();
-    const { workspace_id, max_videos = 10, model, run_all_workspaces, skip_competitor_analysis = false, video_id } = body;
+    const { workspace_id, max_videos = 3, model, run_all_workspaces, skip_competitor_analysis = false, video_id } = body;
 
     // If triggered by cron, run for all workspaces that have videos
     if (run_all_workspaces) {
@@ -292,59 +292,35 @@ Deno.serve(async (req) => {
       });
     }
 
-    // ── 3b. Fetch transcripts (video_subtitles + video_transcripts) ──
+    // ── 3b. Fetch transcripts & context (sequential to reduce memory) ──
     const targetIds = underperformers.map(v => v.youtube_video_id);
 
-    const [subtitlesRes, altTransRes, retentionRes, bestPracticesRes, learningsRes] = await Promise.all([
-      supabase.from("video_subtitles").select("youtube_video_id, parsed_segments, language").eq("workspace_id", workspace_id).in("youtube_video_id", targetIds),
-      supabase.from("video_transcripts").select("youtube_video_id, parsed_segments").eq("workspace_id", workspace_id).in("youtube_video_id", targetIds),
-      supabase.from("video_retention_data").select("youtube_video_id, retention_points").eq("workspace_id", workspace_id).in("youtube_video_id", targetIds),
-      supabase.from("assistant_memory").select("content").eq("workspace_id", workspace_id).eq("origin", "best_practice").order("updated_at", { ascending: false }).limit(20),
-      supabase.from("assistant_memory").select("content").eq("workspace_id", workspace_id).in("origin", ["strategy", "youtube"]).order("updated_at", { ascending: false }).limit(10),
+    // Fetch in two sequential rounds to reduce peak memory
+    const [subtitlesRes, bestPracticesRes] = await Promise.all([
+      supabase.from("video_subtitles").select("youtube_video_id, parsed_segments, language").eq("workspace_id", workspace_id).in("youtube_video_id", targetIds).limit(5),
+      supabase.from("assistant_memory").select("content").eq("workspace_id", workspace_id).eq("origin", "best_practice").order("updated_at", { ascending: false }).limit(10),
     ]);
 
     const transcriptMap = new Map<string, string>();
     for (const t of (subtitlesRes.data || [])) {
       const segs = (t.parsed_segments as any[]) || [];
-      const text = segs.map((s: any) => s.text).join(" ").substring(0, 1200);
+      const text = segs.map((s: any) => s.text).join(" ").substring(0, 800);
       transcriptMap.set(t.youtube_video_id, `[${t.language}] ${text}`);
     }
-    for (const t of (altTransRes.data || [])) {
-      if (transcriptMap.has(t.youtube_video_id)) continue;
-      const segs = (t.parsed_segments as any[]) || [];
-      const text = segs.map((s: any) => s.text).join(" ").substring(0, 1200);
-      if (text) transcriptMap.set(t.youtube_video_id, text);
-    }
 
-    const retentionMap = new Map<string, string>();
-    for (const r of (retentionRes.data || [])) {
-      const points = (r.retention_points as any[]) || [];
-      if (!points.length) continue;
-      const summary = points
-        .filter((_: any, i: number) => i % Math.max(1, Math.floor(points.length / 10)) === 0)
-        .map((p: any) => `${Math.round(p.elapsed_seconds)}s:${p.retention_percent.toFixed(0)}%`)
-        .join(", ");
-      retentionMap.set(r.youtube_video_id, summary);
-    }
+    const bestPracticesContext = (bestPracticesRes.data || []).slice(0, 5).map((m: any) => m.content).join("; ");
 
-    const bestPracticesContext = (bestPracticesRes.data || []).map((m: any) => m.content).join("\n- ");
-    const learningsContext = (learningsRes.data || []).map((m: any) => m.content).join("\n- ");
-
-    // ── 3c. Fetch competitor videos for top 5 underperformers ────
+    // ── 3c. Competitor analysis skipped for single-video to save compute ──
     const competitorDataMap = new Map<string, CompetitorVideo[]>();
-    if (competitorEnabled) {
-      const topForCompetitor = underperformers.slice(0, 5);
+    if (competitorEnabled && !video_id) {
+      const topForCompetitor = underperformers.slice(0, 2);
       for (const video of topForCompetitor) {
         const keywords = extractKeywords(video.title);
         if (keywords.length === 0) continue;
         try {
-          const compVideos = await fetchCompetitorVideos(youtubeApiKey, competitors, keywords);
-          if (compVideos.length > 0) {
-            competitorDataMap.set(video.youtube_video_id, compVideos);
-          }
-        } catch (e) {
-          console.warn(`Competitor fetch failed for ${video.youtube_video_id}:`, e);
-        }
+          const compVideos = await fetchCompetitorVideos(youtubeApiKey, competitors, keywords, 1, 2);
+          if (compVideos.length > 0) competitorDataMap.set(video.youtube_video_id, compVideos);
+        } catch (e) { console.warn(`Competitor fetch failed:`, e); }
       }
     }
 
@@ -394,11 +370,11 @@ Deno.serve(async (req) => {
                     composition: { type: "string", description: "Layout and visual composition" },
                     nano_banana_prompt: {
                       type: "string",
-                      description: "Detailed, specific Nano Banana 2 / SDXL image generation prompt for the BACKGROUND SCENE ONLY (the person/selfie will be composited separately). Must describe: dramatic cinematic background, lighting, color grading, visual effects (explosions, particles, bokeh, lens flares), product/icon placement, mood. Use photorealistic style keywords. Example: 'cinematic dark moody background with fiery orange explosion and sparks, volumetric lighting, lens flare, dramatic smoke clouds, product icons floating in air, 8k uhd, photorealistic, shallow depth of field, color graded teal and orange'. Do NOT include any person or face in this prompt."
+                      description: "50+ word SDXL prompt for BACKGROUND ONLY. Cinematic scene, lighting, VFX, color grading. NO person/face."
                     },
                     text_style: {
                       type: "string",
-                      description: "Describe how the text overlay should look: font style (bold sans-serif, impact), color (white with black outline, red with white outline), size (large/massive), position (top, center), effects (drop shadow, glow, 3D). Example: 'Massive bold Impact font, white text with thick black outline and red highlight on key word, positioned at top center, slight 3D extrusion effect'"
+                      description: "Text style: font, color, outline, position. E.g. 'Bold Impact, white with black outline, top center'"
                     },
                   },
                   required: ["concept", "text_overlay", "emotional_hook", "composition", "nano_banana_prompt", "text_style"],
@@ -427,27 +403,20 @@ Deno.serve(async (req) => {
       : "";
 
     const bestPracticesSection = bestPracticesContext
-      ? `\n\nCHANNEL BEST PRACTICES (learned from past data — follow these patterns):\n- ${bestPracticesContext}`
+      ? `\nBest practices: ${bestPracticesContext.substring(0, 500)}`
       : "";
 
-    const learningsSection = learningsContext
-      ? `\n\nCHANNEL STRATEGY & INSIGHTS:\n- ${learningsContext}`
-      : "";
-
-    const systemPrompt = `You are a YouTube optimization expert. Analyze video data and provide actionable recommendations. Be decisive.
-
-RULES: Titles: curiosity-driven, <70 chars. Descriptions: SEO-optimized, keywords first 2 lines, CTAs. Tags: broad+niche, up to 30. Thumbnails: high contrast, minimal text (3-5 words), curiosity gaps. Use transcript/retention/best practices when provided. Call create_video_optimization for each video.
-
-THUMBNAIL PROMPTS: Generate BACKGROUND SCENE ONLY (person composited separately). Styles: 1) EXPLOSION: dark cinematic, fire/sparks/smoke, teal-orange grading 2) SPOTLIGHT: dark stage, spotlights, bokeh, lens flares 3) TECH: bright clean, glowing elements, light rays. Prompts must be 50+ words with: background, lighting, color grading, VFX, camera style, quality keywords. NO person/face. text_overlay: ALL CAPS 3-5 words, emotional/curiosity. text_style: font, color, outline, position.${competitorPromptSection}${bestPracticesSection}${learningsSection}
-
-Channel avg views: ${Math.round(channelAvgViews)}, avg CTR: ${(channelAvgCtr * 100).toFixed(2)}%`;
+    const systemPrompt = `YouTube optimization expert. Be decisive. Call create_video_optimization for each video.
+Titles: curiosity-driven, <70 chars. Descriptions: SEO keywords first 2 lines. Tags: up to 30.
+THUMBNAIL PROMPTS: BACKGROUND SCENE ONLY. Styles: EXPLOSION(fire,teal-orange), SPOTLIGHT(bokeh,flares), TECH(clean,glow). 50+ words, no person/face.${competitorEnabled ? " Include competitor_insights." : ""}${bestPracticesSection}
+Channel avg views: ${Math.round(channelAvgViews)}, CTR: ${(channelAvgCtr * 100).toFixed(1)}%`;
 
     let totalProposals = 0;
     const results: Array<{ video_id: string; title: string; success: boolean; error?: string }> = [];
 
-    // Process videos in batches of 3 to avoid timeout
-    for (let i = 0; i < underperformers.length; i += 3) {
-      const batch = underperformers.slice(i, i + 3);
+    // Process videos ONE AT A TIME to stay within compute limits
+    for (let i = 0; i < underperformers.length; i += 1) {
+      const batch = underperformers.slice(i, i + 1);
 
       const videoContexts = batch.map((v) => {
         const compVideos = competitorDataMap.get(v.youtube_video_id);
@@ -460,38 +429,11 @@ Channel avg views: ${Math.round(channelAvgViews)}, avg CTR: ${(channelAvgCtr * 1
           ? `\nTranscript (excerpt):\n${transcript}`
           : "";
 
-        const retention = retentionMap.get(v.youtube_video_id);
-        const retentionSection = retention
-          ? `\nRetention Curve (time:retention%): ${retention}`
-          : "";
-
-        return `
-VIDEO: ${v.title}
-ID: ${v.youtube_video_id}
-Published: ${v.published_at || "unknown"}
-Health Score: ${v.health_score.toFixed(1)}/100
-
-Current Metadata:
-- Title: ${v.title}
-- Description: ${v.description ? v.description.substring(0, 300) : "N/A"}
-- Tags: ${v.tags?.join(", ") || "None"}
-- Thumbnail: ${v.thumbnail_url || "Not available"}
-
-30-Day Performance:
-- Views: ${v.views_30d} (channel avg: ${Math.round(v.channel_avg_views_30d)})
-- CTR: ${(v.ctr_30d * 100).toFixed(2)}% (channel avg: ${(v.channel_avg_ctr_30d * 100).toFixed(2)}%)
-- Impressions: ${v.impressions_30d}
-- Subscribers gained: ${v.subs_gained_30d} | lost: ${v.subs_lost_30d}
-- Avg view duration: ${Math.round(v.avg_view_duration_30d)}s
-- Revenue: $${v.estimated_revenue_30d.toFixed(2)}
-
-Lifetime Stats:
-- Views: ${v.lifetime_views}
-- Likes: ${v.lifetime_likes}
-- Comments: ${v.lifetime_comments}
-${retentionSection}
-${transcriptSection}
-${competitorSection}`;
+        return `VIDEO: ${v.title} | ID: ${v.youtube_video_id} | Health: ${v.health_score.toFixed(0)}/100
+Tags: ${v.tags?.slice(0, 10).join(", ") || "None"}
+30d: Views=${v.views_30d}, CTR=${(v.ctr_30d * 100).toFixed(1)}%, Impr=${v.impressions_30d}, Subs+${v.subs_gained_30d}/-${v.subs_lost_30d}, AvgDur=${Math.round(v.avg_view_duration_30d)}s
+Lifetime: ${v.lifetime_views} views, ${v.lifetime_likes} likes
+${transcriptSection}${competitorSection}`;
       }).join("\n---\n");
 
       try {
@@ -512,7 +454,7 @@ ${competitorSection}`;
             ],
             tools: toolDefs,
             tool_choice: "auto",
-            max_tokens: batch.length === 1 ? 4000 : 6000,
+            max_tokens: 3000,
           }),
         });
 
