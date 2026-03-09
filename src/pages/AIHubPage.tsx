@@ -24,6 +24,9 @@ import { AgentHubContent } from "@/components/ai-hub/AgentHubContent";
 // Memory content
 import { MemoryContent } from "@/components/ai-hub/MemoryContent";
 
+// Flux Training content
+import { FluxTrainingContent } from "@/components/ai-hub/FluxTrainingContent";
+
 function ChatContent() {
   const chat = useChat();
   const [showMemory, setShowMemory] = useState(false);
