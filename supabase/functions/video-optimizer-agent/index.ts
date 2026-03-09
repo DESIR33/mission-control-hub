@@ -418,6 +418,14 @@ Deno.serve(async (req) => {
 - Include your competitor analysis in the competitor_insights field.`
       : "";
 
+    const bestPracticesSection = bestPracticesContext
+      ? `\n\nCHANNEL BEST PRACTICES (learned from past data — follow these patterns):\n- ${bestPracticesContext}`
+      : "";
+
+    const learningsSection = learningsContext
+      ? `\n\nCHANNEL STRATEGY & INSIGHTS:\n- ${learningsContext}`
+      : "";
+
     const systemPrompt = `You are a YouTube optimization expert. You analyze video performance data and provide specific, actionable optimization recommendations.
 
 RULES:
@@ -427,8 +435,13 @@ RULES:
 - Tags should cover broad + niche keywords, competitor tags, and related terms.
 - Thumbnail concepts should prioritize high contrast, emotional faces, minimal text (3-5 words max), and curiosity gaps.
 - Consider the video's age — older videos can be revived with metadata updates.
+- When a transcript is provided, use the actual video content to craft more relevant titles, descriptions, and tags that accurately reflect what's discussed.
+- When retention data is provided, identify drop-off points and suggest content structure improvements.
+- When best practices are provided, ensure your recommendations align with what has been proven to work on this specific channel.
 - For each video, call create_video_optimization with your complete analysis.
 ${competitorPromptSection}
+${bestPracticesSection}
+${learningsSection}
 
 CHANNEL CONTEXT:
 - Channel average 30-day views: ${Math.round(channelAvgViews)}
