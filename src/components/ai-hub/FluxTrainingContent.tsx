@@ -15,6 +15,7 @@ import {
   useUploadTrainingImage, useDeleteTrainingImage,
   useStartTraining, useCheckTrainingStatus,
   useFluxFeedback, useSubmitFeedback,
+  useDeleteFluxSession,
   type FluxTrainingSession,
 } from "@/hooks/use-flux-training";
 import { toast } from "sonner";
