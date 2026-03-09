@@ -334,7 +334,10 @@ export function FluxTrainingContent() {
               onClick={() => setSelectedSession(session)}
             >
               <CardContent className="py-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
+                <div
+                  className="flex items-center gap-3 flex-1 cursor-pointer"
+                  onClick={() => setSelectedSession(session)}
+                >
                   <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
                     <ImageIcon className="h-5 w-5 text-primary" />
                   </div>
@@ -345,7 +348,23 @@ export function FluxTrainingContent() {
                     </p>
                   </div>
                 </div>
-                <StatusBadge status={session.status} />
+                <div className="flex items-center gap-2">
+                  <StatusBadge status={session.status} />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (confirm(`Delete session "${session.name}" and all its images?`)) {
+                        deleteSession.mutate(session.id);
+                      }
+                    }}
+                    disabled={deleteSession.isPending}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           ))}
