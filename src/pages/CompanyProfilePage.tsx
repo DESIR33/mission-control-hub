@@ -140,6 +140,29 @@ export default function CompanyProfilePage() {
   const { data: linkedYTVideos = [] } = useCompanyLinkedVideos(companyId);
   const deleteCompany = useDeleteCompany();
 
+  // Fetch emails from linked contacts
+  const contactEmails = useMemo(
+    () => companyContacts.map((c) => c.email).filter(Boolean) as string[],
+    [companyContacts]
+  );
+
+  const { data: companyEmails = [] } = useQuery({
+    queryKey: ["company-emails", companyId, contactEmails],
+    queryFn: async (): Promise<InboxEmail[]> => {
+      if (!workspaceId || contactEmails.length === 0) return [];
+      const { data, error } = await supabase
+        .from("inbox_emails" as any)
+        .select("*")
+        .eq("workspace_id", workspaceId)
+        .in("from_email", contactEmails)
+        .order("received_at", { ascending: false })
+        .limit(100);
+      if (error) throw error;
+      return (data as any[]) ?? [];
+    },
+    enabled: !!workspaceId && contactEmails.length > 0,
+  });
+
   // Filter videos from video_queue linked to this company
   const companyVideos = useMemo(() => {
     if (!company) return [];
