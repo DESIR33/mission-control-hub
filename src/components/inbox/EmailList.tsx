@@ -1,3 +1,4 @@
+import { useState, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import {
   MailIcon,
@@ -6,10 +7,11 @@ import {
   Loader2Icon,
   Trash2Icon,
   MailOpenIcon,
-  MailCheckIcon,
   ArchiveIcon,
   FolderIcon,
   AlertCircleIcon,
+  CheckSquareIcon,
+  XIcon,
 } from "lucide-react";
 import type { SmartEmail, EmailPriority } from "@/hooks/use-smart-inbox";
 import { useDeleteEmail, useMarkRead, useTogglePin, useMoveEmail } from "@/hooks/use-smart-inbox";
@@ -21,6 +23,8 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 
 interface EmailListProps {
@@ -66,10 +70,44 @@ export default function EmailList({
   onSelectEmail,
   searchQuery,
 }: EmailListProps) {
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [selectionMode, setSelectionMode] = useState(false);
+
   const deleteEmail = useDeleteEmail();
   const markRead = useMarkRead();
   const togglePin = useTogglePin();
   const moveEmail = useMoveEmail();
+
+  const toggleSelect = useCallback((id: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const selectAll = useCallback(() => {
+    setSelectedIds(new Set(emails.map((e) => e.id)));
+  }, [emails]);
+
+  const clearSelection = useCallback(() => {
+    setSelectedIds(new Set());
+    setSelectionMode(false);
+  }, []);
+
+  const enterSelectionMode = useCallback(() => {
+    setSelectionMode(true);
+  }, []);
+
+  const ids = Array.from(selectedIds);
+  const hasSelection = ids.length > 0;
+
+  const bulkAction = (action: () => void) => {
+    action();
+    clearSelection();
+  };
 
   if (isLoading) {
     return (
@@ -100,29 +138,146 @@ export default function EmailList({
   };
 
   return (
-    <div className="h-full overflow-y-auto bg-card">
-      <div className="sticky top-0 z-10 flex items-center gap-2 px-3 py-2 border-b border-border bg-card/95 backdrop-blur">
-        <span className="text-xs text-muted-foreground">{emails.length} messages</span>
+    <div className="h-full overflow-y-auto bg-card flex flex-col">
+      {/* Header / Bulk action bar */}
+      <div className="sticky top-0 z-10 border-b border-border bg-card/95 backdrop-blur shrink-0">
+        {hasSelection ? (
+          <div className="flex items-center gap-1 px-2 py-1.5 flex-wrap">
+            <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={clearSelection}>
+              <XIcon className="h-3.5 w-3.5 mr-1" />
+              {ids.length} selected
+            </Button>
+            <div className="h-4 w-px bg-border mx-1" />
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs"
+              onClick={() =>
+                bulkAction(() =>
+                  markRead.mutate({ ids, is_read: true }, { onSuccess: () => toast.success("Marked as read") })
+                )
+              }
+            >
+              <MailOpenIcon className="h-3.5 w-3.5 mr-1" />
+              Read
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs"
+              onClick={() =>
+                bulkAction(() =>
+                  markRead.mutate({ ids, is_read: false }, { onSuccess: () => toast.success("Marked as unread") })
+                )
+              }
+            >
+              <MailIcon className="h-3.5 w-3.5 mr-1" />
+              Unread
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs"
+              onClick={() =>
+                bulkAction(() =>
+                  moveEmail.mutate({ ids, folder: "archive" }, { onSuccess: () => toast.success("Archived") })
+                )
+              }
+            >
+              <ArchiveIcon className="h-3.5 w-3.5 mr-1" />
+              Archive
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs"
+              onClick={() =>
+                bulkAction(() =>
+                  moveEmail.mutate({ ids, folder: "junk" }, { onSuccess: () => toast.success("Junked") })
+                )
+              }
+            >
+              <AlertCircleIcon className="h-3.5 w-3.5 mr-1" />
+              Junk
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs text-destructive hover:text-destructive"
+              onClick={() =>
+                bulkAction(() =>
+                  deleteEmail.mutate(ids, { onSuccess: () => toast.success(`${ids.length} emails deleted`) })
+                )
+              }
+            >
+              <Trash2Icon className="h-3.5 w-3.5 mr-1" />
+              Delete
+            </Button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 px-3 py-2">
+            <Checkbox
+              checked={false}
+              onCheckedChange={() => {
+                enterSelectionMode();
+                selectAll();
+              }}
+              className="h-3.5 w-3.5"
+            />
+            <span className="text-xs text-muted-foreground">{emails.length} messages</span>
+            {!selectionMode && (
+              <button
+                onClick={enterSelectionMode}
+                className="ml-auto text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <CheckSquareIcon className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
-      <div className="divide-y divide-border">
+      {/* Email rows */}
+      <div className="divide-y divide-border flex-1">
         {emails.map((email) => {
-          const isSelected = selectedEmailId === email.id;
+          const isViewing = selectedEmailId === email.id;
+          const isChecked = selectedIds.has(email.id);
 
           return (
             <ContextMenu key={email.id}>
               <ContextMenuTrigger asChild>
                 <div
-                  onClick={() => onSelectEmail(email)}
+                  onClick={() => {
+                    if (selectionMode) {
+                      toggleSelect(email.id);
+                    } else {
+                      onSelectEmail(email);
+                    }
+                  }}
                   className={cn(
-                    "group flex items-start gap-3 px-3 py-3 cursor-pointer transition-all border-l-2 relative",
+                    "group flex items-start gap-2 px-3 py-3 cursor-pointer transition-all border-l-2 relative",
                     priorityColors[email.priority],
-                    isSelected
-                      ? "bg-primary/5"
-                      : "hover:bg-muted/50",
-                    !email.is_read && "bg-primary/[0.02]",
+                    isChecked && "bg-primary/10",
+                    !isChecked && isViewing && "bg-primary/5",
+                    !isChecked && !isViewing && "hover:bg-muted/50",
+                    !email.is_read && !isChecked && "bg-primary/[0.02]",
                   )}
                 >
+                  {/* Checkbox: visible in selection mode or on hover */}
+                  <div
+                    className={cn(
+                      "pt-0.5 shrink-0 transition-all",
+                      selectionMode ? "opacity-100 w-5" : "opacity-0 w-0 group-hover:opacity-100 group-hover:w-5"
+                    )}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!selectionMode) enterSelectionMode();
+                      toggleSelect(email.id);
+                    }}
+                  >
+                    <Checkbox checked={isChecked} className="h-3.5 w-3.5" />
+                  </div>
+
                   <div className="flex-1 min-w-0 space-y-1">
                     <div className="flex items-center gap-2">
                       <span className={cn("text-sm truncate", !email.is_read && "font-semibold text-foreground", email.is_read && "text-muted-foreground")}>
@@ -181,13 +336,22 @@ export default function EmailList({
               </ContextMenuTrigger>
 
               <ContextMenuContent className="w-52">
+                {hasSelection && (
+                  <>
+                    <ContextMenuItem disabled className="text-xs text-muted-foreground">
+                      {ids.length} selected
+                    </ContextMenuItem>
+                    <ContextMenuSeparator />
+                  </>
+                )}
                 <ContextMenuItem
-                  onClick={() =>
+                  onClick={() => {
+                    const targetIds = hasSelection ? ids : [email.id];
                     markRead.mutate(
-                      { ids: [email.id], is_read: !email.is_read },
+                      { ids: targetIds, is_read: !email.is_read },
                       { onSuccess: () => toast.success(email.is_read ? "Marked as unread" : "Marked as read") }
-                    )
-                  }
+                    );
+                  }}
                 >
                   {email.is_read ? (
                     <>
@@ -217,36 +381,39 @@ export default function EmailList({
                 <ContextMenuSeparator />
 
                 <ContextMenuItem
-                  onClick={() =>
+                  onClick={() => {
+                    const targetIds = hasSelection ? ids : [email.id];
                     moveEmail.mutate(
-                      { ids: [email.id], folder: "archive" },
-                      { onSuccess: () => toast.success("Moved to archive") }
-                    )
-                  }
+                      { ids: targetIds, folder: "archive" },
+                      { onSuccess: () => { toast.success("Moved to archive"); clearSelection(); } }
+                    );
+                  }}
                 >
                   <ArchiveIcon className="h-4 w-4 mr-2" />
                   Archive
                 </ContextMenuItem>
 
                 <ContextMenuItem
-                  onClick={() =>
+                  onClick={() => {
+                    const targetIds = hasSelection ? ids : [email.id];
                     moveEmail.mutate(
-                      { ids: [email.id], folder: "junk" },
-                      { onSuccess: () => toast.success("Moved to junk") }
-                    )
-                  }
+                      { ids: targetIds, folder: "junk" },
+                      { onSuccess: () => { toast.success("Moved to junk"); clearSelection(); } }
+                    );
+                  }}
                 >
                   <AlertCircleIcon className="h-4 w-4 mr-2" />
                   Mark as junk
                 </ContextMenuItem>
 
                 <ContextMenuItem
-                  onClick={() =>
+                  onClick={() => {
+                    const targetIds = hasSelection ? ids : [email.id];
                     moveEmail.mutate(
-                      { ids: [email.id], folder: "inbox" },
-                      { onSuccess: () => toast.success("Moved to inbox") }
-                    )
-                  }
+                      { ids: targetIds, folder: "inbox" },
+                      { onSuccess: () => { toast.success("Moved to inbox"); clearSelection(); } }
+                    );
+                  }}
                 >
                   <FolderIcon className="h-4 w-4 mr-2" />
                   Move to inbox
@@ -256,12 +423,13 @@ export default function EmailList({
 
                 <ContextMenuItem
                   className="text-destructive focus:text-destructive"
-                  onClick={() =>
-                    deleteEmail.mutate([email.id], {
-                      onSuccess: () => toast.success("Email deleted"),
+                  onClick={() => {
+                    const targetIds = hasSelection ? ids : [email.id];
+                    deleteEmail.mutate(targetIds, {
+                      onSuccess: () => { toast.success(`${targetIds.length} email(s) deleted`); clearSelection(); },
                       onError: () => toast.error("Failed to delete"),
-                    })
-                  }
+                    });
+                  }}
                 >
                   <Trash2Icon className="h-4 w-4 mr-2" />
                   Delete
