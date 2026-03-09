@@ -660,6 +660,12 @@ export default function CompanyProfilePage() {
                     {email.has_attachments && (
                       <Badge variant="outline" className="text-xs shrink-0">📎</Badge>
                     )}
+                    <EmailActions
+                      email={email}
+                      companyId={company.id}
+                      companyName={company.name}
+                      companyLogo={company.logo_url}
+                    />
                   </div>
                 ))
               )}
