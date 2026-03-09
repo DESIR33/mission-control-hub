@@ -62,7 +62,7 @@ async function fetchAllOutlookMessages(
   folder: string = "inbox",
 ): Promise<OutlookMessage[]> {
   const allMessages: OutlookMessage[] = [];
-  const pageSize = 250; // max allowed by Graph API
+  const pageSize = 250;
   let url: string | null = `${GRAPH_BASE}/me/mailFolders/${folder}/messages?$top=${pageSize}&$orderby=receivedDateTime desc&$select=id,conversationId,from,toRecipients,subject,bodyPreview,body,receivedDateTime,isRead,importance,hasAttachments,parentFolderId`;
 
   while (url) {
@@ -79,24 +79,11 @@ async function fetchAllOutlookMessages(
     const messages: OutlookMessage[] = data.value || [];
     allMessages.push(...messages);
 
-    // Follow @odata.nextLink for pagination
     url = data["@odata.nextLink"] || null;
     console.log(`Fetched page: ${messages.length} messages (total so far: ${allMessages.length})`);
   }
 
   return allMessages;
-}
-
-function mapFolderIdToName(folderId: string | undefined): string {
-  if (!folderId) return "inbox";
-  const lower = folderId.toLowerCase();
-  if (lower.includes("inbox")) return "inbox";
-  if (lower.includes("sentitems") || lower.includes("sent")) return "sent";
-  if (lower.includes("drafts")) return "drafts";
-  if (lower.includes("junkemail") || lower.includes("junk")) return "junk";
-  if (lower.includes("deleteditems") || lower.includes("trash")) return "trash";
-  if (lower.includes("archive")) return "archive";
-  return "inbox";
 }
 
 function mapGraphFolderToDb(graphFolder: string): string {
@@ -176,6 +163,8 @@ Deno.serve(async (req) => {
 
     let totalFetched = 0;
     let totalUpserted = 0;
+    let totalDeleted = 0;
+    let totalReadUpdated = 0;
 
     for (const syncFolder of foldersToSync) {
       console.log(`Syncing folder: ${syncFolder}`);
@@ -184,10 +173,82 @@ Deno.serve(async (req) => {
       const messages = await fetchAllOutlookMessages(tokenResult.access_token, syncFolder);
       totalFetched += messages.length;
 
-      // Map folder name for DB storage
       const dbFolder = mapGraphFolderToDb(syncFolder);
 
-      // Batch upsert into inbox_emails
+      // Build set of Outlook message IDs for this folder
+      const outlookMessageIds = new Set(messages.map((m) => m.id));
+
+      // ── Delta: Delete emails from DB that no longer exist in Outlook ──
+      const { data: existingEmails } = await supabase
+        .from("inbox_emails")
+        .select("id, message_id, is_read")
+        .eq("workspace_id", workspace_id)
+        .eq("folder", dbFolder);
+
+      if (existingEmails && existingEmails.length > 0) {
+        const toDelete = existingEmails.filter(
+          (e: any) => !outlookMessageIds.has(e.message_id)
+        );
+        if (toDelete.length > 0) {
+          const deleteIds = toDelete.map((e: any) => e.id);
+          const CHUNK = 200;
+          for (let i = 0; i < deleteIds.length; i += CHUNK) {
+            const chunk = deleteIds.slice(i, i + CHUNK);
+            const { error: delErr } = await supabase
+              .from("inbox_emails")
+              .delete()
+              .in("id", chunk);
+            if (delErr) {
+              console.error(`Delete error (${syncFolder}):`, JSON.stringify(delErr));
+            } else {
+              totalDeleted += chunk.length;
+            }
+          }
+          console.log(`Deleted ${toDelete.length} emails from ${dbFolder} (removed in Outlook)`);
+        }
+
+        // ── Delta: Update read status for emails that changed in Outlook ──
+        const outlookReadMap = new Map<string, boolean>();
+        messages.forEach((m) => {
+          outlookReadMap.set(m.id, m.isRead ?? false);
+        });
+
+        const toUpdateRead: string[] = [];
+        const toUpdateUnread: string[] = [];
+        existingEmails.forEach((e: any) => {
+          if (!outlookMessageIds.has(e.message_id)) return; // already deleted
+          const outlookIsRead = outlookReadMap.get(e.message_id);
+          if (outlookIsRead !== undefined && outlookIsRead !== e.is_read) {
+            if (outlookIsRead) {
+              toUpdateRead.push(e.id);
+            } else {
+              toUpdateUnread.push(e.id);
+            }
+          }
+        });
+
+        if (toUpdateRead.length > 0) {
+          const { error: readErr } = await supabase
+            .from("inbox_emails")
+            .update({ is_read: true })
+            .in("id", toUpdateRead);
+          if (readErr) console.error("Read update error:", JSON.stringify(readErr));
+          else totalReadUpdated += toUpdateRead.length;
+          console.log(`Marked ${toUpdateRead.length} emails as read (synced from Outlook)`);
+        }
+
+        if (toUpdateUnread.length > 0) {
+          const { error: unreadErr } = await supabase
+            .from("inbox_emails")
+            .update({ is_read: false })
+            .in("id", toUpdateUnread);
+          if (unreadErr) console.error("Unread update error:", JSON.stringify(unreadErr));
+          else totalReadUpdated += toUpdateUnread.length;
+          console.log(`Marked ${toUpdateUnread.length} emails as unread (synced from Outlook)`);
+        }
+      }
+
+      // ── Upsert current messages ──
       const rows = messages.map((msg) => {
         const fromEmail = msg.from?.emailAddress?.address || "";
         const fromName = msg.from?.emailAddress?.name || "";
@@ -239,6 +300,8 @@ Deno.serve(async (req) => {
         success: true,
         fetched: totalFetched,
         upserted: totalUpserted,
+        deleted: totalDeleted,
+        read_status_updated: totalReadUpdated,
         folders_synced: foldersToSync,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
