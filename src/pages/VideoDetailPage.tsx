@@ -330,8 +330,6 @@ export default function VideoDetailPage() {
           {/* Sponsor Segment Attribution */}
           {youtubeVideoId && <SponsorSegmentTracker videoId={youtubeVideoId} />}
           
-          {/* Subtitles */}
-          {youtubeVideoId && <SubtitleUploader youtubeVideoId={youtubeVideoId} videoTitle={detail?.title || ""} />}
         </TabsContent>
 
         {/* AI Suggestions */}
