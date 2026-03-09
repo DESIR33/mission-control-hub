@@ -8,7 +8,7 @@ import { AlertTriangle, TrendingDown, Check, X, Sparkles, Image, Type } from "lu
 export function VideoDecayDashboard() {
   const { data: alerts = [], isLoading } = useContentDecayAlerts();
   const dismiss = useDismissDecayAlert();
-  const { getTitle } = useVideoTitleMap();
+  const { resolveTitle } = useVideoTitleMap();
 
   if (isLoading) return null;
 

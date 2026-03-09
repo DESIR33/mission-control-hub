@@ -11,7 +11,7 @@ import { Layers, Plus, Film, DollarSign } from "lucide-react";
 export function VideoSeriesDashboard() {
   const { data: series = [], isLoading } = useVideoSeries();
   const createSeries = useCreateVideoSeries();
-  const { getTitle } = useVideoTitleMap();
+  const { resolveTitle } = useVideoTitleMap();
   const [createOpen, setCreateOpen] = useState(false);
   const [newName, setNewName] = useState("");
   const [newDesc, setNewDesc] = useState("");

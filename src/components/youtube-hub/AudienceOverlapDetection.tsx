@@ -8,7 +8,7 @@ import { Shuffle, X, Check, ArrowRight, Tag } from "lucide-react";
 export function AudienceOverlapDetection() {
   const { data: overlaps = [], isLoading } = useAudienceOverlapReports();
   const dismiss = useDismissOverlap();
-  const { getTitle } = useVideoTitleMap();
+  const { resolveTitle } = useVideoTitleMap();
 
   if (isLoading) return null;
 
