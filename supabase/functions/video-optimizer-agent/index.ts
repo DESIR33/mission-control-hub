@@ -512,7 +512,7 @@ ${competitorSection}`;
             ],
             tools: toolDefs,
             tool_choice: "auto",
-            max_tokens: 8000,
+            max_tokens: batch.length === 1 ? 4000 : 6000,
           }),
         });
 
