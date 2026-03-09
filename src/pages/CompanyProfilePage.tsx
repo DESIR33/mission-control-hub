@@ -573,6 +573,7 @@ export default function CompanyProfilePage() {
           <Tabs defaultValue="contacts">
             <TabsList>
               <TabsTrigger value="contacts">Contacts ({companyContacts.length})</TabsTrigger>
+              <TabsTrigger value="emails">Emails ({companyEmails.length})</TabsTrigger>
               <TabsTrigger value="videos">Videos ({companyVideos.length + linkedYTVideos.length})</TabsTrigger>
               <TabsTrigger value="timeline">Timeline</TabsTrigger>
             </TabsList>
