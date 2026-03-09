@@ -95,3 +95,6 @@ verify_jwt = false
 
 [functions.outlook-manage]
 verify_jwt = false
+
+[functions.x-list-scanner]
+verify_jwt = false
