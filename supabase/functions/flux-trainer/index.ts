@@ -289,9 +289,28 @@ Deno.serve(async (req) => {
           .eq('id', session_id);
       }
 
+      // Parse progress from logs (e.g. "flux_train_replicate.py:281] 150/1000")
+      let progress: number | null = null;
+      let currentStep: number | null = null;
+      let totalSteps: number | null = null;
+      if (statusData.logs) {
+        const stepMatches = [...statusData.logs.matchAll(/(\d+)\/(\d+)/g)];
+        if (stepMatches.length > 0) {
+          const last = stepMatches[stepMatches.length - 1];
+          currentStep = parseInt(last[1], 10);
+          totalSteps = parseInt(last[2], 10);
+          if (totalSteps > 0) {
+            progress = Math.min(Math.round((currentStep / totalSteps) * 100), 100);
+          }
+        }
+      }
+
       return new Response(JSON.stringify({
         success: true,
         status: statusData.status,
+        progress,
+        current_step: currentStep,
+        total_steps: totalSteps,
         logs: statusData.logs?.substring(statusData.logs.length - 500),
         metrics: statusData.metrics || null,
         version: statusData.output?.version || null,
