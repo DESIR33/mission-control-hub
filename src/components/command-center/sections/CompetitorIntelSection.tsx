@@ -310,6 +310,7 @@ export function CompetitorIntelSection() {
       {
         channel_name: form.channel_name.trim(),
         channel_url: form.channel_url || null,
+        youtube_channel_id: form.youtube_channel_id?.trim() || null,
         subscriber_count: form.subscriber_count ? Number(form.subscriber_count) : null,
         video_count: form.video_count ? Number(form.video_count) : null,
         total_view_count: form.total_view_count ? Number(form.total_view_count) : null,
