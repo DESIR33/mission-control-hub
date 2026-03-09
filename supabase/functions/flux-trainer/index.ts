@@ -54,36 +54,34 @@ Deno.serve(async (req) => {
         .update({ status: 'training', training_started_at: new Date().toISOString(), image_count: images.length })
         .eq('id', session_id);
 
-      // Download all images and create a zip
-      const imageUrls: string[] = [];
+      // Build zip by downloading images one at a time to minimize memory
       const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-      for (const img of images) {
-        const publicUrl = `${supabaseUrl}/storage/v1/object/public/training-images/${img.storage_path}`;
-        imageUrls.push(publicUrl);
-      }
+      const { default: JSZip } = await import("https://esm.sh/jszip@3.10.1");
+      const zip = new JSZip();
+      let addedCount = 0;
 
-      // Upload zip of image URLs to Replicate Files API
-      // First, create a zip file in memory
-      const zipParts: Uint8Array[] = [];
-      for (let i = 0; i < imageUrls.length; i++) {
+      for (let i = 0; i < images.length; i++) {
         try {
-          const imgRes = await fetch(imageUrls[i]);
-          if (!imgRes.ok) continue;
+          const publicUrl = `${supabaseUrl}/storage/v1/object/public/training-images/${images[i].storage_path}`;
+          const imgRes = await fetch(publicUrl);
+          if (!imgRes.ok) { console.warn(`Skip image ${i}: ${imgRes.status}`); continue; }
           const imgBytes = new Uint8Array(await imgRes.arrayBuffer());
-          zipParts.push(imgBytes);
+          const ext = images[i].file_name.split('.').pop() || 'jpg';
+          zip.file(`img_${addedCount}.${ext}`, imgBytes);
+          addedCount++;
         } catch (e) {
           console.warn(`Failed to fetch image ${i}:`, e);
         }
       }
 
-      // Use Replicate's file upload API with a zip
-      // Build a simple zip file
-      const { default: JSZip } = await import("https://esm.sh/jszip@3.10.1");
-      const zip = new JSZip();
-      for (let i = 0; i < zipParts.length; i++) {
-        const ext = images[i].file_name.split('.').pop() || 'jpg';
-        zip.file(`img_${i}.${ext}`, zipParts[i]);
+      if (addedCount < 3) {
+        await supabase.from('flux_training_sessions')
+          .update({ status: 'failed', error_message: 'Could not download enough images' })
+          .eq('id', session_id);
+        return new Response(JSON.stringify({ success: false, error: 'Could not download enough images' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
+
       const zipBlob = await zip.generateAsync({ type: "uint8array" });
 
       // Upload zip to Replicate Files API
