@@ -27,6 +27,8 @@ import { EngagementDashboard } from "@/components/inbox/EngagementDashboard";
 import { EmailDealSuggestions } from "@/components/inbox/EmailDealSuggestions";
 import { SmartReplyComposer } from "@/components/inbox/SmartReplyComposer";
 import { useOutlookSend } from "@/hooks/use-smart-inbox";
+import { useCreateContactFromEmail, useCreateCompanyFromEmail } from "@/hooks/use-email-to-contact";
+import { Loader2 } from "lucide-react";
 import type { SmartEmail } from "@/hooks/use-smart-inbox";
 
 interface SmartInboxSidebarProps {
