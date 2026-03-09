@@ -27,7 +27,7 @@ import type { SmartEmail } from "@/hooks/use-smart-inbox";
 
 interface EmailPreviewProps {
   email: SmartEmail | null;
-  onReply: () => void;
+  onReply: (quotedText?: string) => void;
   onForward: () => void;
   onDelete: () => void;
   onArchive: () => void;
