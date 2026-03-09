@@ -473,7 +473,7 @@ Health Score: ${v.health_score.toFixed(1)}/100
 
 Current Metadata:
 - Title: ${v.title}
-- Description: ${v.description ? v.description.substring(0, 500) : "Not available"}
+- Description: ${v.description ? v.description.substring(0, 300) : "N/A"}
 - Tags: ${v.tags?.join(", ") || "None"}
 - Thumbnail: ${v.thumbnail_url || "Not available"}
 
