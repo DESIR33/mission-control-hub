@@ -310,21 +310,17 @@ Deno.serve(async (req) => {
 
     const bestPracticesContext = (bestPracticesRes.data || []).slice(0, 5).map((m: any) => m.content).join("; ");
 
-    // ── 3c. Fetch competitor videos for top 5 underperformers ────
+    // ── 3c. Competitor analysis skipped for single-video to save compute ──
     const competitorDataMap = new Map<string, CompetitorVideo[]>();
-    if (competitorEnabled) {
-      const topForCompetitor = underperformers.slice(0, 5);
+    if (competitorEnabled && !video_id) {
+      const topForCompetitor = underperformers.slice(0, 2);
       for (const video of topForCompetitor) {
         const keywords = extractKeywords(video.title);
         if (keywords.length === 0) continue;
         try {
-          const compVideos = await fetchCompetitorVideos(youtubeApiKey, competitors, keywords);
-          if (compVideos.length > 0) {
-            competitorDataMap.set(video.youtube_video_id, compVideos);
-          }
-        } catch (e) {
-          console.warn(`Competitor fetch failed for ${video.youtube_video_id}:`, e);
-        }
+          const compVideos = await fetchCompetitorVideos(youtubeApiKey, competitors, keywords, 1, 2);
+          if (compVideos.length > 0) competitorDataMap.set(video.youtube_video_id, compVideos);
+        } catch (e) { console.warn(`Competitor fetch failed:`, e); }
       }
     }
 
