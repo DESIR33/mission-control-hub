@@ -1,5 +1,4 @@
 import { useState, useMemo } from "react";
-import { EditContactDialog } from "@/components/crm/EditContactDialog";
 import { useParams, useNavigate } from "react-router-dom";
 import { format, differenceInDays, formatDistanceToNow } from "date-fns";
 import { motion } from "framer-motion";
@@ -107,7 +106,6 @@ export default function ContactProfilePage() {
   const { toast } = useToast();
 
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
 
   const { data: contacts = [], isLoading } = useContacts();
   const contact = contacts.find((c) => c.id === contactId) ?? null;
@@ -259,7 +257,7 @@ export default function ContactProfilePage() {
                 </a>
               </Button>
             )}
-            <Button variant="outline" size="sm" onClick={() => setEditOpen(true)} className="gap-1.5">
+            <Button variant="outline" size="sm" onClick={() => navigate(`/contacts/${contact.id}/edit`)} className="gap-1.5">
               <Pencil className="w-3.5 h-3.5" /> Edit
             </Button>
             <Button
@@ -567,10 +565,6 @@ export default function ContactProfilePage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {contact && (
-        <EditContactDialog contact={contact} open={editOpen} onOpenChange={setEditOpen} />
-      )}
     </div>
   );
 }

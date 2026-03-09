@@ -109,6 +109,9 @@ export function useUpdateContact() {
       notes?: string;
       preferred_channel?: string;
       response_sla_minutes?: number | null;
+      city?: string;
+      state?: string;
+      country?: string;
       social_twitter?: string;
       social_linkedin?: string;
       social_youtube?: string;
