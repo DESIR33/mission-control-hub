@@ -48,7 +48,10 @@ type Section =
   | "comments"
   | "uploads"
   | "strategy"
-  | "experiments";
+  | "experiments"
+  | "decay"
+  | "series"
+  | "overlap";
 
 const SECTION_LABELS: Record<Section, string> = {
   dashboard: "Dashboard",
