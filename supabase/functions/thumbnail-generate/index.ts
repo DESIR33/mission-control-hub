@@ -36,12 +36,16 @@ Deno.serve(async (req) => {
         );
       }
 
-      // Model selection: Nano Banana 2 for strategist thumbnails, Flux Schnell as default
-      const NANO_BANANA_2 = 'fofr/sdxl-nano-banana-2';
-      const modelId = model === 'nano-banana-2' ? NANO_BANANA_2 : (model || 'black-forest-labs/flux-schnell');
+      // Model selection
+      const useNanoBanana = model === 'nano-banana-2';
+      // Replicate requires version hashes, not model names
+      const NANO_BANANA_VERSION = "408160b9879ab5572e8409b2648b45bf55e86b2a2d7e24b4a9e4fba5a5e9744e";
+      const FLUX_SCHNELL_VERSION = "5599ed30703defd1d160a25a63321b4b945d488d68c18fbec8f6bc4d59118cc5";
+
+      const versionId = useNanoBanana ? NANO_BANANA_VERSION : FLUX_SCHNELL_VERSION;
 
       // Build input based on model
-      const modelInput: Record<string, unknown> = modelId === NANO_BANANA_2
+      const modelInput: Record<string, unknown> = useNanoBanana
         ? {
             prompt,
             width: 1280,
@@ -65,7 +69,7 @@ Deno.serve(async (req) => {
           'Prefer': 'wait',
         },
         body: JSON.stringify({
-          model: modelId,
+          version: versionId,
           input: modelInput,
         }),
       });
