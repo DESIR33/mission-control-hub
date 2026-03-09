@@ -177,7 +177,7 @@ function EditDialog({
 
   const handleOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
-      setForm({ channel_name: "", channel_url: "", primary_niche: "" });
+      setForm({ channel_name: "", channel_url: "", youtube_channel_id: "", primary_niche: "" });
       onClose();
     }
   };
