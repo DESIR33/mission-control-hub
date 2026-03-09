@@ -133,7 +133,7 @@ Deno.serve(async (req) => {
     );
 
     const body = await req.json();
-    const { workspace_id, max_videos = 10, model, run_all_workspaces, skip_competitor_analysis = false, video_id } = body;
+    const { workspace_id, max_videos = 3, model, run_all_workspaces, skip_competitor_analysis = false, video_id } = body;
 
     // If triggered by cron, run for all workspaces that have videos
     if (run_all_workspaces) {
