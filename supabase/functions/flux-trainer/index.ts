@@ -169,7 +169,7 @@ Deno.serve(async (req) => {
           name: modelSlug,
           description: `Fine-tuned Flux LoRA – trigger: ${session.trigger_word}`,
           visibility: 'private',
-          hardware: 'gpu-a40-large',
+          hardware: 'gpu-t4',
         }),
       });
       const createModelBody = await createModelRes.text();
