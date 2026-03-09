@@ -29,6 +29,7 @@ import { formatDistanceToNow } from "date-fns";
 const emptyForm = {
   channel_name: "",
   channel_url: "",
+  youtube_channel_id: "",
   subscriber_count: "",
   video_count: "",
   total_view_count: "",
