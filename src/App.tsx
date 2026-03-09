@@ -42,6 +42,7 @@ const YouTubeHubPage = lazy(() => import("./pages/YouTubeHubPage").then(m => ({ 
 const GrowthPage = lazy(() => import("./pages/YouTubeHubPage").then(m => ({ default: m.GrowthPage })));
 const AIHubPage = lazy(() => import("./pages/AIHubPage"));
 const ProposalDetailPage = lazy(() => import("./pages/ProposalDetailPage"));
+const TrendScannerPage = lazy(() => import("./pages/TrendScannerPage"));
 
 const queryClient = new QueryClient();
 
