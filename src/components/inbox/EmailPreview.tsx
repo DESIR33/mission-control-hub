@@ -64,7 +64,7 @@ export default function EmailPreview({
       {/* Header toolbar */}
       <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border flex-shrink-0">
         <div className="flex items-center gap-1.5 flex-wrap">
-          <Button size="sm" variant="ghost" onClick={onReply} title="Reply (R)">
+          <Button size="sm" variant="ghost" onClick={() => onReply()} title="Reply (R)">
             <ReplyIcon className="h-4 w-4" />
           </Button>
           <Button size="sm" variant="ghost" onClick={onForward} title="Forward (F)">
