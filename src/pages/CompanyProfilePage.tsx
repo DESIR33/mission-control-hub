@@ -19,6 +19,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { ActivityTimeline } from "@/components/crm/ActivityTimeline";
+import { CompanyIntelFeed } from "@/components/companies/CompanyIntelFeed";
 import { AssociateContactPopover } from "@/components/crm/AssociateContactPopover";
 import { EditCompanyDialog } from "@/components/crm/EditCompanyDialog";
 import { useCompanies, useDeleteCompany, useCompanyContacts } from "@/hooks/use-companies";
