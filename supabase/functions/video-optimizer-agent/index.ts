@@ -454,7 +454,7 @@ ${transcriptSection}${competitorSection}`;
             ],
             tools: toolDefs,
             tool_choice: "auto",
-            max_tokens: batch.length === 1 ? 4000 : 6000,
+            max_tokens: 3000,
           }),
         });
 
