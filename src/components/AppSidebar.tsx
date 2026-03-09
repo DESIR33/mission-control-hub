@@ -135,15 +135,33 @@ export function AppSidebar({ headerless }: AppSidebarProps) {
               <CollapsibleContent className="space-y-0.5 mt-0.5">
                 {item.children.map((child) => {
                   const active = location.pathname.startsWith(child.to);
+                  
+                  if (active) {
+                    return (
+                      <div key={child.to} className="pl-7 pr-3 py-0.5">
+                        <ShimmerButton
+                          shimmerColor="hsl(43, 80%, 50%)"
+                          shimmerSize="0.05em"
+                          shimmerDuration="3s"
+                          borderRadius="6px"
+                          background="hsl(43, 30%, 12%)"
+                          className="w-full flex items-center gap-3 px-3 py-1.5 text-sm font-medium text-sidebar-primary border-none shadow-none"
+                          onClick={() => navigate(child.to)}
+                        >
+                          <child.icon className="w-3.5 h-3.5 shrink-0" />
+                          <span className="truncate">{child.label}</span>
+                        </ShimmerButton>
+                      </div>
+                    );
+                  }
+
                   return (
                     <RouterNavLink
                       key={child.to}
                       to={child.to}
                       className={cn(
                         "flex items-center gap-3 pl-7 pr-3 py-1.5 rounded-md text-sm transition-colors w-full",
-                        active
-                          ? "bg-sidebar-accent text-sidebar-primary"
-                          : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                        "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                       )}
                     >
                       <child.icon className="w-3.5 h-3.5 shrink-0" />
