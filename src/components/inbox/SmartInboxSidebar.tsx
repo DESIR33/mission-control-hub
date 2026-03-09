@@ -141,7 +141,12 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
                     email.matched_contact.tier.slice(1)}
                 </Badge>
               )}
-            <Button variant="ghost" size="sm" className="w-full justify-start">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start"
+              onClick={() => navigate(`/contacts/${email.matched_contact!.id}`)}
+            >
               <ArrowRight className="w-3.5 h-3.5 mr-2" />
               View Contact
             </Button>
