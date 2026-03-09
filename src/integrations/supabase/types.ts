@@ -1635,10 +1635,16 @@ export type Database = {
           labels: string[] | null
           message_id: string
           metadata: Json | null
+          open_count: number | null
+          opened_at: string | null
           preview: string
           received_at: string
+          scheduled_send_at: string | null
+          send_status: string | null
+          snoozed_until: string | null
           subject: string
           to_recipients: Json | null
+          tracking_pixel_id: string | null
           updated_at: string
           workspace_id: string
         }
@@ -1659,10 +1665,16 @@ export type Database = {
           labels?: string[] | null
           message_id: string
           metadata?: Json | null
+          open_count?: number | null
+          opened_at?: string | null
           preview?: string
           received_at?: string
+          scheduled_send_at?: string | null
+          send_status?: string | null
+          snoozed_until?: string | null
           subject?: string
           to_recipients?: Json | null
+          tracking_pixel_id?: string | null
           updated_at?: string
           workspace_id: string
         }
@@ -1683,10 +1695,16 @@ export type Database = {
           labels?: string[] | null
           message_id?: string
           metadata?: Json | null
+          open_count?: number | null
+          opened_at?: string | null
           preview?: string
           received_at?: string
+          scheduled_send_at?: string | null
+          send_status?: string | null
+          snoozed_until?: string | null
           subject?: string
           to_recipients?: Json | null
+          tracking_pixel_id?: string | null
           updated_at?: string
           workspace_id?: string
         }
