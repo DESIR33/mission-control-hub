@@ -50,8 +50,7 @@ export default function NetworkPage() {
   }
 
   const handleSelectContact = (contact: Contact) => {
-    setSelectedContact(contact);
-    setContactSheetOpen(true);
+    navigate(`/contacts/${contact.id}`);
   };
 
   const handleSelectCompany = (company: Company) => {
