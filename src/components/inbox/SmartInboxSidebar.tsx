@@ -7,6 +7,7 @@ import {
   ArrowRight,
   Plus,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -56,6 +57,7 @@ function formatStage(stage: string): string {
 }
 
 export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
+  const navigate = useNavigate();
   const outlookSend = useOutlookSend();
 
   if (!email) {
@@ -139,7 +141,12 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
                     email.matched_contact.tier.slice(1)}
                 </Badge>
               )}
-            <Button variant="ghost" size="sm" className="w-full justify-start">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start"
+              onClick={() => navigate(`/contacts/${email.matched_contact!.id}`)}
+            >
               <ArrowRight className="w-3.5 h-3.5 mr-2" />
               View Contact
             </Button>
