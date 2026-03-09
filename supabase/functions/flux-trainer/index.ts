@@ -169,7 +169,7 @@ Deno.serve(async (req) => {
           name: modelSlug,
           description: `Fine-tuned Flux LoRA – trigger: ${session.trigger_word}`,
           visibility: 'private',
-          hardware: 'gpu-a40-large',
+          hardware: 'gpu-t4',
         }),
       });
       const createModelBody = await createModelRes.text();
@@ -199,7 +199,7 @@ Deno.serve(async (req) => {
       console.log('[flux-trainer] Starting training with destination:', destination);
 
       const trainRes = await fetch(
-        'https://api.replicate.com/v1/models/ostris/flux-dev-lora-trainer/versions/d995297071a44dcb72244e6c19462111649ec86a9646c32df56daa7f14801199/trainings',
+        'https://api.replicate.com/v1/models/ostris/flux-dev-lora-trainer/versions/bb872ad6224f3e47da976bef7c3b59e8d0fd9cf1dd1fa6f919b807e3061d9ba1/trainings',
         {
           method: 'POST',
           headers: {
