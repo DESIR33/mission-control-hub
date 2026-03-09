@@ -145,6 +145,10 @@ export default function AIHubPage() {
         <TabsContent value="memory" className="mt-4">
           <MemoryContent />
         </TabsContent>
+
+        <TabsContent value="training" className="mt-4">
+          <FluxTrainingContent />
+        </TabsContent>
       </Tabs>
     </div>
   );
