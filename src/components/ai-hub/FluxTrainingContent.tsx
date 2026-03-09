@@ -330,8 +330,7 @@ export function FluxTrainingContent() {
           {sessions.map((session) => (
             <Card
               key={session.id}
-              className="cursor-pointer hover:border-primary/30 transition-colors"
-              onClick={() => setSelectedSession(session)}
+              className="hover:border-primary/30 transition-colors"
             >
               <CardContent className="py-4 flex items-center justify-between">
                 <div
