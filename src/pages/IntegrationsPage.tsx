@@ -202,36 +202,6 @@ const INTEGRATIONS: IntegrationDef[] = [
     ],
   },
   {
-    key: "convertkit",
-    name: "ConvertKit",
-    description:
-      "Connect your ConvertKit account to sync email subscribers and automate newsletter delivery.",
-    icon: "📬",
-    iconBg: "linear-gradient(135deg, #fb6970 0%, #e04850 100%)",
-    docsUrl: "https://developers.convertkit.com",
-    usedFor: "Used for: email subscribers · newsletter automation · audience growth",
-    connectHint:
-      "Enter your ConvertKit API credentials to enable newsletter sync.",
-    fields: [
-      {
-        name: "api_key",
-        label: "API Key",
-        placeholder: "Your ConvertKit API key",
-        secret: true,
-        required: true,
-        hint: "Found at ConvertKit → Settings → Advanced → API.",
-      },
-      {
-        name: "api_secret",
-        label: "API Secret",
-        placeholder: "Your ConvertKit API secret",
-        secret: true,
-        required: true,
-        hint: "Found at ConvertKit → Settings → Advanced → API.",
-      },
-    ],
-  },
-  {
     key: "beehiiv",
     name: "Beehiiv",
     description:
