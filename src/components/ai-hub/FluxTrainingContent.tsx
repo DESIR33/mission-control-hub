@@ -73,38 +73,40 @@ function SessionDetail({ session, onBack }: { session: FluxTrainingSession; onBa
   const canTrain = images.length >= 3 && (session.status === "pending" || session.status === "failed");
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <Button variant="ghost" size="sm" onClick={onBack} className="mb-2">← Back to sessions</Button>
-          <h2 className="text-xl font-bold text-foreground">{session.name}</h2>
-          <div className="flex items-center gap-2 mt-1">
-            <StatusBadge status={session.status} />
-            <span className="text-sm text-muted-foreground">
-              Trigger word: <code className="bg-muted px-1 rounded">{session.trigger_word}</code>
-            </span>
+    <div className="space-y-4 sm:space-y-6">
+      <div className="space-y-3">
+        <Button variant="ghost" size="sm" onClick={onBack}>← Back to sessions</Button>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h2 className="text-lg sm:text-xl font-bold text-foreground">{session.name}</h2>
+            <div className="flex flex-wrap items-center gap-2 mt-1">
+              <StatusBadge status={session.status} />
+              <span className="text-xs sm:text-sm text-muted-foreground">
+                Trigger: <code className="bg-muted px-1 rounded">{session.trigger_word}</code>
+              </span>
+            </div>
           </div>
-        </div>
-        <div className="flex gap-2">
-          {session.status === "training" && (
+          <div className="flex gap-2">
+            {session.status === "training" && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => checkStatus.mutate(session.id)}
+                disabled={checkStatus.isPending}
+              >
+                <RefreshCw className={`h-4 w-4 mr-1 ${checkStatus.isPending ? "animate-spin" : ""}`} />
+                Check Status
+              </Button>
+            )}
             <Button
-              variant="outline"
               size="sm"
-              onClick={() => checkStatus.mutate(session.id)}
-              disabled={checkStatus.isPending}
+              onClick={() => startTraining.mutate(session.id)}
+              disabled={!canTrain || startTraining.isPending}
             >
-              <RefreshCw className={`h-4 w-4 mr-1 ${checkStatus.isPending ? "animate-spin" : ""}`} />
-              Check Status
+              {startTraining.isPending ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Sparkles className="h-4 w-4 mr-1" />}
+              Start Training
             </Button>
-          )}
-          <Button
-            size="sm"
-            onClick={() => startTraining.mutate(session.id)}
-            disabled={!canTrain || startTraining.isPending}
-          >
-            {startTraining.isPending ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Sparkles className="h-4 w-4 mr-1" />}
-            Start Training
-          </Button>
+          </div>
         </div>
       </div>
 
