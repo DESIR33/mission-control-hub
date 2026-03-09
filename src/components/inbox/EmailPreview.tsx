@@ -144,14 +144,17 @@ export default function EmailPreview({
         <div className="border-t border-border pt-4">
           {email.body_html ? (
             <div
-              className="prose prose-sm max-w-none text-foreground prose-headings:text-foreground prose-p:text-foreground prose-a:text-primary [&_*]:!text-foreground [&_a]:!text-primary email-body-override"
-              dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(email.body_html, {
-                  FORBID_ATTR: ['color', 'bgcolor'],
-                  FORBID_TAGS: ['style'],
-                }),
-              }}
-            />
+              className="rounded-lg border border-border bg-white p-4 overflow-x-auto"
+            >
+              <div
+                className="prose prose-sm max-w-none text-gray-900 prose-headings:text-gray-900 prose-p:text-gray-900 prose-a:text-blue-600 prose-strong:text-gray-900 [&_td]:text-gray-900 [&_th]:text-gray-900 [&_li]:text-gray-900 [&_span]:text-gray-900"
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(email.body_html, {
+                    FORBID_TAGS: ['style'],
+                  }),
+                }}
+              />
+            </div>
           ) : (
             <p className="text-sm text-muted-foreground whitespace-pre-wrap">
               {email.preview || "No content available"}
