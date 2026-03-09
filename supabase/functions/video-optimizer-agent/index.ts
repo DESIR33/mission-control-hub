@@ -370,7 +370,7 @@ Deno.serve(async (req) => {
                     composition: { type: "string", description: "Layout and visual composition" },
                     nano_banana_prompt: {
                       type: "string",
-                      description: "Detailed, specific Nano Banana 2 / SDXL image generation prompt for the BACKGROUND SCENE ONLY (the person/selfie will be composited separately). Must describe: dramatic cinematic background, lighting, color grading, visual effects (explosions, particles, bokeh, lens flares), product/icon placement, mood. Use photorealistic style keywords. Example: 'cinematic dark moody background with fiery orange explosion and sparks, volumetric lighting, lens flare, dramatic smoke clouds, product icons floating in air, 8k uhd, photorealistic, shallow depth of field, color graded teal and orange'. Do NOT include any person or face in this prompt."
+                      description: "50+ word SDXL prompt for BACKGROUND ONLY. Cinematic scene, lighting, VFX, color grading. NO person/face."
                     },
                     text_style: {
                       type: "string",
