@@ -641,7 +641,12 @@ export default function InboxPage() {
             <ResizablePanel defaultSize={45} minSize={30}>
               <EmailPreview
                 email={selectedEmail}
-                onReply={() => setReplyOpen(true)}
+                onReply={(quotedText) => {
+                  if (quotedText) {
+                    setReplyBody(`\n\n> ${quotedText.replace(/\n/g, "\n> ")}\n\n`);
+                  }
+                  setReplyOpen(true);
+                }}
                 onForward={() => setForwardOpen(true)}
                 onDelete={() => setDeleteDialogOpen(true)}
                 onArchive={handleArchive}
