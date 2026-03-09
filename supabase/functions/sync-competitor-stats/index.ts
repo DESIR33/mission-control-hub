@@ -2,12 +2,13 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
@@ -22,7 +23,7 @@ Deno.serve(async (req) => {
     const { workspace_id } = await req.json();
     if (!workspace_id) throw new Error("Missing workspace_id");
 
-    // Get YouTube API key
+    // Get YouTube API key from workspace integrations
     const { data: integration } = await supabase
       .from("workspace_integrations")
       .select("config")
@@ -33,8 +34,8 @@ Deno.serve(async (req) => {
 
     if (!integration?.config?.api_key) {
       return new Response(
-        JSON.stringify({ success: true, synced: 0, message: "YouTube API not configured" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ success: false, error: "YouTube API not configured. Add your API key in Settings → Integrations." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
@@ -54,100 +55,71 @@ Deno.serve(async (req) => {
     }
 
     let synced = 0;
+    const errors: string[] = [];
 
     for (const comp of competitors) {
       try {
         let channelId = comp.youtube_channel_id;
 
-        // Try to resolve channel ID from URL if not set
+        // Resolve channel ID from URL if not already set
         if (!channelId && comp.channel_url) {
-          // Extract from various URL formats
-          const urlMatch = comp.channel_url.match(
-            /(?:youtube\.com\/(?:channel\/|@|c\/))([^/?&]+)/
-          );
-          if (urlMatch) {
-            const identifier = urlMatch[1];
-            // If it starts with UC, it's already a channel ID
-            if (identifier.startsWith("UC")) {
-              channelId = identifier;
-            } else {
-              // Try searching for the channel
-              const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=${encodeURIComponent(identifier)}&maxResults=1&key=${apiKey}`;
-              const searchRes = await fetch(searchUrl);
-              if (searchRes.ok) {
-                const searchData = await searchRes.json();
-                if (searchData.items?.[0]) {
-                  channelId = searchData.items[0].snippet.channelId;
-                }
-              }
-            }
-          }
+          channelId = await resolveChannelId(comp.channel_url, apiKey);
         }
 
-        if (!channelId) continue;
+        if (!channelId) {
+          errors.push(`Could not resolve channel ID for "${comp.channel_name}"`);
+          continue;
+        }
 
-        // Fetch channel stats
+        // Fetch channel statistics (costs 1 quota unit)
         const statsUrl = `https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet&id=${channelId}&key=${apiKey}`;
         const statsRes = await fetch(statsUrl);
-        if (!statsRes.ok) continue;
+        if (!statsRes.ok) {
+          const errBody = await statsRes.text();
+          errors.push(`Stats fetch failed for "${comp.channel_name}": ${errBody}`);
+          continue;
+        }
 
         const statsData = await statsRes.json();
         const channel = statsData.items?.[0];
-        if (!channel) continue;
-
-        const stats = channel.statistics;
-
-        // Fetch recent videos for avg views
-        const videosUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&order=date&type=video&maxResults=10&key=${apiKey}`;
-        const videosRes = await fetch(videosUrl);
-        let avgViews = comp.avg_views_per_video || 0;
-
-        if (videosRes.ok) {
-          const videosData = await videosRes.json();
-          const videoIds = (videosData.items || [])
-            .map((v: { id?: { videoId?: string } }) => v.id?.videoId)
-            .filter(Boolean)
-            .join(",");
-
-          if (videoIds) {
-            const videoStatsUrl = `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${videoIds}&key=${apiKey}`;
-            const videoStatsRes = await fetch(videoStatsUrl);
-            if (videoStatsRes.ok) {
-              const videoStatsData = await videoStatsRes.json();
-              const views = (videoStatsData.items || []).map(
-                (v: { statistics?: { viewCount?: string } }) =>
-                  Number(v.statistics?.viewCount || 0)
-              );
-              if (views.length > 0) {
-                avgViews = Math.round(
-                  views.reduce((a: number, b: number) => a + b, 0) / views.length
-                );
-              }
-            }
-          }
+        if (!channel) {
+          errors.push(`No channel data returned for "${comp.channel_name}" (ID: ${channelId})`);
+          continue;
         }
 
-        // Update competitor record
-        await supabase
+        const stats = channel.statistics;
+        const subscriberCount = Number(stats.subscriberCount) || 0;
+        const videoCount = Number(stats.videoCount) || 0;
+        const viewCount = Number(stats.viewCount) || 0;
+        const avgViewsPerVideo = videoCount > 0 ? Math.round(viewCount / videoCount) : 0;
+
+        // Update competitor record in database
+        const { error: updateError } = await supabase
           .from("competitor_channels")
           .update({
             youtube_channel_id: channelId,
-            subscriber_count: Number(stats.subscriberCount) || comp.subscriber_count,
-            video_count: Number(stats.videoCount) || comp.video_count,
-            total_view_count: Number(stats.viewCount) || comp.total_view_count,
-            avg_views_per_video: avgViews,
+            subscriber_count: subscriberCount,
+            video_count: videoCount,
+            total_view_count: viewCount,
+            avg_views_per_video: avgViewsPerVideo,
             last_synced_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
           })
           .eq("id", comp.id);
 
+        if (updateError) {
+          errors.push(`DB update failed for "${comp.channel_name}": ${updateError.message}`);
+          continue;
+        }
+
         synced++;
-      } catch {
-        // Continue to next competitor on error
+      } catch (e) {
+        errors.push(`Error processing "${comp.channel_name}": ${e instanceof Error ? e.message : String(e)}`);
       }
     }
 
     return new Response(
-      JSON.stringify({ success: true, synced }),
+      JSON.stringify({ success: true, synced, total: competitors.length, errors: errors.length > 0 ? errors : undefined }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: unknown) {
@@ -157,3 +129,38 @@ Deno.serve(async (req) => {
     );
   }
 });
+
+/** Resolve a YouTube channel ID from a URL like youtube.com/@handle or youtube.com/channel/UCxxx */
+async function resolveChannelId(url: string, apiKey: string): Promise<string | null> {
+  // Direct channel ID in URL
+  const channelMatch = url.match(/youtube\.com\/channel\/(UC[a-zA-Z0-9_-]+)/);
+  if (channelMatch) return channelMatch[1];
+
+  // @handle format — use forHandle parameter (costs 1 unit, much cheaper than search)
+  const handleMatch = url.match(/youtube\.com\/@([^/?&]+)/);
+  if (handleMatch) {
+    const handle = handleMatch[1];
+    const res = await fetch(
+      `https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=${encodeURIComponent(handle)}&key=${apiKey}`
+    );
+    if (res.ok) {
+      const data = await res.json();
+      if (data.items?.[0]?.id) return data.items[0].id;
+    }
+  }
+
+  // /c/CustomName or /user/Username format
+  const customMatch = url.match(/youtube\.com\/(?:c|user)\/([^/?&]+)/);
+  if (customMatch) {
+    const username = customMatch[1];
+    const res = await fetch(
+      `https://www.googleapis.com/youtube/v3/channels?part=id&forUsername=${encodeURIComponent(username)}&key=${apiKey}`
+    );
+    if (res.ok) {
+      const data = await res.json();
+      if (data.items?.[0]?.id) return data.items[0].id;
+    }
+  }
+
+  return null;
+}
