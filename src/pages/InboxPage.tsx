@@ -668,6 +668,7 @@ export default function InboxPage() {
           <DialogHeader><DialogTitle>Compose Email</DialogTitle></DialogHeader>
           <div className="space-y-3">
             <div><Label>To *</Label><Input value={composeTo} onChange={(e) => setComposeTo(e.target.value)} placeholder="recipient@example.com" /></div>
+            {composeTo.trim() && <SmartSendSuggestion recipientEmail={composeTo.trim()} />}
             <div><Label>Subject</Label><Input value={composeSubject} onChange={(e) => setComposeSubject(e.target.value)} placeholder="Subject" /></div>
             <div><Label>Body</Label><Textarea value={composeBody} onChange={(e) => setComposeBody(e.target.value)} rows={8} placeholder="Write your email..." /></div>
             <SnippetsWithVariables onInsert={(text) => setComposeBody((prev) => prev + "\n" + text)} />
