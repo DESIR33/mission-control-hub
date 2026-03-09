@@ -565,10 +565,6 @@ export default function ContactProfilePage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {contact && (
-        <EditContactDialog contact={contact} open={editOpen} onOpenChange={setEditOpen} />
-      )}
     </div>
   );
 }
