@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useGenerateThumbnail } from "@/hooks/use-thumbnail-lab";
 import { BestPracticesPanel } from "./BestPracticesPanel";
 import {
   Sparkles, FlaskConical, ChevronDown, ChevronRight,
