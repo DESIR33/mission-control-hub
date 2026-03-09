@@ -282,7 +282,6 @@ Deno.serve(async (req) => {
       const targetVideo = scoredVideos.find(v => v.youtube_video_id === video_id);
       underperformers = targetVideo ? [targetVideo] : [];
     } else {
-      // Sort by health score ascending (worst first), take top N
       scoredVideos.sort((a, b) => a.health_score - b.health_score);
       underperformers = scoredVideos.slice(0, Math.min(max_videos, scoredVideos.length));
     }
@@ -293,7 +292,45 @@ Deno.serve(async (req) => {
       });
     }
 
-    // ── 3b. Fetch competitor videos for top 5 underperformers ────
+    // ── 3b. Fetch transcripts (video_subtitles + video_transcripts) ──
+    const targetIds = underperformers.map(v => v.youtube_video_id);
+
+    const [subtitlesRes, altTransRes, retentionRes, bestPracticesRes, learningsRes] = await Promise.all([
+      supabase.from("video_subtitles").select("youtube_video_id, parsed_segments, language").eq("workspace_id", workspace_id).in("youtube_video_id", targetIds),
+      supabase.from("video_transcripts").select("youtube_video_id, parsed_segments").eq("workspace_id", workspace_id).in("youtube_video_id", targetIds),
+      supabase.from("video_retention_data").select("youtube_video_id, retention_points").eq("workspace_id", workspace_id).in("youtube_video_id", targetIds),
+      supabase.from("assistant_memory").select("content").eq("workspace_id", workspace_id).eq("origin", "best_practice").order("updated_at", { ascending: false }).limit(20),
+      supabase.from("assistant_memory").select("content").eq("workspace_id", workspace_id).in("origin", ["strategy", "youtube"]).order("updated_at", { ascending: false }).limit(10),
+    ]);
+
+    const transcriptMap = new Map<string, string>();
+    for (const t of (subtitlesRes.data || [])) {
+      const segs = (t.parsed_segments as any[]) || [];
+      const text = segs.map((s: any) => s.text).join(" ").substring(0, 3000);
+      transcriptMap.set(t.youtube_video_id, `[${t.language}] ${text}`);
+    }
+    for (const t of (altTransRes.data || [])) {
+      if (transcriptMap.has(t.youtube_video_id)) continue;
+      const segs = (t.parsed_segments as any[]) || [];
+      const text = segs.map((s: any) => s.text).join(" ").substring(0, 3000);
+      if (text) transcriptMap.set(t.youtube_video_id, text);
+    }
+
+    const retentionMap = new Map<string, string>();
+    for (const r of (retentionRes.data || [])) {
+      const points = (r.retention_points as any[]) || [];
+      if (!points.length) continue;
+      const summary = points
+        .filter((_: any, i: number) => i % Math.max(1, Math.floor(points.length / 10)) === 0)
+        .map((p: any) => `${Math.round(p.elapsed_seconds)}s:${p.retention_percent.toFixed(0)}%`)
+        .join(", ");
+      retentionMap.set(r.youtube_video_id, summary);
+    }
+
+    const bestPracticesContext = (bestPracticesRes.data || []).map((m: any) => m.content).join("\n- ");
+    const learningsContext = (learningsRes.data || []).map((m: any) => m.content).join("\n- ");
+
+    // ── 3c. Fetch competitor videos for top 5 underperformers ────
     const competitorDataMap = new Map<string, CompetitorVideo[]>();
     if (competitorEnabled) {
       const topForCompetitor = underperformers.slice(0, 5);
