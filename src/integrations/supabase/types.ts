@@ -1435,6 +1435,71 @@ export type Database = {
           },
         ]
       }
+      competitor_channels: {
+        Row: {
+          avg_ctr: number | null
+          avg_views_per_video: number | null
+          channel_name: string
+          channel_url: string | null
+          created_at: string
+          id: string
+          last_synced_at: string | null
+          notes: string | null
+          primary_niche: string | null
+          subscriber_count: number | null
+          total_view_count: number | null
+          updated_at: string
+          upload_frequency: string | null
+          video_count: number | null
+          workspace_id: string
+          youtube_channel_id: string | null
+        }
+        Insert: {
+          avg_ctr?: number | null
+          avg_views_per_video?: number | null
+          channel_name: string
+          channel_url?: string | null
+          created_at?: string
+          id?: string
+          last_synced_at?: string | null
+          notes?: string | null
+          primary_niche?: string | null
+          subscriber_count?: number | null
+          total_view_count?: number | null
+          updated_at?: string
+          upload_frequency?: string | null
+          video_count?: number | null
+          workspace_id: string
+          youtube_channel_id?: string | null
+        }
+        Update: {
+          avg_ctr?: number | null
+          avg_views_per_video?: number | null
+          channel_name?: string
+          channel_url?: string | null
+          created_at?: string
+          id?: string
+          last_synced_at?: string | null
+          notes?: string | null
+          primary_niche?: string | null
+          subscriber_count?: number | null
+          total_view_count?: number | null
+          updated_at?: string
+          upload_frequency?: string | null
+          video_count?: number | null
+          workspace_id?: string
+          youtube_channel_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitor_channels_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_roles: {
         Row: {
           created_at: string
