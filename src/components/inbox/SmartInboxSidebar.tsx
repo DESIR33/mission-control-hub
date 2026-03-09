@@ -206,7 +206,7 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
               size="sm"
               className="w-full overflow-hidden"
               disabled={createContact.isPending}
-              onClick={() => createContact.mutate({ from_name: email.from_name || "", from_email: email.from_email })}
+              onClick={() => createContact.mutate({ from_name: email.from_name || "", from_email: email.from_email }, dupErrorHandler)}
             >
               {createContact.isPending ? <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin shrink-0" /> : <Plus className="w-3.5 h-3.5 mr-2 shrink-0" />}
               <span className="truncate">Create Contact</span>
