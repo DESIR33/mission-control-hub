@@ -116,9 +116,9 @@ function SessionDetail({ session, onBack }: { session: FluxTrainingSession; onBa
       )}
 
       {session.status === "completed" && session.replicate_model_version && (
-        <Card className="border-green-500/30 bg-green-500/5">
+        <Card className="border-primary/30 bg-primary/5">
           <CardContent className="pt-4">
-            <p className="text-sm text-green-600 dark:text-green-400">
+            <p className="text-sm text-primary">
               ✅ Model trained successfully! Version: <code className="bg-muted px-1 rounded text-xs">{session.replicate_model_version}</code>
             </p>
             <p className="text-xs text-muted-foreground mt-1">
