@@ -1,13 +1,14 @@
 import { useState } from "react";
 import {
   Plus, Trash2, ExternalLink, RefreshCw, Users, Pencil, X, Check,
+  Eye, PlaySquare, TrendingUp,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -41,41 +42,184 @@ function fmtCount(n: number | null | undefined): string {
   return n.toLocaleString();
 }
 
-// ── Manage Competitors Tab ──
-function ManageCompetitorsTab() {
-  const { data: competitors = [], isLoading } = useCompetitorChannels();
-  const deleteCompetitor = useDeleteCompetitor();
-  const updateCompetitor = useUpdateCompetitor();
-  const syncCompetitors = useSyncCompetitors();
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState({ channel_name: "", channel_url: "", primary_niche: "" });
+// ── Competitor Card ──
+function CompetitorCard({
+  comp,
+  onEdit,
+  onDelete,
+}: {
+  comp: CompetitorChannel;
+  onEdit: (comp: CompetitorChannel) => void;
+  onDelete: (id: string) => void;
+}) {
+  return (
+    <div className="rounded-xl border border-border bg-card p-5 flex flex-col gap-4 hover:border-primary/30 transition-colors">
+      {/* Header */}
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3 className="text-sm font-semibold text-foreground truncate">{comp.channel_name}</h3>
+            {comp.primary_niche && (
+              <Badge variant="secondary" className="text-[10px] h-5 shrink-0">{comp.primary_niche}</Badge>
+            )}
+          </div>
+          {comp.youtube_channel_id && (
+            <p className="text-[10px] text-muted-foreground mt-0.5 font-mono truncate">{comp.youtube_channel_id}</p>
+          )}
+        </div>
+        <div className="flex items-center gap-0.5 shrink-0">
+          {comp.channel_url && (
+            <Button variant="ghost" size="icon" className="h-7 w-7" asChild>
+              <a href={comp.channel_url} target="_blank" rel="noreferrer">
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            </Button>
+          )}
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onEdit(comp)}>
+            <Pencil className="w-3.5 h-3.5" />
+          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive">
+                <Trash2 className="w-3.5 h-3.5" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Remove "{comp.channel_name}"?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will remove this competitor and all its tracked stats. This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={() => onDelete(comp.id)}>Remove</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      </div>
 
-  const startEdit = (comp: CompetitorChannel) => {
-    setEditingId(comp.id);
-    setEditForm({
+      {/* Stats Grid */}
+      <div className="grid grid-cols-2 gap-3">
+        <StatCell icon={Users} label="Subscribers" value={fmtCount(comp.subscriber_count)} />
+        <StatCell icon={Eye} label="Total Views" value={fmtCount(comp.total_view_count ? Number(comp.total_view_count) : null)} />
+        <StatCell icon={PlaySquare} label="Videos" value={comp.video_count != null ? comp.video_count.toLocaleString() : "—"} />
+        <StatCell icon={TrendingUp} label="Avg Views" value={fmtCount(comp.avg_views_per_video)} />
+      </div>
+
+      {/* Footer */}
+      {comp.last_synced_at && (
+        <p className="text-[10px] text-muted-foreground">
+          Synced {formatDistanceToNow(new Date(comp.last_synced_at), { addSuffix: true })}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function StatCell({ icon: Icon, label, value }: { icon: any; label: string; value: string }) {
+  return (
+    <div className="flex items-center gap-2">
+      <div className="rounded-lg bg-muted/50 p-1.5">
+        <Icon className="w-3.5 h-3.5 text-muted-foreground" />
+      </div>
+      <div>
+        <p className="text-xs font-bold text-foreground leading-tight">{value}</p>
+        <p className="text-[10px] text-muted-foreground leading-tight">{label}</p>
+      </div>
+    </div>
+  );
+}
+
+// ── Edit Dialog ──
+function EditDialog({
+  comp,
+  open,
+  onClose,
+}: {
+  comp: CompetitorChannel | null;
+  open: boolean;
+  onClose: () => void;
+}) {
+  const updateCompetitor = useUpdateCompetitor();
+  const [form, setForm] = useState({ channel_name: "", channel_url: "", primary_niche: "" });
+
+  // Sync form when comp changes
+  if (comp && form.channel_name === "" && open) {
+    setForm({
       channel_name: comp.channel_name,
       channel_url: comp.channel_url || "",
       primary_niche: comp.primary_niche || "",
     });
-  };
+  }
 
-  const saveEdit = () => {
-    if (!editingId || !editForm.channel_name.trim()) return;
+  const handleSave = () => {
+    if (!comp || !form.channel_name.trim()) return;
     updateCompetitor.mutate(
       {
-        id: editingId,
-        channel_name: editForm.channel_name.trim(),
-        channel_url: editForm.channel_url || null,
-        primary_niche: editForm.primary_niche || null,
+        id: comp.id,
+        channel_name: form.channel_name.trim(),
+        channel_url: form.channel_url || null,
+        primary_niche: form.primary_niche || null,
       },
       {
         onSuccess: () => {
-          setEditingId(null);
+          onClose();
           toast.success("Competitor updated");
         },
       }
     );
   };
+
+  const handleOpenChange = (isOpen: boolean) => {
+    if (!isOpen) {
+      setForm({ channel_name: "", channel_url: "", primary_niche: "" });
+      onClose();
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit Competitor</DialogTitle>
+          <DialogDescription>Update competitor channel details.</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3 py-2">
+          <Input
+            placeholder="Channel name *"
+            value={form.channel_name}
+            onChange={(e) => setForm({ ...form, channel_name: e.target.value })}
+          />
+          <Input
+            placeholder="Channel URL"
+            value={form.channel_url}
+            onChange={(e) => setForm({ ...form, channel_url: e.target.value })}
+          />
+          <Input
+            placeholder="Niche"
+            value={form.primary_niche}
+            onChange={(e) => setForm({ ...form, primary_niche: e.target.value })}
+          />
+        </div>
+        <DialogFooter>
+          <Button variant="ghost" onClick={() => handleOpenChange(false)}>Cancel</Button>
+          <Button onClick={handleSave} disabled={updateCompetitor.isPending}>
+            {updateCompetitor.isPending ? "Saving…" : "Save Changes"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ── Manage Competitors Tab ──
+function ManageCompetitorsTab() {
+  const { data: competitors = [], isLoading } = useCompetitorChannels();
+  const deleteCompetitor = useDeleteCompetitor();
+  const syncCompetitors = useSyncCompetitors();
+  const [editComp, setEditComp] = useState<CompetitorChannel | null>(null);
 
   if (isLoading) {
     return <div className="rounded-xl border border-border bg-card p-6 animate-pulse h-64" />;
@@ -98,8 +242,16 @@ function ManageCompetitorsTab() {
           variant="outline"
           className="gap-1.5"
           onClick={() => syncCompetitors.mutate(undefined, {
-            onSuccess: () => toast.success("Competitor stats synced from YouTube!"),
-            onError: () => toast.error("Sync failed — check YouTube integration"),
+            onSuccess: (data: any) => {
+              const msg = data?.synced != null
+                ? `Synced ${data.synced} of ${data.total} competitors`
+                : "Competitor stats synced!";
+              toast.success(msg);
+              if (data?.errors?.length) {
+                data.errors.forEach((e: string) => toast.error(e, { duration: 6000 }));
+              }
+            },
+            onError: (err: any) => toast.error(err?.message || "Sync failed — check YouTube integration"),
           })}
           disabled={syncCompetitors.isPending}
         >
@@ -108,7 +260,7 @@ function ManageCompetitorsTab() {
         </Button>
       </div>
 
-      {/* Competitor list */}
+      {/* Competitor cards */}
       {competitors.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border p-8 text-center">
           <Users className="w-8 h-8 mx-auto mb-2 text-muted-foreground opacity-50" />
@@ -118,98 +270,19 @@ function ManageCompetitorsTab() {
           </p>
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {competitors.map((comp) => (
-            <div key={comp.id} className="rounded-xl border border-border bg-card p-4">
-              {editingId === comp.id ? (
-                <div className="space-y-3">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    <Input
-                      placeholder="Channel name *"
-                      value={editForm.channel_name}
-                      onChange={(e) => setEditForm({ ...editForm, channel_name: e.target.value })}
-                    />
-                    <Input
-                      placeholder="Channel URL"
-                      value={editForm.channel_url}
-                      onChange={(e) => setEditForm({ ...editForm, channel_url: e.target.value })}
-                    />
-                    <Input
-                      placeholder="Niche"
-                      value={editForm.primary_niche}
-                      onChange={(e) => setEditForm({ ...editForm, primary_niche: e.target.value })}
-                    />
-                  </div>
-                  <div className="flex gap-2 justify-end">
-                    <Button size="sm" variant="ghost" onClick={() => setEditingId(null)}>
-                      <X className="w-3.5 h-3.5 mr-1" /> Cancel
-                    </Button>
-                    <Button size="sm" onClick={saveEdit} disabled={updateCompetitor.isPending}>
-                      <Check className="w-3.5 h-3.5 mr-1" /> Save
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium text-foreground">{comp.channel_name}</p>
-                      {comp.primary_niche && (
-                        <Badge variant="secondary" className="text-[10px] h-5">{comp.primary_niche}</Badge>
-                      )}
-                      {comp.youtube_channel_id && (
-                        <Badge variant="outline" className="text-[10px] h-5 text-muted-foreground">ID linked</Badge>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
-                      {comp.subscriber_count != null && <span>{fmtCount(comp.subscriber_count)} subscribers</span>}
-                      {comp.video_count != null && <span>{comp.video_count} videos</span>}
-                      {comp.total_view_count != null && <span>{fmtCount(Number(comp.total_view_count))} views</span>}
-                      {comp.avg_views_per_video != null && <span>~{fmtCount(comp.avg_views_per_video)}/video</span>}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-1">
-                    {comp.channel_url && (
-                      <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-                        <a href={comp.channel_url} target="_blank" rel="noreferrer">
-                          <ExternalLink className="w-3.5 h-3.5" />
-                        </a>
-                      </Button>
-                    )}
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startEdit(comp)}>
-                      <Pencil className="w-3.5 h-3.5" />
-                    </Button>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive">
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Remove "{comp.channel_name}"?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This will remove this competitor and all its tracked stats. This action cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => deleteCompetitor.mutate(comp.id, { onSuccess: () => toast.success("Competitor removed") })}
-                          >
-                            Remove
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
-                </div>
-              )}
-            </div>
+            <CompetitorCard
+              key={comp.id}
+              comp={comp}
+              onEdit={(c) => setEditComp(c)}
+              onDelete={(id) => deleteCompetitor.mutate(id, { onSuccess: () => toast.success("Competitor removed") })}
+            />
           ))}
         </div>
       )}
+
+      <EditDialog comp={editComp} open={!!editComp} onClose={() => setEditComp(null)} />
     </div>
   );
 }
@@ -273,6 +346,7 @@ export function CompetitorIntelSection() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Add Competitor Channel</DialogTitle>
+            <DialogDescription>Track a competitor's YouTube channel to benchmark against.</DialogDescription>
           </DialogHeader>
           <div className="space-y-3 py-2">
             <div className="grid grid-cols-2 gap-2">
@@ -317,9 +391,7 @@ export function CompetitorIntelSection() {
             </p>
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setDialogOpen(false)}>
-              Cancel
-            </Button>
+            <Button variant="ghost" onClick={() => setDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleAdd} disabled={createCompetitor.isPending}>
               {createCompetitor.isPending ? "Adding…" : "Add Competitor"}
             </Button>

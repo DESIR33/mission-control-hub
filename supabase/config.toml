@@ -98,3 +98,6 @@ verify_jwt = false
 
 [functions.x-list-scanner]
 verify_jwt = false
+
+[functions.sync-competitor-stats]
+verify_jwt = false
