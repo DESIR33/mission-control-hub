@@ -241,12 +241,14 @@ function FeedbackGallery() {
 }
 
 export function FluxTrainingContent() {
-  const { data: sessions = [], isLoading } = useFluxSessions();
+  const { data: sessions = [], isLoading, error, isPending, isFetching, isError } = useFluxSessions();
   const createSession = useCreateFluxSession();
   const [selectedSession, setSelectedSession] = useState<FluxTrainingSession | null>(null);
   const [newName, setNewName] = useState("");
   const [triggerWord, setTriggerWord] = useState("MYFACE");
   const [showCreate, setShowCreate] = useState(false);
+
+  console.log("[FluxTraining] isLoading:", isLoading, "isPending:", isPending, "isFetching:", isFetching, "isError:", isError, "error:", error, "sessions:", sessions.length);
 
   if (selectedSession) {
     const freshSession = sessions.find(s => s.id === selectedSession.id) || selectedSession;
