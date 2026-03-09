@@ -372,6 +372,12 @@ export function CompetitorIntelSection() {
                 onChange={(e) => setForm({ ...form, channel_url: e.target.value })}
               />
               <Input
+                className="col-span-2"
+                placeholder="YouTube Channel ID (e.g. UCxxxx…)"
+                value={form.youtube_channel_id}
+                onChange={(e) => setForm({ ...form, youtube_channel_id: e.target.value })}
+              />
+              <Input
                 placeholder="Subscribers"
                 type="number"
                 value={form.subscriber_count}
