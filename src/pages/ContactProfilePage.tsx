@@ -107,6 +107,7 @@ export default function ContactProfilePage() {
   const { toast } = useToast();
 
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
 
   const { data: contacts = [], isLoading } = useContacts();
   const contact = contacts.find((c) => c.id === contactId) ?? null;
