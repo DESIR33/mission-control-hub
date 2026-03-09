@@ -389,13 +389,21 @@ Deno.serve(async (req) => {
                   type: "object",
                   properties: {
                     concept: { type: "string", description: "Thumbnail concept description" },
-                    text_overlay: { type: "string", description: "Text to show on thumbnail" },
+                    text_overlay: { type: "string", description: "Bold text to show on thumbnail (3-5 words max, ALL CAPS)" },
                     emotional_hook: { type: "string", description: "What emotion this targets" },
                     composition: { type: "string", description: "Layout and visual composition" },
+                    nano_banana_prompt: {
+                      type: "string",
+                      description: "Detailed, specific Nano Banana 2 / SDXL image generation prompt for the BACKGROUND SCENE ONLY (the person/selfie will be composited separately). Must describe: dramatic cinematic background, lighting, color grading, visual effects (explosions, particles, bokeh, lens flares), product/icon placement, mood. Use photorealistic style keywords. Example: 'cinematic dark moody background with fiery orange explosion and sparks, volumetric lighting, lens flare, dramatic smoke clouds, product icons floating in air, 8k uhd, photorealistic, shallow depth of field, color graded teal and orange'. Do NOT include any person or face in this prompt."
+                    },
+                    text_style: {
+                      type: "string",
+                      description: "Describe how the text overlay should look: font style (bold sans-serif, impact), color (white with black outline, red with white outline), size (large/massive), position (top, center), effects (drop shadow, glow, 3D). Example: 'Massive bold Impact font, white text with thick black outline and red highlight on key word, positioned at top center, slight 3D extrusion effect'"
+                    },
                   },
-                  required: ["concept", "text_overlay", "emotional_hook", "composition"],
+                  required: ["concept", "text_overlay", "emotional_hook", "composition", "nano_banana_prompt", "text_style"],
                 },
-                description: "2-3 thumbnail concepts",
+                description: "2-3 thumbnail concepts with detailed Nano Banana 2 prompts",
               },
               competitor_insights: {
                 type: "string",
