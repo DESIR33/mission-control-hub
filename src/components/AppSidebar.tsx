@@ -92,7 +92,7 @@ export function AppSidebar({ headerless }: AppSidebarProps) {
                         shimmerDuration="3s"
                         borderRadius="6px"
                         background="hsl(43, 30%, 12%)"
-                        className="w-full flex items-center gap-3 px-3 py-2 text-sm font-medium text-sidebar-primary border-none shadow-none"
+                        className="w-full !flex items-center gap-3 px-3 py-2 text-sm font-medium !text-white border-none shadow-none"
                       >
                         {inner}
                       </ShimmerButton>
@@ -138,14 +138,14 @@ export function AppSidebar({ headerless }: AppSidebarProps) {
                   
                   if (active) {
                     return (
-                      <div key={child.to} className="pl-7 pr-3 py-0.5">
+                      <div key={child.to} className="pl-4 pr-3 py-0.5">
                         <ShimmerButton
                           shimmerColor="hsl(43, 80%, 50%)"
                           shimmerSize="0.05em"
                           shimmerDuration="3s"
                           borderRadius="6px"
                           background="hsl(43, 30%, 12%)"
-                          className="w-full flex items-center gap-3 px-3 py-1.5 text-sm font-medium text-sidebar-primary border-none shadow-none"
+                          className="w-full !flex items-center gap-3 pl-3 pr-3 py-1.5 text-sm font-medium !text-white border-none shadow-none"
                           onClick={() => navigate(child.to)}
                         >
                           <child.icon className="w-3.5 h-3.5 shrink-0" />
@@ -198,7 +198,7 @@ export function AppSidebar({ headerless }: AppSidebarProps) {
                     shimmerDuration="3s"
                     borderRadius="6px"
                     background="hsl(43, 30%, 12%)"
-                    className="w-full flex items-center gap-3 px-3 py-2 text-sm font-medium text-sidebar-primary border-none shadow-none"
+                    className="w-full !flex items-center gap-3 px-3 py-2 text-sm font-medium !text-white border-none shadow-none"
                   >
                     {inner}
                   </ShimmerButton>
