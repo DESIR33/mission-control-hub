@@ -573,10 +573,11 @@ export default function CompanyProfilePage() {
         {/* Main content tabs */}
         <div className="lg:col-span-2">
           <Tabs defaultValue="contacts">
-            <TabsList>
+            <TabsList className="flex-wrap h-auto gap-1">
               <TabsTrigger value="contacts">Contacts ({companyContacts.length})</TabsTrigger>
               <TabsTrigger value="emails">Emails ({companyEmails.length})</TabsTrigger>
               <TabsTrigger value="videos">Videos ({companyVideos.length + linkedYTVideos.length})</TabsTrigger>
+              <TabsTrigger value="intel">Intel</TabsTrigger>
               <TabsTrigger value="timeline">Timeline</TabsTrigger>
             </TabsList>
 
