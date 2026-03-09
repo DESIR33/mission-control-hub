@@ -201,6 +201,11 @@ function EditDialog({
             onChange={(e) => setForm({ ...form, channel_url: e.target.value })}
           />
           <Input
+            placeholder="YouTube Channel ID (e.g. UCxxxx…)"
+            value={form.youtube_channel_id}
+            onChange={(e) => setForm({ ...form, youtube_channel_id: e.target.value })}
+          />
+          <Input
             placeholder="Niche"
             value={form.primary_niche}
             onChange={(e) => setForm({ ...form, primary_niche: e.target.value })}
