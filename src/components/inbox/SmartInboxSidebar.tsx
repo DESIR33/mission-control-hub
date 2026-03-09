@@ -24,6 +24,8 @@ import { ConversationIntelligence } from "@/components/inbox/ConversationIntelli
 import { TeamCommentsPanel } from "@/components/inbox/TeamCommentsPanel";
 import { SharedDraftsPanel } from "@/components/inbox/SharedDraftsPanel";
 import { EngagementDashboard } from "@/components/inbox/EngagementDashboard";
+import { EmailDealSuggestions } from "@/components/inbox/EmailDealSuggestions";
+import { SmartReplyComposer } from "@/components/inbox/SmartReplyComposer";
 import { useOutlookSend } from "@/hooks/use-smart-inbox";
 import type { SmartEmail } from "@/hooks/use-smart-inbox";
 
