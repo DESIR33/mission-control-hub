@@ -12,15 +12,20 @@ import {
   AlertCircleIcon,
   CheckSquareIcon,
   XIcon,
+  ClockIcon,
 } from "lucide-react";
 import type { SmartEmail, EmailPriority } from "@/hooks/use-smart-inbox";
 import { useDeleteEmail, useMarkRead, useTogglePin, useMoveEmail } from "@/hooks/use-smart-inbox";
+import { useSnoozeEmail, getSnoozeOptions } from "@/hooks/use-snooze";
 import { EmailCategoryBadge } from "./EmailCategoryBadge";
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuSeparator,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { Button } from "@/components/ui/button";
@@ -77,6 +82,8 @@ export default function EmailList({
   const markRead = useMarkRead();
   const togglePin = useTogglePin();
   const moveEmail = useMoveEmail();
+  const snoozeEmail = useSnoozeEmail();
+  const snoozeOptions = getSnoozeOptions();
 
   const toggleSelect = useCallback((id: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -418,6 +425,28 @@ export default function EmailList({
                   <FolderIcon className="h-4 w-4 mr-2" />
                   Move to inbox
                 </ContextMenuItem>
+
+                <ContextMenuSub>
+                  <ContextMenuSubTrigger>
+                    <ClockIcon className="h-4 w-4 mr-2" />
+                    Snooze
+                  </ContextMenuSubTrigger>
+                  <ContextMenuSubContent className="w-48">
+                    {snoozeOptions.map((opt) => (
+                      <ContextMenuItem
+                        key={opt.label}
+                        onClick={() => {
+                          snoozeEmail.mutate(
+                            { id: email.id, snoozed_until: opt.getValue().toISOString() },
+                            { onSuccess: () => toast.success(`Snoozed: ${opt.label}`) }
+                          );
+                        }}
+                      >
+                        {opt.label}
+                      </ContextMenuItem>
+                    ))}
+                  </ContextMenuSubContent>
+                </ContextMenuSub>
 
                 <ContextMenuSeparator />
 
