@@ -70,22 +70,42 @@ export function AppSidebar({ headerless }: AppSidebarProps) {
                 key={item.to + item.label}
                 to={item.to}
                 end={item.to === "/"}
-                className={({ isActive }) =>
-                  cn(
-                    "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
-                    isActive
-                      ? "bg-sidebar-accent text-sidebar-primary"
-                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                  )
-                }
+                className="block"
               >
-                <item.icon className="w-4 h-4 shrink-0" />
-                <span className="truncate flex-1">{item.label}</span>
-                {showBadge && (
-                  <span className="ml-auto shrink-0 min-w-[18px] h-[18px] rounded-full bg-primary text-primary-foreground text-xs font-semibold flex items-center justify-center px-1">
-                    {unreadCount > 99 ? "99+" : unreadCount}
-                  </span>
-                )}
+                {({ isActive }) => {
+                  const inner = (
+                    <>
+                      <item.icon className="w-4 h-4 shrink-0" />
+                      <span className="truncate flex-1">{item.label}</span>
+                      {showBadge && (
+                        <span className="ml-auto shrink-0 min-w-[18px] h-[18px] rounded-full bg-primary text-primary-foreground text-xs font-semibold flex items-center justify-center px-1">
+                          {unreadCount > 99 ? "99+" : unreadCount}
+                        </span>
+                      )}
+                    </>
+                  );
+
+                  if (isActive) {
+                    return (
+                      <ShimmerButton
+                        shimmerColor="hsl(43, 80%, 50%)"
+                        shimmerSize="0.05em"
+                        shimmerDuration="3s"
+                        borderRadius="6px"
+                        background="hsl(43, 30%, 12%)"
+                        className="w-full flex items-center gap-3 px-3 py-2 text-sm font-medium text-sidebar-primary border-none shadow-none"
+                      >
+                        {inner}
+                      </ShimmerButton>
+                    );
+                  }
+
+                  return (
+                    <span className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
+                      {inner}
+                    </span>
+                  );
+                }}
               </RouterNavLink>
             );
           }
