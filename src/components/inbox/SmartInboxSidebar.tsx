@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   User,
   Handshake,
@@ -11,6 +12,16 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { SmartFollowUpQueue } from "@/components/inbox/SmartFollowUpQueue";
 import { EmailToDealAutomation } from "@/components/inbox/EmailToDealAutomation";
 import { EmailToDealPipeline } from "@/components/inbox/EmailToDealPipeline";
@@ -68,6 +79,23 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
   const outlookSend = useOutlookSend();
   const createContact = useCreateContactFromEmail();
   const createCompany = useCreateCompanyFromEmail();
+  const [dupDialog, setDupDialog] = useState<{ type: "contact" | "company"; existingName: string } | null>(null);
+
+  const dupErrorHandler = {
+    onError: (e: any) => {
+      if (e.duplicate) setDupDialog({ type: e.duplicate.type, existingName: e.duplicate.existingName });
+    },
+  };
+
+  const handleOverride = () => {
+    if (!dupDialog || !email) return;
+    if (dupDialog.type === "contact") {
+      createContact.mutate({ from_name: email.from_name || "", from_email: email.from_email, force: true });
+    } else {
+      createCompany.mutate({ from_email: email.from_email, from_name: email.from_name || "", force: true });
+    }
+    setDupDialog(null);
+  };
 
   if (!email) {
     return (
@@ -178,7 +206,7 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
               size="sm"
               className="w-full overflow-hidden"
               disabled={createContact.isPending}
-              onClick={() => createContact.mutate({ from_name: email.from_name || "", from_email: email.from_email })}
+              onClick={() => createContact.mutate({ from_name: email.from_name || "", from_email: email.from_email }, dupErrorHandler)}
             >
               {createContact.isPending ? <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin shrink-0" /> : <Plus className="w-3.5 h-3.5 mr-2 shrink-0" />}
               <span className="truncate">Create Contact</span>
@@ -188,7 +216,7 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
               size="sm"
               className="w-full overflow-hidden"
               disabled={createCompany.isPending}
-              onClick={() => createCompany.mutate({ from_email: email.from_email, from_name: email.from_name || "" })}
+              onClick={() => createCompany.mutate({ from_email: email.from_email, from_name: email.from_name || "" }, dupErrorHandler)}
             >
               {createCompany.isPending ? <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin shrink-0" /> : <Building2 className="w-3.5 h-3.5 mr-2 shrink-0" />}
               <span className="truncate">Create Company</span>
@@ -237,7 +265,7 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
                 size="sm"
                 className="w-full justify-start overflow-hidden"
                 disabled={createContact.isPending}
-                onClick={() => createContact.mutate({ from_name: email.from_name || "", from_email: email.from_email })}
+                onClick={() => createContact.mutate({ from_name: email.from_name || "", from_email: email.from_email }, dupErrorHandler)}
               >
                 {createContact.isPending ? <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin shrink-0" /> : <Plus className="w-3.5 h-3.5 mr-2 shrink-0" />}
                 <span className="truncate">Create Contact</span>
@@ -247,7 +275,7 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
                 size="sm"
                 className="w-full justify-start overflow-hidden"
                 disabled={createCompany.isPending}
-                onClick={() => createCompany.mutate({ from_email: email.from_email, from_name: email.from_name || "" })}
+                onClick={() => createCompany.mutate({ from_email: email.from_email, from_name: email.from_name || "" }, dupErrorHandler)}
               >
                 {createCompany.isPending ? <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin shrink-0" /> : <Building2 className="w-3.5 h-3.5 mr-2 shrink-0" />}
                 <span className="truncate">Create Company</span>
@@ -319,6 +347,24 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
 
       {/* Email Templates */}
       <EmailTemplateManager />
+
+      {/* Duplicate Override Dialog */}
+      <AlertDialog open={!!dupDialog} onOpenChange={(open) => !open && setDupDialog(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Duplicate Found</AlertDialogTitle>
+            <AlertDialogDescription>
+              A {dupDialog?.type} named <strong>"{dupDialog?.existingName}"</strong> already exists with this email domain. Would you like to update the existing record instead?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleOverride}>
+              Update Existing
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

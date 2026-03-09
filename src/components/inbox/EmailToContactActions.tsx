@@ -1,5 +1,21 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { UserPlus, Building2, Loader2 } from "lucide-react";
 import { useCreateContactFromEmail, useCreateCompanyFromEmail } from "@/hooks/use-email-to-contact";
 
@@ -13,23 +29,83 @@ export function EmailToContactActions({ fromName, fromEmail }: EmailToContactAct
   const createCompany = useCreateCompanyFromEmail();
   const isPending = createContact.isPending || createCompany.isPending;
 
+  const [dupDialog, setDupDialog] = useState<{
+    type: "contact" | "company";
+    existingName: string;
+  } | null>(null);
+
+  const handleCreateContact = () => {
+    createContact.mutate(
+      { from_name: fromName, from_email: fromEmail },
+      {
+        onError: (e: any) => {
+          if (e.duplicate) {
+            setDupDialog({ type: "contact", existingName: e.duplicate.existingName });
+          }
+        },
+      }
+    );
+  };
+
+  const handleCreateCompany = () => {
+    createCompany.mutate(
+      { from_email: fromEmail, from_name: fromName },
+      {
+        onError: (e: any) => {
+          if (e.duplicate) {
+            setDupDialog({ type: "company", existingName: e.duplicate.existingName });
+          }
+        },
+      }
+    );
+  };
+
+  const handleOverride = () => {
+    if (!dupDialog) return;
+    if (dupDialog.type === "contact") {
+      createContact.mutate({ from_name: fromName, from_email: fromEmail, force: true });
+    } else {
+      createCompany.mutate({ from_email: fromEmail, from_name: fromName, force: true });
+    }
+    setDupDialog(null);
+  };
+
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button size="sm" variant="ghost" title="Create from email" disabled={isPending}>
-          {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => createContact.mutate({ from_name: fromName, from_email: fromEmail })}>
-          <UserPlus className="h-4 w-4 mr-2" />
-          Create Contact
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => createCompany.mutate({ from_email: fromEmail, from_name: fromName })}>
-          <Building2 className="h-4 w-4 mr-2" />
-          Create Company
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button size="sm" variant="ghost" title="Create from email" disabled={isPending}>
+            {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={handleCreateContact}>
+            <UserPlus className="h-4 w-4 mr-2" />
+            Create Contact
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleCreateCompany}>
+            <Building2 className="h-4 w-4 mr-2" />
+            Create Company
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <AlertDialog open={!!dupDialog} onOpenChange={(open) => !open && setDupDialog(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Duplicate Found</AlertDialogTitle>
+            <AlertDialogDescription>
+              A {dupDialog?.type} named <strong>"{dupDialog?.existingName}"</strong> already exists with this email domain. Would you like to update the existing record instead?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleOverride}>
+              Update Existing
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
