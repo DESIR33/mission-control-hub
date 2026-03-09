@@ -80,6 +80,7 @@ export default function EmailPreview({
           <Button size="sm" variant="ghost" onClick={onDelete} title="Delete (#)">
             <Trash2Icon className="h-4 w-4" />
           </Button>
+          <MuteConversationButton email={email} />
           <InstantIntroDialog email={email} />
           {email && (
             <>
