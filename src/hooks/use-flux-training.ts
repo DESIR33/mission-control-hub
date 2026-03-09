@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { toast } from "sonner";
 
-const query = (table: string) => (supabase as any).from(table);
+const query = (table: string) => supabase.from(table as any);
 
 export interface FluxTrainingSession {
   id: string;
