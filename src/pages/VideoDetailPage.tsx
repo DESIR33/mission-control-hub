@@ -211,6 +211,9 @@ export default function VideoDetailPage() {
               ))}
             </ul>
           </div>
+
+          {/* Transcript / SRT Upload */}
+          {youtubeVideoId && <SubtitleUploader youtubeVideoId={youtubeVideoId} videoTitle={detail?.title || ""} />}
         </TabsContent>
 
         {/* Performance */}
