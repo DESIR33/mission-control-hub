@@ -141,7 +141,7 @@ function SessionDetail({ session, onBack }: { session: FluxTrainingSession; onBa
           <div
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleDrop}
-            className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary/50 transition-colors cursor-pointer"
+            className="border-2 border-dashed border-border rounded-lg p-4 sm:p-8 text-center hover:border-primary/50 transition-colors cursor-pointer"
             onClick={() => document.getElementById("training-file-input")?.click()}
           >
             <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
