@@ -37,6 +37,7 @@ const VideoDetailPage = lazy(() => import("./pages/VideoDetailPage"));
 const WeeklySprintPage = lazy(() => import("./pages/WeeklySprintPage"));
 const CompanyProfilePage = lazy(() => import("./pages/CompanyProfilePage"));
 const ContactProfilePage = lazy(() => import("./pages/ContactProfilePage"));
+const EditContactPage = lazy(() => import("./pages/EditContactPage"));
 const NetworkPage = lazy(() => import("./pages/NetworkPage"));
 const YouTubeHubPage = lazy(() => import("./pages/YouTubeHubPage").then(m => ({ default: m.default })));
 const GrowthPage = lazy(() => import("./pages/YouTubeHubPage").then(m => ({ default: m.GrowthPage })));
