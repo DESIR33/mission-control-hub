@@ -189,16 +189,134 @@ function TagsProposalContent({ content }: { content: Record<string, any> }) {
 }
 
 function ThumbnailProposalContent({ content }: { content: Record<string, any> }) {
+  const generateThumbnail = useGenerateThumbnail();
+  const [selfieUrl, setSelfieUrl] = useState<string | null>(null);
+  const [generatedImages, setGeneratedImages] = useState<Record<number, string>>({});
+  const [generatingIdx, setGeneratingIdx] = useState<number | null>(null);
+
+  const handleSelfieUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    setSelfieUrl(url);
+    toast.success("Selfie uploaded — it will be composited with generated backgrounds");
+  };
+
+  const handleGenerate = async (prompt: string, idx: number) => {
+    setGeneratingIdx(idx);
+    try {
+      const result = await generateThumbnail.mutateAsync({ prompt, model: "nano-banana-2" });
+      if (result?.image_url) {
+        setGeneratedImages(prev => ({ ...prev, [idx]: result.image_url }));
+        toast.success("Thumbnail background generated!");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Generation failed");
+    } finally {
+      setGeneratingIdx(null);
+    }
+  };
+
   return (
-    <div className="space-y-2">
-      {(content.thumbnail_concepts || []).map((concept: any, i: number) => (
-        <div key={i} className="rounded-lg border border-border bg-muted/30 p-2.5 space-y-1">
-          <p className="text-sm font-medium text-foreground">{concept.concept}</p>
-          <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
-            <div><span className="font-medium text-foreground">Text:</span> {concept.text_overlay}</div>
-            <div><span className="font-medium text-foreground">Emotion:</span> {concept.emotional_hook}</div>
-            <div><span className="font-medium text-foreground">Layout:</span> {concept.composition}</div>
+    <div className="space-y-4">
+      {/* Selfie Upload */}
+      <div className="rounded-lg border border-dashed border-border bg-muted/20 p-3">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <Image className="w-4 h-4 text-muted-foreground" />
+            <span className="text-xs font-medium text-foreground">Your Selfie / Face Photo</span>
           </div>
+          <label className="cursor-pointer">
+            <input type="file" accept="image/*" className="hidden" onChange={handleSelfieUpload} />
+            <Badge variant="outline" className="text-xs cursor-pointer hover:bg-accent">
+              {selfieUrl ? "Change Photo" : "Upload Photo"}
+            </Badge>
+          </label>
+          {selfieUrl && (
+            <img src={selfieUrl} alt="Selfie" className="w-8 h-8 rounded-full object-cover border border-border" />
+          )}
+        </div>
+        <p className="text-[10px] text-muted-foreground mt-1">
+          Upload your face photo to composite with generated thumbnail backgrounds. The AI generates the background — you add yourself in post.
+        </p>
+      </div>
+
+      {/* Thumbnail Concepts */}
+      {(content.thumbnail_concepts || []).map((concept: any, i: number) => (
+        <div key={i} className="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
+          {/* Concept Header */}
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <p className="text-sm font-semibold text-foreground">{concept.concept}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                <span className="font-medium text-foreground">Emotion:</span> {concept.emotional_hook} · 
+                <span className="font-medium text-foreground ml-1">Layout:</span> {concept.composition}
+              </p>
+            </div>
+            <Badge variant="secondary" className="text-[10px] shrink-0">Concept {i + 1}</Badge>
+          </div>
+
+          {/* Text Overlay */}
+          <div className="rounded-md bg-card border border-border p-2">
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Text Overlay</p>
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-base font-black text-foreground tracking-tight">{concept.text_overlay}</p>
+              <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0" onClick={() => copyToClipboard(concept.text_overlay)}>
+                <Copy className="w-3 h-3" />
+              </Button>
+            </div>
+            {concept.text_style && (
+              <p className="text-[10px] text-muted-foreground mt-1 italic">{concept.text_style}</p>
+            )}
+          </div>
+
+          {/* Nano Banana 2 Prompt */}
+          {concept.nano_banana_prompt && (
+            <div className="rounded-md bg-card border border-border p-2 space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Nano Banana 2 Prompt</p>
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copyToClipboard(concept.nano_banana_prompt)}>
+                  <Copy className="w-3 h-3" />
+                </Button>
+              </div>
+              <p className="text-xs text-foreground leading-relaxed font-mono bg-muted/50 rounded p-2">
+                {concept.nano_banana_prompt}
+              </p>
+              <Button
+                size="sm"
+                variant="secondary"
+                className="h-7 text-xs gap-1.5 w-full"
+                disabled={generatingIdx === i}
+                onClick={() => handleGenerate(concept.nano_banana_prompt, i)}
+              >
+                {generatingIdx === i ? (
+                  <><Loader2 className="w-3 h-3 animate-spin" /> Generating…</>
+                ) : (
+                  <><Sparkles className="w-3 h-3" /> Generate with Replicate</>
+                )}
+              </Button>
+            </div>
+          )}
+
+          {/* Generated Image Preview */}
+          {generatedImages[i] && (
+            <div className="rounded-md overflow-hidden border border-border relative">
+              <img src={generatedImages[i]} alt={`Generated concept ${i + 1}`} className="w-full aspect-video object-cover" />
+              {selfieUrl && (
+                <div className="absolute bottom-2 right-2 bg-black/60 rounded px-2 py-1">
+                  <p className="text-[10px] text-white">Composite your selfie in your editor</p>
+                </div>
+              )}
+              <div className="p-2 bg-card flex items-center gap-2">
+                <Button variant="ghost" size="sm" className="h-6 text-xs" onClick={() => copyToClipboard(generatedImages[i])}>
+                  <Copy className="w-3 h-3 mr-1" /> Copy URL
+                </Button>
+                <a href={generatedImages[i]} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline ml-auto">
+                  Open Full Size ↗
+                </a>
+              </div>
+            </div>
+          )}
         </div>
       ))}
     </div>
