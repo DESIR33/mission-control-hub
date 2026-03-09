@@ -42,6 +42,7 @@ interface InboxCommandBarProps {
   onMoveToJunk: () => void;
   onMoveToInbox: () => void;
   onFocusSearch: () => void;
+  onMute?: () => void;
   hasSelectedEmail: boolean;
 }
 
