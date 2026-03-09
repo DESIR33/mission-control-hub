@@ -282,7 +282,6 @@ Deno.serve(async (req) => {
       const targetVideo = scoredVideos.find(v => v.youtube_video_id === video_id);
       underperformers = targetVideo ? [targetVideo] : [];
     } else {
-      // Sort by health score ascending (worst first), take top N
       scoredVideos.sort((a, b) => a.health_score - b.health_score);
       underperformers = scoredVideos.slice(0, Math.min(max_videos, scoredVideos.length));
     }
@@ -293,7 +292,45 @@ Deno.serve(async (req) => {
       });
     }
 
-    // ── 3b. Fetch competitor videos for top 5 underperformers ────
+    // ── 3b. Fetch transcripts (video_subtitles + video_transcripts) ──
+    const targetIds = underperformers.map(v => v.youtube_video_id);
+
+    const [subtitlesRes, altTransRes, retentionRes, bestPracticesRes, learningsRes] = await Promise.all([
+      supabase.from("video_subtitles").select("youtube_video_id, parsed_segments, language").eq("workspace_id", workspace_id).in("youtube_video_id", targetIds),
+      supabase.from("video_transcripts").select("youtube_video_id, parsed_segments").eq("workspace_id", workspace_id).in("youtube_video_id", targetIds),
+      supabase.from("video_retention_data").select("youtube_video_id, retention_points").eq("workspace_id", workspace_id).in("youtube_video_id", targetIds),
+      supabase.from("assistant_memory").select("content").eq("workspace_id", workspace_id).eq("origin", "best_practice").order("updated_at", { ascending: false }).limit(20),
+      supabase.from("assistant_memory").select("content").eq("workspace_id", workspace_id).in("origin", ["strategy", "youtube"]).order("updated_at", { ascending: false }).limit(10),
+    ]);
+
+    const transcriptMap = new Map<string, string>();
+    for (const t of (subtitlesRes.data || [])) {
+      const segs = (t.parsed_segments as any[]) || [];
+      const text = segs.map((s: any) => s.text).join(" ").substring(0, 3000);
+      transcriptMap.set(t.youtube_video_id, `[${t.language}] ${text}`);
+    }
+    for (const t of (altTransRes.data || [])) {
+      if (transcriptMap.has(t.youtube_video_id)) continue;
+      const segs = (t.parsed_segments as any[]) || [];
+      const text = segs.map((s: any) => s.text).join(" ").substring(0, 3000);
+      if (text) transcriptMap.set(t.youtube_video_id, text);
+    }
+
+    const retentionMap = new Map<string, string>();
+    for (const r of (retentionRes.data || [])) {
+      const points = (r.retention_points as any[]) || [];
+      if (!points.length) continue;
+      const summary = points
+        .filter((_: any, i: number) => i % Math.max(1, Math.floor(points.length / 10)) === 0)
+        .map((p: any) => `${Math.round(p.elapsed_seconds)}s:${p.retention_percent.toFixed(0)}%`)
+        .join(", ");
+      retentionMap.set(r.youtube_video_id, summary);
+    }
+
+    const bestPracticesContext = (bestPracticesRes.data || []).map((m: any) => m.content).join("\n- ");
+    const learningsContext = (learningsRes.data || []).map((m: any) => m.content).join("\n- ");
+
+    // ── 3c. Fetch competitor videos for top 5 underperformers ────
     const competitorDataMap = new Map<string, CompetitorVideo[]>();
     if (competitorEnabled) {
       const topForCompetitor = underperformers.slice(0, 5);
@@ -381,6 +418,14 @@ Deno.serve(async (req) => {
 - Include your competitor analysis in the competitor_insights field.`
       : "";
 
+    const bestPracticesSection = bestPracticesContext
+      ? `\n\nCHANNEL BEST PRACTICES (learned from past data — follow these patterns):\n- ${bestPracticesContext}`
+      : "";
+
+    const learningsSection = learningsContext
+      ? `\n\nCHANNEL STRATEGY & INSIGHTS:\n- ${learningsContext}`
+      : "";
+
     const systemPrompt = `You are a YouTube optimization expert. You analyze video performance data and provide specific, actionable optimization recommendations.
 
 RULES:
@@ -390,8 +435,13 @@ RULES:
 - Tags should cover broad + niche keywords, competitor tags, and related terms.
 - Thumbnail concepts should prioritize high contrast, emotional faces, minimal text (3-5 words max), and curiosity gaps.
 - Consider the video's age — older videos can be revived with metadata updates.
+- When a transcript is provided, use the actual video content to craft more relevant titles, descriptions, and tags that accurately reflect what's discussed.
+- When retention data is provided, identify drop-off points and suggest content structure improvements.
+- When best practices are provided, ensure your recommendations align with what has been proven to work on this specific channel.
 - For each video, call create_video_optimization with your complete analysis.
 ${competitorPromptSection}
+${bestPracticesSection}
+${learningsSection}
 
 CHANNEL CONTEXT:
 - Channel average 30-day views: ${Math.round(channelAvgViews)}
@@ -409,6 +459,16 @@ CHANNEL CONTEXT:
         const compVideos = competitorDataMap.get(v.youtube_video_id);
         const competitorSection = compVideos?.length
           ? `\nCompetitor Videos on Similar Topics:\n${compVideos.map((cv) => `  - "${cv.title}" by ${cv.channelTitle} — ${cv.viewCount.toLocaleString()} views (published ${cv.publishedAt?.split("T")[0] || "unknown"})`).join("\n")}`
+          : "";
+
+        const transcript = transcriptMap.get(v.youtube_video_id);
+        const transcriptSection = transcript
+          ? `\nTranscript (excerpt):\n${transcript}`
+          : "";
+
+        const retention = retentionMap.get(v.youtube_video_id);
+        const retentionSection = retention
+          ? `\nRetention Curve (time:retention%): ${retention}`
           : "";
 
         return `
@@ -435,6 +495,8 @@ Lifetime Stats:
 - Views: ${v.lifetime_views}
 - Likes: ${v.lifetime_likes}
 - Comments: ${v.lifetime_comments}
+${retentionSection}
+${transcriptSection}
 ${competitorSection}`;
       }).join("\n---\n");
 

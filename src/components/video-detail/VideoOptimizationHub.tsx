@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { BestPracticesPanel } from "./BestPracticesPanel";
 import {
   Sparkles, FlaskConical, ChevronDown, ChevronRight,
   Check, X, Copy, Loader2, AlertTriangle, RotateCcw,
@@ -594,6 +595,9 @@ export function VideoOptimizationHub({ youtubeVideoId }: { youtubeVideoId?: stri
           </div>
         </details>
       )}
+
+      {/* Best Practices Memory */}
+      <BestPracticesPanel />
     </div>
   );
 }

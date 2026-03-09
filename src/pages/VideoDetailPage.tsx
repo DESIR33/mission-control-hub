@@ -211,6 +211,9 @@ export default function VideoDetailPage() {
               ))}
             </ul>
           </div>
+
+          {/* Transcript / SRT Upload */}
+          {youtubeVideoId && <SubtitleUploader youtubeVideoId={youtubeVideoId} videoTitle={detail?.title || ""} />}
         </TabsContent>
 
         {/* Performance */}
@@ -330,8 +333,6 @@ export default function VideoDetailPage() {
           {/* Sponsor Segment Attribution */}
           {youtubeVideoId && <SponsorSegmentTracker videoId={youtubeVideoId} />}
           
-          {/* Subtitles */}
-          {youtubeVideoId && <SubtitleUploader youtubeVideoId={youtubeVideoId} videoTitle={detail?.title || ""} />}
         </TabsContent>
 
         {/* AI Suggestions */}

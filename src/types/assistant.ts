@@ -1,4 +1,4 @@
-export type MemoryOrigin = 'youtube' | 'crm' | 'email' | 'strategy' | 'preference' | 'manual';
+export type MemoryOrigin = 'youtube' | 'crm' | 'email' | 'strategy' | 'preference' | 'manual' | 'best_practice';
 export type LogSource = 'youtube' | 'crm' | 'email' | 'chat' | 'manual';
 export type ServiceName = 'youtube' | 'crm' | 'email';
 
