@@ -133,6 +133,9 @@ export default function NetworkPage() {
       case "engagement":
         return <EngagementScorePanel />;
 
+      case "health":
+        return <CompanyHealthDashboard />;
+
       default:
         return null;
     }
