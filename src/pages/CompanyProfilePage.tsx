@@ -805,6 +805,11 @@ export default function CompanyProfilePage() {
               </div>
             </TabsContent>
 
+            {/* Intel Tab */}
+            <TabsContent value="intel" className="mt-4">
+              <CompanyIntelFeed companyId={company.id} />
+            </TabsContent>
+
             {/* Timeline Tab */}
             <TabsContent value="timeline" className="mt-4">
               <ActivityTimeline activities={activities} contactId={company.id} entityType="company" />
