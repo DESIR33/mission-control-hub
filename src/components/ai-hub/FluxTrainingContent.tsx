@@ -170,7 +170,7 @@ function SessionDetail({ session, onBack }: { session: FluxTrainingSession; onBa
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : images.length > 0 ? (
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 mt-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3 mt-4">
               {images.map((img) => (
                 <div key={img.id} className="relative group aspect-square rounded-lg overflow-hidden border border-border">
                   <img
