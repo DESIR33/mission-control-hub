@@ -202,36 +202,6 @@ const INTEGRATIONS: IntegrationDef[] = [
     ],
   },
   {
-    key: "convertkit",
-    name: "ConvertKit",
-    description:
-      "Connect your ConvertKit account to sync email subscribers and automate newsletter delivery.",
-    icon: "📬",
-    iconBg: "linear-gradient(135deg, #fb6970 0%, #e04850 100%)",
-    docsUrl: "https://developers.convertkit.com",
-    usedFor: "Used for: email subscribers · newsletter automation · audience growth",
-    connectHint:
-      "Enter your ConvertKit API credentials to enable newsletter sync.",
-    fields: [
-      {
-        name: "api_key",
-        label: "API Key",
-        placeholder: "Your ConvertKit API key",
-        secret: true,
-        required: true,
-        hint: "Found at ConvertKit → Settings → Advanced → API.",
-      },
-      {
-        name: "api_secret",
-        label: "API Secret",
-        placeholder: "Your ConvertKit API secret",
-        secret: true,
-        required: true,
-        hint: "Found at ConvertKit → Settings → Advanced → API.",
-      },
-    ],
-  },
-  {
     key: "beehiiv",
     name: "Beehiiv",
     description:
@@ -257,42 +227,6 @@ const INTEGRATIONS: IntegrationDef[] = [
         placeholder: "pub_xxxxxxxx",
         required: true,
         hint: "Found in your Beehiiv dashboard URL or settings.",
-      },
-    ],
-  },
-  {
-    key: "mailchimp",
-    name: "Mailchimp",
-    description:
-      "Connect Mailchimp to manage email campaigns, track subscriber growth, and automate newsletters.",
-    icon: "🐵",
-    iconBg: "linear-gradient(135deg, #ffe01b 0%, #f5c518 100%)",
-    docsUrl: "https://mailchimp.com/developer",
-    usedFor: "Used for: email campaigns · list management · subscriber analytics",
-    connectHint:
-      "Enter your Mailchimp API key, server prefix, and list ID.",
-    fields: [
-      {
-        name: "api_key",
-        label: "API Key",
-        placeholder: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-usXX",
-        secret: true,
-        required: true,
-        hint: "Found at Mailchimp → Account → Extras → API Keys.",
-      },
-      {
-        name: "server_prefix",
-        label: "Server Prefix",
-        placeholder: "us1",
-        required: true,
-        hint: "The 'usX' portion of your Mailchimp API URL (e.g. us1, us14).",
-      },
-      {
-        name: "list_id",
-        label: "List / Audience ID",
-        placeholder: "xxxxxxxxxx",
-        required: true,
-        hint: "Found at Audience → Settings → Audience name and defaults.",
       },
     ],
   },
