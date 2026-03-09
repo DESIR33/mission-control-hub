@@ -124,7 +124,7 @@ export default function VideoDetailPage() {
         <Button
           size="sm"
           onClick={() => {
-            runOptimizer.mutate({ max_videos: 1 });
+            runOptimizer.mutate({ max_videos: 1, video_id: youtubeVideoId });
             setActiveTab("optimization");
           }}
           disabled={runOptimizer.isPending}

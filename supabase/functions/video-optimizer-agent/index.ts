@@ -133,7 +133,7 @@ Deno.serve(async (req) => {
     );
 
     const body = await req.json();
-    const { workspace_id, max_videos = 10, model, run_all_workspaces, skip_competitor_analysis = false } = body;
+    const { workspace_id, max_videos = 10, model, run_all_workspaces, skip_competitor_analysis = false, video_id } = body;
 
     // If triggered by cron, run for all workspaces that have videos
     if (run_all_workspaces) {
@@ -276,9 +276,16 @@ Deno.serve(async (req) => {
       };
     });
 
-    // Sort by health score ascending (worst first), take top N
-    scoredVideos.sort((a, b) => a.health_score - b.health_score);
-    const underperformers = scoredVideos.slice(0, Math.min(max_videos, scoredVideos.length));
+    // If a specific video_id was requested, filter to just that video
+    let underperformers: VideoWithScore[];
+    if (video_id) {
+      const targetVideo = scoredVideos.find(v => v.youtube_video_id === video_id);
+      underperformers = targetVideo ? [targetVideo] : [];
+    } else {
+      // Sort by health score ascending (worst first), take top N
+      scoredVideos.sort((a, b) => a.health_score - b.health_score);
+      underperformers = scoredVideos.slice(0, Math.min(max_videos, scoredVideos.length));
+    }
 
     if (!underperformers.length) {
       return new Response(JSON.stringify({ success: true, message: "No videos to optimize", proposals_created: 0 }), {

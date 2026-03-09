@@ -198,12 +198,12 @@ export function useRunVideoOptimizer() {
   return useMutation<
     { success: boolean; videos_analyzed: number; proposals_created: number; results: any[] },
     Error,
-    { max_videos?: number; model?: string }
+    { max_videos?: number; model?: string; video_id?: string }
   >({
-    mutationFn: async ({ max_videos = 10, model }) => {
+    mutationFn: async ({ max_videos = 10, model, video_id }) => {
       if (!workspaceId) throw new Error("No workspace");
       const { data, error } = await supabase.functions.invoke("video-optimizer-agent", {
-        body: { workspace_id: workspaceId, max_videos, model },
+        body: { workspace_id: workspaceId, max_videos, model, video_id },
       });
       if (error) throw error;
       return data;
@@ -211,6 +211,7 @@ export function useRunVideoOptimizer() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["agent-executions"] });
       queryClient.invalidateQueries({ queryKey: ["ai_proposals"] });
+      queryClient.invalidateQueries({ queryKey: ["video-proposals"] });
     },
   });
 }
