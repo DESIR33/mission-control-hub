@@ -60,6 +60,7 @@ export function InboxCommandBar({
   onClassify,
   onMoveToJunk,
   onMoveToInbox,
+  onMute,
   onFocusSearch,
   hasSelectedEmail,
 }: InboxCommandBarProps) {
