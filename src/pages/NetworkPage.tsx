@@ -11,17 +11,18 @@ import { RelationshipGraph } from "@/components/crm/RelationshipGraph";
 import { SponsorAttributionPanel } from "@/components/crm/SponsorAttributionPanel";
 import { EngagementScorePanel } from "@/components/crm/EngagementScorePanel";
 import { BulkImportWizard } from "@/components/crm/BulkImportWizard";
+import { CompanyHealthDashboard } from "@/components/companies/CompanyHealthDashboard";
 import { useContacts, useActivities } from "@/hooks/use-contacts";
 import { useCompanies } from "@/hooks/use-companies";
 import { useDeals } from "@/hooks/use-deals";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Plus, Users, Building2, GitGraph,
-  Megaphone, Activity,
+  Megaphone, Activity, HeartPulse,
 } from "lucide-react";
 import type { Contact, Company } from "@/types/crm";
 
-type Section = "contacts" | "companies" | "graph" | "sponsors" | "engagement";
+type Section = "contacts" | "companies" | "graph" | "sponsors" | "engagement" | "health";
 
 const SECTION_LABELS: Record<Section, string> = {
   contacts: "Contacts",
@@ -29,6 +30,7 @@ const SECTION_LABELS: Record<Section, string> = {
   graph: "Relationship Graph",
   sponsors: "Sponsors",
   engagement: "Engagement",
+  health: "Company Health",
 };
 
 const VALID_SECTIONS = new Set<string>(Object.keys(SECTION_LABELS));
@@ -130,6 +132,9 @@ export default function NetworkPage() {
 
       case "engagement":
         return <EngagementScorePanel />;
+
+      case "health":
+        return <CompanyHealthDashboard />;
 
       default:
         return null;

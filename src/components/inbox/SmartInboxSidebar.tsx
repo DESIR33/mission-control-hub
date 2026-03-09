@@ -24,6 +24,8 @@ import { ConversationIntelligence } from "@/components/inbox/ConversationIntelli
 import { TeamCommentsPanel } from "@/components/inbox/TeamCommentsPanel";
 import { SharedDraftsPanel } from "@/components/inbox/SharedDraftsPanel";
 import { EngagementDashboard } from "@/components/inbox/EngagementDashboard";
+import { EmailDealSuggestions } from "@/components/inbox/EmailDealSuggestions";
+import { SmartReplyComposer } from "@/components/inbox/SmartReplyComposer";
 import { useOutlookSend } from "@/hooks/use-smart-inbox";
 import type { SmartEmail } from "@/hooks/use-smart-inbox";
 
@@ -269,6 +271,17 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
 
       {/* Engagement Dashboard */}
       <EngagementDashboard />
+
+      {/* AI Deal Suggestions */}
+      <EmailDealSuggestions />
+
+      {/* Smart Reply with CRM Context */}
+      <SmartReplyComposer
+        emailSubject={email.subject}
+        emailBody={email.preview}
+        senderName={email.from_name}
+        senderEmail={email.from_email}
+      />
 
       {/* Email Templates */}
       <EmailTemplateManager />

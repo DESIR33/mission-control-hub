@@ -34,6 +34,9 @@ import { CommentsSection } from "@/components/youtube-hub/CommentsSection";
 import { ContentStrategySection } from "@/components/youtube-hub/ContentStrategySection";
 import { UploadPlaylistsSection } from "@/components/youtube-hub/UploadPlaylistsSection";
 import { ExperimentsComparisonContent } from "@/components/youtube-hub/ExperimentsComparisonContent";
+import { VideoDecayDashboard } from "@/components/youtube-hub/VideoDecayDashboard";
+import { VideoSeriesDashboard } from "@/components/youtube-hub/VideoSeriesDashboard";
+import { AudienceOverlapDetection } from "@/components/youtube-hub/AudienceOverlapDetection";
 
 type Section =
   | "dashboard"
@@ -45,7 +48,10 @@ type Section =
   | "comments"
   | "uploads"
   | "strategy"
-  | "experiments";
+  | "experiments"
+  | "decay"
+  | "series"
+  | "overlap";
 
 const SECTION_LABELS: Record<Section, string> = {
   dashboard: "Dashboard",
@@ -58,6 +64,9 @@ const SECTION_LABELS: Record<Section, string> = {
   uploads: "Upload & Playlists",
   strategy: "Content & Strategy",
   experiments: "Optimization Experiments",
+  decay: "Performance Decay",
+  series: "Video Series",
+  overlap: "Audience Overlap",
 };
 
 const SECTION_COMPONENTS: Record<Section, React.ComponentType> = {
@@ -71,6 +80,9 @@ const SECTION_COMPONENTS: Record<Section, React.ComponentType> = {
   uploads: UploadPlaylistsSection,
   strategy: ContentStrategySection,
   experiments: ExperimentsComparisonContent,
+  decay: VideoDecayDashboard,
+  series: VideoSeriesDashboard,
+  overlap: AudienceOverlapDetection,
 };
 
 const VALID_SECTIONS = new Set(Object.keys(SECTION_COMPONENTS));
