@@ -257,7 +257,7 @@ export default function ContactProfilePage() {
                 </a>
               </Button>
             )}
-            <Button variant="outline" size="sm" onClick={() => setEditOpen(true)} className="gap-1.5">
+            <Button variant="outline" size="sm" onClick={() => navigate(`/contacts/${contact.id}/edit`)} className="gap-1.5">
               <Pencil className="w-3.5 h-3.5" /> Edit
             </Button>
             <Button

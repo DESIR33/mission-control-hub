@@ -139,6 +139,7 @@ const App = () => (
               <Route path="/relationships/companies/:companyId" element={<LazyPage section="Company Profile"><CompanyProfilePage /></LazyPage>} />
               <Route path="/relationships/contacts/:contactId" element={<LazyPage section="Contact Profile"><ContactProfilePage /></LazyPage>} />
               <Route path="/contacts/:contactId" element={<LazyPage section="Contact Profile"><ContactProfilePage /></LazyPage>} />
+              <Route path="/contacts/:contactId/edit" element={<LazyPage section="Edit Contact"><EditContactPage /></LazyPage>} />
 
               {/* Reports */}
               <Route path="/reports" element={<Navigate to="/reports/weekly" replace />} />
