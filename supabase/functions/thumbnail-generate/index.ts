@@ -38,11 +38,6 @@ Deno.serve(async (req) => {
 
       // Model selection
       const useNanoBanana = model === 'nano-banana-2';
-      // Replicate requires version hashes, not model names
-      const NANO_BANANA_VERSION = "408160b9879ab5572e8409b2648b45bf55e86b2a2d7e24b4a9e4fba5a5e9744e";
-      const FLUX_SCHNELL_VERSION = "5599ed30703defd1d160a25a63321b4b945d488d68c18fbec8f6bc4d59118cc5";
-
-      const versionId = useNanoBanana ? NANO_BANANA_VERSION : FLUX_SCHNELL_VERSION;
 
       // Build input based on model
       const modelInput: Record<string, unknown> = useNanoBanana
@@ -60,8 +55,12 @@ Deno.serve(async (req) => {
             output_quality: 90,
           };
 
-      // Create prediction
-      const createRes = await fetch('https://api.replicate.com/v1/predictions', {
+      // Use model-based endpoint (no version hash needed)
+      const modelEndpoint = useNanoBanana
+        ? 'https://api.replicate.com/v1/models/fofr/sdxl-turbo/predictions'
+        : 'https://api.replicate.com/v1/models/black-forest-labs/flux-schnell/predictions';
+
+      const createRes = await fetch(modelEndpoint, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${REPLICATE_API_TOKEN}`,
@@ -69,7 +68,6 @@ Deno.serve(async (req) => {
           'Prefer': 'wait',
         },
         body: JSON.stringify({
-          version: versionId,
           input: modelInput,
         }),
       });
