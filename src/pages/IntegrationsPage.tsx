@@ -231,42 +231,6 @@ const INTEGRATIONS: IntegrationDef[] = [
     ],
   },
   {
-    key: "mailchimp",
-    name: "Mailchimp",
-    description:
-      "Connect Mailchimp to manage email campaigns, track subscriber growth, and automate newsletters.",
-    icon: "🐵",
-    iconBg: "linear-gradient(135deg, #ffe01b 0%, #f5c518 100%)",
-    docsUrl: "https://mailchimp.com/developer",
-    usedFor: "Used for: email campaigns · list management · subscriber analytics",
-    connectHint:
-      "Enter your Mailchimp API key, server prefix, and list ID.",
-    fields: [
-      {
-        name: "api_key",
-        label: "API Key",
-        placeholder: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-usXX",
-        secret: true,
-        required: true,
-        hint: "Found at Mailchimp → Account → Extras → API Keys.",
-      },
-      {
-        name: "server_prefix",
-        label: "Server Prefix",
-        placeholder: "us1",
-        required: true,
-        hint: "The 'usX' portion of your Mailchimp API URL (e.g. us1, us14).",
-      },
-      {
-        name: "list_id",
-        label: "List / Audience ID",
-        placeholder: "xxxxxxxxxx",
-        required: true,
-        hint: "Found at Audience → Settings → Audience name and defaults.",
-      },
-    ],
-  },
-  {
     key: "resend",
     name: "Resend",
     description:
