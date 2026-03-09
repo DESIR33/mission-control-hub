@@ -63,6 +63,9 @@ import { ScheduleSendMenu } from "@/components/inbox/ScheduleSendMenu";
 import { SnoozeMenu } from "@/components/inbox/SnoozeMenu";
 import { AskAiSearch } from "@/components/inbox/AskAiSearch";
 import { SnippetsWithVariables } from "@/components/inbox/SnippetsWithVariables";
+import { MassArchiveDialog } from "@/components/inbox/MassArchiveDialog";
+import { ShareAvailabilityButton } from "@/components/inbox/ShareAvailabilityButton";
+import { SmartSendSuggestion } from "@/components/inbox/SmartSendSuggestion";
 import { toast as sonnerToast } from "sonner";
 
 export default function InboxPage() {
@@ -391,7 +394,12 @@ export default function InboxPage() {
         <div className="flex-1 overflow-hidden">
           <EmailPreview
             email={selectedEmail}
-            onReply={() => setReplyOpen(true)}
+            onReply={(quotedText) => {
+              if (quotedText) {
+                setReplyBody(`\n\n> ${quotedText.replace(/\n/g, "\n> ")}\n\n`);
+              }
+              setReplyOpen(true);
+            }}
             onForward={() => setForwardOpen(true)}
             onDelete={() => setDeleteDialogOpen(true)}
             onArchive={handleArchive}
@@ -544,6 +552,7 @@ export default function InboxPage() {
               <RefreshCwIcon className={`h-3.5 w-3.5 ${syncOutlook.isPending ? "animate-spin" : ""}`} />
               <span className="hidden sm:inline">Sync</span>
             </Button>
+            <MassArchiveDialog emails={filteredEmails} />
             <Button size="sm" onClick={() => setComposeOpen(true)} className="gap-1.5">
               <PlusIcon className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Compose</span>
@@ -633,7 +642,12 @@ export default function InboxPage() {
             <ResizablePanel defaultSize={45} minSize={30}>
               <EmailPreview
                 email={selectedEmail}
-                onReply={() => setReplyOpen(true)}
+                onReply={(quotedText) => {
+                  if (quotedText) {
+                    setReplyBody(`\n\n> ${quotedText.replace(/\n/g, "\n> ")}\n\n`);
+                  }
+                  setReplyOpen(true);
+                }}
                 onForward={() => setForwardOpen(true)}
                 onDelete={() => setDeleteDialogOpen(true)}
                 onArchive={handleArchive}
@@ -654,9 +668,11 @@ export default function InboxPage() {
           <DialogHeader><DialogTitle>Compose Email</DialogTitle></DialogHeader>
           <div className="space-y-3">
             <div><Label>To *</Label><Input value={composeTo} onChange={(e) => setComposeTo(e.target.value)} placeholder="recipient@example.com" /></div>
+            {composeTo.trim() && <SmartSendSuggestion recipientEmail={composeTo.trim()} />}
             <div><Label>Subject</Label><Input value={composeSubject} onChange={(e) => setComposeSubject(e.target.value)} placeholder="Subject" /></div>
             <div><Label>Body</Label><Textarea value={composeBody} onChange={(e) => setComposeBody(e.target.value)} rows={8} placeholder="Write your email..." /></div>
             <SnippetsWithVariables onInsert={(text) => setComposeBody((prev) => prev + "\n" + text)} />
+            <ShareAvailabilityButton onInsert={(text) => setComposeBody((prev) => prev + "\n" + text)} />
           </div>
           <DialogFooter className="flex-wrap gap-2">
             <Button variant="outline" onClick={() => setComposeOpen(false)}>Cancel</Button>

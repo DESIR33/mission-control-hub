@@ -19,12 +19,15 @@ import { InstantReplyBar } from "@/components/inbox/InstantReplyBar";
 import { AutoDraftReply } from "@/components/inbox/AutoDraftReply";
 import { InstantIntroDialog } from "@/components/inbox/InstantIntroDialog";
 import { ReadStatusIndicator } from "@/components/inbox/ReadStatusIndicator";
+import { MuteConversationButton } from "@/components/inbox/MuteConversationButton";
+import { QuickQuoteReply } from "@/components/inbox/QuickQuoteReply";
+import { AutoReminderBanner } from "@/components/inbox/AutoReminderBanner";
 import { useOutlookSend } from "@/hooks/use-smart-inbox";
 import type { SmartEmail } from "@/hooks/use-smart-inbox";
 
 interface EmailPreviewProps {
   email: SmartEmail | null;
-  onReply: () => void;
+  onReply: (quotedText?: string) => void;
   onForward: () => void;
   onDelete: () => void;
   onArchive: () => void;
@@ -61,7 +64,7 @@ export default function EmailPreview({
       {/* Header toolbar */}
       <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border flex-shrink-0">
         <div className="flex items-center gap-1.5 flex-wrap">
-          <Button size="sm" variant="ghost" onClick={onReply} title="Reply (R)">
+          <Button size="sm" variant="ghost" onClick={() => onReply()} title="Reply (R)">
             <ReplyIcon className="h-4 w-4" />
           </Button>
           <Button size="sm" variant="ghost" onClick={onForward} title="Forward (F)">
@@ -77,6 +80,7 @@ export default function EmailPreview({
           <Button size="sm" variant="ghost" onClick={onDelete} title="Delete (#)">
             <Trash2Icon className="h-4 w-4" />
           </Button>
+          <MuteConversationButton email={email} />
           <InstantIntroDialog email={email} />
           {email && (
             <>
@@ -108,6 +112,17 @@ export default function EmailPreview({
 
       {/* Auto Summary Banner */}
       <AutoSummaryBanner email={email} />
+
+      {/* Auto Reminder for sent emails */}
+      <AutoReminderBanner
+        emailId={email.id}
+        subject={email.subject}
+        bodyPreview={email.preview}
+        isSentEmail={email.folder === "sent"}
+      />
+
+      {/* Quick Quote - floating button on text selection */}
+      <QuickQuoteReply onQuote={(text) => onReply(text)} />
 
       {/* Email content */}
       <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-4">

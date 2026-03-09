@@ -964,6 +964,44 @@ export type Database = {
           },
         ]
       }
+      auto_bcc_rules: {
+        Row: {
+          bcc_email: string
+          condition_type: string
+          condition_value: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          workspace_id: string
+        }
+        Insert: {
+          bcc_email: string
+          condition_type?: string
+          condition_value?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          workspace_id: string
+        }
+        Update: {
+          bcc_email?: string
+          condition_type?: string
+          condition_value?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "auto_bcc_rules_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       auto_execution_rules: {
         Row: {
           agent_slug: string
@@ -1417,6 +1455,82 @@ export type Database = {
           },
         ]
       }
+      email_auto_labels: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string
+          id: string
+          is_active: boolean
+          label_name: string
+          natural_language_rule: string
+          workspace_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          is_active?: boolean
+          label_name: string
+          natural_language_rule: string
+          workspace_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          is_active?: boolean
+          label_name?: string
+          natural_language_rule?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_auto_labels_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_comments: {
+        Row: {
+          content: string
+          created_at: string
+          email_id: string
+          id: string
+          user_id: string
+          workspace_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          email_id: string
+          id?: string
+          user_id: string
+          workspace_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          email_id?: string
+          id?: string
+          user_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_comments_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_follow_ups: {
         Row: {
           completed_at: string | null
@@ -1630,6 +1744,7 @@ export type Database = {
           has_attachments: boolean
           id: string
           importance: string
+          is_muted: boolean
           is_pinned: boolean
           is_read: boolean
           labels: string[] | null
@@ -1660,6 +1775,7 @@ export type Database = {
           has_attachments?: boolean
           id?: string
           importance?: string
+          is_muted?: boolean
           is_pinned?: boolean
           is_read?: boolean
           labels?: string[] | null
@@ -1690,6 +1806,7 @@ export type Database = {
           has_attachments?: boolean
           id?: string
           importance?: string
+          is_muted?: boolean
           is_pinned?: boolean
           is_read?: boolean
           labels?: string[] | null
@@ -1711,6 +1828,82 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "inbox_emails_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knowledge_base: {
+        Row: {
+          category: string
+          content: string
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          title: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          category?: string
+          content: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          title: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          title?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_base_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      muted_conversations: {
+        Row: {
+          conversation_id: string | null
+          created_at: string
+          from_email: string | null
+          id: string
+          workspace_id: string
+        }
+        Insert: {
+          conversation_id?: string | null
+          created_at?: string
+          from_email?: string | null
+          id?: string
+          workspace_id: string
+        }
+        Update: {
+          conversation_id?: string | null
+          created_at?: string
+          from_email?: string | null
+          id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "muted_conversations_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -1862,6 +2055,56 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "revenue_transactions_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shared_drafts: {
+        Row: {
+          body_html: string
+          created_at: string
+          created_by: string
+          email_id: string | null
+          id: string
+          shared_with: string[] | null
+          status: string
+          subject: string
+          to_email: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          body_html?: string
+          created_at?: string
+          created_by: string
+          email_id?: string | null
+          id?: string
+          shared_with?: string[] | null
+          status?: string
+          subject?: string
+          to_email?: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          body_html?: string
+          created_at?: string
+          created_by?: string
+          email_id?: string | null
+          id?: string
+          shared_with?: string[] | null
+          status?: string
+          subject?: string
+          to_email?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shared_drafts_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"

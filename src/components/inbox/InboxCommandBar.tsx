@@ -42,6 +42,7 @@ interface InboxCommandBarProps {
   onMoveToJunk: () => void;
   onMoveToInbox: () => void;
   onFocusSearch: () => void;
+  onMute?: () => void;
   hasSelectedEmail: boolean;
 }
 
@@ -59,6 +60,7 @@ export function InboxCommandBar({
   onClassify,
   onMoveToJunk,
   onMoveToInbox,
+  onMute,
   onFocusSearch,
   hasSelectedEmail,
 }: InboxCommandBarProps) {
@@ -110,6 +112,9 @@ export function InboxCommandBar({
           break;
         case "!":
           if (hasSelectedEmail) { e.preventDefault(); onMoveToJunk(); }
+          break;
+        case "m":
+          if (hasSelectedEmail && onMute) { e.preventDefault(); onMute(); }
           break;
       }
 

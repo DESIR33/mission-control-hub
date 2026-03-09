@@ -21,6 +21,9 @@ import { SmartReplySuggestions } from "@/components/inbox/SmartReplySuggestions"
 import { ThreadTimelineCRM } from "@/components/inbox/ThreadTimelineCRM";
 import { FollowUpRadar } from "@/components/inbox/FollowUpRadar";
 import { ConversationIntelligence } from "@/components/inbox/ConversationIntelligence";
+import { TeamCommentsPanel } from "@/components/inbox/TeamCommentsPanel";
+import { SharedDraftsPanel } from "@/components/inbox/SharedDraftsPanel";
+import { EngagementDashboard } from "@/components/inbox/EngagementDashboard";
 import { useOutlookSend } from "@/hooks/use-smart-inbox";
 import type { SmartEmail } from "@/hooks/use-smart-inbox";
 
@@ -253,6 +256,19 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
         }}
         isSending={outlookSend.isPending}
       />
+
+      {/* Team Comments */}
+      <Card>
+        <CardContent className="pt-4">
+          <TeamCommentsPanel emailId={email.id} />
+        </CardContent>
+      </Card>
+
+      {/* Shared Drafts */}
+      <SharedDraftsPanel />
+
+      {/* Engagement Dashboard */}
+      <EngagementDashboard />
 
       {/* Email Templates */}
       <EmailTemplateManager />

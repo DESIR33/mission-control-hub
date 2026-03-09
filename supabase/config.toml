@@ -83,3 +83,15 @@ verify_jwt = false
 
 [functions.classify-emails]
 verify_jwt = false
+
+[functions.outlook-calendar-availability]
+verify_jwt = false
+
+[functions.auto-label-emails]
+verify_jwt = false
+
+[functions.inbox-automation]
+verify_jwt = false
+
+[functions.outlook-manage]
+verify_jwt = false
