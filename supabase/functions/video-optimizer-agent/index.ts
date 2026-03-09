@@ -292,15 +292,13 @@ Deno.serve(async (req) => {
       });
     }
 
-    // ── 3b. Fetch transcripts (video_subtitles + video_transcripts) ──
+    // ── 3b. Fetch transcripts & context (sequential to reduce memory) ──
     const targetIds = underperformers.map(v => v.youtube_video_id);
 
-    const [subtitlesRes, altTransRes, retentionRes, bestPracticesRes, learningsRes] = await Promise.all([
-      supabase.from("video_subtitles").select("youtube_video_id, parsed_segments, language").eq("workspace_id", workspace_id).in("youtube_video_id", targetIds),
-      supabase.from("video_transcripts").select("youtube_video_id, parsed_segments").eq("workspace_id", workspace_id).in("youtube_video_id", targetIds),
-      supabase.from("video_retention_data").select("youtube_video_id, retention_points").eq("workspace_id", workspace_id).in("youtube_video_id", targetIds),
-      supabase.from("assistant_memory").select("content").eq("workspace_id", workspace_id).eq("origin", "best_practice").order("updated_at", { ascending: false }).limit(20),
-      supabase.from("assistant_memory").select("content").eq("workspace_id", workspace_id).in("origin", ["strategy", "youtube"]).order("updated_at", { ascending: false }).limit(10),
+    // Fetch in two sequential rounds to reduce peak memory
+    const [subtitlesRes, bestPracticesRes] = await Promise.all([
+      supabase.from("video_subtitles").select("youtube_video_id, parsed_segments, language").eq("workspace_id", workspace_id).in("youtube_video_id", targetIds).limit(5),
+      supabase.from("assistant_memory").select("content").eq("workspace_id", workspace_id).eq("origin", "best_practice").order("updated_at", { ascending: false }).limit(10),
     ]);
 
     const transcriptMap = new Map<string, string>();
