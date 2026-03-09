@@ -1835,6 +1835,41 @@ export type Database = {
           },
         ]
       }
+      inbox_feedback: {
+        Row: {
+          created_at: string
+          email_address: string
+          feedback_type: string
+          id: string
+          source: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          email_address: string
+          feedback_type?: string
+          id?: string
+          source?: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          email_address?: string
+          feedback_type?: string
+          id?: string
+          source?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inbox_feedback_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       knowledge_base: {
         Row: {
           category: string
