@@ -36,6 +36,7 @@ const NewSponsorshipPage = lazy(() => import("./pages/NewSponsorshipPage"));
 const VideoDetailPage = lazy(() => import("./pages/VideoDetailPage"));
 const WeeklySprintPage = lazy(() => import("./pages/WeeklySprintPage"));
 const CompanyProfilePage = lazy(() => import("./pages/CompanyProfilePage"));
+const ContactProfilePage = lazy(() => import("./pages/ContactProfilePage"));
 const NetworkPage = lazy(() => import("./pages/NetworkPage"));
 const YouTubeHubPage = lazy(() => import("./pages/YouTubeHubPage").then(m => ({ default: m.default })));
 const GrowthPage = lazy(() => import("./pages/YouTubeHubPage").then(m => ({ default: m.GrowthPage })));
@@ -133,6 +134,8 @@ const App = () => (
               <Route path="/relationships/new-company" element={<LazyPage section="Add Company"><AddCompanyPage /></LazyPage>} />
               <Route path="/relationships/new-contact" element={<LazyPage section="Add Contact"><AddContactPage /></LazyPage>} />
               <Route path="/relationships/companies/:companyId" element={<LazyPage section="Company Profile"><CompanyProfilePage /></LazyPage>} />
+              <Route path="/relationships/contacts/:contactId" element={<LazyPage section="Contact Profile"><ContactProfilePage /></LazyPage>} />
+              <Route path="/contacts/:contactId" element={<LazyPage section="Contact Profile"><ContactProfilePage /></LazyPage>} />
 
               {/* Reports */}
               <Route path="/reports" element={<Navigate to="/reports/weekly" replace />} />
