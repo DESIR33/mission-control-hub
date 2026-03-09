@@ -619,6 +619,51 @@ export default function CompanyProfilePage() {
               )}
             </TabsContent>
 
+            {/* Emails Tab */}
+            <TabsContent value="emails" className="mt-4 space-y-2">
+              {companyEmails.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 text-sm text-muted-foreground border border-dashed border-border rounded-lg">
+                  <Mail className="w-8 h-8 mb-3 text-muted-foreground/50" />
+                  <p>No emails from linked contacts</p>
+                  {companyContacts.length === 0 && (
+                    <p className="text-xs mt-1">Associate contacts to see their emails here</p>
+                  )}
+                </div>
+              ) : (
+                companyEmails.map((email: any) => (
+                  <div
+                    key={email.id}
+                    className={cn(
+                      "flex items-start gap-3 p-3 rounded-lg border border-border bg-card hover:bg-secondary/30 transition-colors cursor-pointer",
+                      !email.is_read && "border-primary/30 bg-primary/5"
+                    )}
+                    onClick={() => navigate("/inbox")}
+                  >
+                    <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <Mail className="w-4 h-4 text-primary" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className={cn("text-sm truncate", !email.is_read ? "font-semibold text-foreground" : "font-medium text-foreground")}>
+                          {email.from_name || email.from_email}
+                        </p>
+                        <span className="text-xs text-muted-foreground shrink-0">
+                          {format(new Date(email.received_at), "MMM d")}
+                        </span>
+                      </div>
+                      <p className={cn("text-sm truncate", !email.is_read ? "text-foreground" : "text-muted-foreground")}>
+                        {email.subject}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate mt-0.5">{email.preview}</p>
+                    </div>
+                    {email.has_attachments && (
+                      <Badge variant="outline" className="text-xs shrink-0">📎</Badge>
+                    )}
+                  </div>
+                ))
+              )}
+            </TabsContent>
+
             {/* Videos Tab */}
             <TabsContent value="videos" className="mt-4 space-y-6">
               {/* Revenue Summary */}
