@@ -595,6 +595,9 @@ export function VideoOptimizationHub({ youtubeVideoId }: { youtubeVideoId?: stri
           </div>
         </details>
       )}
+
+      {/* Best Practices Memory */}
+      <BestPracticesPanel />
     </div>
   );
 }
