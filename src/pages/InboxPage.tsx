@@ -672,6 +672,7 @@ export default function InboxPage() {
             <div><Label>Subject</Label><Input value={composeSubject} onChange={(e) => setComposeSubject(e.target.value)} placeholder="Subject" /></div>
             <div><Label>Body</Label><Textarea value={composeBody} onChange={(e) => setComposeBody(e.target.value)} rows={8} placeholder="Write your email..." /></div>
             <SnippetsWithVariables onInsert={(text) => setComposeBody((prev) => prev + "\n" + text)} />
+            <ShareAvailabilityButton onInsert={(text) => setComposeBody((prev) => prev + "\n" + text)} />
           </div>
           <DialogFooter className="flex-wrap gap-2">
             <Button variant="outline" onClick={() => setComposeOpen(false)}>Cancel</Button>
