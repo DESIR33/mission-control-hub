@@ -12,15 +12,20 @@ import {
   AlertCircleIcon,
   CheckSquareIcon,
   XIcon,
+  ClockIcon,
 } from "lucide-react";
 import type { SmartEmail, EmailPriority } from "@/hooks/use-smart-inbox";
 import { useDeleteEmail, useMarkRead, useTogglePin, useMoveEmail } from "@/hooks/use-smart-inbox";
+import { useSnoozeEmail, getSnoozeOptions } from "@/hooks/use-snooze";
 import { EmailCategoryBadge } from "./EmailCategoryBadge";
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuSeparator,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { Button } from "@/components/ui/button";
