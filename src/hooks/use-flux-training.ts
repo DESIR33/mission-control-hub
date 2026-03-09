@@ -86,7 +86,7 @@ export function useCreateFluxSession() {
         trigger_word: input.trigger_word || "MYFACE",
       }).select("id").single();
       if (error) throw error;
-      return data as { id: string };
+      return data as unknown as { id: string };
     },
     onSuccess: () => {
       toast.success("Training session created");
