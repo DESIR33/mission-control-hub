@@ -79,6 +79,23 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
   const outlookSend = useOutlookSend();
   const createContact = useCreateContactFromEmail();
   const createCompany = useCreateCompanyFromEmail();
+  const [dupDialog, setDupDialog] = useState<{ type: "contact" | "company"; existingName: string } | null>(null);
+
+  const dupErrorHandler = {
+    onError: (e: any) => {
+      if (e.duplicate) setDupDialog({ type: e.duplicate.type, existingName: e.duplicate.existingName });
+    },
+  };
+
+  const handleOverride = () => {
+    if (!dupDialog || !email) return;
+    if (dupDialog.type === "contact") {
+      createContact.mutate({ from_name: email.from_name || "", from_email: email.from_email, force: true });
+    } else {
+      createCompany.mutate({ from_email: email.from_email, from_name: email.from_name || "", force: true });
+    }
+    setDupDialog(null);
+  };
 
   if (!email) {
     return (
