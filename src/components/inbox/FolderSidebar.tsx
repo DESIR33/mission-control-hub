@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useFolderCounts } from "@/hooks/use-smart-inbox";
 import {
@@ -10,7 +10,17 @@ import {
   Trash2Icon,
   ListOrdered,
   ClockIcon,
+  BookOpenIcon,
+  TagIcon,
+  CopyIcon,
+  SettingsIcon,
+  TrendingUpIcon,
 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { KnowledgeBaseManager } from "@/components/inbox/KnowledgeBaseManager";
+import { AutoLabelsManager } from "@/components/inbox/AutoLabelsManager";
+import { AutoBccManager } from "@/components/inbox/AutoBccManager";
 
 interface FolderSidebarProps {
   selectedFolder: string;
@@ -29,6 +39,7 @@ const systemFolders = [
 
 export default function FolderSidebar({ selectedFolder, onSelectFolder }: FolderSidebarProps) {
   const { data: folderCounts = {} } = useFolderCounts();
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
     <div className="h-full overflow-y-auto bg-card border-r border-border px-2 py-3">
@@ -72,6 +83,7 @@ export default function FolderSidebar({ selectedFolder, onSelectFolder }: Folder
         <div className="flex justify-between"><span>Archive</span><kbd className="bg-muted px-1 rounded">E</kbd></div>
         <div className="flex justify-between"><span>Delete</span><kbd className="bg-muted px-1 rounded">#</kbd></div>
         <div className="flex justify-between"><span>Snooze</span><kbd className="bg-muted px-1 rounded">H</kbd></div>
+        <div className="flex justify-between"><span>Mute</span><kbd className="bg-muted px-1 rounded">M</kbd></div>
         <div className="flex justify-between"><span>Search</span><kbd className="bg-muted px-1 rounded">/</kbd></div>
       </div>
 
@@ -93,6 +105,51 @@ export default function FolderSidebar({ selectedFolder, onSelectFolder }: Folder
           <span className="flex-1 text-left truncate">Sequences</span>
         </button>
       </div>
+
+      {/* Settings */}
+      <div className="mt-4 mb-2 px-2">
+        <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Settings</p>
+      </div>
+      <div className="space-y-0.5">
+        <button
+          onClick={() => setSettingsOpen(true)}
+          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
+        >
+          <SettingsIcon className="h-4 w-4 shrink-0" />
+          <span className="flex-1 text-left truncate">Inbox Settings</span>
+        </button>
+      </div>
+
+      {/* Settings Dialog */}
+      <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+        <DialogContent className="sm:max-w-[650px] max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Inbox Settings</DialogTitle>
+          </DialogHeader>
+          <Tabs defaultValue="knowledge-base">
+            <TabsList className="w-full">
+              <TabsTrigger value="knowledge-base" className="flex-1 text-xs gap-1">
+                <BookOpenIcon className="h-3 w-3" /> Knowledge Base
+              </TabsTrigger>
+              <TabsTrigger value="auto-labels" className="flex-1 text-xs gap-1">
+                <TagIcon className="h-3 w-3" /> Auto Labels
+              </TabsTrigger>
+              <TabsTrigger value="auto-bcc" className="flex-1 text-xs gap-1">
+                <CopyIcon className="h-3 w-3" /> Auto BCC
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="knowledge-base" className="mt-4">
+              <KnowledgeBaseManager />
+            </TabsContent>
+            <TabsContent value="auto-labels" className="mt-4">
+              <AutoLabelsManager />
+            </TabsContent>
+            <TabsContent value="auto-bcc" className="mt-4">
+              <AutoBccManager />
+            </TabsContent>
+          </Tabs>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -113,6 +113,9 @@ export function InboxCommandBar({
         case "!":
           if (hasSelectedEmail) { e.preventDefault(); onMoveToJunk(); }
           break;
+        case "m":
+          if (hasSelectedEmail && onMute) { e.preventDefault(); onMute(); }
+          break;
       }
 
       // Shift shortcuts
