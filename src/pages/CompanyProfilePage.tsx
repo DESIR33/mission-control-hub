@@ -30,6 +30,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import type { InboxEmail } from "@/hooks/use-smart-inbox";
 import {
   ArrowLeft,
   Mail,
