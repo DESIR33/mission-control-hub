@@ -57,6 +57,7 @@ function formatStage(stage: string): string {
 }
 
 export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
+  const navigate = useNavigate();
   const outlookSend = useOutlookSend();
 
   if (!email) {
