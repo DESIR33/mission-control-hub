@@ -335,13 +335,9 @@ export default function VideoDetailPage() {
         </TabsContent>
 
         {/* AI Suggestions */}
-        <TabsContent value="ai suggestions" className="mt-4">
-          <VideoOptimizationPanel youtubeVideoId={youtubeVideoId} />
-        </TabsContent>
-
-        {/* Optimization Tracker */}
-        <TabsContent value="optimization tracker" className="mt-4">
-          <VideoOptimizationTracker youtubeVideoId={youtubeVideoId} />
+        {/* Optimization (unified suggestions + experiment tracking) */}
+        <TabsContent value="optimization" className="mt-4">
+          <VideoOptimizationHub youtubeVideoId={youtubeVideoId} />
         </TabsContent>
 
         {/* Notes */}
