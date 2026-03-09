@@ -195,6 +195,59 @@ export type Database = {
           },
         ]
       }
+      agent_alert_thresholds: {
+        Row: {
+          agent_slug: string
+          condition: string
+          cooldown_hours: number
+          created_at: string
+          enabled: boolean
+          id: string
+          last_triggered_at: string | null
+          metric_name: string
+          threshold_value: number
+          trigger_count: number
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          agent_slug: string
+          condition?: string
+          cooldown_hours?: number
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          last_triggered_at?: string | null
+          metric_name: string
+          threshold_value: number
+          trigger_count?: number
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          agent_slug?: string
+          condition?: string
+          cooldown_hours?: number
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          last_triggered_at?: string | null
+          metric_name?: string
+          threshold_value?: number
+          trigger_count?: number
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_alert_thresholds_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agent_collaboration_messages: {
         Row: {
           agent_slug: string
@@ -493,6 +546,50 @@ export type Database = {
           },
           {
             foreignKeyName: "agent_feedback_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_learning_preferences: {
+        Row: {
+          agent_slug: string
+          created_at: string
+          id: string
+          learned_from_count: number
+          preference_type: string
+          preference_value: string
+          updated_at: string
+          weight: number
+          workspace_id: string
+        }
+        Insert: {
+          agent_slug: string
+          created_at?: string
+          id?: string
+          learned_from_count?: number
+          preference_type?: string
+          preference_value: string
+          updated_at?: string
+          weight?: number
+          workspace_id: string
+        }
+        Update: {
+          agent_slug?: string
+          created_at?: string
+          id?: string
+          learned_from_count?: number
+          preference_type?: string
+          preference_value?: string
+          updated_at?: string
+          weight?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_learning_preferences_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -964,6 +1061,53 @@ export type Database = {
           },
         ]
       }
+      audience_overlap_reports: {
+        Row: {
+          created_at: string
+          id: string
+          overlap_score: number
+          overlap_type: string
+          recommendation: string | null
+          shared_keywords: string[] | null
+          status: string
+          video_a_id: string
+          video_b_id: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          overlap_score?: number
+          overlap_type?: string
+          recommendation?: string | null
+          shared_keywords?: string[] | null
+          status?: string
+          video_a_id: string
+          video_b_id: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          overlap_score?: number
+          overlap_type?: string
+          recommendation?: string | null
+          shared_keywords?: string[] | null
+          status?: string
+          video_a_id?: string
+          video_b_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audience_overlap_reports_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       auto_bcc_rules: {
         Row: {
           bcc_email: string
@@ -1158,6 +1302,132 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "companies_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_health_scores: {
+        Row: {
+          company_id: string
+          created_at: string
+          deal_velocity_score: number
+          engagement_score: number
+          id: string
+          last_calculated_at: string
+          overall_score: number
+          recency_score: number
+          response_score: number
+          revenue_score: number
+          risk_factors: Json | null
+          risk_level: string
+          workspace_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          deal_velocity_score?: number
+          engagement_score?: number
+          id?: string
+          last_calculated_at?: string
+          overall_score?: number
+          recency_score?: number
+          response_score?: number
+          revenue_score?: number
+          risk_factors?: Json | null
+          risk_level?: string
+          workspace_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          deal_velocity_score?: number
+          engagement_score?: number
+          id?: string
+          last_calculated_at?: string
+          overall_score?: number
+          recency_score?: number
+          response_score?: number
+          revenue_score?: number
+          risk_factors?: Json | null
+          risk_level?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_health_scores_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_health_scores_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_intel: {
+        Row: {
+          company_id: string
+          created_at: string
+          detected_at: string
+          id: string
+          intel_type: string
+          is_read: boolean
+          metadata: Json | null
+          relevance_score: number | null
+          source: string
+          source_url: string | null
+          summary: string | null
+          title: string
+          workspace_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          detected_at?: string
+          id?: string
+          intel_type?: string
+          is_read?: boolean
+          metadata?: Json | null
+          relevance_score?: number | null
+          source?: string
+          source_url?: string | null
+          summary?: string | null
+          title: string
+          workspace_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          detected_at?: string
+          id?: string
+          intel_type?: string
+          is_read?: boolean
+          metadata?: Json | null
+          relevance_score?: number | null
+          source?: string
+          source_url?: string | null
+          summary?: string | null
+          title?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_intel_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_intel_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -1524,6 +1794,83 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "email_comments_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_deal_suggestions: {
+        Row: {
+          actioned_at: string | null
+          confidence: number | null
+          contact_id: string | null
+          context_snippet: string | null
+          created_at: string
+          deal_id: string | null
+          email_id: string | null
+          id: string
+          status: string
+          suggested_stage: string | null
+          suggested_value: number | null
+          suggestion_type: string
+          workspace_id: string
+        }
+        Insert: {
+          actioned_at?: string | null
+          confidence?: number | null
+          contact_id?: string | null
+          context_snippet?: string | null
+          created_at?: string
+          deal_id?: string | null
+          email_id?: string | null
+          id?: string
+          status?: string
+          suggested_stage?: string | null
+          suggested_value?: number | null
+          suggestion_type?: string
+          workspace_id: string
+        }
+        Update: {
+          actioned_at?: string | null
+          confidence?: number | null
+          contact_id?: string | null
+          context_snippet?: string | null
+          created_at?: string
+          deal_id?: string | null
+          email_id?: string | null
+          id?: string
+          status?: string
+          suggested_stage?: string | null
+          suggested_value?: number | null
+          suggestion_type?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_deal_suggestions_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_deal_suggestions_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_deal_suggestions_email_id_fkey"
+            columns: ["email_id"]
+            isOneToOne: false
+            referencedRelation: "inbox_emails"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_deal_suggestions_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -3043,6 +3390,86 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "video_revenue_attribution_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      video_series: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_series_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      video_series_items: {
+        Row: {
+          created_at: string
+          id: string
+          series_id: string
+          sort_order: number
+          workspace_id: string
+          youtube_video_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          series_id: string
+          sort_order?: number
+          workspace_id: string
+          youtube_video_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          series_id?: string
+          sort_order?: number
+          workspace_id?: string
+          youtube_video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_series_items_series_id_fkey"
+            columns: ["series_id"]
+            isOneToOne: false
+            referencedRelation: "video_series"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_series_items_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
