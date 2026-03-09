@@ -61,6 +61,7 @@ import {
   Facebook,
 } from "lucide-react";
 import type { Company, Contact } from "@/types/crm";
+import { EmailActions } from "@/components/company/EmailActions";
 
 const tierConfig: Record<string, { label: string; color: string }> = {
   none: { label: "", color: "" },
@@ -659,6 +660,12 @@ export default function CompanyProfilePage() {
                     {email.has_attachments && (
                       <Badge variant="outline" className="text-xs shrink-0">📎</Badge>
                     )}
+                    <EmailActions
+                      email={email}
+                      companyId={company.id}
+                      companyName={company.name}
+                      companyLogo={company.logo_url}
+                    />
                   </div>
                 ))
               )}
