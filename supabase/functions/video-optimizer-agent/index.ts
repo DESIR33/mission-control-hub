@@ -374,7 +374,7 @@ Deno.serve(async (req) => {
                     },
                     text_style: {
                       type: "string",
-                      description: "Describe how the text overlay should look: font style (bold sans-serif, impact), color (white with black outline, red with white outline), size (large/massive), position (top, center), effects (drop shadow, glow, 3D). Example: 'Massive bold Impact font, white text with thick black outline and red highlight on key word, positioned at top center, slight 3D extrusion effect'"
+                      description: "Text style: font, color, outline, position. E.g. 'Bold Impact, white with black outline, top center'"
                     },
                   },
                   required: ["concept", "text_overlay", "emotional_hook", "composition", "nano_banana_prompt", "text_style"],
