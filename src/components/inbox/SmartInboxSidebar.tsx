@@ -66,6 +66,8 @@ function formatStage(stage: string): string {
 export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
   const navigate = useNavigate();
   const outlookSend = useOutlookSend();
+  const createContact = useCreateContactFromEmail();
+  const createCompany = useCreateCompanyFromEmail();
 
   if (!email) {
     return (
