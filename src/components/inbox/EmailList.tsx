@@ -4,9 +4,24 @@ import {
   PaperclipIcon,
   PinIcon,
   Loader2Icon,
+  Trash2Icon,
+  MailOpenIcon,
+  MailCheckIcon,
+  ArchiveIcon,
+  FolderIcon,
+  AlertCircleIcon,
 } from "lucide-react";
 import type { SmartEmail, EmailPriority } from "@/hooks/use-smart-inbox";
+import { useDeleteEmail, useMarkRead, useTogglePin, useMoveEmail } from "@/hooks/use-smart-inbox";
 import { EmailCategoryBadge } from "./EmailCategoryBadge";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import { toast } from "sonner";
 
 interface EmailListProps {
   emails: SmartEmail[];
@@ -51,6 +66,11 @@ export default function EmailList({
   onSelectEmail,
   searchQuery,
 }: EmailListProps) {
+  const deleteEmail = useDeleteEmail();
+  const markRead = useMarkRead();
+  const togglePin = useTogglePin();
+  const moveEmail = useMoveEmail();
+
   if (isLoading) {
     return (
       <div className="h-full flex items-center justify-center bg-card">
@@ -71,6 +91,14 @@ export default function EmailList({
     );
   }
 
+  const handleDelete = (e: React.MouseEvent, emailId: string) => {
+    e.stopPropagation();
+    deleteEmail.mutate([emailId], {
+      onSuccess: () => toast.success("Email deleted"),
+      onError: () => toast.error("Failed to delete email"),
+    });
+  };
+
   return (
     <div className="h-full overflow-y-auto bg-card">
       <div className="sticky top-0 z-10 flex items-center gap-2 px-3 py-2 border-b border-border bg-card/95 backdrop-blur">
@@ -82,64 +110,164 @@ export default function EmailList({
           const isSelected = selectedEmailId === email.id;
 
           return (
-            <div
-              key={email.id}
-              onClick={() => onSelectEmail(email)}
-              className={cn(
-                "flex items-start gap-3 px-3 py-3 cursor-pointer transition-all border-l-2",
-                priorityColors[email.priority],
-                isSelected
-                  ? "bg-primary/5"
-                  : "hover:bg-muted/50",
-                !email.is_read && "bg-primary/[0.02]",
-              )}
-            >
-              <div className="flex-1 min-w-0 space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className={cn("text-sm truncate", !email.is_read && "font-semibold text-foreground", email.is_read && "text-muted-foreground")}>
-                    {email.from_name || email.from_email}
-                  </span>
-                  {email.is_pinned && (
-                    <PinIcon className="h-3 w-3 text-primary shrink-0" />
+            <ContextMenu key={email.id}>
+              <ContextMenuTrigger asChild>
+                <div
+                  onClick={() => onSelectEmail(email)}
+                  className={cn(
+                    "group flex items-start gap-3 px-3 py-3 cursor-pointer transition-all border-l-2 relative",
+                    priorityColors[email.priority],
+                    isSelected
+                      ? "bg-primary/5"
+                      : "hover:bg-muted/50",
+                    !email.is_read && "bg-primary/[0.02]",
                   )}
-                  <span className={cn("rounded-full px-1.5 py-0.5 text-[10px] font-semibold shrink-0", priorityBadgeColors[email.priority])}>
-                    {email.priority}
-                  </span>
-                  <span className="ml-auto text-xs text-muted-foreground shrink-0 tabular-nums">
-                    {formatRelativeDate(email.received_at)}
-                  </span>
-                </div>
-
-                <p className={cn("text-sm truncate", !email.is_read ? "text-foreground" : "text-muted-foreground")}>
-                  {email.subject || "(No subject)"}
-                </p>
-
-                <div className="flex items-center gap-2">
-                  <p className="text-xs text-muted-foreground truncate flex-1">
-                    {email.preview}
-                  </p>
-                  <div className="flex items-center gap-1 shrink-0">
-                    {email.has_attachments && (
-                      <PaperclipIcon className="h-3 w-3 text-muted-foreground" />
-                    )}
-                    {email.importance === "high" && (
-                      <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
-                    )}
-                    <EmailCategoryBadge category={(email as any).ai_category} />
-                    {email.matched_contact && (
-                      <span className="rounded px-1 py-0.5 text-[10px] font-medium bg-primary/10 text-primary">
-                        CRM
+                >
+                  <div className="flex-1 min-w-0 space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className={cn("text-sm truncate", !email.is_read && "font-semibold text-foreground", email.is_read && "text-muted-foreground")}>
+                        {email.from_name || email.from_email}
                       </span>
-                    )}
-                    {email.matched_deal && (
-                      <span className="rounded px-1 py-0.5 text-[10px] font-medium bg-emerald-500/10 text-emerald-700">
-                        Deal
+                      {email.is_pinned && (
+                        <PinIcon className="h-3 w-3 text-primary shrink-0" />
+                      )}
+                      <span className={cn("rounded-full px-1.5 py-0.5 text-[10px] font-semibold shrink-0", priorityBadgeColors[email.priority])}>
+                        {email.priority}
                       </span>
-                    )}
+                      <span className="ml-auto text-xs text-muted-foreground shrink-0 tabular-nums group-hover:mr-7">
+                        {formatRelativeDate(email.received_at)}
+                      </span>
+                    </div>
+
+                    <p className={cn("text-sm truncate", !email.is_read ? "text-foreground" : "text-muted-foreground")}>
+                      {email.subject || "(No subject)"}
+                    </p>
+
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs text-muted-foreground truncate flex-1">
+                        {email.preview}
+                      </p>
+                      <div className="flex items-center gap-1 shrink-0">
+                        {email.has_attachments && (
+                          <PaperclipIcon className="h-3 w-3 text-muted-foreground" />
+                        )}
+                        {email.importance === "high" && (
+                          <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                        )}
+                        <EmailCategoryBadge category={(email as any).ai_category} />
+                        {email.matched_contact && (
+                          <span className="rounded px-1 py-0.5 text-[10px] font-medium bg-primary/10 text-primary">
+                            CRM
+                          </span>
+                        )}
+                        {email.matched_deal && (
+                          <span className="rounded px-1 py-0.5 text-[10px] font-medium bg-emerald-500/10 text-emerald-700">
+                            Deal
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
+
+                  {/* Hover delete button */}
+                  <button
+                    onClick={(e) => handleDelete(e, email.id)}
+                    className="absolute right-2 top-3 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
+                    title="Delete"
+                  >
+                    <Trash2Icon className="h-4 w-4" />
+                  </button>
                 </div>
-              </div>
-            </div>
+              </ContextMenuTrigger>
+
+              <ContextMenuContent className="w-52">
+                <ContextMenuItem
+                  onClick={() =>
+                    markRead.mutate(
+                      { ids: [email.id], is_read: !email.is_read },
+                      { onSuccess: () => toast.success(email.is_read ? "Marked as unread" : "Marked as read") }
+                    )
+                  }
+                >
+                  {email.is_read ? (
+                    <>
+                      <MailIcon className="h-4 w-4 mr-2" />
+                      Mark as unread
+                    </>
+                  ) : (
+                    <>
+                      <MailOpenIcon className="h-4 w-4 mr-2" />
+                      Mark as read
+                    </>
+                  )}
+                </ContextMenuItem>
+
+                <ContextMenuItem
+                  onClick={() =>
+                    togglePin.mutate(
+                      { id: email.id, is_pinned: !email.is_pinned },
+                      { onSuccess: () => toast.success(email.is_pinned ? "Unpinned" : "Pinned") }
+                    )
+                  }
+                >
+                  <PinIcon className="h-4 w-4 mr-2" />
+                  {email.is_pinned ? "Unpin" : "Pin to top"}
+                </ContextMenuItem>
+
+                <ContextMenuSeparator />
+
+                <ContextMenuItem
+                  onClick={() =>
+                    moveEmail.mutate(
+                      { ids: [email.id], folder: "archive" },
+                      { onSuccess: () => toast.success("Moved to archive") }
+                    )
+                  }
+                >
+                  <ArchiveIcon className="h-4 w-4 mr-2" />
+                  Archive
+                </ContextMenuItem>
+
+                <ContextMenuItem
+                  onClick={() =>
+                    moveEmail.mutate(
+                      { ids: [email.id], folder: "junk" },
+                      { onSuccess: () => toast.success("Moved to junk") }
+                    )
+                  }
+                >
+                  <AlertCircleIcon className="h-4 w-4 mr-2" />
+                  Mark as junk
+                </ContextMenuItem>
+
+                <ContextMenuItem
+                  onClick={() =>
+                    moveEmail.mutate(
+                      { ids: [email.id], folder: "inbox" },
+                      { onSuccess: () => toast.success("Moved to inbox") }
+                    )
+                  }
+                >
+                  <FolderIcon className="h-4 w-4 mr-2" />
+                  Move to inbox
+                </ContextMenuItem>
+
+                <ContextMenuSeparator />
+
+                <ContextMenuItem
+                  className="text-destructive focus:text-destructive"
+                  onClick={() =>
+                    deleteEmail.mutate([email.id], {
+                      onSuccess: () => toast.success("Email deleted"),
+                      onError: () => toast.error("Failed to delete"),
+                    })
+                  }
+                >
+                  <Trash2Icon className="h-4 w-4 mr-2" />
+                  Delete
+                </ContextMenuItem>
+              </ContextMenuContent>
+            </ContextMenu>
           );
         })}
       </div>
