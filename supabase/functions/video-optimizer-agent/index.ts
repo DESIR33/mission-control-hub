@@ -434,51 +434,13 @@ Deno.serve(async (req) => {
       ? `\n\nCHANNEL STRATEGY & INSIGHTS:\n- ${learningsContext}`
       : "";
 
-    const systemPrompt = `You are a YouTube optimization expert. You analyze video performance data and provide specific, actionable optimization recommendations.
+    const systemPrompt = `You are a YouTube optimization expert. Analyze video data and provide actionable recommendations. Be decisive.
 
-RULES:
-- Be decisive. Don't hedge — give your best recommendations.
-- Titles should be curiosity-driven, searchable, and under 70 characters.
-- Descriptions should be SEO-optimized with keywords in the first 2 lines, include timestamps if relevant, and have clear CTAs.
-- Tags should cover broad + niche keywords, competitor tags, and related terms.
-- Thumbnail concepts should prioritize high contrast, emotional faces, minimal text (3-5 words max), and curiosity gaps.
-- Consider the video's age — older videos can be revived with metadata updates.
-- When a transcript is provided, use the actual video content to craft more relevant titles, descriptions, and tags that accurately reflect what's discussed.
-- When retention data is provided, identify drop-off points and suggest content structure improvements.
-- When best practices are provided, ensure your recommendations align with what has been proven to work on this specific channel.
-- For each video, call create_video_optimization with your complete analysis.
+RULES: Titles: curiosity-driven, <70 chars. Descriptions: SEO-optimized, keywords first 2 lines, CTAs. Tags: broad+niche, up to 30. Thumbnails: high contrast, minimal text (3-5 words), curiosity gaps. Use transcript/retention/best practices when provided. Call create_video_optimization for each video.
 
-THUMBNAIL PROMPT RULES (CRITICAL — follow exactly):
-Your nano_banana_prompt must generate a BACKGROUND SCENE ONLY. The creator's selfie/face will be composited on top separately.
-Study these high-performing thumbnail styles and generate prompts that produce similar results:
+THUMBNAIL PROMPTS: Generate BACKGROUND SCENE ONLY (person composited separately). Styles: 1) EXPLOSION: dark cinematic, fire/sparks/smoke, teal-orange grading 2) SPOTLIGHT: dark stage, spotlights, bokeh, lens flares 3) TECH: bright clean, glowing elements, light rays. Prompts must be 50+ words with: background, lighting, color grading, VFX, camera style, quality keywords. NO person/face. text_overlay: ALL CAPS 3-5 words, emotional/curiosity. text_style: font, color, outline, position.${competitorPromptSection}${bestPracticesSection}${learningsSection}
 
-Style patterns to replicate:
-1. DRAMATIC EXPLOSION STYLE: Dark cinematic background with fiery orange/red explosions, sparks, embers, smoke. Product/app icons floating. Bold dramatic lighting. Example keywords: "cinematic explosion background, fire particles, volumetric smoke, dramatic orange teal color grading, 8k photorealistic"
-2. SPOTLIGHT/STAGE STYLE: Dark background with bright stage spotlights, lens flares, bokeh lights, fashion runway or performance vibe. Example: "dark stage background with dramatic spotlights, bokeh lights, lens flares, theatrical lighting, high contrast"  
-3. COLLAGE/COMPARISON STYLE: Split frame with multiple images or screenshots arranged in grid/collage, dark background. Example: "dark background with 3 screenshot frames arranged in row, subtle glow, cinematic vignette"
-4. CLEAN TECH STYLE: Bright clean background with glowing tech elements, light rays, software icons, futuristic energy effect. Example: "clean bright tech background, glowing energy burst, light rays, software interface elements floating, white and blue color scheme"
-5. MILITARY/DOCUMENTARY STYLE: Real-world settings, inside vehicles/locations, gritty photojournalistic look
-
-For each concept, the nano_banana_prompt MUST be at least 50 words and include:
-- Specific background scene description
-- Lighting type (volumetric, rim, dramatic, spotlight)
-- Color grading (teal/orange, dark moody, bright clean)
-- Visual effects (particles, bokeh, lens flares, smoke, sparks)
-- Camera/lens style (shallow DOF, wide angle, cinematic)
-- Quality keywords (8k, photorealistic, ultra detailed, professional)
-- Any product icons or elements relevant to the video topic
-- NEVER include any person, face, or human figure in the prompt
-
-The text_overlay should be punchy, ALL CAPS, 3-5 words that create curiosity or shock value. DO NOT repeat the video title — instead trigger emotion or highlight a pain point/transformation.
-The text_style should describe exactly how to render the text: font, color, outline, position, effects.
-${competitorPromptSection}
-${bestPracticesSection}
-${learningsSection}
-
-CHANNEL CONTEXT:
-- Channel average 30-day views: ${Math.round(channelAvgViews)}
-- Channel average CTR: ${(channelAvgCtr * 100).toFixed(2)}%
-`;
+Channel avg views: ${Math.round(channelAvgViews)}, avg CTR: ${(channelAvgCtr * 100).toFixed(2)}%`;
 
     let totalProposals = 0;
     const results: Array<{ video_id: string; title: string; success: boolean; error?: string }> = [];
