@@ -142,6 +142,29 @@ export function useDeleteTrainingImage() {
   });
 }
 
+export function useDeleteFluxSession() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (sessionId: string) => {
+      // Delete all images from storage first
+      const { data: images } = await query("flux_training_images")
+        .select("id, storage_path")
+        .eq("session_id", sessionId);
+      if (images && images.length > 0) {
+        const paths = (images as any[]).map((i) => i.storage_path);
+        await supabase.storage.from("training-images").remove(paths);
+        await query("flux_training_images").delete().eq("session_id", sessionId);
+      }
+      const { error } = await query("flux_training_sessions").delete().eq("id", sessionId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Session deleted");
+      qc.invalidateQueries({ queryKey: ["flux-sessions"] });
+    },
+  });
+}
+
 export function useStartTraining() {
   const { workspaceId } = useWorkspace();
   const qc = useQueryClient();
