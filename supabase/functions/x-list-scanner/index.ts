@@ -84,7 +84,6 @@ Deno.serve(async (req) => {
         "user.fields": "name,username",
         expansions: "author_id",
         max_results: "100",
-        start_time: startTime,
       });
       if (paginationToken) {
         params.set("pagination_token", paginationToken);
