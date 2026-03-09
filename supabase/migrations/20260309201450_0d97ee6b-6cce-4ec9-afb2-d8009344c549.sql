@@ -1,0 +1,1 @@
+UPDATE flux_training_sessions SET status = 'pending', training_started_at = NULL, error_message = NULL WHERE id = '4e48e3c8-6cdc-42b4-91ff-c7d1759c1433';
