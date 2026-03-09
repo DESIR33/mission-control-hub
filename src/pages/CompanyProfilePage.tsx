@@ -1,10 +1,10 @@
 import { useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { format, differenceInDays } from "date-fns";
+import { format, differenceInDays, formatDistanceToNow } from "date-fns";
+import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -25,7 +25,6 @@ import { useActivities } from "@/hooks/use-contacts";
 import { useVideoQueue } from "@/hooks/use-video-queue";
 import { useDeals } from "@/hooks/use-deals";
 import { useCompanyLinkedVideos } from "@/hooks/use-company-videos";
-import { useVideoCompanies } from "@/hooks/use-video-companies";
 import { useToast } from "@/hooks/use-toast";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,9 +33,6 @@ import {
   ArrowLeft,
   Mail,
   Globe,
-  Linkedin,
-  Twitter,
-  Instagram,
   MapPin,
   Building2,
   Users,
@@ -53,11 +49,19 @@ import {
   Eye,
   ThumbsUp,
   ExternalLink,
+  Handshake,
+  Calendar,
+  Phone,
+  Linkedin,
+  Twitter,
+  Instagram,
+  Youtube,
+  Facebook,
 } from "lucide-react";
-import type { Company, Activity, Contact } from "@/types/crm";
+import type { Company, Contact } from "@/types/crm";
 
-const tierLabels: Record<string, { label: string; color: string }> = {
-  none: { label: "—", color: "" },
+const tierConfig: Record<string, { label: string; color: string }> = {
+  none: { label: "", color: "" },
   silver: { label: "🥈 Silver", color: "text-muted-foreground" },
   gold: { label: "🥇 Gold", color: "text-warning" },
   platinum: { label: "💎 Platinum", color: "text-primary" },
@@ -98,6 +102,22 @@ function DetailRow({ icon: Icon, label, value, href }: { icon: typeof Mail; labe
   );
 }
 
+function SocialLink({ icon: Icon, value, baseUrl }: { icon: typeof Twitter; value: string | null | undefined; baseUrl: string }) {
+  if (!value) return null;
+  const handle = value.replace("@", "").replace(/https?:\/\/(www\.)?[^/]+\/?/, "");
+  const url = value.startsWith("http") ? value : `${baseUrl}${handle}`;
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="w-9 h-9 rounded-lg bg-secondary/50 border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+    >
+      <Icon className="w-4 h-4" />
+    </a>
+  );
+}
+
 export default function CompanyProfilePage() {
   const { companyId } = useParams<{ companyId: string }>();
   const navigate = useNavigate();
@@ -118,7 +138,7 @@ export default function CompanyProfilePage() {
   const { data: linkedYTVideos = [] } = useCompanyLinkedVideos(companyId);
   const deleteCompany = useDeleteCompany();
 
-  // Filter videos from video_queue linked to this company (legacy metadata approach)
+  // Filter videos from video_queue linked to this company
   const companyVideos = useMemo(() => {
     if (!company) return [];
     return allVideos.filter(
@@ -147,6 +167,7 @@ export default function CompanyProfilePage() {
   );
 
   const totalRevenue = dealRevenue + adRevenueFromLinkedVideos;
+  const relationshipAge = company ? differenceInDays(new Date(), new Date(company.created_at)) : 0;
 
   // Partnership Scorecard
   const scorecard = useMemo(() => {
@@ -158,7 +179,6 @@ export default function CompanyProfilePage() {
     const pipelineValue = openDeals.reduce((s, d) => s + (d.value ?? 0), 0);
     const winRate = closedDeals > 0 ? wonDeals.length / closedDeals : 0;
     const revenuePerVideo = linkedVideos.length > 0 ? totalRevenue / linkedVideos.length : 0;
-    const relationshipDays = differenceInDays(new Date(), new Date(company.created_at));
 
     let score = 0;
     if (totalRevenue >= 10000) score += 30;
@@ -181,7 +201,7 @@ export default function CompanyProfilePage() {
     else if (score >= 25) { grade = "C"; gradeColor = "text-warning bg-warning/10 border-warning/30"; }
     else { grade = "D"; gradeColor = "text-muted-foreground bg-muted border-border"; }
 
-    return { totalRevenue, revenuePerVideo, winRate, closedDeals, wonDeals: wonDeals.length, pipelineValue, openDeals: openDeals.length, totalCollabs: companyVideos.length, relationshipDays, score, grade, gradeColor };
+    return { totalRevenue, revenuePerVideo, winRate, closedDeals, wonDeals: wonDeals.length, pipelineValue, openDeals: openDeals.length, totalCollabs: companyVideos.length, score, grade, gradeColor };
   }, [company, companyDeals, companyVideos, linkedVideos, totalRevenue, companyContacts]);
 
   const handleDelete = async () => {
@@ -189,7 +209,7 @@ export default function CompanyProfilePage() {
     try {
       await deleteCompany.mutateAsync(company.id);
       toast({ title: "Company deleted" });
-      navigate("/relationships?tab=companies");
+      navigate("/network/companies");
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
     }
@@ -211,8 +231,15 @@ export default function CompanyProfilePage() {
     }
   };
 
-  const tier = company ? tierLabels[company.vip_tier] : null;
+  const tier = company ? tierConfig[company.vip_tier] : null;
   const hasEnrichment = company && (company.enrichment_brandfetch || company.enrichment_clay || company.enrichment_firecrawl);
+
+  const hasSocials = company && (
+    company.social_twitter || company.social_linkedin || company.social_youtube ||
+    company.social_instagram || company.social_facebook || company.social_tiktok
+  );
+
+  const initials = company?.name ? company.name.slice(0, 2).toUpperCase() : "";
 
   if (companiesLoading) {
     return (
@@ -248,22 +275,46 @@ export default function CompanyProfilePage() {
         <ArrowLeft className="w-4 h-4" /> Back to Companies
       </Button>
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
-        <div className="flex items-center gap-4 flex-1 min-w-0">
+      {/* Profile Header — social-media style */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="relative mb-8"
+      >
+        {/* Banner */}
+        <div className="h-28 sm:h-36 rounded-xl bg-gradient-to-br from-primary/20 via-secondary/40 to-accent/20 border border-border" />
+
+        {/* Logo & Name overlay */}
+        <div className="relative px-4 sm:px-6 -mt-12 sm:-mt-14 flex flex-col sm:flex-row items-start sm:items-end gap-4">
+          {/* Logo */}
           {company.logo_url ? (
-            <img src={company.logo_url} alt={company.name} className="w-14 h-14 rounded-xl object-cover shrink-0 border border-border" />
+            <img
+              src={company.logo_url}
+              alt={company.name}
+              className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover border-4 border-background shadow-lg"
+            />
           ) : (
-            <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <Building2 className="w-7 h-7 text-primary" />
+            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-primary/10 border-4 border-background shadow-lg flex items-center justify-center">
+              <Building2 className="w-10 h-10 text-primary" />
             </div>
           )}
-          <div className="min-w-0">
-            <h1 className="text-2xl font-bold text-foreground truncate">{company.name}</h1>
-            <div className="flex items-center gap-2 mt-1 flex-wrap">
-              {company.industry && <span className="text-sm text-muted-foreground">{company.industry}</span>}
-              {tier && company.vip_tier !== "none" && <span className={cn("text-xs", tier.color)}>{tier.label}</span>}
-              {company.size && <Badge variant="outline" className="text-xs">{company.size} employees</Badge>}
+
+          {/* Name & meta */}
+          <div className="flex-1 min-w-0 pb-1">
+            <h1 className="text-2xl font-bold text-foreground tracking-tight truncate">{company.name}</h1>
+            <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+              {company.industry && (
+                <Badge variant="outline" className="text-xs">
+                  {company.industry}
+                </Badge>
+              )}
+              {tier && company.vip_tier !== "none" && (
+                <span className={cn("text-xs font-medium", tier.color)}>{tier.label}</span>
+              )}
+              {company.size && (
+                <span className="text-sm text-muted-foreground">{company.size} employees</span>
+              )}
               {totalRevenue > 0 && (
                 <Badge variant="outline" className="text-xs border-success/30 bg-success/10 text-success">
                   {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(totalRevenue)} revenue
@@ -271,22 +322,95 @@ export default function CompanyProfilePage() {
               )}
             </div>
           </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-2 shrink-0 pb-1">
+            <Button variant="outline" size="sm" onClick={handleEnrich} disabled={isEnriching} className="gap-1.5">
+              {isEnriching ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+              <span className="hidden sm:inline">{isEnriching ? "Enriching..." : "Enrich"}</span>
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setEditOpen(true)} className="gap-1.5">
+              <Pencil className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Edit</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setDeleteOpen(true)}
+              className="gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </Button>
+          </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <Button variant="outline" size="sm" onClick={handleEnrich} disabled={isEnriching} className="gap-1.5">
-            {isEnriching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-            {isEnriching ? "Enriching..." : "Enrich"}
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => setEditOpen(true)} className="gap-1.5">
-            <Pencil className="w-4 h-4" /> Edit
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => setDeleteOpen(true)} className="gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30">
-            <Trash2 className="w-4 h-4" /> Delete
-          </Button>
-        </div>
+
+        {/* Social links row */}
+        {hasSocials && (
+          <div className="flex items-center gap-2 px-4 sm:px-6 mt-4">
+            <SocialLink icon={Twitter} value={company.social_twitter} baseUrl="https://x.com/" />
+            <SocialLink icon={Linkedin} value={company.social_linkedin} baseUrl="https://linkedin.com/company/" />
+            <SocialLink icon={Youtube} value={company.social_youtube} baseUrl="https://youtube.com/@" />
+            <SocialLink icon={Instagram} value={company.social_instagram} baseUrl="https://instagram.com/" />
+            <SocialLink icon={Facebook} value={company.social_facebook} baseUrl="https://facebook.com/" />
+          </div>
+        )}
+      </motion.div>
+
+      {/* Stats bar */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3 mb-6">
+        {[
+          {
+            label: "Revenue",
+            value: totalRevenue > 0
+              ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", notation: "compact", maximumFractionDigits: 1 }).format(totalRevenue)
+              : "$0",
+            icon: DollarSign,
+          },
+          {
+            label: "Deals",
+            value: String(companyDeals.length),
+            icon: Handshake,
+          },
+          {
+            label: "Contacts",
+            value: String(companyContacts.length),
+            icon: Users,
+          },
+          {
+            label: "Videos",
+            value: String(companyVideos.length + linkedYTVideos.length),
+            icon: Film,
+          },
+          {
+            label: "Win Rate",
+            value: scorecard && scorecard.closedDeals > 0 ? `${Math.round(scorecard.winRate * 100)}%` : "--",
+            icon: BarChart3,
+          },
+          {
+            label: "Rel. Age",
+            value: relationshipAge >= 365
+              ? `${(relationshipAge / 365).toFixed(1)}y`
+              : relationshipAge >= 30
+                ? `${Math.round(relationshipAge / 30)}mo`
+                : `${relationshipAge}d`,
+            icon: Calendar,
+          },
+        ].map((stat) => (
+          <Card key={stat.label} className="bg-card border-border">
+            <CardContent className="p-3 sm:p-4 flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-secondary/50 border border-border flex items-center justify-center shrink-0">
+                <stat.icon className="w-4 h-4 text-muted-foreground" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-lg font-bold font-mono text-foreground truncate">{stat.value}</p>
+                <p className="text-xs text-muted-foreground">{stat.label}</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      {/* Scorecard */}
+      {/* Partnership Scorecard */}
       {scorecard && (scorecard.totalCollabs > 0 || scorecard.closedDeals > 0) && (
         <Card className="mb-6 bg-card border-border">
           <CardContent className="p-4">
@@ -305,7 +429,7 @@ export default function CompanyProfilePage() {
                 { val: scorecard.closedDeals > 0 ? `${Math.round(scorecard.winRate * 100)}%` : "--", label: "Win Rate" },
                 { val: String(scorecard.totalCollabs), label: "Collabs" },
                 { val: scorecard.pipelineValue > 0 ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", notation: "compact", maximumFractionDigits: 1 }).format(scorecard.pipelineValue) : "$0", label: "Pipeline" },
-                { val: scorecard.relationshipDays >= 365 ? `${(scorecard.relationshipDays / 365).toFixed(1)}y` : scorecard.relationshipDays >= 30 ? `${Math.round(scorecard.relationshipDays / 30)}mo` : `${scorecard.relationshipDays}d`, label: "Rel. Age" },
+                { val: String(scorecard.openDeals), label: "Open Deals" },
               ].map((item) => (
                 <div key={item.label} className="rounded-lg bg-secondary/30 border border-border px-3 py-2.5 text-center">
                   <p className="text-sm font-bold text-foreground font-mono">{item.val}</p>
@@ -329,14 +453,30 @@ export default function CompanyProfilePage() {
               <DetailRow icon={Globe} label="Website" value={company.website} href={company.website ?? undefined} />
               <DetailRow icon={Mail} label="Email" value={company.primary_email} href={company.primary_email ? `mailto:${company.primary_email}` : undefined} />
               <DetailRow icon={Mail} label="Secondary Email" value={company.secondary_email} href={company.secondary_email ? `mailto:${company.secondary_email}` : undefined} />
-              <DetailRow icon={MapPin} label="Location" value={company.location} />
-              <DetailRow icon={Users} label="Size" value={company.size} />
+              <DetailRow icon={Phone} label="Phone" value={company.phone} href={company.phone ? `tel:${company.phone}` : undefined} />
               <DetailRow icon={DollarSign} label="Revenue" value={company.revenue} />
               {company.response_sla_minutes && (
                 <DetailRow icon={Clock} label="Response SLA" value={`${company.response_sla_minutes} min`} />
               )}
             </CardContent>
           </Card>
+
+          {/* Location */}
+          {(company.city || company.state || company.country || company.location) && (
+            <Card className="bg-card border-border">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Location</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-start gap-3 py-1">
+                  <MapPin className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
+                  <p className="text-sm text-foreground">
+                    {company.location || [company.city, company.state, company.country].filter(Boolean).join(", ")}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {company.description && (
             <Card className="bg-card border-border">
@@ -348,20 +488,6 @@ export default function CompanyProfilePage() {
               </CardContent>
             </Card>
           )}
-
-          <Card className="bg-card border-border">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Social</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-0.5">
-              <DetailRow icon={Twitter} label="Twitter / X" value={company.social_twitter} href={company.social_twitter ? `https://x.com/${company.social_twitter.replace("@", "")}` : undefined} />
-              <DetailRow icon={Linkedin} label="LinkedIn" value={company.social_linkedin} href={company.social_linkedin ? `https://linkedin.com/company/${company.social_linkedin}` : undefined} />
-              <DetailRow icon={Instagram} label="Instagram" value={company.social_instagram} href={company.social_instagram ? `https://instagram.com/${company.social_instagram.replace("@", "")}` : undefined} />
-              {!company.social_twitter && !company.social_linkedin && !company.social_instagram && (
-                <p className="text-sm text-muted-foreground py-2">No social profiles linked</p>
-              )}
-            </CardContent>
-          </Card>
 
           {company.notes && (
             <Card className="bg-card border-border">
@@ -379,12 +505,28 @@ export default function CompanyProfilePage() {
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Enrichment Data</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-3">
                 {company.enrichment_brandfetch && (
                   <div>
                     <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Brandfetch</p>
                     <pre className="text-xs text-foreground bg-secondary/50 rounded-md p-3 overflow-auto max-h-32 font-mono">
                       {JSON.stringify(company.enrichment_brandfetch, null, 2)}
+                    </pre>
+                  </div>
+                )}
+                {company.enrichment_clay && (
+                  <div>
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Clay</p>
+                    <pre className="text-xs text-foreground bg-secondary/50 rounded-md p-3 overflow-auto max-h-32 font-mono">
+                      {JSON.stringify(company.enrichment_clay, null, 2)}
+                    </pre>
+                  </div>
+                )}
+                {company.enrichment_firecrawl && (
+                  <div>
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Firecrawl</p>
+                    <pre className="text-xs text-foreground bg-secondary/50 rounded-md p-3 overflow-auto max-h-32 font-mono">
+                      {JSON.stringify(company.enrichment_firecrawl, null, 2)}
                     </pre>
                   </div>
                 )}
@@ -395,6 +537,9 @@ export default function CompanyProfilePage() {
           <div className="text-xs text-muted-foreground space-y-1 px-1">
             <p>Created: {format(new Date(company.created_at), "MMM d, yyyy")}</p>
             <p>Updated: {format(new Date(company.updated_at), "MMM d, yyyy")}</p>
+            {company.last_contact_date && (
+              <p>Last Contact: {formatDistanceToNow(new Date(company.last_contact_date), { addSuffix: true })}</p>
+            )}
           </div>
         </div>
 
@@ -414,13 +559,18 @@ export default function CompanyProfilePage() {
                 <AssociateContactPopover companyId={company.id} existingContactIds={companyContacts.map((c) => c.id)} />
               </div>
               {companyContacts.length === 0 ? (
-                <div className="flex items-center justify-center py-16 text-sm text-muted-foreground border border-dashed border-border rounded-lg">
-                  No contacts associated with this company
+                <div className="flex flex-col items-center justify-center py-16 text-sm text-muted-foreground border border-dashed border-border rounded-lg">
+                  <Users className="w-8 h-8 mb-3 text-muted-foreground/50" />
+                  <p>No contacts associated with this company</p>
                 </div>
               ) : (
                 <div className="space-y-2">
                   {companyContacts.map((contact) => (
-                    <div key={contact.id} className="flex items-center gap-3 p-3 rounded-lg border border-border bg-card hover:bg-secondary/30 transition-colors">
+                    <div
+                      key={contact.id}
+                      className="flex items-center gap-3 p-3 rounded-lg border border-border bg-card hover:bg-secondary/30 transition-colors cursor-pointer"
+                      onClick={() => navigate(`/contacts/${contact.id}`)}
+                    >
                       <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                         <span className="text-xs font-semibold text-primary">
                           {contact.first_name[0]}{contact.last_name?.[0] ?? ""}
@@ -436,6 +586,7 @@ export default function CompanyProfilePage() {
                       <Badge variant="outline" className={cn("text-xs uppercase tracking-wider shrink-0", statusColors[contact.status])}>
                         {contact.status}
                       </Badge>
+                      <ExternalLink className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                     </div>
                   ))}
                 </div>
@@ -456,7 +607,7 @@ export default function CompanyProfilePage() {
                         <span className={cn("text-xs font-mono font-medium", deal.stage === "closed_won" ? "text-success" : "text-muted-foreground")}>
                           {deal.value != null ? new Intl.NumberFormat("en-US", { style: "currency", currency: deal.currency ?? "USD" }).format(deal.value) : "$0"}
                         </span>
-                        <Badge variant="outline" className="text-xs capitalize">{deal.stage.replace("_", " ")}</Badge>
+                        <Badge variant="outline" className="text-xs capitalize">{deal.stage.replace(/_/g, " ")}</Badge>
                       </div>
                     ))}
                     {adRevenueFromLinkedVideos > 0 && (
@@ -481,7 +632,7 @@ export default function CompanyProfilePage() {
                 </div>
               )}
 
-              {/* YouTube Linked Videos (via video_companies) */}
+              {/* YouTube Linked Videos */}
               {linkedYTVideos.length > 0 && (
                 <div>
                   <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 inline-flex items-center gap-1.5">
@@ -522,13 +673,16 @@ export default function CompanyProfilePage() {
                 </div>
               )}
 
-              {/* Video Queue Videos (legacy) */}
+              {/* Video Queue Videos */}
               <div>
                 <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 inline-flex items-center gap-1.5">
                   <Play className="h-3 w-3" /> Published Videos ({linkedVideos.length})
                 </h4>
                 {linkedVideos.length === 0 ? (
-                  <p className="text-sm text-muted-foreground py-8 text-center border border-dashed border-border rounded-lg">No published videos linked</p>
+                  <div className="flex flex-col items-center justify-center py-12 text-sm text-muted-foreground border border-dashed border-border rounded-lg">
+                    <Film className="w-8 h-8 mb-3 text-muted-foreground/50" />
+                    <p>No published videos linked</p>
+                  </div>
                 ) : (
                   <div className="space-y-2">
                     {linkedVideos.map((video: any) => (
@@ -550,7 +704,10 @@ export default function CompanyProfilePage() {
                   <Lightbulb className="h-3 w-3" /> Content Pipeline ({pipelineIdeas.length})
                 </h4>
                 {pipelineIdeas.length === 0 ? (
-                  <p className="text-sm text-muted-foreground py-8 text-center border border-dashed border-border rounded-lg">No pipeline ideas linked</p>
+                  <div className="flex flex-col items-center justify-center py-12 text-sm text-muted-foreground border border-dashed border-border rounded-lg">
+                    <Lightbulb className="w-8 h-8 mb-3 text-muted-foreground/50" />
+                    <p>No pipeline ideas linked</p>
+                  </div>
                 ) : (
                   <div className="space-y-2">
                     {pipelineIdeas.map((video: any) => (
@@ -600,4 +757,3 @@ export default function CompanyProfilePage() {
     </div>
   );
 }
-
