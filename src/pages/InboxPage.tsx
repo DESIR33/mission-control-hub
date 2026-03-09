@@ -126,36 +126,49 @@ export default function InboxPage() {
     });
   }, [outlookIntegration, syncOutlook, selectedFolder, toast]);
 
+  const selectNextEmail = useCallback((currentEmailId: string) => {
+    const currentIndex = emails.findIndex(e => e.id === currentEmailId);
+    if (currentIndex === -1) {
+      setSelectedEmail(null);
+      return;
+    }
+    // Try next email, then previous, then null
+    const nextEmail = emails[currentIndex + 1] || emails[currentIndex - 1] || null;
+    setSelectedEmail(nextEmail);
+  }, [emails]);
+
   const handleDelete = useCallback(() => {
     if (!selectedEmail) return;
+    const emailToDeleteId = selectedEmail.id;
     if (selectedFolder === "trash") {
-      deleteEmailMut.mutate([selectedEmail.id], {
+      deleteEmailMut.mutate([emailToDeleteId], {
         onSuccess: () => {
           toast({ title: "Email permanently deleted" });
-          setSelectedEmail(null);
+          selectNextEmail(emailToDeleteId);
           setDeleteDialogOpen(false);
         },
       });
     } else {
-      moveEmail.mutate({ ids: [selectedEmail.id], folder: "trash" }, {
+      moveEmail.mutate({ ids: [emailToDeleteId], folder: "trash" }, {
         onSuccess: () => {
           toast({ title: "Email moved to trash" });
-          setSelectedEmail(null);
+          selectNextEmail(emailToDeleteId);
           setDeleteDialogOpen(false);
         },
       });
     }
-  }, [selectedEmail, selectedFolder, deleteEmailMut, moveEmail, toast]);
+  }, [selectedEmail, selectedFolder, deleteEmailMut, moveEmail, toast, selectNextEmail]);
 
   const handleArchive = useCallback(() => {
     if (!selectedEmail) return;
-    moveEmail.mutate({ ids: [selectedEmail.id], folder: "archive" }, {
+    const emailToArchiveId = selectedEmail.id;
+    moveEmail.mutate({ ids: [emailToArchiveId], folder: "archive" }, {
       onSuccess: () => {
         toast({ title: "Email archived" });
-        setSelectedEmail(null);
+        selectNextEmail(emailToArchiveId);
       },
     });
-  }, [selectedEmail, moveEmail, toast]);
+  }, [selectedEmail, moveEmail, toast, selectNextEmail]);
 
   const handleTogglePinned = useCallback(() => {
     if (!selectedEmail) return;
