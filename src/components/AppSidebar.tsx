@@ -162,17 +162,37 @@ export function AppSidebar({ headerless }: AppSidebarProps) {
           <RouterNavLink
             key={item.to}
             to={item.to}
-            className={({ isActive }) =>
-              cn(
-                "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
-                isActive
-                  ? "bg-sidebar-accent text-sidebar-primary"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-              )
-            }
+            className="block"
           >
-            <item.icon className="w-4 h-4 shrink-0" />
-            <span className="truncate">{item.label}</span>
+            {({ isActive }) => {
+              const inner = (
+                <>
+                  <item.icon className="w-4 h-4 shrink-0" />
+                  <span className="truncate">{item.label}</span>
+                </>
+              );
+
+              if (isActive) {
+                return (
+                  <ShimmerButton
+                    shimmerColor="hsl(43, 80%, 50%)"
+                    shimmerSize="0.05em"
+                    shimmerDuration="3s"
+                    borderRadius="6px"
+                    background="hsl(43, 30%, 12%)"
+                    className="w-full flex items-center gap-3 px-3 py-2 text-sm font-medium text-sidebar-primary border-none shadow-none"
+                  >
+                    {inner}
+                  </ShimmerButton>
+                );
+              }
+
+              return (
+                <span className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
+                  {inner}
+                </span>
+              );
+            }}
           </RouterNavLink>
         ))}
 
