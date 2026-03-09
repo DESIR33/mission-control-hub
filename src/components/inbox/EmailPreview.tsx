@@ -113,6 +113,17 @@ export default function EmailPreview({
       {/* Auto Summary Banner */}
       <AutoSummaryBanner email={email} />
 
+      {/* Auto Reminder for sent emails */}
+      <AutoReminderBanner
+        emailId={email.id}
+        subject={email.subject}
+        bodyPreview={email.preview}
+        isSentEmail={email.folder === "sent"}
+      />
+
+      {/* Quick Quote - floating button on text selection */}
+      <QuickQuoteReply onQuote={(text) => onReply(text)} />
+
       {/* Email content */}
       <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-4">
         {/* Subject */}

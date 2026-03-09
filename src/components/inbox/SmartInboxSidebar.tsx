@@ -257,6 +257,19 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
         isSending={outlookSend.isPending}
       />
 
+      {/* Team Comments */}
+      <Card>
+        <CardContent className="pt-4">
+          <TeamCommentsPanel emailId={email.id} />
+        </CardContent>
+      </Card>
+
+      {/* Shared Drafts */}
+      <SharedDraftsPanel />
+
+      {/* Engagement Dashboard */}
+      <EngagementDashboard />
+
       {/* Email Templates */}
       <EmailTemplateManager />
     </div>
