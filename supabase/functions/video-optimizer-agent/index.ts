@@ -429,38 +429,11 @@ Channel avg views: ${Math.round(channelAvgViews)}, CTR: ${(channelAvgCtr * 100).
           ? `\nTranscript (excerpt):\n${transcript}`
           : "";
 
-        const retention = retentionMap.get(v.youtube_video_id);
-        const retentionSection = retention
-          ? `\nRetention Curve (time:retention%): ${retention}`
-          : "";
-
-        return `
-VIDEO: ${v.title}
-ID: ${v.youtube_video_id}
-Published: ${v.published_at || "unknown"}
-Health Score: ${v.health_score.toFixed(1)}/100
-
-Current Metadata:
-- Title: ${v.title}
-- Description: ${v.description ? v.description.substring(0, 300) : "N/A"}
-- Tags: ${v.tags?.join(", ") || "None"}
-- Thumbnail: ${v.thumbnail_url || "Not available"}
-
-30-Day Performance:
-- Views: ${v.views_30d} (channel avg: ${Math.round(v.channel_avg_views_30d)})
-- CTR: ${(v.ctr_30d * 100).toFixed(2)}% (channel avg: ${(v.channel_avg_ctr_30d * 100).toFixed(2)}%)
-- Impressions: ${v.impressions_30d}
-- Subscribers gained: ${v.subs_gained_30d} | lost: ${v.subs_lost_30d}
-- Avg view duration: ${Math.round(v.avg_view_duration_30d)}s
-- Revenue: $${v.estimated_revenue_30d.toFixed(2)}
-
-Lifetime Stats:
-- Views: ${v.lifetime_views}
-- Likes: ${v.lifetime_likes}
-- Comments: ${v.lifetime_comments}
-${retentionSection}
-${transcriptSection}
-${competitorSection}`;
+        return `VIDEO: ${v.title} | ID: ${v.youtube_video_id} | Health: ${v.health_score.toFixed(0)}/100
+Tags: ${v.tags?.slice(0, 10).join(", ") || "None"}
+30d: Views=${v.views_30d}, CTR=${(v.ctr_30d * 100).toFixed(1)}%, Impr=${v.impressions_30d}, Subs+${v.subs_gained_30d}/-${v.subs_lost_30d}, AvgDur=${Math.round(v.avg_view_duration_30d)}s
+Lifetime: ${v.lifetime_views} views, ${v.lifetime_likes} likes
+${transcriptSection}${competitorSection}`;
       }).join("\n---\n");
 
       try {
