@@ -198,7 +198,7 @@ export function useRunVideoOptimizer() {
   return useMutation<
     { success: boolean; videos_analyzed: number; proposals_created: number; results: any[] },
     Error,
-    { max_videos?: number; model?: string }
+    { max_videos?: number; model?: string; video_id?: string }
   >({
     mutationFn: async ({ max_videos = 10, model, video_id }) => {
       if (!workspaceId) throw new Error("No workspace");
