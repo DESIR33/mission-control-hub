@@ -30,6 +30,7 @@ import {
   BarChart3,
   ListVideo,
   Sparkles,
+  ImageIcon,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
