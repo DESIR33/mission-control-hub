@@ -453,6 +453,63 @@ export default function EmailList({
 
                 <ContextMenuSeparator />
 
+                <ContextMenuSub>
+                  <ContextMenuSubTrigger>
+                    <TagIcon className="h-4 w-4 mr-2" />
+                    Classify as...
+                  </ContextMenuSubTrigger>
+                  <ContextMenuSubContent className="w-48">
+                    <ContextMenuItem
+                      onClick={() => {
+                        const targetIds = hasSelection ? ids : [email.id];
+                        setEmailCategory.mutate({ emailIds: targetIds, category: "opportunity" });
+                      }}
+                    >
+                      <Sparkles className="h-4 w-4 mr-2 text-emerald-500" />
+                      Opportunity
+                    </ContextMenuItem>
+                    <ContextMenuItem
+                      onClick={() => {
+                        const targetIds = hasSelection ? ids : [email.id];
+                        setEmailCategory.mutate({ emailIds: targetIds, category: "marketing" });
+                      }}
+                    >
+                      <Megaphone className="h-4 w-4 mr-2 text-purple-500" />
+                      Marketing
+                    </ContextMenuItem>
+                    <ContextMenuItem
+                      onClick={() => {
+                        const targetIds = hasSelection ? ids : [email.id];
+                        setEmailCategory.mutate({ emailIds: targetIds, category: "newsletter" });
+                      }}
+                    >
+                      <Newspaper className="h-4 w-4 mr-2 text-blue-500" />
+                      Newsletter
+                    </ContextMenuItem>
+                    <ContextMenuItem
+                      onClick={() => {
+                        const targetIds = hasSelection ? ids : [email.id];
+                        setEmailCategory.mutate({ emailIds: targetIds, category: "spam" });
+                      }}
+                    >
+                      <ShieldAlert className="h-4 w-4 mr-2 text-red-500" />
+                      Spam
+                    </ContextMenuItem>
+                    <ContextMenuSeparator />
+                    <ContextMenuItem
+                      onClick={() => {
+                        const targetIds = hasSelection ? ids : [email.id];
+                        setEmailCategory.mutate({ emailIds: targetIds, category: null });
+                      }}
+                    >
+                      <XCircleIcon className="h-4 w-4 mr-2 text-muted-foreground" />
+                      Remove category
+                    </ContextMenuItem>
+                  </ContextMenuSubContent>
+                </ContextMenuSub>
+
+                <ContextMenuSeparator />
+
                 <ContextMenuItem
                   className="text-destructive focus:text-destructive"
                   onClick={() => {
