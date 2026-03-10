@@ -33,6 +33,7 @@ const AddCompanyPage = lazy(() => import("./pages/AddCompanyPage"));
 const AddContactPage = lazy(() => import("./pages/AddContactPage"));
 const AddProductTransactionPage = lazy(() => import("./pages/AddProductTransactionPage"));
 const NewSponsorshipPage = lazy(() => import("./pages/NewSponsorshipPage"));
+const EditSponsorshipPage = lazy(() => import("./pages/EditSponsorshipPage"));
 const VideoDetailPage = lazy(() => import("./pages/VideoDetailPage"));
 const WeeklySprintPage = lazy(() => import("./pages/WeeklySprintPage"));
 const CompanyProfilePage = lazy(() => import("./pages/CompanyProfilePage"));
@@ -128,6 +129,7 @@ const App = () => (
               <Route path="/affiliate-program/:id/add-transaction" element={<LazyPage section="Add Transaction"><AddTransactionPage /></LazyPage>} />
               <Route path="/affiliate-program/:id/edit-transaction" element={<LazyPage section="Edit Transaction"><EditTransactionPage /></LazyPage>} />
               <Route path="/sponsorship/new" element={<LazyPage section="New Sponsorship"><NewSponsorshipPage /></LazyPage>} />
+              <Route path="/sponsorship/:id/edit" element={<LazyPage section="Edit Sponsorship"><EditSponsorshipPage /></LazyPage>} />
               <Route path="/add-transaction" element={<LazyPage section="Add Transaction"><AddProductTransactionPage /></LazyPage>} />
               <Route path="/add-transaction/:id" element={<LazyPage section="Add Transaction"><AddProductTransactionPage /></LazyPage>} />
 
