@@ -1,3 +1,4 @@
+import { useState } from "react";
 import DOMPurify from "dompurify";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -16,19 +17,19 @@ import { EmailToContactActions } from "@/components/inbox/EmailToContactActions"
 import { SnoozeMenu } from "@/components/inbox/SnoozeMenu";
 import { AutoSummaryBanner } from "@/components/inbox/AutoSummaryBanner";
 import { InstantReplyBar } from "@/components/inbox/InstantReplyBar";
-import { AutoDraftReply } from "@/components/inbox/AutoDraftReply";
 import { InstantIntroDialog } from "@/components/inbox/InstantIntroDialog";
 import { ReadStatusIndicator } from "@/components/inbox/ReadStatusIndicator";
 import { MuteConversationButton } from "@/components/inbox/MuteConversationButton";
 import { QuickQuoteReply } from "@/components/inbox/QuickQuoteReply";
 import { AutoReminderBanner } from "@/components/inbox/AutoReminderBanner";
+import { ReplyComposer } from "@/components/inbox/ReplyComposer";
 import { useOutlookSend } from "@/hooks/use-smart-inbox";
 import type { SmartEmail } from "@/hooks/use-smart-inbox";
 
 interface EmailPreviewProps {
   email: SmartEmail | null;
-  onReply: (quotedText?: string) => void;
-  onForward: () => void;
+  onReply?: (quotedText?: string) => void;
+  onForward?: () => void;
   onDelete: () => void;
   onArchive: () => void;
   onTogglePinned: () => void;
@@ -43,6 +44,9 @@ export default function EmailPreview({
   onTogglePinned,
 }: EmailPreviewProps) {
   const outlookSend = useOutlookSend();
+  const [replyMode, setReplyMode] = useState<"reply" | "forward" | null>(null);
+  const [quotedText, setQuotedText] = useState<string | undefined>();
+
   if (!email) {
     return (
       <div className="h-full flex flex-col items-center justify-center bg-card px-8 text-center">
@@ -59,15 +63,30 @@ export default function EmailPreview({
   const senderDisplay = email.from_name || email.from_email;
   const isSentFolder = email.folder === "sent";
 
+  const handleReply = (quoted?: string) => {
+    setQuotedText(quoted);
+    setReplyMode("reply");
+  };
+
+  const handleForward = () => {
+    setQuotedText(undefined);
+    setReplyMode("forward");
+  };
+
+  const handleCloseComposer = () => {
+    setReplyMode(null);
+    setQuotedText(undefined);
+  };
+
   return (
     <div className="h-full flex flex-col bg-card">
       {/* Header toolbar */}
       <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border flex-shrink-0">
         <div className="flex items-center gap-1.5 flex-wrap">
-          <Button size="sm" variant="ghost" onClick={() => onReply()} title="Reply (R)">
+          <Button size="sm" variant="ghost" onClick={() => handleReply()} title="Reply (R)">
             <ReplyIcon className="h-4 w-4" />
           </Button>
-          <Button size="sm" variant="ghost" onClick={onForward} title="Forward (F)">
+          <Button size="sm" variant="ghost" onClick={handleForward} title="Forward (F)">
             <ForwardIcon className="h-4 w-4" />
           </Button>
           <Button size="sm" variant="ghost" onClick={onTogglePinned} title={email.is_pinned ? "Unpin (P)" : "Pin (P)"}>
@@ -122,7 +141,7 @@ export default function EmailPreview({
       />
 
       {/* Quick Quote - floating button on text selection */}
-      <QuickQuoteReply onQuote={(text) => onReply(text)} />
+      <QuickQuoteReply onQuote={(text) => handleReply(text)} />
 
       {/* Email content */}
       <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-4">
@@ -198,11 +217,18 @@ export default function EmailPreview({
         </div>
       </div>
 
-      {/* Instant Reply Bar */}
-      <InstantReplyBar email={email} />
-
-      {/* AI Auto-Draft */}
-      <AutoDraftReply email={email} />
+      {/* Inline Reply Composer or Quick Reply Bar */}
+      {replyMode ? (
+        <ReplyComposer
+          key={`${replyMode}-${email.id}`}
+          email={email}
+          mode={replyMode}
+          quotedText={quotedText}
+          onClose={handleCloseComposer}
+        />
+      ) : (
+        <InstantReplyBar email={email} />
+      )}
     </div>
   );
 }

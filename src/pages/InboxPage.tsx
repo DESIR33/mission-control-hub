@@ -81,17 +81,12 @@ export default function InboxPage() {
   const [splitTab, setSplitTab] = useState<SplitCategory>("all");
 
   const [composeOpen, setComposeOpen] = useState(false);
-  const [replyOpen, setReplyOpen] = useState(false);
-  const [forwardOpen, setForwardOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [snoozeDialogEmailId, setSnoozeDialogEmailId] = useState<string | null>(null);
 
   const [composeTo, setComposeTo] = useState("");
   const [composeSubject, setComposeSubject] = useState("");
   const [composeBody, setComposeBody] = useState("");
-  const [replyBody, setReplyBody] = useState("");
-  const [forwardTo, setForwardTo] = useState("");
-  const [forwardBody, setForwardBody] = useState("");
 
   // Undo send state
   const [undoSendVisible, setUndoSendVisible] = useState(false);
@@ -281,49 +276,7 @@ export default function InboxPage() {
     }, delay);
   }, [composeTo, composeSubject, composeBody, outlookSend, toast]);
 
-  const handleReplySend = useCallback(async () => {
-    if (!selectedEmail) return;
-    initiateUndoSend({
-      to: selectedEmail.from_email,
-      subject: `Re: ${selectedEmail.subject}`,
-      body_html: replyBody.replace(/\n/g, "<br>"),
-    });
-    // Actually use reply_to_message_id
-    undoRef.current = false;
-    setPendingSend(null);
-    setUndoSendVisible(false);
-    try {
-      await outlookSend.mutateAsync({
-        reply_to_message_id: selectedEmail.message_id,
-        body_html: replyBody.replace(/\n/g, "<br>"),
-      });
-      sonnerToast.success("Reply sent");
-    } catch (err: any) {
-      sonnerToast.error(`Reply failed: ${err.message}`);
-    }
-    setReplyOpen(false);
-    setReplyBody("");
-  }, [selectedEmail, replyBody, outlookSend, initiateUndoSend]);
-
-  const handleForwardSend = useCallback(async () => {
-    if (!forwardTo.trim()) {
-      toast({ title: "Recipient required", variant: "destructive" });
-      return;
-    }
-    try {
-      await outlookSend.mutateAsync({
-        forward_to: forwardTo,
-        subject: `Fwd: ${selectedEmail?.subject || ""}`,
-        body_html: `${forwardBody.replace(/\n/g, "<br>")}<br><br>--- Forwarded message ---<br>${selectedEmail?.body_html || selectedEmail?.preview || ""}`,
-      });
-      sonnerToast.success("Email forwarded");
-      setForwardOpen(false);
-      setForwardTo("");
-      setForwardBody("");
-    } catch (err: any) {
-      sonnerToast.error(`Forward failed: ${err.message}`);
-    }
-  }, [forwardTo, forwardBody, selectedEmail, outlookSend, toast]);
+  // Reply/forward are now handled inline by EmailPreview's ReplyComposer
 
   const handleMarkRead = useCallback(() => {
     if (selectedEmail) markRead.mutate({ ids: [selectedEmail.id], is_read: true });
@@ -396,13 +349,6 @@ export default function InboxPage() {
         <div className="flex-1 overflow-hidden">
           <EmailPreview
             email={selectedEmail}
-            onReply={(quotedText) => {
-              if (quotedText) {
-                setReplyBody(`\n\n> ${quotedText.replace(/\n/g, "\n> ")}\n\n`);
-              }
-              setReplyOpen(true);
-            }}
-            onForward={() => setForwardOpen(true)}
             onDelete={() => setDeleteDialogOpen(true)}
             onArchive={handleArchive}
             onTogglePinned={handleTogglePinned}
@@ -424,39 +370,6 @@ export default function InboxPage() {
           </AlertDialogContent>
         </AlertDialog>
 
-        <Dialog open={replyOpen} onOpenChange={setReplyOpen}>
-          <DialogContent className="sm:max-w-[520px]">
-            <DialogHeader><DialogTitle>Reply</DialogTitle></DialogHeader>
-            <div className="space-y-3">
-              <p className="text-xs text-muted-foreground">To: {selectedEmail.from_email}</p>
-              <Textarea placeholder="Your reply..." value={replyBody} onChange={(e) => setReplyBody(e.target.value)} rows={6} />
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setReplyOpen(false)}>Cancel</Button>
-              <Button onClick={handleReplySend} disabled={outlookSend.isPending}>
-                {outlookSend.isPending ? <Loader2Icon className="h-4 w-4 animate-spin mr-2" /> : <SendIcon className="h-4 w-4 mr-2" />}
-                Send
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        <Dialog open={forwardOpen} onOpenChange={setForwardOpen}>
-          <DialogContent className="sm:max-w-[520px]">
-            <DialogHeader><DialogTitle>Forward</DialogTitle></DialogHeader>
-            <div className="space-y-3">
-              <div><Label>To</Label><Input value={forwardTo} onChange={(e) => setForwardTo(e.target.value)} placeholder="recipient@example.com" /></div>
-              <Textarea placeholder="Add a comment..." value={forwardBody} onChange={(e) => setForwardBody(e.target.value)} rows={4} />
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setForwardOpen(false)}>Cancel</Button>
-              <Button onClick={handleForwardSend} disabled={outlookSend.isPending}>
-                {outlookSend.isPending ? <Loader2Icon className="h-4 w-4 animate-spin mr-2" /> : <SendIcon className="h-4 w-4 mr-2" />}
-                Forward
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </div>
     );
   }
@@ -466,8 +379,8 @@ export default function InboxPage() {
       {/* Command Bar (Cmd+K) */}
       <InboxCommandBar
         onCompose={() => setComposeOpen(true)}
-        onReply={() => setReplyOpen(true)}
-        onForward={() => setForwardOpen(true)}
+        onReply={() => {/* handled inline by EmailPreview */}}
+        onForward={() => {/* handled inline by EmailPreview */}}
         onArchive={handleArchive}
         onDelete={() => setDeleteDialogOpen(true)}
         onTogglePin={handleTogglePinned}
@@ -644,13 +557,6 @@ export default function InboxPage() {
             <ResizablePanel defaultSize={45} minSize={30}>
               <EmailPreview
                 email={selectedEmail}
-                onReply={(quotedText) => {
-                  if (quotedText) {
-                    setReplyBody(`\n\n> ${quotedText.replace(/\n/g, "\n> ")}\n\n`);
-                  }
-                  setReplyOpen(true);
-                }}
-                onForward={() => setForwardOpen(true)}
                 onDelete={() => setDeleteDialogOpen(true)}
                 onArchive={handleArchive}
                 onTogglePinned={handleTogglePinned}
@@ -682,43 +588,6 @@ export default function InboxPage() {
             <Button onClick={handleComposeSend} disabled={outlookSend.isPending}>
               {outlookSend.isPending ? <Loader2Icon className="h-4 w-4 animate-spin mr-2" /> : <SendIcon className="h-4 w-4 mr-2" />}
               Send
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Reply dialog */}
-      <Dialog open={replyOpen} onOpenChange={setReplyOpen}>
-        <DialogContent className="sm:max-w-[520px]">
-          <DialogHeader><DialogTitle>Reply to {selectedEmail?.from_name || selectedEmail?.from_email}</DialogTitle></DialogHeader>
-          <div className="space-y-3">
-            <p className="text-xs text-muted-foreground">Re: {selectedEmail?.subject}</p>
-            <Textarea placeholder="Your reply..." value={replyBody} onChange={(e) => setReplyBody(e.target.value)} rows={6} />
-            <SnippetsWithVariables onInsert={(text) => setReplyBody((prev) => prev + "\n" + text)} />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setReplyOpen(false)}>Cancel</Button>
-            <Button onClick={handleReplySend} disabled={outlookSend.isPending}>
-              {outlookSend.isPending ? <Loader2Icon className="h-4 w-4 animate-spin mr-2" /> : <SendIcon className="h-4 w-4 mr-2" />}
-              Send Reply
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Forward dialog */}
-      <Dialog open={forwardOpen} onOpenChange={setForwardOpen}>
-        <DialogContent className="sm:max-w-[520px]">
-          <DialogHeader><DialogTitle>Forward</DialogTitle></DialogHeader>
-          <div className="space-y-3">
-            <div><Label>To</Label><Input value={forwardTo} onChange={(e) => setForwardTo(e.target.value)} placeholder="recipient@example.com" /></div>
-            <Textarea placeholder="Add a comment..." value={forwardBody} onChange={(e) => setForwardBody(e.target.value)} rows={4} />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setForwardOpen(false)}>Cancel</Button>
-            <Button onClick={handleForwardSend} disabled={outlookSend.isPending}>
-              {outlookSend.isPending ? <Loader2Icon className="h-4 w-4 animate-spin mr-2" /> : <SendIcon className="h-4 w-4 mr-2" />}
-              Forward
             </Button>
           </DialogFooter>
         </DialogContent>
