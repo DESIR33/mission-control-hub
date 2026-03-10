@@ -176,7 +176,7 @@ export default function NewSponsorshipPage() {
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
       <div>
         <button
-          onClick={() => navigate("/monetization?tab=sponsorships")}
+          onClick={() => navigate("/revenue/sponsorships")}
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
