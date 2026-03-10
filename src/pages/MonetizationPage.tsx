@@ -592,6 +592,8 @@ export default function MonetizationPage() {
           {/* Overview Tab */}
           <TabsContent value="overview">
             <div className="space-y-5">
+              {/* Revenue Goal Tracker */}
+              <RevenueGoalTracker />
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
