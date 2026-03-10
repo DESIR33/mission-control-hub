@@ -414,7 +414,7 @@ export function ThumbnailLab() {
         {/* GENERATE TAB */}
         <TabsContent value="generate" className="space-y-4">
           <Card className="p-5 border-border bg-card">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
               <div>
                 <h3 className="text-sm font-semibold text-foreground">Generate Thumbnail Alternatives</h3>
                 <p className="text-xs text-muted-foreground mt-0.5">
