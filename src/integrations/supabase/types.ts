@@ -130,6 +130,66 @@ export type Database = {
           },
         ]
       }
+      affiliate_transactions: {
+        Row: {
+          affiliate_program_id: string | null
+          amount: number
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          metadata: Json | null
+          sale_amount: number | null
+          status: string
+          transaction_date: string | null
+          video_queue_id: string | null
+          workspace_id: string
+        }
+        Insert: {
+          affiliate_program_id?: string | null
+          amount?: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          sale_amount?: number | null
+          status?: string
+          transaction_date?: string | null
+          video_queue_id?: string | null
+          workspace_id: string
+        }
+        Update: {
+          affiliate_program_id?: string | null
+          amount?: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          sale_amount?: number | null
+          status?: string
+          transaction_date?: string | null
+          video_queue_id?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_transactions_affiliate_program_id_fkey"
+            columns: ["affiliate_program_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_transactions_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agent_ab_tests: {
         Row: {
           agent_slug: string
