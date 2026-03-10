@@ -248,21 +248,21 @@ export function ThumbnailLab() {
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="select" className="gap-1.5">
-            <Image className="w-3.5 h-3.5" /> Select Video
+        <TabsList className="flex w-full overflow-x-auto scrollbar-hide">
+          <TabsTrigger value="select" className="gap-1.5 flex-shrink-0 text-xs sm:text-sm">
+            <Image className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Select</span> Video
           </TabsTrigger>
-          <TabsTrigger value="assess" className="gap-1.5" disabled={!selectedVideoId}>
+          <TabsTrigger value="assess" className="gap-1.5 flex-shrink-0 text-xs sm:text-sm" disabled={!selectedVideoId}>
             <Eye className="w-3.5 h-3.5" /> Assess
           </TabsTrigger>
-          <TabsTrigger value="generate" className="gap-1.5" disabled={!selectedVideoId}>
+          <TabsTrigger value="generate" className="gap-1.5 flex-shrink-0 text-xs sm:text-sm" disabled={!selectedVideoId}>
             <Sparkles className="w-3.5 h-3.5" /> Generate
           </TabsTrigger>
-          <TabsTrigger value="compare" className="gap-1.5" disabled={Object.keys(generatedImages).length === 0 && Object.keys(generatedSelfies).length === 0}>
+          <TabsTrigger value="compare" className="gap-1.5 flex-shrink-0 text-xs sm:text-sm" disabled={Object.keys(generatedImages).length === 0 && Object.keys(generatedSelfies).length === 0}>
             <BarChart3 className="w-3.5 h-3.5" /> Compare
           </TabsTrigger>
-          <TabsTrigger value="references" className="gap-1.5">
-            <Palette className="w-3.5 h-3.5" /> References
+          <TabsTrigger value="references" className="gap-1.5 flex-shrink-0 text-xs sm:text-sm">
+            <Palette className="w-3.5 h-3.5" /> Refs
           </TabsTrigger>
         </TabsList>
 
@@ -315,12 +315,12 @@ export function ThumbnailLab() {
           {selectedVideo && (
             <>
               <Card className="p-5 border-border bg-card">
-                <div className="flex items-start gap-4">
+                <div className="flex flex-col sm:flex-row items-start gap-4">
                   {currentThumbnailUrl && (
                     <img
                       src={currentThumbnailUrl}
                       alt="Current thumbnail"
-                      className="w-64 rounded-lg border border-border"
+                      className="w-full sm:w-64 rounded-lg border border-border"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = `https://i.ytimg.com/vi/${selectedVideoId}/hqdefault.jpg`;
                       }}
@@ -379,7 +379,7 @@ export function ThumbnailLab() {
                     <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
                       <Target className="w-3 h-3" /> Desire Loop
                     </p>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {["core_desire", "pain_point", "solution_transformation", "curiosity_loop"].map((field) => (
                         <div key={field} className="rounded-lg border border-border p-3">
                           <span className="text-xs font-medium text-foreground capitalize">{field.replace(/_/g, ' ')}</span>
@@ -414,14 +414,14 @@ export function ThumbnailLab() {
         {/* GENERATE TAB */}
         <TabsContent value="generate" className="space-y-4">
           <Card className="p-5 border-border bg-card">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
               <div>
                 <h3 className="text-sm font-semibold text-foreground">Generate Thumbnail Alternatives</h3>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   4 concepts based on the desire loop framework
                 </p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 {!useLoraMode && (
                   <Select value={selectedModel} onValueChange={setSelectedModel}>
                     <SelectTrigger className="w-48 h-8 text-xs">
