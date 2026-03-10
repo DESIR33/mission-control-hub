@@ -431,7 +431,7 @@ export default function AffiliateProgramPage() {
                   })}
                   {transactions.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center text-muted-foreground py-12 text-sm">
+                      <TableCell colSpan={7} className="text-center text-muted-foreground py-12 text-sm">
                         No transactions recorded yet
                       </TableCell>
                     </TableRow>
