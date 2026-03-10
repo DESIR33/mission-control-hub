@@ -85,6 +85,7 @@ export default function EmailList({
   const togglePin = useTogglePin();
   const moveEmail = useMoveEmail();
   const snoozeEmail = useSnoozeEmail();
+  const setEmailCategory = useSetEmailCategory();
   const snoozeOptions = getSnoozeOptions();
 
   const toggleSelect = useCallback((id: string, e?: React.MouseEvent) => {
