@@ -356,14 +356,15 @@ export default function AffiliateProgramPage() {
               </div>
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Commission</TableHead>
-                    <TableHead>Payout Date</TableHead>
-                    <TableHead>Recurring</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
+                 <TableRow>
+                     <TableHead>Date</TableHead>
+                     <TableHead>Sale Amount</TableHead>
+                     <TableHead>Commission</TableHead>
+                     <TableHead>Payout Date</TableHead>
+                     <TableHead>Recurring</TableHead>
+                     <TableHead>Status</TableHead>
+                     <TableHead className="text-right">Actions</TableHead>
+                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {transactions.map((tx) => {
