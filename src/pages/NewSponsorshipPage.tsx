@@ -204,40 +204,92 @@ export default function NewSponsorshipPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>Company</Label>
-                      <Select
-                        value={formData.companyId}
-                        onValueChange={(value) => setFormData({ ...formData, companyId: value })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select company" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {companies.map((company) => (
-                            <SelectItem key={company.id} value={company.id}>
-                              {company.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <Popover open={companyOpen} onOpenChange={setCompanyOpen}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={companyOpen}
+                            className="w-full justify-between font-normal"
+                          >
+                            {formData.companyId
+                              ? sortedCompanies.find((c) => c.id === formData.companyId)?.name
+                              : "Select company"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                          <Command>
+                            <CommandInput placeholder="Search companies..." />
+                            <CommandList>
+                              <CommandEmpty>No company found.</CommandEmpty>
+                              <CommandGroup>
+                                {sortedCompanies.map((company) => (
+                                  <CommandItem
+                                    key={company.id}
+                                    value={company.name}
+                                    onSelect={() => {
+                                      setFormData({ ...formData, companyId: company.id });
+                                      setCompanyOpen(false);
+                                    }}
+                                  >
+                                    <Check className={cn("mr-2 h-4 w-4", formData.companyId === company.id ? "opacity-100" : "opacity-0")} />
+                                    {company.name}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
                     </div>
 
                     <div className="space-y-2">
                       <Label>Contact (Optional)</Label>
-                      <Select
-                        value={formData.contactId}
-                        onValueChange={(value) => setFormData({ ...formData, contactId: value })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select contact" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {contacts.map((contact) => (
-                            <SelectItem key={contact.id} value={contact.id}>
-                              {`${contact.first_name} ${contact.last_name || ""}`}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <Popover open={contactOpen} onOpenChange={setContactOpen}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={contactOpen}
+                            className="w-full justify-between font-normal"
+                          >
+                            {formData.contactId
+                              ? (() => {
+                                  const c = sortedContacts.find((c) => c.id === formData.contactId);
+                                  return c ? `${c.first_name} ${c.last_name || ""}`.trim() : "Select contact";
+                                })()
+                              : "Select contact"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                          <Command>
+                            <CommandInput placeholder="Search contacts..." />
+                            <CommandList>
+                              <CommandEmpty>No contact found.</CommandEmpty>
+                              <CommandGroup>
+                                {sortedContacts.map((contact) => {
+                                  const fullName = `${contact.first_name} ${contact.last_name || ""}`.trim();
+                                  return (
+                                    <CommandItem
+                                      key={contact.id}
+                                      value={fullName}
+                                      onSelect={() => {
+                                        setFormData({ ...formData, contactId: contact.id });
+                                        setContactOpen(false);
+                                      }}
+                                    >
+                                      <Check className={cn("mr-2 h-4 w-4", formData.contactId === contact.id ? "opacity-100" : "opacity-0")} />
+                                      {fullName}
+                                    </CommandItem>
+                                  );
+                                })}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
                     </div>
                   </div>
 
