@@ -566,17 +566,6 @@ export default function MonetizationPage() {
             Products
           </button>
           <button
-            onClick={() => navigate("/revenue/overview")}
-            className={cn(
-              "rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap shrink-0",
-              activeTab === "revenue-overview"
-                ? "bg-card text-card-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            Revenue Overview
-          </button>
-          <button
             onClick={() => navigate("/revenue/rate-card")}
             className={cn(
               "rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap shrink-0",
@@ -592,6 +581,14 @@ export default function MonetizationPage() {
           {/* Overview Tab */}
           <TabsContent value="overview">
             <div className="space-y-5">
+              {/* Revenue Overview */}
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+              >
+                <RevenueOverview />
+              </motion.div>
               {/* Revenue Goal Tracker */}
               <RevenueGoalTracker />
               <motion.div
@@ -1181,18 +1178,6 @@ export default function MonetizationPage() {
             </div>
           </TabsContent>
 
-          {/* Revenue Overview Tab */}
-          <TabsContent value="revenue-overview">
-            <div className="space-y-5">
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
-              >
-                <RevenueOverview />
-              </motion.div>
-            </div>
-          </TabsContent>
 
           {/* Rate Card Tab */}
           <TabsContent value="rate-card">
