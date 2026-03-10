@@ -176,7 +176,7 @@ export default function NewSponsorshipPage() {
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
       <div>
         <button
-          onClick={() => navigate("/monetization?tab=sponsorships")}
+          onClick={() => navigate("/revenue/sponsorships")}
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -467,7 +467,7 @@ export default function NewSponsorshipPage() {
                   </div>
 
                   <div className="flex gap-3 pt-2">
-                    <Button type="button" variant="outline" onClick={() => navigate("/monetization?tab=sponsorships")}>
+                    <Button type="button" variant="outline" onClick={() => navigate("/revenue/sponsorships")}>
                       Cancel
                     </Button>
                     <Button type="submit" disabled={createSponsorship.isPending}>
@@ -601,7 +601,7 @@ export default function NewSponsorshipPage() {
                     ))}
 
                     <div className="pt-4 flex gap-3">
-                      <Button type="button" variant="outline" onClick={() => navigate("/monetization?tab=sponsorships")}>
+                      <Button type="button" variant="outline" onClick={() => navigate("/revenue/sponsorships")}>
                         Cancel
                       </Button>
                       <Button onClick={handleSubmit} disabled={createSponsorship.isPending}>
