@@ -1170,18 +1170,6 @@ export default function MonetizationPage() {
             </div>
           </TabsContent>
 
-          {/* Revenue Overview Tab */}
-          <TabsContent value="revenue-overview">
-            <div className="space-y-5">
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
-              >
-                <RevenueOverview />
-              </motion.div>
-            </div>
-          </TabsContent>
 
           {/* Rate Card Tab */}
           <TabsContent value="rate-card">

@@ -92,7 +92,7 @@ export const mainNavItems: NavItem[] = [
       { to: "/revenue/affiliate", label: "Affiliate Programs", icon: Handshake },
       { to: "/revenue/sponsorships", label: "Sponsorships", icon: Megaphone },
       { to: "/revenue/products", label: "Products", icon: ShoppingBag },
-      { to: "/revenue/overview", label: "Revenue Overview", icon: DollarSign },
+      
       { to: "/revenue/rate-card", label: "Rate Card", icon: CreditCard },
     ],
   },
