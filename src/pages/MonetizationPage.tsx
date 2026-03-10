@@ -443,7 +443,7 @@ export default function MonetizationPage() {
     }
   };
 
-
+  const sortedAffiliatePrograms = useMemo(() => {
     if (affiliatePrograms === null || affiliatePrograms === undefined || sortConfig === null) {
       return affiliatePrograms;
     }
