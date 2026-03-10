@@ -27,6 +27,9 @@ import { MemoryContent } from "@/components/ai-hub/MemoryContent";
 // Flux Training content
 import { FluxTrainingContent } from "@/components/ai-hub/FluxTrainingContent";
 
+// Thumbnail Lab
+import { ThumbnailLab } from "@/components/command-center/ThumbnailLab";
+
 function ChatContent() {
   const chat = useChat();
   const [showMemory, setShowMemory] = useState(false);
