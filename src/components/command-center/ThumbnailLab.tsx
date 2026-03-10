@@ -134,22 +134,22 @@ export function ThumbnailLab() {
   const buildBackgroundPrompt = (concept: typeof THUMBNAIL_CONCEPTS[0], videoTitle: string) => {
     const base = `A cinematic YouTube thumbnail BACKGROUND ONLY (no people, no faces) in 16:9 aspect ratio for "${videoTitle}".`;
     const angles: Record<string, string> = {
-      A: `${base} Dramatic explosion of light and color representing SUCCESS and achievement. Volumetric lighting, teal-and-orange grading, lens flares. Professional, premium feel. Leave clear space on the right side for a person to be composited in.`,
-      B: `${base} Dark moody tech background with blue/cyan neon accents, holographic UI elements, floating data visualizations. Futuristic atmosphere. Leave clear space on the right for a person.`,
-      C: `${base} Split composition: left side dark/muted/destructive, right side bright/vibrant/constructive. Dramatic transition effect in the center. Leave clear space for a person overlay.`,
-      D: `${base} Intense warm red/orange dramatic background with fire, sparks, or urgency elements. Dark cinematic mood. High contrast. Leave clear space on the right for a person to be composited in.`,
+      A: `${base} Dramatic explosion of light and color representing SUCCESS and achievement. Volumetric lighting, teal-and-orange grading, lens flares. Professional, premium feel.`,
+      B: `${base} Dark moody tech background with blue/cyan neon accents, holographic UI elements, floating data visualizations. Futuristic atmosphere.`,
+      C: `${base} Split composition: left side dark/muted/destructive, right side bright/vibrant/constructive. Dramatic transition effect in the center.`,
+      D: `${base} Intense warm red/orange dramatic background with fire, sparks, or urgency elements. Dark cinematic mood. High contrast.`,
     };
     return angles[concept.variant] || base;
   };
 
-  const buildSelfiePrompt = (triggerWord: string, concept: typeof THUMBNAIL_CONCEPTS[0]) => {
-    const expressions: Record<string, string> = {
-      A: "confident, triumphant smile, looking directly at camera, professional lighting",
-      B: "focused, determined expression, slight head tilt, studio lighting",
-      C: "surprised, excited expression with wide eyes, dramatic lighting",
-      D: "concerned, serious expression, dramatic side lighting, intense gaze",
+  const buildThumbnailPrompt = (triggerWord: string, concept: typeof THUMBNAIL_CONCEPTS[0], videoTitle: string) => {
+    const scenes: Record<string, string> = {
+      A: `A professional YouTube thumbnail in 16:9 aspect ratio. ${triggerWord} standing confidently on the right side with a triumphant smile, looking directly at camera, upper body visible. The background is a dramatic explosion of light and color representing SUCCESS for "${videoTitle}". Volumetric lighting, teal-and-orange color grading, lens flares. Bold, cinematic, professional. 4k, sharp focus.`,
+      B: `A professional YouTube thumbnail in 16:9 aspect ratio. ${triggerWord} on the right side with a focused, determined expression, slight head tilt, upper body visible. The background is a dark moody tech scene with blue/cyan neon accents, holographic UI elements for "${videoTitle}". Futuristic atmosphere. 4k, sharp focus.`,
+      C: `A professional YouTube thumbnail in 16:9 aspect ratio. ${triggerWord} in the center with a surprised, excited expression with wide eyes, upper body visible. Split background: left side dark/muted, right side bright/vibrant showing transformation for "${videoTitle}". Dramatic lighting. 4k, sharp focus.`,
+      D: `A professional YouTube thumbnail in 16:9 aspect ratio. ${triggerWord} on the right side with a concerned, serious expression and intense gaze, upper body visible. Background has intense warm red/orange dramatic elements with fire and sparks creating urgency for "${videoTitle}". Dark cinematic mood. 4k, sharp focus.`,
     };
-    return `A portrait photo of ${triggerWord}, ${expressions[concept.variant] || "looking at camera"}, upper body, high quality, 4k, sharp focus, YouTube creator style`;
+    return scenes[concept.variant] || `A professional YouTube thumbnail featuring ${triggerWord} for "${videoTitle}". 16:9, 4k, sharp focus.`;
   };
 
   const handleGenerate = async (variant: string) => {
@@ -159,31 +159,31 @@ export function ThumbnailLab() {
 
     try {
       if (useLoraMode && selectedLoraSession) {
-        // Composite mode: LoRA selfie + Nano Banana 2 background
+        // Composite mode: Full thumbnail with LoRA (person+scene) + NB2 background
         const concept = THUMBNAIL_CONCEPTS.find((c) => c.variant === variant)!;
-        const selfiePrompt = customSelfiePrompts[variant] || buildSelfiePrompt(selectedLoraSession.trigger_word, concept);
+        const thumbnailPrompt = customSelfiePrompts[variant] || buildThumbnailPrompt(selectedLoraSession.trigger_word, concept, selectedVideo.title);
         const bgPrompt = customPrompts[variant] || buildBackgroundPrompt(concept, selectedVideo.title);
 
         const result = await generateComposite.mutateAsync({
-          selfie_prompt: selfiePrompt,
+          thumbnail_prompt: thumbnailPrompt,
           background_prompt: bgPrompt,
           lora_model: selectedLoraSession.replicate_model_name!,
           lora_version: selectedLoraSession.replicate_model_version || undefined,
           trigger_word: selectedLoraSession.trigger_word,
         });
 
-        if (result.selfie_url) {
-          setGeneratedSelfies((prev) => ({ ...prev, [variant]: result.selfie_url }));
+        if (result.thumbnail_url) {
+          setGeneratedSelfies((prev) => ({ ...prev, [variant]: result.thumbnail_url }));
         }
         if (result.background_url) {
           setGeneratedBackgrounds((prev) => ({ ...prev, [variant]: result.background_url }));
         }
 
-        if (result.selfie_url || result.background_url) {
-          toast({ title: `Variant ${variant} composite generated!` });
+        if (result.thumbnail_url || result.background_url) {
+          toast({ title: `Variant ${variant} generated!` });
         }
-        if (result.selfie_error) {
-          toast({ title: "Selfie generation issue", description: result.selfie_error, variant: "destructive" });
+        if (result.thumbnail_error) {
+          toast({ title: "Thumbnail generation issue", description: result.thumbnail_error, variant: "destructive" });
         }
         if (result.background_error) {
           toast({ title: "Background generation issue", description: result.background_error, variant: "destructive" });
@@ -461,7 +461,7 @@ export function ThumbnailLab() {
               {useLoraMode && (
                 <div className="space-y-2">
                   <p className="text-xs text-muted-foreground">
-                    Generates your selfie with the trained Flux LoRA model, and a cinematic background with Nano Banana 2 (SDXL Turbo). Combine them in your editor.
+                    Generates a complete thumbnail with your trained LoRA model (person + cinematic scene in one image), plus an alternative background via Nano Banana 2.
                   </p>
 
                   {completedSessions.length === 0 ? (
@@ -509,7 +509,7 @@ export function ThumbnailLab() {
                   ? (useLoraMode ? buildBackgroundPrompt(concept, selectedVideo.title) : buildPrompt(concept, selectedVideo.title))
                   : "";
                 const defaultSelfiePrompt = selectedLoraSession && selectedVideo
-                  ? buildSelfiePrompt(selectedLoraSession.trigger_word, concept)
+                  ? buildThumbnailPrompt(selectedLoraSession.trigger_word, concept, selectedVideo.title)
                   : "";
                 const isGenerating = generatingVariants[concept.variant];
                 const imageUrl = generatedImages[concept.variant];
@@ -548,12 +548,12 @@ export function ThumbnailLab() {
 
                     <p className="text-xs text-muted-foreground">{concept.description}</p>
 
-                    {/* LoRA mode: show selfie prompt + background prompt */}
+                    {/* LoRA mode: show thumbnail prompt + background prompt */}
                     {useLoraMode ? (
                       <div className="space-y-2">
                         <div>
                           <Label className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 block">
-                            Selfie Prompt (LoRA)
+                            Thumbnail Prompt (LoRA — person + scene)
                           </Label>
                           <Textarea
                             value={customSelfiePrompts[concept.variant] ?? defaultSelfiePrompt}
@@ -561,7 +561,7 @@ export function ThumbnailLab() {
                               setCustomSelfiePrompts((prev) => ({ ...prev, [concept.variant]: e.target.value }))
                             }
                             className="text-xs h-16 resize-none"
-                            placeholder="Selfie generation prompt..."
+                            placeholder="Full thumbnail prompt with person and scene..."
                           />
                         </div>
                         <div>
@@ -607,11 +607,11 @@ export function ThumbnailLab() {
                         {selfieUrl && (
                           <div className="relative group">
                             <Label className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 block">
-                              <User className="w-3 h-3 inline mr-1" /> LoRA Selfie
+                              <Image className="w-3 h-3 inline mr-1" /> Generated Thumbnail (LoRA)
                             </Label>
                             <img
                               src={selfieUrl}
-                              alt={`Selfie ${concept.variant}`}
+                              alt={`Thumbnail ${concept.variant}`}
                               className="w-full rounded-lg border border-primary/30"
                             />
                             <a
