@@ -116,8 +116,9 @@ export default function NewSponsorshipPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["deals"] });
+      queryClient.invalidateQueries({ queryKey: ["sponsorships"] });
       toast({ title: "Success", description: "Sponsorship created successfully" });
-      navigate("/monetization?tab=sponsorships");
+      navigate("/revenue/sponsorships");
     },
     onError: (error: Error) => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
