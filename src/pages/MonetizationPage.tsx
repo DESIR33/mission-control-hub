@@ -29,6 +29,7 @@ import { RevenueOverview } from "@/components/monetization/RevenueOverview";
 import { RevenueGoalTracker } from "@/components/monetization/RevenueGoalTracker";
 import { useCompanies } from "@/hooks/use-companies";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { useAffiliateTransactions } from "@/hooks/use-affiliate-transactions";
 
 function TopEarningVideos() {
   const { data: revSummary } = useContentRevenue();
