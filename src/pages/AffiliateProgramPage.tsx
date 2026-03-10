@@ -116,7 +116,9 @@ export default function AffiliateProgramPage() {
     setEditingTransactionId(null);
     setTransactionData({
       transactionDate: new Date().toISOString().split("T")[0],
+      saleAmount: 0,
       commission: 0,
+      commissionManuallyEdited: false,
       approximatePayoutDate: "",
       isRecurring: false,
       recurringMonths: 0,
