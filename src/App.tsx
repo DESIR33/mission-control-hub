@@ -33,6 +33,7 @@ const AddCompanyPage = lazy(() => import("./pages/AddCompanyPage"));
 const AddContactPage = lazy(() => import("./pages/AddContactPage"));
 const AddProductTransactionPage = lazy(() => import("./pages/AddProductTransactionPage"));
 const NewSponsorshipPage = lazy(() => import("./pages/NewSponsorshipPage"));
+const EditSponsorshipPage = lazy(() => import("./pages/EditSponsorshipPage"));
 const VideoDetailPage = lazy(() => import("./pages/VideoDetailPage"));
 const WeeklySprintPage = lazy(() => import("./pages/WeeklySprintPage"));
 const CompanyProfilePage = lazy(() => import("./pages/CompanyProfilePage"));
