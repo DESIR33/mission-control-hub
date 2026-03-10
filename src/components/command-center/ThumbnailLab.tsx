@@ -159,31 +159,31 @@ export function ThumbnailLab() {
 
     try {
       if (useLoraMode && selectedLoraSession) {
-        // Composite mode: LoRA selfie + Nano Banana 2 background
+        // Composite mode: Full thumbnail with LoRA (person+scene) + NB2 background
         const concept = THUMBNAIL_CONCEPTS.find((c) => c.variant === variant)!;
-        const selfiePrompt = customSelfiePrompts[variant] || buildSelfiePrompt(selectedLoraSession.trigger_word, concept);
+        const thumbnailPrompt = customSelfiePrompts[variant] || buildThumbnailPrompt(selectedLoraSession.trigger_word, concept, selectedVideo.title);
         const bgPrompt = customPrompts[variant] || buildBackgroundPrompt(concept, selectedVideo.title);
 
         const result = await generateComposite.mutateAsync({
-          selfie_prompt: selfiePrompt,
+          thumbnail_prompt: thumbnailPrompt,
           background_prompt: bgPrompt,
           lora_model: selectedLoraSession.replicate_model_name!,
           lora_version: selectedLoraSession.replicate_model_version || undefined,
           trigger_word: selectedLoraSession.trigger_word,
         });
 
-        if (result.selfie_url) {
-          setGeneratedSelfies((prev) => ({ ...prev, [variant]: result.selfie_url }));
+        if (result.thumbnail_url) {
+          setGeneratedSelfies((prev) => ({ ...prev, [variant]: result.thumbnail_url }));
         }
         if (result.background_url) {
           setGeneratedBackgrounds((prev) => ({ ...prev, [variant]: result.background_url }));
         }
 
-        if (result.selfie_url || result.background_url) {
-          toast({ title: `Variant ${variant} composite generated!` });
+        if (result.thumbnail_url || result.background_url) {
+          toast({ title: `Variant ${variant} generated!` });
         }
-        if (result.selfie_error) {
-          toast({ title: "Selfie generation issue", description: result.selfie_error, variant: "destructive" });
+        if (result.thumbnail_error) {
+          toast({ title: "Thumbnail generation issue", description: result.thumbnail_error, variant: "destructive" });
         }
         if (result.background_error) {
           toast({ title: "Background generation issue", description: result.background_error, variant: "destructive" });
