@@ -461,7 +461,7 @@ export function ThumbnailLab() {
               {useLoraMode && (
                 <div className="space-y-2">
                   <p className="text-xs text-muted-foreground">
-                    Generates your selfie with the trained Flux LoRA model, and a cinematic background with Nano Banana 2 (SDXL Turbo). Combine them in your editor.
+                    Generates a complete thumbnail with your trained LoRA model (person + cinematic scene in one image), plus an alternative background via Nano Banana 2.
                   </p>
 
                   {completedSessions.length === 0 ? (
