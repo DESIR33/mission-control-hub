@@ -465,20 +465,70 @@ export default function AffiliateProgramPage() {
               />
             </div>
             <div className="space-y-2">
+              <Label>Sale Amount ($)</Label>
+              <Input
+                type="number"
+                min="0"
+                step="0.01"
+                value={transactionData.saleAmount || ""}
+                onChange={(e) => {
+                  const saleAmt = parseFloat(e.target.value) || 0;
+                  const autoCommission = program?.commission_percentage
+                    ? parseFloat((saleAmt * program.commission_percentage / 100).toFixed(2))
+                    : 0;
+                  setTransactionData({
+                    ...transactionData,
+                    saleAmount: saleAmt,
+                    ...(transactionData.commissionManuallyEdited ? {} : { commission: autoCommission }),
+                  });
+                }}
+                placeholder="How much the customer paid"
+              />
+              {program?.commission_percentage != null && (
+                <p className="text-xs text-muted-foreground">
+                  Commission rate: {program.commission_percentage}%
+                </p>
+              )}
+            </div>
+            <div className="space-y-2">
               <Label>Commission Amount ($)</Label>
               <Input
                 type="number"
                 min="0"
                 step="0.01"
-                value={transactionData.commission}
+                value={transactionData.commission || ""}
                 onChange={(e) =>
                   setTransactionData({
                     ...transactionData,
-                    commission: parseFloat(e.target.value),
+                    commission: parseFloat(e.target.value) || 0,
+                    commissionManuallyEdited: true,
                   })
                 }
                 required
               />
+              {transactionData.saleAmount > 0 && transactionData.commission > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  Effective rate: {((transactionData.commission / transactionData.saleAmount) * 100).toFixed(1)}%
+                  {transactionData.commissionManuallyEdited && (
+                    <button
+                      type="button"
+                      className="ml-2 text-primary hover:underline"
+                      onClick={() => {
+                        const autoCommission = program?.commission_percentage
+                          ? parseFloat((transactionData.saleAmount * program.commission_percentage / 100).toFixed(2))
+                          : 0;
+                        setTransactionData({
+                          ...transactionData,
+                          commission: autoCommission,
+                          commissionManuallyEdited: false,
+                        });
+                      }}
+                    >
+                      Reset to {program?.commission_percentage}%
+                    </button>
+                  )}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label>Approximate Payout Date</Label>
