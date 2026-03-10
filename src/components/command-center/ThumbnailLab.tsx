@@ -509,7 +509,7 @@ export function ThumbnailLab() {
                   ? (useLoraMode ? buildBackgroundPrompt(concept, selectedVideo.title) : buildPrompt(concept, selectedVideo.title))
                   : "";
                 const defaultSelfiePrompt = selectedLoraSession && selectedVideo
-                  ? buildSelfiePrompt(selectedLoraSession.trigger_word, concept)
+                  ? buildThumbnailPrompt(selectedLoraSession.trigger_word, concept, selectedVideo.title)
                   : "";
                 const isGenerating = generatingVariants[concept.variant];
                 const imageUrl = generatedImages[concept.variant];
