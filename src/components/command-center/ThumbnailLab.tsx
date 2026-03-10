@@ -6,20 +6,24 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useWorkspace } from "@/hooks/use-workspace";
 import {
   useGenerateThumbnail,
+  useGenerateCompositeThumbnail,
   useAssessThumbnail,
   useThumbnailAssessments,
   useSaveThumbnailAssessment,
   useUpdateThumbnailAssessment,
 } from "@/hooks/use-thumbnail-lab";
+import { useFluxSessions } from "@/hooks/use-flux-training";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import {
   Image, Sparkles, BarChart3, Eye, Loader2, Download, Check, RefreshCw,
-  Lightbulb, Target, Palette, Type, Users, Zap,
+  Lightbulb, Target, Palette, Type, Users, Zap, User,
 } from "lucide-react";
 
 const THUMBNAIL_CONCEPTS = [
@@ -61,14 +65,33 @@ export function ThumbnailLab() {
   const [selectedVideoId, setSelectedVideoId] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState(MODEL_OPTIONS[0].value);
   const [customPrompts, setCustomPrompts] = useState<Record<string, string>>({});
+  const [customSelfiePrompts, setCustomSelfiePrompts] = useState<Record<string, string>>({});
   const [generatedImages, setGeneratedImages] = useState<Record<string, string>>({});
+  const [generatedSelfies, setGeneratedSelfies] = useState<Record<string, string>>({});
+  const [generatedBackgrounds, setGeneratedBackgrounds] = useState<Record<string, string>>({});
   const [generatingVariants, setGeneratingVariants] = useState<Record<string, boolean>>({});
   const [activeTab, setActiveTab] = useState("select");
 
+  // LoRA composite mode
+  const [useLoraMode, setUseLoraMode] = useState(false);
+  const [selectedLoraSessionId, setSelectedLoraSessionId] = useState<string>("");
+
   const generateThumbnail = useGenerateThumbnail();
+  const generateComposite = useGenerateCompositeThumbnail();
   const assessThumbnail = useAssessThumbnail();
   const saveAssessment = useSaveThumbnailAssessment();
   const { data: assessments } = useThumbnailAssessments(selectedVideoId || undefined);
+
+  // Fetch completed Flux LoRA sessions
+  const { data: fluxSessions } = useFluxSessions();
+  const completedSessions = useMemo(
+    () => (fluxSessions ?? []).filter((s) => s.status === "completed" && s.replicate_model_name),
+    [fluxSessions]
+  );
+  const selectedLoraSession = useMemo(
+    () => completedSessions.find((s) => s.id === selectedLoraSessionId),
+    [completedSessions, selectedLoraSessionId]
+  );
 
   // Fetch videos from youtube_video_stats
   const { data: videos } = useQuery({
@@ -108,38 +131,84 @@ export function ThumbnailLab() {
     return angles[concept.variant] || base;
   };
 
+  const buildBackgroundPrompt = (concept: typeof THUMBNAIL_CONCEPTS[0], videoTitle: string) => {
+    const base = `A cinematic YouTube thumbnail BACKGROUND ONLY (no people, no faces) in 16:9 aspect ratio for "${videoTitle}".`;
+    const angles: Record<string, string> = {
+      A: `${base} Dramatic explosion of light and color representing SUCCESS and achievement. Volumetric lighting, teal-and-orange grading, lens flares. Professional, premium feel. Leave clear space on the right side for a person to be composited in.`,
+      B: `${base} Dark moody tech background with blue/cyan neon accents, holographic UI elements, floating data visualizations. Futuristic atmosphere. Leave clear space on the right for a person.`,
+      C: `${base} Split composition: left side dark/muted/destructive, right side bright/vibrant/constructive. Dramatic transition effect in the center. Leave clear space for a person overlay.`,
+      D: `${base} Intense warm red/orange dramatic background with fire, sparks, or urgency elements. Dark cinematic mood. High contrast. Leave clear space on the right for a person to be composited in.`,
+    };
+    return angles[concept.variant] || base;
+  };
+
+  const buildSelfiePrompt = (triggerWord: string, concept: typeof THUMBNAIL_CONCEPTS[0]) => {
+    const expressions: Record<string, string> = {
+      A: "confident, triumphant smile, looking directly at camera, professional lighting",
+      B: "focused, determined expression, slight head tilt, studio lighting",
+      C: "surprised, excited expression with wide eyes, dramatic lighting",
+      D: "concerned, serious expression, dramatic side lighting, intense gaze",
+    };
+    return `A portrait photo of ${triggerWord}, ${expressions[concept.variant] || "looking at camera"}, upper body, high quality, 4k, sharp focus, YouTube creator style`;
+  };
+
   const handleGenerate = async (variant: string) => {
     if (!selectedVideo) return;
-
-    const prompt = customPrompts[variant] || buildPrompt(
-      THUMBNAIL_CONCEPTS.find((c) => c.variant === variant)!,
-      selectedVideo.title
-    );
 
     setGeneratingVariants((prev) => ({ ...prev, [variant]: true }));
 
     try {
-      const result = await generateThumbnail.mutateAsync({
-        prompt,
-        model: selectedModel,
-      });
+      if (useLoraMode && selectedLoraSession) {
+        // Composite mode: LoRA selfie + Nano Banana 2 background
+        const concept = THUMBNAIL_CONCEPTS.find((c) => c.variant === variant)!;
+        const selfiePrompt = customSelfiePrompts[variant] || buildSelfiePrompt(selectedLoraSession.trigger_word, concept);
+        const bgPrompt = customPrompts[variant] || buildBackgroundPrompt(concept, selectedVideo.title);
 
-      if (result.success && result.image_url) {
-        setGeneratedImages((prev) => ({ ...prev, [variant]: result.image_url }));
-        toast({ title: `Variant ${variant} generated!` });
-      } else {
-        toast({
-          title: "Generation failed",
-          description: result.error || "Unknown error",
-          variant: "destructive",
+        const result = await generateComposite.mutateAsync({
+          selfie_prompt: selfiePrompt,
+          background_prompt: bgPrompt,
+          lora_model: selectedLoraSession.replicate_model_name!,
+          lora_version: selectedLoraSession.replicate_model_version || undefined,
+          trigger_word: selectedLoraSession.trigger_word,
         });
+
+        if (result.selfie_url) {
+          setGeneratedSelfies((prev) => ({ ...prev, [variant]: result.selfie_url }));
+        }
+        if (result.background_url) {
+          setGeneratedBackgrounds((prev) => ({ ...prev, [variant]: result.background_url }));
+        }
+
+        if (result.selfie_url || result.background_url) {
+          toast({ title: `Variant ${variant} composite generated!` });
+        }
+        if (result.selfie_error) {
+          toast({ title: "Selfie generation issue", description: result.selfie_error, variant: "destructive" });
+        }
+        if (result.background_error) {
+          toast({ title: "Background generation issue", description: result.background_error, variant: "destructive" });
+        }
+      } else {
+        // Standard single-image mode
+        const prompt = customPrompts[variant] || buildPrompt(
+          THUMBNAIL_CONCEPTS.find((c) => c.variant === variant)!,
+          selectedVideo.title
+        );
+
+        const result = await generateThumbnail.mutateAsync({
+          prompt,
+          model: selectedModel,
+        });
+
+        if (result.success && result.image_url) {
+          setGeneratedImages((prev) => ({ ...prev, [variant]: result.image_url }));
+          toast({ title: `Variant ${variant} generated!` });
+        } else {
+          toast({ title: "Generation failed", description: result.error || "Unknown error", variant: "destructive" });
+        }
       }
     } catch (err: any) {
-      toast({
-        title: "Error",
-        description: err.message || "Failed to generate thumbnail",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: err.message || "Failed to generate thumbnail", variant: "destructive" });
     } finally {
       setGeneratingVariants((prev) => ({ ...prev, [variant]: false }));
     }
@@ -189,7 +258,7 @@ export function ThumbnailLab() {
           <TabsTrigger value="generate" className="gap-1.5" disabled={!selectedVideoId}>
             <Sparkles className="w-3.5 h-3.5" /> Generate
           </TabsTrigger>
-          <TabsTrigger value="compare" className="gap-1.5" disabled={Object.keys(generatedImages).length === 0}>
+          <TabsTrigger value="compare" className="gap-1.5" disabled={Object.keys(generatedImages).length === 0 && Object.keys(generatedSelfies).length === 0}>
             <BarChart3 className="w-3.5 h-3.5" /> Compare
           </TabsTrigger>
           <TabsTrigger value="references" className="gap-1.5">
@@ -353,31 +422,99 @@ export function ThumbnailLab() {
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <Select value={selectedModel} onValueChange={setSelectedModel}>
-                  <SelectTrigger className="w-48 h-8 text-xs">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {MODEL_OPTIONS.map((m) => (
-                      <SelectItem key={m.value} value={m.value} className="text-xs">
-                        {m.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {!useLoraMode && (
+                  <Select value={selectedModel} onValueChange={setSelectedModel}>
+                    <SelectTrigger className="w-48 h-8 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {MODEL_OPTIONS.map((m) => (
+                        <SelectItem key={m.value} value={m.value} className="text-xs">
+                          {m.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
                 <Button size="sm" onClick={handleGenerateAll}>
                   <Sparkles className="w-3.5 h-3.5 mr-1.5" /> Generate All 4
                 </Button>
               </div>
             </div>
 
+            {/* LoRA Composite Mode Toggle */}
+            <Card className="p-4 border-border bg-muted/30 mb-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <User className="w-4 h-4 text-primary" />
+                  <Label htmlFor="lora-mode" className="text-sm font-medium text-foreground cursor-pointer">
+                    Use Trained LoRA Model (Selfie + Background)
+                  </Label>
+                </div>
+                <Switch
+                  id="lora-mode"
+                  checked={useLoraMode}
+                  onCheckedChange={setUseLoraMode}
+                />
+              </div>
+
+              {useLoraMode && (
+                <div className="space-y-2">
+                  <p className="text-xs text-muted-foreground">
+                    Generates your selfie with the trained Flux LoRA model, and a cinematic background with Nano Banana 2 (SDXL Turbo). Combine them in your editor.
+                  </p>
+
+                  {completedSessions.length === 0 ? (
+                    <p className="text-xs text-destructive">
+                      No completed LoRA training sessions found. Train a model first in AI Hub → Flux Training.
+                    </p>
+                  ) : (
+                    <Select value={selectedLoraSessionId} onValueChange={setSelectedLoraSessionId}>
+                      <SelectTrigger className="w-full h-8 text-xs">
+                        <SelectValue placeholder="Select a trained LoRA model..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {completedSessions.map((s) => (
+                          <SelectItem key={s.id} value={s.id} className="text-xs">
+                            <span className="font-medium">{s.name}</span>
+                            <span className="text-muted-foreground ml-2">
+                              (trigger: {s.trigger_word})
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+
+                  {selectedLoraSession && (
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Badge variant="outline" className="text-xs">
+                        Model: {selectedLoraSession.replicate_model_name}
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        Trigger: {selectedLoraSession.trigger_word}
+                      </Badge>
+                      <Badge variant="default" className="text-xs">
+                        <Check className="w-3 h-3 mr-1" /> Trained
+                      </Badge>
+                    </div>
+                  )}
+                </div>
+              )}
+            </Card>
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {THUMBNAIL_CONCEPTS.map((concept) => {
                 const defaultPrompt = selectedVideo
-                  ? buildPrompt(concept, selectedVideo.title)
+                  ? (useLoraMode ? buildBackgroundPrompt(concept, selectedVideo.title) : buildPrompt(concept, selectedVideo.title))
+                  : "";
+                const defaultSelfiePrompt = selectedLoraSession && selectedVideo
+                  ? buildSelfiePrompt(selectedLoraSession.trigger_word, concept)
                   : "";
                 const isGenerating = generatingVariants[concept.variant];
                 const imageUrl = generatedImages[concept.variant];
+                const selfieUrl = generatedSelfies[concept.variant];
+                const bgUrl = generatedBackgrounds[concept.variant];
 
                 return (
                   <Card key={concept.variant} className="p-4 border-border bg-muted/20 space-y-3">
@@ -387,16 +524,21 @@ export function ThumbnailLab() {
                           {concept.variant}
                         </span>
                         <span className="text-xs font-medium text-foreground">{concept.angle}</span>
+                        {useLoraMode && (
+                          <Badge variant="secondary" className="text-[10px]">
+                            <User className="w-2.5 h-2.5 mr-0.5" /> LoRA + NB2
+                          </Badge>
+                        )}
                       </div>
                       <Button
                         size="sm"
                         variant="outline"
                         onClick={() => handleGenerate(concept.variant)}
-                        disabled={isGenerating}
+                        disabled={isGenerating || (useLoraMode && !selectedLoraSession)}
                       >
                         {isGenerating ? (
                           <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        ) : imageUrl ? (
+                        ) : (imageUrl || selfieUrl) ? (
                           <><RefreshCw className="w-3.5 h-3.5 mr-1" /> Regenerate</>
                         ) : (
                           <><Sparkles className="w-3.5 h-3.5 mr-1" /> Generate</>
@@ -406,26 +548,107 @@ export function ThumbnailLab() {
 
                     <p className="text-xs text-muted-foreground">{concept.description}</p>
 
-                    <Textarea
-                      value={customPrompts[concept.variant] ?? defaultPrompt}
-                      onChange={(e) =>
-                        setCustomPrompts((prev) => ({ ...prev, [concept.variant]: e.target.value }))
-                      }
-                      className="text-xs h-24 resize-none"
-                      placeholder="Customize the generation prompt..."
-                    />
+                    {/* LoRA mode: show selfie prompt + background prompt */}
+                    {useLoraMode ? (
+                      <div className="space-y-2">
+                        <div>
+                          <Label className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 block">
+                            Selfie Prompt (LoRA)
+                          </Label>
+                          <Textarea
+                            value={customSelfiePrompts[concept.variant] ?? defaultSelfiePrompt}
+                            onChange={(e) =>
+                              setCustomSelfiePrompts((prev) => ({ ...prev, [concept.variant]: e.target.value }))
+                            }
+                            className="text-xs h-16 resize-none"
+                            placeholder="Selfie generation prompt..."
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 block">
+                            Background Prompt (Nano Banana 2)
+                          </Label>
+                          <Textarea
+                            value={customPrompts[concept.variant] ?? defaultPrompt}
+                            onChange={(e) =>
+                              setCustomPrompts((prev) => ({ ...prev, [concept.variant]: e.target.value }))
+                            }
+                            className="text-xs h-16 resize-none"
+                            placeholder="Background generation prompt..."
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <Textarea
+                        value={customPrompts[concept.variant] ?? defaultPrompt}
+                        onChange={(e) =>
+                          setCustomPrompts((prev) => ({ ...prev, [concept.variant]: e.target.value }))
+                        }
+                        className="text-xs h-24 resize-none"
+                        placeholder="Customize the generation prompt..."
+                      />
+                    )}
 
-                    {/* Generated image preview */}
+                    {/* Loading state */}
                     {isGenerating && (
                       <div className="aspect-video rounded-lg bg-muted flex items-center justify-center border border-border">
                         <div className="flex flex-col items-center gap-2">
                           <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                          <span className="text-xs text-muted-foreground">Generating...</span>
+                          <span className="text-xs text-muted-foreground">
+                            {useLoraMode ? "Generating selfie + background..." : "Generating..."}
+                          </span>
                         </div>
                       </div>
                     )}
 
-                    {imageUrl && !isGenerating && (
+                    {/* Composite results (LoRA mode) */}
+                    {useLoraMode && !isGenerating && (selfieUrl || bgUrl) && (
+                      <div className="space-y-2">
+                        {selfieUrl && (
+                          <div className="relative group">
+                            <Label className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 block">
+                              <User className="w-3 h-3 inline mr-1" /> LoRA Selfie
+                            </Label>
+                            <img
+                              src={selfieUrl}
+                              alt={`Selfie ${concept.variant}`}
+                              className="w-full rounded-lg border border-primary/30"
+                            />
+                            <a
+                              href={selfieUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="absolute top-6 right-2 p-1.5 rounded bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <Download className="w-3.5 h-3.5" />
+                            </a>
+                          </div>
+                        )}
+                        {bgUrl && (
+                          <div className="relative group">
+                            <Label className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 block">
+                              <Palette className="w-3 h-3 inline mr-1" /> Background (Nano Banana 2)
+                            </Label>
+                            <img
+                              src={bgUrl}
+                              alt={`Background ${concept.variant}`}
+                              className="w-full rounded-lg border border-border"
+                            />
+                            <a
+                              href={bgUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="absolute top-6 right-2 p-1.5 rounded bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <Download className="w-3.5 h-3.5" />
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Standard single-image result */}
+                    {!useLoraMode && imageUrl && !isGenerating && (
                       <div className="relative group">
                         <img
                           src={imageUrl}
@@ -476,7 +699,7 @@ export function ThumbnailLab() {
                 )}
               </div>
 
-              {/* Generated variants */}
+              {/* Generated variants - standard mode */}
               {Object.entries(generatedImages).map(([variant, url]) => {
                 const concept = THUMBNAIL_CONCEPTS.find((c) => c.variant === variant);
                 return (
@@ -493,6 +716,33 @@ export function ThumbnailLab() {
                     <Button size="sm" variant="outline" className="w-full">
                       <Check className="w-3.5 h-3.5 mr-1.5" /> Select This Variant
                     </Button>
+                  </div>
+                );
+              })}
+
+              {/* Generated variants - composite mode */}
+              {Object.entries(generatedSelfies).map(([variant, selfieUrl]) => {
+                const concept = THUMBNAIL_CONCEPTS.find((c) => c.variant === variant);
+                const bgUrl = generatedBackgrounds[variant];
+                return (
+                  <div key={`composite-${variant}`} className="space-y-2">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                      <span className={concept?.color}>Variant {variant}</span>
+                      — {concept?.angle}
+                      <Badge variant="secondary" className="text-[10px] ml-1">LoRA</Badge>
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <p className="text-[10px] text-muted-foreground mb-1">Selfie</p>
+                        <img src={selfieUrl} alt={`Selfie ${variant}`} className="w-full rounded-lg border border-primary/30" />
+                      </div>
+                      {bgUrl && (
+                        <div>
+                          <p className="text-[10px] text-muted-foreground mb-1">Background</p>
+                          <img src={bgUrl} alt={`BG ${variant}`} className="w-full rounded-lg border border-border" />
+                        </div>
+                      )}
+                    </div>
                   </div>
                 );
               })}
