@@ -931,11 +931,41 @@ export default function MonetizationPage() {
                                   aria-label="Edit sponsorship"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    navigate(`/monetization/edit-sponsorship/${sponsorship.id}`);
+                                    navigate(`/sponsorship/${sponsorship.id}/edit`);
                                   }}
                                 >
                                   <Pencil className="h-3.5 w-3.5" />
                                 </Button>
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-7 w-7 text-destructive hover:text-destructive"
+                                      aria-label="Delete sponsorship"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <Trash2 className="h-3.5 w-3.5" />
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Delete Sponsorship</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        Are you sure you want to delete this sponsorship? This action cannot be undone.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                      <AlertDialogAction
+                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                        onClick={() => handleDeleteSponsorship(sponsorship.id)}
+                                      >
+                                        Delete
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
                               </div>
                             </TableCell>
                           </TableRow>
