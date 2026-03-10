@@ -418,8 +418,32 @@ export default function MonetizationPage() {
       console.error('Error deleting program:', error);
     }
   };
+  const deleteSponsorship = useMutation({
+    mutationFn: async (id: string) => {
+      if (!workspaceId) throw new Error("No workspace");
+      const { error } = await supabase
+        .from("deals")
+        .update({ deleted_at: new Date().toISOString() })
+        .eq("id", id)
+        .eq("workspace_id", workspaceId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["sponsorships"] });
+      queryClient.invalidateQueries({ queryKey: ["deals"] });
+      toast({ title: "Sponsorship deleted", description: "The sponsorship has been successfully deleted." });
+    },
+  });
 
-  const sortedAffiliatePrograms = useMemo(() => {
+  const handleDeleteSponsorship = async (id: string) => {
+    try {
+      await deleteSponsorship.mutateAsync(id);
+    } catch (error) {
+      console.error('Error deleting sponsorship:', error);
+    }
+  };
+
+
     if (affiliatePrograms === null || affiliatePrograms === undefined || sortConfig === null) {
       return affiliatePrograms;
     }
