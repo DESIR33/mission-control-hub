@@ -74,8 +74,8 @@ export default function NewAffiliateProgramPage() {
   });
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 min-h-screen">
-      <div className="mx-auto max-w-2xl">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
+      <div>
         <button
           onClick={() => navigate("/monetization")}
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
@@ -84,17 +84,18 @@ export default function NewAffiliateProgramPage() {
           Back to Monetization
         </button>
 
-        <div className="flex items-center gap-2 mb-6">
+        <div className="flex items-center gap-2">
           <Link2 className="h-5 w-5 text-foreground" />
           <h1 className="text-xl font-bold tracking-tight text-foreground">New Affiliate Program</h1>
         </div>
+      </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Program Details</CardTitle>
-            <CardDescription>Set up a new affiliate program relationship</CardDescription>
-          </CardHeader>
-          <CardContent>
+      <Card>
+        <CardHeader>
+          <CardTitle>Program Details</CardTitle>
+          <CardDescription>Set up a new affiliate program relationship</CardDescription>
+        </CardHeader>
+        <CardContent>
             <form
               onSubmit={async (e) => {
                 e.preventDefault();
@@ -236,9 +237,8 @@ export default function NewAffiliateProgramPage() {
                 </Button>
               </div>
             </form>
-          </CardContent>
-        </Card>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

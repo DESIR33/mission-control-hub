@@ -99,30 +99,27 @@ export default function AddTransactionPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30 p-4 sm:p-6 lg:p-8">
-      <div className="max-w-2xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="space-y-1">
-          <button
-            onClick={() => navigate(`/affiliate-program/${id}`)}
-            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Program
-          </button>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            Add Transaction
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {company?.name
-              ? `Record a new commission for ${company.name}`
-              : "Record a new commission transaction"}
-          </p>
-        </div>
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
+      <div>
+        <button
+          onClick={() => navigate(`/affiliate-program/${id}`)}
+          className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Program
+        </button>
+        <h1 className="text-xl font-bold tracking-tight text-foreground">
+          Add Transaction
+        </h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          {company?.name
+            ? `Record a new commission for ${company.name}`
+            : "Record a new commission transaction"}
+        </p>
+      </div>
 
-        {/* Form Card */}
-        <Card>
-          <CardContent className="pt-6">
+      <Card>
+        <CardContent className="pt-6">
             <form
               onSubmit={async (e) => {
                 e.preventDefault();
@@ -254,9 +251,8 @@ export default function AddTransactionPage() {
                 </Button>
               </div>
             </form>
-          </CardContent>
-        </Card>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
