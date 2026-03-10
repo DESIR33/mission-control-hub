@@ -777,7 +777,10 @@ export default function MonetizationPage() {
                                 : "Not set"}
                             </TableCell>
                             <TableCell className="text-sm font-mono text-card-foreground">
-                              —
+                              {(() => {
+                                const rev = affiliateRevenueByProgram.get(program.id) || 0;
+                                return rev > 0 ? `$${rev.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "$0.00";
+                              })()}
                             </TableCell>
                             <TableCell>
                               <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
