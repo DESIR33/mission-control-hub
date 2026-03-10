@@ -79,8 +79,8 @@ function TopEarningVideos() {
 
 // Interface definitions
 interface Sponsorship {
-  id: number;
-  companyId: number;
+  id: string;
+  companyId: string | null;
   value: number | string;
   startDate: string;
   endDate: string;
