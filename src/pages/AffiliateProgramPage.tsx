@@ -35,7 +35,9 @@ export default function AffiliateProgramPage() {
   const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
   const [transactionData, setTransactionData] = useState({
     transactionDate: new Date().toISOString().split("T")[0],
+    saleAmount: 0,
     commission: 0,
+    commissionManuallyEdited: false,
     approximatePayoutDate: "",
     isRecurring: false,
     recurringMonths: 0,
