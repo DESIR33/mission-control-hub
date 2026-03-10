@@ -8,30 +8,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-interface AffiliateProgram {
-  id: number;
-  companyId: number;
-  dashboardUrl: string;
-  commissionPercentage: number;
-  payoutFrequency: string;
-  nextPayoutDate: string;
-  affiliateLinks: string[];
-  minimumPayout: number;
-  paymentMethods: string[];
-  notes: string;
-}
-
-interface Company {
-  id: number;
-  name: string;
-}
+import { supabase } from "@/integrations/supabase/client";
+import { useWorkspace } from "@/hooks/use-workspace";
 
 export default function EditAffiliateProgramPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { workspaceId } = useWorkspace();
 
   const [formData, setFormData] = useState({
     companyId: "",
@@ -45,31 +30,50 @@ export default function EditAffiliateProgramPage() {
     notes: "",
   });
 
-  const { data: program } = useQuery<AffiliateProgram>({
-    queryKey: [`/api/affiliate-programs/${id}`],
+  const { data: program } = useQuery({
+    queryKey: ["affiliate-program", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("affiliate_programs")
+        .select("*")
+        .eq("id", id!)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id,
   });
 
-  const { data: companies = [] } = useQuery<Company[]>({
-    queryKey: ["/api/companies"],
+  const { data: companies = [] } = useQuery({
+    queryKey: ["companies", workspaceId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("companies")
+        .select("id, name")
+        .eq("workspace_id", workspaceId!)
+        .is("deleted_at", null)
+        .order("name");
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!workspaceId,
   });
 
   useEffect(() => {
     if (program) {
+      const links = Array.isArray(program.affiliate_links) ? program.affiliate_links : [];
+      const methods = Array.isArray(program.payment_methods) ? program.payment_methods : [];
       setFormData({
-        companyId: program.companyId.toString(),
-        dashboardUrl: program.dashboardUrl || "",
-        commissionPercentage: program.commissionPercentage,
-        payoutFrequency: program.payoutFrequency || "monthly",
-        nextPayoutDate: program.nextPayoutDate
-          ? program.nextPayoutDate.split("T")[0]
+        companyId: program.company_id || "",
+        dashboardUrl: program.dashboard_url || "",
+        commissionPercentage: program.commission_percentage,
+        payoutFrequency: program.payout_frequency || "monthly",
+        nextPayoutDate: program.next_payout_date
+          ? String(program.next_payout_date).split("T")[0]
           : "",
-        affiliateLinks: program.affiliateLinks
-          ? program.affiliateLinks.join("\n")
-          : "",
-        minimumPayout: program.minimumPayout || 0,
-        paymentMethods: program.paymentMethods
-          ? program.paymentMethods.join(", ")
-          : "",
+        affiliateLinks: links.join("\n"),
+        minimumPayout: program.minimum_payout || 0,
+        paymentMethods: methods.join(", "),
         notes: program.notes || "",
       });
     }
@@ -77,50 +81,29 @@ export default function EditAffiliateProgramPage() {
 
   const updateProgram = useMutation({
     mutationFn: async () => {
-      const csrfResponse = await fetch("/api/csrf/token");
-      if (!csrfResponse.ok) throw new Error("Failed to get CSRF token");
-      const { csrfToken } = await csrfResponse.json();
-
-      const response = await fetch(`/api/affiliate-programs/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRF-Token": csrfToken,
-        },
-        body: JSON.stringify({
-          companyId: parseInt(formData.companyId),
-          dashboardUrl: formData.dashboardUrl,
-          commissionPercentage: parseFloat(
-            formData.commissionPercentage.toString()
-          ),
-          payoutFrequency: formData.payoutFrequency,
-          nextPayoutDate: formData.nextPayoutDate || null,
-          affiliateLinks: formData.affiliateLinks
+      const { error } = await supabase
+        .from("affiliate_programs")
+        .update({
+          company_id: formData.companyId || null,
+          dashboard_url: formData.dashboardUrl || null,
+          commission_percentage: parseFloat(formData.commissionPercentage.toString()),
+          payout_frequency: formData.payoutFrequency,
+          next_payout_date: formData.nextPayoutDate || null,
+          affiliate_links: formData.affiliateLinks
             ? formData.affiliateLinks.split("\n").filter((l) => l.trim())
             : [],
-          minimumPayout: parseFloat(formData.minimumPayout.toString()),
-          paymentMethods: formData.paymentMethods
+          minimum_payout: parseFloat(formData.minimumPayout.toString()),
+          payment_methods: formData.paymentMethods
             ? formData.paymentMethods.split(",").map((m) => m.trim()).filter(Boolean)
             : [],
           notes: formData.notes || null,
-        }),
-        credentials: "include",
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText);
-      }
-
-      return response.json();
+        })
+        .eq("id", id!);
+      if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [`/api/affiliate-programs/${id}`],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["/api/affiliate-programs"],
-      });
+      queryClient.invalidateQueries({ queryKey: ["affiliate-program", id] });
+      queryClient.invalidateQueries({ queryKey: ["affiliate-programs"] });
       toast({
         title: "Success",
         description: "Affiliate program updated successfully",
@@ -195,10 +178,7 @@ export default function EditAffiliateProgramPage() {
                 </SelectTrigger>
                 <SelectContent>
                   {companies.map((company) => (
-                    <SelectItem
-                      key={company.id}
-                      value={company.id.toString()}
-                    >
+                    <SelectItem key={company.id} value={company.id}>
                       {company.name}
                     </SelectItem>
                   ))}
@@ -221,9 +201,7 @@ export default function EditAffiliateProgramPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="commissionPercentage">
-                  Commission Rate (%)
-                </Label>
+                <Label htmlFor="commissionPercentage">Commission Rate (%)</Label>
                 <Input
                   id="commissionPercentage"
                   type="number"
@@ -298,36 +276,26 @@ export default function EditAffiliateProgramPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="affiliateLinks">
-                Affiliate Links (one per line)
-              </Label>
+              <Label htmlFor="affiliateLinks">Affiliate Links (one per line)</Label>
               <Textarea
                 id="affiliateLinks"
                 placeholder="https://example.com/ref=yourcode"
                 value={formData.affiliateLinks}
                 onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    affiliateLinks: e.target.value,
-                  })
+                  setFormData({ ...formData, affiliateLinks: e.target.value })
                 }
                 rows={3}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="paymentMethods">
-                Payment Methods (comma-separated)
-              </Label>
+              <Label htmlFor="paymentMethods">Payment Methods (comma-separated)</Label>
               <Input
                 id="paymentMethods"
                 placeholder="PayPal, Bank Transfer, Stripe"
                 value={formData.paymentMethods}
                 onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    paymentMethods: e.target.value,
-                  })
+                  setFormData({ ...formData, paymentMethods: e.target.value })
                 }
               />
             </div>
@@ -353,13 +321,8 @@ export default function EditAffiliateProgramPage() {
               >
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                disabled={updateProgram.isPending}
-              >
-                {updateProgram.isPending
-                  ? "Saving..."
-                  : "Save Changes"}
+              <Button type="submit" disabled={updateProgram.isPending}>
+                {updateProgram.isPending ? "Saving..." : "Save Changes"}
               </Button>
             </div>
           </form>
