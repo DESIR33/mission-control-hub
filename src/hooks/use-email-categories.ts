@@ -52,3 +52,29 @@ export function useClassifyEmails() {
     },
   });
 }
+
+/** Manually set the category for one or more emails */
+export function useSetEmailCategory() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ emailIds, category }: { emailIds: string[]; category: EmailCategory }) => {
+      for (const id of emailIds) {
+        const { error } = await supabase
+          .from("inbox_emails" as any)
+          .update({ ai_category: category } as any)
+          .eq("id", id);
+        if (error) throw error;
+      }
+      return { updated: emailIds.length, category };
+    },
+    onSuccess: (data) => {
+      const label = data.category ? data.category.charAt(0).toUpperCase() + data.category.slice(1) : "Uncategorized";
+      toast.success(`${data.updated} email(s) marked as ${label}`);
+      queryClient.invalidateQueries({ queryKey: ["inbox-emails"] });
+    },
+    onError: (err: Error) => {
+      toast.error(`Failed to set category: ${err.message}`);
+    },
+  });
+}

@@ -18,6 +18,8 @@ import type { SmartEmail, EmailPriority } from "@/hooks/use-smart-inbox";
 import { useDeleteEmail, useMarkRead, useTogglePin, useMoveEmail } from "@/hooks/use-smart-inbox";
 import { useSnoozeEmail, getSnoozeOptions } from "@/hooks/use-snooze";
 import { EmailCategoryBadge } from "./EmailCategoryBadge";
+import { useSetEmailCategory, type EmailCategory } from "@/hooks/use-email-categories";
+import { Megaphone, Sparkles, ShieldAlert, Newspaper, TagIcon, XCircleIcon } from "lucide-react";
 import {
   ContextMenu,
   ContextMenuContent,
