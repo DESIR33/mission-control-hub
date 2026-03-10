@@ -223,7 +223,35 @@ export default function MonetizationPage() {
   }, [allAffiliateTransactions]);
 
   const { data: sponsorships = [] } = useQuery<Sponsorship[]>({
-    queryKey: ["/api/sponsorships"],
+    queryKey: ["sponsorships", workspaceId],
+    queryFn: async () => {
+      if (!workspaceId) return [];
+      const { data, error } = await supabase
+        .from("deals")
+        .select("*, company:companies(name)")
+        .eq("workspace_id", workspaceId)
+        .is("deleted_at", null)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []).map((deal: any) => {
+        // Parse notes to extract metadata stored by NewSponsorshipPage
+        const notes = deal.notes || "";
+        const paymentStatusMatch = notes.match(/Payment Status:\s*(\w+)/);
+        const startDateMatch = notes.match(/Start Date:\s*(.+)/);
+        return {
+          id: deal.id,
+          companyId: deal.company_id,
+          value: deal.value ?? 0,
+          startDate: startDateMatch ? new Date(startDateMatch[1]).toISOString() : deal.created_at,
+          endDate: deal.expected_close_date || deal.created_at,
+          status: deal.stage === "closed_won" ? "completed" : deal.stage,
+          paymentStatus: paymentStatusMatch ? paymentStatusMatch[1] : "pending",
+          description: deal.title,
+          companyName: deal.company?.name || null,
+        } as Sponsorship;
+      });
+    },
+    enabled: !!workspaceId,
   });
 
   const { data: transactions = [] } = useQuery<ProductTransaction[]>({
