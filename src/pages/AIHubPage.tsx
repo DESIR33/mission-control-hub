@@ -131,6 +131,9 @@ export default function AIHubPage() {
           <TabsTrigger value="training" className="flex-shrink-0 gap-1.5">
             <Sparkles className="h-3.5 w-3.5" /> Training
           </TabsTrigger>
+          <TabsTrigger value="thumbnails" className="flex-shrink-0 gap-1.5">
+            <Image className="h-3.5 w-3.5" /> Thumbnails
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="chat" className="mt-4">
