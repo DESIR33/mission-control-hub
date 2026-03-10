@@ -338,7 +338,18 @@ export function useDeleteEmail() {
         .in("id", ids);
       if (error) throw error;
     },
-    onSuccess: () => {
+    onMutate: async (ids) => {
+      await queryClient.cancelQueries({ queryKey: ["inbox-emails"] });
+      const previous = queryClient.getQueriesData({ queryKey: ["inbox-emails"] });
+      queryClient.setQueriesData({ queryKey: ["inbox-emails"] }, (old: any) =>
+        old?.filter((e: any) => !ids.includes(e.id))
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      context?.previous?.forEach(([key, data]: any) => queryClient.setQueryData(key, data));
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["inbox-emails"] });
       queryClient.invalidateQueries({ queryKey: ["inbox-stats"] });
       queryClient.invalidateQueries({ queryKey: ["inbox-folder-counts"] });
