@@ -23,8 +23,127 @@ Deno.serve(async (req) => {
     // ── ACTION: assess ──
     if (action === 'assess') {
       const { video_title, current_thumbnail_url } = body;
-      const assessment = buildAssessment(video_title, current_thumbnail_url);
-      return jsonResponse({ success: true, assessment });
+
+      const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
+      if (!OPENROUTER_API_KEY) {
+        // Fallback to empty template if no AI key
+        const assessment = buildAssessment(video_title, current_thumbnail_url);
+        return jsonResponse({ success: true, assessment });
+      }
+
+      try {
+        const systemPrompt = `You are a YouTube thumbnail strategist. Analyze thumbnails using the Psychology Flow framework:
+
+1. **Visual Stun Gun** (score 1-10): Does it stop the scroll? Does it visually pop?
+2. **Title Value Hunt** (score 1-10): Does it make you curious enough to read the title? Does it create a desire loop?
+3. **Visual Validation** (score 1-10): After reading the title, does the thumbnail reinforce the promise?
+
+Also evaluate:
+- Composition: element count, composition type (symmetrical/asymmetrical/a_b_split), person present, text present, text overlaps face, bottom right clear, mobile readable
+- Stun Gun Elements: color_contrast, large_face_emotion, compelling_graphic, big_text_numbers, red_circles_arrows, aesthetic_imagery, design_collage
+- Desire Loop: core_desire, pain_point, solution_transformation, curiosity_loop
+- Recommendations: list of specific actionable improvements
+
+Return ONLY valid JSON matching this exact structure (no markdown, no backticks):
+{
+  "psychology_flow": {
+    "visual_stun_gun": { "score": <number>, "description": "<analysis>" },
+    "title_value_hunt": { "score": <number>, "description": "<analysis>" },
+    "visual_validation": { "score": <number>, "description": "<analysis>" }
+  },
+  "composition_check": {
+    "element_count": <number>,
+    "composition_type": "<string>",
+    "person_present": <boolean>,
+    "text_present": <boolean>,
+    "text_overlaps_face": <boolean>,
+    "bottom_right_clear": <boolean>,
+    "mobile_readable": <boolean>
+  },
+  "stun_gun_elements": {
+    "color_contrast": <boolean>,
+    "large_face_emotion": <boolean>,
+    "compelling_graphic": <boolean>,
+    "big_text_numbers": <boolean>,
+    "red_circles_arrows": <boolean>,
+    "aesthetic_imagery": <boolean>,
+    "design_collage": <boolean>
+  },
+  "desire_loop": {
+    "core_desire": "<string>",
+    "pain_point": "<string>",
+    "solution_transformation": "<string>",
+    "curiosity_loop": "<string>"
+  },
+  "recommendations": ["<string>", ...]
+}`;
+
+        const messages: Array<{ role: string; content: unknown }> = [
+          { role: "system", content: systemPrompt },
+        ];
+
+        // Build user message with image if available
+        if (current_thumbnail_url) {
+          messages.push({
+            role: "user",
+            content: [
+              { type: "image_url", image_url: { url: current_thumbnail_url } },
+              { type: "text", text: `Analyze this YouTube thumbnail for the video titled: "${video_title}". Provide a detailed assessment.` },
+            ],
+          });
+        } else {
+          messages.push({
+            role: "user",
+            content: `Analyze a YouTube thumbnail for the video titled: "${video_title}". Since no image is available, provide your best assessment based on the title alone — focus on what kind of thumbnail would work best and score the hypothetical current state as average.`,
+          });
+        }
+
+        console.log('[thumbnail-generate] Calling OpenRouter for assessment...');
+        const aiRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'google/gemini-flash-1.5',
+            messages,
+            max_tokens: 2000,
+            temperature: 0.3,
+          }),
+        });
+
+        if (!aiRes.ok) {
+          const errText = await aiRes.text();
+          console.error('[thumbnail-generate] OpenRouter error:', aiRes.status, errText);
+          // Fallback to empty template
+          const assessment = buildAssessment(video_title, current_thumbnail_url);
+          return jsonResponse({ success: true, assessment, ai_error: `AI analysis failed: ${aiRes.status}` });
+        }
+
+        const aiData = await aiRes.json();
+        const rawContent = aiData.choices?.[0]?.message?.content || '';
+        console.log('[thumbnail-generate] AI response length:', rawContent.length);
+
+        // Parse JSON from response (strip markdown fences if present)
+        const jsonStr = rawContent.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+        const parsedAssessment = JSON.parse(jsonStr);
+
+        // Merge with template to ensure all fields exist
+        const assessment = {
+          ...buildAssessment(video_title, current_thumbnail_url),
+          ...parsedAssessment,
+          current_thumbnail_url,
+          video_title,
+        };
+
+        return jsonResponse({ success: true, assessment });
+      } catch (err) {
+        console.error('[thumbnail-generate] Assessment AI error:', err);
+        // Fallback to empty template
+        const assessment = buildAssessment(video_title, current_thumbnail_url);
+        return jsonResponse({ success: true, assessment, ai_error: String(err) });
+      }
     }
 
     // ── ACTION: generate (single image) ──
