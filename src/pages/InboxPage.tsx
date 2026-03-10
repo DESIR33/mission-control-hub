@@ -379,8 +379,8 @@ export default function InboxPage() {
       {/* Command Bar (Cmd+K) */}
       <InboxCommandBar
         onCompose={() => setComposeOpen(true)}
-        onReply={() => setReplyOpen(true)}
-        onForward={() => setForwardOpen(true)}
+        onReply={() => {/* handled inline by EmailPreview */}}
+        onForward={() => {/* handled inline by EmailPreview */}}
         onArchive={handleArchive}
         onDelete={() => setDeleteDialogOpen(true)}
         onTogglePin={handleTogglePinned}
