@@ -518,8 +518,6 @@ export default function MonetizationPage() {
         </Button>
       </motion.div>
 
-      {/* Revenue Goal Tracker */}
-      <RevenueGoalTracker />
 
       <Tabs value={activeTab} onValueChange={(v) => navigate(`/revenue/${v}`)}>
         <div className="flex overflow-x-auto scrollbar-hide gap-1 rounded-lg border border-border bg-secondary p-1">
