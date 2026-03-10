@@ -90,7 +90,7 @@ export function AdSenseTab() {
         .eq("workspace_id", workspaceId!)
         .order("month", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as ManualEntry[];
+      return (data ?? []) as unknown as ManualEntry[];
     },
     enabled: !!workspaceId,
   });
