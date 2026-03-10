@@ -27,6 +27,7 @@ import { useContentRevenue } from "@/hooks/use-content-revenue";
 import { RateCardCalculator } from "@/components/crm/RateCardCalculator";
 import { RevenueOverview } from "@/components/monetization/RevenueOverview";
 import { RevenueGoalTracker } from "@/components/monetization/RevenueGoalTracker";
+import { AdSenseTab } from "@/components/monetization/AdSenseTab";
 import { useCompanies } from "@/hooks/use-companies";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { useAffiliateTransactions } from "@/hooks/use-affiliate-transactions";
@@ -140,7 +141,7 @@ export default function MonetizationPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const VALID_TABS = new Set(["overview", "analytics", "affiliate", "sponsorships", "products", "rate-card"]);
+  const VALID_TABS = new Set(["overview", "analytics", "affiliate", "sponsorships", "products", "rate-card", "adsense"]);
   const activeTab = urlTab && VALID_TABS.has(urlTab) ? urlTab : "overview";
 
   const [isAddingWidget, setIsAddingWidget] = useState(false);
@@ -577,6 +578,17 @@ export default function MonetizationPage() {
             )}
           >
             Products
+          </button>
+          <button
+            onClick={() => navigate("/revenue/adsense")}
+            className={cn(
+              "rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap shrink-0",
+              activeTab === "adsense"
+                ? "bg-card text-card-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            AdSense
           </button>
           <button
             onClick={() => navigate("/revenue/rate-card")}
@@ -1194,6 +1206,10 @@ export default function MonetizationPage() {
             </div>
           </TabsContent>
 
+          {/* AdSense Tab */}
+          <TabsContent value="adsense">
+            <AdSenseTab />
+          </TabsContent>
 
           {/* Rate Card Tab */}
           <TabsContent value="rate-card">

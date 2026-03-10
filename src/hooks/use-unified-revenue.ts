@@ -69,6 +69,19 @@ export function useUnifiedRevenue() {
     enabled: !!workspaceId,
   });
 
+  const { data: manualAdRevenue = [] } = useQuery({
+    queryKey: ["unified-rev-manual-adsense", workspaceId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("manual_adsense_revenue" as any)
+        .select("month, amount")
+        .eq("workspace_id", workspaceId!);
+      if (error) throw error;
+      return (data ?? []) as any[];
+    },
+    enabled: !!workspaceId,
+  });
+
   const { data: channelStats } = useQuery({
     queryKey: ["unified-rev-channel", workspaceId],
     queryFn: async () => {
@@ -105,6 +118,11 @@ export function useUnifiedRevenue() {
       for (const r of adRevenue) {
         if (r.date?.startsWith(monthStr)) adSense += Number(r.estimated_revenue) || 0;
       }
+      // If no API data for this month, use manual entry
+      if (adSense === 0) {
+        const manual = manualAdRevenue.find((m: any) => m.month === monthStr);
+        if (manual) adSense = Number(manual.amount) || 0;
+      }
 
       monthly.push({
         month: monthLabel,
@@ -115,9 +133,22 @@ export function useUnifiedRevenue() {
       });
     }
 
+    // Calculate totals: API AdSense + manual for months without API
+    const apiAdByMonth = new Map<string, number>();
+    for (const r of adRevenue) {
+      const m = r.date?.substring(0, 7);
+      if (m) apiAdByMonth.set(m, (apiAdByMonth.get(m) || 0) + (Number(r.estimated_revenue) || 0));
+    }
+    let adSenseTotal = 0;
+    for (const [, v] of apiAdByMonth) adSenseTotal += v;
+    for (const m of manualAdRevenue) {
+      if (!apiAdByMonth.has(m.month) || (apiAdByMonth.get(m.month) || 0) === 0) {
+        adSenseTotal += Number(m.amount) || 0;
+      }
+    }
+
     const sponsorTotal = wonDeals.reduce((s, d) => s + (d.value || 0), 0);
     const affiliateTotal = affiliateTx.reduce((s: number, t: any) => s + (t.amount || 0), 0);
-    const adSenseTotal = adRevenue.reduce((s: number, r: any) => s + (Number(r.estimated_revenue) || 0), 0);
     const totalRevenue = sponsorTotal + affiliateTotal + adSenseTotal;
 
     const subscriberCount = channelStats?.subscriber_count || 1;
@@ -148,7 +179,7 @@ export function useUnifiedRevenue() {
       momGrowth: Math.round(momGrowth),
       projectedAnnual: Math.round(projectedAnnual),
     };
-  }, [wonDeals, affiliateTx, adRevenue, channelStats]);
+  }, [wonDeals, affiliateTx, adRevenue, manualAdRevenue, channelStats]);
 
   return { data: revenue, isLoading: dealsLoading };
 }
