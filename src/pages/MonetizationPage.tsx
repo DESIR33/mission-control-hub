@@ -140,7 +140,7 @@ export default function MonetizationPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const VALID_TABS = new Set(["overview", "analytics", "affiliate", "sponsorships", "products", "rate-card"]);
+  const VALID_TABS = new Set(["overview", "analytics", "affiliate", "sponsorships", "products", "rate-card", "adsense"]);
   const activeTab = urlTab && VALID_TABS.has(urlTab) ? urlTab : "overview";
 
   const [isAddingWidget, setIsAddingWidget] = useState(false);
