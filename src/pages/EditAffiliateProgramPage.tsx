@@ -31,17 +31,18 @@ export default function EditAffiliateProgramPage() {
   });
 
   const { data: program } = useQuery({
-    queryKey: ["affiliate-program", id],
+    queryKey: ["affiliate-program", id, workspaceId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("affiliate_programs")
         .select("*")
         .eq("id", id!)
+        .eq("workspace_id", workspaceId!)
         .single();
       if (error) throw error;
       return data;
     },
-    enabled: !!id,
+    enabled: !!id && !!workspaceId,
   });
 
   const { data: companies = [] } = useQuery({
