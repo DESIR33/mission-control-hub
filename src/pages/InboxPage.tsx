@@ -349,13 +349,6 @@ export default function InboxPage() {
         <div className="flex-1 overflow-hidden">
           <EmailPreview
             email={selectedEmail}
-            onReply={(quotedText) => {
-              if (quotedText) {
-                setReplyBody(`\n\n> ${quotedText.replace(/\n/g, "\n> ")}\n\n`);
-              }
-              setReplyOpen(true);
-            }}
-            onForward={() => setForwardOpen(true)}
             onDelete={() => setDeleteDialogOpen(true)}
             onArchive={handleArchive}
             onTogglePinned={handleTogglePinned}
