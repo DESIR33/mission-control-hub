@@ -93,6 +93,7 @@ export default function AffiliateProgramPage() {
     e.preventDefault();
     const payload: Partial<AffiliateTransaction> = {
       affiliate_program_id: id!,
+      sale_amount: transactionData.saleAmount,
       amount: transactionData.commission,
       transaction_date: transactionData.transactionDate,
       status: "pending",
