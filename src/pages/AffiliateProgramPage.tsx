@@ -347,7 +347,19 @@ export default function AffiliateProgramPage() {
                 </div>
                 <Button
                   size="sm"
-                  onClick={() => navigate(`/affiliate-program/${id}/add-transaction`)}
+                  onClick={() => {
+                    setEditingTransactionId(null);
+                    setTransactionData({
+                      transactionDate: new Date().toISOString().split("T")[0],
+                      saleAmount: 0,
+                      commission: 0,
+                      commissionManuallyEdited: false,
+                      approximatePayoutDate: "",
+                      isRecurring: false,
+                      recurringMonths: 0,
+                    });
+                    setIsAddingTransaction(true);
+                  }}
                   className="gap-1.5"
                 >
                   <Plus className="h-3.5 w-3.5" />
