@@ -26,6 +26,8 @@ export interface InboxEmail {
   folder: string;
   labels: string[];
   metadata: Record<string, unknown>;
+  ai_category: string | null;
+  ai_summary: string | null;
   created_at: string;
   updated_at: string;
 }
