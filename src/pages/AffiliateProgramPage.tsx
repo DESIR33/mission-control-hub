@@ -130,7 +130,9 @@ export default function AffiliateProgramPage() {
     setEditingTransactionId(tx.id);
     setTransactionData({
       transactionDate: tx.transaction_date || new Date().toISOString().split("T")[0],
+      saleAmount: tx.sale_amount || 0,
       commission: tx.amount,
+      commissionManuallyEdited: true,
       approximatePayoutDate: meta.approximate_payout_date || "",
       isRecurring: meta.is_recurring || false,
       recurringMonths: meta.recurring_months || 0,
