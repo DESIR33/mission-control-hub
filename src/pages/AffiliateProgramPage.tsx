@@ -567,16 +567,36 @@ export default function AffiliateProgramPage() {
             </div>
             <div className="space-y-2">
               <Label>Approximate Payout Date</Label>
-              <Input
-                type="date"
-                value={transactionData.approximatePayoutDate}
-                onChange={(e) =>
-                  setTransactionData({
-                    ...transactionData,
-                    approximatePayoutDate: e.target.value,
-                  })
-                }
-              />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !transactionData.approximatePayoutDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {transactionData.approximatePayoutDate
+                      ? format(parseISO(transactionData.approximatePayoutDate), "PPP")
+                      : "Pick a date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={transactionData.approximatePayoutDate ? parseISO(transactionData.approximatePayoutDate) : undefined}
+                    onSelect={(d) =>
+                      setTransactionData({
+                        ...transactionData,
+                        approximatePayoutDate: d ? format(d, "yyyy-MM-dd") : "",
+                      })
+                    }
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
             <div className="flex items-center gap-2">
               <Switch
