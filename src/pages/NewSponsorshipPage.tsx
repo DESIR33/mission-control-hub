@@ -58,9 +58,18 @@ export default function NewSponsorshipPage() {
   const [searchResults, setSearchResults] = useState<YouTubeVideo[]>([]);
   const [selectedVideos, setSelectedVideos] = useState<YouTubeVideo[]>([]);
   const [showVideoSearch, setShowVideoSearch] = useState(false);
+  const [companyOpen, setCompanyOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
 
   const { data: companies = [] } = useCompanies();
   const { data: contacts = [] } = useContacts();
+
+  const sortedCompanies = [...companies].sort((a, b) => a.name.localeCompare(b.name));
+  const sortedContacts = [...contacts].sort((a, b) => {
+    const nameA = `${a.first_name} ${a.last_name || ""}`.trim();
+    const nameB = `${b.first_name} ${b.last_name || ""}`.trim();
+    return nameA.localeCompare(nameB);
+  });
 
   const handleStartDateChange = (date: Date | undefined) => {
     setStartDate(date);
