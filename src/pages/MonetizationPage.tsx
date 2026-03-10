@@ -496,9 +496,6 @@ export default function MonetizationPage() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
-      {/* Revenue Goal Tracker */}
-      <RevenueGoalTracker />
-
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}
