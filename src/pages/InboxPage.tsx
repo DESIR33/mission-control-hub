@@ -81,17 +81,12 @@ export default function InboxPage() {
   const [splitTab, setSplitTab] = useState<SplitCategory>("all");
 
   const [composeOpen, setComposeOpen] = useState(false);
-  const [replyOpen, setReplyOpen] = useState(false);
-  const [forwardOpen, setForwardOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [snoozeDialogEmailId, setSnoozeDialogEmailId] = useState<string | null>(null);
 
   const [composeTo, setComposeTo] = useState("");
   const [composeSubject, setComposeSubject] = useState("");
   const [composeBody, setComposeBody] = useState("");
-  const [replyBody, setReplyBody] = useState("");
-  const [forwardTo, setForwardTo] = useState("");
-  const [forwardBody, setForwardBody] = useState("");
 
   // Undo send state
   const [undoSendVisible, setUndoSendVisible] = useState(false);
