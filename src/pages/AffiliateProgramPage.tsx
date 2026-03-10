@@ -11,7 +11,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CircleDollarSign, Calendar, BarChart3, Check, X, ArrowLeft, ExternalLink, Plus } from "lucide-react";
+import { CircleDollarSign, CalendarIcon, BarChart3, Check, X, ArrowLeft, ExternalLink, Plus } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format, parseISO } from "date-fns";
+import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
@@ -219,7 +223,7 @@ export default function AffiliateProgramPage() {
         <div className="rounded-lg border border-border bg-card p-5">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Pending Payouts</span>
-            <Calendar className="h-4 w-4 text-warning" />
+            <CalendarIcon className="h-4 w-4 text-warning" />
           </div>
           <p className="text-2xl font-bold font-mono text-foreground">${pendingPayouts.toFixed(2)}</p>
         </div>
@@ -467,14 +471,33 @@ export default function AffiliateProgramPage() {
           <form onSubmit={handleSubmitTransaction} className="space-y-4">
             <div className="space-y-2">
               <Label>Transaction Date</Label>
-              <Input
-                type="date"
-                value={transactionData.transactionDate}
-                onChange={(e) =>
-                  setTransactionData({ ...transactionData, transactionDate: e.target.value })
-                }
-                required
-              />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !transactionData.transactionDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {transactionData.transactionDate
+                      ? format(parseISO(transactionData.transactionDate), "PPP")
+                      : "Pick a date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={transactionData.transactionDate ? parseISO(transactionData.transactionDate) : undefined}
+                    onSelect={(d) =>
+                      d && setTransactionData({ ...transactionData, transactionDate: format(d, "yyyy-MM-dd") })
+                    }
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
             <div className="space-y-2">
               <Label>Sale Amount ($)</Label>
@@ -544,16 +567,36 @@ export default function AffiliateProgramPage() {
             </div>
             <div className="space-y-2">
               <Label>Approximate Payout Date</Label>
-              <Input
-                type="date"
-                value={transactionData.approximatePayoutDate}
-                onChange={(e) =>
-                  setTransactionData({
-                    ...transactionData,
-                    approximatePayoutDate: e.target.value,
-                  })
-                }
-              />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !transactionData.approximatePayoutDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {transactionData.approximatePayoutDate
+                      ? format(parseISO(transactionData.approximatePayoutDate), "PPP")
+                      : "Pick a date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={transactionData.approximatePayoutDate ? parseISO(transactionData.approximatePayoutDate) : undefined}
+                    onSelect={(d) =>
+                      setTransactionData({
+                        ...transactionData,
+                        approximatePayoutDate: d ? format(d, "yyyy-MM-dd") : "",
+                      })
+                    }
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
             <div className="flex items-center gap-2">
               <Switch
