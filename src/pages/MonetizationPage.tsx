@@ -29,6 +29,7 @@ import { RevenueOverview } from "@/components/monetization/RevenueOverview";
 import { RevenueGoalTracker } from "@/components/monetization/RevenueGoalTracker";
 import { useCompanies } from "@/hooks/use-companies";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { useAffiliateTransactions } from "@/hooks/use-affiliate-transactions";
 
 function TopEarningVideos() {
   const { data: revSummary } = useContentRevenue();
@@ -207,6 +208,18 @@ export default function MonetizationPage() {
   });
 
   const { data: companies = [] } = useCompanies();
+  const { data: allAffiliateTransactions = [] } = useAffiliateTransactions();
+
+  // Build a map of affiliate_program_id -> total revenue (sum of amount/commission)
+  const affiliateRevenueByProgram = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const tx of allAffiliateTransactions) {
+      const programId = tx.affiliate_program_id;
+      if (!programId) continue;
+      map.set(programId, (map.get(programId) || 0) + (tx.amount || 0));
+    }
+    return map;
+  }, [allAffiliateTransactions]);
 
   const { data: sponsorships = [] } = useQuery<Sponsorship[]>({
     queryKey: ["/api/sponsorships"],
@@ -764,7 +777,10 @@ export default function MonetizationPage() {
                                 : "Not set"}
                             </TableCell>
                             <TableCell className="text-sm font-mono text-card-foreground">
-                              —
+                              {(() => {
+                                const rev = affiliateRevenueByProgram.get(program.id) || 0;
+                                return rev > 0 ? `$${rev.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "$0.00";
+                              })()}
                             </TableCell>
                             <TableCell>
                               <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
