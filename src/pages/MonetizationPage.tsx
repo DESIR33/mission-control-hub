@@ -238,11 +238,18 @@ export default function MonetizationPage() {
         const notes = deal.notes || "";
         const paymentStatusMatch = notes.match(/Payment Status:\s*(\w+)/);
         const startDateMatch = notes.match(/Start Date:\s*(.+)/);
+        let startDate = deal.created_at;
+        if (startDateMatch) {
+          try {
+            const parsed = new Date(startDateMatch[1].replace(/(st|nd|rd|th),/, ","));
+            if (!isNaN(parsed.getTime())) startDate = parsed.toISOString();
+          } catch {}
+        }
         return {
           id: deal.id,
           companyId: deal.company_id,
           value: deal.value ?? 0,
-          startDate: startDateMatch ? new Date(startDateMatch[1]).toISOString() : deal.created_at,
+          startDate,
           endDate: deal.expected_close_date || deal.created_at,
           status: deal.stage === "closed_won" ? "completed" : deal.stage,
           paymentStatus: paymentStatusMatch ? paymentStatusMatch[1] : "pending",
