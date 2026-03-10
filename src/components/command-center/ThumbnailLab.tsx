@@ -607,11 +607,11 @@ export function ThumbnailLab() {
                         {selfieUrl && (
                           <div className="relative group">
                             <Label className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 block">
-                              <User className="w-3 h-3 inline mr-1" /> LoRA Selfie
+                              <Image className="w-3 h-3 inline mr-1" /> Generated Thumbnail (LoRA)
                             </Label>
                             <img
                               src={selfieUrl}
-                              alt={`Selfie ${concept.variant}`}
+                              alt={`Thumbnail ${concept.variant}`}
                               className="w-full rounded-lg border border-primary/30"
                             />
                             <a
