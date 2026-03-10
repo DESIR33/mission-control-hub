@@ -18,6 +18,8 @@ import type { SmartEmail, EmailPriority } from "@/hooks/use-smart-inbox";
 import { useDeleteEmail, useMarkRead, useTogglePin, useMoveEmail } from "@/hooks/use-smart-inbox";
 import { useSnoozeEmail, getSnoozeOptions } from "@/hooks/use-snooze";
 import { EmailCategoryBadge } from "./EmailCategoryBadge";
+import { useSetEmailCategory, type EmailCategory } from "@/hooks/use-email-categories";
+import { Megaphone, Sparkles, ShieldAlert, Newspaper, TagIcon, XCircleIcon } from "lucide-react";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -83,6 +85,7 @@ export default function EmailList({
   const togglePin = useTogglePin();
   const moveEmail = useMoveEmail();
   const snoozeEmail = useSnoozeEmail();
+  const setEmailCategory = useSetEmailCategory();
   const snoozeOptions = getSnoozeOptions();
 
   const toggleSelect = useCallback((id: string, e?: React.MouseEvent) => {
@@ -316,7 +319,7 @@ export default function EmailList({
                         {email.importance === "high" && (
                           <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
                         )}
-                        <EmailCategoryBadge category={(email as any).ai_category} />
+                        <EmailCategoryBadge category={email.ai_category as EmailCategory} />
                         {email.matched_contact && (
                           <span className="rounded px-1 py-0.5 text-[10px] font-medium bg-primary/10 text-primary">
                             CRM
@@ -445,6 +448,63 @@ export default function EmailList({
                         {opt.label}
                       </ContextMenuItem>
                     ))}
+                  </ContextMenuSubContent>
+                </ContextMenuSub>
+
+                <ContextMenuSeparator />
+
+                <ContextMenuSub>
+                  <ContextMenuSubTrigger>
+                    <TagIcon className="h-4 w-4 mr-2" />
+                    Classify as...
+                  </ContextMenuSubTrigger>
+                  <ContextMenuSubContent className="w-48">
+                    <ContextMenuItem
+                      onClick={() => {
+                        const targetIds = hasSelection ? ids : [email.id];
+                        setEmailCategory.mutate({ emailIds: targetIds, category: "opportunity" });
+                      }}
+                    >
+                      <Sparkles className="h-4 w-4 mr-2 text-emerald-500" />
+                      Opportunity
+                    </ContextMenuItem>
+                    <ContextMenuItem
+                      onClick={() => {
+                        const targetIds = hasSelection ? ids : [email.id];
+                        setEmailCategory.mutate({ emailIds: targetIds, category: "marketing" });
+                      }}
+                    >
+                      <Megaphone className="h-4 w-4 mr-2 text-purple-500" />
+                      Marketing
+                    </ContextMenuItem>
+                    <ContextMenuItem
+                      onClick={() => {
+                        const targetIds = hasSelection ? ids : [email.id];
+                        setEmailCategory.mutate({ emailIds: targetIds, category: "newsletter" });
+                      }}
+                    >
+                      <Newspaper className="h-4 w-4 mr-2 text-blue-500" />
+                      Newsletter
+                    </ContextMenuItem>
+                    <ContextMenuItem
+                      onClick={() => {
+                        const targetIds = hasSelection ? ids : [email.id];
+                        setEmailCategory.mutate({ emailIds: targetIds, category: "spam" });
+                      }}
+                    >
+                      <ShieldAlert className="h-4 w-4 mr-2 text-red-500" />
+                      Spam
+                    </ContextMenuItem>
+                    <ContextMenuSeparator />
+                    <ContextMenuItem
+                      onClick={() => {
+                        const targetIds = hasSelection ? ids : [email.id];
+                        setEmailCategory.mutate({ emailIds: targetIds, category: null });
+                      }}
+                    >
+                      <XCircleIcon className="h-4 w-4 mr-2 text-muted-foreground" />
+                      Remove category
+                    </ContextMenuItem>
                   </ContextMenuSubContent>
                 </ContextMenuSub>
 
