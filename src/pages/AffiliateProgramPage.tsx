@@ -471,14 +471,33 @@ export default function AffiliateProgramPage() {
           <form onSubmit={handleSubmitTransaction} className="space-y-4">
             <div className="space-y-2">
               <Label>Transaction Date</Label>
-              <Input
-                type="date"
-                value={transactionData.transactionDate}
-                onChange={(e) =>
-                  setTransactionData({ ...transactionData, transactionDate: e.target.value })
-                }
-                required
-              />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !transactionData.transactionDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {transactionData.transactionDate
+                      ? format(parseISO(transactionData.transactionDate), "PPP")
+                      : "Pick a date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={transactionData.transactionDate ? parseISO(transactionData.transactionDate) : undefined}
+                    onSelect={(d) =>
+                      d && setTransactionData({ ...transactionData, transactionDate: format(d, "yyyy-MM-dd") })
+                    }
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
             <div className="space-y-2">
               <Label>Sale Amount ($)</Label>
