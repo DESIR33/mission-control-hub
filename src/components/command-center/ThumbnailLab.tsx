@@ -248,21 +248,21 @@ export function ThumbnailLab() {
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="select" className="gap-1.5">
-            <Image className="w-3.5 h-3.5" /> Select Video
+        <TabsList className="flex w-full overflow-x-auto scrollbar-hide">
+          <TabsTrigger value="select" className="gap-1.5 flex-shrink-0 text-xs sm:text-sm">
+            <Image className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Select</span> Video
           </TabsTrigger>
-          <TabsTrigger value="assess" className="gap-1.5" disabled={!selectedVideoId}>
+          <TabsTrigger value="assess" className="gap-1.5 flex-shrink-0 text-xs sm:text-sm" disabled={!selectedVideoId}>
             <Eye className="w-3.5 h-3.5" /> Assess
           </TabsTrigger>
-          <TabsTrigger value="generate" className="gap-1.5" disabled={!selectedVideoId}>
+          <TabsTrigger value="generate" className="gap-1.5 flex-shrink-0 text-xs sm:text-sm" disabled={!selectedVideoId}>
             <Sparkles className="w-3.5 h-3.5" /> Generate
           </TabsTrigger>
-          <TabsTrigger value="compare" className="gap-1.5" disabled={Object.keys(generatedImages).length === 0 && Object.keys(generatedSelfies).length === 0}>
+          <TabsTrigger value="compare" className="gap-1.5 flex-shrink-0 text-xs sm:text-sm" disabled={Object.keys(generatedImages).length === 0 && Object.keys(generatedSelfies).length === 0}>
             <BarChart3 className="w-3.5 h-3.5" /> Compare
           </TabsTrigger>
-          <TabsTrigger value="references" className="gap-1.5">
-            <Palette className="w-3.5 h-3.5" /> References
+          <TabsTrigger value="references" className="gap-1.5 flex-shrink-0 text-xs sm:text-sm">
+            <Palette className="w-3.5 h-3.5" /> Refs
           </TabsTrigger>
         </TabsList>
 
