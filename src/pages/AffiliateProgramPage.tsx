@@ -223,7 +223,7 @@ export default function AffiliateProgramPage() {
         <div className="rounded-lg border border-border bg-card p-5">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Pending Payouts</span>
-            <Calendar className="h-4 w-4 text-warning" />
+            <CalendarIcon className="h-4 w-4 text-warning" />
           </div>
           <p className="text-2xl font-bold font-mono text-foreground">${pendingPayouts.toFixed(2)}</p>
         </div>
