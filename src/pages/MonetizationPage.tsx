@@ -208,6 +208,18 @@ export default function MonetizationPage() {
   });
 
   const { data: companies = [] } = useCompanies();
+  const { data: allAffiliateTransactions = [] } = useAffiliateTransactions();
+
+  // Build a map of affiliate_program_id -> total revenue (sum of amount/commission)
+  const affiliateRevenueByProgram = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const tx of allAffiliateTransactions) {
+      const programId = tx.affiliate_program_id;
+      if (!programId) continue;
+      map.set(programId, (map.get(programId) || 0) + (tx.amount || 0));
+    }
+    return map;
+  }, [allAffiliateTransactions]);
 
   const { data: sponsorships = [] } = useQuery<Sponsorship[]>({
     queryKey: ["/api/sponsorships"],
