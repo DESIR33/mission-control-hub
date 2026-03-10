@@ -134,22 +134,22 @@ export function ThumbnailLab() {
   const buildBackgroundPrompt = (concept: typeof THUMBNAIL_CONCEPTS[0], videoTitle: string) => {
     const base = `A cinematic YouTube thumbnail BACKGROUND ONLY (no people, no faces) in 16:9 aspect ratio for "${videoTitle}".`;
     const angles: Record<string, string> = {
-      A: `${base} Dramatic explosion of light and color representing SUCCESS and achievement. Volumetric lighting, teal-and-orange grading, lens flares. Professional, premium feel. Leave clear space on the right side for a person to be composited in.`,
-      B: `${base} Dark moody tech background with blue/cyan neon accents, holographic UI elements, floating data visualizations. Futuristic atmosphere. Leave clear space on the right for a person.`,
-      C: `${base} Split composition: left side dark/muted/destructive, right side bright/vibrant/constructive. Dramatic transition effect in the center. Leave clear space for a person overlay.`,
-      D: `${base} Intense warm red/orange dramatic background with fire, sparks, or urgency elements. Dark cinematic mood. High contrast. Leave clear space on the right for a person to be composited in.`,
+      A: `${base} Dramatic explosion of light and color representing SUCCESS and achievement. Volumetric lighting, teal-and-orange grading, lens flares. Professional, premium feel.`,
+      B: `${base} Dark moody tech background with blue/cyan neon accents, holographic UI elements, floating data visualizations. Futuristic atmosphere.`,
+      C: `${base} Split composition: left side dark/muted/destructive, right side bright/vibrant/constructive. Dramatic transition effect in the center.`,
+      D: `${base} Intense warm red/orange dramatic background with fire, sparks, or urgency elements. Dark cinematic mood. High contrast.`,
     };
     return angles[concept.variant] || base;
   };
 
-  const buildSelfiePrompt = (triggerWord: string, concept: typeof THUMBNAIL_CONCEPTS[0]) => {
-    const expressions: Record<string, string> = {
-      A: "confident, triumphant smile, looking directly at camera, professional lighting",
-      B: "focused, determined expression, slight head tilt, studio lighting",
-      C: "surprised, excited expression with wide eyes, dramatic lighting",
-      D: "concerned, serious expression, dramatic side lighting, intense gaze",
+  const buildThumbnailPrompt = (triggerWord: string, concept: typeof THUMBNAIL_CONCEPTS[0], videoTitle: string) => {
+    const scenes: Record<string, string> = {
+      A: `A professional YouTube thumbnail in 16:9 aspect ratio. ${triggerWord} standing confidently on the right side with a triumphant smile, looking directly at camera, upper body visible. The background is a dramatic explosion of light and color representing SUCCESS for "${videoTitle}". Volumetric lighting, teal-and-orange color grading, lens flares. Bold, cinematic, professional. 4k, sharp focus.`,
+      B: `A professional YouTube thumbnail in 16:9 aspect ratio. ${triggerWord} on the right side with a focused, determined expression, slight head tilt, upper body visible. The background is a dark moody tech scene with blue/cyan neon accents, holographic UI elements for "${videoTitle}". Futuristic atmosphere. 4k, sharp focus.`,
+      C: `A professional YouTube thumbnail in 16:9 aspect ratio. ${triggerWord} in the center with a surprised, excited expression with wide eyes, upper body visible. Split background: left side dark/muted, right side bright/vibrant showing transformation for "${videoTitle}". Dramatic lighting. 4k, sharp focus.`,
+      D: `A professional YouTube thumbnail in 16:9 aspect ratio. ${triggerWord} on the right side with a concerned, serious expression and intense gaze, upper body visible. Background has intense warm red/orange dramatic elements with fire and sparks creating urgency for "${videoTitle}". Dark cinematic mood. 4k, sharp focus.`,
     };
-    return `A portrait photo of ${triggerWord}, ${expressions[concept.variant] || "looking at camera"}, upper body, high quality, 4k, sharp focus, YouTube creator style`;
+    return scenes[concept.variant] || `A professional YouTube thumbnail featuring ${triggerWord} for "${videoTitle}". 16:9, 4k, sharp focus.`;
   };
 
   const handleGenerate = async (variant: string) => {
