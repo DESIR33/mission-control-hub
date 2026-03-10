@@ -276,49 +276,7 @@ export default function InboxPage() {
     }, delay);
   }, [composeTo, composeSubject, composeBody, outlookSend, toast]);
 
-  const handleReplySend = useCallback(async () => {
-    if (!selectedEmail) return;
-    initiateUndoSend({
-      to: selectedEmail.from_email,
-      subject: `Re: ${selectedEmail.subject}`,
-      body_html: replyBody.replace(/\n/g, "<br>"),
-    });
-    // Actually use reply_to_message_id
-    undoRef.current = false;
-    setPendingSend(null);
-    setUndoSendVisible(false);
-    try {
-      await outlookSend.mutateAsync({
-        reply_to_message_id: selectedEmail.message_id,
-        body_html: replyBody.replace(/\n/g, "<br>"),
-      });
-      sonnerToast.success("Reply sent");
-    } catch (err: any) {
-      sonnerToast.error(`Reply failed: ${err.message}`);
-    }
-    setReplyOpen(false);
-    setReplyBody("");
-  }, [selectedEmail, replyBody, outlookSend, initiateUndoSend]);
-
-  const handleForwardSend = useCallback(async () => {
-    if (!forwardTo.trim()) {
-      toast({ title: "Recipient required", variant: "destructive" });
-      return;
-    }
-    try {
-      await outlookSend.mutateAsync({
-        forward_to: forwardTo,
-        subject: `Fwd: ${selectedEmail?.subject || ""}`,
-        body_html: `${forwardBody.replace(/\n/g, "<br>")}<br><br>--- Forwarded message ---<br>${selectedEmail?.body_html || selectedEmail?.preview || ""}`,
-      });
-      sonnerToast.success("Email forwarded");
-      setForwardOpen(false);
-      setForwardTo("");
-      setForwardBody("");
-    } catch (err: any) {
-      sonnerToast.error(`Forward failed: ${err.message}`);
-    }
-  }, [forwardTo, forwardBody, selectedEmail, outlookSend, toast]);
+  // Reply/forward are now handled inline by EmailPreview's ReplyComposer
 
   const handleMarkRead = useCallback(() => {
     if (selectedEmail) markRead.mutate({ ids: [selectedEmail.id], is_read: true });
