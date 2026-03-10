@@ -376,6 +376,9 @@ export default function AffiliateProgramPage() {
                             ? new Date(tx.transaction_date).toLocaleDateString()
                             : "—"}
                         </TableCell>
+                        <TableCell className="text-sm font-mono text-muted-foreground">
+                          ${(tx.sale_amount || 0).toFixed(2)}
+                        </TableCell>
                         <TableCell className="text-sm font-mono font-semibold">
                           ${tx.amount.toFixed(2)}
                         </TableCell>
