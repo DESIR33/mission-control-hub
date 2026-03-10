@@ -320,7 +320,7 @@ export function ThumbnailLab() {
                     <img
                       src={currentThumbnailUrl}
                       alt="Current thumbnail"
-                      className="w-64 rounded-lg border border-border"
+                      className="w-full sm:w-64 rounded-lg border border-border"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = `https://i.ytimg.com/vi/${selectedVideoId}/hqdefault.jpg`;
                       }}
