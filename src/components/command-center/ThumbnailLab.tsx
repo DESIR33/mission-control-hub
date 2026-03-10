@@ -548,12 +548,12 @@ export function ThumbnailLab() {
 
                     <p className="text-xs text-muted-foreground">{concept.description}</p>
 
-                    {/* LoRA mode: show selfie prompt + background prompt */}
+                    {/* LoRA mode: show thumbnail prompt + background prompt */}
                     {useLoraMode ? (
                       <div className="space-y-2">
                         <div>
                           <Label className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 block">
-                            Selfie Prompt (LoRA)
+                            Thumbnail Prompt (LoRA — person + scene)
                           </Label>
                           <Textarea
                             value={customSelfiePrompts[concept.variant] ?? defaultSelfiePrompt}
@@ -561,7 +561,7 @@ export function ThumbnailLab() {
                               setCustomSelfiePrompts((prev) => ({ ...prev, [concept.variant]: e.target.value }))
                             }
                             className="text-xs h-16 resize-none"
-                            placeholder="Selfie generation prompt..."
+                            placeholder="Full thumbnail prompt with person and scene..."
                           />
                         </div>
                         <div>
