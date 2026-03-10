@@ -96,8 +96,8 @@ export function useGenerateThumbnail() {
 export function useGenerateCompositeThumbnail() {
   return useMutation({
     mutationFn: async (args: {
-      selfie_prompt: string;
-      background_prompt: string;
+      thumbnail_prompt: string;
+      background_prompt?: string;
       lora_model: string;
       lora_version?: string;
       trigger_word: string;
@@ -105,7 +105,7 @@ export function useGenerateCompositeThumbnail() {
       const { data, error } = await supabase.functions.invoke("thumbnail-generate", {
         body: {
           action: "generate_composite",
-          selfie_prompt: args.selfie_prompt,
+          thumbnail_prompt: args.thumbnail_prompt,
           background_prompt: args.background_prompt,
           lora_model: args.lora_model,
           lora_version: args.lora_version,

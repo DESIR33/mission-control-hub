@@ -165,12 +165,12 @@ Return ONLY valid JSON matching this exact structure (no markdown, no backticks)
       return jsonResponse(result);
     }
 
-    // ── ACTION: generate_composite (LoRA selfie + background) ──
+    // ── ACTION: generate_composite (LoRA full thumbnail + NB2 background) ──
     if (action === 'generate_composite') {
-      const { selfie_prompt, background_prompt, lora_model, lora_version, trigger_word } = body;
+      const { thumbnail_prompt, background_prompt, lora_model, lora_version, trigger_word } = body;
 
-      if (!selfie_prompt || !background_prompt) {
-        return jsonResponse({ success: false, error: 'selfie_prompt and background_prompt are required' }, 400);
+      if (!thumbnail_prompt) {
+        return jsonResponse({ success: false, error: 'thumbnail_prompt is required' }, 400);
       }
       if (!lora_model) {
         return jsonResponse({ success: false, error: 'lora_model is required (e.g. owner/model-name)' }, 400);
@@ -180,23 +180,26 @@ Return ONLY valid JSON matching this exact structure (no markdown, no backticks)
       console.log('[thumbnail-generate] LoRA model:', lora_model, 'version:', lora_version);
       console.log('[thumbnail-generate] Trigger word:', trigger_word);
 
-      // Step 1: Generate selfie with the trained LoRA model
-      console.log('[thumbnail-generate] Step 1: Generating selfie with LoRA...');
-      const selfieResult = await generateWithLora(
-        selfie_prompt,
+      // Step 1: Generate full thumbnail with LoRA (person + scene in one image)
+      console.log('[thumbnail-generate] Step 1: Generating full thumbnail with LoRA...');
+      const thumbnailResult = await generateWithLora(
+        thumbnail_prompt,
         lora_model,
         lora_version,
         REPLICATE_API_TOKEN
       );
 
-      // Step 2: Generate background with Nano Banana 2 (SDXL Turbo)
-      console.log('[thumbnail-generate] Step 2: Generating background with Nano Banana 2...');
-      const bgResult = await generateImage(background_prompt, 'nano-banana-2', REPLICATE_API_TOKEN);
+      // Step 2: Generate background-only with Nano Banana 2 as alternative
+      let bgResult = { success: false, image_url: undefined as string | undefined, error: undefined as string | undefined };
+      if (background_prompt) {
+        console.log('[thumbnail-generate] Step 2: Generating background with Nano Banana 2...');
+        bgResult = await generateImage(background_prompt, 'nano-banana-2', REPLICATE_API_TOKEN);
+      }
 
       return jsonResponse({
         success: true,
-        selfie_url: selfieResult.success ? selfieResult.image_url : null,
-        selfie_error: selfieResult.success ? null : selfieResult.error,
+        thumbnail_url: thumbnailResult.success ? thumbnailResult.image_url : null,
+        thumbnail_error: thumbnailResult.success ? null : thumbnailResult.error,
         background_url: bgResult.success ? bgResult.image_url : null,
         background_error: bgResult.success ? null : bgResult.error,
       });
