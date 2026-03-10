@@ -75,7 +75,7 @@ export function AdSenseTab() {
         .eq("workspace_id", workspaceId!)
         .order("date", { ascending: true });
       if (error) throw error;
-      return (data ?? []) as { date: string; estimated_revenue: number }[];
+      return (data ?? []) as unknown as { date: string; estimated_revenue: number }[];
     },
     enabled: !!workspaceId,
   });
