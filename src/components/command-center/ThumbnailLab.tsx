@@ -315,7 +315,7 @@ export function ThumbnailLab() {
           {selectedVideo && (
             <>
               <Card className="p-5 border-border bg-card">
-                <div className="flex items-start gap-4">
+                <div className="flex flex-col sm:flex-row items-start gap-4">
                   {currentThumbnailUrl && (
                     <img
                       src={currentThumbnailUrl}
