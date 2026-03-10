@@ -901,10 +901,10 @@ export default function MonetizationPage() {
                     </TableHeader>
                     <TableBody>
                       {sponsorships.map((sponsorship) => {
-                        const company = companies.find((c) => String(c.id) === String(sponsorship.companyId));
+                        const companyName = sponsorship.companyName || companies.find((c) => String(c.id) === String(sponsorship.companyId))?.name;
                         return (
                           <TableRow key={sponsorship.id} className="cursor-pointer hover:bg-secondary transition-colors">
-                            <TableCell className="text-sm text-card-foreground">{company?.name || "Unknown Company"}</TableCell>
+                            <TableCell className="text-sm text-card-foreground">{companyName || "Unknown Company"}</TableCell>
                             <TableCell className="text-sm font-mono text-card-foreground">${parseFloat(String(sponsorship.value)).toLocaleString()}</TableCell>
                             <TableCell className="text-sm text-muted-foreground">{format(new Date(sponsorship.startDate), "MMM d, yyyy")}</TableCell>
                             <TableCell className="text-sm text-muted-foreground">{format(new Date(sponsorship.endDate), "MMM d, yyyy")}</TableCell>
