@@ -251,9 +251,8 @@ export default function AddTransactionPage() {
                 </Button>
               </div>
             </form>
-          </CardContent>
-        </Card>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

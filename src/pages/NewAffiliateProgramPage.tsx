@@ -237,9 +237,8 @@ export default function NewAffiliateProgramPage() {
                 </Button>
               </div>
             </form>
-          </CardContent>
-        </Card>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

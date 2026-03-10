@@ -610,10 +610,9 @@ export default function NewSponsorshipPage() {
                   </div>
                 )}
               </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
