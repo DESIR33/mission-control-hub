@@ -379,7 +379,7 @@ export function ThumbnailLab() {
                     <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
                       <Target className="w-3 h-3" /> Desire Loop
                     </p>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {["core_desire", "pain_point", "solution_transformation", "curiosity_loop"].map((field) => (
                         <div key={field} className="rounded-lg border border-border p-3">
                           <span className="text-xs font-medium text-foreground capitalize">{field.replace(/_/g, ' ')}</span>
