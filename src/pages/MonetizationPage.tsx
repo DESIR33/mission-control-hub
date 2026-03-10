@@ -1205,6 +1205,10 @@ export default function MonetizationPage() {
             </div>
           </TabsContent>
 
+          {/* AdSense Tab */}
+          <TabsContent value="adsense">
+            <AdSenseTab />
+          </TabsContent>
 
           {/* Rate Card Tab */}
           <TabsContent value="rate-card">
