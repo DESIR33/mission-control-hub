@@ -155,6 +155,10 @@ export default function AIHubPage() {
         <TabsContent value="training" className="mt-4">
           <FluxTrainingContent />
         </TabsContent>
+
+        <TabsContent value="thumbnails" className="mt-4">
+          <ThumbnailLab />
+        </TabsContent>
       </Tabs>
     </div>
   );
