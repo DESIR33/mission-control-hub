@@ -370,39 +370,6 @@ export default function InboxPage() {
           </AlertDialogContent>
         </AlertDialog>
 
-        <Dialog open={replyOpen} onOpenChange={setReplyOpen}>
-          <DialogContent className="sm:max-w-[520px]">
-            <DialogHeader><DialogTitle>Reply</DialogTitle></DialogHeader>
-            <div className="space-y-3">
-              <p className="text-xs text-muted-foreground">To: {selectedEmail.from_email}</p>
-              <Textarea placeholder="Your reply..." value={replyBody} onChange={(e) => setReplyBody(e.target.value)} rows={6} />
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setReplyOpen(false)}>Cancel</Button>
-              <Button onClick={handleReplySend} disabled={outlookSend.isPending}>
-                {outlookSend.isPending ? <Loader2Icon className="h-4 w-4 animate-spin mr-2" /> : <SendIcon className="h-4 w-4 mr-2" />}
-                Send
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        <Dialog open={forwardOpen} onOpenChange={setForwardOpen}>
-          <DialogContent className="sm:max-w-[520px]">
-            <DialogHeader><DialogTitle>Forward</DialogTitle></DialogHeader>
-            <div className="space-y-3">
-              <div><Label>To</Label><Input value={forwardTo} onChange={(e) => setForwardTo(e.target.value)} placeholder="recipient@example.com" /></div>
-              <Textarea placeholder="Add a comment..." value={forwardBody} onChange={(e) => setForwardBody(e.target.value)} rows={4} />
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setForwardOpen(false)}>Cancel</Button>
-              <Button onClick={handleForwardSend} disabled={outlookSend.isPending}>
-                {outlookSend.isPending ? <Loader2Icon className="h-4 w-4 animate-spin mr-2" /> : <SendIcon className="h-4 w-4 mr-2" />}
-                Forward
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </div>
     );
   }
