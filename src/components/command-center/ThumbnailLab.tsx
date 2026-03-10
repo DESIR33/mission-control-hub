@@ -421,7 +421,7 @@ export function ThumbnailLab() {
                   4 concepts based on the desire loop framework
                 </p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 {!useLoraMode && (
                   <Select value={selectedModel} onValueChange={setSelectedModel}>
                     <SelectTrigger className="w-48 h-8 text-xs">
