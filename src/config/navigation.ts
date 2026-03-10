@@ -127,7 +127,7 @@ export const mainNavItems: NavItem[] = [
       { to: "/ai/agents", label: "Agents", icon: Bot },
       { to: "/ai/memory", label: "Memory", icon: BookOpen },
       { to: "/ai/training", label: "Training", icon: Sparkles },
-      { to: "/ai/thumbnails", label: "Thumbnails", icon: Image },
+      { to: "/ai/thumbnails", label: "Thumbnails", icon: ImageIcon },
     ],
   },
   { to: "/integrations", icon: Zap, label: "Integrations" },
