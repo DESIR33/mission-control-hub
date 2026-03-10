@@ -601,7 +601,7 @@ export default function NewSponsorshipPage() {
                     ))}
 
                     <div className="pt-4 flex gap-3">
-                      <Button type="button" variant="outline" onClick={() => navigate("/monetization?tab=sponsorships")}>
+                      <Button type="button" variant="outline" onClick={() => navigate("/revenue/sponsorships")}>
                         Cancel
                       </Button>
                       <Button onClick={handleSubmit} disabled={createSponsorship.isPending}>
