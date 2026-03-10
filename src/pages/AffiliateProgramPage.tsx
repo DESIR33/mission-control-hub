@@ -35,7 +35,9 @@ export default function AffiliateProgramPage() {
   const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
   const [transactionData, setTransactionData] = useState({
     transactionDate: new Date().toISOString().split("T")[0],
+    saleAmount: 0,
     commission: 0,
+    commissionManuallyEdited: false,
     approximatePayoutDate: "",
     isRecurring: false,
     recurringMonths: 0,
@@ -91,6 +93,7 @@ export default function AffiliateProgramPage() {
     e.preventDefault();
     const payload: Partial<AffiliateTransaction> = {
       affiliate_program_id: id!,
+      sale_amount: transactionData.saleAmount,
       amount: transactionData.commission,
       transaction_date: transactionData.transactionDate,
       status: "pending",
@@ -113,7 +116,9 @@ export default function AffiliateProgramPage() {
     setEditingTransactionId(null);
     setTransactionData({
       transactionDate: new Date().toISOString().split("T")[0],
+      saleAmount: 0,
       commission: 0,
+      commissionManuallyEdited: false,
       approximatePayoutDate: "",
       isRecurring: false,
       recurringMonths: 0,
@@ -125,7 +130,9 @@ export default function AffiliateProgramPage() {
     setEditingTransactionId(tx.id);
     setTransactionData({
       transactionDate: tx.transaction_date || new Date().toISOString().split("T")[0],
+      saleAmount: tx.sale_amount || 0,
       commission: tx.amount,
+      commissionManuallyEdited: true,
       approximatePayoutDate: meta.approximate_payout_date || "",
       isRecurring: meta.is_recurring || false,
       recurringMonths: meta.recurring_months || 0,
@@ -340,7 +347,19 @@ export default function AffiliateProgramPage() {
                 </div>
                 <Button
                   size="sm"
-                  onClick={() => navigate(`/affiliate-program/${id}/add-transaction`)}
+                  onClick={() => {
+                    setEditingTransactionId(null);
+                    setTransactionData({
+                      transactionDate: new Date().toISOString().split("T")[0],
+                      saleAmount: 0,
+                      commission: 0,
+                      commissionManuallyEdited: false,
+                      approximatePayoutDate: "",
+                      isRecurring: false,
+                      recurringMonths: 0,
+                    });
+                    setIsAddingTransaction(true);
+                  }}
                   className="gap-1.5"
                 >
                   <Plus className="h-3.5 w-3.5" />
@@ -349,14 +368,15 @@ export default function AffiliateProgramPage() {
               </div>
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Commission</TableHead>
-                    <TableHead>Payout Date</TableHead>
-                    <TableHead>Recurring</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
+                 <TableRow>
+                     <TableHead>Date</TableHead>
+                     <TableHead>Sale Amount</TableHead>
+                     <TableHead>Commission</TableHead>
+                     <TableHead>Payout Date</TableHead>
+                     <TableHead>Recurring</TableHead>
+                     <TableHead>Status</TableHead>
+                     <TableHead className="text-right">Actions</TableHead>
+                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {transactions.map((tx) => {
@@ -367,6 +387,9 @@ export default function AffiliateProgramPage() {
                           {tx.transaction_date
                             ? new Date(tx.transaction_date).toLocaleDateString()
                             : "—"}
+                        </TableCell>
+                        <TableCell className="text-sm font-mono text-muted-foreground">
+                          ${(tx.sale_amount || 0).toFixed(2)}
                         </TableCell>
                         <TableCell className="text-sm font-mono font-semibold">
                           ${tx.amount.toFixed(2)}
@@ -420,7 +443,7 @@ export default function AffiliateProgramPage() {
                   })}
                   {transactions.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center text-muted-foreground py-12 text-sm">
+                      <TableCell colSpan={7} className="text-center text-muted-foreground py-12 text-sm">
                         No transactions recorded yet
                       </TableCell>
                     </TableRow>
@@ -454,20 +477,70 @@ export default function AffiliateProgramPage() {
               />
             </div>
             <div className="space-y-2">
+              <Label>Sale Amount ($)</Label>
+              <Input
+                type="number"
+                min="0"
+                step="0.01"
+                value={transactionData.saleAmount || ""}
+                onChange={(e) => {
+                  const saleAmt = parseFloat(e.target.value) || 0;
+                  const autoCommission = program?.commission_percentage
+                    ? parseFloat((saleAmt * program.commission_percentage / 100).toFixed(2))
+                    : 0;
+                  setTransactionData({
+                    ...transactionData,
+                    saleAmount: saleAmt,
+                    ...(transactionData.commissionManuallyEdited ? {} : { commission: autoCommission }),
+                  });
+                }}
+                placeholder="How much the customer paid"
+              />
+              {program?.commission_percentage != null && (
+                <p className="text-xs text-muted-foreground">
+                  Commission rate: {program.commission_percentage}%
+                </p>
+              )}
+            </div>
+            <div className="space-y-2">
               <Label>Commission Amount ($)</Label>
               <Input
                 type="number"
                 min="0"
                 step="0.01"
-                value={transactionData.commission}
+                value={transactionData.commission || ""}
                 onChange={(e) =>
                   setTransactionData({
                     ...transactionData,
-                    commission: parseFloat(e.target.value),
+                    commission: parseFloat(e.target.value) || 0,
+                    commissionManuallyEdited: true,
                   })
                 }
                 required
               />
+              {transactionData.saleAmount > 0 && transactionData.commission > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  Effective rate: {((transactionData.commission / transactionData.saleAmount) * 100).toFixed(1)}%
+                  {transactionData.commissionManuallyEdited && (
+                    <button
+                      type="button"
+                      className="ml-2 text-primary hover:underline"
+                      onClick={() => {
+                        const autoCommission = program?.commission_percentage
+                          ? parseFloat((transactionData.saleAmount * program.commission_percentage / 100).toFixed(2))
+                          : 0;
+                        setTransactionData({
+                          ...transactionData,
+                          commission: autoCommission,
+                          commissionManuallyEdited: false,
+                        });
+                      }}
+                    >
+                      Reset to {program?.commission_percentage}%
+                    </button>
+                  )}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label>Approximate Payout Date</Label>

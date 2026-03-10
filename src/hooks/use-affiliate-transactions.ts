@@ -7,6 +7,7 @@ export interface AffiliateTransaction {
   workspace_id: string;
   affiliate_program_id: string | null;
   video_queue_id: string | null;
+  sale_amount: number;
   amount: number;
   currency: string;
   status: string;
