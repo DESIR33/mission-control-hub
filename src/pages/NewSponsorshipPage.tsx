@@ -172,8 +172,8 @@ export default function NewSponsorshipPage() {
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 min-h-screen">
-      <div className="mx-auto max-w-2xl">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
+      <div>
         <button
           onClick={() => navigate("/monetization?tab=sponsorships")}
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
@@ -182,24 +182,25 @@ export default function NewSponsorshipPage() {
           Back to Monetization
         </button>
 
-        <div className="flex items-center gap-2 mb-6">
+        <div className="flex items-center gap-2">
           <Handshake className="h-5 w-5 text-foreground" />
           <h1 className="text-xl font-bold tracking-tight text-foreground">New Sponsorship</h1>
         </div>
+      </div>
 
-        <Tabs defaultValue="details">
-          <TabsList className="mb-6">
-            <TabsTrigger value="details">Sponsorship Details</TabsTrigger>
-            <TabsTrigger value="videos">YouTube Videos</TabsTrigger>
-          </TabsList>
+      <Tabs defaultValue="details">
+        <TabsList className="mb-6">
+          <TabsTrigger value="details">Sponsorship Details</TabsTrigger>
+          <TabsTrigger value="videos">YouTube Videos</TabsTrigger>
+        </TabsList>
 
-          <TabsContent value="details">
-            <Card>
-              <CardHeader>
-                <CardTitle>Sponsorship Details</CardTitle>
-                <CardDescription>Enter the details of the sponsorship deal</CardDescription>
-              </CardHeader>
-              <CardContent>
+        <TabsContent value="details">
+          <Card>
+            <CardHeader>
+              <CardTitle>Sponsorship Details</CardTitle>
+              <CardDescription>Enter the details of the sponsorship deal</CardDescription>
+            </CardHeader>
+            <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
