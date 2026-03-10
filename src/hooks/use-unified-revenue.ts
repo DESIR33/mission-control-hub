@@ -69,6 +69,19 @@ export function useUnifiedRevenue() {
     enabled: !!workspaceId,
   });
 
+  const { data: manualAdRevenue = [] } = useQuery({
+    queryKey: ["unified-rev-manual-adsense", workspaceId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("manual_adsense_revenue" as any)
+        .select("month, amount")
+        .eq("workspace_id", workspaceId!);
+      if (error) throw error;
+      return (data ?? []) as any[];
+    },
+    enabled: !!workspaceId,
+  });
+
   const { data: channelStats } = useQuery({
     queryKey: ["unified-rev-channel", workspaceId],
     queryFn: async () => {
