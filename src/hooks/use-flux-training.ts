@@ -46,7 +46,7 @@ export function useFluxSessions() {
     queryKey: ["flux-sessions", workspaceId],
     queryFn: async () => {
       if (!workspaceId) return [];
-      console.log("[flux-sessions] Fetching for workspace:", workspaceId);
+      // Fetching flux sessions for workspace
       const { data, error } = await query("flux_training_sessions")
         .select("*")
         .eq("workspace_id", workspaceId)
