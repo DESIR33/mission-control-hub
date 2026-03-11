@@ -34,7 +34,6 @@ export function useUnifiedRevenue() {
         .from("deals")
         .select("value, closed_at")
         .eq("workspace_id", workspaceId!)
-        .eq("stage", "closed_won")
         .is("deleted_at", null);
       if (error) throw error;
       return (data ?? []) as any[];
