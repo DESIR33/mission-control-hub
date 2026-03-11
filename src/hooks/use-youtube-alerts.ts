@@ -52,7 +52,8 @@ export function useUnreadAlertCount() {
       return count ?? 0;
     },
     enabled: !!workspaceId,
-    refetchInterval: 60_000,
+    refetchInterval: 300_000,
+    staleTime: 120_000,
   });
 }
 

@@ -27,7 +27,12 @@ export function useSyncStatus() {
       return (data ?? []) as unknown as SyncStatus[];
     },
     enabled: !!workspaceId,
-    refetchInterval: 10_000, // Poll while syncing
+    refetchInterval: (query) => {
+      const statuses = query.state.data as any[] | undefined;
+      const isSyncing = statuses?.some((s: any) => s.status === "syncing");
+      return isSyncing ? 10_000 : 300_000;
+    },
+    staleTime: 60_000,
   });
 }
 

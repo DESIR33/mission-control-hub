@@ -294,7 +294,8 @@ export function useStrategistNotifications() {
       return (data ?? []) as unknown as StrategistNotification[];
     },
     enabled: !!workspaceId,
-    refetchInterval: 30000,
+    refetchInterval: 300_000,
+    staleTime: 120_000,
   });
 }
 
