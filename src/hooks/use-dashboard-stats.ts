@@ -359,6 +359,7 @@ export function useNeedsAttention() {
     },
     enabled: !!workspaceId,
     staleTime: 120_000,
+  });
 }
 
 export function useAiBriefing() {
