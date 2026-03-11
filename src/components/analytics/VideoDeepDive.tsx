@@ -4,6 +4,7 @@ import {
   Play, Eye, ThumbsUp, MessageSquare, Share2, Clock,
   MousePointerClick, Users, TrendingUp, DollarSign,
   ChevronDown, ChevronUp, ArrowUpRight, FileText, Search,
+  Handshake,
 } from "lucide-react";
 import {
   BarChart, Bar, ScatterChart, Scatter,
@@ -14,6 +15,7 @@ import { useVideoNotesCheck } from "@/hooks/use-video-notes";
 import { useVideoRevenueLookup } from "@/hooks/use-video-revenue-lookup";
 import { useYouTubeVideoStats } from "@/hooks/use-youtube-analytics";
 import { useAllVideoCompanies } from "@/hooks/use-all-video-companies";
+import { useSponsoredVideos } from "@/hooks/use-sponsored-videos";
 import { VideoCompanyLogos } from "@/components/VideoCompanyLogos";
 import { fmtCount, fmtDuration, fmtMoney, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, horizontalBarDefaults, SEMANTIC_COLORS } from "@/lib/chart-theme";
 
@@ -33,6 +35,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
   const { lookup: revenueLookup } = useVideoRevenueLookup();
   const { data: videoStatsList } = useYouTubeVideoStats(500);
   const { lookup: companyLookup } = useAllVideoCompanies();
+  const { sponsoredSet } = useSponsoredVideos();
   const publishedAtMap = useMemo(() => {
     const map = new Map<string, string>();
     for (const v of videoStatsList ?? []) {
@@ -420,6 +423,12 @@ export function VideoDeepDive({ data, daysRange }: Props) {
                   >
                     <div className="flex items-center gap-1.5">
                       <p className="text-sm font-medium text-foreground truncate hover:text-primary transition-colors">{v.title || "Untitled Video"}</p>
+                      {sponsoredSet.has(v.youtube_video_id) && (
+                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-500/15 text-amber-500 border border-amber-500/30 shrink-0">
+                          <Handshake className="w-2.5 h-2.5" />
+                          Sponsored
+                        </span>
+                      )}
                       <VideoCompanyLogos companies={companyLookup.get(v.youtube_video_id)} />
                     </div>
                     <div className="flex items-center gap-3 mt-0.5 flex-wrap">
