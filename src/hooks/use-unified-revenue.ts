@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { subMonths, startOfMonth, format } from "date-fns";
+import { getDealAttributionDate } from "@/lib/deal-date-utils";
 
 export interface MonthlyRevenue {
   month: string;
