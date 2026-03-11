@@ -940,11 +940,15 @@ export default function MonetizationPage() {
                             <TableCell className="text-sm text-muted-foreground">{format(new Date(sponsorship.startDate), "MMM d, yyyy")}</TableCell>
                             <TableCell className="text-sm text-muted-foreground">{format(new Date(sponsorship.endDate), "MMM d, yyyy")}</TableCell>
                             <TableCell>
-                              {new Date(sponsorship.endDate) > new Date() ?
-                            <span className="text-xs font-mono text-success">Active</span> :
-
-                            <span className="text-xs font-mono text-muted-foreground">Completed</span>
-                            }
+                              <span className={`text-xs font-mono capitalize ${
+                                sponsorship.status === "closed_won" || sponsorship.status === "completed"
+                                  ? "text-green-500"
+                                  : sponsorship.status === "closed_lost"
+                                    ? "text-destructive"
+                                    : "text-amber-500"
+                              }`}>
+                                {sponsorship.status.replace(/_/g, " ")}
+                              </span>
                             </TableCell>
                             <TableCell>
                               <div className="flex items-center justify-end gap-1">
