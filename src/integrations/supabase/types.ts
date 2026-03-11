@@ -1768,6 +1768,45 @@ export type Database = {
           },
         ]
       }
+      deal_videos: {
+        Row: {
+          created_at: string
+          deal_id: string
+          id: string
+          workspace_id: string
+          youtube_video_id: string
+        }
+        Insert: {
+          created_at?: string
+          deal_id: string
+          id?: string
+          workspace_id: string
+          youtube_video_id: string
+        }
+        Update: {
+          created_at?: string
+          deal_id?: string
+          id?: string
+          workspace_id?: string
+          youtube_video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_videos_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_videos_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deals: {
         Row: {
           closed_at: string | null
