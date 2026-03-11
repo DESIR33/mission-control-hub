@@ -357,7 +357,7 @@ export function useNeedsAttention() {
       return items.slice(0, 5);
     },
     enabled: !!workspaceId,
-  });
+    staleTime: 120_000,
 }
 
 export function useAiBriefing() {
