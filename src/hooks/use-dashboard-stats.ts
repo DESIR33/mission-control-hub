@@ -118,7 +118,8 @@ export function useDashboardStats() {
       };
     },
     enabled: !!workspaceId,
-    refetchInterval: 60_000,
+    refetchInterval: 300_000,
+    staleTime: 120_000,
   });
 }
 
