@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { useMemo } from "react";
+import { getDealAttributionDate } from "@/lib/deal-date-utils";
 
 export interface RevenueGoal {
   id: string;
