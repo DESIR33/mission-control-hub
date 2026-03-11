@@ -104,6 +104,7 @@ export default function NewSponsorshipPage() {
             formData.paymentMethod ? `Payment Method: ${formData.paymentMethod}` : "",
             formData.paymentStatus ? `Payment Status: ${formData.paymentStatus}` : "",
             startDate ? `Start Date: ${format(startDate, "PPP")}` : "",
+            endDate ? `End Date: ${format(endDate, "PPP")}` : "",
             formData.notes || "",
           ].filter(Boolean).join("\n\n"),
           created_by: user?.id ?? null,
@@ -112,11 +113,23 @@ export default function NewSponsorshipPage() {
         .single();
 
       if (error) throw error;
+
+      // Link selected videos to the deal
+      if (selectedVideos.length > 0 && data) {
+        const rows = selectedVideos.map(v => ({
+          deal_id: data.id,
+          youtube_video_id: v.id,
+          workspace_id: workspaceId,
+        }));
+        await supabase.from("deal_videos" as any).insert(rows as any);
+      }
+
       return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["deals"] });
       queryClient.invalidateQueries({ queryKey: ["sponsorships"] });
+      queryClient.invalidateQueries({ queryKey: ["deal-videos"] });
       toast({ title: "Success", description: "Sponsorship created successfully" });
       navigate("/revenue/sponsorships");
     },
