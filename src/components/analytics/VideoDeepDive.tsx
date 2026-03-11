@@ -32,6 +32,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
   const [sortField, setSortField] = useState<SortField>("uploadDate");
   const [expandedVideo, setExpandedVideo] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [companyFilter, setCompanyFilter] = useState<"all" | "linked" | "unlinked">("all");
   const { data: notesSet } = useVideoNotesCheck();
   const { lookup: revenueLookup } = useVideoRevenueLookup();
   const { data: videoStatsList } = useYouTubeVideoStats(500);
