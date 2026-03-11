@@ -34,7 +34,6 @@ export function useUnifiedRevenue() {
         .from("deals")
         .select("value, closed_at")
         .eq("workspace_id", workspaceId!)
-        .eq("stage", "closed_won")
         .is("deleted_at", null);
       if (error) throw error;
       return (data ?? []) as any[];
@@ -147,7 +146,7 @@ export function useUnifiedRevenue() {
       }
     }
 
-    const sponsorTotal = wonDeals.reduce((s, d) => s + (d.value || 0), 0);
+    const sponsorTotal = wonDeals.reduce((s: number, d: any) => s + (d.value || 0), 0);
     const affiliateTotal = affiliateTx.reduce((s: number, t: any) => s + (t.amount || 0), 0);
     const totalRevenue = sponsorTotal + affiliateTotal + adSenseTotal;
 
