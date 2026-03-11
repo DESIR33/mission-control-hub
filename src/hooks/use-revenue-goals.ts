@@ -98,6 +98,20 @@ export function useRevenueGoals() {
     enabled: !!workspaceId,
   });
 
+  // Fetch manual AdSense revenue entries
+  const manualAdRevenueQuery = useQuery({
+    queryKey: ["revenue-manual-adsense", workspaceId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("manual_adsense_revenue" as any)
+        .select("month, amount")
+        .eq("workspace_id", workspaceId!);
+      if (error) throw error;
+      return (data ?? []) as any[];
+    },
+    enabled: !!workspaceId,
+  });
+
   // Compute monthly revenue by stream
   const monthlyRevenueByStream = useMemo((): MonthlyRevenueByStream[] => {
     const monthMap = new Map<string, { sponsors: number; affiliates: number; ads: number }>();
