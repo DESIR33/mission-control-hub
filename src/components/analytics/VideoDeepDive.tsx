@@ -4,6 +4,7 @@ import {
   Play, Eye, ThumbsUp, MessageSquare, Share2, Clock,
   MousePointerClick, Users, TrendingUp, DollarSign,
   ChevronDown, ChevronUp, ArrowUpRight, FileText, Search,
+  Handshake,
 } from "lucide-react";
 import {
   BarChart, Bar, ScatterChart, Scatter,
@@ -14,6 +15,7 @@ import { useVideoNotesCheck } from "@/hooks/use-video-notes";
 import { useVideoRevenueLookup } from "@/hooks/use-video-revenue-lookup";
 import { useYouTubeVideoStats } from "@/hooks/use-youtube-analytics";
 import { useAllVideoCompanies } from "@/hooks/use-all-video-companies";
+import { useSponsoredVideos } from "@/hooks/use-sponsored-videos";
 import { VideoCompanyLogos } from "@/components/VideoCompanyLogos";
 import { fmtCount, fmtDuration, fmtMoney, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, horizontalBarDefaults, SEMANTIC_COLORS } from "@/lib/chart-theme";
 
