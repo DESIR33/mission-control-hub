@@ -385,7 +385,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
         />
       </div>
 
-      {/* Sort controls */}
+      {/* Sort & Filter controls */}
       <div className="flex items-center gap-2 flex-wrap">
         <span className="text-xs text-muted-foreground">Sort by:</span>
         {([
@@ -408,6 +408,27 @@ export function VideoDeepDive({ data, daysRange }: Props) {
             }`}
           >
             {label}
+          </button>
+        ))}
+
+        <span className="text-xs text-muted-foreground ml-2">Company:</span>
+        {([
+          ["all", "All", null],
+          ["linked", "Linked", <Building2 key="b" className="w-3 h-3 mr-0.5" />],
+          ["unlinked", "Unlinked", <LinkSlash key="l" className="w-3 h-3 mr-0.5" />],
+        ] as [typeof companyFilter, string, React.ReactNode][]).map(([value, label, icon]) => (
+          <button
+            key={value}
+            onClick={() => setCompanyFilter(value)}
+            className={`px-2 py-1 text-xs rounded-lg border transition-colors flex items-center ${
+              companyFilter === value
+                ? value === "unlinked"
+                  ? "bg-amber-500 text-white border-amber-500"
+                  : "bg-primary text-primary-foreground border-primary"
+                : "bg-card text-muted-foreground border-border hover:bg-muted"
+            }`}
+          >
+            {icon}{label}
           </button>
         ))}
       </div>
