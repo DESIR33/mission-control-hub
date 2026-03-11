@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
-import type { VideoAnalytics } from "@/hooks/use-youtube-analytics-api";
+
 
 export interface VideoDetailStats {
   youtube_video_id: string;
