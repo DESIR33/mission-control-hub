@@ -138,14 +138,24 @@ export function useRevenueGoals() {
       monthMap.set(month, existing);
     });
 
-    // Ad revenue from channel analytics
+    // Ad revenue from channel analytics — track which months have API data
+    const apiAdMonths = new Set<string>();
     (channelAnalyticsQuery.data ?? []).forEach((a: any) => {
       const date = a.date;
       if (!date) return;
       const month = date.slice(0, 7);
+      apiAdMonths.add(month);
       const existing = monthMap.get(month) ?? { sponsors: 0, affiliates: 0, ads: 0 };
       existing.ads += Number(a.estimated_revenue ?? 0);
       monthMap.set(month, existing);
+    });
+
+    // Fill in manual AdSense for months without API data
+    (manualAdRevenueQuery.data ?? []).forEach((m: any) => {
+      if (!m.month || apiAdMonths.has(m.month)) return;
+      const existing = monthMap.get(m.month) ?? { sponsors: 0, affiliates: 0, ads: 0 };
+      existing.ads += Number(m.amount ?? 0);
+      monthMap.set(m.month, existing);
     });
 
     return Array.from(monthMap.entries())
@@ -155,7 +165,7 @@ export function useRevenueGoals() {
         ...data,
         total: data.sponsors + data.affiliates + data.ads,
       }));
-  }, [dealsQuery.data, affiliateQuery.data, channelAnalyticsQuery.data]);
+  }, [dealsQuery.data, affiliateQuery.data, channelAnalyticsQuery.data, manualAdRevenueQuery.data]);
 
   // Revenue per 1k subs
   const revenuePerKSubs = useMemo((): number => {
