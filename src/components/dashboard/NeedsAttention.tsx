@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { AlertCircle, ArrowRight, Clock, User } from "lucide-react";
