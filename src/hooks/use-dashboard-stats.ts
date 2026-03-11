@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { subDays, subMonths, startOfMonth, format } from "date-fns";
+import { getDealAttributionDate } from "@/lib/deal-date-utils";
 
 export interface DashboardStats {
   contactCount: number;
@@ -226,7 +227,7 @@ export function useRevenueData() {
       const [wonDealsRes, affiliateTxRes, adRevenueRes] = await Promise.all([
         supabase
           .from("deals")
-          .select("value, closed_at")
+          .select("value, closed_at, created_at, notes")
           .eq("workspace_id", workspaceId)
           .eq("stage", "closed_won")
           .is("deleted_at", null),
@@ -253,7 +254,8 @@ export function useRevenueData() {
 
         let amount = 0;
         for (const d of deals) {
-          if (d.closed_at && d.closed_at.startsWith(monthStr)) {
+          const dealDate = getDealAttributionDate(d);
+          if (dealDate && dealDate.startsWith(monthStr)) {
             amount += d.value ?? 0;
           }
         }

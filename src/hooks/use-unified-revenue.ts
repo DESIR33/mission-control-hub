@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { subMonths, startOfMonth, format } from "date-fns";
+import { getDealAttributionDate } from "@/lib/deal-date-utils";
 
 export interface MonthlyRevenue {
   month: string;
@@ -105,15 +106,7 @@ export function useUnifiedRevenue() {
 
       let sponsors = 0;
       for (const d of wonDeals) {
-        let dealDate = d.closed_at || d.created_at;
-        // Parse Start Date from notes if available
-        const startMatch = d.notes?.match(/Start Date:\s*(.+)/);
-        if (startMatch) {
-          try {
-            const parsed = new Date(startMatch[1].replace(/(st|nd|rd|th),/, ","));
-            if (!isNaN(parsed.getTime())) dealDate = parsed.toISOString();
-          } catch {}
-        }
+        const dealDate = getDealAttributionDate(d);
         if (dealDate?.startsWith(monthStr)) sponsors += d.value || 0;
       }
 

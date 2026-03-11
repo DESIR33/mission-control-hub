@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { useMemo } from "react";
+import { getDealAttributionDate } from "@/lib/deal-date-utils";
 
 export interface RevenueGoal {
   id: string;
@@ -74,7 +75,7 @@ export function useRevenueGoals() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("deals" as any)
-        .select("id, title, value, stage, closed_at, created_at")
+        .select("id, title, value, stage, closed_at, created_at, notes")
         .eq("workspace_id", workspaceId!);
       if (error) throw error;
       return (data ?? []) as any[];
@@ -101,11 +102,11 @@ export function useRevenueGoals() {
   const monthlyRevenueByStream = useMemo((): MonthlyRevenueByStream[] => {
     const monthMap = new Map<string, { sponsors: number; affiliates: number; ads: number }>();
 
-    // Sponsor deals (closed_won)
+    // Sponsor deals (closed_won) — attribute to End Date month
     (dealsQuery.data ?? [])
       .filter((d: any) => d.stage === "closed_won")
       .forEach((d: any) => {
-        const date = d.closed_at ?? d.created_at;
+        const date = getDealAttributionDate(d);
         if (!date) return;
         const month = date.slice(0, 7); // YYYY-MM
         const existing = monthMap.get(month) ?? { sponsors: 0, affiliates: 0, ads: 0 };

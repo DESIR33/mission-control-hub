@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { useMemo } from "react";
 import { subDays, format, startOfDay } from "date-fns";
+import { getDealAttributionDate } from "@/lib/deal-date-utils";
 
 export interface WeeklyRevenueSummary {
   thisWeekAdRevenue: number;
@@ -47,11 +48,10 @@ export function useWeeklyRevenue() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("deals")
-        .select("value, closed_at")
+        .select("value, closed_at, created_at, notes")
         .eq("workspace_id", workspaceId!)
         .eq("stage", "closed_won")
-        .is("deleted_at", null)
-        .gte("closed_at", lastWeekStart);
+        .is("deleted_at", null);
       if (error) throw error;
       return (data ?? []) as any[];
     },
@@ -82,12 +82,12 @@ export function useWeeklyRevenue() {
     const thisWeekAdRevenue = thisWeekAd.reduce((s: number, d: any) => s + (Number(d.estimated_revenue) || 0), 0);
     const lastWeekAdRevenue = lastWeekAd.reduce((s: number, d: any) => s + (Number(d.estimated_revenue) || 0), 0);
 
-    // Deal revenue
+    // Deal revenue — use End Date from notes for attribution
     const thisWeekDealRevenue = dealData
-      .filter((d: any) => d.closed_at && isThisWeek(d.closed_at.slice(0, 10)))
+      .filter((d: any) => { const dt = getDealAttributionDate(d)?.slice(0, 10); return dt && isThisWeek(dt); })
       .reduce((s: number, d: any) => s + (Number(d.value) || 0), 0);
     const lastWeekDealRevenue = dealData
-      .filter((d: any) => d.closed_at && isLastWeek(d.closed_at.slice(0, 10)))
+      .filter((d: any) => { const dt = getDealAttributionDate(d)?.slice(0, 10); return dt && isLastWeek(dt); })
       .reduce((s: number, d: any) => s + (Number(d.value) || 0), 0);
 
     // Affiliate revenue
@@ -114,9 +114,9 @@ export function useWeeklyRevenue() {
       if (entry) entry.ad += Number(row.estimated_revenue) || 0;
     }
     for (const row of dealData) {
-      if (row.closed_at) {
-        const d = row.closed_at.slice(0, 10);
-        const entry = dailyMap.get(d);
+      const dt = getDealAttributionDate(row)?.slice(0, 10);
+      if (dt) {
+        const entry = dailyMap.get(dt);
         if (entry) entry.deal += Number(row.value) || 0;
       }
     }
