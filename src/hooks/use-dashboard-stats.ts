@@ -284,6 +284,7 @@ export function useRevenueData() {
     },
     enabled: !!workspaceId,
     staleTime: 120_000,
+  });
 }
 
 export function useNeedsAttention() {
