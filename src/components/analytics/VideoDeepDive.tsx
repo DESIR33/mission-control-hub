@@ -35,6 +35,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
   const { lookup: revenueLookup } = useVideoRevenueLookup();
   const { data: videoStatsList } = useYouTubeVideoStats(500);
   const { lookup: companyLookup } = useAllVideoCompanies();
+  const { sponsoredSet } = useSponsoredVideos();
   const publishedAtMap = useMemo(() => {
     const map = new Map<string, string>();
     for (const v of videoStatsList ?? []) {
