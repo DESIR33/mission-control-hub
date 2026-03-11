@@ -61,7 +61,7 @@ export function useRevenueGoals() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("affiliate_transactions" as any)
-        .select("id, amount, commission, status, created_at")
+        .select("id, amount, status, transaction_date")
         .eq("workspace_id", workspaceId!);
       if (error) throw error;
       return (data ?? []) as any[];
@@ -89,7 +89,7 @@ export function useRevenueGoals() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("youtube_channel_analytics" as any)
-        .select("date, estimated_revenue, views, subscribers")
+        .select("date, estimated_revenue, views, subscribers_gained")
         .eq("workspace_id", workspaceId!)
         .order("date", { ascending: true });
       if (error) throw error;
@@ -116,11 +116,11 @@ export function useRevenueGoals() {
 
     // Affiliate transactions
     (affiliateQuery.data ?? []).forEach((t: any) => {
-      const date = t.created_at;
+      const date = t.transaction_date ?? t.created_at;
       if (!date) return;
       const month = date.slice(0, 7);
       const existing = monthMap.get(month) ?? { sponsors: 0, affiliates: 0, ads: 0 };
-      existing.affiliates += Number(t.commission ?? t.amount ?? 0);
+      existing.affiliates += Number(t.amount ?? 0);
       monthMap.set(month, existing);
     });
 
@@ -147,7 +147,7 @@ export function useRevenueGoals() {
   const revenuePerKSubs = useMemo((): number => {
     const analytics = channelAnalyticsQuery.data ?? [];
     if (analytics.length === 0) return 0;
-    const latestSubs = Number(analytics[analytics.length - 1]?.subscribers ?? 0);
+    const latestSubs = Number(analytics[analytics.length - 1]?.subscribers_gained ?? 0);
     if (latestSubs === 0) return 0;
     const totalRevenue = monthlyRevenueByStream.reduce((s, m) => s + m.total, 0);
     return (totalRevenue / latestSubs) * 1000;
