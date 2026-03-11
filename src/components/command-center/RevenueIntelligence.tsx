@@ -22,7 +22,7 @@ import {
 
 export function RevenueIntelligence() {
   const { data: forecast, isLoading: forecastLoading } = useRevenueForecast();
-  const { data: rateCard, isLoading: rateCardLoading } = useRateCard();
+  const { items: rateCardItems, isLoading: rateCardLoading } = useRateCard();
 
   const isLoading = forecastLoading || rateCardLoading;
 
@@ -284,58 +284,32 @@ export function RevenueIntelligence() {
         </div>
 
         {/* Rate Card Section */}
-        {rateCard && (
+        {rateCardItems.length > 0 && (
           <div className="rounded-xl border border-border bg-card p-4">
             <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-1.5">
               <CreditCard className="w-3.5 h-3.5 text-purple-500" />
-              Suggested Rate Card
+              Rate Card
             </h3>
-            <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
-              <span>
-                Subscribers: {rateCard.subscriberCount.toLocaleString()}
-              </span>
-              <span>Avg Views: {rateCard.avgViews.toLocaleString()}</span>
-              <span>Engagement: {rateCard.engagementRate}%</span>
-              {rateCard.isUndercharging && (
-                <Badge
-                  variant="outline"
-                  className="bg-yellow-500/15 text-yellow-400 border-yellow-500/30 text-xs"
-                >
-                  Undercharging
-                </Badge>
-              )}
-            </div>
             <div className="space-y-2">
-              {rateCard.rates.map((tier) => (
+              {rateCardItems.filter(i => i.is_active).map((item) => (
                 <div
-                  key={tier.type}
+                  key={item.id}
                   className="flex items-center gap-3 rounded-xl border border-border p-2"
                 >
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-medium text-foreground">
-                      {tier.type}
+                      {item.name}
                     </p>
-                    <p className="text-xs text-muted-foreground">
-                      {tier.description}
-                    </p>
+                    {item.description && (
+                      <p className="text-xs text-muted-foreground">
+                        {item.description}
+                      </p>
+                    )}
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-bold font-mono text-foreground">
-                      {fmtMoney(tier.suggestedRate)}
+                      {item.price > 0 ? fmtMoney(item.price) : "Included"}
                     </p>
-                    {tier.avgHistoricalDeal > 0 && (
-                      <p className="text-xs text-muted-foreground">
-                        avg deal: {fmtMoney(tier.avgHistoricalDeal)}
-                        <span
-                          className={`ml-1 ${
-                            tier.delta >= 0 ? "text-green-400" : "text-red-400"
-                          }`}
-                        >
-                          ({tier.delta >= 0 ? "+" : ""}
-                          {tier.delta}%)
-                        </span>
-                      </p>
-                    )}
                   </div>
                 </div>
               ))}
