@@ -22,7 +22,7 @@ import {
 
 export function RevenueIntelligence() {
   const { data: forecast, isLoading: forecastLoading } = useRevenueForecast();
-  const { data: rateCard, isLoading: rateCardLoading } = useRateCard();
+  const { items: rateCardItems, isLoading: rateCardLoading } = useRateCard();
 
   const isLoading = forecastLoading || rateCardLoading;
 
