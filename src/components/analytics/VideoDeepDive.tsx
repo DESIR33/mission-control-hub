@@ -155,10 +155,18 @@ export function VideoDeepDive({ data, daysRange }: Props) {
 
   // Feature 10: Video Search — filter sorted videos by title
   const filteredVideos = useMemo(() => {
-    if (!searchQuery.trim()) return sorted;
-    const q = searchQuery.toLowerCase();
-    return sorted.filter((v) => (v.title || "Untitled Video").toLowerCase().includes(q));
-  }, [sorted, searchQuery]);
+    let result = sorted;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter((v) => (v.title || "Untitled Video").toLowerCase().includes(q));
+    }
+    if (companyFilter === "unlinked") {
+      result = result.filter((v) => !companyLookup.has(v.youtube_video_id));
+    } else if (companyFilter === "linked") {
+      result = result.filter((v) => companyLookup.has(v.youtube_video_id));
+    }
+    return result;
+  }, [sorted, searchQuery, companyFilter, companyLookup]);
 
   // Top 5 by views for overview
   const top5 = useMemo(() => sorted.slice(0, 5), [sorted]);
