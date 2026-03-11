@@ -147,7 +147,7 @@ export function useRevenueGoals() {
   const revenuePerKSubs = useMemo((): number => {
     const analytics = channelAnalyticsQuery.data ?? [];
     if (analytics.length === 0) return 0;
-    const latestSubs = Number(analytics[analytics.length - 1]?.subscribers ?? 0);
+    const latestSubs = Number(analytics[analytics.length - 1]?.subscribers_gained ?? 0);
     if (latestSubs === 0) return 0;
     const totalRevenue = monthlyRevenueByStream.reduce((s, m) => s + m.total, 0);
     return (totalRevenue / latestSubs) * 1000;
