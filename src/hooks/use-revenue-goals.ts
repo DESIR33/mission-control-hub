@@ -75,7 +75,7 @@ export function useRevenueGoals() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("deals" as any)
-        .select("id, title, value, stage, closed_at, created_at")
+        .select("id, title, value, stage, closed_at, created_at, notes")
         .eq("workspace_id", workspaceId!);
       if (error) throw error;
       return (data ?? []) as any[];
