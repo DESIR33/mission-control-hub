@@ -105,7 +105,8 @@ export function useUnifiedRevenue() {
 
       let sponsors = 0;
       for (const d of wonDeals) {
-        if (d.closed_at?.startsWith(monthStr)) sponsors += d.value || 0;
+        const dealDate = d.closed_at || d.created_at;
+        if (dealDate?.startsWith(monthStr)) sponsors += d.value || 0;
       }
 
       let affiliates = 0;
