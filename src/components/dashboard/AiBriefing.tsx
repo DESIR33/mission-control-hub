@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { motion } from "framer-motion";
 import { Brain, Sparkles, AlertCircle, ArrowRight, Clock, User } from "lucide-react";
 import { cn } from "@/lib/utils";
