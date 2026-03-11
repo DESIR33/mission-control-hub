@@ -254,7 +254,8 @@ export function useRevenueData() {
 
         let amount = 0;
         for (const d of deals) {
-          if (d.closed_at && d.closed_at.startsWith(monthStr)) {
+          const dealDate = getDealAttributionDate(d);
+          if (dealDate && dealDate.startsWith(monthStr)) {
             amount += d.value ?? 0;
           }
         }
