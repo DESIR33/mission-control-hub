@@ -76,11 +76,8 @@ async function refreshAccessToken(
 
   if (res.ok) {
     const data = await res.json();
-    // Log granted scopes — expected: yt-analytics.readonly, yt-analytics-monetary.readonly, youtube.force-ssl
     if (data.scope) {
       console.log(`[YT Analytics] Token scopes: ${data.scope}`);
-      // Note: youtube.force-ssl scope is required for video update operations (title, description, tags, thumbnails)
-      // Ensure the OAuth consent screen includes this scope when generating refresh tokens
     }
     return data.access_token;
   }
@@ -93,12 +90,33 @@ async function refreshAccessToken(
   );
 }
 
+/** Batch upsert helper — chunks array and upserts in batches of `size`. */
+async function batchUpsert(
+  supabase: any,
+  table: string,
+  rows: any[],
+  onConflict: string,
+  size = 200
+): Promise<{ upserted: number; errors: string[] }> {
+  let upserted = 0;
+  const errors: string[] = [];
+  for (let i = 0; i < rows.length; i += size) {
+    const chunk = rows.slice(i, i + size);
+    const { error } = await supabase.from(table).upsert(chunk, { onConflict });
+    if (error) {
+      errors.push(`${table} batch ${i}: ${error.message}`);
+    } else {
+      upserted += chunk.length;
+    }
+  }
+  return { upserted, errors };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
 
-  // Structured result for client
   const syncResult: {
     ok: boolean;
     channelRowsUpserted: number;
@@ -159,7 +177,6 @@ Deno.serve(async (req) => {
 
     const config = integration.config as Record<string, any>;
 
-    // Get access token
     let accessToken = config.access_token;
     const refreshToken = config.refresh_token;
     const clientId = config.client_id;
@@ -184,50 +201,30 @@ Deno.serve(async (req) => {
     }
 
     const ids = "channel==MINE";
+    const now = new Date().toISOString();
 
     // ═══════════════════════════════════════════════════════════════
-    // 1. Channel daily analytics
-    // VALID metrics for channel reports with day dimension.
-    // NOTE: endScreenElementClicks/Impressions/ClickRate are NOT valid
-    // metric identifiers and cause 400 errors.
+    // 1. Channel daily analytics — BATCHED
     // ═══════════════════════════════════════════════════════════════
     try {
-      // Core metrics that are always available
       const coreChannelMetrics = [
-        "views",
-        "estimatedMinutesWatched",
-        "averageViewDuration",
-        "averageViewPercentage",
-        "subscribersGained",
-        "subscribersLost",
-        "likes",
-        "dislikes",
-        "comments",
-        "shares",
-        "cardClicks",
-        "cardImpressions",
-        "cardClickRate",
-        "estimatedRevenue",
-        "estimatedAdRevenue",
-        "estimatedRedPartnerRevenue",
-        "grossRevenue",
-        "cpm",
-        "adImpressions",
-        "monetizedPlaybacks",
-        "playbackBasedCpm",
+        "views", "estimatedMinutesWatched", "averageViewDuration",
+        "averageViewPercentage", "subscribersGained", "subscribersLost",
+        "likes", "dislikes", "comments", "shares",
+        "cardClicks", "cardImpressions", "cardClickRate",
+        "estimatedRevenue", "estimatedAdRevenue", "estimatedRedPartnerRevenue",
+        "grossRevenue", "cpm", "adImpressions", "monetizedPlaybacks", "playbackBasedCpm",
       ];
 
       const channelData = await fetchYouTubeAnalytics(accessToken, {
-        ids,
-        startDate,
-        endDate,
+        ids, startDate, endDate,
         dimensions: "day",
         metrics: coreChannelMetrics.join(","),
         sort: "day",
       });
 
-      if (channelData.rows) {
-        for (const row of channelData.rows) {
+      if (channelData.rows?.length) {
+        const records = channelData.rows.map((row: any) => {
           const [
             day, views, minutesWatched, avgDuration, avgPercentage,
             subsGained, subsLost, likes, dislikes, comments, shares,
@@ -235,199 +232,128 @@ Deno.serve(async (req) => {
             estRevenue, estAdRevenue, estRedRevenue, grossRevenue,
             cpmVal, adImpressions, monetizedPlaybacks, playbackCpm,
           ] = row;
-
-          const record = {
-            workspace_id,
-            date: day,
-            views: views || 0,
-            estimated_minutes_watched: minutesWatched || 0,
+          return {
+            workspace_id, date: day,
+            views: views || 0, estimated_minutes_watched: minutesWatched || 0,
             average_view_duration_seconds: Math.round(avgDuration || 0),
             average_view_percentage: avgPercentage || 0,
-            subscribers_gained: subsGained || 0,
-            subscribers_lost: subsLost || 0,
+            subscribers_gained: subsGained || 0, subscribers_lost: subsLost || 0,
             net_subscribers: (subsGained || 0) - (subsLost || 0),
-            likes: likes || 0,
-            dislikes: dislikes || 0,
-            comments: comments || 0,
-            shares: shares || 0,
-            impressions: 0,
-            impressions_ctr: 0,
-            unique_viewers: 0,
-            card_clicks: cardClicks || 0,
-            card_impressions: cardImpressions || 0,
-            card_ctr: cardCtr || 0,
-            end_screen_element_clicks: 0,
-            end_screen_element_impressions: 0,
-            end_screen_element_ctr: 0,
-            estimated_revenue: estRevenue || 0,
-            estimated_ad_revenue: estAdRevenue || 0,
-            estimated_red_partner_revenue: estRedRevenue || 0,
-            gross_revenue: grossRevenue || 0,
-            cpm: cpmVal || 0,
-            ad_impressions: adImpressions || 0,
-            monetized_playbacks: monetizedPlaybacks || 0,
-            playback_based_cpm: playbackCpm || 0,
-            fetched_at: new Date().toISOString(),
+            likes: likes || 0, dislikes: dislikes || 0, comments: comments || 0,
+            shares: shares || 0, impressions: 0, impressions_ctr: 0, unique_viewers: 0,
+            card_clicks: cardClicks || 0, card_impressions: cardImpressions || 0, card_ctr: cardCtr || 0,
+            end_screen_element_clicks: 0, end_screen_element_impressions: 0, end_screen_element_ctr: 0,
+            estimated_revenue: estRevenue || 0, estimated_ad_revenue: estAdRevenue || 0,
+            estimated_red_partner_revenue: estRedRevenue || 0, gross_revenue: grossRevenue || 0,
+            cpm: cpmVal || 0, ad_impressions: adImpressions || 0,
+            monetized_playbacks: monetizedPlaybacks || 0, playback_based_cpm: playbackCpm || 0,
+            fetched_at: now,
           };
+        });
 
-          if (syncResult.channelRowsUpserted === 0) {
-            syncResult.sampleChannelRow = {
-              day, views, minutesWatched, avgDuration, avgPercentage,
-              estRevenue,
-            };
-            console.log("[YT Analytics] Sample channel row:", JSON.stringify(syncResult.sampleChannelRow));
-          }
+        syncResult.sampleChannelRow = {
+          day: records[0].date, views: records[0].views,
+          minutesWatched: records[0].estimated_minutes_watched,
+          avgDuration: records[0].average_view_duration_seconds,
+          avgPercentage: records[0].average_view_percentage,
+          estRevenue: records[0].estimated_revenue,
+        };
 
-          const { error: upsertErr } = await supabase
-            .from("youtube_channel_analytics")
-            .upsert(record, { onConflict: "workspace_id,date" });
-
-          if (upsertErr) {
-            console.error(`[YT Analytics] Channel upsert error for ${day}:`, upsertErr.message);
-            syncResult.errors.push(`Channel upsert ${day}: ${upsertErr.message}`);
-          } else {
-            syncResult.channelRowsUpserted++;
-          }
-        }
+        const res = await batchUpsert(supabase, "youtube_channel_analytics", records, "workspace_id,date");
+        syncResult.channelRowsUpserted = res.upserted;
+        syncResult.errors.push(...res.errors);
       }
       console.log(`[YT Analytics] Channel: ${syncResult.channelRowsUpserted} rows upserted`);
     } catch (e: any) {
-      const msg = `Channel analytics: ${e.message}`;
-      console.error(`[YT Analytics] ${msg}`);
-      syncResult.errors.push(msg);
+      syncResult.errors.push(`Channel analytics: ${e.message}`);
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // 2. Per-video analytics (top 200 by views, LIFETIME range)
-    // Use full channel lifetime so revenue/views reflect totals,
-    // not just the sync window. YouTube Analytics API allows dates
-    // back to 2005-01-01.
+    // 2. Per-video analytics (top 200, lifetime) — BATCHED
     // ═══════════════════════════════════════════════════════════════
     try {
       const videoMetrics = [
-        "views",
-        "estimatedMinutesWatched",
-        "averageViewDuration",
-        "averageViewPercentage",
-        "subscribersGained",
-        "subscribersLost",
-        "likes",
-        "dislikes",
-        "comments",
-        "shares",
-        "cardClicks",
-        "cardImpressions",
-        "annotationClickThroughRate",
-        "estimatedRevenue",
+        "views", "estimatedMinutesWatched", "averageViewDuration",
+        "averageViewPercentage", "subscribersGained", "subscribersLost",
+        "likes", "dislikes", "comments", "shares",
+        "cardClicks", "cardImpressions", "annotationClickThroughRate", "estimatedRevenue",
       ];
 
-      // Always query full lifetime for per-video aggregates so
-      // revenue totals match what YouTube Studio reports.
-      const videoLifetimeStart = "2005-01-01";
-
       const videoData = await fetchYouTubeAnalytics(accessToken, {
-        ids,
-        startDate: videoLifetimeStart,
-        endDate,
+        ids, startDate: "2005-01-01", endDate,
         dimensions: "video",
         metrics: videoMetrics.join(","),
-        sort: "-views",
-        maxResults: 200,
+        sort: "-views", maxResults: 200,
       });
 
-      if (videoData.rows) {
-        for (const row of videoData.rows) {
+      if (videoData.rows?.length) {
+        // Bulk-fetch existing titles from DB in one query (no per-row queries)
+        const videoIds = videoData.rows.map((r: any) => r[0]);
+        const { data: existingStats } = await supabase
+          .from("youtube_video_stats")
+          .select("youtube_video_id, title")
+          .eq("workspace_id", workspace_id)
+          .in("youtube_video_id", videoIds);
+        const titleMap = new Map<string, string>();
+        for (const s of (existingStats || [])) {
+          if (s.title) titleMap.set(s.youtube_video_id, s.title);
+        }
+
+        // Also check existing analytics titles
+        const { data: existingAnalytics } = await supabase
+          .from("youtube_video_analytics")
+          .select("youtube_video_id, title")
+          .eq("workspace_id", workspace_id)
+          .in("youtube_video_id", videoIds);
+        for (const s of (existingAnalytics || [])) {
+          if (s.title && !titleMap.has(s.youtube_video_id)) {
+            titleMap.set(s.youtube_video_id, s.title);
+          }
+        }
+
+        const records = videoData.rows.map((row: any) => {
           const [
             videoId, views, minutesWatched, avgDuration, avgPercentage,
             subsGained, subsLost, likes, dislikes, comments, shares,
-            cardClicks, cardImpressions,
-            annotationCtr, estRevenue,
+            cardClicks, cardImpressions, annotationCtr, estRevenue,
           ] = row;
+          return {
+            workspace_id, youtube_video_id: videoId,
+            title: titleMap.get(videoId) || "Untitled Video",
+            date: endDate,
+            views: views || 0, estimated_minutes_watched: minutesWatched || 0,
+            average_view_duration_seconds: Math.round(avgDuration || 0),
+            average_view_percentage: avgPercentage || 0,
+            subscribers_gained: subsGained || 0, subscribers_lost: subsLost || 0,
+            likes: likes || 0, dislikes: dislikes || 0, comments: comments || 0,
+            shares: shares || 0, impressions: 0, impressions_ctr: 0,
+            card_clicks: cardClicks || 0, card_impressions: cardImpressions || 0,
+            end_screen_element_clicks: 0, end_screen_element_impressions: 0,
+            annotation_click_through_rate: annotationCtr || 0,
+            estimated_revenue: estRevenue || 0,
+            fetched_at: now,
+          };
+        });
 
-          // Fetch video title from youtube_video_stats first, then API as fallback
-          let title: string | null = null;
-          
-          // Try to get title from youtube_video_stats table first (no quota cost)
-          try {
-            const { data: statsRow } = await supabase
-              .from("youtube_video_stats")
-              .select("title")
-              .eq("workspace_id", workspace_id)
-              .eq("youtube_video_id", videoId)
-              .maybeSingle();
-            if (statsRow?.title) title = statsRow.title;
-          } catch { /* ignore */ }
+        syncResult.sampleVideoRow = {
+          videoId: records[0].youtube_video_id, views: records[0].views,
+          minutesWatched: records[0].estimated_minutes_watched,
+          avgDuration: records[0].average_view_duration_seconds,
+          avgPercentage: records[0].average_view_percentage,
+          estRevenue: records[0].estimated_revenue,
+        };
 
-          // Fallback to API only if we don't have a title yet
-          if (!title && config.api_key) {
-            try {
-              const titleRes = await fetch(
-                `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&fields=items/snippet/title&key=${config.api_key}`
-              );
-              const titleData = await titleRes.json();
-              title = titleData.items?.[0]?.snippet?.title || null;
-            } catch { /* fallback */ }
-          }
-          
-          // Never store the video ID as the title
-          if (!title) title = "Untitled Video";
-
-          if (syncResult.videoRowsUpserted === 0) {
-            syncResult.sampleVideoRow = {
-              videoId, views, minutesWatched, avgDuration, avgPercentage,
-              estRevenue,
-            };
-            console.log("[YT Analytics] Sample video row:", JSON.stringify(syncResult.sampleVideoRow));
-          }
-
-          const { error: upsertErr } = await supabase
-            .from("youtube_video_analytics")
-            .upsert(
-              {
-                workspace_id,
-                youtube_video_id: videoId,
-                title,
-                date: endDate,
-                views: views || 0,
-                estimated_minutes_watched: minutesWatched || 0,
-                average_view_duration_seconds: Math.round(avgDuration || 0),
-                average_view_percentage: avgPercentage || 0,
-                subscribers_gained: subsGained || 0,
-                subscribers_lost: subsLost || 0,
-                likes: likes || 0,
-                dislikes: dislikes || 0,
-                comments: comments || 0,
-                shares: shares || 0,
-                impressions: 0,
-                impressions_ctr: 0,
-                card_clicks: cardClicks || 0,
-                card_impressions: cardImpressions || 0,
-                end_screen_element_clicks: 0,
-                end_screen_element_impressions: 0,
-                annotation_click_through_rate: annotationCtr || 0,
-                estimated_revenue: estRevenue || 0,
-                fetched_at: new Date().toISOString(),
-              },
-              { onConflict: "workspace_id,youtube_video_id" }
-            );
-
-          if (upsertErr) {
-            console.error(`[YT Analytics] Video upsert error for ${videoId}:`, upsertErr.message);
-            syncResult.errors.push(`Video upsert ${videoId}: ${upsertErr.message}`);
-          } else {
-            syncResult.videoRowsUpserted++;
-          }
-        }
+        const res = await batchUpsert(supabase, "youtube_video_analytics", records, "workspace_id,youtube_video_id");
+        syncResult.videoRowsUpserted = res.upserted;
+        syncResult.errors.push(...res.errors);
       }
       console.log(`[YT Analytics] Videos: ${syncResult.videoRowsUpserted} rows upserted`);
     } catch (e: any) {
-      const msg = `Video analytics: ${e.message}`;
-      console.error(`[YT Analytics] ${msg}`);
-      syncResult.errors.push(msg);
+      syncResult.errors.push(`Video analytics: ${e.message}`);
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // 3. Demographics
+    // 3. Demographics — BATCHED
     // ═══════════════════════════════════════════════════════════════
     try {
       const demoData = await fetchYouTubeAnalytics(accessToken, {
@@ -436,27 +362,23 @@ Deno.serve(async (req) => {
         metrics: "viewerPercentage",
       });
 
-      if (demoData.rows) {
-        for (const row of demoData.rows) {
-          const [ageGroup, gender, viewerPercentage] = row;
-          const { error } = await supabase.from("youtube_demographics").upsert(
-            {
-              workspace_id, date: endDate,
-              age_group: ageGroup, gender,
-              viewer_percentage: viewerPercentage || 0,
-              fetched_at: new Date().toISOString(),
-            },
-            { onConflict: "workspace_id,date,age_group,gender" }
-          );
-          if (!error) syncResult.demographicsUpserted++;
-        }
+      if (demoData.rows?.length) {
+        const records = demoData.rows.map((row: any) => ({
+          workspace_id, date: endDate,
+          age_group: row[0], gender: row[1],
+          viewer_percentage: row[2] || 0,
+          fetched_at: now,
+        }));
+        const res = await batchUpsert(supabase, "youtube_demographics", records, "workspace_id,date,age_group,gender");
+        syncResult.demographicsUpserted = res.upserted;
+        syncResult.errors.push(...res.errors);
       }
     } catch (e: any) {
       syncResult.errors.push(`Demographics: ${e.message}`);
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // 4. Traffic sources
+    // 4. Traffic sources — BATCHED
     // ═══════════════════════════════════════════════════════════════
     try {
       const trafficData = await fetchYouTubeAnalytics(accessToken, {
@@ -466,61 +388,49 @@ Deno.serve(async (req) => {
         sort: "-views",
       });
 
-      if (trafficData.rows) {
-        for (const row of trafficData.rows) {
-          const [sourceType, views, minutesWatched] = row;
-          const { error } = await supabase.from("youtube_traffic_sources").upsert(
-            {
-              workspace_id, date: endDate,
-              source_type: sourceType,
-              views: views || 0,
-              estimated_minutes_watched: minutesWatched || 0,
-              fetched_at: new Date().toISOString(),
-            },
-            { onConflict: "workspace_id,date,source_type" }
-          );
-          if (!error) syncResult.trafficSourcesUpserted++;
-        }
+      if (trafficData.rows?.length) {
+        const records = trafficData.rows.map((row: any) => ({
+          workspace_id, date: endDate,
+          source_type: row[0], views: row[1] || 0,
+          estimated_minutes_watched: row[2] || 0,
+          fetched_at: now,
+        }));
+        const res = await batchUpsert(supabase, "youtube_traffic_sources", records, "workspace_id,date,source_type");
+        syncResult.trafficSourcesUpserted = res.upserted;
+        syncResult.errors.push(...res.errors);
       }
     } catch (e: any) {
       syncResult.errors.push(`Traffic sources: ${e.message}`);
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // 5. Geography
+    // 5. Geography — BATCHED
     // ═══════════════════════════════════════════════════════════════
     try {
       const geoData = await fetchYouTubeAnalytics(accessToken, {
         ids, startDate, endDate,
         dimensions: "country",
         metrics: "views,estimatedMinutesWatched,averageViewDuration,subscribersGained",
-        sort: "-views",
-        maxResults: 50,
+        sort: "-views", maxResults: 50,
       });
 
-      if (geoData.rows) {
-        for (const row of geoData.rows) {
-          const [country, views, minutesWatched, avgDuration, subsGained] = row;
-          const { error } = await supabase.from("youtube_geography").upsert(
-            {
-              workspace_id, date: endDate, country,
-              views: views || 0,
-              estimated_minutes_watched: minutesWatched || 0,
-              average_view_duration_seconds: Math.round(avgDuration || 0),
-              subscribers_gained: subsGained || 0,
-              fetched_at: new Date().toISOString(),
-            },
-            { onConflict: "workspace_id,date,country" }
-          );
-          if (!error) syncResult.geographyUpserted++;
-        }
+      if (geoData.rows?.length) {
+        const records = geoData.rows.map((row: any) => ({
+          workspace_id, date: endDate, country: row[0],
+          views: row[1] || 0, estimated_minutes_watched: row[2] || 0,
+          average_view_duration_seconds: Math.round(row[3] || 0),
+          subscribers_gained: row[4] || 0, fetched_at: now,
+        }));
+        const res = await batchUpsert(supabase, "youtube_geography", records, "workspace_id,date,country");
+        syncResult.geographyUpserted = res.upserted;
+        syncResult.errors.push(...res.errors);
       }
     } catch (e: any) {
       syncResult.errors.push(`Geography: ${e.message}`);
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // 6. Device types
+    // 6. Device types — BATCHED
     // ═══════════════════════════════════════════════════════════════
     try {
       const deviceData = await fetchYouTubeAnalytics(accessToken, {
@@ -530,28 +440,23 @@ Deno.serve(async (req) => {
         sort: "-views",
       });
 
-      if (deviceData.rows) {
-        for (const row of deviceData.rows) {
-          const [deviceType, views, minutesWatched] = row;
-          const { error } = await supabase.from("youtube_device_types").upsert(
-            {
-              workspace_id, date: endDate,
-              device_type: deviceType,
-              views: views || 0,
-              estimated_minutes_watched: minutesWatched || 0,
-              fetched_at: new Date().toISOString(),
-            },
-            { onConflict: "workspace_id,date,device_type" }
-          );
-          if (!error) syncResult.devicesUpserted++;
-        }
+      if (deviceData.rows?.length) {
+        const records = deviceData.rows.map((row: any) => ({
+          workspace_id, date: endDate,
+          device_type: row[0], views: row[1] || 0,
+          estimated_minutes_watched: row[2] || 0,
+          fetched_at: now,
+        }));
+        const res = await batchUpsert(supabase, "youtube_device_types", records, "workspace_id,date,device_type");
+        syncResult.devicesUpserted = res.upserted;
+        syncResult.errors.push(...res.errors);
       }
     } catch (e: any) {
       syncResult.errors.push(`Device types: ${e.message}`);
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // 7. Per-video audience retention (top 10)
+    // 7. Per-video audience retention (top 10) — BATCHED per video
     // ═══════════════════════════════════════════════════════════════
     try {
       const { data: topVideos } = await supabase
@@ -582,7 +487,7 @@ Deno.serve(async (req) => {
               youtube_video_id: v.youtube_video_id,
               elapsed_ratio: row[0] || 0,
               audience_retention: row[1] || 0,
-              fetched_at: new Date().toISOString(),
+              fetched_at: now,
             }));
 
             await supabase.from("youtube_video_retention").insert(retentionRows);
