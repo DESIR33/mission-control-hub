@@ -263,7 +263,8 @@ export function useRevenueGoals() {
       goalQuery.isLoading ||
       affiliateQuery.isLoading ||
       dealsQuery.isLoading ||
-      channelAnalyticsQuery.isLoading,
+      channelAnalyticsQuery.isLoading ||
+      manualAdRevenueQuery.isLoading,
     updateRevenueGoal,
   };
 }
