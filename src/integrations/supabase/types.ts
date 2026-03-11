@@ -2698,6 +2698,7 @@ export type Database = {
           description: string | null
           id: string
           is_active: boolean
+          item_type: string
           name: string
           price: number
           sort_order: number
@@ -2710,6 +2711,7 @@ export type Database = {
           description?: string | null
           id?: string
           is_active?: boolean
+          item_type?: string
           name: string
           price?: number
           sort_order?: number
@@ -2722,6 +2724,7 @@ export type Database = {
           description?: string | null
           id?: string
           is_active?: boolean
+          item_type?: string
           name?: string
           price?: number
           sort_order?: number
@@ -2731,6 +2734,47 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "rate_card_items_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rate_card_terms: {
+        Row: {
+          category: string
+          content: string
+          created_at: string
+          id: string
+          is_active: boolean
+          sort_order: number
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          category?: string
+          content: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          sort_order?: number
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          sort_order?: number
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rate_card_terms_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
