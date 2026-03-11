@@ -1,146 +1,102 @@
-import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { toast } from "sonner";
 
-export interface RateTier {
-  type: string;
-  description: string;
-  suggestedRate: number;
-  avgHistoricalDeal: number;
-  delta: number; // positive = you're over market, negative = under
+export interface RateCardItem {
+  id: string;
+  workspace_id: string;
+  category: string;
+  name: string;
+  description: string | null;
+  price: number;
+  sort_order: number;
+  is_active: boolean;
 }
 
-export interface RateCardData {
-  subscriberCount: number;
-  avgViews: number;
-  engagementRate: number;
-  nicheMultiplier: number;
-  rates: RateTier[];
-  historicalDeals: Array<{ title: string; value: number; date: string }>;
-  avgDealValue: number;
-  isUndercharging: boolean;
-}
+const DEFAULT_ITEMS: Omit<RateCardItem, "id" | "workspace_id">[] = [
+  { category: "video", name: "YouTube Video (0–12 min)", description: "Full walkthrough, real use cases, and honest creator-style breakdown. Includes light content review for accuracy.", price: 275, sort_order: 0, is_active: true },
+  { category: "video", name: "YouTube Video (12–24 min)", description: "Extended coverage with deeper dive into product features and use cases.", price: 350, sort_order: 1, is_active: true },
+  { category: "video", name: "YouTube Video (24–36 min)", description: "Comprehensive dedicated or integrated video with full product exploration.", price: 425, sort_order: 2, is_active: true },
+  { category: "addon", name: "X (Twitter) Post", description: "Cross-platform promotion post on X.", price: 0, sort_order: 3, is_active: true },
+  { category: "addon", name: "YouTube Community Post", description: "Post on YouTube Community tab.", price: 0, sort_order: 4, is_active: true },
+  { category: "addon", name: "Short-form Clip (Reels/TikTok)", description: "Repurposed short-form clip for Reels or TikTok.", price: 0, sort_order: 5, is_active: true },
+  { category: "newsletter", name: "Newsletter Mention", description: "Sponsored mention in upcoming newsletter issue.", price: 50, sort_order: 6, is_active: true },
+];
 
 export function useRateCard() {
   const { workspaceId } = useWorkspace();
+  const queryClient = useQueryClient();
 
-  const { data: channelStats, isLoading: statsLoading } = useQuery({
-    queryKey: ["rate-card-channel", workspaceId],
+  const { data: items = [], isLoading } = useQuery({
+    queryKey: ["rate-card-items", workspaceId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("youtube_channel_stats" as any)
-        .select("subscriber_count, total_views, video_count")
+        .from("rate_card_items" as any)
+        .select("*")
         .eq("workspace_id", workspaceId!)
-        .limit(1)
-        .maybeSingle();
+        .order("sort_order", { ascending: true });
       if (error) throw error;
-      return data as any;
+      return (data ?? []) as unknown as RateCardItem[];
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 
-  const { data: videoStats = [] } = useQuery({
-    queryKey: ["rate-card-videos", workspaceId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("youtube_video_stats" as any)
-        .select("views, likes, comments")
-        .eq("workspace_id", workspaceId!)
-        .order("published_at", { ascending: false })
-        .limit(20);
+  const seedDefaults = useMutation({
+    mutationFn: async () => {
+      if (!workspaceId) throw new Error("No workspace");
+      const rows = DEFAULT_ITEMS.map((item) => ({ ...item, workspace_id: workspaceId }));
+      const { error } = await supabase.from("rate_card_items" as any).insert(rows as any);
       if (error) throw error;
-      return (data ?? []) as any[];
     },
-    enabled: !!workspaceId,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["rate-card-items", workspaceId] });
+      toast.success("Rate card initialized with defaults");
+    },
   });
 
-  const { data: deals = [] } = useQuery({
-    queryKey: ["rate-card-deals", workspaceId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("deals")
-        .select("title, value, closed_at")
-        .eq("workspace_id", workspaceId!)
-        .eq("stage", "closed_won")
-        .is("deleted_at", null)
-        .order("closed_at", { ascending: false })
-        .limit(20);
+  const updateItem = useMutation({
+    mutationFn: async (item: Partial<RateCardItem> & { id: string }) => {
+      const { id, ...updates } = item;
+      const { error } = await supabase.from("rate_card_items" as any).update(updates as any).eq("id", id);
       if (error) throw error;
-      return (data ?? []) as any[];
     },
-    enabled: !!workspaceId,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["rate-card-items", workspaceId] });
+    },
   });
 
-  const rateCard = useMemo((): RateCardData | null => {
-    const subscriberCount = channelStats?.subscriber_count || 0;
-    if (subscriberCount === 0 && !videoStats.length) return null;
+  const addItem = useMutation({
+    mutationFn: async (item: Omit<RateCardItem, "id" | "workspace_id">) => {
+      if (!workspaceId) throw new Error("No workspace");
+      const { error } = await supabase.from("rate_card_items" as any).insert({ ...item, workspace_id: workspaceId } as any);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["rate-card-items", workspaceId] });
+      toast.success("Item added");
+    },
+  });
 
-    const totalViews = channelStats?.total_views || 0;
-    const videoCount = channelStats?.video_count || 1;
-    const avgViews = videoStats.length > 0
-      ? videoStats.reduce((s: number, v: any) => s + (v.views || 0), 0) / videoStats.length
-      : totalViews / videoCount;
+  const deleteItem = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("rate_card_items" as any).delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["rate-card-items", workspaceId] });
+      toast.success("Item removed");
+    },
+  });
 
-    // Calculate engagement rate
-    const totalLikes = videoStats.reduce((s: number, v: any) => s + (v.likes || 0), 0);
-    const totalComments = videoStats.reduce((s: number, v: any) => s + (v.comments || 0), 0);
-    const totalVideoViews = videoStats.reduce((s: number, v: any) => s + (v.views || 0), 0);
-    const engagementRate = totalVideoViews > 0 ? ((totalLikes + totalComments) / totalVideoViews) * 100 : 3.5;
-
-    // Niche multiplier (tech/business = 1.5x, default = 1.0x)
-    const nicheMultiplier = 1.5; // Hustling Labs is tech/business
-
-    // Base CPM rates for YouTube sponsorships
-    const baseCPM: Record<string, { cpm: number; desc: string }> = {
-      "Dedicated Video": { cpm: 50, desc: "Full video about sponsor's product" },
-      "Integrated Mention": { cpm: 25, desc: "60-90 second integration within content" },
-      "Pre-Roll (30s)": { cpm: 15, desc: "30-second spot at beginning of video" },
-      "Post-Roll": { cpm: 10, desc: "End-of-video mention with CTA" },
-      "Pinned Comment": { cpm: 5, desc: "Pinned comment with link" },
-      "Community Post": { cpm: 8, desc: "Dedicated community tab post" },
-    };
-
-    // Historical deal analysis
-    const historicalDeals = deals.map((d: any) => ({
-      title: d.title,
-      value: d.value || 0,
-      date: d.closed_at || "",
-    }));
-    const avgDealValue = historicalDeals.length > 0
-      ? historicalDeals.reduce((s, d) => s + d.value, 0) / historicalDeals.length
-      : 0;
-
-    // Calculate rates
-    const rates: RateTier[] = Object.entries(baseCPM).map(([type, { cpm, desc }]) => {
-      const impressions = avgViews / 1000;
-      const suggestedRate = Math.round(impressions * cpm * nicheMultiplier);
-      const delta = avgDealValue > 0 ? ((avgDealValue - suggestedRate) / suggestedRate) * 100 : 0;
-
-      return {
-        type,
-        description: desc,
-        suggestedRate,
-        avgHistoricalDeal: Math.round(avgDealValue),
-        delta: Math.round(delta),
-      };
-    });
-
-    // Check if undercharging (avg deal < suggested integrated mention rate)
-    const integratedRate = rates.find((r) => r.type === "Integrated Mention")?.suggestedRate ?? 0;
-    const isUndercharging = avgDealValue > 0 && avgDealValue < integratedRate;
-
-    return {
-      subscriberCount,
-      avgViews: Math.round(avgViews),
-      engagementRate: Math.round(engagementRate * 10) / 10,
-      nicheMultiplier,
-      rates,
-      historicalDeals,
-      avgDealValue: Math.round(avgDealValue),
-      isUndercharging,
-    };
-  }, [channelStats, videoStats, deals]);
-
-  return { data: rateCard, isLoading: statsLoading };
+  return {
+    items,
+    isLoading,
+    needsSeed: !isLoading && items.length === 0,
+    seedDefaults,
+    updateItem,
+    addItem,
+    deleteItem,
+  };
 }
