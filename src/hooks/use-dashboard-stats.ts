@@ -227,7 +227,7 @@ export function useRevenueData() {
       const [wonDealsRes, affiliateTxRes, adRevenueRes] = await Promise.all([
         supabase
           .from("deals")
-          .select("value, closed_at")
+          .select("value, closed_at, created_at, notes")
           .eq("workspace_id", workspaceId)
           .eq("stage", "closed_won")
           .is("deleted_at", null),
