@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Handshake, CalendarIcon, ChevronsUpDown, Check } from "lucide-react";
+import { ArrowLeft, Handshake, CalendarIcon, ChevronsUpDown, Check, Film, Search, Trash2, Loader2, Plus } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -19,6 +20,11 @@ import { useContacts } from "@/hooks/use-contacts";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { format } from "date-fns";
+
+interface LinkedVideo {
+  youtube_video_id: string;
+  title: string;
+}
 
 export default function EditSponsorshipPage() {
   const { id } = useParams<{ id: string }>();
@@ -47,6 +53,13 @@ export default function EditSponsorshipPage() {
   const [companyOpen, setCompanyOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
 
+  // Video linking state
+  const [linkedVideos, setLinkedVideos] = useState<LinkedVideo[]>([]);
+  const [videoSearchQuery, setVideoSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState<LinkedVideo[]>([]);
+  const [showVideoSearch, setShowVideoSearch] = useState(false);
+
   const { data: companies = [] } = useCompanies();
   const { data: contacts = [] } = useContacts();
 
@@ -72,6 +85,37 @@ export default function EditSponsorshipPage() {
     enabled: !!id && !!workspaceId,
   });
 
+  // Fetch linked videos
+  const { data: existingLinks = [] } = useQuery({
+    queryKey: ["deal-videos", id, workspaceId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("deal_videos" as any)
+        .select("youtube_video_id")
+        .eq("deal_id", id!)
+        .eq("workspace_id", workspaceId!);
+      if (error) throw error;
+      const videoIds = (data ?? []).map((d: any) => d.youtube_video_id);
+      if (videoIds.length === 0) return [];
+      // Fetch titles
+      const { data: stats } = await supabase
+        .from("youtube_video_stats" as any)
+        .select("youtube_video_id, title")
+        .eq("workspace_id", workspaceId!)
+        .in("youtube_video_id", videoIds);
+      const titleMap = new Map((stats ?? []).map((s: any) => [s.youtube_video_id, s.title]));
+      return videoIds.map((vid: string) => ({
+        youtube_video_id: vid,
+        title: titleMap.get(vid) || vid,
+      }));
+    },
+    enabled: !!id && !!workspaceId,
+  });
+
+  useEffect(() => {
+    if (existingLinks.length > 0) setLinkedVideos(existingLinks);
+  }, [existingLinks]);
+
   // Parse deal data into form state
   useEffect(() => {
     if (!deal) return;
@@ -84,8 +128,8 @@ export default function EditSponsorshipPage() {
     const paymentMethodMatch = notes.match(/Payment Method:\s*(\w+)/);
     const paymentStatusMatch = notes.match(/Payment Status:\s*(\w+)/);
     const startDateMatch = notes.match(/Start Date:\s*(.+)/);
+    const endDateMatch = notes.match(/End Date:\s*(.+)/);
 
-    // Extract remaining notes (lines that don't match known patterns)
     const knownPatterns = [
       /^Deal Type:.*/,
       /^Deliverables:\n?/,
@@ -94,6 +138,7 @@ export default function EditSponsorshipPage() {
       /^Payment Method:.*/,
       /^Payment Status:.*/,
       /^Start Date:.*/,
+      /^End Date:.*/,
     ];
     const sections = notes.split("\n\n");
     const remainingNotes = sections
@@ -123,10 +168,40 @@ export default function EditSponsorshipPage() {
       } catch {}
     }
 
-    if (deal.expected_close_date) {
+    if (endDateMatch) {
+      try {
+        const parsed = new Date(endDateMatch[1].replace(/(st|nd|rd|th),/, ","));
+        if (!isNaN(parsed.getTime())) setEndDate(parsed);
+      } catch {}
+    } else if (deal.expected_close_date) {
       setEndDate(new Date(deal.expected_close_date));
     }
   }, [deal]);
+
+  const searchVideos = async () => {
+    if (!videoSearchQuery.trim() || !workspaceId) return;
+    setIsSearching(true);
+    try {
+      const { data, error } = await supabase
+        .from("youtube_video_stats" as any)
+        .select("youtube_video_id, title")
+        .eq("workspace_id", workspaceId)
+        .ilike("title", `%${videoSearchQuery}%`)
+        .order("published_at", { ascending: false })
+        .limit(20);
+      if (error) throw error;
+      setSearchResults(
+        (data ?? []).map((v: any) => ({
+          youtube_video_id: v.youtube_video_id,
+          title: v.title || v.youtube_video_id,
+        }))
+      );
+    } catch {
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
 
   const updateSponsorship = useMutation({
     mutationFn: async () => {
@@ -134,6 +209,7 @@ export default function EditSponsorshipPage() {
 
       const companyName = companies.find(c => c.id === formData.companyId)?.name || "Unknown";
 
+      // Update deal
       const { error } = await supabase
         .from("deals")
         .update({
@@ -152,6 +228,7 @@ export default function EditSponsorshipPage() {
             formData.paymentMethod ? `Payment Method: ${formData.paymentMethod}` : "",
             formData.paymentStatus ? `Payment Status: ${formData.paymentStatus}` : "",
             startDate ? `Start Date: ${format(startDate, "PPP")}` : "",
+            endDate ? `End Date: ${format(endDate, "PPP")}` : "",
             formData.notes || "",
           ].filter(Boolean).join("\n\n"),
         })
@@ -159,10 +236,23 @@ export default function EditSponsorshipPage() {
         .eq("workspace_id", workspaceId);
 
       if (error) throw error;
+
+      // Sync linked videos: delete all, re-insert
+      await supabase.from("deal_videos" as any).delete().eq("deal_id", id);
+      if (linkedVideos.length > 0) {
+        const rows = linkedVideos.map(v => ({
+          deal_id: id,
+          youtube_video_id: v.youtube_video_id,
+          workspace_id: workspaceId,
+        }));
+        const { error: linkError } = await supabase.from("deal_videos" as any).insert(rows as any);
+        if (linkError) throw linkError;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["deals"] });
       queryClient.invalidateQueries({ queryKey: ["sponsorships"] });
+      queryClient.invalidateQueries({ queryKey: ["deal-videos"] });
       toast({ title: "Success", description: "Sponsorship updated successfully" });
       navigate("/revenue/sponsorships");
     },
@@ -356,7 +446,7 @@ export default function EditSponsorshipPage() {
               </div>
 
               <div className="space-y-2">
-                <Label>End Date (Optional)</Label>
+                <Label>End Date</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant="outline" className={`w-full justify-start text-left font-normal ${!endDate && "text-muted-foreground"}`}>
@@ -400,6 +490,92 @@ export default function EditSponsorshipPage() {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+
+            {/* Linked YouTube Videos */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-1.5">
+                <Film className="w-3.5 h-3.5" />
+                Linked YouTube Videos
+              </Label>
+              {linkedVideos.length > 0 && (
+                <div className="space-y-1.5">
+                  {linkedVideos.map((v) => (
+                    <div key={v.youtube_video_id} className="flex items-center gap-2 rounded-lg border border-border bg-muted/30 px-3 py-2">
+                      <img
+                        src={`https://i.ytimg.com/vi/${v.youtube_video_id}/default.jpg`}
+                        alt=""
+                        className="w-16 h-9 rounded object-cover shrink-0"
+                      />
+                      <p className="text-sm text-foreground truncate flex-1">{v.title}</p>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        className="h-7 w-7 shrink-0"
+                        onClick={() => setLinkedVideos(linkedVideos.filter(lv => lv.youtube_video_id !== v.youtube_video_id))}
+                      >
+                        <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <Dialog open={showVideoSearch} onOpenChange={setShowVideoSearch}>
+                <DialogTrigger asChild>
+                  <Button type="button" variant="outline" size="sm" className="text-xs">
+                    <Plus className="w-3.5 h-3.5 mr-1" /> Link Video
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Link YouTube Video</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-3">
+                    <div className="flex gap-2">
+                      <Input
+                        value={videoSearchQuery}
+                        onChange={(e) => setVideoSearchQuery(e.target.value)}
+                        placeholder="Search by video title..."
+                        className="flex-1"
+                        onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), searchVideos())}
+                      />
+                      <Button type="button" onClick={searchVideos} disabled={isSearching} size="sm">
+                        {isSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+                      </Button>
+                    </div>
+                    {searchResults.length > 0 && (
+                      <div className="max-h-64 overflow-y-auto space-y-1">
+                        {searchResults.map((v) => {
+                          const alreadyLinked = linkedVideos.some(lv => lv.youtube_video_id === v.youtube_video_id);
+                          return (
+                            <button
+                              key={v.youtube_video_id}
+                              type="button"
+                              disabled={alreadyLinked}
+                              className="w-full flex items-center gap-2 rounded-lg border border-border px-3 py-2 hover:bg-muted/30 transition-colors text-left disabled:opacity-50"
+                              onClick={() => {
+                                setLinkedVideos([...linkedVideos, v]);
+                                setShowVideoSearch(false);
+                                setSearchResults([]);
+                                setVideoSearchQuery("");
+                              }}
+                            >
+                              <img
+                                src={`https://i.ytimg.com/vi/${v.youtube_video_id}/default.jpg`}
+                                alt=""
+                                className="w-16 h-9 rounded object-cover shrink-0"
+                              />
+                              <p className="text-sm text-foreground truncate flex-1">{v.title}</p>
+                              {alreadyLinked && <Check className="w-4 h-4 text-primary shrink-0" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
 
             <div className="space-y-2">
