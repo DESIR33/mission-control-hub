@@ -105,7 +105,15 @@ export function useUnifiedRevenue() {
 
       let sponsors = 0;
       for (const d of wonDeals) {
-        const dealDate = d.closed_at || d.created_at;
+        let dealDate = d.closed_at || d.created_at;
+        // Parse Start Date from notes if available
+        const startMatch = d.notes?.match(/Start Date:\s*(.+)/);
+        if (startMatch) {
+          try {
+            const parsed = new Date(startMatch[1].replace(/(st|nd|rd|th),/, ","));
+            if (!isNaN(parsed.getTime())) dealDate = parsed.toISOString();
+          } catch {}
+        }
         if (dealDate?.startsWith(monthStr)) sponsors += d.value || 0;
       }
 
