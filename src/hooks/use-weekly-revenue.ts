@@ -114,9 +114,9 @@ export function useWeeklyRevenue() {
       if (entry) entry.ad += Number(row.estimated_revenue) || 0;
     }
     for (const row of dealData) {
-      if (row.closed_at) {
-        const d = row.closed_at.slice(0, 10);
-        const entry = dailyMap.get(d);
+      const dt = getDealAttributionDate(row)?.slice(0, 10);
+      if (dt) {
+        const entry = dailyMap.get(dt);
         if (entry) entry.deal += Number(row.value) || 0;
       }
     }
