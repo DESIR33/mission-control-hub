@@ -61,7 +61,7 @@ export function useRevenueGoals() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("affiliate_transactions" as any)
-        .select("id, amount, commission, status, created_at")
+        .select("id, amount, status, transaction_date")
         .eq("workspace_id", workspaceId!);
       if (error) throw error;
       return (data ?? []) as any[];
@@ -89,7 +89,7 @@ export function useRevenueGoals() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("youtube_channel_analytics" as any)
-        .select("date, estimated_revenue, views, subscribers")
+        .select("date, estimated_revenue, views, subscribers_gained")
         .eq("workspace_id", workspaceId!)
         .order("date", { ascending: true });
       if (error) throw error;
