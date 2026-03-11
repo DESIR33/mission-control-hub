@@ -4,7 +4,7 @@ import {
   Play, Eye, ThumbsUp, MessageSquare, Share2, Clock,
   MousePointerClick, Users, TrendingUp, DollarSign,
   ChevronDown, ChevronUp, ArrowUpRight, FileText, Search,
-  Handshake, CalendarDays,
+  Handshake, CalendarDays, Building2, Unlink,
 } from "lucide-react";
 import { format } from "date-fns";
 import {
@@ -32,6 +32,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
   const [sortField, setSortField] = useState<SortField>("uploadDate");
   const [expandedVideo, setExpandedVideo] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [companyFilter, setCompanyFilter] = useState<"all" | "linked" | "unlinked">("all");
   const { data: notesSet } = useVideoNotesCheck();
   const { lookup: revenueLookup } = useVideoRevenueLookup();
   const { data: videoStatsList } = useYouTubeVideoStats(500);
@@ -154,10 +155,18 @@ export function VideoDeepDive({ data, daysRange }: Props) {
 
   // Feature 10: Video Search — filter sorted videos by title
   const filteredVideos = useMemo(() => {
-    if (!searchQuery.trim()) return sorted;
-    const q = searchQuery.toLowerCase();
-    return sorted.filter((v) => (v.title || "Untitled Video").toLowerCase().includes(q));
-  }, [sorted, searchQuery]);
+    let result = sorted;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter((v) => (v.title || "Untitled Video").toLowerCase().includes(q));
+    }
+    if (companyFilter === "unlinked") {
+      result = result.filter((v) => !companyLookup.has(v.youtube_video_id));
+    } else if (companyFilter === "linked") {
+      result = result.filter((v) => companyLookup.has(v.youtube_video_id));
+    }
+    return result;
+  }, [sorted, searchQuery, companyFilter, companyLookup]);
 
   // Top 5 by views for overview
   const top5 = useMemo(() => sorted.slice(0, 5), [sorted]);
@@ -376,7 +385,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
         />
       </div>
 
-      {/* Sort controls */}
+      {/* Sort & Filter controls */}
       <div className="flex items-center gap-2 flex-wrap">
         <span className="text-xs text-muted-foreground">Sort by:</span>
         {([
@@ -399,6 +408,27 @@ export function VideoDeepDive({ data, daysRange }: Props) {
             }`}
           >
             {label}
+          </button>
+        ))}
+
+        <span className="text-xs text-muted-foreground ml-2">Company:</span>
+        {([
+          ["all", "All", null],
+          ["linked", "Linked", <Building2 key="b" className="w-3 h-3 mr-0.5" />],
+          ["unlinked", "Unlinked", <Unlink key="l" className="w-3 h-3 mr-0.5" />],
+        ] as [typeof companyFilter, string, React.ReactNode][]).map(([value, label, icon]) => (
+          <button
+            key={value}
+            onClick={() => setCompanyFilter(value)}
+            className={`px-2 py-1 text-xs rounded-lg border transition-colors flex items-center ${
+              companyFilter === value
+                ? value === "unlinked"
+                  ? "bg-amber-500 text-white border-amber-500"
+                  : "bg-primary text-primary-foreground border-primary"
+                : "bg-card text-muted-foreground border-border hover:bg-muted"
+            }`}
+          >
+            {icon}{label}
           </button>
         ))}
       </div>
