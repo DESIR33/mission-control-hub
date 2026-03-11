@@ -55,7 +55,7 @@ export function useFluxSessions() {
         console.error("[flux-sessions] Error:", error);
         throw error;
       }
-      console.log("[flux-sessions] Got data:", data?.length, "sessions");
+      // Sessions fetched successfully
       return (data ?? []) as unknown as FluxTrainingSession[];
     },
     enabled: !!workspaceId,

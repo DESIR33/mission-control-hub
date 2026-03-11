@@ -4677,6 +4677,29 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      aggregate_video_analytics: {
+        Args: { p_video_id: string; p_workspace_id: string }
+        Returns: {
+          latest_title: string
+          row_count: number
+          total_card_clicks: number
+          total_card_impressions: number
+          total_comments: number
+          total_dislikes: number
+          total_end_screen_element_clicks: number
+          total_end_screen_element_impressions: number
+          total_estimated_minutes_watched: number
+          total_estimated_revenue: number
+          total_impressions: number
+          total_likes: number
+          total_shares: number
+          total_subscribers_gained: number
+          total_subscribers_lost: number
+          total_views: number
+          weighted_avg_view_duration: number
+          weighted_avg_view_percentage: number
+        }[]
+      }
       bootstrap_workspace: {
         Args: { ws_name: string; ws_slug: string }
         Returns: string

@@ -72,4 +72,4 @@ export const NeedsAttention = memo(function NeedsAttention({ items = [] }: Needs
       )}
     </motion.div>
   );
-}
+});

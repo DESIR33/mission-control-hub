@@ -114,4 +114,4 @@ export const AiBriefing = memo(function AiBriefing({ items = [], attentionItems 
       </div>
     </motion.div>
   );
-}
+});
