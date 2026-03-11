@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { AlertCircle, ArrowRight, Clock, User } from "lucide-react";
@@ -20,7 +21,7 @@ interface NeedsAttentionProps {
   items?: AttentionItem[];
 }
 
-export function NeedsAttention({ items = [] }: NeedsAttentionProps) {
+export const NeedsAttention = memo(function NeedsAttention({ items = [] }: NeedsAttentionProps) {
   const urgentCount = items.filter((i) => i.urgency === "high").length;
 
   return (
@@ -71,4 +72,4 @@ export function NeedsAttention({ items = [] }: NeedsAttentionProps) {
       )}
     </motion.div>
   );
-}
+});

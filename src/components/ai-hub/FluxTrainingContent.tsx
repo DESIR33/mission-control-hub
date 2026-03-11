@@ -304,7 +304,7 @@ export function FluxTrainingContent() {
   const [triggerWord, setTriggerWord] = useState("MYFACE");
   const [showCreate, setShowCreate] = useState(false);
 
-  console.log("[FluxTraining] isLoading:", isLoading, "isPending:", isPending, "isFetching:", isFetching, "isError:", isError, "error:", error, "sessions:", sessions.length);
+  // Debug logging removed for production performance
 
   if (selectedSession) {
     const freshSession = sessions.find(s => s.id === selectedSession.id) || selectedSession;

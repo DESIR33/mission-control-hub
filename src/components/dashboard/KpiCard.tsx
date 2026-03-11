@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
@@ -11,7 +12,7 @@ interface KpiCardProps {
   glowClass?: string;
 }
 
-export function KpiCard({ title, value, change, changeType = "neutral", icon: Icon, glowClass }: KpiCardProps) {
+export const KpiCard = memo(function KpiCard({ title, value, change, changeType = "neutral", icon: Icon, glowClass }: KpiCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -47,4 +48,4 @@ export function KpiCard({ title, value, change, changeType = "neutral", icon: Ic
       </div>
     </motion.div>
   );
-}
+});

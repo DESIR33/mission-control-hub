@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { motion } from "framer-motion";
 import { Brain, Sparkles, AlertCircle, ArrowRight, Clock, User } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -22,7 +23,7 @@ interface AiBriefingProps {
   attentionItems?: AttentionItem[];
 }
 
-export function AiBriefing({ items = [], attentionItems = [] }: AiBriefingProps) {
+export const AiBriefing = memo(function AiBriefing({ items = [], attentionItems = [] }: AiBriefingProps) {
   const urgentCount = attentionItems.filter((i) => i.urgency === "high").length;
 
   return (
@@ -113,4 +114,4 @@ export function AiBriefing({ items = [], attentionItems = [] }: AiBriefingProps)
       </div>
     </motion.div>
   );
-}
+});

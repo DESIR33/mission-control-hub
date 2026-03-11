@@ -46,7 +46,7 @@ export function useFluxSessions() {
     queryKey: ["flux-sessions", workspaceId],
     queryFn: async () => {
       if (!workspaceId) return [];
-      console.log("[flux-sessions] Fetching for workspace:", workspaceId);
+      // Fetching flux sessions for workspace
       const { data, error } = await query("flux_training_sessions")
         .select("*")
         .eq("workspace_id", workspaceId)
@@ -55,7 +55,7 @@ export function useFluxSessions() {
         console.error("[flux-sessions] Error:", error);
         throw error;
       }
-      console.log("[flux-sessions] Got data:", data?.length, "sessions");
+      // Sessions fetched successfully
       return (data ?? []) as unknown as FluxTrainingSession[];
     },
     enabled: !!workspaceId,
@@ -203,9 +203,6 @@ export function useCheckTrainingStatus() {
       };
     },
     onSuccess: (data) => {
-      if (data?.logs) {
-        console.log('[flux-training] Logs:', data.logs);
-      }
       qc.invalidateQueries({ queryKey: ["flux-sessions"] });
     },
   });

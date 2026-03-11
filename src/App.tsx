@@ -46,7 +46,16 @@ const AIHubPage = lazy(() => import("./pages/AIHubPage"));
 const ProposalDetailPage = lazy(() => import("./pages/ProposalDetailPage"));
 const TrendScannerPage = lazy(() => import("./pages/TrendScannerPage"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 2 * 60 * 1000,
+      gcTime: 10 * 60 * 1000,
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();

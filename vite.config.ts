@@ -19,4 +19,22 @@ export default defineConfig(({ mode }) => ({
       "@db": path.resolve(__dirname, "./db"),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "vendor-react": ["react", "react-dom", "react-router-dom"],
+          "vendor-query": ["@tanstack/react-query"],
+          "vendor-charts": ["recharts"],
+          "vendor-motion": ["framer-motion"],
+          "vendor-date": ["date-fns"],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 500,
+    sourcemap: false,
+  },
+  esbuild: {
+    drop: mode === "production" ? ["console", "debugger"] : [],
+  },
 }));

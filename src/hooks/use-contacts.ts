@@ -13,8 +13,9 @@ export function useContacts() {
 
       const { data, error } = await supabase
         .from("contacts")
-        .select("*, companies(*)")
+        .select("*, companies(id, name, logo_url, industry)")
         .eq("workspace_id", workspaceId)
+        .is("deleted_at", null)
         .order("updated_at", { ascending: false });
 
       if (error) throw error;
