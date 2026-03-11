@@ -4,8 +4,9 @@ import {
   Play, Eye, ThumbsUp, MessageSquare, Share2, Clock,
   MousePointerClick, Users, TrendingUp, DollarSign,
   ChevronDown, ChevronUp, ArrowUpRight, FileText, Search,
-  Handshake,
+  Handshake, CalendarDays,
 } from "lucide-react";
+import { format } from "date-fns";
 import {
   BarChart, Bar, ScatterChart, Scatter,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
@@ -432,6 +433,14 @@ export function VideoDeepDive({ data, daysRange }: Props) {
                       <VideoCompanyLogos companies={companyLookup.get(v.youtube_video_id)} />
                     </div>
                     <div className="flex items-center gap-3 mt-0.5 flex-wrap">
+                      {(() => {
+                        const pubDate = publishedAtMap.get(v.youtube_video_id);
+                        return pubDate ? (
+                          <span className="text-xs text-muted-foreground flex items-center gap-0.5">
+                            <CalendarDays className="w-2.5 h-2.5" /> {format(new Date(pubDate), "MMM d, yyyy")}
+                          </span>
+                        ) : null;
+                      })()}
                       <span className="text-xs text-muted-foreground flex items-center gap-0.5">
                         <Eye className="w-2.5 h-2.5" /> {fmtCount(v.views)}
                       </span>
