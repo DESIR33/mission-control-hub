@@ -13,7 +13,7 @@ export function useContacts() {
 
       const { data, error } = await supabase
         .from("contacts")
-        .select("id, first_name, last_name, email, phone, status, role, vip_tier, preferred_channel, company_id, source, updated_at, last_contact_date, created_at, avatar_url, notes, website, social_twitter, social_linkedin, social_youtube, social_instagram, social_facebook, social_telegram, social_whatsapp, custom_fields, enrichment_hunter, enrichment_ai, enrichment_youtube, response_sla_minutes, city, state, country, companies(id, name, logo_url, industry)")
+        .select("*, companies(id, name, logo_url, industry)")
         .eq("workspace_id", workspaceId)
         .is("deleted_at", null)
         .order("updated_at", { ascending: false });
