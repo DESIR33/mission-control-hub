@@ -32,7 +32,7 @@ export function useUnifiedRevenue() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("deals")
-        .select("value, closed_at")
+        .select("value, closed_at, created_at")
         .eq("workspace_id", workspaceId!)
         .is("deleted_at", null);
       if (error) throw error;
@@ -105,7 +105,8 @@ export function useUnifiedRevenue() {
 
       let sponsors = 0;
       for (const d of wonDeals) {
-        if (d.closed_at?.startsWith(monthStr)) sponsors += d.value || 0;
+        const dealDate = d.closed_at || d.created_at;
+        if (dealDate?.startsWith(monthStr)) sponsors += d.value || 0;
       }
 
       let affiliates = 0;
