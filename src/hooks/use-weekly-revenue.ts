@@ -82,12 +82,12 @@ export function useWeeklyRevenue() {
     const thisWeekAdRevenue = thisWeekAd.reduce((s: number, d: any) => s + (Number(d.estimated_revenue) || 0), 0);
     const lastWeekAdRevenue = lastWeekAd.reduce((s: number, d: any) => s + (Number(d.estimated_revenue) || 0), 0);
 
-    // Deal revenue
+    // Deal revenue — use End Date from notes for attribution
     const thisWeekDealRevenue = dealData
-      .filter((d: any) => d.closed_at && isThisWeek(d.closed_at.slice(0, 10)))
+      .filter((d: any) => { const dt = getDealAttributionDate(d)?.slice(0, 10); return dt && isThisWeek(dt); })
       .reduce((s: number, d: any) => s + (Number(d.value) || 0), 0);
     const lastWeekDealRevenue = dealData
-      .filter((d: any) => d.closed_at && isLastWeek(d.closed_at.slice(0, 10)))
+      .filter((d: any) => { const dt = getDealAttributionDate(d)?.slice(0, 10); return dt && isLastWeek(dt); })
       .reduce((s: number, d: any) => s + (Number(d.value) || 0), 0);
 
     // Affiliate revenue
