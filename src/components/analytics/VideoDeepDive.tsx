@@ -4,7 +4,7 @@ import {
   Play, Eye, ThumbsUp, MessageSquare, Share2, Clock,
   MousePointerClick, Users, TrendingUp, DollarSign,
   ChevronDown, ChevronUp, ArrowUpRight, FileText, Search,
-  Handshake, CalendarDays,
+  Handshake, CalendarDays, Building2, LinkSlash,
 } from "lucide-react";
 import { format } from "date-fns";
 import {
