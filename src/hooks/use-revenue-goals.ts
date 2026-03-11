@@ -116,11 +116,11 @@ export function useRevenueGoals() {
 
     // Affiliate transactions
     (affiliateQuery.data ?? []).forEach((t: any) => {
-      const date = t.created_at;
+      const date = t.transaction_date ?? t.created_at;
       if (!date) return;
       const month = date.slice(0, 7);
       const existing = monthMap.get(month) ?? { sponsors: 0, affiliates: 0, ads: 0 };
-      existing.affiliates += Number(t.commission ?? t.amount ?? 0);
+      existing.affiliates += Number(t.amount ?? 0);
       monthMap.set(month, existing);
     });
 
