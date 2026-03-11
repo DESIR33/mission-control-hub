@@ -203,9 +203,6 @@ export function useCheckTrainingStatus() {
       };
     },
     onSuccess: (data) => {
-      if (data?.logs) {
-        console.log('[flux-training] Logs:', data.logs);
-      }
       qc.invalidateQueries({ queryKey: ["flux-sessions"] });
     },
   });
