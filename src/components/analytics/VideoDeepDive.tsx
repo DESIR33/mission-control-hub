@@ -415,7 +415,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
         {([
           ["all", "All", null],
           ["linked", "Linked", <Building2 key="b" className="w-3 h-3 mr-0.5" />],
-          ["unlinked", "Unlinked", <LinkSlash key="l" className="w-3 h-3 mr-0.5" />],
+          ["unlinked", "Unlinked", <Unlink key="l" className="w-3 h-3 mr-0.5" />],
         ] as [typeof companyFilter, string, React.ReactNode][]).map(([value, label, icon]) => (
           <button
             key={value}
