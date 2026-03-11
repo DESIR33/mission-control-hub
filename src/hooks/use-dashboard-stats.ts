@@ -512,5 +512,6 @@ export function useAiBriefing() {
         : [{ type: "insight", text: "All caught up! No urgent items right now." }];
     },
     enabled: !!workspaceId,
+    staleTime: 300_000,
   });
 }
