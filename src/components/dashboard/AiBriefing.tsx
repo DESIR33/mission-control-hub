@@ -23,7 +23,7 @@ interface AiBriefingProps {
   attentionItems?: AttentionItem[];
 }
 
-export function AiBriefing({ items = [], attentionItems = [] }: AiBriefingProps) {
+export const AiBriefing = memo(function AiBriefing({ items = [], attentionItems = [] }: AiBriefingProps) {
   const urgentCount = attentionItems.filter((i) => i.urgency === "high").length;
 
   return (
