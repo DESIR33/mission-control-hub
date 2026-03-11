@@ -239,9 +239,9 @@ export function useRevenueGoals() {
           .insert({
             workspace_id: workspaceId,
             metric: "revenue",
+            title: "Monthly Revenue Goal",
             target_value: targetValue,
             current_value: 0,
-            period: "monthly",
           })
           .select()
           .single();
