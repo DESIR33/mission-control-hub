@@ -56,21 +56,58 @@ export function useDashboardStats() {
         };
       }
 
-      const [contactsRes, dealsRes, videosRes, proposalsRes] = await Promise.all([
+      const nextWeek = new Date();
+      nextWeek.setDate(nextWeek.getDate() + 7);
+
+      const [
+        contactCountRes,
+        activeContactCountRes,
+        totalDealsRes,
+        pipelineDealsRes,
+        closingDealsRes,
+        contentPipelineRes,
+        contentEditingRes,
+        proposalsRes,
+      ] = await Promise.all([
         supabase
           .from("contacts")
-          .select("id, status", { count: "exact", head: false })
+          .select("id", { count: "exact", head: true })
+          .eq("workspace_id", workspaceId)
+          .is("deleted_at", null),
+        supabase
+          .from("contacts")
+          .select("id", { count: "exact", head: true })
+          .eq("workspace_id", workspaceId)
+          .is("deleted_at", null)
+          .eq("status", "active"),
+        supabase
+          .from("deals")
+          .select("id", { count: "exact", head: true })
           .eq("workspace_id", workspaceId)
           .is("deleted_at", null),
         supabase
           .from("deals")
-          .select("id, value, stage, expected_close_date")
+          .select("value")
           .eq("workspace_id", workspaceId)
-          .is("deleted_at", null),
+          .is("deleted_at", null)
+          .in("stage", ["prospecting", "qualification", "proposal", "negotiation"]),
+        supabase
+          .from("deals")
+          .select("id", { count: "exact", head: true })
+          .eq("workspace_id", workspaceId)
+          .is("deleted_at", null)
+          .in("stage", ["prospecting", "qualification", "proposal", "negotiation"])
+          .lte("expected_close_date", nextWeek.toISOString().split("T")[0]),
         supabase
           .from("video_queue")
-          .select("id, status")
-          .eq("workspace_id", workspaceId),
+          .select("id", { count: "exact", head: true })
+          .eq("workspace_id", workspaceId)
+          .in("status", ["idea", "scripting", "recording", "editing", "review", "scheduled"]),
+        supabase
+          .from("video_queue")
+          .select("id", { count: "exact", head: true })
+          .eq("workspace_id", workspaceId)
+          .in("status", ["editing", "review"]),
         supabase
           .from("ai_proposals")
           .select("id", { count: "exact", head: true })
@@ -78,47 +115,24 @@ export function useDashboardStats() {
           .eq("status", "pending"),
       ]);
 
-      const contacts = contactsRes.data ?? [];
-      const deals = dealsRes.data ?? [];
-      const videos = videosRes.data ?? [];
-
-      const openStages = ["prospecting", "qualification", "proposal", "negotiation"];
-      const pipelineValue = deals
-        .filter((d) => openStages.includes(d.stage))
-        .reduce((sum, d) => sum + (d.value ?? 0), 0);
-
-      const nextWeek = new Date();
-      nextWeek.setDate(nextWeek.getDate() + 7);
-      const closingThisWeek = deals.filter(
-        (d) =>
-          openStages.includes(d.stage) &&
-          d.expected_close_date &&
-          new Date(d.expected_close_date) <= nextWeek
-      ).length;
-
-      const editingStatuses = ["editing", "review"];
-      const contentInEditing = videos.filter((v) =>
-        editingStatuses.includes(v.status)
-      ).length;
-
-      const pipelineStatuses = ["idea", "scripting", "recording", "editing", "review", "scheduled"];
-      const contentInPipeline = videos.filter((v) =>
-        pipelineStatuses.includes(v.status)
-      ).length;
+      const pipelineValue = (pipelineDealsRes.data ?? []).reduce(
+        (sum: number, d: any) => sum + (d.value ?? 0), 0
+      );
 
       return {
-        contactCount: contacts.length,
-        activeContactCount: contacts.filter((c) => c.status === "active").length,
+        contactCount: contactCountRes.count ?? 0,
+        activeContactCount: activeContactCountRes.count ?? 0,
         pipelineValue,
-        closingThisWeek,
-        contentInPipeline,
-        contentInEditing,
+        closingThisWeek: closingDealsRes.count ?? 0,
+        contentInPipeline: contentPipelineRes.count ?? 0,
+        contentInEditing: contentEditingRes.count ?? 0,
         pendingProposals: proposalsRes.count ?? 0,
-        totalDeals: deals.length,
+        totalDeals: totalDealsRes.count ?? 0,
       };
     },
     enabled: !!workspaceId,
-    refetchInterval: 60_000,
+    refetchInterval: 300_000,
+    staleTime: 120_000,
   });
 }
 
@@ -192,6 +206,7 @@ export function usePipelineHealth() {
       return { contacts: contactsPipeline, content: contentPipeline, deals: dealsPipeline };
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 
@@ -268,6 +283,7 @@ export function useRevenueData() {
       };
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 
@@ -342,6 +358,7 @@ export function useNeedsAttention() {
       return items.slice(0, 5);
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 
@@ -511,5 +528,6 @@ export function useAiBriefing() {
         : [{ type: "insight", text: "All caught up! No urgent items right now." }];
     },
     enabled: !!workspaceId,
+    staleTime: 300_000,
   });
 }

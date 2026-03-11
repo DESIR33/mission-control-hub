@@ -62,7 +62,12 @@ export function useSyncStatusData() {
       }>;
     },
     enabled: !!workspaceId,
-    refetchInterval: 30_000,
+    refetchInterval: (query) => {
+      const logs = query.state.data as any[] | undefined;
+      const isSyncing = logs?.some((l: any) => l.status === "syncing");
+      return isSyncing ? 10_000 : 300_000;
+    },
+    staleTime: 60_000,
   });
 
   const overview = useMemo((): SyncOverview => {

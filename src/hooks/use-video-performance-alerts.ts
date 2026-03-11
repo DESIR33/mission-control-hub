@@ -32,7 +32,8 @@ export function useVideoPerformanceAlerts() {
       return (data ?? []) as VideoPerformanceAlert[];
     },
     enabled: !!workspaceId,
-    refetchInterval: 60000,
+    refetchInterval: 300_000,
+    staleTime: 120_000,
   });
 }
 
