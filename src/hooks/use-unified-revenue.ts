@@ -32,7 +32,7 @@ export function useUnifiedRevenue() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("deals")
-        .select("value, closed_at")
+        .select("value, closed_at, created_at")
         .eq("workspace_id", workspaceId!)
         .is("deleted_at", null);
       if (error) throw error;
