@@ -257,14 +257,16 @@ export function useGeography() {
       const latestDate = (latest[0] as any).date;
       const { data, error } = await supabase
         .from("youtube_geography" as any)
-        .select("*")
+        .select("id,date,country,views,estimated_minutes_watched,average_view_duration_seconds,subscribers_gained")
         .eq("workspace_id", workspaceId!)
         .eq("date", latestDate)
-        .order("views", { ascending: false });
+        .order("views", { ascending: false })
+        .limit(100);
       if (error) throw error;
-      return (data ?? []) as unknown as Geography[];
+      return ((data ?? []) as unknown as Geography[]).map(r => ({ ...r, workspace_id: workspaceId! }));
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 
