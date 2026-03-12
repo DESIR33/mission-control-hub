@@ -45,6 +45,7 @@ const GrowthPage = lazy(() => import("./pages/YouTubeHubPage").then(m => ({ defa
 const AIHubPage = lazy(() => import("./pages/AIHubPage"));
 const ProposalDetailPage = lazy(() => import("./pages/ProposalDetailPage"));
 const TrendScannerPage = lazy(() => import("./pages/TrendScannerPage"));
+const ExpenseTrackerPage = lazy(() => import("./pages/ExpenseTrackerPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -129,9 +130,11 @@ const App = () => (
               <Route path="/growth" element={<Navigate to="/growth/forecast" replace />} />
               <Route path="/growth/:section" element={<LazyPage section="Growth"><GrowthPage /></LazyPage>} />
 
-              {/* Revenue */}
+              {/* Finance */}
               <Route path="/revenue" element={<Navigate to="/revenue/overview" replace />} />
               <Route path="/revenue/:tab" element={<LazyPage section="Revenue"><MonetizationPage /></LazyPage>} />
+              <Route path="/finance" element={<Navigate to="/finance/expenses/expenses" replace />} />
+              <Route path="/finance/expenses/:tab" element={<LazyPage section="Expenses"><ExpenseTrackerPage /></LazyPage>} />
               <Route path="/affiliate-program/new" element={<LazyPage section="New Affiliate"><NewAffiliateProgramPage /></LazyPage>} />
               <Route path="/affiliate-program/:id" element={<LazyPage section="Affiliate Program"><AffiliateProgramPage /></LazyPage>} />
               <Route path="/affiliate-program/:id/edit" element={<LazyPage section="Edit Affiliate"><EditAffiliateProgramPage /></LazyPage>} />
