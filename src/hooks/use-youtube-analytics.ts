@@ -100,7 +100,7 @@ export function useGrowthGoal() {
 
       const { data, error } = await supabase
         .from("growth_goals" as any)
-        .select("*")
+        .select("id,workspace_id,title,metric,target_value,current_value,start_date,target_date,status,created_at,updated_at")
         .eq("workspace_id", workspaceId)
         .eq("status", "active")
         .order("created_at", { ascending: false })
@@ -115,6 +115,7 @@ export function useGrowthGoal() {
       return data as unknown as GrowthGoal | null;
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 
