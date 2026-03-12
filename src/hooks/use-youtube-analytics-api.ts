@@ -116,14 +116,15 @@ export function useChannelAnalytics(days = 180) {
       const cutoff = subDays(new Date(), days).toISOString().split("T")[0];
       const { data, error } = await supabase
         .from("youtube_channel_analytics" as any)
-        .select("*")
+        .select("id,date,views,estimated_minutes_watched,average_view_duration_seconds,average_view_percentage,subscribers_gained,subscribers_lost,net_subscribers,likes,dislikes,comments,shares,impressions,impressions_ctr,unique_viewers,card_clicks,card_impressions,card_ctr,end_screen_element_clicks,end_screen_element_impressions,end_screen_element_ctr,estimated_revenue,estimated_ad_revenue,cpm,ad_impressions,monetized_playbacks,playback_based_cpm")
         .eq("workspace_id", workspaceId!)
         .gte("date", cutoff)
-        .order("date", { ascending: false });
+        .order("date", { ascending: false })
+        .limit(400);
       if (error) throw error;
-      // YouTube Analytics API returns CTR/rate fields as ratios (0-1); convert to percentages
       return ((data ?? []) as unknown as ChannelAnalytics[]).map((row) => ({
         ...row,
+        workspace_id: workspaceId!,
         impressions_ctr: Number(row.impressions_ctr) * 100,
         card_ctr: Number(row.card_ctr) * 100,
         end_screen_element_ctr: Number(row.end_screen_element_ctr) * 100,
@@ -132,6 +133,7 @@ export function useChannelAnalytics(days = 180) {
       }));
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 
@@ -144,15 +146,15 @@ export function useVideoAnalytics(daysRange = 90) {
       const cutoff = subDays(new Date(), daysRange).toISOString().split("T")[0];
       const { data, error } = await supabase
         .from("youtube_video_analytics" as any)
-        .select("*")
+        .select("id,youtube_video_id,title,date,views,estimated_minutes_watched,average_view_duration_seconds,average_view_percentage,subscribers_gained,subscribers_lost,likes,dislikes,comments,shares,impressions,impressions_ctr,card_clicks,card_impressions,end_screen_element_clicks,end_screen_element_impressions,annotation_click_through_rate,estimated_revenue")
         .eq("workspace_id", workspaceId!)
         .gte("date", cutoff)
         .order("views", { ascending: false })
-        .limit(5000);
+        .limit(2000);
       if (error) throw error;
-      // YouTube Analytics API returns CTR/rate fields as ratios (0-1); convert to percentages
       return ((data ?? []) as unknown as VideoAnalytics[]).map((row) => ({
         ...row,
+        workspace_id: workspaceId!,
         impressions_ctr: Number(row.impressions_ctr) * 100,
         annotation_click_through_rate: Number(row.annotation_click_through_rate) * 100,
         average_view_percentage: Number(row.average_view_percentage),
@@ -160,6 +162,7 @@ export function useVideoAnalytics(daysRange = 90) {
       }));
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 
@@ -169,7 +172,6 @@ export function useDemographics() {
   return useQuery({
     queryKey: ["youtube-demographics", workspaceId],
     queryFn: async () => {
-      // Get the latest date first
       const { data: latest } = await supabase
         .from("youtube_demographics" as any)
         .select("date")
@@ -182,13 +184,14 @@ export function useDemographics() {
       const latestDate = (latest[0] as any).date;
       const { data, error } = await supabase
         .from("youtube_demographics" as any)
-        .select("*")
+        .select("id,date,age_group,gender,viewer_percentage")
         .eq("workspace_id", workspaceId!)
         .eq("date", latestDate);
       if (error) throw error;
-      return (data ?? []) as unknown as Demographics[];
+      return ((data ?? []) as unknown as Demographics[]).map(r => ({ ...r, workspace_id: workspaceId! }));
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 
@@ -201,14 +204,16 @@ export function useTrafficSources(daysRange = 90) {
       const cutoff = subDays(new Date(), daysRange).toISOString().split("T")[0];
       const { data, error } = await supabase
         .from("youtube_traffic_sources" as any)
-        .select("*")
+        .select("id,date,source_type,views,estimated_minutes_watched")
         .eq("workspace_id", workspaceId!)
         .gte("date", cutoff)
-        .order("date", { ascending: false });
+        .order("date", { ascending: false })
+        .limit(500);
       if (error) throw error;
-      return (data ?? []) as unknown as TrafficSource[];
+      return ((data ?? []) as unknown as TrafficSource[]).map(r => ({ ...r, workspace_id: workspaceId! }));
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 
@@ -221,14 +226,16 @@ export function useTrafficSourcesWithPrevious(daysRange = 90) {
       const cutoff = subDays(new Date(), daysRange * 2).toISOString().split("T")[0];
       const { data, error } = await supabase
         .from("youtube_traffic_sources" as any)
-        .select("*")
+        .select("id,date,source_type,views,estimated_minutes_watched")
         .eq("workspace_id", workspaceId!)
         .gte("date", cutoff)
-        .order("date", { ascending: false });
+        .order("date", { ascending: false })
+        .limit(1000);
       if (error) throw error;
-      return (data ?? []) as unknown as TrafficSource[];
+      return ((data ?? []) as unknown as TrafficSource[]).map(r => ({ ...r, workspace_id: workspaceId! }));
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 
@@ -250,14 +257,16 @@ export function useGeography() {
       const latestDate = (latest[0] as any).date;
       const { data, error } = await supabase
         .from("youtube_geography" as any)
-        .select("*")
+        .select("id,date,country,views,estimated_minutes_watched,average_view_duration_seconds,subscribers_gained")
         .eq("workspace_id", workspaceId!)
         .eq("date", latestDate)
-        .order("views", { ascending: false });
+        .order("views", { ascending: false })
+        .limit(100);
       if (error) throw error;
-      return (data ?? []) as unknown as Geography[];
+      return ((data ?? []) as unknown as Geography[]).map(r => ({ ...r, workspace_id: workspaceId! }));
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 
@@ -279,14 +288,15 @@ export function useDeviceTypes() {
       const latestDate = (latest[0] as any).date;
       const { data, error } = await supabase
         .from("youtube_device_types" as any)
-        .select("*")
+        .select("id,date,device_type,views,estimated_minutes_watched")
         .eq("workspace_id", workspaceId!)
         .eq("date", latestDate)
         .order("views", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as unknown as DeviceType[];
+      return ((data ?? []) as unknown as DeviceType[]).map(r => ({ ...r, workspace_id: workspaceId! }));
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 

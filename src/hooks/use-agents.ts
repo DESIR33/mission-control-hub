@@ -20,7 +20,7 @@ export function useAgents() {
     queryFn: async () => {
       if (!workspaceId) return [];
       const { data, error } = await query("agent_definitions")
-        .select("*")
+        .select("id,slug,name,description,model,system_prompt,skills,config,enabled,is_system,workspace_id,created_at,updated_at")
         .or(`workspace_id.eq.${workspaceId},workspace_id.is.null`)
         .eq("enabled", true)
         .order("name");
@@ -28,6 +28,7 @@ export function useAgents() {
       return (data as AgentDefinition[]) || [];
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 
@@ -55,7 +56,7 @@ export function useSkills() {
     queryFn: async () => {
       if (!workspaceId) return [];
       const { data, error } = await query("agent_skills")
-        .select("*")
+        .select("id,slug,name,description,category,skill_type,input_schema,tool_definitions,enabled,is_system,workspace_id,created_at,updated_at")
         .or(`workspace_id.eq.${workspaceId},workspace_id.is.null`)
         .eq("enabled", true)
         .order("category, name");
@@ -63,6 +64,7 @@ export function useSkills() {
       return (data as AgentSkill[]) || [];
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 

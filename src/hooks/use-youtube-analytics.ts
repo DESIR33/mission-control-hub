@@ -49,7 +49,7 @@ export function useYouTubeChannelStats(limit = 30) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("youtube_channel_stats" as any)
-        .select("*")
+        .select("id,workspace_id,subscriber_count,video_count,total_view_count,fetched_at,created_at")
         .eq("workspace_id", workspaceId!)
         .order("fetched_at", { ascending: false })
         .limit(limit);
@@ -57,6 +57,7 @@ export function useYouTubeChannelStats(limit = 30) {
       return (data ?? []) as unknown as YouTubeChannelStats[];
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 
@@ -71,7 +72,7 @@ export function useChannelStats() {
 
       const { data, error } = await supabase
         .from("youtube_channel_stats" as any)
-        .select("*")
+        .select("id,workspace_id,subscriber_count,video_count,total_view_count,fetched_at,created_at")
         .eq("workspace_id", workspaceId)
         .order("fetched_at", { ascending: false })
         .limit(1)
@@ -85,6 +86,7 @@ export function useChannelStats() {
       return data as unknown as YouTubeChannelStats | null;
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 
@@ -98,7 +100,7 @@ export function useGrowthGoal() {
 
       const { data, error } = await supabase
         .from("growth_goals" as any)
-        .select("*")
+        .select("id,workspace_id,title,metric,target_value,current_value,start_date,target_date,status,created_at,updated_at")
         .eq("workspace_id", workspaceId)
         .eq("status", "active")
         .order("created_at", { ascending: false })
@@ -113,6 +115,7 @@ export function useGrowthGoal() {
       return data as unknown as GrowthGoal | null;
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 
@@ -124,7 +127,7 @@ export function useYouTubeVideoStats(limit = 50) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("youtube_video_stats" as any)
-        .select("*")
+        .select("id,workspace_id,youtube_video_id,title,views,likes,comments,watch_time_minutes,ctr_percent,avg_view_duration_seconds,published_at,fetched_at")
         .eq("workspace_id", workspaceId!)
         .order("fetched_at", { ascending: false })
         .limit(limit);
@@ -132,6 +135,7 @@ export function useYouTubeVideoStats(limit = 50) {
       return (data ?? []) as unknown as YouTubeVideoStats[];
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 

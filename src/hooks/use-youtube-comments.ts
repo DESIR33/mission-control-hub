@@ -32,15 +32,17 @@ export function useYouTubeComments(videoId?: string) {
     queryFn: async (): Promise<YouTubeComment[]> => {
       let query = supabase
         .from("youtube_comments" as any)
-        .select("*")
+        .select("id,workspace_id,video_id,video_title,comment_id,author_name,author_channel_id,author_profile_url,text,like_count,reply_count,published_at,sentiment,priority,is_replied,suggested_reply,is_pinned,created_at,updated_at")
         .eq("workspace_id", workspaceId!)
-        .order("published_at", { ascending: false });
+        .order("published_at", { ascending: false })
+        .limit(500);
       if (videoId) query = query.eq("video_id", videoId);
       const { data, error } = await query;
       if (error) throw error;
       return (data ?? []) as unknown as YouTubeComment[];
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 

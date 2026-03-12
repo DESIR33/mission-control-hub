@@ -77,13 +77,15 @@ export function useCommentIntelligence() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("youtube_comments" as any)
-        .select("*")
+        .select("id,workspace_id,youtube_video_id,video_title,comment_id,author_name,author_avatar,text,like_count,sentiment,our_reply,published_at,created_at")
         .eq("workspace_id", workspaceId!)
-        .order("published_at", { ascending: false });
+        .order("published_at", { ascending: false })
+        .limit(1000);
       if (error) throw error;
       return (data ?? []) as unknown as YouTubeComment[];
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 
   const comments = commentsQuery.data ?? [];

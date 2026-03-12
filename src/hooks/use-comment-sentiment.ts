@@ -41,13 +41,15 @@ export function useCommentSentiments() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("comment_sentiments" as any)
-        .select("*")
+        .select("id,workspace_id,youtube_video_id,video_title,analyzed_at,total_comments,positive_count,neutral_count,negative_count,avg_sentiment,top_positive,top_negative,top_questions,keyword_cloud,created_at")
         .eq("workspace_id", workspaceId!)
-        .order("analyzed_at", { ascending: false });
+        .order("analyzed_at", { ascending: false })
+        .limit(100);
       if (error) throw error;
       return (data ?? []) as unknown as CommentSentiment[];
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 
   return query;
