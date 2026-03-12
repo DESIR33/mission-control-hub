@@ -179,7 +179,7 @@ export function useCreateCategory() {
     mutationFn: async (cat: { name: string; color?: string; icon?: string }) => {
       const { data, error } = await supabase
         .from("expense_categories")
-        .insert({ ...cat, workspace_id: workspaceId! })
+        .insert([{ ...cat, workspace_id: workspaceId! } as any])
         .select()
         .single();
       if (error) throw error;

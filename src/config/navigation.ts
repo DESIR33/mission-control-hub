@@ -86,16 +86,16 @@ export const mainNavItems: NavItem[] = [
     ],
   },
   {
-    to: "/revenue",
-    icon: DollarSign,
-    label: "Revenue",
+    to: "/finance",
+    icon: Wallet,
+    label: "Finance",
     children: [
       { to: "/revenue/overview", label: "Revenue Analytics", icon: BarChart3 },
       { to: "/revenue/affiliate", label: "Affiliate Programs", icon: Handshake },
       { to: "/revenue/sponsorships", label: "Sponsorships", icon: Megaphone },
       { to: "/revenue/products", label: "Products", icon: ShoppingBag },
-      
       { to: "/revenue/rate-card", label: "Rate Card", icon: CreditCard },
+      { to: "/finance/expenses/expenses", label: "Expense Tracker", icon: Receipt },
     ],
   },
   {
