@@ -226,14 +226,16 @@ export function useTrafficSourcesWithPrevious(daysRange = 90) {
       const cutoff = subDays(new Date(), daysRange * 2).toISOString().split("T")[0];
       const { data, error } = await supabase
         .from("youtube_traffic_sources" as any)
-        .select("*")
+        .select("id,date,source_type,views,estimated_minutes_watched")
         .eq("workspace_id", workspaceId!)
         .gte("date", cutoff)
-        .order("date", { ascending: false });
+        .order("date", { ascending: false })
+        .limit(1000);
       if (error) throw error;
-      return (data ?? []) as unknown as TrafficSource[];
+      return ((data ?? []) as unknown as TrafficSource[]).map(r => ({ ...r, workspace_id: workspaceId! }));
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 
