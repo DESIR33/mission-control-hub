@@ -116,14 +116,15 @@ export function useChannelAnalytics(days = 180) {
       const cutoff = subDays(new Date(), days).toISOString().split("T")[0];
       const { data, error } = await supabase
         .from("youtube_channel_analytics" as any)
-        .select("*")
+        .select("id,date,views,estimated_minutes_watched,average_view_duration_seconds,average_view_percentage,subscribers_gained,subscribers_lost,net_subscribers,likes,dislikes,comments,shares,impressions,impressions_ctr,unique_viewers,card_clicks,card_impressions,card_ctr,end_screen_element_clicks,end_screen_element_impressions,end_screen_element_ctr,estimated_revenue,estimated_ad_revenue,cpm,ad_impressions,monetized_playbacks,playback_based_cpm")
         .eq("workspace_id", workspaceId!)
         .gte("date", cutoff)
-        .order("date", { ascending: false });
+        .order("date", { ascending: false })
+        .limit(400);
       if (error) throw error;
-      // YouTube Analytics API returns CTR/rate fields as ratios (0-1); convert to percentages
       return ((data ?? []) as unknown as ChannelAnalytics[]).map((row) => ({
         ...row,
+        workspace_id: workspaceId!,
         impressions_ctr: Number(row.impressions_ctr) * 100,
         card_ctr: Number(row.card_ctr) * 100,
         end_screen_element_ctr: Number(row.end_screen_element_ctr) * 100,
@@ -132,6 +133,7 @@ export function useChannelAnalytics(days = 180) {
       }));
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 
