@@ -49,7 +49,7 @@ export function useYouTubeChannelStats(limit = 30) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("youtube_channel_stats" as any)
-        .select("*")
+        .select("id,workspace_id,subscriber_count,video_count,total_view_count,fetched_at,created_at")
         .eq("workspace_id", workspaceId!)
         .order("fetched_at", { ascending: false })
         .limit(limit);
@@ -57,6 +57,7 @@ export function useYouTubeChannelStats(limit = 30) {
       return (data ?? []) as unknown as YouTubeChannelStats[];
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 
