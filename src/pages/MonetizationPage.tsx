@@ -28,6 +28,7 @@ import { RateCardCalculator } from "@/components/crm/RateCardCalculator";
 import { RevenueOverview } from "@/components/monetization/RevenueOverview";
 import { RevenueGoalTracker } from "@/components/monetization/RevenueGoalTracker";
 import { AdSenseTab } from "@/components/monetization/AdSenseTab";
+import { YearlyIncomeTracker } from "@/components/monetization/YearlyIncomeTracker";
 import { useCompanies } from "@/hooks/use-companies";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { useAffiliateTransactions } from "@/hooks/use-affiliate-transactions";
@@ -141,7 +142,7 @@ export default function MonetizationPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const VALID_TABS = new Set(["overview", "analytics", "affiliate", "sponsorships", "products", "rate-card", "adsense"]);
+  const VALID_TABS = new Set(["overview", "analytics", "affiliate", "sponsorships", "products", "rate-card", "adsense", "income-tracker"]);
   const activeTab = urlTab && VALID_TABS.has(urlTab) ? urlTab : "overview";
 
   const [isAddingWidget, setIsAddingWidget] = useState(false);
@@ -650,6 +651,16 @@ export default function MonetizationPage() {
             AdSense
           </button>
           <button
+            onClick={() => navigate("/revenue/income-tracker")}
+            className={cn(
+              "rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap shrink-0",
+              activeTab === "income-tracker" ?
+              "bg-card text-card-foreground shadow-sm" :
+              "text-muted-foreground hover:text-foreground"
+            )}>
+            Yearly Income
+          </button>
+          <button
             onClick={() => navigate("/revenue/rate-card")}
             className={cn(
               "rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap shrink-0",
@@ -787,7 +798,12 @@ export default function MonetizationPage() {
             </div>
           </TabsContent>
 
-          {/* Affiliate Programs Tab */}
+          {/* Yearly Income Tracker Tab */}
+          <TabsContent value="income-tracker">
+            <YearlyIncomeTracker />
+          </TabsContent>
+
+
           <TabsContent value="affiliate">
             <div className="space-y-5">
               <motion.div

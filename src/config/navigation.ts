@@ -91,6 +91,7 @@ export const mainNavItems: NavItem[] = [
     label: "Finance",
     children: [
       { to: "/revenue/overview", label: "Revenue Analytics", icon: BarChart3 },
+      { to: "/revenue/income-tracker", label: "Yearly Income", icon: DollarSign },
       { to: "/revenue/affiliate", label: "Affiliate Programs", icon: Handshake },
       { to: "/revenue/sponsorships", label: "Sponsorships", icon: Megaphone },
       { to: "/revenue/products", label: "Products", icon: ShoppingBag },
