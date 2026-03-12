@@ -127,7 +127,7 @@ export function useYouTubeVideoStats(limit = 50) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("youtube_video_stats" as any)
-        .select("*")
+        .select("id,workspace_id,youtube_video_id,title,views,likes,comments,watch_time_minutes,ctr_percent,avg_view_duration_seconds,published_at,fetched_at")
         .eq("workspace_id", workspaceId!)
         .order("fetched_at", { ascending: false })
         .limit(limit);
@@ -135,6 +135,7 @@ export function useYouTubeVideoStats(limit = 50) {
       return (data ?? []) as unknown as YouTubeVideoStats[];
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 

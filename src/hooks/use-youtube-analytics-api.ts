@@ -288,14 +288,15 @@ export function useDeviceTypes() {
       const latestDate = (latest[0] as any).date;
       const { data, error } = await supabase
         .from("youtube_device_types" as any)
-        .select("*")
+        .select("id,date,device_type,views,estimated_minutes_watched")
         .eq("workspace_id", workspaceId!)
         .eq("date", latestDate)
         .order("views", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as unknown as DeviceType[];
+      return ((data ?? []) as unknown as DeviceType[]).map(r => ({ ...r, workspace_id: workspaceId! }));
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 
