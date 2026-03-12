@@ -65,7 +65,7 @@ export function useSyncStatusData() {
     refetchInterval: (query) => {
       const logs = query.state.data as any[] | undefined;
       const isSyncing = logs?.some((l: any) => l.status === "syncing");
-      return isSyncing ? 10_000 : 300_000;
+      return isSyncing ? 30_000 : 600_000;
     },
     staleTime: 60_000,
   });
