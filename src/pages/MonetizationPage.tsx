@@ -798,7 +798,12 @@ export default function MonetizationPage() {
             </div>
           </TabsContent>
 
-          {/* Affiliate Programs Tab */}
+          {/* Yearly Income Tracker Tab */}
+          <TabsContent value="income-tracker">
+            <YearlyIncomeTracker />
+          </TabsContent>
+
+
           <TabsContent value="affiliate">
             <div className="space-y-5">
               <motion.div
