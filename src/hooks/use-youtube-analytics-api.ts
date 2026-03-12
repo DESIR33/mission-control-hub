@@ -172,7 +172,6 @@ export function useDemographics() {
   return useQuery({
     queryKey: ["youtube-demographics", workspaceId],
     queryFn: async () => {
-      // Get the latest date first
       const { data: latest } = await supabase
         .from("youtube_demographics" as any)
         .select("date")
@@ -185,13 +184,14 @@ export function useDemographics() {
       const latestDate = (latest[0] as any).date;
       const { data, error } = await supabase
         .from("youtube_demographics" as any)
-        .select("*")
+        .select("id,date,age_group,gender,viewer_percentage")
         .eq("workspace_id", workspaceId!)
         .eq("date", latestDate);
       if (error) throw error;
-      return (data ?? []) as unknown as Demographics[];
+      return ((data ?? []) as unknown as Demographics[]).map(r => ({ ...r, workspace_id: workspaceId! }));
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 
