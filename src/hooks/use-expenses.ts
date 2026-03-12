@@ -221,7 +221,7 @@ export function useCreateSubscription() {
       const { data: { user } } = await supabase.auth.getUser();
       const { data, error } = await supabase
         .from("recurring_subscriptions")
-        .insert({ ...sub, workspace_id: workspaceId!, created_by: user?.id })
+        .insert([{ ...sub, workspace_id: workspaceId!, created_by: user?.id } as any])
         .select()
         .single();
       if (error) throw error;
