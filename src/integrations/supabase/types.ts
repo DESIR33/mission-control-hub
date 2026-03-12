@@ -2192,6 +2192,116 @@ export type Database = {
           },
         ]
       }
+      expense_categories: {
+        Row: {
+          color: string | null
+          created_at: string
+          icon: string | null
+          id: string
+          name: string
+          workspace_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          icon?: string | null
+          id?: string
+          name: string
+          workspace_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          icon?: string | null
+          id?: string
+          name?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expense_categories_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expenses: {
+        Row: {
+          amount: number
+          category_id: string | null
+          created_at: string
+          created_by: string | null
+          currency: string
+          expense_date: string
+          id: string
+          is_recurring: boolean
+          is_tax_deductible: boolean
+          notes: string | null
+          receipt_url: string | null
+          recurring_end_date: string | null
+          recurring_interval: string | null
+          title: string
+          updated_at: string
+          vendor: string | null
+          workspace_id: string
+        }
+        Insert: {
+          amount?: number
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          expense_date?: string
+          id?: string
+          is_recurring?: boolean
+          is_tax_deductible?: boolean
+          notes?: string | null
+          receipt_url?: string | null
+          recurring_end_date?: string | null
+          recurring_interval?: string | null
+          title: string
+          updated_at?: string
+          vendor?: string | null
+          workspace_id: string
+        }
+        Update: {
+          amount?: number
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          expense_date?: string
+          id?: string
+          is_recurring?: boolean
+          is_tax_deductible?: boolean
+          notes?: string | null
+          receipt_url?: string | null
+          recurring_end_date?: string | null
+          recurring_interval?: string | null
+          title?: string
+          updated_at?: string
+          vendor?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "expense_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       flux_generation_feedback: {
         Row: {
           created_at: string | null
@@ -2814,6 +2924,84 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "rate_card_terms_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recurring_subscriptions: {
+        Row: {
+          amount: number
+          billing_cycle: string
+          category_id: string | null
+          created_at: string
+          created_by: string | null
+          currency: string
+          end_date: string | null
+          id: string
+          is_tax_deductible: boolean
+          name: string
+          next_billing_date: string | null
+          notes: string | null
+          start_date: string
+          status: string
+          updated_at: string
+          url: string | null
+          vendor: string | null
+          workspace_id: string
+        }
+        Insert: {
+          amount?: number
+          billing_cycle?: string
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          end_date?: string | null
+          id?: string
+          is_tax_deductible?: boolean
+          name: string
+          next_billing_date?: string | null
+          notes?: string | null
+          start_date?: string
+          status?: string
+          updated_at?: string
+          url?: string | null
+          vendor?: string | null
+          workspace_id: string
+        }
+        Update: {
+          amount?: number
+          billing_cycle?: string
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          end_date?: string | null
+          id?: string
+          is_tax_deductible?: boolean
+          name?: string
+          next_billing_date?: string | null
+          notes?: string | null
+          start_date?: string
+          status?: string
+          updated_at?: string
+          url?: string | null
+          vendor?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recurring_subscriptions_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "expense_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recurring_subscriptions_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
