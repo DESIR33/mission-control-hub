@@ -94,7 +94,7 @@ function NotificationItem({
   notification: Notification;
   onMarkRead: (id: string) => void;
 }) {
-  const config = TYPE_CONFIG[notification.type];
+  const config = TYPE_CONFIG[notification.type] ?? { icon: Bell, color: "text-muted-foreground", bg: "bg-muted", label: notification.type };
   const Icon = config.icon;
   const isUnread = !notification.read_at;
 
