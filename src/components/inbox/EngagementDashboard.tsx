@@ -49,7 +49,8 @@ function useRecentOpens() {
       }));
     },
     enabled: !!workspaceId,
-    refetchInterval: 30000,
+    refetchInterval: 300_000,
+    staleTime: 120_000,
   });
 }
 

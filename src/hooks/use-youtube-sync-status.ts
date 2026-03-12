@@ -30,7 +30,7 @@ export function useSyncStatus() {
     refetchInterval: (query) => {
       const statuses = query.state.data as any[] | undefined;
       const isSyncing = statuses?.some((s: any) => s.status === "syncing");
-      return isSyncing ? 10_000 : 300_000;
+      return isSyncing ? 30_000 : 600_000;
     },
     staleTime: 60_000,
   });
