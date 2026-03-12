@@ -31,6 +31,8 @@ import {
   ListVideo,
   Sparkles,
   ImageIcon,
+  Receipt,
+  Wallet,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
