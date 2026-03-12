@@ -651,6 +651,16 @@ export default function MonetizationPage() {
             AdSense
           </button>
           <button
+            onClick={() => navigate("/revenue/income-tracker")}
+            className={cn(
+              "rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap shrink-0",
+              activeTab === "income-tracker" ?
+              "bg-card text-card-foreground shadow-sm" :
+              "text-muted-foreground hover:text-foreground"
+            )}>
+            Yearly Income
+          </button>
+          <button
             onClick={() => navigate("/revenue/rate-card")}
             className={cn(
               "rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap shrink-0",
