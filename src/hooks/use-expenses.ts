@@ -114,7 +114,7 @@ export function useCreateExpense() {
       const { data: { user } } = await supabase.auth.getUser();
       const { data, error } = await supabase
         .from("expenses")
-        .insert({ ...expense, workspace_id: workspaceId!, created_by: user?.id })
+        .insert([{ ...expense, workspace_id: workspaceId!, created_by: user?.id } as any])
         .select()
         .single();
       if (error) throw error;
