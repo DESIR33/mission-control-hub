@@ -146,15 +146,15 @@ export function useVideoAnalytics(daysRange = 90) {
       const cutoff = subDays(new Date(), daysRange).toISOString().split("T")[0];
       const { data, error } = await supabase
         .from("youtube_video_analytics" as any)
-        .select("*")
+        .select("id,youtube_video_id,title,date,views,estimated_minutes_watched,average_view_duration_seconds,average_view_percentage,subscribers_gained,subscribers_lost,likes,dislikes,comments,shares,impressions,impressions_ctr,card_clicks,card_impressions,end_screen_element_clicks,end_screen_element_impressions,annotation_click_through_rate,estimated_revenue")
         .eq("workspace_id", workspaceId!)
         .gte("date", cutoff)
         .order("views", { ascending: false })
-        .limit(5000);
+        .limit(2000);
       if (error) throw error;
-      // YouTube Analytics API returns CTR/rate fields as ratios (0-1); convert to percentages
       return ((data ?? []) as unknown as VideoAnalytics[]).map((row) => ({
         ...row,
+        workspace_id: workspaceId!,
         impressions_ctr: Number(row.impressions_ctr) * 100,
         annotation_click_through_rate: Number(row.annotation_click_through_rate) * 100,
         average_view_percentage: Number(row.average_view_percentage),
@@ -162,6 +162,7 @@ export function useVideoAnalytics(daysRange = 90) {
       }));
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 
