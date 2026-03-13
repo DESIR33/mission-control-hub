@@ -686,6 +686,8 @@ export default function MonetizationPage() {
               </motion.div>
               {/* Revenue Goal Tracker */}
               <RevenueGoalTracker />
+              {/* Yearly Income Tracker — YTD, trends, YoY */}
+              <YearlyIncomeTracker />
               
 
 
