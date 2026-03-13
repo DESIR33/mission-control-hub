@@ -350,6 +350,8 @@ export default function AffiliateProgramPage() {
                   <h3 className="text-sm font-semibold text-card-foreground">Transactions</h3>
                   <p className="text-xs text-muted-foreground mt-0.5">Track commissions and payouts</p>
                 </div>
+                <div className="flex items-center gap-2">
+                <ExportRevenueDialog transactions={programTransactions} />
                 <Button
                   size="sm"
                   onClick={() => {
