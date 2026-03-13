@@ -14,7 +14,7 @@ import {
 const fmtDollar = (n: number) => `$${n.toLocaleString()}`;
 
 export function YearlyIncomeTracker() {
-  const { data: revenue, isLoading } = useUnifiedRevenue();
+  const { data: revenue, isLoading } = useUnifiedRevenue(24);
 
   const analysis = useMemo(() => {
     if (!revenue?.monthly) return null;
