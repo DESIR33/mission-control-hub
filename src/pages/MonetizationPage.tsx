@@ -662,6 +662,16 @@ export default function MonetizationPage() {
             Yearly Income
           </button>
           <button
+            onClick={() => navigate("/revenue/profits")}
+            className={cn(
+              "rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap shrink-0",
+              activeTab === "profits" ?
+              "bg-card text-card-foreground shadow-sm" :
+              "text-muted-foreground hover:text-foreground"
+            )}>
+            Profit & Loss
+          </button>
+          <button
             onClick={() => navigate("/revenue/rate-card")}
             className={cn(
               "rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap shrink-0",
