@@ -25,7 +25,7 @@ export interface UnifiedRevenueData {
   projectedAnnual: number;
 }
 
-export function useUnifiedRevenue() {
+export function useUnifiedRevenue(monthCount: number = 12) {
   const { workspaceId } = useWorkspace();
 
   const { data: wonDeals = [], isLoading: dealsLoading } = useQuery({
