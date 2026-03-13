@@ -27,6 +27,7 @@ import {
   useUpdateAffiliateTransaction,
   type AffiliateTransaction,
 } from "@/hooks/use-affiliate-transactions";
+import { ExportRevenueDialog } from "@/components/revenue/ExportRevenueDialog";
 
 export default function AffiliateProgramPage() {
   const { id } = useParams();
