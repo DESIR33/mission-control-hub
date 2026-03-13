@@ -29,6 +29,7 @@ import { RevenueOverview } from "@/components/monetization/RevenueOverview";
 import { RevenueGoalTracker } from "@/components/monetization/RevenueGoalTracker";
 import { AdSenseTab } from "@/components/monetization/AdSenseTab";
 import { YearlyIncomeTracker } from "@/components/monetization/YearlyIncomeTracker";
+import { ProfitTracker } from "@/components/monetization/ProfitTracker";
 import { useCompanies } from "@/hooks/use-companies";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { useAffiliateTransactions } from "@/hooks/use-affiliate-transactions";
