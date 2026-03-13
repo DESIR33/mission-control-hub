@@ -27,6 +27,7 @@ import {
   useUpdateAffiliateTransaction,
   type AffiliateTransaction,
 } from "@/hooks/use-affiliate-transactions";
+import { ExportRevenueDialog } from "@/components/revenue/ExportRevenueDialog";
 
 export default function AffiliateProgramPage() {
   const { id } = useParams();
@@ -349,6 +350,8 @@ export default function AffiliateProgramPage() {
                   <h3 className="text-sm font-semibold text-card-foreground">Transactions</h3>
                   <p className="text-xs text-muted-foreground mt-0.5">Track commissions and payouts</p>
                 </div>
+                <div className="flex items-center gap-2">
+                <ExportRevenueDialog transactions={transactions} />
                 <Button
                   size="sm"
                   onClick={() => {
@@ -369,6 +372,7 @@ export default function AffiliateProgramPage() {
                   <Plus className="h-3.5 w-3.5" />
                   Add Transaction
                 </Button>
+                </div>
               </div>
               <Table>
                 <TableHeader>

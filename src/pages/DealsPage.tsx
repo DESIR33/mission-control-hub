@@ -31,6 +31,7 @@ import { SponsorPipelineView } from "@/components/deals/SponsorPipelineView";
 import { SponsorOutreachGenerator } from "@/components/deals/SponsorOutreachGenerator";
 import { useSponsorMatchScore } from "@/hooks/use-sponsor-match-score";
 import { useToast } from "@/hooks/use-toast";
+import { ExportDealsDialog } from "@/components/deals/ExportDealsDialog";
 
 const STAGES: { id: DealStage; label: string; color: string; weight: number }[] = [
   { id: "prospecting", label: "Prospecting", color: "#3B82F6", weight: 0.1 },
@@ -214,6 +215,7 @@ export default function DealsPage() {
             Generate Outreach
           </Button>
 
+          <ExportDealsDialog deals={deals} />
           <AddDealDialog />
         </div>
       </div>
