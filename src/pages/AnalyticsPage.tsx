@@ -384,6 +384,7 @@ export default function AnalyticsPage() {
               </button>
             ))}
           </div>
+          <ExportAnalyticsDialog data={channelAnalytics as any[]} />
           <Button
             variant="outline"
             size="sm"

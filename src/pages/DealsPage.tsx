@@ -215,6 +215,7 @@ export default function DealsPage() {
             Generate Outreach
           </Button>
 
+          <ExportDealsDialog deals={deals} />
           <AddDealDialog />
         </div>
       </div>
