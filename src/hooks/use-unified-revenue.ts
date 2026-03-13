@@ -25,7 +25,7 @@ export interface UnifiedRevenueData {
   projectedAnnual: number;
 }
 
-export function useUnifiedRevenue() {
+export function useUnifiedRevenue(monthCount: number = 12) {
   const { workspaceId } = useWorkspace();
 
   const { data: wonDeals = [], isLoading: dealsLoading } = useQuery({
@@ -99,7 +99,7 @@ export function useUnifiedRevenue() {
   const revenue = useMemo((): UnifiedRevenueData | null => {
     const monthly: MonthlyRevenue[] = [];
 
-    for (let i = 11; i >= 0; i--) {
+    for (let i = monthCount - 1; i >= 0; i--) {
       const monthDate = startOfMonth(subMonths(new Date(), i));
       const monthStr = format(monthDate, "yyyy-MM");
       const monthLabel = format(monthDate, "MMM yy");
