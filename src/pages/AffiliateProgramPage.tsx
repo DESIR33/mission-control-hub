@@ -372,6 +372,7 @@ export default function AffiliateProgramPage() {
                   <Plus className="h-3.5 w-3.5" />
                   Add Transaction
                 </Button>
+                </div>
               </div>
               <Table>
                 <TableHeader>
