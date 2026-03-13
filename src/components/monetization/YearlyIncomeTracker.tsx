@@ -23,15 +23,15 @@ export function YearlyIncomeTracker() {
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth(); // 0-indexed
 
-    // monthly array has 12 entries: [11 months ago ... this month]
-    // Map each entry to its actual year/month
+    const totalMonths = revenue.monthly.length;
+    // monthly array is ordered oldest -> newest and may be >12 entries
     const enriched = revenue.monthly.map((m, i) => {
-      const d = new Date(currentYear, currentMonth - (11 - i), 1);
+      const d = new Date(currentYear, currentMonth - (totalMonths - 1 - i), 1);
       return { ...m, year: d.getFullYear(), monthIndex: d.getMonth() };
     });
 
     // YTD = all months in currentYear up to and including currentMonth
-    const ytdMonths = enriched.filter((m) => m.year === currentYear);
+    const ytdMonths = enriched.filter((m) => m.year === currentYear && m.monthIndex <= currentMonth);
     const ytdIncome = ytdMonths.reduce((s, m) => s + m.total, 0);
 
     // Same period last year for YoY
@@ -45,8 +45,8 @@ export function YearlyIncomeTracker() {
     const monthsElapsed = currentMonth + 1;
     const monthlyAvg = ytdIncome / monthsElapsed;
 
-    // Projected annual
-    const projectedAnnual = monthlyAvg * 12;
+    // Match Revenue Overview projected annual calculation
+    const projectedAnnual = revenue.projectedAnnual;
 
     // Best/worst month this year
     const best = ytdMonths.length > 0
