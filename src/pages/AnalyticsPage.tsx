@@ -33,6 +33,7 @@ import {
   cartesianGridDefaults, lineDefaults, barDefaults, chartAnimationDefaults,
   CHART_COLORS, SEMANTIC_COLORS,
 } from "@/lib/chart-theme";
+import { ExportAnalyticsDialog } from "@/components/analytics/ExportAnalyticsDialog";
 
 type TimeRange = "7d" | "30d" | "90d";
 type AnalyticsTab = "overview" | "channel" | "videos" | "audience" | "traffic" | "geography" | "devices" | "revenue" | "growth_funnel";
