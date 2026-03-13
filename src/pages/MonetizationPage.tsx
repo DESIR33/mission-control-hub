@@ -816,6 +816,11 @@ export default function MonetizationPage() {
             <YearlyIncomeTracker />
           </TabsContent>
 
+          {/* Profit & Loss Tab */}
+          <TabsContent value="profits">
+            <ProfitTracker />
+          </TabsContent>
+
 
           <TabsContent value="affiliate">
             <div className="space-y-5">
