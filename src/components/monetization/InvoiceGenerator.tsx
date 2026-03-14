@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import {
   Plus, Send, RefreshCw, Download, Trash2, ExternalLink, FileText,
   DollarSign, Clock, Eye, AlertTriangle, CheckCircle, Pencil, Zap,
-  Copy, Receipt,
+  Copy, Receipt, Mail,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
