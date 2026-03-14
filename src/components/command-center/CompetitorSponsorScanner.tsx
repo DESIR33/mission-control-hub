@@ -1,20 +1,24 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Search, RefreshCw, ExternalLink, Handshake, X, ChevronRight,
   Eye, EyeOff, Megaphone, Users, TrendingUp, AlertCircle, Lightbulb,
+  CheckSquare, Square, MinusSquare,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   useCompetitorSponsors, useScanCompetitorSponsors,
   useUpdateSponsorStatus, useDismissSponsor, useCreateDealFromSponsor,
+  useBulkUpdateSponsorStatus, useBulkCreateDealsFromSponsors, useBulkDismissSponsors,
   type CompetitorSponsor,
 } from "@/hooks/use-competitor-sponsors";
 
@@ -37,12 +41,16 @@ function SponsorCard({
   onDismiss,
   onCreateDeal,
   isCreatingDeal,
+  isSelected,
+  onToggleSelect,
 }: {
   sponsor: CompetitorSponsor;
   onStatusChange: (id: string, status: string) => void;
   onDismiss: (id: string) => void;
   onCreateDeal: (sponsor: CompetitorSponsor) => void;
   isCreatingDeal: boolean;
+  isSelected: boolean;
+  onToggleSelect: (id: string) => void;
 }) {
   const status = STATUS_CONFIG[sponsor.outreach_status] || STATUS_CONFIG.not_contacted;
   const methods = sponsor.detection_method.split(",");
@@ -50,27 +58,34 @@ function SponsorCard({
   const isHighValue = channelCount >= 2 || sponsor.mention_count >= 3;
 
   return (
-    <Card className={`transition-colors ${isHighValue ? "border-primary/30" : ""}`}>
+    <Card className={`transition-colors ${isHighValue ? "border-primary/30" : ""} ${isSelected ? "ring-2 ring-primary/50 bg-primary/5" : ""}`}>
       <CardContent className="p-4 space-y-3">
         {/* Header */}
         <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h4 className="text-sm font-semibold text-foreground truncate">
-                {sponsor.sponsor_name}
-              </h4>
-              {isHighValue && (
-                <Badge variant="outline" className="bg-amber-500/20 text-amber-400 border-amber-500/30 text-[10px]">
-                  <TrendingUp className="w-2.5 h-2.5 mr-0.5" /> Hot Lead
-                </Badge>
-              )}
-            </div>
-            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-              {methods.map((m) => (
-                <span key={m} className="text-[10px] text-muted-foreground bg-muted rounded px-1.5 py-0.5">
-                  {METHOD_LABELS[m] || m}
-                </span>
-              ))}
+          <div className="min-w-0 flex-1 flex items-start gap-2">
+            <Checkbox
+              checked={isSelected}
+              onCheckedChange={() => onToggleSelect(sponsor.id)}
+              className="mt-0.5 shrink-0"
+            />
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h4 className="text-sm font-semibold text-foreground truncate">
+                  {sponsor.sponsor_name}
+                </h4>
+                {isHighValue && (
+                  <Badge variant="outline" className="bg-amber-500/20 text-amber-400 border-amber-500/30 text-[10px]">
+                    <TrendingUp className="w-2.5 h-2.5 mr-0.5" /> Hot Lead
+                  </Badge>
+                )}
+              </div>
+              <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                {methods.map((m) => (
+                  <span key={m} className="text-[10px] text-muted-foreground bg-muted rounded px-1.5 py-0.5">
+                    {METHOD_LABELS[m] || m}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-0.5 shrink-0">
@@ -173,6 +188,148 @@ function SponsorCard({
   );
 }
 
+function BulkActionBar({
+  selectedCount,
+  selectedSponsors,
+  onClearSelection,
+  onSelectAll,
+  totalCount,
+}: {
+  selectedCount: number;
+  selectedSponsors: CompetitorSponsor[];
+  onClearSelection: () => void;
+  onSelectAll: () => void;
+  totalCount: number;
+}) {
+  const bulkUpdateStatus = useBulkUpdateSponsorStatus();
+  const bulkCreateDeals = useBulkCreateDealsFromSponsors();
+  const bulkDismiss = useBulkDismissSponsors();
+  const [bulkStatus, setBulkStatus] = useState<string>("");
+
+  const eligibleForDeal = selectedSponsors.filter((s) => !s.deal_id).length;
+
+  const handleBulkStatusUpdate = (status: string) => {
+    const ids = selectedSponsors.map((s) => s.id);
+    bulkUpdateStatus.mutate(
+      { ids, outreach_status: status },
+      {
+        onSuccess: () => {
+          toast.success(`Updated ${ids.length} sponsor${ids.length !== 1 ? "s" : ""} to "${STATUS_CONFIG[status]?.label || status}"`);
+          onClearSelection();
+        },
+        onError: (err: any) => toast.error(err?.message || "Failed to update"),
+      },
+    );
+  };
+
+  const handleBulkCreateDeals = () => {
+    const eligible = selectedSponsors.filter((s) => !s.deal_id);
+    if (eligible.length === 0) {
+      toast.info("All selected sponsors already have deals");
+      return;
+    }
+    bulkCreateDeals.mutate(eligible, {
+      onSuccess: (data) => {
+        toast.success(`Created ${data.created} deal${data.created !== 1 ? "s" : ""} and added to CRM pipeline`);
+        onClearSelection();
+      },
+      onError: (err: any) => toast.error(err?.message || "Failed to create deals"),
+    });
+  };
+
+  const handleBulkDismiss = () => {
+    const ids = selectedSponsors.map((s) => s.id);
+    bulkDismiss.mutate(ids, {
+      onSuccess: () => {
+        toast.success(`Dismissed ${ids.length} sponsor${ids.length !== 1 ? "s" : ""}`);
+        onClearSelection();
+      },
+      onError: (err: any) => toast.error(err?.message || "Failed to dismiss"),
+    });
+  };
+
+  const isAnyPending = bulkUpdateStatus.isPending || bulkCreateDeals.isPending || bulkDismiss.isPending;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 12 }}
+      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
+    >
+      <div className="flex items-center gap-3 rounded-xl border border-border bg-card/95 backdrop-blur-lg shadow-2xl px-5 py-3">
+        {/* Selection info */}
+        <div className="flex items-center gap-2 pr-3 border-r border-border">
+          <CheckSquare className="w-4 h-4 text-primary" />
+          <span className="text-sm font-medium text-foreground whitespace-nowrap">
+            {selectedCount} selected
+          </span>
+          {selectedCount < totalCount && (
+            <Button variant="link" size="sm" className="h-auto p-0 text-xs" onClick={onSelectAll}>
+              Select all {totalCount}
+            </Button>
+          )}
+        </div>
+
+        {/* Bulk status */}
+        <Select
+          value={bulkStatus}
+          onValueChange={(v) => {
+            setBulkStatus(v);
+            handleBulkStatusUpdate(v);
+          }}
+          disabled={isAnyPending}
+        >
+          <SelectTrigger className="h-8 w-[150px] text-xs bg-secondary border-border">
+            <SelectValue placeholder="Set status…" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="not_contacted">Not Contacted</SelectItem>
+            <SelectItem value="contacted">Contacted</SelectItem>
+            <SelectItem value="in_pipeline">In Pipeline</SelectItem>
+            <SelectItem value="declined">Declined</SelectItem>
+          </SelectContent>
+        </Select>
+
+        {/* Bulk create deals */}
+        <Button
+          size="sm"
+          className="gap-1.5 h-8 text-xs"
+          onClick={handleBulkCreateDeals}
+          disabled={isAnyPending || eligibleForDeal === 0}
+        >
+          <Handshake className="w-3.5 h-3.5" />
+          {bulkCreateDeals.isPending
+            ? "Creating…"
+            : `Create ${eligibleForDeal} Deal${eligibleForDeal !== 1 ? "s" : ""}`}
+        </Button>
+
+        {/* Bulk dismiss */}
+        <Button
+          size="sm"
+          variant="outline"
+          className="gap-1.5 h-8 text-xs text-muted-foreground hover:text-destructive"
+          onClick={handleBulkDismiss}
+          disabled={isAnyPending}
+        >
+          <EyeOff className="w-3.5 h-3.5" />
+          Dismiss
+        </Button>
+
+        {/* Clear */}
+        <Button
+          size="icon"
+          variant="ghost"
+          className="h-8 w-8 text-muted-foreground"
+          onClick={onClearSelection}
+        >
+          <X className="w-4 h-4" />
+        </Button>
+      </div>
+    </motion.div>
+  );
+}
+
 export function CompetitorSponsorScanner() {
   const { data: sponsors = [], isLoading } = useCompetitorSponsors();
   const scanMutation = useScanCompetitorSponsors();
@@ -180,6 +337,7 @@ export function CompetitorSponsorScanner() {
   const dismissSponsor = useDismissSponsor();
   const createDeal = useCreateDealFromSponsor();
   const [filter, setFilter] = useState<string>("all");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const handleScan = () => {
     scanMutation.mutate(undefined, {
@@ -202,6 +360,29 @@ export function CompetitorSponsorScanner() {
   const hotLeads = sponsors.filter(
     (s) => (s.competitor_channels?.length || 0) >= 2 || s.mention_count >= 3,
   ).length;
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const selectAll = () => {
+    setSelectedIds(new Set(filtered.map((s) => s.id)));
+  };
+
+  const clearSelection = () => setSelectedIds(new Set());
+
+  const selectedSponsors = useMemo(
+    () => filtered.filter((s) => selectedIds.has(s.id)),
+    [filtered, selectedIds],
+  );
+
+  const allFilteredSelected = filtered.length > 0 && filtered.every((s) => selectedIds.has(s.id));
+  const someFilteredSelected = filtered.some((s) => selectedIds.has(s.id));
 
   if (isLoading) {
     return (
@@ -249,7 +430,25 @@ export function CompetitorSponsorScanner() {
       {/* Controls */}
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2 flex-wrap">
-          <Select value={filter} onValueChange={setFilter}>
+          {/* Select all checkbox */}
+          <button
+            onClick={() => {
+              if (allFilteredSelected) clearSelection();
+              else selectAll();
+            }}
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {allFilteredSelected ? (
+              <CheckSquare className="w-4 h-4 text-primary" />
+            ) : someFilteredSelected ? (
+              <MinusSquare className="w-4 h-4 text-primary" />
+            ) : (
+              <Square className="w-4 h-4" />
+            )}
+            Select all
+          </button>
+
+          <Select value={filter} onValueChange={(v) => { setFilter(v); clearSelection(); }}>
             <SelectTrigger className="h-8 w-[160px] text-xs">
               <SelectValue />
             </SelectTrigger>
@@ -292,6 +491,8 @@ export function CompetitorSponsorScanner() {
             <SponsorCard
               key={sponsor.id}
               sponsor={sponsor}
+              isSelected={selectedIds.has(sponsor.id)}
+              onToggleSelect={toggleSelect}
               onStatusChange={(id, status) =>
                 updateStatus.mutate({ id, outreach_status: status }, {
                   onSuccess: () => toast.success("Status updated"),
@@ -313,6 +514,19 @@ export function CompetitorSponsorScanner() {
           ))}
         </div>
       )}
+
+      {/* Bulk action bar */}
+      <AnimatePresence>
+        {selectedIds.size > 0 && (
+          <BulkActionBar
+            selectedCount={selectedIds.size}
+            selectedSponsors={selectedSponsors}
+            onClearSelection={clearSelection}
+            onSelectAll={selectAll}
+            totalCount={filtered.length}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
