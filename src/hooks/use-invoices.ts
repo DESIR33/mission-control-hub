@@ -166,8 +166,9 @@ export function useNextInvoiceNumber() {
         .order("created_at", { ascending: false })
         .limit(1)
         .single();
-      if (data?.invoice_number) {
-        const match = (data.invoice_number as string).match(/(\d+)$/);
+      const record = data as any;
+      if (record?.invoice_number) {
+        const match = (record.invoice_number as string).match(/(\d+)$/);
         if (match) return `INV-${String(parseInt(match[1]) + 1).padStart(4, "0")}`;
       }
       return "INV-0001";
