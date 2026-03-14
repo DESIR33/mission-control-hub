@@ -481,6 +481,7 @@ export function InvoiceGenerator() {
   const { data: invoices = [], isLoading } = useInvoices();
   const { data: nextNumber = "INV-0001" } = useNextInvoiceNumber();
   const sendToStripe = useSendToStripe();
+  const sendInvoiceEmail = useSendInvoiceEmail();
   const syncStatuses = useSyncInvoiceStatuses();
   const autoGenerate = useAutoGenerateInvoices();
   const deleteInvoice = useDeleteInvoice();
