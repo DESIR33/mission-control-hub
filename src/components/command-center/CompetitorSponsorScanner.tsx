@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import {
   Search, RefreshCw, ExternalLink, Handshake, X, ChevronRight,
   Eye, EyeOff, Megaphone, Users, TrendingUp, AlertCircle, Lightbulb,
-  CheckSquare, Square, MinusSquare,
+  CheckSquare, Square, MinusSquare, Mail,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
