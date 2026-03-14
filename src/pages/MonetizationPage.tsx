@@ -30,6 +30,7 @@ import { RevenueGoalTracker } from "@/components/monetization/RevenueGoalTracker
 import { AdSenseTab } from "@/components/monetization/AdSenseTab";
 import { YearlyIncomeTracker } from "@/components/monetization/YearlyIncomeTracker";
 import { ProfitTracker } from "@/components/monetization/ProfitTracker";
+import { InvoiceGenerator } from "@/components/monetization/InvoiceGenerator";
 import { useCompanies } from "@/hooks/use-companies";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { useAffiliateTransactions } from "@/hooks/use-affiliate-transactions";
@@ -143,7 +144,7 @@ export default function MonetizationPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const VALID_TABS = new Set(["overview", "analytics", "affiliate", "sponsorships", "products", "rate-card", "adsense", "income-tracker", "profits"]);
+  const VALID_TABS = new Set(["overview", "analytics", "affiliate", "sponsorships", "products", "rate-card", "adsense", "income-tracker", "profits", "invoices"]);
   const activeTab = urlTab && VALID_TABS.has(urlTab) ? urlTab : "overview";
 
   const [isAddingWidget, setIsAddingWidget] = useState(false);
@@ -672,6 +673,16 @@ export default function MonetizationPage() {
             Profit & Loss
           </button>
           <button
+            onClick={() => navigate("/revenue/invoices")}
+            className={cn(
+              "rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap shrink-0",
+              activeTab === "invoices" ?
+              "bg-card text-card-foreground shadow-sm" :
+              "text-muted-foreground hover:text-foreground"
+            )}>
+            Invoices
+          </button>
+          <button
             onClick={() => navigate("/revenue/rate-card")}
             className={cn(
               "rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap shrink-0",
@@ -819,6 +830,11 @@ export default function MonetizationPage() {
           {/* Profit & Loss Tab */}
           <TabsContent value="profits">
             <ProfitTracker />
+          </TabsContent>
+
+          {/* Invoices Tab */}
+          <TabsContent value="invoices">
+            <InvoiceGenerator />
           </TabsContent>
 
 
