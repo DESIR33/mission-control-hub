@@ -51,6 +51,7 @@ function SponsorCard({
   isCreatingDeal: boolean;
   isSelected: boolean;
   onToggleSelect: (id: string) => void;
+  onGenerateEmail: (sponsor: CompetitorSponsor) => void;
 }) {
   const status = STATUS_CONFIG[sponsor.outreach_status] || STATUS_CONFIG.not_contacted;
   const methods = sponsor.detection_method.split(",");
