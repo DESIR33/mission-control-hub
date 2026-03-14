@@ -43,6 +43,7 @@ function SponsorCard({
   isCreatingDeal,
   isSelected,
   onToggleSelect,
+  onGenerateEmail,
 }: {
   sponsor: CompetitorSponsor;
   onStatusChange: (id: string, status: string) => void;
