@@ -2721,6 +2721,127 @@ export type Database = {
           },
         ]
       }
+      invoices: {
+        Row: {
+          amount: number
+          brand_address: string | null
+          brand_logo_url: string | null
+          brand_name: string | null
+          client_address: string | null
+          client_email: string | null
+          client_name: string | null
+          company_id: string | null
+          contact_id: string | null
+          created_at: string | null
+          currency: string | null
+          deal_id: string | null
+          due_date: string | null
+          id: string
+          invoice_number: string
+          issued_date: string | null
+          line_items: Json | null
+          notes: string | null
+          paid_date: string | null
+          payment_terms: string | null
+          sent_at: string | null
+          status: string | null
+          stripe_invoice_id: string | null
+          stripe_payment_url: string | null
+          tax_amount: number | null
+          tax_rate: number | null
+          total_amount: number
+          updated_at: string | null
+          viewed_at: string | null
+          workspace_id: string
+        }
+        Insert: {
+          amount?: number
+          brand_address?: string | null
+          brand_logo_url?: string | null
+          brand_name?: string | null
+          client_address?: string | null
+          client_email?: string | null
+          client_name?: string | null
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string | null
+          currency?: string | null
+          deal_id?: string | null
+          due_date?: string | null
+          id?: string
+          invoice_number: string
+          issued_date?: string | null
+          line_items?: Json | null
+          notes?: string | null
+          paid_date?: string | null
+          payment_terms?: string | null
+          sent_at?: string | null
+          status?: string | null
+          stripe_invoice_id?: string | null
+          stripe_payment_url?: string | null
+          tax_amount?: number | null
+          tax_rate?: number | null
+          total_amount?: number
+          updated_at?: string | null
+          viewed_at?: string | null
+          workspace_id: string
+        }
+        Update: {
+          amount?: number
+          brand_address?: string | null
+          brand_logo_url?: string | null
+          brand_name?: string | null
+          client_address?: string | null
+          client_email?: string | null
+          client_name?: string | null
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string | null
+          currency?: string | null
+          deal_id?: string | null
+          due_date?: string | null
+          id?: string
+          invoice_number?: string
+          issued_date?: string | null
+          line_items?: Json | null
+          notes?: string | null
+          paid_date?: string | null
+          payment_terms?: string | null
+          sent_at?: string | null
+          status?: string | null
+          stripe_invoice_id?: string | null
+          stripe_payment_url?: string | null
+          tax_amount?: number | null
+          tax_rate?: number | null
+          total_amount?: number
+          updated_at?: string | null
+          viewed_at?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       knowledge_base: {
         Row: {
           category: string
