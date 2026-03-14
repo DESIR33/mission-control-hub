@@ -1560,6 +1560,78 @@ export type Database = {
           },
         ]
       }
+      competitor_sponsors: {
+        Row: {
+          company_id: string | null
+          competitor_channels: string[] | null
+          created_at: string | null
+          deal_id: string | null
+          detection_method: string | null
+          dismissed: boolean | null
+          first_detected_at: string | null
+          id: string
+          last_detected_at: string | null
+          mention_count: number | null
+          outreach_status: string | null
+          outreach_suggestion: string | null
+          sponsor_name: string
+          sponsor_url: string | null
+          updated_at: string | null
+          workspace_id: string
+        }
+        Insert: {
+          company_id?: string | null
+          competitor_channels?: string[] | null
+          created_at?: string | null
+          deal_id?: string | null
+          detection_method?: string | null
+          dismissed?: boolean | null
+          first_detected_at?: string | null
+          id?: string
+          last_detected_at?: string | null
+          mention_count?: number | null
+          outreach_status?: string | null
+          outreach_suggestion?: string | null
+          sponsor_name: string
+          sponsor_url?: string | null
+          updated_at?: string | null
+          workspace_id: string
+        }
+        Update: {
+          company_id?: string | null
+          competitor_channels?: string[] | null
+          created_at?: string | null
+          deal_id?: string | null
+          detection_method?: string | null
+          dismissed?: boolean | null
+          first_detected_at?: string | null
+          id?: string
+          last_detected_at?: string | null
+          mention_count?: number | null
+          outreach_status?: string | null
+          outreach_suggestion?: string | null
+          sponsor_name?: string
+          sponsor_url?: string | null
+          updated_at?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitor_sponsors_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "competitor_sponsors_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_roles: {
         Row: {
           created_at: string
