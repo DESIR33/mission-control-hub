@@ -163,6 +163,20 @@ export function ProfitTracker() {
           <Button variant="outline" size="sm" className="gap-1.5 h-8 text-xs" onClick={() => handleExport("json")}>
             <Download className="w-3.5 h-3.5" /> JSON
           </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 h-8 text-xs"
+            onClick={() =>
+              generateProfitLossPdf({
+                rows: filtered,
+                totals,
+                period: viewYear === "all" ? "All Time" : viewYear,
+              })
+            }
+          >
+            <FileText className="w-3.5 h-3.5" /> PDF
+          </Button>
         </div>
       </div>
 
