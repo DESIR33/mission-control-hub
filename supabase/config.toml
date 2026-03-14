@@ -107,3 +107,6 @@ verify_jwt = false
 
 [functions.scan-competitor-sponsors]
 verify_jwt = false
+
+[functions.invoice-manager]
+verify_jwt = false

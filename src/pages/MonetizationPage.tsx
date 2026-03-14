@@ -832,6 +832,11 @@ export default function MonetizationPage() {
             <ProfitTracker />
           </TabsContent>
 
+          {/* Invoices Tab */}
+          <TabsContent value="invoices">
+            <InvoiceGenerator />
+          </TabsContent>
+
 
           <TabsContent value="affiliate">
             <div className="space-y-5">
