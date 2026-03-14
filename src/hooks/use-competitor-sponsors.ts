@@ -91,7 +91,6 @@ export function useCreateDealFromSponsor() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (sponsor: CompetitorSponsor) => {
-      // First create company if not linked
       let companyId = sponsor.company_id;
       if (!companyId) {
         const { data: newCompany, error: compErr } = await supabase
@@ -107,7 +106,6 @@ export function useCreateDealFromSponsor() {
         companyId = newCompany.id;
       }
 
-      // Create deal
       const { data: deal, error: dealErr } = await supabase
         .from("deals")
         .insert({
@@ -121,7 +119,6 @@ export function useCreateDealFromSponsor() {
         .single();
       if (dealErr) throw dealErr;
 
-      // Update sponsor record
       await supabase
         .from("competitor_sponsors" as any)
         .update({
@@ -139,5 +136,92 @@ export function useCreateDealFromSponsor() {
       qc.invalidateQueries({ queryKey: ["deals"] });
       qc.invalidateQueries({ queryKey: ["companies"] });
     },
+  });
+}
+
+export function useBulkUpdateSponsorStatus() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ ids, outreach_status }: { ids: string[]; outreach_status: string }) => {
+      const { error } = await supabase
+        .from("competitor_sponsors" as any)
+        .update({ outreach_status, updated_at: new Date().toISOString() })
+        .in("id", ids);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["competitor-sponsors"] }),
+  });
+}
+
+export function useBulkCreateDealsFromSponsors() {
+  const { workspaceId } = useWorkspace();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (sponsors: CompetitorSponsor[]) => {
+      let created = 0;
+      for (const sponsor of sponsors) {
+        if (sponsor.deal_id) continue; // already has deal
+
+        let companyId = sponsor.company_id;
+        if (!companyId) {
+          const { data: newCompany, error: compErr } = await supabase
+            .from("companies")
+            .insert({
+              workspace_id: workspaceId,
+              name: sponsor.sponsor_name,
+              website: sponsor.sponsor_url,
+            })
+            .select("id")
+            .single();
+          if (compErr) continue;
+          companyId = newCompany.id;
+        }
+
+        const { data: deal, error: dealErr } = await supabase
+          .from("deals")
+          .insert({
+            workspace_id: workspaceId,
+            title: `Sponsorship — ${sponsor.sponsor_name}`,
+            company_id: companyId,
+            stage: "prospecting",
+            notes: sponsor.outreach_suggestion,
+          })
+          .select("id")
+          .single();
+        if (dealErr) continue;
+
+        await supabase
+          .from("competitor_sponsors" as any)
+          .update({
+            company_id: companyId,
+            deal_id: deal.id,
+            outreach_status: "in_pipeline",
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", sponsor.id);
+
+        created++;
+      }
+      return { created };
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["competitor-sponsors"] });
+      qc.invalidateQueries({ queryKey: ["deals"] });
+      qc.invalidateQueries({ queryKey: ["companies"] });
+    },
+  });
+}
+
+export function useBulkDismissSponsors() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase
+        .from("competitor_sponsors" as any)
+        .update({ dismissed: true, updated_at: new Date().toISOString() })
+        .in("id", ids);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["competitor-sponsors"] }),
   });
 }
