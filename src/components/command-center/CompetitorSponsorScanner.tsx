@@ -520,6 +520,7 @@ export function CompetitorSponsorScanner() {
                 })
               }
               isCreatingDeal={createDeal.isPending}
+              onGenerateEmail={(s) => setEmailSponsor(s)}
             />
           ))}
         </div>
