@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import {
   Search, RefreshCw, ExternalLink, Handshake, X, ChevronRight,
   Eye, EyeOff, Megaphone, Users, TrendingUp, AlertCircle, Lightbulb,
-  CheckSquare, Square, MinusSquare,
+  CheckSquare, Square, MinusSquare, Mail,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,7 @@ import {
   useBulkUpdateSponsorStatus, useBulkCreateDealsFromSponsors, useBulkDismissSponsors,
   type CompetitorSponsor,
 } from "@/hooks/use-competitor-sponsors";
-
+import { SponsorOutreachDialog } from "./SponsorOutreachDialog";
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   not_contacted: { label: "Not Contacted", className: "bg-muted text-muted-foreground" },
   contacted: { label: "Contacted", className: "bg-blue-500/20 text-blue-400" },
@@ -43,6 +43,7 @@ function SponsorCard({
   isCreatingDeal,
   isSelected,
   onToggleSelect,
+  onGenerateEmail,
 }: {
   sponsor: CompetitorSponsor;
   onStatusChange: (id: string, status: string) => void;
@@ -51,6 +52,7 @@ function SponsorCard({
   isCreatingDeal: boolean;
   isSelected: boolean;
   onToggleSelect: (id: string) => void;
+  onGenerateEmail: (sponsor: CompetitorSponsor) => void;
 }) {
   const status = STATUS_CONFIG[sponsor.outreach_status] || STATUS_CONFIG.not_contacted;
   const methods = sponsor.detection_method.split(",");
@@ -159,6 +161,13 @@ function SponsorCard({
                 {isCreatingDeal ? "Creating…" : "Create Deal"}
               </Button>
             )}
+            <Button
+              size="sm" variant="outline" className="h-7 text-xs gap-1"
+              onClick={() => onGenerateEmail(sponsor)}
+            >
+              <Mail className="w-3 h-3" />
+              Email
+            </Button>
             <Select
               value={sponsor.outreach_status}
               onValueChange={(v) => onStatusChange(sponsor.id, v)}
@@ -338,6 +347,7 @@ export function CompetitorSponsorScanner() {
   const createDeal = useCreateDealFromSponsor();
   const [filter, setFilter] = useState<string>("all");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [emailSponsor, setEmailSponsor] = useState<CompetitorSponsor | null>(null);
 
   const handleScan = () => {
     scanMutation.mutate(undefined, {
@@ -510,6 +520,7 @@ export function CompetitorSponsorScanner() {
                 })
               }
               isCreatingDeal={createDeal.isPending}
+              onGenerateEmail={(s) => setEmailSponsor(s)}
             />
           ))}
         </div>
@@ -527,6 +538,13 @@ export function CompetitorSponsorScanner() {
           />
         )}
       </AnimatePresence>
+
+      {/* Outreach email dialog */}
+      <SponsorOutreachDialog
+        sponsor={emailSponsor}
+        open={!!emailSponsor}
+        onOpenChange={(open) => { if (!open) setEmailSponsor(null); }}
+      />
     </div>
   );
 }
