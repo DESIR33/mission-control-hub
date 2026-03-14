@@ -15,6 +15,8 @@ import { useUnifiedRevenue } from "@/hooks/use-unified-revenue";
 import { useExpenses, useRecurringSubscriptions } from "@/hooks/use-expenses";
 import { chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults } from "@/lib/chart-theme";
 import { exportData, type ExportColumn } from "@/lib/export-utils";
+import { generateProfitLossPdf } from "@/lib/pdf-profit-loss";
+import { FileText } from "lucide-react";
 
 interface MonthlyPL {
   month: string;
@@ -160,6 +162,20 @@ export function ProfitTracker() {
           </Button>
           <Button variant="outline" size="sm" className="gap-1.5 h-8 text-xs" onClick={() => handleExport("json")}>
             <Download className="w-3.5 h-3.5" /> JSON
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 h-8 text-xs"
+            onClick={() =>
+              generateProfitLossPdf({
+                rows: filtered,
+                totals,
+                period: viewYear === "all" ? "All Time" : viewYear,
+              })
+            }
+          >
+            <FileText className="w-3.5 h-3.5" /> PDF
           </Button>
         </div>
       </div>
