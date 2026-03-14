@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import {
   Plus, Send, RefreshCw, Download, Trash2, ExternalLink, FileText,
   DollarSign, Clock, Eye, AlertTriangle, CheckCircle, Pencil, Zap,
-  Copy, Receipt,
+  Copy, Receipt, Mail,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -29,7 +29,7 @@ import { format, formatDistanceToNow, isPast, parseISO } from "date-fns";
 import {
   useInvoices, useCreateInvoice, useUpdateInvoice, useDeleteInvoice,
   useSendToStripe, useSyncInvoiceStatuses, useAutoGenerateInvoices,
-  useNextInvoiceNumber, type Invoice, type InvoiceLineItem,
+  useNextInvoiceNumber, useSendInvoiceEmail, type Invoice, type InvoiceLineItem,
 } from "@/hooks/use-invoices";
 import { useDeals } from "@/hooks/use-deals";
 import { useCompanies } from "@/hooks/use-companies";
@@ -481,6 +481,7 @@ export function InvoiceGenerator() {
   const { data: invoices = [], isLoading } = useInvoices();
   const { data: nextNumber = "INV-0001" } = useNextInvoiceNumber();
   const sendToStripe = useSendToStripe();
+  const sendInvoiceEmail = useSendInvoiceEmail();
   const syncStatuses = useSyncInvoiceStatuses();
   const autoGenerate = useAutoGenerateInvoices();
   const deleteInvoice = useDeleteInvoice();
@@ -653,6 +654,16 @@ export function InvoiceGenerator() {
                           <div className="flex items-center justify-end gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                             <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => generateInvoicePDF(inv)} title="Export PDF">
                               <Download className="w-3 h-3" />
+                            </Button>
+                            <Button
+                              size="icon" variant="ghost" className="h-7 w-7" title={inv.client_email ? `Email invoice to ${inv.client_email}` : "No client email set"}
+                              disabled={!inv.client_email || sendInvoiceEmail.isPending}
+                              onClick={() => sendInvoiceEmail.mutate(inv.id, {
+                                onSuccess: () => toast.success(`Invoice ${inv.invoice_number} emailed to ${inv.client_email}`),
+                                onError: (e: any) => toast.error(e?.message || "Failed to send email"),
+                              })}
+                            >
+                              <Mail className="w-3 h-3" />
                             </Button>
                             {inv.stripe_payment_url && (
                               <Button size="icon" variant="ghost" className="h-7 w-7" asChild title="Payment Link">
