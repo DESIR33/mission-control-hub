@@ -655,6 +655,16 @@ export function InvoiceGenerator() {
                             <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => generateInvoicePDF(inv)} title="Export PDF">
                               <Download className="w-3 h-3" />
                             </Button>
+                            <Button
+                              size="icon" variant="ghost" className="h-7 w-7" title={inv.client_email ? `Email invoice to ${inv.client_email}` : "No client email set"}
+                              disabled={!inv.client_email || sendInvoiceEmail.isPending}
+                              onClick={() => sendInvoiceEmail.mutate(inv.id, {
+                                onSuccess: () => toast.success(`Invoice ${inv.invoice_number} emailed to ${inv.client_email}`),
+                                onError: (e: any) => toast.error(e?.message || "Failed to send email"),
+                              })}
+                            >
+                              <Mail className="w-3 h-3" />
+                            </Button>
                             {inv.stripe_payment_url && (
                               <Button size="icon" variant="ghost" className="h-7 w-7" asChild title="Payment Link">
                                 <a href={inv.stripe_payment_url} target="_blank" rel="noreferrer"><ExternalLink className="w-3 h-3" /></a>
