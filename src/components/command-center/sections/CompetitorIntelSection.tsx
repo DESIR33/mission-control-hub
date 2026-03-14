@@ -18,6 +18,7 @@ import { CompetitorBenchmark } from "../CompetitorBenchmark";
 import { CompetitorIntelligence } from "../CompetitorIntelligence";
 import { CompetitorActivityFeed } from "../CompetitorActivityFeed";
 import { CompetitorWarRoom } from "../CompetitorWarRoom";
+import { CompetitorSponsorScanner } from "../CompetitorSponsorScanner";
 import {
   useCompetitorChannels, useCreateCompetitor, useUpdateCompetitor,
   useDeleteCompetitor, useSyncCompetitors,
