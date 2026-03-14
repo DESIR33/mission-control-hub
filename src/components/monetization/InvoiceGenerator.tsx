@@ -29,7 +29,7 @@ import { format, formatDistanceToNow, isPast, parseISO } from "date-fns";
 import {
   useInvoices, useCreateInvoice, useUpdateInvoice, useDeleteInvoice,
   useSendToStripe, useSyncInvoiceStatuses, useAutoGenerateInvoices,
-  useNextInvoiceNumber, type Invoice, type InvoiceLineItem,
+  useNextInvoiceNumber, useSendInvoiceEmail, type Invoice, type InvoiceLineItem,
 } from "@/hooks/use-invoices";
 import { useDeals } from "@/hooks/use-deals";
 import { useCompanies } from "@/hooks/use-companies";
