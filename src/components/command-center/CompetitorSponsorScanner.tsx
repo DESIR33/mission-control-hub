@@ -160,6 +160,13 @@ function SponsorCard({
                 {isCreatingDeal ? "Creating…" : "Create Deal"}
               </Button>
             )}
+            <Button
+              size="sm" variant="outline" className="h-7 text-xs gap-1"
+              onClick={() => onGenerateEmail(sponsor)}
+            >
+              <Mail className="w-3 h-3" />
+              Email
+            </Button>
             <Select
               value={sponsor.outreach_status}
               onValueChange={(v) => onStatusChange(sponsor.id, v)}
