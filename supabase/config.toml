@@ -110,3 +110,6 @@ verify_jwt = false
 
 [functions.invoice-manager]
 verify_jwt = false
+
+[functions.weekly-sponsor-scan]
+verify_jwt = false
