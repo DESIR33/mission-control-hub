@@ -154,6 +154,22 @@ export function useAutoGenerateInvoices() {
   });
 }
 
+export function useSendInvoiceEmail() {
+  const { workspaceId } = useWorkspace();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (invoiceId: string) => {
+      const { data, error } = await supabase.functions.invoke("invoice-manager", {
+        body: { workspace_id: workspaceId, action: "send-invoice-email", invoice_id: invoiceId },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["invoices"] }),
+  });
+}
+
 export function useNextInvoiceNumber() {
   const { workspaceId } = useWorkspace();
   return useQuery({
