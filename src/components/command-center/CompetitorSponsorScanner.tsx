@@ -347,6 +347,7 @@ export function CompetitorSponsorScanner() {
   const createDeal = useCreateDealFromSponsor();
   const [filter, setFilter] = useState<string>("all");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [emailSponsor, setEmailSponsor] = useState<CompetitorSponsor | null>(null);
 
   const handleScan = () => {
     scanMutation.mutate(undefined, {
