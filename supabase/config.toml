@@ -104,3 +104,6 @@ verify_jwt = false
 
 [functions.flux-trainer]
 verify_jwt = false
+
+[functions.scan-competitor-sponsors]
+verify_jwt = false

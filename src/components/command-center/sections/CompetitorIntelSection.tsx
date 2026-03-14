@@ -18,6 +18,7 @@ import { CompetitorBenchmark } from "../CompetitorBenchmark";
 import { CompetitorIntelligence } from "../CompetitorIntelligence";
 import { CompetitorActivityFeed } from "../CompetitorActivityFeed";
 import { CompetitorWarRoom } from "../CompetitorWarRoom";
+import { CompetitorSponsorScanner } from "../CompetitorSponsorScanner";
 import {
   useCompetitorChannels, useCreateCompetitor, useUpdateCompetitor,
   useDeleteCompetitor, useSyncCompetitors,
@@ -343,12 +344,14 @@ export function CompetitorIntelSection() {
           <TabsTrigger value="intel">Deep Intel</TabsTrigger>
           <TabsTrigger value="activity">Activity Feed</TabsTrigger>
           <TabsTrigger value="warroom">War Room</TabsTrigger>
+          <TabsTrigger value="sponsors">Sponsor Scanner</TabsTrigger>
         </TabsList>
         <TabsContent value="manage"><ManageCompetitorsTab /></TabsContent>
         <TabsContent value="benchmark"><CompetitorBenchmark /></TabsContent>
         <TabsContent value="intel"><CompetitorIntelligence /></TabsContent>
         <TabsContent value="activity"><CompetitorActivityFeed /></TabsContent>
         <TabsContent value="warroom"><CompetitorWarRoom /></TabsContent>
+        <TabsContent value="sponsors"><CompetitorSponsorScanner /></TabsContent>
       </Tabs>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
