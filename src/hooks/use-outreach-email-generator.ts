@@ -105,7 +105,6 @@ Do NOT include any text outside the JSON object.`;
 }
 
 async function getOpenRouterKey(workspaceId: string): Promise<string> {
-  // First try workspace integration config
   const { data } = await supabase
     .from("workspace_integrations" as any)
     .select("config")
@@ -113,10 +112,9 @@ async function getOpenRouterKey(workspaceId: string): Promise<string> {
     .eq("integration_key", "openrouter")
     .single();
 
-  if (data?.config?.api_key) return data.config.api_key;
+  const config = (data as any)?.config;
+  if (config?.api_key) return config.api_key;
 
-  // Edge function will have the secret — call through it instead
-  // For client-side, we need a proxy. Throw to trigger fallback.
   throw new Error("AI generation unavailable — using template fallback");
 }
 
