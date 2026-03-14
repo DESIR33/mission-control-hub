@@ -499,19 +499,19 @@ export function InvoiceGenerator() {
   }, [invoices]);
 
   const handleExportCSV = () => {
-    const rows = invoices.map((inv) => ({
-      "Invoice #": inv.invoice_number,
-      Status: inv.status,
-      Client: inv.client_name || "",
-      Amount: inv.amount,
-      Tax: inv.tax_amount,
-      Total: inv.total_amount,
-      Currency: inv.currency,
-      Issued: inv.issued_date || "",
-      Due: inv.due_date || "",
-      Paid: inv.paid_date || "",
-    }));
-    exportData(rows, Object.keys(rows[0] || {}), "invoices", "csv");
+    const columns = [
+      { key: "invoice_number", label: "Invoice #" },
+      { key: "status", label: "Status" },
+      { key: "client_name", label: "Client" },
+      { key: "amount", label: "Amount" },
+      { key: "tax_amount", label: "Tax" },
+      { key: "total_amount", label: "Total" },
+      { key: "currency", label: "Currency" },
+      { key: "issued_date", label: "Issued" },
+      { key: "due_date", label: "Due" },
+      { key: "paid_date", label: "Paid" },
+    ];
+    exportData(invoices, columns, "invoices", "csv");
     toast.success("Invoices exported as CSV");
   };
 
