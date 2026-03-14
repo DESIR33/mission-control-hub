@@ -15,6 +15,8 @@ import { useUnifiedRevenue } from "@/hooks/use-unified-revenue";
 import { useExpenses, useRecurringSubscriptions } from "@/hooks/use-expenses";
 import { chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults } from "@/lib/chart-theme";
 import { exportData, type ExportColumn } from "@/lib/export-utils";
+import { generateProfitLossPdf } from "@/lib/pdf-profit-loss";
+import { FileText } from "lucide-react";
 
 interface MonthlyPL {
   month: string;
