@@ -538,6 +538,13 @@ export function CompetitorSponsorScanner() {
           />
         )}
       </AnimatePresence>
+
+      {/* Outreach email dialog */}
+      <SponsorOutreachDialog
+        sponsor={emailSponsor}
+        open={!!emailSponsor}
+        onOpenChange={(open) => { if (!open) setEmailSponsor(null); }}
+      />
     </div>
   );
 }
