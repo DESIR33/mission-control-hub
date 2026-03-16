@@ -92,7 +92,7 @@ export default function SubscriberProfilePage() {
     try {
       await deleteSubscriber.mutateAsync(subscriber.id);
       toast({ title: "Subscriber removed" });
-      navigate("/network/contacts?tab=subscribers");
+      navigate("/subscribers");
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
     }
