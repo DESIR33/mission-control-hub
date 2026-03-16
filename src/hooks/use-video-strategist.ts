@@ -44,7 +44,7 @@ export function usePendingOptimizations() {
     queryFn: async () => {
       if (!workspaceId) return [];
       const { data, error } = await query("ai_proposals")
-        .select("*")
+        .select("id, workspace_id, title, description, summary, type, proposal_type, status, confidence, video_id, entity_id, entity_type, proposed_changes, optimization_proof, thumbnail_prompts, thumbnail_urls, requires_thumbnail_generation, execution_status, reviewed_at, reviewed_by, created_at, updated_at, created_by")
         .eq("workspace_id", workspaceId)
         .eq("status", "pending")
         .in("proposal_type", [
