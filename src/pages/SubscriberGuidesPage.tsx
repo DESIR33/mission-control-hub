@@ -56,6 +56,7 @@ function GuideForm({ guide, videos, companies, onSubmit, isPending, onCancel, su
   const [selectedVideoId, setSelectedVideoId] = useState<string>(guide?.video_queue_id ? String(guide.video_queue_id) : "");
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>(guide?.company_id ?? "");
   const [companyOpen, setCompanyOpen] = useState(false);
+  const [status, setStatus] = useState<string>(guide?.status ?? "active");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
