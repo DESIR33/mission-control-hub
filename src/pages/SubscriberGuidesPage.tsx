@@ -63,13 +63,14 @@ function GuideForm({ guide, videos, companies, onSubmit, isPending, onCancel, su
     await onSubmit({
       name: form.get("name") as string,
       slug: form.get("slug") as string,
-      description: (form.get("description") as string) || undefined,
+      description: (form.get("description") as string) || null,
       delivery_type: deliveryType as "email" | "redirect",
-      file_url: (form.get("file_url") as string) || undefined,
-      email_subject: (form.get("email_subject") as string) || undefined,
-      email_body: (form.get("email_body") as string) || undefined,
+      file_url: (form.get("file_url") as string) || null,
+      email_subject: (form.get("email_subject") as string) || null,
+      email_body: (form.get("email_body") as string) || null,
       video_queue_id: selectedVideoId && selectedVideoId !== "none" ? Number(selectedVideoId) : null,
       company_id: selectedCompanyId && selectedCompanyId !== "none" ? selectedCompanyId : null,
+      status: (form.get("status") as string) || "active",
     });
   };
 

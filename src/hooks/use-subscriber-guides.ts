@@ -86,6 +86,7 @@ export function useUpdateSubscriberGuide() {
         .from("subscriber_guides" as any)
         .update(updates)
         .eq("id", id)
+        .eq("workspace_id", workspaceId)
         .select()
         .single();
 
