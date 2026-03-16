@@ -27,9 +27,9 @@ export function useContacts() {
         vip_tier: (row.vip_tier ?? "none") as Contact["vip_tier"],
         preferred_channel: (row.preferred_channel ?? "email") as Contact["preferred_channel"],
         custom_fields: (row.custom_fields as Record<string, unknown>) ?? {},
-        enrichment_hunter: row.enrichment_hunter as Record<string, unknown> | null,
-        enrichment_ai: row.enrichment_ai as Record<string, unknown> | null,
-        enrichment_youtube: row.enrichment_youtube as Record<string, unknown> | null,
+        enrichment_hunter: null,
+        enrichment_ai: null,
+        enrichment_youtube: null,
         company: row.companies as Contact["company"] ?? null,
       }));
     },

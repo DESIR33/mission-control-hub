@@ -24,9 +24,9 @@ export function useCompanies() {
       return (data ?? []).map((row) => ({
         ...row,
         vip_tier: (row.vip_tier ?? "none") as Company["vip_tier"],
-        enrichment_brandfetch: row.enrichment_brandfetch as Record<string, unknown> | null,
-        enrichment_clay: row.enrichment_clay as Record<string, unknown> | null,
-        enrichment_firecrawl: row.enrichment_firecrawl as Record<string, unknown> | null,
+        enrichment_brandfetch: null,
+        enrichment_clay: null,
+        enrichment_firecrawl: null,
         contacts: (row.contacts ?? []) as Contact[],
       }));
     },
