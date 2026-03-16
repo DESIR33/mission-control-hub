@@ -56,6 +56,7 @@ function GuideForm({ guide, videos, companies, onSubmit, isPending, onCancel, su
   const [selectedVideoId, setSelectedVideoId] = useState<string>(guide?.video_queue_id ? String(guide.video_queue_id) : "");
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>(guide?.company_id ?? "");
   const [companyOpen, setCompanyOpen] = useState(false);
+  const [status, setStatus] = useState<string>(guide?.status ?? "active");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -63,13 +64,14 @@ function GuideForm({ guide, videos, companies, onSubmit, isPending, onCancel, su
     await onSubmit({
       name: form.get("name") as string,
       slug: form.get("slug") as string,
-      description: (form.get("description") as string) || undefined,
+      description: (form.get("description") as string) || null,
       delivery_type: deliveryType as "email" | "redirect",
-      file_url: (form.get("file_url") as string) || undefined,
-      email_subject: (form.get("email_subject") as string) || undefined,
-      email_body: (form.get("email_body") as string) || undefined,
+      file_url: (form.get("file_url") as string) || null,
+      email_subject: (form.get("email_subject") as string) || null,
+      email_body: (form.get("email_body") as string) || null,
       video_queue_id: selectedVideoId && selectedVideoId !== "none" ? Number(selectedVideoId) : null,
       company_id: selectedCompanyId && selectedCompanyId !== "none" ? selectedCompanyId : null,
+      status,
     });
   };
 
@@ -196,7 +198,7 @@ function GuideForm({ guide, videos, companies, onSubmit, isPending, onCancel, su
 
       <div className="space-y-1.5">
         <Label>Status</Label>
-        <Select name="status" defaultValue={guide?.status ?? "active"}>
+        <Select value={status} onValueChange={setStatus}>
           <SelectTrigger className="bg-secondary border-border"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="active">Active</SelectItem>
