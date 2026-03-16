@@ -265,7 +265,7 @@ export function useStrategistRuns() {
     queryFn: async () => {
       if (!workspaceId) return [];
       const { data, error } = await query("strategist_daily_runs")
-        .select("*")
+        .select("id, workspace_id, run_date, status, videos_analyzed, proposals_created, summary, created_at")
         .eq("workspace_id", workspaceId)
         .order("run_date", { ascending: false })
         .limit(14);
