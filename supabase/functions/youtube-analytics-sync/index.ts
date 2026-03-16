@@ -181,17 +181,26 @@ Deno.serve(async (req) => {
     const refreshToken = config.refresh_token;
     const clientId = config.client_id;
     const clientSecret = config.client_secret;
+    const lastTokenRefresh = config.token_refreshed_at ? new Date(config.token_refreshed_at).getTime() : 0;
+    const tokenAge = Date.now() - lastTokenRefresh;
+    const TOKEN_REUSE_WINDOW = 5 * 60 * 1000; // 5 minutes
 
     if (refreshToken && clientId && clientSecret) {
-      accessToken = await refreshAccessToken(refreshToken, clientId, clientSecret);
-      await supabase
-        .from("workspace_integrations")
-        .update({
-          config: { ...config, access_token: accessToken },
-          updated_at: new Date().toISOString(),
-        })
-        .eq("workspace_id", workspace_id)
-        .eq("integration_key", "youtube");
+      // Skip refresh if token was refreshed within the last 5 minutes (dedup with youtube-sync)
+      if (tokenAge > TOKEN_REUSE_WINDOW || !accessToken) {
+        console.log(`[YT Analytics] Token age: ${Math.round(tokenAge / 1000)}s — refreshing`);
+        accessToken = await refreshAccessToken(refreshToken, clientId, clientSecret);
+        await supabase
+          .from("workspace_integrations")
+          .update({
+            config: { ...config, access_token: accessToken, token_refreshed_at: new Date().toISOString() },
+            updated_at: new Date().toISOString(),
+          })
+          .eq("workspace_id", workspace_id)
+          .eq("integration_key", "youtube");
+      } else {
+        console.log(`[YT Analytics] Token age: ${Math.round(tokenAge / 1000)}s — reusing cached token`);
+      }
     } else if (!accessToken) {
       const missing = [];
       if (!refreshToken) missing.push("refresh_token");
