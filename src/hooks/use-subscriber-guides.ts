@@ -42,6 +42,8 @@ export function useCreateSubscriberGuide() {
       file_url?: string;
       email_subject?: string;
       email_body?: string;
+      video_queue_id?: number;
+      company_id?: string;
     }) => {
       if (!workspaceId) throw new Error("No workspace");
 
