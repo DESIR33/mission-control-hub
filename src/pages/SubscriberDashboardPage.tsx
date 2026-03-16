@@ -8,6 +8,7 @@ import { SubscriberEngagementBadge } from "@/components/subscribers/SubscriberEn
 import { Users, UserPlus, UserMinus, Mail, BookOpen, Video, TrendingUp, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
 function StatCard({ icon: Icon, label, value, className }: { icon: typeof Users; label: string; value: string | number; className?: string }) {
   return (
@@ -31,6 +32,7 @@ export default function SubscriberDashboardPage() {
   const { data: analytics, isLoading } = useSubscriberAnalytics();
   const { data: notifications = [] } = useSubscriberVideoNotifications();
   const { data: guides = [] } = useSubscriberGuides();
+  const navigate = useNavigate();
 
   if (isLoading || !analytics) {
     return (
@@ -203,7 +205,11 @@ export default function SubscriberDashboardPage() {
             ) : (
               <div className="space-y-2">
                 {analytics.recentSubscribers.map((sub) => (
-                  <div key={sub.id} className="flex items-center gap-3 py-1.5">
+                  <button
+                    key={sub.id}
+                    onClick={() => navigate(`/subscribers/${sub.id}`)}
+                    className="w-full flex items-center gap-3 py-1.5 rounded-md px-1 -mx-1 hover:bg-accent/50 transition-colors text-left"
+                  >
                     <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                       <span className="text-xs font-semibold text-primary">
                         {(sub.first_name ?? sub.email)[0].toUpperCase()}
@@ -221,7 +227,7 @@ export default function SubscriberDashboardPage() {
                         {formatDistanceToNow(new Date(sub.created_at), { addSuffix: true })}
                       </span>
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
             )}

@@ -9,23 +9,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useUpdateSubscriber, useDeleteSubscriber } from "@/hooks/use-subscribers";
+import { useSubscriberSequences, useEnrollSubscriber } from "@/hooks/use-subscriber-sequences";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, MapPin, BookOpen, Video, Calendar, Pencil, Trash2, Loader2, ArrowUpRight } from "lucide-react";
+import { Mail, MapPin, BookOpen, Video, Calendar, Pencil, Trash2, Loader2, ArrowUpRight, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Subscriber, SubscriberStatus } from "@/types/subscriber";
-import { getEngagementTier } from "@/types/subscriber";
 import { SubscriberEngagementBadge } from "./SubscriberEngagementBadge";
+import { SubscriberTagPicker } from "./SubscriberTagPicker";
+import { PromoteSubscriberDialog } from "./PromoteSubscriberDialog";
 import { format } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
 const statusColors: Record<string, string> = {
   active: "bg-success/15 text-success border-success/30",
@@ -64,15 +61,17 @@ export function SubscriberDetailSheet({ subscriber, open, onOpenChange, onDelete
   const [editing, setEditing] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [status, setStatus] = useState<string>("active");
+  const [enrollSequenceId, setEnrollSequenceId] = useState<string>("");
 
   const updateSubscriber = useUpdateSubscriber();
   const deleteSubscriber = useDeleteSubscriber();
+  const { data: sequences = [] } = useSubscriberSequences();
+  const enrollSubscriber = useEnrollSubscriber();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (subscriber) {
-      setStatus(subscriber.status);
-    }
+    if (subscriber) setStatus(subscriber.status);
   }, [subscriber]);
 
   useEffect(() => {
@@ -84,7 +83,6 @@ export function SubscriberDetailSheet({ subscriber, open, onOpenChange, onDelete
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
-
     try {
       await updateSubscriber.mutateAsync({
         id: subscriber.id,
@@ -119,6 +117,17 @@ export function SubscriberDetailSheet({ subscriber, open, onOpenChange, onDelete
     }
   };
 
+  const handleEnroll = async () => {
+    if (!enrollSequenceId) return;
+    try {
+      await enrollSubscriber.mutateAsync({ sequenceId: enrollSequenceId, subscriberId: subscriber.id });
+      toast({ title: "Enrolled in sequence" });
+      setEnrollSequenceId("");
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
   const location = [subscriber.city, subscriber.state, subscriber.country].filter(Boolean).join(", ");
 
   return (
@@ -127,13 +136,19 @@ export function SubscriberDetailSheet({ subscriber, open, onOpenChange, onDelete
         <SheetContent className="w-full sm:max-w-lg bg-card border-border overflow-y-auto">
           <SheetHeader className="pb-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+              <div
+                className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0 cursor-pointer hover:bg-primary/20 transition-colors"
+                onClick={() => { onOpenChange(false); navigate(`/subscribers/${subscriber.id}`); }}
+              >
                 <span className="text-lg font-bold text-primary">
                   {(subscriber.first_name ?? subscriber.email)[0].toUpperCase()}
                 </span>
               </div>
               <div className="min-w-0 flex-1">
-                <SheetTitle className="text-foreground text-lg">
+                <SheetTitle
+                  className="text-foreground text-lg cursor-pointer hover:text-primary transition-colors"
+                  onClick={() => { onOpenChange(false); navigate(`/subscribers/${subscriber.id}`); }}
+                >
                   {subscriber.first_name ? `${subscriber.first_name} ${subscriber.last_name ?? ""}`.trim() : subscriber.email}
                 </SheetTitle>
                 <p className="text-sm text-muted-foreground">{subscriber.email}</p>
@@ -147,7 +162,7 @@ export function SubscriberDetailSheet({ subscriber, open, onOpenChange, onDelete
                 </Button>
               </div>
             </div>
-            <div className="flex items-center gap-2 mt-2">
+            <div className="flex items-center gap-2 mt-2 flex-wrap">
               <Badge variant="outline" className={cn("text-xs uppercase tracking-wider", statusColors[subscriber.status])}>
                 {subscriber.status}
               </Badge>
@@ -158,12 +173,18 @@ export function SubscriberDetailSheet({ subscriber, open, onOpenChange, onDelete
                 </Badge>
               )}
             </div>
+            {/* Actions row */}
+            <div className="flex items-center gap-2 mt-3 flex-wrap">
+              <SubscriberTagPicker subscriberId={subscriber.id} />
+              <PromoteSubscriberDialog subscriber={subscriber} />
+            </div>
           </SheetHeader>
 
           <Tabs defaultValue="details" className="mt-2">
             <TabsList className="w-full">
               <TabsTrigger value="details" className="flex-1">Details</TabsTrigger>
               <TabsTrigger value="engagement" className="flex-1">Engagement</TabsTrigger>
+              <TabsTrigger value="sequences" className="flex-1">Sequences</TabsTrigger>
             </TabsList>
 
             <TabsContent value="details" className="mt-4 space-y-4">
@@ -179,18 +200,14 @@ export function SubscriberDetailSheet({ subscriber, open, onOpenChange, onDelete
                       <Input id="edit_last_name" name="last_name" defaultValue={subscriber.last_name ?? ""} className="bg-secondary border-border" />
                     </div>
                   </div>
-
                   <div className="space-y-1.5">
                     <Label htmlFor="edit_email">Email *</Label>
                     <Input id="edit_email" name="email" type="email" required defaultValue={subscriber.email} className="bg-secondary border-border" />
                   </div>
-
                   <div className="space-y-1.5">
                     <Label>Status</Label>
                     <Select value={status} onValueChange={setStatus}>
-                      <SelectTrigger className="bg-secondary border-border">
-                        <SelectValue />
-                      </SelectTrigger>
+                      <SelectTrigger className="bg-secondary border-border"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="active">Active</SelectItem>
                         <SelectItem value="inactive">Inactive</SelectItem>
@@ -199,43 +216,38 @@ export function SubscriberDetailSheet({ subscriber, open, onOpenChange, onDelete
                       </SelectContent>
                     </Select>
                   </div>
-
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1.5">
-                      <Label htmlFor="edit_source_video_id">Source Video ID</Label>
-                      <Input id="edit_source_video_id" name="source_video_id" defaultValue={subscriber.source_video_id ?? ""} className="bg-secondary border-border" />
+                      <Label>Source Video ID</Label>
+                      <Input name="source_video_id" defaultValue={subscriber.source_video_id ?? ""} className="bg-secondary border-border" />
                     </div>
                     <div className="space-y-1.5">
-                      <Label htmlFor="edit_source_video_title">Source Video Title</Label>
-                      <Input id="edit_source_video_title" name="source_video_title" defaultValue={subscriber.source_video_title ?? ""} className="bg-secondary border-border" />
+                      <Label>Source Video Title</Label>
+                      <Input name="source_video_title" defaultValue={subscriber.source_video_title ?? ""} className="bg-secondary border-border" />
                     </div>
                   </div>
-
                   <div className="space-y-1.5">
-                    <Label htmlFor="edit_guide">Guide Requested</Label>
-                    <Input id="edit_guide" name="guide_requested" defaultValue={subscriber.guide_requested ?? ""} className="bg-secondary border-border" />
+                    <Label>Guide Requested</Label>
+                    <Input name="guide_requested" defaultValue={subscriber.guide_requested ?? ""} className="bg-secondary border-border" />
                   </div>
-
                   <div className="grid grid-cols-3 gap-3">
                     <div className="space-y-1.5">
-                      <Label htmlFor="edit_city">City</Label>
-                      <Input id="edit_city" name="city" defaultValue={subscriber.city ?? ""} className="bg-secondary border-border" />
+                      <Label>City</Label>
+                      <Input name="city" defaultValue={subscriber.city ?? ""} className="bg-secondary border-border" />
                     </div>
                     <div className="space-y-1.5">
-                      <Label htmlFor="edit_state">State</Label>
-                      <Input id="edit_state" name="state" defaultValue={subscriber.state ?? ""} className="bg-secondary border-border" />
+                      <Label>State</Label>
+                      <Input name="state" defaultValue={subscriber.state ?? ""} className="bg-secondary border-border" />
                     </div>
                     <div className="space-y-1.5">
-                      <Label htmlFor="edit_country">Country</Label>
-                      <Input id="edit_country" name="country" defaultValue={subscriber.country ?? ""} className="bg-secondary border-border" />
+                      <Label>Country</Label>
+                      <Input name="country" defaultValue={subscriber.country ?? ""} className="bg-secondary border-border" />
                     </div>
                   </div>
-
                   <div className="space-y-1.5">
-                    <Label htmlFor="edit_notes">Notes</Label>
-                    <Textarea id="edit_notes" name="notes" rows={3} defaultValue={subscriber.notes ?? ""} className="bg-secondary border-border" />
+                    <Label>Notes</Label>
+                    <Textarea name="notes" rows={3} defaultValue={subscriber.notes ?? ""} className="bg-secondary border-border" />
                   </div>
-
                   <div className="flex justify-end gap-2 pt-2">
                     <Button type="button" variant="ghost" onClick={() => setEditing(false)}>Cancel</Button>
                     <Button type="submit" disabled={updateSubscriber.isPending}>
@@ -253,9 +265,7 @@ export function SubscriberDetailSheet({ subscriber, open, onOpenChange, onDelete
                       {location && <DetailRow icon={MapPin} label="Location" value={location} />}
                     </div>
                   </div>
-
                   <Separator className="bg-border" />
-
                   <div>
                     <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Source</h4>
                     <div className="space-y-0.5">
@@ -267,7 +277,6 @@ export function SubscriberDetailSheet({ subscriber, open, onOpenChange, onDelete
                       )}
                     </div>
                   </div>
-
                   {subscriber.notes && (
                     <>
                       <Separator className="bg-border" />
@@ -277,7 +286,6 @@ export function SubscriberDetailSheet({ subscriber, open, onOpenChange, onDelete
                       </div>
                     </>
                   )}
-
                   {subscriber.promoted_to_contact_id && (
                     <>
                       <Separator className="bg-border" />
@@ -287,7 +295,6 @@ export function SubscriberDetailSheet({ subscriber, open, onOpenChange, onDelete
                       </div>
                     </>
                   )}
-
                   <Separator className="bg-border" />
                   <div className="text-xs text-muted-foreground space-y-1">
                     <p>Subscribed: {format(new Date(subscriber.created_at), "MMM d, yyyy")}</p>
@@ -319,7 +326,6 @@ export function SubscriberDetailSheet({ subscriber, open, onOpenChange, onDelete
                   <p className="text-lg font-bold font-mono text-foreground">{subscriber.engagement_data.guides_downloaded}</p>
                 </div>
               </div>
-
               <div className="rounded-md border border-border bg-muted/30 p-3">
                 <p className="text-xs text-muted-foreground mb-1">Engagement Score</p>
                 <div className="flex items-center gap-3">
@@ -337,7 +343,6 @@ export function SubscriberDetailSheet({ subscriber, open, onOpenChange, onDelete
                   <SubscriberEngagementBadge score={subscriber.engagement_score} />
                 </div>
               </div>
-
               {subscriber.engagement_data.last_email_opened_at && (
                 <p className="text-xs text-muted-foreground">
                   Last email opened: {format(new Date(subscriber.engagement_data.last_email_opened_at), "MMM d, yyyy")}
@@ -348,6 +353,36 @@ export function SubscriberDetailSheet({ subscriber, open, onOpenChange, onDelete
                   Last link clicked: {format(new Date(subscriber.engagement_data.last_clicked_at), "MMM d, yyyy")}
                 </p>
               )}
+            </TabsContent>
+
+            <TabsContent value="sequences" className="mt-4 space-y-4">
+              <div>
+                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Enroll in Sequence</h4>
+                {sequences.filter((s) => s.status === "active").length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No active sequences available.</p>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Select value={enrollSequenceId} onValueChange={setEnrollSequenceId}>
+                      <SelectTrigger className="flex-1 bg-secondary border-border">
+                        <SelectValue placeholder="Select a sequence..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {sequences.filter((s) => s.status === "active").map((seq) => (
+                          <SelectItem key={seq.id} value={seq.id}>
+                            <div className="flex items-center gap-2">
+                              <Zap className="w-3 h-3" />
+                              {seq.name} ({seq.steps.length} steps)
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button size="sm" onClick={handleEnroll} disabled={!enrollSequenceId || enrollSubscriber.isPending}>
+                      {enrollSubscriber.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Enroll"}
+                    </Button>
+                  </div>
+                )}
+              </div>
             </TabsContent>
           </Tabs>
         </SheetContent>
@@ -363,11 +398,7 @@ export function SubscriberDetailSheet({ subscriber, open, onOpenChange, onDelete
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              disabled={deleteSubscriber.isPending}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
+            <AlertDialogAction onClick={handleDelete} disabled={deleteSubscriber.isPending} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               {deleteSubscriber.isPending && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
               Remove
             </AlertDialogAction>
