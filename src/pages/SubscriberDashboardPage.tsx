@@ -32,6 +32,7 @@ export default function SubscriberDashboardPage() {
   const { data: analytics, isLoading } = useSubscriberAnalytics();
   const { data: notifications = [] } = useSubscriberVideoNotifications();
   const { data: guides = [] } = useSubscriberGuides();
+  const navigate = useNavigate();
 
   if (isLoading || !analytics) {
     return (
