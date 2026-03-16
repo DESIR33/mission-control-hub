@@ -198,7 +198,7 @@ function GuideForm({ guide, videos, companies, onSubmit, isPending, onCancel, su
 
       <div className="space-y-1.5">
         <Label>Status</Label>
-        <Select name="status" defaultValue={guide?.status ?? "active"}>
+        <Select value={status} onValueChange={setStatus}>
           <SelectTrigger className="bg-secondary border-border"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="active">Active</SelectItem>
