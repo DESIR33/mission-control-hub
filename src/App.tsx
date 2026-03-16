@@ -46,6 +46,10 @@ const AIHubPage = lazy(() => import("./pages/AIHubPage"));
 const ProposalDetailPage = lazy(() => import("./pages/ProposalDetailPage"));
 const TrendScannerPage = lazy(() => import("./pages/TrendScannerPage"));
 const ExpenseTrackerPage = lazy(() => import("./pages/ExpenseTrackerPage"));
+const SubscriberProfilePage = lazy(() => import("./pages/SubscriberProfilePage"));
+const SubscriberGuidesPage = lazy(() => import("./pages/SubscriberGuidesPage"));
+const SubscriberSequencesPage = lazy(() => import("./pages/SubscriberSequencesPage"));
+const SubscriberDashboardPage = lazy(() => import("./pages/SubscriberDashboardPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -154,6 +158,12 @@ const App = () => (
               <Route path="/relationships/contacts/:contactId" element={<LazyPage section="Contact Profile"><ContactProfilePage /></LazyPage>} />
               <Route path="/contacts/:contactId" element={<LazyPage section="Contact Profile"><ContactProfilePage /></LazyPage>} />
               <Route path="/contacts/:contactId/edit" element={<LazyPage section="Edit Contact"><EditContactPage /></LazyPage>} />
+
+              {/* Subscribers */}
+              <Route path="/subscribers/dashboard" element={<LazyPage section="Subscriber Dashboard"><SubscriberDashboardPage /></LazyPage>} />
+              <Route path="/subscribers/guides" element={<LazyPage section="Subscriber Guides"><SubscriberGuidesPage /></LazyPage>} />
+              <Route path="/subscribers/sequences" element={<LazyPage section="Subscriber Sequences"><SubscriberSequencesPage /></LazyPage>} />
+              <Route path="/subscribers/:subscriberId" element={<LazyPage section="Subscriber Profile"><SubscriberProfilePage /></LazyPage>} />
 
               {/* Reports */}
               <Route path="/reports" element={<Navigate to="/reports/weekly" replace />} />
