@@ -40,7 +40,12 @@ export default function SubscribersListPage() {
           subscribers={subscribers}
           onSelectSubscriber={handleSelectSubscriber}
           selectedId={selectedSubscriber?.id}
-          addButton={<AddSubscriberDialog />}
+          addButton={
+            <div className="flex items-center gap-2">
+              <ImportSubscribersDialog />
+              <AddSubscriberDialog />
+            </div>
+          }
         />
       )}
 
