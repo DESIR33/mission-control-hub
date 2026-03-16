@@ -229,6 +229,7 @@ export function SubscribersTable({ subscribers, onSelectSubscriber, selectedId, 
               <TableHead className="text-muted-foreground font-semibold">Status</TableHead>
               <TableHead className="text-muted-foreground font-semibold">Source</TableHead>
               <TableHead className="text-muted-foreground font-semibold">Guide</TableHead>
+              <TableHead className="text-muted-foreground font-semibold">Referrer</TableHead>
               <TableHead className="text-muted-foreground font-semibold">Engagement</TableHead>
               <TableHead className="text-muted-foreground font-semibold">Subscribed</TableHead>
             </TableRow>
