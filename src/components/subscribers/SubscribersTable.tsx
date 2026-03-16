@@ -229,6 +229,7 @@ export function SubscribersTable({ subscribers, onSelectSubscriber, selectedId, 
               <TableHead className="text-muted-foreground font-semibold">Status</TableHead>
               <TableHead className="text-muted-foreground font-semibold">Source</TableHead>
               <TableHead className="text-muted-foreground font-semibold">Guide</TableHead>
+              <TableHead className="text-muted-foreground font-semibold">Referrer</TableHead>
               <TableHead className="text-muted-foreground font-semibold">Engagement</TableHead>
               <TableHead className="text-muted-foreground font-semibold">Subscribed</TableHead>
             </TableRow>
@@ -236,7 +237,7 @@ export function SubscribersTable({ subscribers, onSelectSubscriber, selectedId, 
           <TableBody>
             {filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-12 text-muted-foreground">
+                <TableCell colSpan={9} className="text-center py-12 text-muted-foreground">
                   No subscribers found
                 </TableCell>
               </TableRow>
@@ -299,6 +300,17 @@ export function SubscribersTable({ subscribers, onSelectSubscriber, selectedId, 
                       <span className="text-sm text-foreground flex items-center gap-1">
                         <BookOpen className="w-3.5 h-3.5 text-muted-foreground" />
                         {sub.guide_requested}
+                      </span>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {sub.referrer ? (
+                      <span className="text-sm text-foreground truncate max-w-[180px] block" title={sub.referrer}>
+                        {(() => {
+                          try { return new URL(sub.referrer).hostname; } catch { return sub.referrer; }
+                        })()}
                       </span>
                     ) : (
                       <span className="text-sm text-muted-foreground">—</span>
