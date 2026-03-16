@@ -1,157 +1,65 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { corsHeaders, corsResponse, jsonResponse, errorResponse } from "../_shared/cors.ts";
+import { getSupabaseAdmin } from "../_shared/supabase-admin.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
+import {
+  queryYoutubeStats,
+  queryCrmData,
+  queryRevenueData,
+  queryComments,
+  queryGrowthGoals,
+  queryContentPipeline as queryContentPipelineBase,
+  queryAllVideoAnalytics as queryAllVideoAnalyticsBase,
+  createProposal,
+  getEmbedding,
+  memorySearch,
+  saveInsight,
+} from "../_shared/data-queries.ts";
 
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 const DEFAULT_MODEL = "minimax/minimax-m2.5";
 
-function getSupabaseAdmin() {
-  return createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-  );
-}
-
-// ── Embedding with graceful fallback ─────────────────────────
-
-async function getEmbedding(text: string): Promise<number[] | null> {
-  const key = Deno.env.get("OPENAI_API_KEY");
-  if (!key) return null;
-  try {
-    const res = await fetch("https://api.openai.com/v1/embeddings", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${key}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ model: "text-embedding-3-small", input: text }),
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data.data[0].embedding;
-  } catch { return null; }
-}
-
-// ── Data-query tool handlers ─────────────────────────────────
-
-async function queryYoutubeStats(supabase: any, workspaceId: string, input: any) {
-  const [channelRes, videosRes] = await Promise.all([
-    supabase
-      .from("youtube_channel_stats")
-      .select("subscriber_count, video_count, total_view_count, fetched_at")
-      .eq("workspace_id", workspaceId)
-      .order("fetched_at", { ascending: false })
-      .limit(5),
-    supabase
-      .from("youtube_video_stats")
-      .select("title, views, likes, comments, ctr_percent, avg_view_duration_seconds, published_at")
-      .eq("workspace_id", workspaceId)
-      .order(input?.sort_by || "views", { ascending: false })
-      .limit(input?.limit || 20),
-  ]);
-  return { channel_stats: channelRes.data ?? [], recent_videos: videosRes.data ?? [] };
-}
+// ── Agent-orchestrator-specific query extensions ─────────────
+// These extend the shared versions with extra data the orchestrator needs.
 
 async function queryCompetitors(supabase: any, workspaceId: string) {
   const [channelsRes, historyRes] = await Promise.all([
-    supabase.from("competitor_channels").select("*").eq("workspace_id", workspaceId),
-    supabase.from("competitor_stats_history").select("*")
+    supabase.from("competitor_channels").select("id, channel_name, channel_id, subscriber_count, video_count, total_views")
+      .eq("workspace_id", workspaceId),
+    supabase.from("competitor_stats_history").select("channel_id, subscriber_count, video_count, total_views, recorded_at")
       .eq("workspace_id", workspaceId).order("recorded_at", { ascending: false }).limit(50),
   ]);
   return { competitors: channelsRes.data ?? [], stats_history: historyRes.data ?? [] };
 }
 
 async function queryContentPipeline(supabase: any, workspaceId: string) {
-  const [queueRes, suggestionsRes] = await Promise.all([
-    supabase.from("video_queue")
-      .select("id, title, status, priority, scheduled_date, platform, content_type")
-      .eq("workspace_id", workspaceId).order("created_at", { ascending: false }).limit(30),
-    supabase.from("ai_content_suggestions").select("*")
+  const [baseResult, suggestionsRes] = await Promise.all([
+    queryContentPipelineBase(supabase, workspaceId),
+    supabase.from("ai_content_suggestions").select("id, title, topic, expected_views_low, expected_views_high, status")
       .eq("workspace_id", workspaceId).eq("status", "suggestion").order("created_at", { ascending: false }).limit(10),
   ]);
-  return { video_queue: queueRes.data ?? [], ai_suggestions: suggestionsRes.data ?? [] };
-}
-
-async function queryCrmData(supabase: any, workspaceId: string) {
-  const [contactsRes, dealsRes, companiesRes] = await Promise.all([
-    supabase.from("contacts").select("id, first_name, last_name, email, status, last_contact_date")
-      .eq("workspace_id", workspaceId).is("deleted_at", null).limit(50),
-    supabase.from("deals").select("id, title, value, stage, expected_close_date, contact_id, company_id, updated_at")
-      .eq("workspace_id", workspaceId).is("deleted_at", null),
-    supabase.from("companies").select("id, name, industry").eq("workspace_id", workspaceId).is("deleted_at", null).limit(30),
-  ]);
-  return { contacts: contactsRes.data ?? [], deals: dealsRes.data ?? [], companies: companiesRes.data ?? [] };
-}
-
-async function queryRevenueData(supabase: any, workspaceId: string) {
-  const [dealsRes, affiliatesRes, transactionsRes, rateCardsRes] = await Promise.all([
-    supabase.from("deals").select("id, title, value, stage, expected_close_date, updated_at")
-      .eq("workspace_id", workspaceId).is("deleted_at", null),
-    supabase.from("affiliate_programs").select("*").eq("workspace_id", workspaceId).limit(20),
-    supabase.from("revenue_transactions").select("amount, type, status, source, product_name, created_at")
-      .eq("workspace_id", workspaceId).order("created_at", { ascending: false }).limit(50),
-    supabase.from("rate_cards").select("*").eq("workspace_id", workspaceId).limit(5),
-  ]);
-  return { deals: dealsRes.data ?? [], affiliate_programs: affiliatesRes.data ?? [], recent_transactions: transactionsRes.data ?? [], rate_cards: rateCardsRes.data ?? [] };
-}
-
-async function queryComments(supabase: any, workspaceId: string, input: any) {
-  const [commentsRes, leadCommentsRes] = await Promise.all([
-    supabase.from("youtube_comments").select("video_id, author_name, text, like_count, published_at")
-      .eq("workspace_id", workspaceId).order("published_at", { ascending: false }).limit(input?.limit || 100),
-    supabase.from("youtube_lead_comments").select("*")
-      .eq("workspace_id", workspaceId).eq("processed", false).limit(30),
-  ]);
-  return { comments: commentsRes.data ?? [], lead_comments: leadCommentsRes.data ?? [] };
-}
-
-async function queryGrowthGoals(supabase: any, workspaceId: string) {
-  const { data } = await supabase.from("growth_goals").select("*")
-    .eq("workspace_id", workspaceId).eq("status", "active").limit(5);
-  return { growth_goals: data ?? [] };
+  return { ...baseResult, ai_suggestions: suggestionsRes.data ?? [] };
 }
 
 async function queryAllVideoAnalytics(supabase: any, workspaceId: string, input: any) {
   const sortBy = input?.sort_by || "views";
-  const [analyticsRes, statsRes] = await Promise.all([
+  const [analyticsRes, baseResult] = await Promise.all([
     supabase.from("youtube_video_analytics")
       .select("video_id, title, views, estimated_minutes_watched, average_view_duration, impressions, impressions_click_through_rate, likes, comments")
       .eq("workspace_id", workspaceId)
       .order(sortBy === "ctr_percent" ? "impressions_click_through_rate" : sortBy === "watch_time_hours" ? "estimated_minutes_watched" : sortBy, { ascending: false })
       .limit(500),
-    supabase.from("youtube_video_stats")
-      .select("video_id, title, views, likes, comments, ctr_percent, avg_view_duration_seconds, published_at, thumbnail_url, description, tags")
-      .eq("workspace_id", workspaceId).order("views", { ascending: false }).limit(500),
+    queryAllVideoAnalyticsBase(supabase, workspaceId, input),
   ]);
-
-  const analytics = analyticsRes.data ?? [];
-  const stats = statsRes.data ?? [];
-  const viewCounts = stats.map((v: any) => v.views).sort((a: number, b: number) => a - b);
-  const getPercentile = (views: number) => {
-    const idx = viewCounts.findIndex((v: number) => v >= views);
-    return idx >= 0 ? Math.round((idx / viewCounts.length) * 100) : 100;
-  };
-
-  return {
-    video_analytics: analytics,
-    video_stats: stats.map((v: any) => ({ ...v, percentile: getPercentile(v.views) })),
-    total_videos: stats.length,
-    avg_views: stats.length > 0 ? Math.round(viewCounts.reduce((a: number, b: number) => a + b, 0) / stats.length) : 0,
-  };
+  return { video_analytics: analyticsRes.data ?? [], ...baseResult };
 }
 
 async function queryExperiments(supabase: any, workspaceId: string, input: any) {
-  let query = supabase.from("video_optimization_experiments").select("*")
+  let query = supabase.from("video_optimization_experiments").select("id, video_title, experiment_type, status, baseline_ctr, result_ctr, baseline_views, result_views, lesson_learned, created_at")
     .eq("workspace_id", workspaceId).order("created_at", { ascending: false }).limit(input?.limit || 20);
   if (input?.status && input.status !== "all") query = query.eq("status", input.status);
   const { data, error } = await query;
   if (error) return { error: error.message };
 
-  // Include lessons learned as feedback for agent context
   const lessons = (data ?? [])
     .filter((e: any) => e.lesson_learned)
     .map((e: any) => ({
@@ -174,85 +82,6 @@ async function queryExperiments(supabase: any, workspaceId: string, input: any) 
       ? `Based on ${lessons.length} past experiments: ${lessons.map((l: any) => l.lesson).join("; ")}`
       : "No experiment feedback available yet.",
   };
-}
-
-async function createProposal(supabase: any, workspaceId: string, input: any) {
-  const VALID_ENTITY_TYPES = ["contact", "deal", "company", "video"];
-  const VALID_PROPOSAL_TYPES = [
-    "enrichment", "outreach", "deal_update", "score_update", "tag_suggestion",
-    "video_title_optimization", "video_description_optimization",
-    "video_tags_optimization", "video_thumbnail_optimization",
-  ];
-  const rawEntityType = input.entity_type || "company";
-  const rawProposalType = input.proposal_type || "tag_suggestion";
-  const isContentSuggestion = rawProposalType === "content_suggestion";
-  const isVideoOptimization = rawProposalType.startsWith("video_");
-  const dbEntityType = VALID_ENTITY_TYPES.includes(rawEntityType) ? rawEntityType : "company";
-  const dbProposalType = VALID_PROPOSAL_TYPES.includes(rawProposalType) ? rawProposalType : "tag_suggestion";
-  const proposedChanges = {
-    ...(input.proposed_changes || {}),
-    ...(isContentSuggestion ? { _actual_proposal_type: "content_suggestion" } : {}),
-    ...(rawEntityType !== dbEntityType ? { _actual_entity_type: rawEntityType } : {}),
-  };
-  const PLACEHOLDER_ID = "00000000-0000-0000-0000-000000000000";
-  const entityId = (isContentSuggestion || isVideoOptimization) ? (input.entity_id || PLACEHOLDER_ID) : (input.entity_id || workspaceId);
-
-  const insertData: Record<string, unknown> = {
-    workspace_id: workspaceId,
-    entity_type: isVideoOptimization ? "video" : dbEntityType,
-    entity_id: entityId,
-    proposal_type: isVideoOptimization ? rawProposalType : dbProposalType,
-    title: input.title || "Agent Suggestion",
-    summary: input.summary || null,
-    proposed_changes: proposedChanges,
-    confidence: input.confidence || 0.7,
-    status: "pending",
-  };
-  if (isVideoOptimization) {
-    if (input.video_id) insertData.video_id = input.video_id;
-    if (input.optimization_proof) insertData.optimization_proof = input.optimization_proof;
-    if (input.thumbnail_prompts) insertData.thumbnail_prompts = input.thumbnail_prompts;
-    if (rawProposalType === "video_thumbnail_optimization") insertData.requires_thumbnail_generation = true;
-  }
-  const { data: inserted, error } = await supabase.from("ai_proposals").insert(insertData).select("id").single();
-  if (error) return { success: false, error: error.message };
-  return { success: true, title: input.title, proposal_id: inserted?.id };
-}
-
-async function saveInsight(supabase: any, workspaceId: string, input: any) {
-  try {
-    const embedding = await getEmbedding(input.content);
-    const insertData: any = {
-      workspace_id: workspaceId,
-      content: input.content,
-      origin: "strategy",
-      tags: input.tags || [],
-    };
-    if (embedding) insertData.embedding = `[${embedding.join(",")}]`;
-    const { error } = await supabase.from("assistant_memory").insert(insertData);
-    if (error) return { error: error.message };
-    return { success: true };
-  } catch (e: any) {
-    return { error: e.message };
-  }
-}
-
-async function memorySearch(supabase: any, workspaceId: string, input: any) {
-  try {
-    const embedding = await getEmbedding(input.query);
-    const embeddingStr = embedding ? `[${embedding.join(",")}]` : "";
-    const { data, error } = await supabase.rpc("hybrid_memory_search", {
-      query_embedding: embeddingStr,
-      query_text: input.query,
-      ws_id: workspaceId,
-      origin_filter: input.origin_filter || "any",
-      match_count: 5,
-    });
-    if (error) return { error: error.message };
-    return { results: data || [] };
-  } catch (e: any) {
-    return { results: [], error: e.message };
-  }
 }
 
 // ── Core tool definitions ────────────────────────────────────
@@ -467,25 +296,19 @@ Respond with ONLY the slug, nothing else.`,
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return corsResponse();
   }
 
   try {
     const { workspace_id, agent_slug, skill_slug, input, trigger_type, model: requestModel } = await req.json();
 
     if (!workspace_id) {
-      return new Response(
-        JSON.stringify({ error: "Missing workspace_id" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return jsonResponse({ error: "Missing workspace_id" }, 400);
     }
 
     const openrouterKey = Deno.env.get("OPENROUTER_API_KEY");
     if (!openrouterKey) {
-      return new Response(
-        JSON.stringify({ error: "OPENROUTER_API_KEY not configured" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return jsonResponse({ error: "OPENROUTER_API_KEY not configured" }, 500);
     }
 
     const supabase = getSupabaseAdmin();
@@ -508,10 +331,7 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (!agentDef) {
-      return new Response(
-        JSON.stringify({ error: `Agent not found: ${resolvedSlug}` }),
-        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return jsonResponse({ error: `Agent not found: ${resolvedSlug}` }, 404);
     }
 
     // Create execution log
@@ -676,19 +496,16 @@ Today's date: ${today}${goalContext}${soulContext}${userProfileContext}${instruc
           .eq("id", executionId);
       }
 
-      return new Response(
-        JSON.stringify({
-          success: true,
-          agent: resolvedSlug,
-          agent_name: agentDef.name,
-          response: finalResponse,
-          tools_called: toolCallsMade,
-          proposals_created: proposalsCreated,
-          duration_ms: durationMs,
-          execution_id: executionId,
-        }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return jsonResponse({
+        success: true,
+        agent: resolvedSlug,
+        agent_name: agentDef.name,
+        response: finalResponse,
+        tools_called: toolCallsMade,
+        proposals_created: proposalsCreated,
+        duration_ms: durationMs,
+        execution_id: executionId,
+      });
     } catch (err: any) {
       if (executionId) {
         await supabase.from("agent_executions")
@@ -704,9 +521,6 @@ Today's date: ${today}${goalContext}${soulContext}${userProfileContext}${instruc
     }
   } catch (error: any) {
     console.error("Agent orchestrator error:", error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return errorResponse(error, 500);
   }
 });

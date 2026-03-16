@@ -58,6 +58,7 @@ export function useDeals() {
       }));
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 

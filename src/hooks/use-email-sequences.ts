@@ -40,13 +40,14 @@ export function useEmailSequences() {
     queryFn: async (): Promise<EmailSequence[]> => {
       const { data, error } = await supabase
         .from("email_sequences" as any)
-        .select("*")
+        .select("id, workspace_id, name, description, steps, status, created_at, updated_at")
         .eq("workspace_id", workspaceId!)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as unknown as EmailSequence[];
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 
@@ -104,15 +105,17 @@ export function useSequenceEnrollments(sequenceId?: string) {
     queryFn: async (): Promise<SequenceEnrollment[]> => {
       let query = supabase
         .from("email_sequence_enrollments" as any)
-        .select("*")
+        .select("id, workspace_id, sequence_id, contact_id, deal_id, current_step, status, enrolled_at, next_send_at, completed_at")
         .eq("workspace_id", workspaceId!)
-        .order("enrolled_at", { ascending: false });
+        .order("enrolled_at", { ascending: false })
+        .limit(200);
       if (sequenceId) query = query.eq("sequence_id", sequenceId);
       const { data, error } = await query;
       if (error) throw error;
       return (data ?? []) as unknown as SequenceEnrollment[];
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 
@@ -165,12 +168,14 @@ export function useSequenceSendLog(sequenceId?: string) {
         .from("sequence_send_log" as any)
         .select("*")
         .eq("workspace_id", workspaceId!)
-        .order("sent_at", { ascending: false });
+        .order("sent_at", { ascending: false })
+        .limit(200);
       if (sequenceId) query = query.eq("sequence_id", sequenceId);
       const { data, error } = await query;
       if (error) throw error;
       return (data ?? []) as any[];
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }

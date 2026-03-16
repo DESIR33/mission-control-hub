@@ -16,7 +16,8 @@ export function useCompanies() {
         .select("*, contacts(id, first_name, last_name, email, role, status)")
         .eq("workspace_id", workspaceId)
         .is("deleted_at", null)
-        .order("updated_at", { ascending: false });
+        .order("updated_at", { ascending: false })
+        .limit(500);
 
       if (error) throw error;
 
@@ -30,6 +31,7 @@ export function useCompanies() {
       }));
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 
@@ -169,6 +171,7 @@ export function useCompanyContacts(companyId: string | null) {
       }));
     },
     enabled: !!workspaceId && !!companyId,
+    staleTime: 120_000,
   });
 }
 

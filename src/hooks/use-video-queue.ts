@@ -99,13 +99,14 @@ export function useVideoQueue() {
     queryFn: async (): Promise<VideoQueueItem[]> => {
       const { data, error } = await supabase
         .from("video_queue")
-        .select("*")
+        .select("id, title, description, status, priority, scheduled_date, notes, metadata, created_by, created_at, updated_at, workspace_id")
         .eq("workspace_id", workspaceId!)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data ?? []).map(mapRow);
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 
@@ -116,7 +117,7 @@ export function useVideoQueueItem(id: number | string | null) {
     queryFn: async (): Promise<VideoQueueItem | null> => {
       const { data, error } = await supabase
         .from("video_queue")
-        .select("*")
+        .select("id, title, description, status, priority, scheduled_date, notes, metadata, created_by, created_at, updated_at, workspace_id")
         .eq("id", String(id))
         .single();
       if (error) throw error;

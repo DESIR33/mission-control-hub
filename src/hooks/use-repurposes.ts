@@ -24,7 +24,7 @@ export function useRepurposes(sourceVideoId?: number | string) {
     queryFn: async (): Promise<ContentRepurpose[]> => {
       let query = supabase
         .from("content_repurposes" as any)
-        .select("*")
+        .select("id, workspace_id, source_video_id, platform, format, title, status, published_url, published_at, notes, created_at, updated_at")
         .eq("workspace_id", workspaceId!)
         .order("created_at", { ascending: false });
       if (sourceVideoId) query = query.eq("source_video_id", String(sourceVideoId));
@@ -33,6 +33,7 @@ export function useRepurposes(sourceVideoId?: number | string) {
       return (data ?? []) as unknown as ContentRepurpose[];
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 

@@ -30,13 +30,15 @@ export function useNotifications() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("notifications")
-        .select("*")
+        .select("id, workspace_id, type, title, body, entity_type, entity_id, read_at, created_at")
         .eq("workspace_id", workspaceId!)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(100);
       if (error) throw error;
       return (data ?? []) as Notification[];
     },
     enabled: !!workspaceId,
+    staleTime: 60_000,
   });
 
   const unreadCount = notifications.filter((n) => !n.read_at).length;

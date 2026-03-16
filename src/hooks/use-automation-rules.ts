@@ -19,13 +19,14 @@ export function useAutomationRules() {
     queryFn: async (): Promise<AutomationRule[]> => {
       const { data, error } = await supabase
         .from("automation_rules" as any)
-        .select("*")
+        .select("id, workspace_id, rule_type, config, enabled, created_at, updated_at")
         .eq("workspace_id", workspaceId!)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as unknown as AutomationRule[];
     },
     enabled: !!workspaceId,
+    staleTime: 300_000,
   });
 }
 

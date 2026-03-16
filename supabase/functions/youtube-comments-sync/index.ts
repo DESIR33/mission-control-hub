@@ -1,44 +1,28 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeaders, corsResponse, jsonResponse, errorResponse } from "../_shared/cors.ts";
+import { getSupabaseAdmin, getIntegrationConfig } from "../_shared/supabase-admin.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return corsResponse();
   }
 
   try {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("Missing authorization header");
 
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-    );
+    const supabase = getSupabaseAdmin();
 
     const { workspace_id } = await req.json();
     if (!workspace_id) throw new Error("Missing workspace_id");
 
     // Get YouTube API key from integrations
-    const { data: integration } = await supabase
-      .from("workspace_integrations")
-      .select("config")
-      .eq("workspace_id", workspace_id)
-      .eq("integration_key", "youtube")
-      .eq("enabled", true)
-      .single();
+    const config = await getIntegrationConfig(supabase, workspace_id, "youtube");
 
-    if (!integration?.config?.api_key) {
-      return new Response(
-        JSON.stringify({ success: true, synced: 0, message: "YouTube API not configured" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    if (!config?.api_key) {
+      return jsonResponse({ success: true, synced: 0, message: "YouTube API not configured" });
     }
 
-    const apiKey = integration.config.api_key;
+    const apiKey = config.api_key;
 
     // Get recent videos
     const { data: videos } = await supabase
@@ -49,10 +33,7 @@ Deno.serve(async (req) => {
       .limit(10);
 
     if (!videos?.length) {
-      return new Response(
-        JSON.stringify({ success: true, synced: 0, message: "No videos found" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return jsonResponse({ success: true, synced: 0, message: "No videos found" });
     }
 
     let totalSynced = 0;
@@ -66,6 +47,26 @@ Deno.serve(async (req) => {
 
         const data = await res.json();
         const items = data.items || [];
+        if (!items.length) continue;
+
+        // Collect all comment IDs for this video to batch-check existing ones
+        const commentIds = items
+          .map((item: any) => item.snippet?.topLevelComment?.id)
+          .filter(Boolean);
+
+        // Single query to find all existing comments instead of per-comment lookups
+        const { data: existingComments } = await supabase
+          .from("youtube_comments")
+          .select("id, youtube_comment_id, status")
+          .eq("workspace_id", workspace_id)
+          .in("youtube_comment_id", commentIds);
+
+        const existingMap = new Map(
+          (existingComments ?? []).map((c: any) => [c.youtube_comment_id, c])
+        );
+
+        const toInsert: any[] = [];
+        const toUpdate: { id: string; like_count: number; reply_count: number; synced_at: string }[] = [];
 
         for (const item of items) {
           const snippet = item.snippet?.topLevelComment?.snippet;
@@ -82,60 +83,58 @@ Deno.serve(async (req) => {
             sentiment = "negative";
           }
 
-          const commentData = {
-            workspace_id,
-            youtube_comment_id: item.snippet.topLevelComment.id,
-            youtube_video_id: video.youtube_video_id,
-            video_title: video.title,
-            author_name: snippet.authorDisplayName || "Unknown",
-            author_channel_url: snippet.authorChannelUrl || null,
-            author_avatar_url: snippet.authorProfileImageUrl || null,
-            text_display: snippet.textDisplay || "",
-            like_count: snippet.likeCount || 0,
-            reply_count: item.snippet.totalReplyCount || 0,
-            is_pinned: false,
-            is_hearted: false,
-            sentiment,
-            published_at: snippet.publishedAt,
-            synced_at: new Date().toISOString(),
-          };
-
-          // Upsert — update if exists, insert if new
-          const { data: existing } = await supabase
-            .from("youtube_comments")
-            .select("id, status")
-            .eq("workspace_id", workspace_id)
-            .eq("youtube_comment_id", commentData.youtube_comment_id)
-            .maybeSingle();
+          const ytCommentId = item.snippet.topLevelComment.id;
+          const now = new Date().toISOString();
+          const existing = existingMap.get(ytCommentId);
 
           if (existing) {
-            // Update stats but keep existing status
-            await supabase
-              .from("youtube_comments")
-              .update({
-                like_count: commentData.like_count,
-                reply_count: commentData.reply_count,
-                synced_at: commentData.synced_at,
-              })
-              .eq("id", existing.id);
+            toUpdate.push({
+              id: existing.id,
+              like_count: snippet.likeCount || 0,
+              reply_count: item.snippet.totalReplyCount || 0,
+              synced_at: now,
+            });
           } else {
-            await supabase.from("youtube_comments").insert(commentData);
-            totalSynced++;
+            toInsert.push({
+              workspace_id,
+              youtube_comment_id: ytCommentId,
+              youtube_video_id: video.youtube_video_id,
+              video_title: video.title,
+              author_name: snippet.authorDisplayName || "Unknown",
+              author_channel_url: snippet.authorChannelUrl || null,
+              author_avatar_url: snippet.authorProfileImageUrl || null,
+              text_display: snippet.textDisplay || "",
+              like_count: snippet.likeCount || 0,
+              reply_count: item.snippet.totalReplyCount || 0,
+              is_pinned: false,
+              is_hearted: false,
+              sentiment,
+              published_at: snippet.publishedAt,
+              synced_at: now,
+            });
           }
+        }
+
+        // Batch insert new comments
+        if (toInsert.length > 0) {
+          await supabase.from("youtube_comments").insert(toInsert);
+          totalSynced += toInsert.length;
+        }
+
+        // Batch update existing comments
+        for (const u of toUpdate) {
+          await supabase
+            .from("youtube_comments")
+            .update({ like_count: u.like_count, reply_count: u.reply_count, synced_at: u.synced_at })
+            .eq("id", u.id);
         }
       } catch {
         // Continue to next video on error
       }
     }
 
-    return new Response(
-      JSON.stringify({ success: true, synced: totalSynced }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return jsonResponse({ success: true, synced: totalSynced });
   } catch (error: unknown) {
-    return new Response(
-      JSON.stringify({ success: false, error: error instanceof Error ? error.message : String(error) }),
-      { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return errorResponse(error);
   }
 });
