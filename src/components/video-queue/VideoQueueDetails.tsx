@@ -52,12 +52,7 @@ import { useYouTubeVideoStats } from "@/hooks/use-youtube-analytics";
 import { useRepurposes, useCreateRepurpose, useUpdateRepurpose, useDeleteRepurpose } from "@/hooks/use-repurposes";
 import { useAbTests, useCreateAbTest } from "@/hooks/use-ab-tests";
 import { parseSRT, parseRetentionCSV } from "@/lib/srt-parser";
-import {
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine,
-} from "recharts";
-import {
-  chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, lineDefaults,
-} from "@/lib/chart-theme";
+import { BudgetCard } from "@/components/ui/analytics-bento";
 
 type Tab = "overview" | "script" | "retention" | "repurpose" | "ab-tests" | "youtube";
 
@@ -512,31 +507,7 @@ export function VideoQueueDetails({ video, onClose, onUpdate }: VideoQueueDetail
             </div>
             {retentionChartData.length > 0 ? (
               <div>
-                <ResponsiveContainer width="100%" height={220}>
-                  <AreaChart
-                    data={retentionChartData}
-                    margin={{ top: 8, right: 8, bottom: 0, left: -12 }}
-                    onMouseMove={(e: any) => {
-                      if (e?.activePayload?.[0]) setHoveredSecond(e.activePayload[0].payload.elapsed_seconds);
-                    }}
-                    onMouseLeave={() => setHoveredSecond(null)}
-                  >
-                    <defs>
-                      <linearGradient id="retGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.25} />
-                        <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid {...cartesianGridDefaults} />
-                    <XAxis {...xAxisDefaults} dataKey="elapsed_seconds" tickFormatter={(s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`} />
-                    <YAxis {...yAxisDefaults} domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
-                    <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => [`${v.toFixed(1)}%`, "Retention"]} labelFormatter={(s) => `${Math.floor(Number(s) / 60)}:${String(Number(s) % 60).padStart(2, "0")}`} />
-                    <Area type="monotone" dataKey="retention_percent" stroke="hsl(var(--primary))" {...lineDefaults} fill="url(#retGrad)" />
-                    {retentionChartData.filter((p) => p.isDropoff).map((p) => (
-                      <ReferenceLine key={p.elapsed_seconds} x={p.elapsed_seconds} stroke="hsl(var(--destructive))" strokeDasharray="3 3" strokeOpacity={0.6} />
-                    ))}
-                  </AreaChart>
-                </ResponsiveContainer>
+                <BudgetCard />
                 {hoveredSegment && (
                   <div className="mt-2 rounded-lg bg-primary/5 border border-primary/20 p-2">
                     <p className="text-xs text-primary font-medium">At {Math.floor(hoveredSegment.startSeconds / 60)}:{String(Math.floor(hoveredSegment.startSeconds % 60)).padStart(2, "0")}:</p>

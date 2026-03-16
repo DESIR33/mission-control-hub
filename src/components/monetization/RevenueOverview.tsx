@@ -2,12 +2,12 @@ import {
   DollarSign, TrendingUp, BarChart3, Users, Film,
 } from "lucide-react";
 import {
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, PieChart, Pie, Cell,
+  Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
 } from "recharts";
+import { BudgetCard } from "@/components/ui/analytics-bento";
 import { useUnifiedRevenue } from "@/hooks/use-unified-revenue";
 import {
-  chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, pieDefaults, lineDefaults,
+  chartTooltipStyle, pieDefaults,
 } from "@/lib/chart-theme";
 
 const COLORS = { sponsors: "hsl(var(--chart-1))", affiliates: "hsl(var(--chart-2))", adSense: "hsl(var(--chart-3))" };
@@ -82,17 +82,7 @@ export function RevenueOverview() {
       {/* Stacked Area Chart */}
       <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-foreground mb-3">Revenue by Source</h3>
-        <ResponsiveContainer width="100%" height={250}>
-          <AreaChart data={revenue.monthly} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
-            <CartesianGrid {...cartesianGridDefaults} />
-            <XAxis {...xAxisDefaults} dataKey="month" />
-            <YAxis {...yAxisDefaults} tickFormatter={(v) => `$${v}`} />
-            <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => fmtDollar(v)} />
-            <Area type="monotone" dataKey="sponsors" stackId="1" stroke={COLORS.sponsors} fill={COLORS.sponsors} fillOpacity={0.6} name="Sponsors" strokeWidth={2.5} dot={false} activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }} />
-            <Area type="monotone" dataKey="affiliates" stackId="1" stroke={COLORS.affiliates} fill={COLORS.affiliates} fillOpacity={0.6} name="Affiliates" strokeWidth={2.5} dot={false} activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }} />
-            <Area type="monotone" dataKey="adSense" stackId="1" stroke={COLORS.adSense} fill={COLORS.adSense} fillOpacity={0.6} name="AdSense" strokeWidth={2.5} dot={false} activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }} />
-          </AreaChart>
-        </ResponsiveContainer>
+        <BudgetCard />
       </div>
 
       {/* Breakdown + Projected */}

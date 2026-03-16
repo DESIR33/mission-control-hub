@@ -2,9 +2,10 @@ import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
 import {
-  BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, ReferenceLine, Cell, Legend,
 } from "recharts";
+import { BudgetCard } from "@/components/ui/analytics-bento";
 import {
   TrendingUp, TrendingDown, DollarSign, Percent, Target, Download,
   ArrowUpRight, ArrowDownRight, Scale,
@@ -280,18 +281,7 @@ export function ProfitTracker() {
           className="rounded-xl border border-border bg-card p-5"
         >
           <h3 className="text-sm font-semibold mb-4">Profit Margin %</h3>
-          <div className="h-[240px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={filtered}>
-                <CartesianGrid {...cartesianGridDefaults} />
-                <XAxis dataKey="month" {...xAxisDefaults} />
-                <YAxis {...yAxisDefaults} tickFormatter={(v) => `${v}%`} />
-                <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => [`${v.toFixed(1)}%`, "Margin"]} />
-                <ReferenceLine y={0} stroke="hsl(var(--muted-foreground))" strokeDasharray="3 3" />
-                <Line type="monotone" dataKey="margin" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 3 }} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
+          <BudgetCard />
         </motion.div>
       </div>
 
@@ -303,18 +293,7 @@ export function ProfitTracker() {
         className="rounded-xl border border-border bg-card p-5"
       >
         <h3 className="text-sm font-semibold mb-4">Cumulative Profit (Break-even Analysis)</h3>
-        <div className="h-[260px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={filtered}>
-              <CartesianGrid {...cartesianGridDefaults} />
-              <XAxis dataKey="month" {...xAxisDefaults} />
-              <YAxis {...yAxisDefaults} tickFormatter={(v) => `$${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`} />
-              <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => [fmtMoney(v), "Cumulative"]} />
-              <ReferenceLine y={0} stroke="hsl(var(--destructive))" strokeDasharray="4 4" label={{ value: "Break-even", position: "right", fill: "hsl(var(--muted-foreground))", fontSize: 11 }} />
-              <Line type="monotone" dataKey="cumProfit" stroke="hsl(var(--chart-1))" strokeWidth={2.5} dot={{ r: 3 }} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+        <BudgetCard />
       </motion.div>
 
       {/* P&L Table */}

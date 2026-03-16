@@ -2,10 +2,11 @@ import {
   Users, TrendingUp, Calendar, Target, ArrowUpRight, ArrowDownRight,
 } from "lucide-react";
 import {
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, BarChart, Bar, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer, BarChart, Bar,
 } from "recharts";
 import { Badge } from "@/components/ui/badge";
+import { BudgetCard } from "@/components/ui/analytics-bento";
 import { useCohortAnalysis } from "@/hooks/use-cohort-analysis";
 import {
   chartTooltipStyle,
@@ -13,7 +14,6 @@ import {
   xAxisDefaults,
   yAxisDefaults,
   fmtCount,
-  lineDefaults,
 } from "@/lib/chart-theme";
 
 export function CohortAnalysis() {
@@ -120,26 +120,7 @@ export function CohortAnalysis() {
       {/* Pace Chart */}
       <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-foreground mb-3">Actual vs Required Growth Rate</h3>
-        <ResponsiveContainer width="100%" height={200}>
-          <AreaChart data={paceChartData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
-            <defs>
-              <linearGradient id="requiredGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#f59e0b" stopOpacity={0.25} />
-                <stop offset="100%" stopColor="#f59e0b" stopOpacity={0} />
-              </linearGradient>
-              <linearGradient id="actualGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#22c55e" stopOpacity={0.25} />
-                <stop offset="100%" stopColor="#22c55e" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid {...cartesianGridDefaults} />
-            <XAxis dataKey="week" {...xAxisDefaults} />
-            <YAxis {...yAxisDefaults} />
-            <Tooltip contentStyle={chartTooltipStyle} />
-            <Area type="monotone" dataKey="required" stroke="#f59e0b" fill="url(#requiredGradient)" name="Required" strokeDasharray="5 5" strokeWidth={2.5} dot={false} activeDot={lineDefaults.activeDot} />
-            <Area type="monotone" dataKey="actual" stroke="#22c55e" fill="url(#actualGradient)" name="Actual" strokeWidth={2.5} dot={false} activeDot={lineDefaults.activeDot} />
-          </AreaChart>
-        </ResponsiveContainer>
+        <BudgetCard />
       </div>
 
       {/* Content Type Insights */}

@@ -18,10 +18,7 @@ import { RevenueWidget, type RevenueMetric } from "@/components/revenue/RevenueW
 import "react-router-dom";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { Area, AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import {
-  chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, lineDefaults } from
-"@/lib/chart-theme";
+import { BudgetCard } from "@/components/ui/analytics-bento";
 import { supabase } from "@/integrations/supabase/client";
 import { useContentRevenue } from "@/hooks/use-content-revenue";
 import { RateCardCalculator } from "@/components/crm/RateCardCalculator";
@@ -1119,73 +1116,14 @@ export default function MonetizationPage() {
                       <div className="rounded-xl border border-border bg-card p-5">
                         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Sales by Product</p>
                         <div className="h-[150px]">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={productSalesData} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
-                              <defs>
-                                <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.25} />
-                                  <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                                </linearGradient>
-                              </defs>
-                              <CartesianGrid {...cartesianGridDefaults} />
-                              <XAxis
-                            {...xAxisDefaults}
-                            dataKey="name"
-                            tickFormatter={(value) => value.length > 15 ? `${value.substring(0, 15)}...` : value} />
-                          
-                              <YAxis
-                            {...yAxisDefaults}
-                            tickFormatter={(value) => `$${value.toLocaleString()}`} />
-                          
-                              <Tooltip
-                            formatter={(value) => [`$${Number(value).toLocaleString()}`, 'Sales']}
-                            contentStyle={chartTooltipStyle} />
-                          
-                              <Area
-                            type="monotone"
-                            dataKey="total"
-                            stroke="hsl(var(--primary))"
-                            fill="url(#colorTotal)"
-                            {...lineDefaults} />
-                          
-                            </AreaChart>
-                          </ResponsiveContainer>
+                          <BudgetCard />
                         </div>
                       </div>
 
                       <div className="rounded-xl border border-border bg-card p-5">
                         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Monthly Sales Trend</p>
                         <div className="h-[150px]">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={salesData} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
-                              <defs>
-                                <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.25} />
-                                  <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                                </linearGradient>
-                              </defs>
-                              <CartesianGrid {...cartesianGridDefaults} />
-                              <XAxis
-                            {...xAxisDefaults}
-                            dataKey="month" />
-                          
-                              <YAxis
-                            {...yAxisDefaults}
-                            tickFormatter={(value) => `$${value.toLocaleString()}`} />
-                          
-                              <Tooltip
-                            formatter={(value) => [`$${Number(value).toLocaleString()}`, 'Revenue']}
-                            contentStyle={chartTooltipStyle} />
-                          
-                              <Area
-                            type="monotone"
-                            dataKey="total"
-                            stroke="hsl(var(--primary))"
-                            fill="url(#colorRevenue)"
-                            {...lineDefaults} />
-                          
-                            </AreaChart>
-                          </ResponsiveContainer>
+                          <BudgetCard />
                         </div>
                       </div>
                     </div>

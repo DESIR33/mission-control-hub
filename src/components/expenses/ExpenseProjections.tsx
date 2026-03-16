@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { format, subMonths, startOfMonth, endOfMonth, addMonths } from "date-fns";
 import { TrendingUp, TrendingDown, ArrowRight } from "lucide-react";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { BudgetCard } from "@/components/ui/analytics-bento";
 import { useExpenses, useRecurringSubscriptions, type ExpenseCategory } from "@/hooks/use-expenses";
 
 interface Props {
@@ -116,19 +116,7 @@ export function ExpenseProjections({ categories }: Props) {
       <div className="bg-card border border-border rounded-lg p-4">
         <h3 className="text-sm font-medium mb-4">Spending Trend & Projection</h3>
         <div className="h-[280px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={projectionData.months}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-              <XAxis dataKey="month" tick={{ fontSize: 11 }} className="text-muted-foreground" />
-              <YAxis tick={{ fontSize: 11 }} className="text-muted-foreground" tickFormatter={(v) => `$${v}`} />
-              <Tooltip
-                contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
-                formatter={(value: number) => [`$${value.toFixed(2)}`, undefined]}
-              />
-              <Area type="monotone" dataKey="actual" stroke="hsl(var(--primary))" fill="hsl(var(--primary) / 0.2)" strokeWidth={2} name="Actual" />
-              <Area type="monotone" dataKey="projected" stroke="hsl(var(--muted-foreground))" fill="hsl(var(--muted-foreground) / 0.1)" strokeWidth={2} strokeDasharray="5 5" name="Projected" />
-            </AreaChart>
-          </ResponsiveContainer>
+          <BudgetCard />
         </div>
       </div>
 
