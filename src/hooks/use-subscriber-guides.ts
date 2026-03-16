@@ -13,12 +13,17 @@ export function useSubscriberGuides() {
 
       const { data, error } = await supabase
         .from("subscriber_guides" as any)
-        .select("*")
+        .select("*, video_queue(title), companies(name, logo_url)")
         .eq("workspace_id", workspaceId)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return (data ?? []) as unknown as SubscriberGuide[];
+      return ((data as any[]) ?? []).map((row) => ({
+        ...row,
+        video_title: row.video_queue?.title ?? null,
+        company_name: row.companies?.name ?? null,
+        company_logo_url: row.companies?.logo_url ?? null,
+      })) as unknown as SubscriberGuide[];
     },
     enabled: !!workspaceId,
   });
