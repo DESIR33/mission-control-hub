@@ -151,7 +151,7 @@ export function useCompanyContacts(companyId: string | null) {
 
       const { data, error } = await supabase
         .from("contacts")
-        .select("*")
+        .select("id, workspace_id, first_name, last_name, email, phone, status, role, source, company_id, vip_tier, website, avatar_url, preferred_channel, last_contact_date, notes, created_at, updated_at, deleted_at, custom_fields, owner_id, escalation_owner_id, response_sla_minutes, created_by, social_twitter, social_linkedin, social_youtube, social_instagram, social_facebook, social_telegram, social_whatsapp")
         .eq("workspace_id", workspaceId)
         .eq("company_id", companyId)
         .is("deleted_at", null)
@@ -165,9 +165,9 @@ export function useCompanyContacts(companyId: string | null) {
         vip_tier: (row.vip_tier ?? "none") as Contact["vip_tier"],
         preferred_channel: (row.preferred_channel ?? "email") as Contact["preferred_channel"],
         custom_fields: (row.custom_fields as Record<string, unknown>) ?? {},
-        enrichment_hunter: row.enrichment_hunter as Record<string, unknown> | null,
-        enrichment_ai: row.enrichment_ai as Record<string, unknown> | null,
-        enrichment_youtube: row.enrichment_youtube as Record<string, unknown> | null,
+        enrichment_hunter: null,
+        enrichment_ai: null,
+        enrichment_youtube: null,
       }));
     },
     enabled: !!workspaceId && !!companyId,
