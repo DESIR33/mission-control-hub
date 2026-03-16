@@ -31,7 +31,7 @@ function useVideoQueueList() {
         .order("created_at", { ascending: false })
         .limit(200);
       if (error) throw error;
-      return (data ?? []) as { id: number; title: string; youtube_video_id: string | null }[];
+      return ((data as any[]) ?? []) as { id: number; title: string; youtube_video_id: string | null }[];
     },
     enabled: !!workspaceId,
     staleTime: 120_000,
