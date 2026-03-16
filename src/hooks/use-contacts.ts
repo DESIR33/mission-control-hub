@@ -16,7 +16,8 @@ export function useContacts() {
         .select("*, companies(id, name, logo_url, industry)")
         .eq("workspace_id", workspaceId)
         .is("deleted_at", null)
-        .order("updated_at", { ascending: false });
+        .order("updated_at", { ascending: false })
+        .limit(500);
 
       if (error) throw error;
 
@@ -33,6 +34,7 @@ export function useContacts() {
       }));
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 
@@ -190,6 +192,7 @@ export function useActivities(entityId: string | null, entityType: string = "con
       }));
     },
     enabled: !!workspaceId && !!entityId,
+    staleTime: 120_000,
   });
 }
 
@@ -218,6 +221,7 @@ export function useContactRoles() {
       return (data ?? []) as unknown as ContactRole[];
     },
     enabled: !!workspaceId,
+    staleTime: 300_000,
   });
 }
 

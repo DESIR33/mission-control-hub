@@ -25,13 +25,14 @@ export function useEmailTemplates() {
       if (!workspaceId) return [];
       const { data, error } = await supabase
         .from("email_templates" as any)
-        .select("*")
+        .select("id, workspace_id, name, category, subject_template, body_template, variables, usage_count, created_at, updated_at")
         .eq("workspace_id", workspaceId)
         .order("usage_count", { ascending: false });
       if (error) throw error;
       return (data ?? []) as unknown as EmailTemplate[];
     },
     enabled: !!workspaceId,
+    staleTime: 300_000,
   });
 }
 

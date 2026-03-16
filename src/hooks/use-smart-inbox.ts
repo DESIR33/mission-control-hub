@@ -65,7 +65,7 @@ export function useInboxEmails(folder: string = "inbox", searchQuery: string = "
 
       let query = supabase
         .from("inbox_emails" as any)
-        .select("*")
+        .select("id, workspace_id, message_id, conversation_id, from_email, from_name, to_recipients, subject, preview, body_html, received_at, is_read, is_pinned, importance, has_attachments, folder, labels, metadata, ai_category, ai_summary, created_at, updated_at")
         .eq("workspace_id", workspaceId)
         .eq("folder", folder)
         .order("received_at", { ascending: false })
@@ -104,6 +104,7 @@ export function useInboxEmails(folder: string = "inbox", searchQuery: string = "
       }));
     },
     enabled: !!workspaceId,
+    staleTime: 60_000,
   });
 }
 
@@ -175,22 +176,24 @@ export function useInboxStats(folder?: string) {
     queryFn: async () => {
       if (!workspaceId) return { total: 0, unread: 0 };
 
-      const { count: total } = await supabase
-        .from("inbox_emails" as any)
-        .select("*", { count: "exact", head: true })
-        .eq("workspace_id", workspaceId)
-        .eq("folder", "inbox");
-
-      const { count: unread } = await supabase
-        .from("inbox_emails" as any)
-        .select("*", { count: "exact", head: true })
-        .eq("workspace_id", workspaceId)
-        .eq("folder", "inbox")
-        .eq("is_read", false);
+      const [{ count: total }, { count: unread }] = await Promise.all([
+        supabase
+          .from("inbox_emails" as any)
+          .select("id", { count: "exact", head: true })
+          .eq("workspace_id", workspaceId)
+          .eq("folder", "inbox"),
+        supabase
+          .from("inbox_emails" as any)
+          .select("id", { count: "exact", head: true })
+          .eq("workspace_id", workspaceId)
+          .eq("folder", "inbox")
+          .eq("is_read", false),
+      ]);
 
       return { total: total ?? 0, unread: unread ?? 0 };
     },
     enabled: !!workspaceId,
+    staleTime: 60_000,
   });
 }
 
@@ -218,6 +221,7 @@ export function useFolderCounts() {
       return counts;
     },
     enabled: !!workspaceId,
+    staleTime: 60_000,
   });
 }
 

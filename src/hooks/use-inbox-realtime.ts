@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
@@ -21,16 +21,23 @@ export function useInboxRealtime() {
   // Use refs so the callback always has latest data without re-subscribing
   const contactsRef = useRef(contacts);
   const companiesRef = useRef(companies);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => { contactsRef.current = contacts; }, [contacts]);
   useEffect(() => { companiesRef.current = companies; }, [companies]);
 
   useEffect(() => {
     if (!workspaceId) return;
 
-    const invalidateInbox = () => {
-      queryClient.invalidateQueries({ queryKey: ["inbox-emails"] });
-      queryClient.invalidateQueries({ queryKey: ["inbox-stats"] });
-      queryClient.invalidateQueries({ queryKey: ["inbox-folder-counts"] });
+    // Debounced invalidation to batch rapid successive changes
+    const invalidateInbox = (includeFolderCounts = true) => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ["inbox-emails"] });
+        queryClient.invalidateQueries({ queryKey: ["inbox-stats"] });
+        if (includeFolderCounts) {
+          queryClient.invalidateQueries({ queryKey: ["inbox-folder-counts"] });
+        }
+      }, 300);
     };
 
     const channel = supabase
@@ -108,9 +115,10 @@ export function useInboxRealtime() {
           table: "inbox_emails",
           filter: `workspace_id=eq.${workspaceId}`,
         },
-        () => {
-          // Read status, folder changes, etc.
-          invalidateInbox();
+        (payload: any) => {
+          // Only invalidate folder counts if the folder field changed
+          const folderChanged = payload.old?.folder !== payload.new?.folder;
+          invalidateInbox(folderChanged);
         }
       )
       .on(
@@ -128,6 +136,7 @@ export function useInboxRealtime() {
       .subscribe();
 
     return () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
       supabase.removeChannel(channel);
     };
   }, [workspaceId, queryClient]);

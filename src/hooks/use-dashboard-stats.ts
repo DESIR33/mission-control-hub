@@ -297,17 +297,40 @@ export function useNeedsAttention() {
     queryFn: async (): Promise<AttentionItem[]> => {
       if (!workspaceId) return [];
 
-      const items: AttentionItem[] = [];
       const sevenDaysAgo = subDays(new Date(), 7).toISOString();
+      const nextWeek = new Date();
+      nextWeek.setDate(nextWeek.getDate() + 7);
 
-      const { data: staleContacts } = await supabase
-        .from("contacts")
-        .select("first_name, last_name, last_contact_date")
-        .eq("workspace_id", workspaceId)
-        .is("deleted_at", null)
-        .not("last_contact_date", "is", null)
-        .lt("last_contact_date", sevenDaysAgo)
-        .limit(3);
+      const [
+        { data: staleContacts },
+        { data: pendingProposals },
+        { data: urgentDeals },
+      ] = await Promise.all([
+        supabase
+          .from("contacts")
+          .select("first_name, last_name, last_contact_date")
+          .eq("workspace_id", workspaceId)
+          .is("deleted_at", null)
+          .not("last_contact_date", "is", null)
+          .lt("last_contact_date", sevenDaysAgo)
+          .limit(3),
+        supabase
+          .from("ai_proposals")
+          .select("title")
+          .eq("workspace_id", workspaceId)
+          .eq("status", "pending")
+          .limit(3),
+        supabase
+          .from("deals")
+          .select("title, expected_close_date")
+          .eq("workspace_id", workspaceId)
+          .is("deleted_at", null)
+          .in("stage", ["prospecting", "qualification", "proposal", "negotiation"])
+          .lte("expected_close_date", nextWeek.toISOString().split("T")[0])
+          .limit(3),
+      ]);
+
+      const items: AttentionItem[] = [];
 
       for (const c of staleContacts ?? []) {
         const daysSince = c.last_contact_date
@@ -321,13 +344,6 @@ export function useNeedsAttention() {
         });
       }
 
-      const { data: pendingProposals } = await supabase
-        .from("ai_proposals")
-        .select("title")
-        .eq("workspace_id", workspaceId)
-        .eq("status", "pending")
-        .limit(3);
-
       for (const p of pendingProposals ?? []) {
         items.push({
           title: p.title,
@@ -336,17 +352,6 @@ export function useNeedsAttention() {
           urgency: "medium",
         });
       }
-
-      const nextWeek = new Date();
-      nextWeek.setDate(nextWeek.getDate() + 7);
-      const { data: urgentDeals } = await supabase
-        .from("deals")
-        .select("title, expected_close_date")
-        .eq("workspace_id", workspaceId)
-        .is("deleted_at", null)
-        .in("stage", ["prospecting", "qualification", "proposal", "negotiation"])
-        .lte("expected_close_date", nextWeek.toISOString().split("T")[0])
-        .limit(3);
 
       for (const d of urgentDeals ?? []) {
         items.push({
@@ -402,13 +407,38 @@ export function useAiBriefing() {
       // Fallback: generate client-side briefing from live data
       const sevenDaysAgo = subDays(new Date(), 7).toISOString();
 
-      const { count: staleCount } = await supabase
-        .from("contacts")
-        .select("id", { count: "exact", head: true })
-        .eq("workspace_id", workspaceId)
-        .is("deleted_at", null)
-        .not("last_contact_date", "is", null)
-        .lt("last_contact_date", sevenDaysAgo);
+      const [
+        { count: staleCount },
+        { data: proposals },
+        { data: negDeals },
+        { count: reviewCount },
+      ] = await Promise.all([
+        supabase
+          .from("contacts")
+          .select("id", { count: "exact", head: true })
+          .eq("workspace_id", workspaceId)
+          .is("deleted_at", null)
+          .not("last_contact_date", "is", null)
+          .lt("last_contact_date", sevenDaysAgo),
+        supabase
+          .from("ai_proposals")
+          .select("title, type")
+          .eq("workspace_id", workspaceId)
+          .eq("status", "pending")
+          .limit(2),
+        supabase
+          .from("deals")
+          .select("title, value")
+          .eq("workspace_id", workspaceId)
+          .eq("stage", "negotiation")
+          .is("deleted_at", null)
+          .limit(2),
+        supabase
+          .from("video_queue")
+          .select("id", { count: "exact", head: true })
+          .eq("workspace_id", workspaceId)
+          .in("status", ["editing", "review"]),
+      ]);
 
       if (staleCount && staleCount > 0) {
         items.push({
@@ -417,27 +447,12 @@ export function useAiBriefing() {
         });
       }
 
-      const { data: proposals } = await supabase
-        .from("ai_proposals")
-        .select("title, type")
-        .eq("workspace_id", workspaceId)
-        .eq("status", "pending")
-        .limit(2);
-
       for (const p of proposals ?? []) {
         items.push({
           type: "action",
           text: `Review AI proposal: "${p.title}". Awaiting your approval.`,
         });
       }
-
-      const { data: negDeals } = await supabase
-        .from("deals")
-        .select("title, value")
-        .eq("workspace_id", workspaceId)
-        .eq("stage", "negotiation")
-        .is("deleted_at", null)
-        .limit(2);
 
       for (const d of negDeals ?? []) {
         items.push({
@@ -446,12 +461,6 @@ export function useAiBriefing() {
         });
       }
 
-      const { count: reviewCount } = await supabase
-        .from("video_queue")
-        .select("id", { count: "exact", head: true })
-        .eq("workspace_id", workspaceId)
-        .in("status", ["editing", "review"]);
-
       if (reviewCount && reviewCount > 0) {
         items.push({
           type: "action",
@@ -459,17 +468,37 @@ export function useAiBriefing() {
         });
       }
 
-      // YouTube Performance Intelligence
+      // YouTube Performance Intelligence + stale deals (parallelized)
       const fourteenDaysAgo = subDays(new Date(), 14).toISOString().split("T")[0];
+      const thirtyDaysAgo = subDays(new Date(), 30).toISOString().split("T")[0];
       const fiveDaysAgo = subDays(new Date(), 5).toISOString();
 
-      const { data: recentVideos } = await supabase
-        .from("youtube_video_analytics" as any)
-        .select("title, impressions_ctr, views, subscribers_gained, estimated_revenue, youtube_video_id")
-        .eq("workspace_id", workspaceId)
-        .gte("date", fourteenDaysAgo)
-        .order("date", { ascending: false })
-        .limit(5);
+      const [
+        { data: recentVideos },
+        { data: monthlyAdData },
+        { data: staleDeals },
+      ] = await Promise.all([
+        supabase
+          .from("youtube_video_analytics" as any)
+          .select("title, impressions_ctr, views, subscribers_gained, estimated_revenue, youtube_video_id")
+          .eq("workspace_id", workspaceId)
+          .gte("date", fourteenDaysAgo)
+          .order("date", { ascending: false })
+          .limit(5),
+        supabase
+          .from("youtube_video_analytics" as any)
+          .select("estimated_revenue")
+          .eq("workspace_id", workspaceId)
+          .gte("date", thirtyDaysAgo),
+        supabase
+          .from("deals")
+          .select("title, updated_at")
+          .eq("workspace_id", workspaceId)
+          .in("stage", ["proposal", "negotiation"])
+          .is("deleted_at", null)
+          .lt("updated_at", fiveDaysAgo)
+          .limit(2),
+      ]);
 
       if (recentVideos && recentVideos.length > 0) {
         const latest = recentVideos[0] as any;
@@ -490,14 +519,6 @@ export function useAiBriefing() {
         }
       }
 
-      // Monthly ad revenue
-      const thirtyDaysAgo = subDays(new Date(), 30).toISOString().split("T")[0];
-      const { data: monthlyAdData } = await supabase
-        .from("youtube_video_analytics" as any)
-        .select("estimated_revenue")
-        .eq("workspace_id", workspaceId)
-        .gte("date", thirtyDaysAgo);
-
       if (monthlyAdData) {
         const monthlyRevenue = monthlyAdData.reduce((s: number, r: any) => s + (Number(r.estimated_revenue) || 0), 0);
         if (monthlyRevenue >= 1000) {
@@ -506,16 +527,6 @@ export function useAiBriefing() {
           items.push({ type: "insight", text: `YouTube ad revenue at $${monthlyRevenue.toFixed(0)} this month — on track!` });
         }
       }
-
-      // Stale sponsor follow-up
-      const { data: staleDeals } = await supabase
-        .from("deals")
-        .select("title, updated_at")
-        .eq("workspace_id", workspaceId)
-        .in("stage", ["proposal", "negotiation"])
-        .is("deleted_at", null)
-        .lt("updated_at", fiveDaysAgo)
-        .limit(2);
 
       for (const d of staleDeals ?? []) {
         const daysSince = Math.floor((Date.now() - new Date(d.updated_at).getTime()) / (1000 * 60 * 60 * 24));

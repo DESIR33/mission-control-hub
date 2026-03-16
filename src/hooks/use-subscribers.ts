@@ -13,10 +13,11 @@ export function useSubscribers() {
 
       const { data, error } = await supabase
         .from("subscribers" as any)
-        .select("*")
+        .select("id, workspace_id, email, first_name, last_name, status, source, source_video_id, source_video_title, guide_requested, guide_delivered_at, avatar_url, city, state, country, notes, engagement_score, engagement_data, opt_in_confirmed, opt_in_confirmed_at, promoted_to_contact_id, custom_fields, created_at, updated_at")
         .eq("workspace_id", workspaceId)
         .is("deleted_at", null)
-        .order("updated_at", { ascending: false });
+        .order("updated_at", { ascending: false })
+        .limit(500);
 
       if (error) throw error;
 
@@ -36,6 +37,7 @@ export function useSubscribers() {
       }));
     },
     enabled: !!workspaceId,
+    staleTime: 120_000,
   });
 }
 
@@ -75,6 +77,7 @@ export function useSubscriber(id: string | null) {
       };
     },
     enabled: !!workspaceId && !!id,
+    staleTime: 120_000,
   });
 }
 
