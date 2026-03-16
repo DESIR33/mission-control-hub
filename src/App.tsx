@@ -161,6 +161,7 @@ const App = () => (
               <Route path="/contacts/:contactId/edit" element={<LazyPage section="Edit Contact"><EditContactPage /></LazyPage>} />
 
               {/* Subscribers */}
+              <Route path="/subscribers" element={<LazyPage section="All Subscribers"><SubscribersListPage /></LazyPage>} />
               <Route path="/subscribers/dashboard" element={<LazyPage section="Subscriber Dashboard"><SubscriberDashboardPage /></LazyPage>} />
               <Route path="/subscribers/guides" element={<LazyPage section="Subscriber Guides"><SubscriberGuidesPage /></LazyPage>} />
               <Route path="/subscribers/sequences" element={<LazyPage section="Subscriber Sequences"><SubscriberSequencesPage /></LazyPage>} />
