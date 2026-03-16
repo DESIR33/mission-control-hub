@@ -24,7 +24,7 @@ export function useVideoPerformanceAlerts() {
     queryFn: async () => {
       if (!workspaceId) return [];
       const { data, error } = await query("video_performance_alerts")
-        .select("*")
+        .select("id, workspace_id, youtube_video_id, alert_type, message, metric_name, metric_value, threshold_value, is_read, created_at")
         .eq("workspace_id", workspaceId)
         .order("created_at", { ascending: false })
         .limit(50);
