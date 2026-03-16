@@ -223,11 +223,10 @@ Deno.serve(async (req) => {
         const videosData = await videosRes.json();
 
         if (videosRes.ok && videosData.items?.length) {
-          for (const video of videosData.items) {
+          const videoRecords = videosData.items.map((video: any) => {
             const videoStats = video.statistics;
             const contentDetails = video.contentDetails;
 
-            // Parse ISO 8601 duration (PT#H#M#S) to seconds
             let durationSeconds = 0;
             if (contentDetails?.duration) {
               const match = contentDetails.duration.match(
@@ -241,7 +240,6 @@ Deno.serve(async (req) => {
               }
             }
 
-            // Extract thumbnail URL (prefer maxres, then medium, then default)
             const thumbnailUrl =
               video.snippet?.thumbnails?.maxres?.url ||
               video.snippet?.thumbnails?.high?.url ||
@@ -249,37 +247,36 @@ Deno.serve(async (req) => {
               video.snippet?.thumbnails?.default?.url ||
               null;
 
-            // Extract description and tags
-            const videoDescription = video.snippet?.description || null;
-            const videoTags = video.snippet?.tags || null;
+            return {
+              workspace_id,
+              youtube_video_id: video.id,
+              title: video.snippet?.title || "Untitled",
+              description: (video.snippet?.description || "").substring(0, 2000),
+              tags: video.snippet?.tags || null,
+              views: parseInt(videoStats.viewCount, 10) || 0,
+              likes: parseInt(videoStats.likeCount, 10) || 0,
+              comments: parseInt(videoStats.commentCount, 10) || 0,
+              watch_time_minutes: 0,
+              ctr_percent: 0,
+              avg_view_duration_seconds: durationSeconds,
+              thumbnail_url: thumbnailUrl,
+              published_at: video.snippet?.publishedAt || null,
+              fetched_at: new Date().toISOString(),
+            };
+          });
 
+          // Batch upsert all videos at once
+          for (let i = 0; i < videoRecords.length; i += 25) {
+            const chunk = videoRecords.slice(i, i + 25);
             const { error: upsertError } = await supabase
               .from("youtube_video_stats")
-              .upsert(
-                {
-                  workspace_id,
-                  youtube_video_id: video.id,
-                  title: video.snippet?.title || "Untitled",
-                  description: videoDescription,
-                  tags: videoTags,
-                  views: parseInt(videoStats.viewCount, 10) || 0,
-                  likes: parseInt(videoStats.likeCount, 10) || 0,
-                  comments: parseInt(videoStats.commentCount, 10) || 0,
-                  watch_time_minutes: 0,
-                  ctr_percent: 0,
-                  avg_view_duration_seconds: durationSeconds,
-                  thumbnail_url: thumbnailUrl,
-                  published_at: video.snippet?.publishedAt || null,
-                  fetched_at: new Date().toISOString(),
-                },
-                { onConflict: "workspace_id,youtube_video_id" }
-              );
+              .upsert(chunk, { onConflict: "workspace_id,youtube_video_id" });
 
             if (upsertError) {
-              videoErrors.push(`${video.id}: ${upsertError.message}`);
-              console.error(`Video upsert error for ${video.id}:`, upsertError.message);
+              videoErrors.push(`Batch ${i}: ${upsertError.message}`);
+              console.error(`Video batch upsert error:`, upsertError.message);
             } else {
-              videosSynced++;
+              videosSynced += chunk.length;
             }
           }
         }
