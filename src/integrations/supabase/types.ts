@@ -3468,6 +3468,111 @@ export type Database = {
           },
         ]
       }
+      subscriber_guide_assignments: {
+        Row: {
+          created_at: string
+          downloaded_at: string | null
+          guide_id: string
+          id: string
+          subscriber_id: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          downloaded_at?: string | null
+          guide_id: string
+          id?: string
+          subscriber_id: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          downloaded_at?: string | null
+          guide_id?: string
+          id?: string
+          subscriber_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriber_guide_assignments_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "subscriber_guides"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriber_guide_assignments_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "subscribers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriber_guide_assignments_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscriber_guides: {
+        Row: {
+          created_at: string
+          delivery_type: string
+          description: string | null
+          download_count: number
+          email_body: string | null
+          email_subject: string | null
+          file_url: string | null
+          id: string
+          name: string
+          slug: string
+          status: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          delivery_type?: string
+          description?: string | null
+          download_count?: number
+          email_body?: string | null
+          email_subject?: string | null
+          file_url?: string | null
+          id?: string
+          name: string
+          slug: string
+          status?: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          delivery_type?: string
+          description?: string | null
+          download_count?: number
+          email_body?: string | null
+          email_subject?: string | null
+          file_url?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          status?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriber_guides_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscribers: {
         Row: {
           avatar_url: string | null
