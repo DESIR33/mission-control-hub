@@ -3468,6 +3468,104 @@ export type Database = {
           },
         ]
       }
+      subscribers: {
+        Row: {
+          avatar_url: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          custom_fields: Json | null
+          deleted_at: string | null
+          email: string
+          engagement_data: Json | null
+          engagement_score: number | null
+          first_name: string | null
+          guide_delivered_at: string | null
+          guide_requested: string | null
+          id: string
+          last_name: string | null
+          notes: string | null
+          opt_in_confirmed: boolean | null
+          opt_in_confirmed_at: string | null
+          page_url: string | null
+          promoted_to_contact_id: string | null
+          referrer: string | null
+          source: string | null
+          source_video_id: string | null
+          source_video_title: string | null
+          state: string | null
+          status: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          custom_fields?: Json | null
+          deleted_at?: string | null
+          email: string
+          engagement_data?: Json | null
+          engagement_score?: number | null
+          first_name?: string | null
+          guide_delivered_at?: string | null
+          guide_requested?: string | null
+          id?: string
+          last_name?: string | null
+          notes?: string | null
+          opt_in_confirmed?: boolean | null
+          opt_in_confirmed_at?: string | null
+          page_url?: string | null
+          promoted_to_contact_id?: string | null
+          referrer?: string | null
+          source?: string | null
+          source_video_id?: string | null
+          source_video_title?: string | null
+          state?: string | null
+          status?: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          custom_fields?: Json | null
+          deleted_at?: string | null
+          email?: string
+          engagement_data?: Json | null
+          engagement_score?: number | null
+          first_name?: string | null
+          guide_delivered_at?: string | null
+          guide_requested?: string | null
+          id?: string
+          last_name?: string | null
+          notes?: string | null
+          opt_in_confirmed?: boolean | null
+          opt_in_confirmed_at?: string | null
+          page_url?: string | null
+          promoted_to_contact_id?: string | null
+          referrer?: string | null
+          source?: string | null
+          source_video_id?: string | null
+          source_video_title?: string | null
+          state?: string | null
+          status?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscribers_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tags: {
         Row: {
           color: string | null
