@@ -503,16 +503,29 @@ Deno.serve(async (req) => {
     }
 
     syncResult.ok = syncResult.errors.length === 0;
-    console.log("[YT Analytics] Sync complete:", JSON.stringify(syncResult));
+    // Strip sample rows from response to reduce payload size
+    const leanResult = {
+      ok: syncResult.ok,
+      channelRowsUpserted: syncResult.channelRowsUpserted,
+      videoRowsUpserted: syncResult.videoRowsUpserted,
+      demographicsUpserted: syncResult.demographicsUpserted,
+      trafficSourcesUpserted: syncResult.trafficSourcesUpserted,
+      geographyUpserted: syncResult.geographyUpserted,
+      devicesUpserted: syncResult.devicesUpserted,
+      retentionVideos: syncResult.retentionVideos,
+      errors: syncResult.errors,
+      period: syncResult.period,
+    };
+    console.log("[YT Analytics] Sync complete:", JSON.stringify(leanResult));
 
-    return new Response(JSON.stringify(syncResult), {
+    return new Response(JSON.stringify(leanResult), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error: any) {
     syncResult.errors.push(error.message || String(error));
     console.error("[YT Analytics] Fatal error:", error.message);
 
-    return new Response(JSON.stringify(syncResult), {
+    return new Response(JSON.stringify({ ok: false, errors: syncResult.errors }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
