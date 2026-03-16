@@ -70,7 +70,7 @@ export function useContentDecayAlerts() {
     queryFn: async () => {
       if (!workspaceId) return [];
       const { data, error } = await query("content_decay_alerts")
-        .select("*")
+        .select("id, workspace_id, youtube_video_id, video_title, decay_type, current_value, previous_value, decline_percent, suggested_actions, status, created_at, actioned_at")
         .eq("workspace_id", workspaceId)
         .eq("status", "active")
         .order("decline_percent", { ascending: true })
