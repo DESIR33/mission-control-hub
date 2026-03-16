@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { SubscribersTable } from "@/components/subscribers/SubscribersTable";
 import { SubscriberDetailSheet } from "@/components/subscribers/SubscriberDetailSheet";
 import { AddSubscriberDialog } from "@/components/subscribers/AddSubscriberDialog";
+import { ImportSubscribersDialog } from "@/components/subscribers/ImportSubscribersDialog";
 import { useSubscribers } from "@/hooks/use-subscribers";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Subscriber } from "@/types/subscriber";
@@ -39,7 +40,12 @@ export default function SubscribersListPage() {
           subscribers={subscribers}
           onSelectSubscriber={handleSelectSubscriber}
           selectedId={selectedSubscriber?.id}
-          addButton={<AddSubscriberDialog />}
+          addButton={
+            <div className="flex items-center gap-2">
+              <ImportSubscribersDialog />
+              <AddSubscriberDialog />
+            </div>
+          }
         />
       )}
 
