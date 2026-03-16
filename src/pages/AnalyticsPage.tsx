@@ -19,9 +19,10 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import {
-  LineChart, Line, BarChart, Bar, AreaChart, Area, ScatterChart, Scatter,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend,
+  BarChart, Bar, ScatterChart, Scatter,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
 } from "recharts";
+import { BudgetCard } from "@/components/ui/analytics-bento";
 import { format, differenceInDays, subDays, parseISO } from "date-fns";
 import {
   ChannelOverview, AudienceDemographics, TrafficSources,
@@ -775,50 +776,14 @@ function OverviewTab({
         {subscriberTrend.length > 1 && (
           <div className="rounded-xl border border-border bg-card p-4">
             <h2 className="text-sm font-semibold text-foreground mb-4">Subscriber Growth</h2>
-            <ResponsiveContainer width="100%" height={260}>
-              <AreaChart data={subscriberTrend} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
-                <defs>
-                  <linearGradient id="subGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.25} />
-                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid {...cartesianGridDefaults} />
-                <XAxis {...xAxisDefaults} dataKey="date" />
-                <YAxis {...yAxisDefaults} tickFormatter={fmtCount} />
-                <Tooltip
-                  contentStyle={chartTooltipStyle}
-                  labelStyle={{ color: "hsl(var(--foreground))" }}
-                  formatter={(value: number) => [value.toLocaleString(), "Subscribers"]}
-                />
-                <Area type="monotone" dataKey="subscribers" stroke="hsl(var(--primary))" {...lineDefaults} fill="url(#subGradient)" />
-              </AreaChart>
-            </ResponsiveContainer>
+            <BudgetCard />
           </div>
         )}
 
         {viewsTrend.length > 1 && (
           <div className="rounded-xl border border-border bg-card p-4">
             <h2 className="text-sm font-semibold text-foreground mb-4">Total Views Over Time</h2>
-            <ResponsiveContainer width="100%" height={260}>
-              <AreaChart data={viewsTrend} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
-                <defs>
-                  <linearGradient id="viewsGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.25} />
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid {...cartesianGridDefaults} />
-                <XAxis {...xAxisDefaults} dataKey="date" />
-                <YAxis {...yAxisDefaults} tickFormatter={fmtCount} />
-                <Tooltip
-                  contentStyle={chartTooltipStyle}
-                  labelStyle={{ color: "hsl(var(--foreground))" }}
-                  formatter={(value: number) => [value.toLocaleString(), "Total Views"]}
-                />
-                <Area type="monotone" dataKey="views" stroke="#3b82f6" {...lineDefaults} fill="url(#viewsGradient)" />
-              </AreaChart>
-            </ResponsiveContainer>
+            <BudgetCard />
           </div>
         )}
       </div>

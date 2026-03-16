@@ -1,11 +1,5 @@
-import {
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, ReferenceLine,
-} from "recharts";
 import type { RetentionPoint } from "@/hooks/use-video-retention";
-import {
-  chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, lineDefaults,
-} from "@/lib/chart-theme";
+import { BudgetCard } from "@/components/ui/analytics-bento";
 
 interface Props {
   data: RetentionPoint[];
@@ -45,51 +39,7 @@ export function RetentionCurve({ data, avgViewPercentage, videoDurationSeconds }
 
       {avgViewPercentage > 0 || hasRealData ? (
         <>
-          <ResponsiveContainer width="100%" height={220}>
-            <AreaChart data={chartData} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
-              <defs>
-                <linearGradient id="retentionGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid {...cartesianGridDefaults} />
-              <XAxis
-                {...xAxisDefaults}
-                dataKey="position"
-                tickFormatter={(v) => `${v}%`}
-                label={{ value: "Video Position", position: "insideBottom", offset: -3, fontSize: 10 }}
-              />
-              <YAxis
-                {...yAxisDefaults}
-                tickFormatter={(v) => `${v}%`}
-                domain={[0, 100]}
-              />
-              <Tooltip
-                contentStyle={chartTooltipStyle}
-                formatter={(v: number) => [`${v}%`, "Retention"]}
-                labelFormatter={(v) => {
-                  const point = chartData.find((d) => d.position === v);
-                  return point?.timestamp ? `Position: ${v}% (${point.timestamp})` : `${v}%`;
-                }}
-              />
-              {avgViewPercentage > 0 && (
-                <ReferenceLine
-                  y={avgViewPercentage}
-                  stroke="hsl(var(--muted-foreground))"
-                  strokeDasharray="4 4"
-                  strokeOpacity={0.5}
-                />
-              )}
-              <Area
-                type="monotone"
-                dataKey="retention"
-                stroke="hsl(var(--primary))"
-                {...lineDefaults}
-                fill="url(#retentionGradient)"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+          <BudgetCard />
 
           {/* Key metrics row */}
           <div className="flex flex-wrap gap-3 text-xs">

@@ -9,11 +9,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  LineChart, Line, Legend,
+  Legend,
 } from "recharts";
+import { BudgetCard } from "@/components/ui/analytics-bento";
 import {
   chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults,
-  barDefaults, lineDefaults, fmtMoney, fmtCount, CHART_COLORS,
+  barDefaults, fmtMoney, fmtCount, CHART_COLORS,
 } from "@/lib/chart-theme";
 import { useRevenueGoals } from "@/hooks/use-revenue-goals";
 
@@ -191,23 +192,7 @@ export function RevenueGoalTracker() {
             <TrendingUp className="w-4 h-4 text-primary" />
             RPM Trend (Revenue per 1,000 Views)
           </h3>
-          <div className="h-48">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={rpmTrend}>
-                <CartesianGrid {...cartesianGridDefaults} />
-                <XAxis dataKey="month" {...xAxisDefaults} />
-                <YAxis {...yAxisDefaults} tickFormatter={(v) => `$${v.toFixed(1)}`} />
-                <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => `$${v.toFixed(2)}`} />
-                <Line
-                  type="monotone"
-                  dataKey="rpm"
-                  stroke={CHART_COLORS[4]}
-                  {...lineDefaults}
-                  name="RPM"
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
+          <BudgetCard />
         </div>
       )}
 

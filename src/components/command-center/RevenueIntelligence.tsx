@@ -2,21 +2,13 @@ import {
   DollarSign, TrendingUp, TrendingDown, Calendar,
   ArrowUpRight, BarChart3, Lightbulb, CreditCard,
 } from "lucide-react";
-import {
-  AreaChart, Area, LineChart, Line,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
-} from "recharts";
+import { BudgetCard } from "@/components/ui/analytics-bento";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRevenueForecast } from "@/hooks/use-revenue-forecast";
 import { useRateCard } from "@/hooks/use-rate-card";
 import {
-  chartTooltipStyle,
-  cartesianGridDefaults,
-  xAxisDefaults,
-  yAxisDefaults,
-  lineDefaults,
   fmtMoney,
 } from "@/lib/chart-theme";
 
@@ -146,106 +138,7 @@ export function RevenueIntelligence() {
           <h3 className="text-sm font-semibold text-foreground mb-3">
             90-Day Revenue Forecast (3 Scenarios)
           </h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={forecast.forecastPoints} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
-              <defs>
-                <linearGradient id="gradRevActual" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#22c55e" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient
-                  id="gradRevForecast"
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
-                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient
-                  id="gradRevOptimistic"
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
-                  <stop offset="5%" stopColor="#22c55e" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient
-                  id="gradRevConservative"
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
-                  <stop offset="5%" stopColor="#eab308" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="#eab308" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid {...cartesianGridDefaults} />
-              <XAxis
-                dataKey="date"
-                {...xAxisDefaults}
-                interval="preserveStartEnd"
-              />
-              <YAxis
-                {...yAxisDefaults}
-                tickFormatter={(v) => `$${v}`}
-              />
-              <Tooltip
-                contentStyle={chartTooltipStyle}
-                formatter={(v: number) => fmtMoney(v)}
-              />
-              <Legend />
-              <Area
-                type="monotone"
-                dataKey="actual"
-                stroke="#22c55e"
-                fill="url(#gradRevActual)"
-                name="Actual"
-                strokeWidth={2.5}
-                dot={false}
-                activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }}
-              />
-              <Area
-                type="monotone"
-                dataKey="optimistic"
-                stroke="#22c55e"
-                fill="url(#gradRevOptimistic)"
-                strokeDasharray="4 4"
-                name="Aggressive"
-                strokeOpacity={0.6}
-                strokeWidth={2.5}
-                dot={false}
-                activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }}
-              />
-              <Area
-                type="monotone"
-                dataKey="forecast"
-                stroke="#3b82f6"
-                fill="url(#gradRevForecast)"
-                strokeDasharray="5 5"
-                name="Moderate"
-                strokeWidth={2.5}
-                dot={false}
-                activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }}
-              />
-              <Area
-                type="monotone"
-                dataKey="conservative"
-                stroke="#eab308"
-                fill="url(#gradRevConservative)"
-                strokeDasharray="4 4"
-                name="Conservative"
-                strokeOpacity={0.6}
-                strokeWidth={2.5}
-                dot={false}
-                activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+          <BudgetCard />
         </div>
 
         {/* Revenue Breakdown by Source */}
@@ -324,31 +217,7 @@ export function RevenueIntelligence() {
               RPM Trend (Revenue per 1,000 views) &middot; Avg $
               {forecast.avgRpm.toFixed(2)}
             </h3>
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={forecast.rpmTrend} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
-                <CartesianGrid {...cartesianGridDefaults} />
-                <XAxis
-                  dataKey="date"
-                  {...xAxisDefaults}
-                  interval="preserveStartEnd"
-                />
-                <YAxis
-                  {...yAxisDefaults}
-                  tickFormatter={(v) => `$${v.toFixed(1)}`}
-                />
-                <Tooltip
-                  contentStyle={chartTooltipStyle}
-                  formatter={(v: number) => `$${v.toFixed(2)}`}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="rpm"
-                  stroke="#a855f7"
-                  {...lineDefaults}
-                  name="RPM"
-                />
-              </LineChart>
-            </ResponsiveContainer>
+            <BudgetCard />
           </div>
         )}
 

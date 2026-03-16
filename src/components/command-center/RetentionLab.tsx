@@ -4,20 +4,13 @@ import {
   BarChart3, Lightbulb, ChevronDown, ChevronUp,
   ArrowUpRight, ArrowDownRight, Film, Target,
 } from "lucide-react";
-import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer, Legend,
-} from "recharts";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { BudgetCard } from "@/components/ui/analytics-bento";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useVideoAnalytics, type VideoAnalytics } from "@/hooks/use-youtube-analytics-api";
 import {
-  chartTooltipStyle,
-  cartesianGridDefaults,
-  xAxisDefaults,
-  yAxisDefaults,
   fmtCount,
   fmtDuration,
 } from "@/lib/chart-theme";
@@ -499,64 +492,7 @@ export function RetentionLab() {
 
           {/* Comparison Chart */}
           {comparisonProfiles.length > 0 ? (
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={comparisonData} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
-                <CartesianGrid {...cartesianGridDefaults} />
-                <XAxis
-                  {...xAxisDefaults}
-                  dataKey="label"
-                  label={{ value: "% through video", position: "insideBottom", offset: -5, fontSize: 10 }}
-                />
-                <YAxis
-                  {...yAxisDefaults}
-                  domain={[0, 100]}
-                  unit="%"
-                  label={{
-                    value: "Viewers Retained",
-                    angle: -90,
-                    position: "insideLeft",
-                    offset: 10,
-                    fontSize: 10,
-                  }}
-                />
-                <Tooltip
-                  contentStyle={chartTooltipStyle}
-                  formatter={(value: number, name: string) => {
-                    const profile = comparisonProfiles.find((p) => p.videoId === name);
-                    const label = profile
-                      ? profile.title.length > 25
-                        ? profile.title.slice(0, 25) + "..."
-                        : profile.title
-                      : name;
-                    return [`${value}%`, label];
-                  }}
-                  labelFormatter={(label) => `${label} through video`}
-                />
-                <Legend
-                  formatter={(value: string) => {
-                    const profile = comparisonProfiles.find((p) => p.videoId === value);
-                    return profile
-                      ? profile.title.length > 20
-                        ? profile.title.slice(0, 20) + "..."
-                        : profile.title
-                      : value;
-                  }}
-                  wrapperStyle={{ fontSize: 10 }}
-                />
-                {comparisonProfiles.map((p, idx) => (
-                  <Line
-                    key={p.videoId}
-                    type="monotone"
-                    dataKey={p.videoId}
-                    stroke={COMPARISON_COLORS[idx]}
-                    strokeWidth={2.5}
-                    dot={false}
-                    activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }}
-                    name={p.videoId}
-                  />
-                ))}
-              </LineChart>
-            </ResponsiveContainer>
+            <BudgetCard />
           ) : (
             <div className="flex items-center justify-center h-48 text-muted-foreground text-xs">
               Select videos above to compare retention curves
@@ -609,26 +545,7 @@ export function RetentionLab() {
                       </p>
                     </div>
                   </div>
-                  <ResponsiveContainer width="100%" height={120}>
-                    <LineChart data={profile.retentionCurve} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
-                      <CartesianGrid {...cartesianGridDefaults} />
-                      <XAxis {...xAxisDefaults} dataKey="label" interval={4} />
-                      <YAxis {...yAxisDefaults} domain={[0, 100]} unit="%" />
-                      <Tooltip
-                        contentStyle={chartTooltipStyle}
-                        formatter={(value: number) => [`${value}%`, "Retention"]}
-                        labelFormatter={(label) => `${label} through video`}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="retention"
-                        stroke="#3b82f6"
-                        strokeWidth={2.5}
-                        dot={false}
-                        activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
+                  <BudgetCard />
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <span>{fmtCount(profile.views)} views</span>
                     <span>Avg: {fmtDuration(profile.avgDurationSeconds)} / ~{fmtDuration(profile.estimatedVideoLengthSeconds)}</span>
