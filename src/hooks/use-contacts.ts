@@ -177,7 +177,7 @@ export function useActivities(entityId: string | null, entityType: string = "con
 
       const { data, error } = await supabase
         .from("activities")
-        .select("*")
+        .select("id, workspace_id, entity_id, entity_type, activity_type, title, description, performed_at, performed_by, metadata, created_at")
         .eq("workspace_id", workspaceId)
         .eq("entity_id", entityId)
         .eq("entity_type", entityType)
