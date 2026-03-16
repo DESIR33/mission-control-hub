@@ -2,13 +2,12 @@ import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { DollarSign, TrendingUp, Banknote, BarChart3, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import {
-  BarChart, Bar,
+  AreaChart, Area, BarChart, Bar, LineChart, Line,
   PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from "recharts";
-import { BudgetCard } from "@/components/ui/analytics-bento";
 import { format, subDays } from "date-fns";
-import { fmtCount, fmtMoney, pctChange, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, CHART_COLORS } from "@/lib/chart-theme";
+import { fmtCount, fmtMoney, pctChange, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, SEMANTIC_COLORS, lineDefaults, barDefaults, horizontalBarDefaults, CHART_COLORS } from "@/lib/chart-theme";
 import type { ChannelAnalytics } from "@/hooks/use-youtube-analytics-api";
 import type { VideoAnalytics } from "@/hooks/use-youtube-analytics-api";
 
@@ -192,12 +191,53 @@ export function RevenueAnalytics({ channelData, videoData, daysRange }: Props) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="rounded-xl border border-border bg-card p-4">
             <h3 className="text-sm font-semibold text-foreground mb-3">Daily Revenue Breakdown</h3>
-            <BudgetCard />
+            <ResponsiveContainer width="100%" height={260}>
+              <AreaChart data={dailyChartData} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+                <defs>
+                  <linearGradient id="adRevGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#22c55e" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="premRevGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid {...cartesianGridDefaults} />
+                <XAxis dataKey="date" {...xAxisDefaults} />
+                <YAxis {...yAxisDefaults} tickFormatter={(v) => `$${v}`} />
+                <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number, name: string) => {
+                  const labels: Record<string, string> = {
+                    adRevenue: "Ad Revenue",
+                    premiumRevenue: "Premium Revenue",
+                    revenue: "Total Revenue",
+                  };
+                  return [fmtMoney(v), labels[name] ?? name];
+                }} />
+                <Legend formatter={(value) => {
+                  const labels: Record<string, string> = {
+                    adRevenue: "Ad Revenue",
+                    premiumRevenue: "Premium",
+                  };
+                  return labels[value] ?? value;
+                }} />
+                <Area type="monotone" dataKey="adRevenue" stroke="#22c55e" strokeWidth={2.5} fill="url(#adRevGrad)" dot={false} activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }} />
+                <Area type="monotone" dataKey="premiumRevenue" stroke="#ef4444" strokeWidth={2.5} fill="url(#premRevGrad)" dot={false} activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }} />
+              </AreaChart>
+            </ResponsiveContainer>
           </div>
 
           <div className="rounded-xl border border-border bg-card p-4">
             <h3 className="text-sm font-semibold text-foreground mb-3">CPM Trend</h3>
-            <BudgetCard />
+            <ResponsiveContainer width="100%" height={260}>
+              <LineChart data={dailyChartData} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+                <CartesianGrid {...cartesianGridDefaults} />
+                <XAxis dataKey="date" {...xAxisDefaults} />
+                <YAxis {...yAxisDefaults} tickFormatter={(v) => `$${v}`} />
+                <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => [`$${v}`, "CPM"]} />
+                <Line type="monotone" dataKey="cpm" stroke="#f59e0b" strokeWidth={2.5} dot={false} activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }} />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
         </div>
       )}

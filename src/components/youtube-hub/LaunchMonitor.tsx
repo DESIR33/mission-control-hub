@@ -7,7 +7,7 @@ import {
   AlertTriangle, Clock, ArrowUpRight, ArrowDownRight,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { BudgetCard } from "@/components/ui/analytics-bento";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { fmtCount } from "@/lib/chart-theme";
 
 export function LaunchMonitor() {
@@ -158,7 +158,13 @@ export function LaunchMonitor() {
                     </div>
                   </div>
                   {v.hourlyData.length > 0 && (
-                    <BudgetCard />
+                    <ResponsiveContainer width="100%" height={80}>
+                      <LineChart data={v.hourlyData} margin={{ top: 5, right: 5, bottom: 0, left: -20 }}>
+                        <XAxis dataKey="hour_number" tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }} />
+                        <YAxis tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }} />
+                        <Line type="monotone" dataKey="views" stroke="hsl(var(--primary))" strokeWidth={1.5} dot={false} />
+                      </LineChart>
+                    </ResponsiveContainer>
                   )}
                 </div>
               );

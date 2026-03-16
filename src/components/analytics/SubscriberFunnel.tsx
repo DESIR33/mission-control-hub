@@ -13,6 +13,8 @@ import {
 import {
   BarChart,
   Bar,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -21,7 +23,6 @@ import {
   Cell,
   Legend,
 } from "recharts";
-import { BudgetCard } from "@/components/ui/analytics-bento";
 import { format } from "date-fns";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -32,7 +33,7 @@ import {
   type FunnelRange,
   type SubscriberFunnelData,
 } from "@/hooks/use-subscriber-funnel";
-import { fmtCount, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults } from "@/lib/chart-theme";
+import { fmtCount, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, lineDefaults, horizontalBarDefaults } from "@/lib/chart-theme";
 import { useAllVideoCompanies } from "@/hooks/use-all-video-companies";
 import { VideoCompanyLogos } from "@/components/VideoCompanyLogos";
 
@@ -304,7 +305,73 @@ function DailyGrowthChart({
       <h3 className="text-sm font-semibold text-foreground">
         Daily Subscriber Growth
       </h3>
-      <BudgetCard />
+      <ResponsiveContainer width="100%" height={280}>
+        <AreaChart data={chartData} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+          <defs>
+            <linearGradient id="gainedGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="hsl(var(--chart-2))" stopOpacity={0.25} />
+              <stop offset="95%" stopColor="hsl(var(--chart-2))" stopOpacity={0} />
+            </linearGradient>
+            <linearGradient id="lostGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="hsl(var(--chart-5))" stopOpacity={0} />
+              <stop offset="95%" stopColor="hsl(var(--chart-5))" stopOpacity={0.25} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid {...cartesianGridDefaults} />
+          <XAxis dataKey="date" {...xAxisDefaults} />
+          <YAxis {...yAxisDefaults} tickFormatter={fmtCount} />
+          <Tooltip
+            contentStyle={chartTooltipStyle}
+            formatter={(value: number, name: string) => {
+              const labels: Record<string, string> = {
+                gained: "Gained",
+                lost: "Lost",
+                net: "Net",
+              };
+              return [Math.abs(value).toLocaleString(), labels[name] ?? name];
+            }}
+          />
+          <Legend
+            wrapperStyle={{ fontSize: 11, paddingTop: 8 }}
+            formatter={(value: string) => {
+              const labels: Record<string, string> = {
+                gained: "Gained",
+                lost: "Lost",
+                net: "Net",
+              };
+              return labels[value] ?? value;
+            }}
+          />
+          <Area
+            type="monotone"
+            dataKey="gained"
+            stroke="hsl(var(--chart-2))"
+            strokeWidth={2.5}
+            fill="url(#gainedGrad)"
+            dot={false}
+            activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }}
+          />
+          <Area
+            type="monotone"
+            dataKey="lost"
+            stroke="hsl(var(--chart-5))"
+            strokeWidth={2.5}
+            fill="url(#lostGrad)"
+            dot={false}
+            activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }}
+          />
+          <Area
+            type="monotone"
+            dataKey="net"
+            stroke="hsl(var(--chart-1))"
+            strokeWidth={2.5}
+            fill="none"
+            strokeDasharray="4 2"
+            dot={false}
+            activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
     </div>
   );
 }

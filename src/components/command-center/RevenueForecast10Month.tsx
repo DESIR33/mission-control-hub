@@ -10,24 +10,32 @@ import {
   BarChart3,
 } from "lucide-react";
 import {
+  AreaChart,
+  Area,
   PieChart,
   Pie,
   Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Legend,
 } from "recharts";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BudgetCard } from "@/components/ui/analytics-bento";
 import { useRevenueForecast } from "@/hooks/use-revenue-forecast";
 import { useUnifiedRevenue } from "@/hooks/use-unified-revenue";
 import { addMonths, format } from "date-fns";
 import {
   chartTooltipStyle,
   fmtMoney,
+  cartesianGridDefaults,
+  xAxisDefaults,
+  yAxisDefaults,
 } from "@/lib/chart-theme";
 
 const PIE_COLORS = ["#3b82f6", "#a855f7", "#22c55e"];
@@ -266,7 +274,65 @@ export function RevenueForecast10Month() {
             <h3 className="text-sm font-semibold text-foreground mb-3">
               10-Month Revenue Projection (Stacked by Source)
             </h3>
-            <BudgetCard />
+            <ResponsiveContainer width="100%" height={320}>
+              <AreaChart data={projection} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="grad10mAdSense" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="grad10mSponsors" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#a855f7" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#a855f7" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="grad10mAffiliates" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#22c55e" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid {...cartesianGridDefaults} />
+                <XAxis dataKey="month" {...xAxisDefaults} />
+                <YAxis {...yAxisDefaults} tickFormatter={(v) => `$${v}`} />
+                <Tooltip
+                  contentStyle={chartTooltipStyle}
+                  formatter={(v: number, name: string) => [fmtMoney(v), name]}
+                />
+                <Legend />
+                <Area
+                  type="monotone"
+                  dataKey="adSense"
+                  stackId="1"
+                  stroke="#3b82f6"
+                  strokeWidth={2.5}
+                  dot={false}
+                  activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }}
+                  fill="url(#grad10mAdSense)"
+                  name="AdSense"
+                />
+                <Area
+                  type="monotone"
+                  dataKey="sponsors"
+                  stackId="1"
+                  stroke="#a855f7"
+                  strokeWidth={2.5}
+                  dot={false}
+                  activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }}
+                  fill="url(#grad10mSponsors)"
+                  name="Sponsors"
+                />
+                <Area
+                  type="monotone"
+                  dataKey="affiliates"
+                  stackId="1"
+                  stroke="#22c55e"
+                  strokeWidth={2.5}
+                  dot={false}
+                  activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }}
+                  fill="url(#grad10mAffiliates)"
+                  name="Affiliates"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
             {projection.length > 0 && (
               <p className="text-xs text-muted-foreground mt-2 text-center">
                 Month 10 projected total: {fmtMoney(projection[projection.length - 1].total)}/mo

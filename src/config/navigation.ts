@@ -35,7 +35,6 @@ import {
   Wallet,
   UserPlus,
   Video,
-  Workflow,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -147,7 +146,6 @@ export const mainNavItems: NavItem[] = [
       { to: "/ai/thumbnails", label: "Thumbnails", icon: ImageIcon },
     ],
   },
-  { to: "/workflows", icon: Workflow, label: "Workflows" },
   { to: "/integrations", icon: Zap, label: "Integrations" },
 ];
 

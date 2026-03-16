@@ -51,7 +51,6 @@ const SubscriberGuidesPage = lazy(() => import("./pages/SubscriberGuidesPage"));
 const SubscriberSequencesPage = lazy(() => import("./pages/SubscriberSequencesPage"));
 const SubscriberDashboardPage = lazy(() => import("./pages/SubscriberDashboardPage"));
 const SubscribersListPage = lazy(() => import("./pages/SubscribersListPage"));
-const WorkflowPage = lazy(() => import("./pages/WorkflowPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -189,9 +188,6 @@ const App = () => (
               <Route path="/inbox" element={<LazyPage section="Inbox"><InboxPage /></LazyPage>} />
               <Route path="/inbox/*" element={<LazyPage section="Inbox"><InboxPage /></LazyPage>} />
               <Route path="/notifications" element={<LazyPage section="Notifications"><NotificationsPage /></LazyPage>} />
-
-              {/* Workflows */}
-              <Route path="/workflows" element={<LazyPage section="Workflows"><WorkflowPage /></LazyPage>} />
 
               {/* Integrations */}
               <Route path="/integrations" element={<LazyPage section="Integrations"><IntegrationsPage /></LazyPage>} />

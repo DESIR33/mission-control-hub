@@ -2,10 +2,13 @@ import {
   DollarSign, TrendingUp, TrendingDown, Calendar,
   ArrowUpRight, BarChart3,
 } from "lucide-react";
+import {
+  AreaChart, Area, LineChart, Line,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+} from "recharts";
 import { Badge } from "@/components/ui/badge";
-import { BudgetCard } from "@/components/ui/analytics-bento";
 import { useRevenueForecast } from "@/hooks/use-revenue-forecast";
-import { fmtMoney } from "@/lib/chart-theme";
+import { fmtMoney, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, lineDefaults } from "@/lib/chart-theme";
 
 export function RevenueForecast() {
   const { data: forecast, isLoading } = useRevenueForecast();
@@ -86,7 +89,29 @@ export function RevenueForecast() {
       {/* Revenue Forecast Chart */}
       <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-foreground mb-3">90-Day Revenue Forecast</h3>
-        <BudgetCard />
+        <ResponsiveContainer width="100%" height={300}>
+          <AreaChart data={forecast.forecastPoints} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+            <defs>
+              <linearGradient id="gradRevActual" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#22c55e" stopOpacity={0.25} />
+                <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
+              </linearGradient>
+              <linearGradient id="gradRevForecast" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.25} />
+                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid {...cartesianGridDefaults} />
+            <XAxis dataKey="date" {...xAxisDefaults} interval="preserveStartEnd" />
+            <YAxis {...yAxisDefaults} tickFormatter={(v) => `$${v}`} />
+            <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => fmtMoney(v)} />
+            <Legend />
+            <Area type="monotone" dataKey="actual" stroke="#22c55e" fill="url(#gradRevActual)" name="Actual" strokeWidth={2.5} dot={false} activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }} />
+            <Area type="monotone" dataKey="forecast" stroke="#3b82f6" fill="url(#gradRevForecast)" strokeDasharray="5 5" name="Forecast" strokeWidth={2.5} dot={false} activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }} />
+            <Line type="monotone" dataKey="optimistic" stroke="#22c55e" strokeDasharray="2 2" {...lineDefaults} name="Optimistic" strokeOpacity={0.4} />
+            <Line type="monotone" dataKey="conservative" stroke="#eab308" strokeDasharray="2 2" {...lineDefaults} name="Conservative" strokeOpacity={0.4} />
+          </AreaChart>
+        </ResponsiveContainer>
       </div>
 
       {/* RPM Trend */}
@@ -95,7 +120,15 @@ export function RevenueForecast() {
           <h3 className="text-sm font-semibold text-foreground mb-3">
             RPM Trend (Revenue per 1,000 views) · Avg ${forecast.avgRpm.toFixed(2)}
           </h3>
-          <BudgetCard />
+          <ResponsiveContainer width="100%" height={200}>
+            <LineChart data={forecast.rpmTrend} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+              <CartesianGrid {...cartesianGridDefaults} />
+              <XAxis dataKey="date" {...xAxisDefaults} interval="preserveStartEnd" />
+              <YAxis {...yAxisDefaults} tickFormatter={(v) => `$${v.toFixed(1)}`} />
+              <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => `$${v.toFixed(2)}`} />
+              <Line type="monotone" dataKey="rpm" stroke="#a855f7" {...lineDefaults} name="RPM" />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
       )}
 

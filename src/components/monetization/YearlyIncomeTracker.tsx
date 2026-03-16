@@ -2,14 +2,13 @@ import { useMemo } from "react";
 import { motion } from "framer-motion";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer,
+  ResponsiveContainer, LineChart, Line, Legend,
 } from "recharts";
-import { BudgetCard } from "@/components/ui/analytics-bento";
 import { DollarSign, TrendingUp, TrendingDown, Calendar, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { useUnifiedRevenue } from "@/hooks/use-unified-revenue";
 import {
   chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults,
-  barDefaults, fmtMoney, pctChange,
+  barDefaults, lineDefaults, fmtMoney, pctChange,
 } from "@/lib/chart-theme";
 
 const fmtDollar = (n: number) => `$${n.toLocaleString()}`;
@@ -173,7 +172,35 @@ export function YearlyIncomeTracker() {
         <h3 className="text-sm font-semibold text-foreground mb-3">
           Year-over-Year Comparison
         </h3>
-        <BudgetCard />
+        <ResponsiveContainer width="100%" height={260}>
+          <LineChart data={yoyData} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+            <CartesianGrid {...cartesianGridDefaults} />
+            <XAxis {...xAxisDefaults} dataKey="month" />
+            <YAxis {...yAxisDefaults} tickFormatter={(v) => fmtMoney(v)} />
+            <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => fmtDollar(v)} />
+            <Legend
+              wrapperStyle={{ fontSize: 11, paddingTop: 8 }}
+              iconType="circle"
+              iconSize={8}
+            />
+            <Line
+              type="monotone"
+              dataKey={String(currentYear)}
+              stroke="hsl(var(--chart-1))"
+              name={String(currentYear)}
+              {...lineDefaults}
+            />
+            <Line
+              type="monotone"
+              dataKey={String(prevYear)}
+              stroke="hsl(var(--muted-foreground))"
+              name={String(prevYear)}
+              strokeDasharray="6 3"
+              {...lineDefaults}
+              strokeWidth={2}
+            />
+          </LineChart>
+        </ResponsiveContainer>
       </motion.div>
 
       {/* Best / Worst Month */}

@@ -2,12 +2,12 @@ import { useMemo } from "react";
 import { Route, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import {
   BarChart, Bar, PieChart, Pie, Cell,
+  AreaChart, Area, Legend,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
-import { BudgetCard } from "@/components/ui/analytics-bento";
 import { subDays, format } from "date-fns";
 import type { TrafficSource } from "@/hooks/use-youtube-analytics-api";
-import { fmtCount, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, CHART_COLORS } from "@/lib/chart-theme";
+import { fmtCount, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, CHART_COLORS, horizontalBarDefaults } from "@/lib/chart-theme";
 
 const SOURCE_LABELS: Record<string, string> = {
   ADVERTISING: "Ads",
@@ -240,7 +240,26 @@ export function TrafficSources({ data, daysRange }: Props) {
       {trendChartData.length > 0 && (
         <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3">Traffic Source Trends</h3>
-          <BudgetCard />
+          <ResponsiveContainer width="100%" height={300}>
+            <AreaChart data={trendChartData} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+              <CartesianGrid {...cartesianGridDefaults} />
+              <XAxis dataKey="date" {...xAxisDefaults} />
+              <YAxis {...yAxisDefaults} tickFormatter={fmtCount} />
+              <Tooltip contentStyle={chartTooltipStyle} />
+              <Legend wrapperStyle={{ fontSize: 11, paddingTop: 8 }} />
+              {top5Sources.map((source, i) => (
+                <Area
+                  key={source}
+                  type="monotone"
+                  dataKey={source}
+                  stackId="1"
+                  stroke={CHART_COLORS[i % CHART_COLORS.length]}
+                  fill={CHART_COLORS[i % CHART_COLORS.length]}
+                  fillOpacity={0.5}
+                />
+              ))}
+            </AreaChart>
+          </ResponsiveContainer>
         </div>
       )}
 

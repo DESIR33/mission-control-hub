@@ -7,9 +7,24 @@ import {
   BarChart3,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { BudgetCard } from "@/components/ui/analytics-bento";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 import { useCollabImpact, type CollabImpact } from "@/hooks/use-collab-impact";
 import type { Collaboration } from "@/hooks/use-collaborations";
+
+const chartTooltipStyle: React.CSSProperties = {
+  backgroundColor: "hsl(var(--card))",
+  border: "1px solid hsl(var(--border))",
+  borderRadius: "8px",
+  fontSize: "12px",
+  color: "hsl(var(--foreground))",
+};
 
 function formatSubCount(count: number): string {
   if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1)}M`;
@@ -148,7 +163,24 @@ function CollabImpactRow({ impact }: { impact: CollabImpact }) {
       {/* Mini sparkline */}
       {impact.dailyData.length > 2 && (
         <div className="h-16">
-          <BudgetCard />
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={impact.dailyData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
+              <XAxis dataKey="date" hide />
+              <YAxis hide domain={["dataMin - 100", "dataMax + 100"]} />
+              <Tooltip
+                contentStyle={chartTooltipStyle}
+                formatter={(v: number) => [formatSubCount(v), "Subscribers"]}
+                labelFormatter={(label) => new Date(label).toLocaleDateString()}
+              />
+              <Line
+                type="monotone"
+                dataKey="subscribers"
+                stroke="hsl(var(--primary))"
+                strokeWidth={2}
+                dot={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
       )}
     </div>

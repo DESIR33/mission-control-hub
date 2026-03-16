@@ -3,13 +3,12 @@ import {
   BarChart3, ArrowUpRight, ArrowDownRight,
 } from "lucide-react";
 import {
-  BarChart, Bar, ScatterChart, Scatter,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
+  BarChart, Bar, LineChart, Line, ScatterChart, Scatter,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend,
 } from "recharts";
 import { Badge } from "@/components/ui/badge";
-import { BudgetCard } from "@/components/ui/analytics-bento";
 import { useRetentionAnalysis } from "@/hooks/use-retention-analysis";
-import { fmtCount, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults } from "@/lib/chart-theme";
+import { fmtCount, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, lineDefaults } from "@/lib/chart-theme";
 
 const categoryColor: Record<string, string> = {
   excellent: "#22c55e",
@@ -130,7 +129,15 @@ export function RetentionAnalyzer() {
       {analysis.retentionTrend.length > 5 && (
         <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-foreground mb-3">Retention Trend</h3>
-          <BudgetCard />
+          <ResponsiveContainer width="100%" height={200}>
+            <LineChart data={analysis.retentionTrend} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+              <CartesianGrid {...cartesianGridDefaults} />
+              <XAxis dataKey="date" {...xAxisDefaults} interval="preserveStartEnd" />
+              <YAxis {...yAxisDefaults} unit="%" />
+              <Tooltip contentStyle={chartTooltipStyle} />
+              <Line type="monotone" dataKey="avgRetention" stroke="#3b82f6" {...lineDefaults} name="Avg Retention %" />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
       )}
 

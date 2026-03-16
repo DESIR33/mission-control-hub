@@ -2,12 +2,12 @@ import {
   Trophy, TrendingUp, Flame, Calendar, ArrowUpRight,
   Zap, Target, CheckCircle2, Circle,
 } from "lucide-react";
-import { BudgetCard } from "@/components/ui/analytics-bento";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useMilestoneCountdown } from "@/hooks/use-milestone-countdown";
 import { useGoalPace } from "@/hooks/use-goal-pace";
-import { fmtCount } from "@/lib/chart-theme";
+import { fmtCount, chartTooltipStyle, cartesianGridDefaults, xAxisDefaults, yAxisDefaults } from "@/lib/chart-theme";
 
 const momentumConfig: Record<string, { label: string; color: string; icon: any }> = {
   accelerating: { label: "Accelerating", color: "text-green-400", icon: ArrowUpRight },
@@ -124,7 +124,28 @@ export function MilestoneCountdown() {
             </div>
           </div>
           {pace.microTargets.length > 0 && (
-            <BudgetCard />
+            <ResponsiveContainer width="100%" height={200}>
+              <AreaChart data={pace.microTargets.slice(-12)} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+                <defs>
+                  <linearGradient id="targetGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#f59e0b" stopOpacity={0.25} />
+                    <stop offset="100%" stopColor="#f59e0b" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="actualGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#22c55e" stopOpacity={0.25} />
+                    <stop offset="100%" stopColor="#22c55e" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid {...cartesianGridDefaults} />
+                <XAxis dataKey="week" {...xAxisDefaults} />
+                <YAxis {...yAxisDefaults} />
+                <Tooltip
+                  contentStyle={chartTooltipStyle}
+                />
+                <Area type="monotone" dataKey="target" stroke="#f59e0b" fill="url(#targetGradient)" name="Target" strokeDasharray="5 5" strokeWidth={2.5} dot={false} activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }} />
+                <Area type="monotone" dataKey="actual" stroke="#22c55e" fill="url(#actualGradient)" name="Actual" strokeWidth={2.5} dot={false} activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }} />
+              </AreaChart>
+            </ResponsiveContainer>
           )}
         </div>
       )}

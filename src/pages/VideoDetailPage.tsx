@@ -4,9 +4,11 @@ import { ArrowLeft, TrendingUp, Lightbulb, AlertCircle, DollarSign, Sparkles } f
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BudgetCard } from "@/components/ui/analytics-bento";
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+} from "recharts";
 import { format } from "date-fns";
-import { fmtCount, fmtMoney, fmtDuration } from "@/lib/chart-theme";
+import { fmtCount, fmtMoney, fmtDuration, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, lineDefaults } from "@/lib/chart-theme";
 import { useVideoDetail, useVideoAnalyticsTrend } from "@/hooks/use-video-detail";
 import { useVideoNotes } from "@/hooks/use-video-notes";
 import { useVideoExperiments } from "@/hooks/use-video-experiments";
@@ -179,7 +181,15 @@ export default function VideoDetailPage() {
           {trendChart.length > 1 ? (
             <div className="rounded-xl border border-border bg-card p-4">
               <h3 className="text-sm font-semibold text-foreground mb-3">Views Trend</h3>
-              <BudgetCard />
+              <ResponsiveContainer width="100%" height={200}>
+                <LineChart data={trendChart} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+                  <CartesianGrid {...cartesianGridDefaults} />
+                  <XAxis dataKey="date" {...xAxisDefaults} />
+                  <YAxis {...yAxisDefaults} tickFormatter={fmtCount} />
+                  <Tooltip contentStyle={chartTooltipStyle} />
+                  <Line type="monotone" dataKey="views" stroke="hsl(var(--primary))" {...lineDefaults} />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
           ) : (
             <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
@@ -306,7 +316,15 @@ export default function VideoDetailPage() {
           {trendChart.some((d) => d.revenue > 0) && (
             <div className="rounded-xl border border-border bg-card p-4">
               <h3 className="text-sm font-semibold text-foreground mb-3">Daily Ad Revenue Trend</h3>
-              <BudgetCard />
+              <ResponsiveContainer width="100%" height={180}>
+                <LineChart data={trendChart} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+                  <CartesianGrid {...cartesianGridDefaults} />
+                  <XAxis dataKey="date" {...xAxisDefaults} />
+                  <YAxis {...yAxisDefaults} tickFormatter={(v) => `$${v}`} />
+                  <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => [`$${Number(v).toFixed(2)}`, "Revenue"]} />
+                  <Line type="monotone" dataKey="revenue" stroke="#22c55e" {...lineDefaults} />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
           )}
 

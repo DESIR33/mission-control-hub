@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
 import { Target, TrendingUp, TrendingDown, Minus, Calendar, Zap } from "lucide-react";
-import { BudgetCard } from "@/components/ui/analytics-bento";
+import { AreaChart, Area, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 import { useGrowthCountdown } from "@/hooks/use-growth-countdown";
-import { fmtCount } from "@/lib/chart-theme";
+import { fmtCount, chartTooltipStyle, SEMANTIC_COLORS } from "@/lib/chart-theme";
 import { format } from "date-fns";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -157,7 +157,31 @@ export function GrowthCountdownTracker() {
             Daily subscriber gains (last 30 days)
           </p>
           <div className="h-16">
-            <BudgetCard />
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={data.sparklineData}>
+                <defs>
+                  <linearGradient id="growthSparkGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={SEMANTIC_COLORS.subscribers} stopOpacity={0.3} />
+                    <stop offset="95%" stopColor={SEMANTIC_COLORS.subscribers} stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <XAxis dataKey="date" hide />
+                <Tooltip
+                  contentStyle={chartTooltipStyle}
+                  formatter={(value: number) => [`+${value} subs`, "Gained"]}
+                  labelFormatter={(label) => label}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="gained"
+                  stroke={SEMANTIC_COLORS.subscribers}
+                  strokeWidth={2}
+                  fill="url(#growthSparkGrad)"
+                  dot={false}
+                  activeDot={{ r: 3, strokeWidth: 2, stroke: "hsl(var(--background))" }}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
           </div>
         </div>
       )}
