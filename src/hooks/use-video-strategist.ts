@@ -215,7 +215,7 @@ export function useRollbackExperiment() {
       if (!workspaceId) throw new Error("No workspace");
       // Manual rollback: update experiment status, then call YouTube API to revert
       const { data: experiment, error: fetchError } = await query("video_optimization_experiments")
-        .select("*")
+        .select("id, video_id, original_title, original_description, original_tags")
         .eq("id", experimentId)
         .eq("workspace_id", workspaceId)
         .single();
