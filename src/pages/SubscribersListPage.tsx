@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { SubscribersTable } from "@/components/subscribers/SubscribersTable";
 import { SubscriberDetailSheet } from "@/components/subscribers/SubscriberDetailSheet";
 import { AddSubscriberDialog } from "@/components/subscribers/AddSubscriberDialog";
+import { ImportSubscribersDialog } from "@/components/subscribers/ImportSubscribersDialog";
 import { useSubscribers } from "@/hooks/use-subscribers";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Subscriber } from "@/types/subscriber";
