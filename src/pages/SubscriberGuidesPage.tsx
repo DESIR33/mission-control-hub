@@ -71,7 +71,7 @@ function GuideForm({ guide, videos, companies, onSubmit, isPending, onCancel, su
       email_body: (form.get("email_body") as string) || null,
       video_queue_id: selectedVideoId && selectedVideoId !== "none" ? Number(selectedVideoId) : null,
       company_id: selectedCompanyId && selectedCompanyId !== "none" ? selectedCompanyId : null,
-      status: (form.get("status") as string) || "active",
+      status,
     });
   };
 
