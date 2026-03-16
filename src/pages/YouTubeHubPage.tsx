@@ -95,13 +95,21 @@ export default function YouTubeHubPage() {
   const syncYouTube = useSyncYouTube();
   const syncAnalytics = useSyncYouTubeAnalytics();
 
-  // Auto-sync YouTube data on page load
+  // Auto-sync YouTube data on page load (staggered + throttled)
   const hasSynced = useRef(false);
   useEffect(() => {
     if (hasSynced.current || workspaceLoading) return;
     hasSynced.current = true;
+
+    const THROTTLE_MS = 120 * 60 * 1000; // 120 minutes
+    const lastSyncKey = "yt_hub_last_sync_ts";
+    const lastSync = Number(localStorage.getItem(lastSyncKey) || "0");
+    if (Date.now() - lastSync < THROTTLE_MS) return;
+
+    localStorage.setItem(lastSyncKey, String(Date.now()));
+    // Stagger: run youtube-sync first, then analytics-sync after 10s
     syncYouTube.mutate();
-    syncAnalytics.mutate({});
+    setTimeout(() => syncAnalytics.mutate({}), 10_000);
   }, [workspaceLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Redirect bare /youtube to /youtube/dashboard

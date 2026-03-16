@@ -86,8 +86,9 @@ export default function AnalyticsPage() {
     if (now - lastSync < THROTTLE_MS) return;
 
     localStorage.setItem(lastSyncKey, String(now));
+    // Stagger: run youtube-sync first, then analytics-sync after 10s
     syncYouTube.mutate();
-    syncAnalytics.mutate({ start_date: subDays(new Date(), 90).toISOString().split("T")[0] });
+    setTimeout(() => syncAnalytics.mutate({ start_date: subDays(new Date(), 90).toISOString().split("T")[0] }), 10_000);
   }, [workspaceLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const isLoading = workspaceLoading || loadingChannel || loadingVideos;

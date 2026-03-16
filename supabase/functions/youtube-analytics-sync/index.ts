@@ -464,7 +464,7 @@ Deno.serve(async (req) => {
         .select("youtube_video_id")
         .eq("workspace_id", workspace_id)
         .order("views", { ascending: false })
-        .limit(10);
+        .limit(5);
 
       for (const v of (topVideos ?? []) as any[]) {
         try {
