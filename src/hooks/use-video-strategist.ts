@@ -174,7 +174,7 @@ export function useActiveExperiments() {
     queryFn: async () => {
       if (!workspaceId) return [];
       const { data, error } = await query("video_optimization_experiments")
-        .select("*")
+        .select("id, workspace_id, video_id, experiment_type, original_title, original_description, original_tags, new_title, new_description, new_tags, status, started_at, completed_at, rolled_back_at, rollback_reason, before_metrics, after_metrics, improvement_percent, proposal_id, created_at")
         .eq("workspace_id", workspaceId)
         .eq("status", "active")
         .order("started_at", { ascending: false });
