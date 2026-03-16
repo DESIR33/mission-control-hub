@@ -109,7 +109,7 @@ export default function YouTubeCommandCenterPage() {
     if (hasSynced.current || workspaceLoading) return;
     hasSynced.current = true;
 
-    const THROTTLE_MS = 120 * 60 * 1000;
+    const THROTTLE_MS = 12 * 60 * 60 * 1000; // 12 hours
     const lastSyncKey = "yt_cc_last_sync_ts";
     const lastSync = Number(localStorage.getItem(lastSyncKey) || "0");
     if (Date.now() - lastSync < THROTTLE_MS) return;
