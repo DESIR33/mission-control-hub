@@ -8,15 +8,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useSubscriberGuides, useCreateSubscriberGuide, useDeleteSubscriberGuide } from "@/hooks/use-subscriber-guides";
+import { useSubscriberGuides, useCreateSubscriberGuide, useUpdateSubscriberGuide, useDeleteSubscriberGuide } from "@/hooks/use-subscriber-guides";
 import { useCompanies } from "@/hooks/use-companies";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, BookOpen, Trash2, Loader2, Video, Building2 } from "lucide-react";
+import { Plus, BookOpen, Trash2, Loader2, Video, Building2, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import type { SubscriberGuide } from "@/types/subscriber";
 
 function useVideoQueueList() {
   const { workspaceId } = useWorkspace();
@@ -38,37 +39,166 @@ function useVideoQueueList() {
   });
 }
 
+interface GuideFormProps {
+  guide?: SubscriberGuide | null;
+  videos: { id: number; title: string }[];
+  companies: { id: string; name: string }[];
+  onSubmit: (data: any) => Promise<void>;
+  isPending: boolean;
+  onCancel: () => void;
+  submitLabel: string;
+}
+
+function GuideForm({ guide, videos, companies, onSubmit, isPending, onCancel, submitLabel }: GuideFormProps) {
+  const [deliveryType, setDeliveryType] = useState<string>(guide?.delivery_type ?? "email");
+  const [selectedVideoId, setSelectedVideoId] = useState<string>(guide?.video_queue_id ? String(guide.video_queue_id) : "");
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>(guide?.company_id ?? "");
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    await onSubmit({
+      name: form.get("name") as string,
+      slug: form.get("slug") as string,
+      description: (form.get("description") as string) || undefined,
+      delivery_type: deliveryType as "email" | "redirect",
+      file_url: (form.get("file_url") as string) || undefined,
+      email_subject: (form.get("email_subject") as string) || undefined,
+      email_body: (form.get("email_body") as string) || undefined,
+      video_queue_id: selectedVideoId && selectedVideoId !== "none" ? Number(selectedVideoId) : null,
+      company_id: selectedCompanyId && selectedCompanyId !== "none" ? selectedCompanyId : null,
+    });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-1.5">
+        <Label htmlFor="guide_name">Name *</Label>
+        <Input id="guide_name" name="name" required defaultValue={guide?.name ?? ""} placeholder="AI Tools Starter Guide" className="bg-secondary border-border" />
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="guide_slug">Slug * <span className="text-xs text-muted-foreground">(matches guide_requested field)</span></Label>
+        <Input id="guide_slug" name="slug" required defaultValue={guide?.slug ?? ""} placeholder="ai-tools-guide" className="bg-secondary border-border" />
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="guide_desc">Description</Label>
+        <Textarea id="guide_desc" name="description" rows={2} defaultValue={guide?.description ?? ""} className="bg-secondary border-border" />
+      </div>
+
+      <div className="space-y-1.5">
+        <Label className="flex items-center gap-1.5">
+          <Video className="w-3.5 h-3.5 text-muted-foreground" />
+          Linked Video
+        </Label>
+        <Select value={selectedVideoId} onValueChange={setSelectedVideoId}>
+          <SelectTrigger className="bg-secondary border-border">
+            <SelectValue placeholder="Select a video..." />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">No video</SelectItem>
+            {videos.map((v) => (
+              <SelectItem key={v.id} value={String(v.id)}>{v.title}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-muted-foreground">Which video this guide is associated with</p>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label className="flex items-center gap-1.5">
+          <Building2 className="w-3.5 h-3.5 text-muted-foreground" />
+          Linked Company
+        </Label>
+        <Select value={selectedCompanyId} onValueChange={setSelectedCompanyId}>
+          <SelectTrigger className="bg-secondary border-border">
+            <SelectValue placeholder="Select a company..." />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">No company</SelectItem>
+            {companies.map((c) => (
+              <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-muted-foreground">Which company/brand this guide relates to</p>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label>Delivery Type</Label>
+        <Select value={deliveryType} onValueChange={setDeliveryType}>
+          <SelectTrigger className="bg-secondary border-border"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="email">Email</SelectItem>
+            <SelectItem value="redirect">Redirect URL</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="guide_url">File/Download URL</Label>
+        <Input id="guide_url" name="file_url" defaultValue={guide?.file_url ?? ""} placeholder="https://..." className="bg-secondary border-border" />
+      </div>
+      {deliveryType === "email" && (
+        <>
+          <div className="space-y-1.5">
+            <Label htmlFor="guide_subject">Email Subject</Label>
+            <Input id="guide_subject" name="email_subject" defaultValue={guide?.email_subject ?? ""} placeholder="Here's your guide: {{guide_name}}" className="bg-secondary border-border" />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="guide_body">Email Body</Label>
+            <Textarea id="guide_body" name="email_body" rows={4} defaultValue={guide?.email_body ?? ""} placeholder="Hi {{first_name}}, here's your guide..." className="bg-secondary border-border" />
+          </div>
+        </>
+      )}
+
+      <div className="space-y-1.5">
+        <Label>Status</Label>
+        <Select name="status" defaultValue={guide?.status ?? "active"}>
+          <SelectTrigger className="bg-secondary border-border"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="inactive">Inactive</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="flex justify-end gap-2 pt-2">
+        <Button type="button" variant="ghost" onClick={onCancel}>Cancel</Button>
+        <Button type="submit" disabled={isPending}>
+          {isPending && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+          {submitLabel}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
 export default function SubscriberGuidesPage() {
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [deliveryType, setDeliveryType] = useState<string>("email");
-  const [selectedVideoId, setSelectedVideoId] = useState<string>("");
-  const [selectedCompanyId, setSelectedCompanyId] = useState<string>("");
+  const [createOpen, setCreateOpen] = useState(false);
+  const [editingGuide, setEditingGuide] = useState<SubscriberGuide | null>(null);
   const { data: guides = [], isLoading } = useSubscriberGuides();
   const { data: companies = [] } = useCompanies();
   const { data: videos = [] } = useVideoQueueList();
   const createGuide = useCreateSubscriberGuide();
+  const updateGuide = useUpdateSubscriberGuide();
   const deleteGuide = useDeleteSubscriberGuide();
   const { toast } = useToast();
 
-  const handleCreate = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = new FormData(e.currentTarget);
+  const handleCreate = async (data: any) => {
     try {
-      await createGuide.mutateAsync({
-        name: form.get("name") as string,
-        slug: form.get("slug") as string,
-        description: (form.get("description") as string) || undefined,
-        delivery_type: deliveryType as "email" | "redirect",
-        file_url: (form.get("file_url") as string) || undefined,
-        email_subject: (form.get("email_subject") as string) || undefined,
-        email_body: (form.get("email_body") as string) || undefined,
-        video_queue_id: selectedVideoId ? Number(selectedVideoId) : undefined,
-        company_id: selectedCompanyId || undefined,
-      });
+      await createGuide.mutateAsync(data);
       toast({ title: "Guide created" });
-      setDialogOpen(false);
-      setSelectedVideoId("");
-      setSelectedCompanyId("");
+      setCreateOpen(false);
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleUpdate = async (data: any) => {
+    if (!editingGuide) return;
+    try {
+      await updateGuide.mutateAsync({ id: editingGuide.id, ...data });
+      toast({ title: "Guide updated" });
+      setEditingGuide(null);
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
     }
@@ -90,7 +220,9 @@ export default function SubscriberGuidesPage() {
           <h1 className="text-2xl font-bold text-foreground">Subscriber Guides</h1>
           <p className="text-sm text-muted-foreground mt-1">Manage guides that are automatically delivered to subscribers</p>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+
+        {/* Create Dialog */}
+        <Dialog open={createOpen} onOpenChange={setCreateOpen}>
           <DialogTrigger asChild>
             <Button size="sm" className="gap-1.5">
               <Plus className="w-4 h-4" />
@@ -101,103 +233,37 @@ export default function SubscriberGuidesPage() {
             <DialogHeader>
               <DialogTitle>Create Guide</DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleCreate} className="space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="guide_name">Name *</Label>
-                <Input id="guide_name" name="name" required placeholder="AI Tools Starter Guide" className="bg-secondary border-border" />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="guide_slug">Slug * <span className="text-xs text-muted-foreground">(matches guide_requested field)</span></Label>
-                <Input id="guide_slug" name="slug" required placeholder="ai-tools-guide" className="bg-secondary border-border" />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="guide_desc">Description</Label>
-                <Textarea id="guide_desc" name="description" rows={2} className="bg-secondary border-border" />
-              </div>
-
-              {/* Video Linking */}
-              <div className="space-y-1.5">
-                <Label className="flex items-center gap-1.5">
-                  <Video className="w-3.5 h-3.5 text-muted-foreground" />
-                  Linked Video
-                </Label>
-                <Select value={selectedVideoId} onValueChange={setSelectedVideoId}>
-                  <SelectTrigger className="bg-secondary border-border">
-                    <SelectValue placeholder="Select a video..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">No video</SelectItem>
-                    {videos.map((v) => (
-                      <SelectItem key={v.id} value={String(v.id)}>
-                        {v.title}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground">Which video this guide is associated with</p>
-              </div>
-
-              {/* Company Linking */}
-              <div className="space-y-1.5">
-                <Label className="flex items-center gap-1.5">
-                  <Building2 className="w-3.5 h-3.5 text-muted-foreground" />
-                  Linked Company
-                </Label>
-                <Select value={selectedCompanyId} onValueChange={setSelectedCompanyId}>
-                  <SelectTrigger className="bg-secondary border-border">
-                    <SelectValue placeholder="Select a company..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">No company</SelectItem>
-                    {companies.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>
-                        {c.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground">Which company/brand this guide relates to</p>
-              </div>
-
-              <div className="space-y-1.5">
-                <Label>Delivery Type</Label>
-                <Select value={deliveryType} onValueChange={setDeliveryType}>
-                  <SelectTrigger className="bg-secondary border-border">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="email">Email</SelectItem>
-                    <SelectItem value="redirect">Redirect URL</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="guide_url">File/Download URL</Label>
-                <Input id="guide_url" name="file_url" placeholder="https://..." className="bg-secondary border-border" />
-              </div>
-              {deliveryType === "email" && (
-                <>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="guide_subject">Email Subject</Label>
-                    <Input id="guide_subject" name="email_subject" placeholder="Here's your guide: {{guide_name}}" className="bg-secondary border-border" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="guide_body">Email Body</Label>
-                    <Textarea id="guide_body" name="email_body" rows={4} placeholder="Hi {{first_name}}, here's your guide..." className="bg-secondary border-border" />
-                  </div>
-                </>
-              )}
-              <div className="flex justify-end gap-2 pt-2">
-                <Button type="button" variant="ghost" onClick={() => setDialogOpen(false)}>Cancel</Button>
-                <Button type="submit" disabled={createGuide.isPending}>
-                  {createGuide.isPending && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                  Create Guide
-                </Button>
-              </div>
-            </form>
+            <GuideForm
+              videos={videos}
+              companies={companies}
+              onSubmit={handleCreate}
+              isPending={createGuide.isPending}
+              onCancel={() => setCreateOpen(false)}
+              submitLabel="Create Guide"
+            />
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* Edit Dialog */}
+      <Dialog open={!!editingGuide} onOpenChange={(open) => { if (!open) setEditingGuide(null); }}>
+        <DialogContent className="bg-card border-border max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Guide</DialogTitle>
+          </DialogHeader>
+          {editingGuide && (
+            <GuideForm
+              guide={editingGuide}
+              videos={videos}
+              companies={companies}
+              onSubmit={handleUpdate}
+              isPending={updateGuide.isPending}
+              onCancel={() => setEditingGuide(null)}
+              submitLabel="Save Changes"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
 
       {isLoading ? (
         <div className="space-y-3">
@@ -222,7 +288,7 @@ export default function SubscriberGuidesPage() {
                 <TableHead className="text-muted-foreground font-semibold">Downloads</TableHead>
                 <TableHead className="text-muted-foreground font-semibold">Status</TableHead>
                 <TableHead className="text-muted-foreground font-semibold">Created</TableHead>
-                <TableHead className="w-[40px]" />
+                <TableHead className="w-[80px]" />
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -276,9 +342,14 @@ export default function SubscriberGuidesPage() {
                     <span className="text-xs text-muted-foreground">{format(new Date(guide.created_at), "MMM d, yyyy")}</span>
                   </TableCell>
                   <TableCell>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" onClick={() => handleDelete(guide.id)}>
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </Button>
+                    <div className="flex items-center gap-0.5">
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEditingGuide(guide)}>
+                        <Pencil className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" onClick={() => handleDelete(guide.id)}>
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
