@@ -1,4 +1,4 @@
-import { lazy, Suspense, type ComponentType } from "react";
+import { lazy, Suspense, type ReactElement } from "react";
 
 /**
  * Optimization #10: Lazy-load wrapper for heavy chart components.
@@ -12,7 +12,7 @@ const LazyResponsiveContainer = lazy(() =>
 interface LazyChartWrapperProps {
   width?: string | number;
   height?: string | number;
-  children: React.ReactNode;
+  children: ReactElement;
   fallback?: React.ReactNode;
 }
 

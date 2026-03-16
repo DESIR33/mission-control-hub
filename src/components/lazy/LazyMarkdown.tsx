@@ -9,14 +9,13 @@ const ReactMarkdown = lazy(() => import("react-markdown"));
 
 interface LazyMarkdownProps {
   children: string;
-  className?: string;
   remarkPlugins?: any[];
 }
 
-export function LazyMarkdown({ children, className, remarkPlugins }: LazyMarkdownProps) {
+export function LazyMarkdown({ children, remarkPlugins }: LazyMarkdownProps) {
   return (
     <Suspense fallback={<div className="animate-pulse text-muted-foreground text-sm">Loading…</div>}>
-      <ReactMarkdown className={className} remarkPlugins={remarkPlugins}>
+      <ReactMarkdown remarkPlugins={remarkPlugins}>
         {children}
       </ReactMarkdown>
     </Suspense>
