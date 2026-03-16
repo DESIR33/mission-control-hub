@@ -21,6 +21,7 @@ import type { Subscriber, SubscriberStatus } from "@/types/subscriber";
 import { SubscriberEngagementBadge } from "./SubscriberEngagementBadge";
 import { SubscriberTagPicker } from "./SubscriberTagPicker";
 import { PromoteSubscriberDialog } from "./PromoteSubscriberDialog";
+import { SubscriberGuidePicker } from "./SubscriberGuidePicker";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
 
@@ -277,6 +278,8 @@ export function SubscriberDetailSheet({ subscriber, open, onOpenChange, onDelete
                       )}
                     </div>
                   </div>
+                  <Separator className="bg-border" />
+                  <SubscriberGuidePicker subscriberId={subscriber.id} />
                   {subscriber.notes && (
                     <>
                       <Separator className="bg-border" />
