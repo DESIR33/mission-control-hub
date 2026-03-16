@@ -153,7 +153,7 @@ export function useAgentExecutions(agentSlug: string, limit = 10) {
     queryFn: async () => {
       if (!workspaceId) return [];
       const { data, error } = await query("agent_executions")
-        .select("*")
+        .select("id, workspace_id, agent_slug, agent_id, skill_slug, status, trigger_type, input, output, error_message, proposals_created, started_at, completed_at, duration_ms, created_at")
         .eq("workspace_id", workspaceId)
         .eq("agent_slug", agentSlug)
         .order("created_at", { ascending: false })

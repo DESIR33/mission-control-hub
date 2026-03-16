@@ -26,7 +26,7 @@ export function useYouTubeAlerts(limit = 20) {
     queryFn: async (): Promise<YouTubeAlert[]> => {
       const { data, error } = await supabase
         .from("youtube_alerts" as any)
-        .select("*")
+        .select("id, workspace_id, alert_type, severity, title, description, youtube_video_id, metric_name, metric_value, threshold_value, is_read, action_taken, created_at")
         .eq("workspace_id", workspaceId!)
         .order("created_at", { ascending: false })
         .limit(limit);

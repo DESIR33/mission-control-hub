@@ -213,7 +213,7 @@ export function useContactRoles() {
 
       const { data, error } = await supabase
         .from("contact_roles" as any)
-        .select("*")
+        .select("id, workspace_id, name, created_at")
         .eq("workspace_id", workspaceId)
         .order("name");
 

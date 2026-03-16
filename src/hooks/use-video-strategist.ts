@@ -285,7 +285,7 @@ export function useStrategistNotifications() {
     queryFn: async () => {
       if (!workspaceId) return [];
       const { data, error } = await query("strategist_notifications")
-        .select("*")
+        .select("id, workspace_id, type, title, message, video_id, experiment_id, read, created_at")
         .eq("workspace_id", workspaceId)
         .eq("read", false)
         .order("created_at", { ascending: false })

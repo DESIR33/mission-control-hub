@@ -115,7 +115,7 @@ export function useVideoSponsorSegments(videoId?: string) {
     queryKey: ["video-sponsor-segments", workspaceId, videoId],
     queryFn: async () => {
       if (!workspaceId) return [];
-      let q = query("video_sponsor_segments").select("*").eq("workspace_id", workspaceId);
+      let q = query("video_sponsor_segments").select("id, workspace_id, youtube_video_id, company_id, deal_id, start_seconds, end_seconds, segment_type, estimated_viewers, retention_at_segment, created_at").eq("workspace_id", workspaceId);
       if (videoId) q = q.eq("youtube_video_id", videoId);
       q = q.order("start_seconds");
       const { data, error } = await q;
