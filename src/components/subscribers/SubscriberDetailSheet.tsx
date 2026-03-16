@@ -278,7 +278,8 @@ export function SubscriberDetailSheet({ subscriber, open, onOpenChange, onDelete
                       )}
                     </div>
                   </div>
-                  {subscriber.notes && (
+                  <Separator className="bg-border" />
+                  <SubscriberGuidePicker subscriberId={subscriber.id} />
                     <>
                       <Separator className="bg-border" />
                       <div>
