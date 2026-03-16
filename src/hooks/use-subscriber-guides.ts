@@ -77,6 +77,8 @@ export function useUpdateSubscriberGuide() {
       email_subject?: string;
       email_body?: string;
       status?: 'active' | 'inactive';
+      video_queue_id?: number | null;
+      company_id?: string | null;
     }) => {
       if (!workspaceId) throw new Error("No workspace");
 

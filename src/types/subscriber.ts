@@ -63,8 +63,14 @@ export interface SubscriberGuide {
   email_body: string | null;
   download_count: number;
   status: 'active' | 'inactive';
+  video_queue_id: number | null;
+  company_id: string | null;
   created_at: string;
   updated_at: string;
+  // Joined
+  video_title?: string | null;
+  company_name?: string | null;
+  company_logo_url?: string | null;
 }
 
 export interface SubscriberVideoNotification {
