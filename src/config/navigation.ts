@@ -33,6 +33,8 @@ import {
   ImageIcon,
   Receipt,
   Wallet,
+  UserPlus,
+  Video,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -110,6 +112,17 @@ export const mainNavItems: NavItem[] = [
       { to: "/network/graph", label: "Relationship Graph", icon: GitGraph },
       { to: "/network/sponsors", label: "Sponsors", icon: Megaphone },
       { to: "/network/engagement", label: "Engagement", icon: Activity },
+    ],
+  },
+  {
+    to: "/subscribers",
+    icon: UserPlus,
+    label: "Subscribers",
+    children: [
+      { to: "/subscribers/dashboard", label: "Dashboard", icon: BarChart3 },
+      { to: "/network/contacts?tab=subscribers", label: "All Subscribers", icon: Users },
+      { to: "/subscribers/guides", label: "Guides", icon: BookOpen },
+      { to: "/subscribers/sequences", label: "Sequences", icon: Mail },
     ],
   },
   {

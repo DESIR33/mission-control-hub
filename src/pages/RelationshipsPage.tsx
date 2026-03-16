@@ -22,12 +22,17 @@ import { SmartContactMerge } from "@/components/contacts/SmartContactMerge";
 import { ContactLifecycleTimeline } from "@/components/contacts/ContactLifecycleTimeline";
 import { CompanyRevenueDashboard } from "@/components/companies/CompanyRevenueDashboard";
 import { StakeholderMap } from "@/components/companies/StakeholderMap";
+import { SubscribersTable } from "@/components/subscribers/SubscribersTable";
+import { SubscriberDetailSheet } from "@/components/subscribers/SubscriberDetailSheet";
+import { AddSubscriberDialog } from "@/components/subscribers/AddSubscriberDialog";
 import { useContacts, useActivities } from "@/hooks/use-contacts";
 import { useCompanies } from "@/hooks/use-companies";
 import { useDeals } from "@/hooks/use-deals";
+import { useSubscribers } from "@/hooks/use-subscribers";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus } from "lucide-react";
 import type { Contact, Company } from "@/types/crm";
+import type { Subscriber } from "@/types/subscriber";
 
 export default function RelationshipsPage() {
   const [searchParams] = useSearchParams();
@@ -35,12 +40,15 @@ export default function RelationshipsPage() {
   const navigate = useNavigate();
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [contactSheetOpen, setContactSheetOpen] = useState(false);
+  const [selectedSubscriber, setSelectedSubscriber] = useState<Subscriber | null>(null);
+  const [subscriberSheetOpen, setSubscriberSheetOpen] = useState(false);
 
   const { data: contacts = [], isLoading: contactsLoading } = useContacts();
   const { data: contactActivities = [] } = useActivities(selectedContact?.id ?? null);
 
   const { data: companies = [], isLoading: companiesLoading } = useCompanies();
   const { data: deals = [] } = useDeals();
+  const { data: subscribers = [], isLoading: subscribersLoading } = useSubscribers();
 
   const handleSelectContact = (contact: Contact) => {
     setSelectedContact(contact);
@@ -49,6 +57,11 @@ export default function RelationshipsPage() {
 
   const handleSelectCompany = (company: Company) => {
     navigate(`/relationships/companies/${company.id}`);
+  };
+
+  const handleSelectSubscriber = (subscriber: Subscriber) => {
+    setSelectedSubscriber(subscriber);
+    setSubscriberSheetOpen(true);
   };
 
   return (
@@ -69,6 +82,7 @@ export default function RelationshipsPage() {
           <TabsTrigger value="sponsor_pipeline" className="flex-shrink-0">Sponsor Pipeline</TabsTrigger>
           <TabsTrigger value="affiliate_pipeline" className="flex-shrink-0">Affiliate Pipeline</TabsTrigger>
           <TabsTrigger value="collab_pipeline" className="flex-shrink-0">Collaborator Pipeline</TabsTrigger>
+          <TabsTrigger value="subscribers" className="flex-shrink-0">Subscribers</TabsTrigger>
           <TabsTrigger value="yt_leads" className="flex-shrink-0">YouTube Leads</TabsTrigger>
           <TabsTrigger value="engagement" className="flex-shrink-0">Engagement</TabsTrigger>
         </TabsList>
@@ -155,6 +169,22 @@ export default function RelationshipsPage() {
           <PartnershipPipeline partnershipType="collaborator" />
         </TabsContent>
 
+        <TabsContent value="subscribers" className="mt-4">
+          {subscribersLoading ? (
+            <div className="space-y-3">
+              <Skeleton className="h-10 w-full max-w-sm" />
+              <Skeleton className="h-64 w-full" />
+            </div>
+          ) : (
+            <SubscribersTable
+              subscribers={subscribers}
+              onSelectSubscriber={handleSelectSubscriber}
+              selectedId={selectedSubscriber?.id}
+              addButton={<AddSubscriberDialog />}
+            />
+          )}
+        </TabsContent>
+
         <TabsContent value="yt_leads" className="mt-4">
           <YouTubeLeadInbox />
         </TabsContent>
@@ -188,6 +218,13 @@ export default function RelationshipsPage() {
         open={contactSheetOpen}
         onOpenChange={setContactSheetOpen}
         onDeleted={() => setSelectedContact(null)}
+      />
+
+      <SubscriberDetailSheet
+        subscriber={selectedSubscriber}
+        open={subscriberSheetOpen}
+        onOpenChange={setSubscriberSheetOpen}
+        onDeleted={() => setSelectedSubscriber(null)}
       />
     </div>
   );
