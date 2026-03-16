@@ -13,7 +13,7 @@ export function useCompanies() {
 
       const { data, error } = await supabase
         .from("companies")
-        .select("*, contacts(id, first_name, last_name, email, role, status)")
+        .select("id, workspace_id, name, logo_url, industry, website, description, size, revenue, location, country, state, city, phone, primary_email, secondary_email, vip_tier, notes, last_contact_date, social_twitter, social_linkedin, social_youtube, social_instagram, social_facebook, social_tiktok, social_producthunt, social_whatsapp, created_at, updated_at, deleted_at, created_by, response_sla_minutes, contacts(id, first_name, last_name, email, role, status)")
         .eq("workspace_id", workspaceId)
         .is("deleted_at", null)
         .order("updated_at", { ascending: false })
@@ -24,9 +24,9 @@ export function useCompanies() {
       return (data ?? []).map((row) => ({
         ...row,
         vip_tier: (row.vip_tier ?? "none") as Company["vip_tier"],
-        enrichment_brandfetch: row.enrichment_brandfetch as Record<string, unknown> | null,
-        enrichment_clay: row.enrichment_clay as Record<string, unknown> | null,
-        enrichment_firecrawl: row.enrichment_firecrawl as Record<string, unknown> | null,
+        enrichment_brandfetch: null,
+        enrichment_clay: null,
+        enrichment_firecrawl: null,
         contacts: (row.contacts ?? []) as Contact[],
       }));
     },
@@ -151,7 +151,7 @@ export function useCompanyContacts(companyId: string | null) {
 
       const { data, error } = await supabase
         .from("contacts")
-        .select("*")
+        .select("id, workspace_id, first_name, last_name, email, phone, status, role, source, company_id, vip_tier, website, avatar_url, preferred_channel, last_contact_date, notes, created_at, updated_at, deleted_at, custom_fields, owner_id, escalation_owner_id, response_sla_minutes, created_by, social_twitter, social_linkedin, social_youtube, social_instagram, social_facebook, social_telegram, social_whatsapp")
         .eq("workspace_id", workspaceId)
         .eq("company_id", companyId)
         .is("deleted_at", null)
@@ -165,9 +165,9 @@ export function useCompanyContacts(companyId: string | null) {
         vip_tier: (row.vip_tier ?? "none") as Contact["vip_tier"],
         preferred_channel: (row.preferred_channel ?? "email") as Contact["preferred_channel"],
         custom_fields: (row.custom_fields as Record<string, unknown>) ?? {},
-        enrichment_hunter: row.enrichment_hunter as Record<string, unknown> | null,
-        enrichment_ai: row.enrichment_ai as Record<string, unknown> | null,
-        enrichment_youtube: row.enrichment_youtube as Record<string, unknown> | null,
+        enrichment_hunter: null,
+        enrichment_ai: null,
+        enrichment_youtube: null,
       }));
     },
     enabled: !!workspaceId && !!companyId,

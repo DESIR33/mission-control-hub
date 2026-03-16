@@ -20,7 +20,7 @@ export function useOptimizationProposals() {
     queryFn: async () => {
       if (!workspaceId) return [];
       const { data, error } = await query("ai_proposals")
-        .select("*")
+        .select("id, workspace_id, title, description, summary, type, proposal_type, status, confidence, video_id, entity_id, entity_type, proposed_changes, optimization_proof, thumbnail_prompts, thumbnail_urls, requires_thumbnail_generation, execution_status, reviewed_at, reviewed_by, created_at, updated_at, created_by")
         .eq("workspace_id", workspaceId)
         .in("proposal_type", [
           "video_title_optimization",
@@ -44,7 +44,7 @@ export function usePendingOptimizations() {
     queryFn: async () => {
       if (!workspaceId) return [];
       const { data, error } = await query("ai_proposals")
-        .select("*")
+        .select("id, workspace_id, title, description, summary, type, proposal_type, status, confidence, video_id, entity_id, entity_type, proposed_changes, optimization_proof, thumbnail_prompts, thumbnail_urls, requires_thumbnail_generation, execution_status, reviewed_at, reviewed_by, created_at, updated_at, created_by")
         .eq("workspace_id", workspaceId)
         .eq("status", "pending")
         .in("proposal_type", [
@@ -174,7 +174,7 @@ export function useActiveExperiments() {
     queryFn: async () => {
       if (!workspaceId) return [];
       const { data, error } = await query("video_optimization_experiments")
-        .select("*")
+        .select("id, workspace_id, video_id, experiment_type, original_title, original_description, original_tags, new_title, new_description, new_tags, status, started_at, completed_at, rolled_back_at, rollback_reason, before_metrics, after_metrics, improvement_percent, proposal_id, created_at")
         .eq("workspace_id", workspaceId)
         .eq("status", "active")
         .order("started_at", { ascending: false });
@@ -194,7 +194,7 @@ export function useExperimentHistory() {
     queryFn: async () => {
       if (!workspaceId) return [];
       const { data, error } = await query("video_optimization_experiments")
-        .select("*")
+        .select("id, workspace_id, video_id, experiment_type, original_title, original_description, original_tags, new_title, new_description, new_tags, status, started_at, completed_at, rolled_back_at, rollback_reason, before_metrics, after_metrics, improvement_percent, proposal_id, created_at")
         .eq("workspace_id", workspaceId)
         .in("status", ["completed", "rolled_back"])
         .order("completed_at", { ascending: false })
@@ -215,7 +215,7 @@ export function useRollbackExperiment() {
       if (!workspaceId) throw new Error("No workspace");
       // Manual rollback: update experiment status, then call YouTube API to revert
       const { data: experiment, error: fetchError } = await query("video_optimization_experiments")
-        .select("*")
+        .select("id, video_id, original_title, original_description, original_tags")
         .eq("id", experimentId)
         .eq("workspace_id", workspaceId)
         .single();
@@ -265,7 +265,7 @@ export function useStrategistRuns() {
     queryFn: async () => {
       if (!workspaceId) return [];
       const { data, error } = await query("strategist_daily_runs")
-        .select("*")
+        .select("id, workspace_id, run_date, status, videos_analyzed, proposals_created, summary, created_at")
         .eq("workspace_id", workspaceId)
         .order("run_date", { ascending: false })
         .limit(14);
@@ -285,7 +285,7 @@ export function useStrategistNotifications() {
     queryFn: async () => {
       if (!workspaceId) return [];
       const { data, error } = await query("strategist_notifications")
-        .select("*")
+        .select("id, workspace_id, type, title, message, video_id, experiment_id, read, created_at")
         .eq("workspace_id", workspaceId)
         .eq("read", false)
         .order("created_at", { ascending: false })

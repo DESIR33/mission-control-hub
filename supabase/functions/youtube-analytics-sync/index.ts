@@ -181,17 +181,26 @@ Deno.serve(async (req) => {
     const refreshToken = config.refresh_token;
     const clientId = config.client_id;
     const clientSecret = config.client_secret;
+    const lastTokenRefresh = config.token_refreshed_at ? new Date(config.token_refreshed_at).getTime() : 0;
+    const tokenAge = Date.now() - lastTokenRefresh;
+    const TOKEN_REUSE_WINDOW = 5 * 60 * 1000; // 5 minutes
 
     if (refreshToken && clientId && clientSecret) {
-      accessToken = await refreshAccessToken(refreshToken, clientId, clientSecret);
-      await supabase
-        .from("workspace_integrations")
-        .update({
-          config: { ...config, access_token: accessToken },
-          updated_at: new Date().toISOString(),
-        })
-        .eq("workspace_id", workspace_id)
-        .eq("integration_key", "youtube");
+      // Skip refresh if token was refreshed within the last 5 minutes (dedup with youtube-sync)
+      if (tokenAge > TOKEN_REUSE_WINDOW || !accessToken) {
+        console.log(`[YT Analytics] Token age: ${Math.round(tokenAge / 1000)}s — refreshing`);
+        accessToken = await refreshAccessToken(refreshToken, clientId, clientSecret);
+        await supabase
+          .from("workspace_integrations")
+          .update({
+            config: { ...config, access_token: accessToken, token_refreshed_at: new Date().toISOString() },
+            updated_at: new Date().toISOString(),
+          })
+          .eq("workspace_id", workspace_id)
+          .eq("integration_key", "youtube");
+      } else {
+        console.log(`[YT Analytics] Token age: ${Math.round(tokenAge / 1000)}s — reusing cached token`);
+      }
     } else if (!accessToken) {
       const missing = [];
       if (!refreshToken) missing.push("refresh_token");
@@ -353,106 +362,98 @@ Deno.serve(async (req) => {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // 3. Demographics — BATCHED
+    // 3-6. Demographics, Traffic, Geography, Devices — PARALLEL
     // ═══════════════════════════════════════════════════════════════
-    try {
-      const demoData = await fetchYouTubeAnalytics(accessToken, {
-        ids, startDate, endDate,
-        dimensions: "ageGroup,gender",
-        metrics: "viewerPercentage",
-      });
+    const parallelResults = await Promise.allSettled([
+      // 3. Demographics
+      (async () => {
+        const demoData = await fetchYouTubeAnalytics(accessToken, {
+          ids, startDate, endDate,
+          dimensions: "ageGroup,gender",
+          metrics: "viewerPercentage",
+        });
+        if (demoData.rows?.length) {
+          const records = demoData.rows.map((row: any) => ({
+            workspace_id, date: endDate,
+            age_group: row[0], gender: row[1],
+            viewer_percentage: row[2] || 0,
+            fetched_at: now,
+          }));
+          return { section: "demographics", ...(await batchUpsert(supabase, "youtube_demographics", records, "workspace_id,date,age_group,gender")) };
+        }
+        return { section: "demographics", upserted: 0, errors: [] };
+      })(),
+      // 4. Traffic sources
+      (async () => {
+        const trafficData = await fetchYouTubeAnalytics(accessToken, {
+          ids, startDate, endDate,
+          dimensions: "insightTrafficSourceType",
+          metrics: "views,estimatedMinutesWatched",
+          sort: "-views",
+        });
+        if (trafficData.rows?.length) {
+          const records = trafficData.rows.map((row: any) => ({
+            workspace_id, date: endDate,
+            source_type: row[0], views: row[1] || 0,
+            estimated_minutes_watched: row[2] || 0,
+            fetched_at: now,
+          }));
+          return { section: "trafficSources", ...(await batchUpsert(supabase, "youtube_traffic_sources", records, "workspace_id,date,source_type")) };
+        }
+        return { section: "trafficSources", upserted: 0, errors: [] };
+      })(),
+      // 5. Geography
+      (async () => {
+        const geoData = await fetchYouTubeAnalytics(accessToken, {
+          ids, startDate, endDate,
+          dimensions: "country",
+          metrics: "views,estimatedMinutesWatched,averageViewDuration,subscribersGained",
+          sort: "-views", maxResults: 50,
+        });
+        if (geoData.rows?.length) {
+          const records = geoData.rows.map((row: any) => ({
+            workspace_id, date: endDate, country: row[0],
+            views: row[1] || 0, estimated_minutes_watched: row[2] || 0,
+            average_view_duration_seconds: Math.round(row[3] || 0),
+            subscribers_gained: row[4] || 0, fetched_at: now,
+          }));
+          return { section: "geography", ...(await batchUpsert(supabase, "youtube_geography", records, "workspace_id,date,country")) };
+        }
+        return { section: "geography", upserted: 0, errors: [] };
+      })(),
+      // 6. Device types
+      (async () => {
+        const deviceData = await fetchYouTubeAnalytics(accessToken, {
+          ids, startDate, endDate,
+          dimensions: "deviceType",
+          metrics: "views,estimatedMinutesWatched",
+          sort: "-views",
+        });
+        if (deviceData.rows?.length) {
+          const records = deviceData.rows.map((row: any) => ({
+            workspace_id, date: endDate,
+            device_type: row[0], views: row[1] || 0,
+            estimated_minutes_watched: row[2] || 0,
+            fetched_at: now,
+          }));
+          return { section: "devices", ...(await batchUpsert(supabase, "youtube_device_types", records, "workspace_id,date,device_type")) };
+        }
+        return { section: "devices", upserted: 0, errors: [] };
+      })(),
+    ]);
 
-      if (demoData.rows?.length) {
-        const records = demoData.rows.map((row: any) => ({
-          workspace_id, date: endDate,
-          age_group: row[0], gender: row[1],
-          viewer_percentage: row[2] || 0,
-          fetched_at: now,
-        }));
-        const res = await batchUpsert(supabase, "youtube_demographics", records, "workspace_id,date,age_group,gender");
-        syncResult.demographicsUpserted = res.upserted;
-        syncResult.errors.push(...res.errors);
+    // Collect results from parallel executions
+    for (const result of parallelResults) {
+      if (result.status === "fulfilled") {
+        const r = result.value;
+        if (r.section === "demographics") syncResult.demographicsUpserted = r.upserted;
+        else if (r.section === "trafficSources") syncResult.trafficSourcesUpserted = r.upserted;
+        else if (r.section === "geography") syncResult.geographyUpserted = r.upserted;
+        else if (r.section === "devices") syncResult.devicesUpserted = r.upserted;
+        syncResult.errors.push(...r.errors);
+      } else {
+        syncResult.errors.push(`Parallel section: ${result.reason?.message || String(result.reason)}`);
       }
-    } catch (e: any) {
-      syncResult.errors.push(`Demographics: ${e.message}`);
-    }
-
-    // ═══════════════════════════════════════════════════════════════
-    // 4. Traffic sources — BATCHED
-    // ═══════════════════════════════════════════════════════════════
-    try {
-      const trafficData = await fetchYouTubeAnalytics(accessToken, {
-        ids, startDate, endDate,
-        dimensions: "insightTrafficSourceType",
-        metrics: "views,estimatedMinutesWatched",
-        sort: "-views",
-      });
-
-      if (trafficData.rows?.length) {
-        const records = trafficData.rows.map((row: any) => ({
-          workspace_id, date: endDate,
-          source_type: row[0], views: row[1] || 0,
-          estimated_minutes_watched: row[2] || 0,
-          fetched_at: now,
-        }));
-        const res = await batchUpsert(supabase, "youtube_traffic_sources", records, "workspace_id,date,source_type");
-        syncResult.trafficSourcesUpserted = res.upserted;
-        syncResult.errors.push(...res.errors);
-      }
-    } catch (e: any) {
-      syncResult.errors.push(`Traffic sources: ${e.message}`);
-    }
-
-    // ═══════════════════════════════════════════════════════════════
-    // 5. Geography — BATCHED
-    // ═══════════════════════════════════════════════════════════════
-    try {
-      const geoData = await fetchYouTubeAnalytics(accessToken, {
-        ids, startDate, endDate,
-        dimensions: "country",
-        metrics: "views,estimatedMinutesWatched,averageViewDuration,subscribersGained",
-        sort: "-views", maxResults: 50,
-      });
-
-      if (geoData.rows?.length) {
-        const records = geoData.rows.map((row: any) => ({
-          workspace_id, date: endDate, country: row[0],
-          views: row[1] || 0, estimated_minutes_watched: row[2] || 0,
-          average_view_duration_seconds: Math.round(row[3] || 0),
-          subscribers_gained: row[4] || 0, fetched_at: now,
-        }));
-        const res = await batchUpsert(supabase, "youtube_geography", records, "workspace_id,date,country");
-        syncResult.geographyUpserted = res.upserted;
-        syncResult.errors.push(...res.errors);
-      }
-    } catch (e: any) {
-      syncResult.errors.push(`Geography: ${e.message}`);
-    }
-
-    // ═══════════════════════════════════════════════════════════════
-    // 6. Device types — BATCHED
-    // ═══════════════════════════════════════════════════════════════
-    try {
-      const deviceData = await fetchYouTubeAnalytics(accessToken, {
-        ids, startDate, endDate,
-        dimensions: "deviceType",
-        metrics: "views,estimatedMinutesWatched",
-        sort: "-views",
-      });
-
-      if (deviceData.rows?.length) {
-        const records = deviceData.rows.map((row: any) => ({
-          workspace_id, date: endDate,
-          device_type: row[0], views: row[1] || 0,
-          estimated_minutes_watched: row[2] || 0,
-          fetched_at: now,
-        }));
-        const res = await batchUpsert(supabase, "youtube_device_types", records, "workspace_id,date,device_type");
-        syncResult.devicesUpserted = res.upserted;
-        syncResult.errors.push(...res.errors);
-      }
-    } catch (e: any) {
-      syncResult.errors.push(`Device types: ${e.message}`);
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -502,16 +503,29 @@ Deno.serve(async (req) => {
     }
 
     syncResult.ok = syncResult.errors.length === 0;
-    console.log("[YT Analytics] Sync complete:", JSON.stringify(syncResult));
+    // Strip sample rows from response to reduce payload size
+    const leanResult = {
+      ok: syncResult.ok,
+      channelRowsUpserted: syncResult.channelRowsUpserted,
+      videoRowsUpserted: syncResult.videoRowsUpserted,
+      demographicsUpserted: syncResult.demographicsUpserted,
+      trafficSourcesUpserted: syncResult.trafficSourcesUpserted,
+      geographyUpserted: syncResult.geographyUpserted,
+      devicesUpserted: syncResult.devicesUpserted,
+      retentionVideos: syncResult.retentionVideos,
+      errors: syncResult.errors,
+      period: syncResult.period,
+    };
+    console.log("[YT Analytics] Sync complete:", JSON.stringify(leanResult));
 
-    return new Response(JSON.stringify(syncResult), {
+    return new Response(JSON.stringify(leanResult), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error: any) {
     syncResult.errors.push(error.message || String(error));
     console.error("[YT Analytics] Fatal error:", error.message);
 
-    return new Response(JSON.stringify(syncResult), {
+    return new Response(JSON.stringify({ ok: false, errors: syncResult.errors }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

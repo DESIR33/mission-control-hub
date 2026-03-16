@@ -5156,6 +5156,33 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      aggregate_channel_analytics_weekly: {
+        Args: { p_days?: number; p_workspace_id: string }
+        Returns: {
+          avg_cpm: number
+          avg_impressions_ctr: number
+          avg_playback_based_cpm: number
+          avg_view_duration: number
+          avg_view_percentage: number
+          day_count: number
+          total_ad_impressions: number
+          total_card_clicks: number
+          total_card_impressions: number
+          total_comments: number
+          total_estimated_ad_revenue: number
+          total_estimated_minutes_watched: number
+          total_estimated_revenue: number
+          total_impressions: number
+          total_likes: number
+          total_monetized_playbacks: number
+          total_net_subscribers: number
+          total_shares: number
+          total_subscribers_gained: number
+          total_subscribers_lost: number
+          total_views: number
+          week_start: string
+        }[]
+      }
       aggregate_video_analytics: {
         Args: { p_video_id: string; p_workspace_id: string }
         Returns: {
@@ -5182,6 +5209,10 @@ export type Database = {
       bootstrap_workspace: {
         Args: { ws_name: string; ws_slug: string }
         Returns: string
+      }
+      get_dashboard_polling_counts: {
+        Args: { p_workspace_id: string }
+        Returns: Json
       }
       get_workspace_role: { Args: { ws_id: string }; Returns: string }
       hybrid_memory_search: {

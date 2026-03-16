@@ -24,7 +24,7 @@ export function useVideoPerformanceAlerts() {
     queryFn: async () => {
       if (!workspaceId) return [];
       const { data, error } = await query("video_performance_alerts")
-        .select("*")
+        .select("id, workspace_id, youtube_video_id, alert_type, message, metric_name, metric_value, threshold_value, is_read, created_at")
         .eq("workspace_id", workspaceId)
         .order("created_at", { ascending: false })
         .limit(50);
@@ -70,7 +70,7 @@ export function useContentDecayAlerts() {
     queryFn: async () => {
       if (!workspaceId) return [];
       const { data, error } = await query("content_decay_alerts")
-        .select("*")
+        .select("id, workspace_id, youtube_video_id, video_title, decay_type, current_value, previous_value, decline_percent, suggested_actions, status, created_at, actioned_at")
         .eq("workspace_id", workspaceId)
         .eq("status", "active")
         .order("decline_percent", { ascending: true })
@@ -115,7 +115,7 @@ export function useVideoSponsorSegments(videoId?: string) {
     queryKey: ["video-sponsor-segments", workspaceId, videoId],
     queryFn: async () => {
       if (!workspaceId) return [];
-      let q = query("video_sponsor_segments").select("*").eq("workspace_id", workspaceId);
+      let q = query("video_sponsor_segments").select("id, workspace_id, youtube_video_id, company_id, deal_id, start_seconds, end_seconds, segment_type, estimated_viewers, retention_at_segment, created_at").eq("workspace_id", workspaceId);
       if (videoId) q = q.eq("youtube_video_id", videoId);
       q = q.order("start_seconds");
       const { data, error } = await q;

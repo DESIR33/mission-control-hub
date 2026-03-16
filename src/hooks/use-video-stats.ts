@@ -24,7 +24,7 @@ export function useVideoStats(youtubeVideoId: string | null | undefined) {
       if (!youtubeVideoId || !workspaceId) return null;
       const { data, error } = await supabase
         .from("youtube_video_stats")
-        .select("*")
+        .select("title, description, thumbnail_url, published_at, views, likes, comments, ctr_percent, tags, watch_time_minutes, avg_view_duration_seconds")
         .eq("workspace_id", workspaceId)
         .eq("youtube_video_id", youtubeVideoId)
         .order("fetched_at", { ascending: false })

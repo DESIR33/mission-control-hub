@@ -13,7 +13,7 @@ export function useContacts() {
 
       const { data, error } = await supabase
         .from("contacts")
-        .select("*, companies(id, name, logo_url, industry)")
+        .select("id, workspace_id, first_name, last_name, email, phone, status, role, source, company_id, vip_tier, website, avatar_url, preferred_channel, last_contact_date, notes, created_at, updated_at, deleted_at, custom_fields, owner_id, escalation_owner_id, response_sla_minutes, created_by, social_twitter, social_linkedin, social_youtube, social_instagram, social_facebook, social_telegram, social_whatsapp, companies(id, name, logo_url, industry)")
         .eq("workspace_id", workspaceId)
         .is("deleted_at", null)
         .order("updated_at", { ascending: false })
@@ -27,9 +27,9 @@ export function useContacts() {
         vip_tier: (row.vip_tier ?? "none") as Contact["vip_tier"],
         preferred_channel: (row.preferred_channel ?? "email") as Contact["preferred_channel"],
         custom_fields: (row.custom_fields as Record<string, unknown>) ?? {},
-        enrichment_hunter: row.enrichment_hunter as Record<string, unknown> | null,
-        enrichment_ai: row.enrichment_ai as Record<string, unknown> | null,
-        enrichment_youtube: row.enrichment_youtube as Record<string, unknown> | null,
+        enrichment_hunter: null,
+        enrichment_ai: null,
+        enrichment_youtube: null,
         company: row.companies as Contact["company"] ?? null,
       }));
     },
@@ -177,7 +177,7 @@ export function useActivities(entityId: string | null, entityType: string = "con
 
       const { data, error } = await supabase
         .from("activities")
-        .select("*")
+        .select("id, workspace_id, entity_id, entity_type, activity_type, title, description, performed_at, performed_by, metadata, created_at")
         .eq("workspace_id", workspaceId)
         .eq("entity_id", entityId)
         .eq("entity_type", entityType)
@@ -213,7 +213,7 @@ export function useContactRoles() {
 
       const { data, error } = await supabase
         .from("contact_roles" as any)
-        .select("*")
+        .select("id, workspace_id, name, created_at")
         .eq("workspace_id", workspaceId)
         .order("name");
 
