@@ -24,6 +24,8 @@ export interface Subscriber {
   opt_in_confirmed: boolean;
   opt_in_confirmed_at: string | null;
   promoted_to_contact_id: string | null;
+  page_url: string | null;
+  referrer: string | null;
   deleted_at: string | null;
   created_at: string;
   updated_at: string;
