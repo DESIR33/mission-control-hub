@@ -13,7 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useSubscriberGuides, useCreateSubscriberGuide, useUpdateSubscriberGuide, useDeleteSubscriberGuide } from "@/hooks/use-subscriber-guides";
 import { useCompanies } from "@/hooks/use-companies";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, BookOpen, Trash2, Loader2, Video, Building2, Pencil } from "lucide-react";
+import { Plus, BookOpen, Trash2, Loader2, Video, Building2, Pencil, ChevronsUpDown, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
