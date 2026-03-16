@@ -16,7 +16,20 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    const { workspace_id, email, first_name, last_name, source, source_video_id, source_video_title, guide_requested } = await req.json();
+    const body = await req.json();
+    const {
+      workspace_id,
+      email,
+      first_name,
+      last_name,
+      source,
+      source_video_id,
+      source_video_title,
+      guide_requested,
+      page_url,
+      referrer,
+      timestamp,
+    } = body;
 
     if (!workspace_id) throw new Error("Missing workspace_id");
     if (!email) throw new Error("Missing email");
@@ -39,9 +52,12 @@ Deno.serve(async (req) => {
         .update({
           first_name: first_name || undefined,
           last_name: last_name || undefined,
+          source: source || undefined,
           source_video_id: source_video_id || undefined,
           source_video_title: source_video_title || undefined,
           guide_requested: guide_requested || undefined,
+          page_url: page_url || undefined,
+          referrer: referrer || undefined,
           status: "active",
         })
         .eq("id", existing.id)
@@ -63,6 +79,9 @@ Deno.serve(async (req) => {
           source_video_id: source_video_id || null,
           source_video_title: source_video_title || null,
           guide_requested: guide_requested || null,
+          page_url: page_url || null,
+          referrer: referrer || null,
+          created_at: timestamp || new Date().toISOString(),
         })
         .select("id")
         .single();
