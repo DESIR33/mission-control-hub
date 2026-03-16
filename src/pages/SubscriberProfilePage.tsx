@@ -100,7 +100,7 @@ export default function SubscriberProfilePage() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 min-h-screen">
-      <Button variant="ghost" size="sm" className="mb-4" onClick={() => navigate("/network/contacts?tab=subscribers")}>
+      <Button variant="ghost" size="sm" className="mb-4" onClick={() => navigate("/subscribers")}>
         <ArrowLeft className="w-4 h-4 mr-2" />
         Back to Subscribers
       </Button>
