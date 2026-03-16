@@ -229,13 +229,15 @@ async function generateImage(
 ): Promise<{ success: boolean; image_url?: string; error?: string; prediction_id?: string }> {
   const useNanoBanana = model === 'nano-banana-2';
 
-  const modelInput: Record<string, unknown> = useNanoBanana
-    ? { prompt, width: 1280, height: 720, num_outputs: 1 }
-    : { prompt, aspect_ratio: '16:9', num_outputs: 1, output_format: 'png', output_quality: 90 };
+  const modelInput: Record<string, unknown> = {
+    prompt,
+    aspect_ratio: '16:9',
+    num_outputs: 1,
+    output_format: 'png',
+    output_quality: 90,
+  };
 
-  const modelEndpoint = useNanoBanana
-    ? 'https://api.replicate.com/v1/models/fofr/sdxl-turbo/predictions'
-    : 'https://api.replicate.com/v1/models/black-forest-labs/flux-schnell/predictions';
+  const modelEndpoint = 'https://api.replicate.com/v1/models/black-forest-labs/flux-schnell/predictions';
 
   const createRes = await fetch(modelEndpoint, {
     method: 'POST',
