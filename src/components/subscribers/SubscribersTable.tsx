@@ -306,6 +306,17 @@ export function SubscribersTable({ subscribers, onSelectSubscriber, selectedId, 
                     )}
                   </TableCell>
                   <TableCell>
+                    {sub.referrer ? (
+                      <span className="text-sm text-foreground truncate max-w-[180px] block" title={sub.referrer}>
+                        {(() => {
+                          try { return new URL(sub.referrer).hostname; } catch { return sub.referrer; }
+                        })()}
+                      </span>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
                     <SubscriberEngagementBadge score={sub.engagement_score} />
                   </TableCell>
                   <TableCell>
