@@ -13,12 +13,17 @@ export function useSubscriberGuides() {
 
       const { data, error } = await supabase
         .from("subscriber_guides" as any)
-        .select("*")
+        .select("*, video_queue(title), companies(name, logo_url)")
         .eq("workspace_id", workspaceId)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return (data ?? []) as unknown as SubscriberGuide[];
+      return ((data as any[]) ?? []).map((row) => ({
+        ...row,
+        video_title: row.video_queue?.title ?? null,
+        company_name: row.companies?.name ?? null,
+        company_logo_url: row.companies?.logo_url ?? null,
+      })) as unknown as SubscriberGuide[];
     },
     enabled: !!workspaceId,
   });
@@ -37,6 +42,8 @@ export function useCreateSubscriberGuide() {
       file_url?: string;
       email_subject?: string;
       email_body?: string;
+      video_queue_id?: number;
+      company_id?: string;
     }) => {
       if (!workspaceId) throw new Error("No workspace");
 
@@ -70,6 +77,8 @@ export function useUpdateSubscriberGuide() {
       email_subject?: string;
       email_body?: string;
       status?: 'active' | 'inactive';
+      video_queue_id?: number | null;
+      company_id?: string | null;
     }) => {
       if (!workspaceId) throw new Error("No workspace");
 

@@ -9,15 +9,43 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSubscriberGuides, useCreateSubscriberGuide, useDeleteSubscriberGuide } from "@/hooks/use-subscriber-guides";
+import { useCompanies } from "@/hooks/use-companies";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, BookOpen, Trash2, Loader2, ExternalLink } from "lucide-react";
+import { Plus, BookOpen, Trash2, Loader2, Video, Building2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useWorkspace } from "@/hooks/use-workspace";
+
+function useVideoQueueList() {
+  const { workspaceId } = useWorkspace();
+  return useQuery({
+    queryKey: ["video-queue-list", workspaceId],
+    queryFn: async () => {
+      if (!workspaceId) return [];
+      const { data, error } = await supabase
+        .from("video_queue" as any)
+        .select("id, title, youtube_video_id")
+        .eq("workspace_id", workspaceId)
+        .order("created_at", { ascending: false })
+        .limit(200);
+      if (error) throw error;
+      return ((data as any[]) ?? []) as { id: number; title: string; youtube_video_id: string | null }[];
+    },
+    enabled: !!workspaceId,
+    staleTime: 120_000,
+  });
+}
 
 export default function SubscriberGuidesPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deliveryType, setDeliveryType] = useState<string>("email");
+  const [selectedVideoId, setSelectedVideoId] = useState<string>("");
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>("");
   const { data: guides = [], isLoading } = useSubscriberGuides();
+  const { data: companies = [] } = useCompanies();
+  const { data: videos = [] } = useVideoQueueList();
   const createGuide = useCreateSubscriberGuide();
   const deleteGuide = useDeleteSubscriberGuide();
   const { toast } = useToast();
@@ -30,13 +58,17 @@ export default function SubscriberGuidesPage() {
         name: form.get("name") as string,
         slug: form.get("slug") as string,
         description: (form.get("description") as string) || undefined,
-        delivery_type: deliveryType as 'email' | 'redirect',
+        delivery_type: deliveryType as "email" | "redirect",
         file_url: (form.get("file_url") as string) || undefined,
         email_subject: (form.get("email_subject") as string) || undefined,
         email_body: (form.get("email_body") as string) || undefined,
+        video_queue_id: selectedVideoId ? Number(selectedVideoId) : undefined,
+        company_id: selectedCompanyId || undefined,
       });
       toast({ title: "Guide created" });
       setDialogOpen(false);
+      setSelectedVideoId("");
+      setSelectedCompanyId("");
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
     }
@@ -65,7 +97,7 @@ export default function SubscriberGuidesPage() {
               New Guide
             </Button>
           </DialogTrigger>
-          <DialogContent className="bg-card border-border max-w-md">
+          <DialogContent className="bg-card border-border max-w-md max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Create Guide</DialogTitle>
             </DialogHeader>
@@ -82,6 +114,51 @@ export default function SubscriberGuidesPage() {
                 <Label htmlFor="guide_desc">Description</Label>
                 <Textarea id="guide_desc" name="description" rows={2} className="bg-secondary border-border" />
               </div>
+
+              {/* Video Linking */}
+              <div className="space-y-1.5">
+                <Label className="flex items-center gap-1.5">
+                  <Video className="w-3.5 h-3.5 text-muted-foreground" />
+                  Linked Video
+                </Label>
+                <Select value={selectedVideoId} onValueChange={setSelectedVideoId}>
+                  <SelectTrigger className="bg-secondary border-border">
+                    <SelectValue placeholder="Select a video..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No video</SelectItem>
+                    {videos.map((v) => (
+                      <SelectItem key={v.id} value={String(v.id)}>
+                        {v.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">Which video this guide is associated with</p>
+              </div>
+
+              {/* Company Linking */}
+              <div className="space-y-1.5">
+                <Label className="flex items-center gap-1.5">
+                  <Building2 className="w-3.5 h-3.5 text-muted-foreground" />
+                  Linked Company
+                </Label>
+                <Select value={selectedCompanyId} onValueChange={setSelectedCompanyId}>
+                  <SelectTrigger className="bg-secondary border-border">
+                    <SelectValue placeholder="Select a company..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No company</SelectItem>
+                    {companies.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">Which company/brand this guide relates to</p>
+              </div>
+
               <div className="space-y-1.5">
                 <Label>Delivery Type</Label>
                 <Select value={deliveryType} onValueChange={setDeliveryType}>
@@ -139,6 +216,8 @@ export default function SubscriberGuidesPage() {
               <TableRow className="hover:bg-transparent border-border">
                 <TableHead className="text-muted-foreground font-semibold">Name</TableHead>
                 <TableHead className="text-muted-foreground font-semibold">Slug</TableHead>
+                <TableHead className="text-muted-foreground font-semibold">Video</TableHead>
+                <TableHead className="text-muted-foreground font-semibold">Company</TableHead>
                 <TableHead className="text-muted-foreground font-semibold">Type</TableHead>
                 <TableHead className="text-muted-foreground font-semibold">Downloads</TableHead>
                 <TableHead className="text-muted-foreground font-semibold">Status</TableHead>
@@ -157,6 +236,30 @@ export default function SubscriberGuidesPage() {
                   </TableCell>
                   <TableCell>
                     <code className="text-xs bg-muted px-1.5 py-0.5 rounded">{guide.slug}</code>
+                  </TableCell>
+                  <TableCell>
+                    {guide.video_title ? (
+                      <span className="text-sm text-foreground flex items-center gap-1.5 truncate max-w-[180px]">
+                        <Video className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                        {guide.video_title}
+                      </span>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {guide.company_name ? (
+                      <div className="flex items-center gap-1.5">
+                        {guide.company_logo_url ? (
+                          <img src={guide.company_logo_url} alt="" className="w-5 h-5 rounded object-contain shrink-0" />
+                        ) : (
+                          <Building2 className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                        )}
+                        <span className="text-sm text-foreground truncate max-w-[140px]">{guide.company_name}</span>
+                      </div>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">—</span>
+                    )}
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline" className="text-xs capitalize">{guide.delivery_type}</Badge>
