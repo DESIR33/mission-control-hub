@@ -8,6 +8,7 @@ import { SubscriberEngagementBadge } from "@/components/subscribers/SubscriberEn
 import { Users, UserPlus, UserMinus, Mail, BookOpen, Video, TrendingUp, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
 function StatCard({ icon: Icon, label, value, className }: { icon: typeof Users; label: string; value: string | number; className?: string }) {
   return (

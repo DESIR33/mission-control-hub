@@ -1,15 +1,17 @@
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Search, Filter, Mail, ChevronRight, BookOpen, Video } from "lucide-react";
+import { Search, Filter, Mail, ChevronRight, BookOpen, Video, Trash2, Download, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Subscriber, SubscriberStatus } from "@/types/subscriber";
-import { getEngagementTier } from "@/types/subscriber";
 import { formatDistanceToNow } from "date-fns";
 import { SubscriberEngagementBadge } from "./SubscriberEngagementBadge";
+import { useBulkDeleteSubscribers } from "@/hooks/use-subscribers";
+import { useToast } from "@/hooks/use-toast";
 
 const statusColors: Record<SubscriberStatus, string> = {
   active: "bg-success/15 text-success border-success/30",
@@ -31,6 +33,9 @@ export function SubscribersTable({ subscribers, onSelectSubscriber, selectedId, 
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
+  const bulkDelete = useBulkDeleteSubscribers();
+  const { toast } = useToast();
+
   const toggleSelectAll = () => {
     if (selectedIds.size === filtered.length) {
       setSelectedIds(new Set());
@@ -49,6 +54,47 @@ export function SubscribersTable({ subscribers, onSelectSubscriber, selectedId, 
     const matchesSource = sourceFilter === "all" || s.source === sourceFilter;
     return matchesSearch && matchesStatus && matchesSource;
   });
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+    try {
+      await bulkDelete.mutateAsync(Array.from(selectedIds));
+      toast({ title: `${selectedIds.size} subscriber(s) removed` });
+      setSelectedIds(new Set());
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleExportCsv = () => {
+    const selected = filtered.filter((s) => selectedIds.has(s.id));
+    const rows = selected.length > 0 ? selected : filtered;
+    const headers = ["Email", "First Name", "Last Name", "Status", "Source", "Guide", "Engagement Score", "Subscribed"];
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((s) =>
+        [
+          `"${s.email}"`,
+          `"${s.first_name ?? ""}"`,
+          `"${s.last_name ?? ""}"`,
+          s.status,
+          s.source ?? "",
+          s.guide_requested ?? "",
+          s.engagement_score,
+          s.created_at.split("T")[0],
+        ].join(",")
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `subscribers-${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: `Exported ${rows.length} subscriber(s)` });
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -96,6 +142,25 @@ export function SubscribersTable({ subscribers, onSelectSubscriber, selectedId, 
           {addButton}
         </div>
       </div>
+
+      {/* Bulk Actions Bar */}
+      {selectedIds.size > 0 && (
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/5 border border-primary/20">
+          <span className="text-sm font-medium text-foreground">{selectedIds.size} selected</span>
+          <div className="flex-1" />
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={handleExportCsv}>
+            <Download className="w-3.5 h-3.5" />
+            Export CSV
+          </Button>
+          <Button variant="outline" size="sm" className="gap-1.5 text-destructive hover:text-destructive" onClick={handleBulkDelete} disabled={bulkDelete.isPending}>
+            {bulkDelete.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+            Delete
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => setSelectedIds(new Set())}>
+            Clear
+          </Button>
+        </div>
+      )}
 
       {/* Count */}
       <p className="text-xs text-muted-foreground">
