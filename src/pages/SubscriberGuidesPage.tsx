@@ -44,7 +44,7 @@ function useVideoQueueList() {
 interface GuideFormProps {
   guide?: SubscriberGuide | null;
   videos: { id: number; title: string }[];
-  companies: { id: string; name: string }[];
+  companies: { id: string; name: string; logo_url?: string | null }[];
   onSubmit: (data: any) => Promise<void>;
   isPending: boolean;
   onCancel: () => void;
