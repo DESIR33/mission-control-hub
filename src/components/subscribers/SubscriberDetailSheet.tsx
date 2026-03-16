@@ -281,6 +281,7 @@ export function SubscriberDetailSheet({ subscriber, open, onOpenChange, onDelete
                   <Separator className="bg-border" />
                   <SubscriberGuidePicker subscriberId={subscriber.id} />
                   {subscriber.notes && (
+                    <>
                       <Separator className="bg-border" />
                       <div>
                         <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Notes</h4>
