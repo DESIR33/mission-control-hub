@@ -5,13 +5,15 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSubscriberGuides, useCreateSubscriberGuide, useUpdateSubscriberGuide, useDeleteSubscriberGuide } from "@/hooks/use-subscriber-guides";
 import { useCompanies } from "@/hooks/use-companies";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, BookOpen, Trash2, Loader2, Video, Building2, Pencil } from "lucide-react";
+import { Plus, BookOpen, Trash2, Loader2, Video, Building2, Pencil, ChevronsUpDown, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
@@ -42,7 +44,7 @@ function useVideoQueueList() {
 interface GuideFormProps {
   guide?: SubscriberGuide | null;
   videos: { id: number; title: string }[];
-  companies: { id: string; name: string }[];
+  companies: { id: string; name: string; logo_url?: string | null }[];
   onSubmit: (data: any) => Promise<void>;
   isPending: boolean;
   onCancel: () => void;
@@ -53,6 +55,7 @@ function GuideForm({ guide, videos, companies, onSubmit, isPending, onCancel, su
   const [deliveryType, setDeliveryType] = useState<string>(guide?.delivery_type ?? "email");
   const [selectedVideoId, setSelectedVideoId] = useState<string>(guide?.video_queue_id ? String(guide.video_queue_id) : "");
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>(guide?.company_id ?? "");
+  const [companyOpen, setCompanyOpen] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -109,17 +112,58 @@ function GuideForm({ guide, videos, companies, onSubmit, isPending, onCancel, su
           <Building2 className="w-3.5 h-3.5 text-muted-foreground" />
           Linked Company
         </Label>
-        <Select value={selectedCompanyId} onValueChange={setSelectedCompanyId}>
-          <SelectTrigger className="bg-secondary border-border">
-            <SelectValue placeholder="Select a company..." />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">No company</SelectItem>
-            {companies.map((c) => (
-              <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Popover open={companyOpen} onOpenChange={setCompanyOpen}>
+          <PopoverTrigger asChild>
+            <Button variant="outline" role="combobox" aria-expanded={companyOpen} className="w-full justify-between bg-secondary border-border font-normal">
+              {selectedCompanyId && selectedCompanyId !== "none" ? (
+                <span className="flex items-center gap-2 truncate">
+                  {(() => {
+                    const c = companies.find((c) => c.id === selectedCompanyId);
+                    if (!c) return "Select a company...";
+                    return (
+                      <>
+                        {c.logo_url ? (
+                          <img src={c.logo_url} alt="" className="w-4 h-4 rounded object-contain shrink-0" />
+                        ) : (
+                          <Building2 className="w-4 h-4 text-muted-foreground shrink-0" />
+                        )}
+                        {c.name}
+                      </>
+                    );
+                  })()}
+                </span>
+              ) : (
+                <span className="text-muted-foreground">Select a company...</span>
+              )}
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+            <Command>
+              <CommandInput placeholder="Search companies..." />
+              <CommandList>
+                <CommandEmpty>No companies found.</CommandEmpty>
+                <CommandGroup>
+                  <CommandItem value="__none__" onSelect={() => { setSelectedCompanyId(""); setCompanyOpen(false); }}>
+                    <Check className={cn("mr-2 h-4 w-4", !selectedCompanyId ? "opacity-100" : "opacity-0")} />
+                    <span className="text-muted-foreground">No company</span>
+                  </CommandItem>
+                  {[...companies].sort((a, b) => a.name.localeCompare(b.name)).map((c) => (
+                    <CommandItem key={c.id} value={c.name} onSelect={() => { setSelectedCompanyId(c.id); setCompanyOpen(false); }}>
+                      <Check className={cn("mr-2 h-4 w-4", selectedCompanyId === c.id ? "opacity-100" : "opacity-0")} />
+                      {c.logo_url ? (
+                        <img src={c.logo_url} alt="" className="w-5 h-5 rounded object-contain shrink-0 mr-2" />
+                      ) : (
+                        <Building2 className="w-4 h-4 text-muted-foreground shrink-0 mr-2" />
+                      )}
+                      <span className="truncate">{c.name}</span>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
         <p className="text-xs text-muted-foreground">Which company/brand this guide relates to</p>
       </div>
 
