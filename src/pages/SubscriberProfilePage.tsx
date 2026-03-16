@@ -53,7 +53,7 @@ export default function SubscriberProfilePage() {
     return (
       <div className="p-4 sm:p-6 lg:p-8">
         <p className="text-muted-foreground">Subscriber not found.</p>
-        <Button variant="ghost" className="mt-4" onClick={() => navigate("/network/contacts?tab=subscribers")}>
+        <Button variant="ghost" className="mt-4" onClick={() => navigate("/subscribers")}>
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Subscribers
         </Button>
@@ -92,7 +92,7 @@ export default function SubscriberProfilePage() {
     try {
       await deleteSubscriber.mutateAsync(subscriber.id);
       toast({ title: "Subscriber removed" });
-      navigate("/network/contacts?tab=subscribers");
+      navigate("/subscribers");
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
     }
@@ -100,7 +100,7 @@ export default function SubscriberProfilePage() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 min-h-screen">
-      <Button variant="ghost" size="sm" className="mb-4" onClick={() => navigate("/network/contacts?tab=subscribers")}>
+      <Button variant="ghost" size="sm" className="mb-4" onClick={() => navigate("/subscribers")}>
         <ArrowLeft className="w-4 h-4 mr-2" />
         Back to Subscribers
       </Button>
