@@ -3519,6 +3519,7 @@ export type Database = {
       }
       subscriber_guides: {
         Row: {
+          company_id: string | null
           created_at: string
           delivery_type: string
           description: string | null
@@ -3531,9 +3532,11 @@ export type Database = {
           slug: string
           status: string
           updated_at: string
+          video_queue_id: number | null
           workspace_id: string
         }
         Insert: {
+          company_id?: string | null
           created_at?: string
           delivery_type?: string
           description?: string | null
@@ -3546,9 +3549,11 @@ export type Database = {
           slug: string
           status?: string
           updated_at?: string
+          video_queue_id?: number | null
           workspace_id: string
         }
         Update: {
+          company_id?: string | null
           created_at?: string
           delivery_type?: string
           description?: string | null
@@ -3561,9 +3566,17 @@ export type Database = {
           slug?: string
           status?: string
           updated_at?: string
+          video_queue_id?: number | null
           workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "subscriber_guides_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "subscriber_guides_workspace_id_fkey"
             columns: ["workspace_id"]
