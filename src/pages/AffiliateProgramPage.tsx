@@ -77,6 +77,7 @@ export default function AffiliateProgramPage() {
 
   const createTx = useCreateAffiliateTransaction();
   const updateTx = useUpdateAffiliateTransaction();
+  const deleteTx = useDeleteAffiliateTransaction();
 
   const markAsPaid = useMutation({
     mutationFn: async (txId: string) => {
