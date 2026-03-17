@@ -25,7 +25,8 @@ export function useAffiliateTransactions() {
       const { data, error } = await supabase
         .from("affiliate_transactions" as any)
         .select("*")
-        .eq("workspace_id", workspaceId!);
+        .eq("workspace_id", workspaceId!)
+        .order("transaction_date", { ascending: false });
       if (error) throw error;
       return (data ?? []) as any[];
     },
