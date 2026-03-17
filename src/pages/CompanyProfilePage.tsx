@@ -21,7 +21,7 @@ import {
 import { ActivityTimeline } from "@/components/crm/ActivityTimeline";
 import { CompanyIntelFeed } from "@/components/companies/CompanyIntelFeed";
 import { AssociateContactPopover } from "@/components/crm/AssociateContactPopover";
-import { EditCompanyDialog } from "@/components/crm/EditCompanyDialog";
+
 import { useCompanies, useDeleteCompany, useCompanyContacts } from "@/hooks/use-companies";
 import { useActivities } from "@/hooks/use-contacts";
 import { useVideoQueue } from "@/hooks/use-video-queue";
@@ -129,7 +129,7 @@ export default function CompanyProfilePage() {
   const { workspaceId } = useWorkspace();
 
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
+  
   const [isEnriching, setIsEnriching] = useState(false);
 
   const { data: companies = [], isLoading: companiesLoading } = useCompanies();
@@ -356,7 +356,7 @@ export default function CompanyProfilePage() {
               {isEnriching ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
               <span className="hidden sm:inline">{isEnriching ? "Enriching..." : "Enrich"}</span>
             </Button>
-            <Button variant="outline" size="sm" onClick={() => setEditOpen(true)} className="gap-1.5">
+            <Button variant="outline" size="sm" onClick={() => navigate(`/relationships/companies/${company.id}/edit`)} className="gap-1.5">
               <Pencil className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Edit</span>
             </Button>
@@ -818,8 +818,6 @@ export default function CompanyProfilePage() {
         </div>
       </div>
 
-      {/* Edit Dialog */}
-      <EditCompanyDialog company={company} open={editOpen} onOpenChange={setEditOpen} />
 
       {/* Delete Confirmation */}
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>

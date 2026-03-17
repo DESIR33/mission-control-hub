@@ -28,6 +28,7 @@ const AffiliateProgramPage = lazy(() => import("./pages/AffiliateProgramPage"));
 const NewAffiliateProgramPage = lazy(() => import("./pages/NewAffiliateProgramPage"));
 const EditAffiliateProgramPage = lazy(() => import("./pages/EditAffiliateProgramPage"));
 const AddTransactionPage = lazy(() => import("./pages/AddTransactionPage"));
+const EditCompanyPage = lazy(() => import("./pages/EditCompanyPage"));
 const EditTransactionPage = lazy(() => import("./pages/EditTransactionPage"));
 const AddCompanyPage = lazy(() => import("./pages/AddCompanyPage"));
 const AddContactPage = lazy(() => import("./pages/AddContactPage"));
@@ -156,6 +157,7 @@ const App = () => (
               <Route path="/relationships/new-company" element={<LazyPage section="Add Company"><AddCompanyPage /></LazyPage>} />
               <Route path="/relationships/new-contact" element={<LazyPage section="Add Contact"><AddContactPage /></LazyPage>} />
               <Route path="/relationships/companies/:companyId" element={<LazyPage section="Company Profile"><CompanyProfilePage /></LazyPage>} />
+              <Route path="/relationships/companies/:companyId/edit" element={<LazyPage section="Edit Company"><EditCompanyPage /></LazyPage>} />
               <Route path="/relationships/contacts/:contactId" element={<LazyPage section="Contact Profile"><ContactProfilePage /></LazyPage>} />
               <Route path="/contacts/:contactId" element={<LazyPage section="Contact Profile"><ContactProfilePage /></LazyPage>} />
               <Route path="/contacts/:contactId/edit" element={<LazyPage section="Edit Contact"><EditContactPage /></LazyPage>} />
