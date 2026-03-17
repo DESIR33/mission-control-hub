@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CircleDollarSign, CalendarIcon, BarChart3, Check, X, ArrowLeft, ExternalLink, Plus } from "lucide-react";
+import { CircleDollarSign, CalendarIcon, BarChart3, Check, X, ArrowLeft, ExternalLink, Plus, Trash2 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format, parseISO } from "date-fns";
@@ -25,6 +25,7 @@ import {
   useAffiliateTransactions,
   useCreateAffiliateTransaction,
   useUpdateAffiliateTransaction,
+  useDeleteAffiliateTransaction,
   type AffiliateTransaction,
 } from "@/hooks/use-affiliate-transactions";
 import { ExportRevenueDialog } from "@/components/revenue/ExportRevenueDialog";
@@ -76,6 +77,7 @@ export default function AffiliateProgramPage() {
 
   const createTx = useCreateAffiliateTransaction();
   const updateTx = useUpdateAffiliateTransaction();
+  const deleteTx = useDeleteAffiliateTransaction();
 
   const markAsPaid = useMutation({
     mutationFn: async (txId: string) => {
@@ -443,6 +445,24 @@ export default function AffiliateProgramPage() {
                               onClick={() => openEditTransaction(tx)}
                             >
                               Edit
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-xs h-7 text-destructive hover:text-destructive"
+                              onClick={async () => {
+                                if (window.confirm("Delete this transaction?")) {
+                                  try {
+                                    await deleteTx.mutateAsync(tx.id);
+                                    toast({ title: "Deleted", description: "Transaction deleted" });
+                                  } catch (e: any) {
+                                    toast({ title: "Error", description: e.message, variant: "destructive" });
+                                  }
+                                }
+                              }}
+                              disabled={deleteTx.isPending}
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
                             </Button>
                           </div>
                         </TableCell>
