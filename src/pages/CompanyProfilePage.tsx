@@ -129,7 +129,7 @@ export default function CompanyProfilePage() {
   const { workspaceId } = useWorkspace();
 
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
+  
   const [isEnriching, setIsEnriching] = useState(false);
 
   const { data: companies = [], isLoading: companiesLoading } = useCompanies();
