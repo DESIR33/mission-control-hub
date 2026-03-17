@@ -1,12 +1,15 @@
 import { useState } from "react";
 import {
   DollarSign, Plus, Trash2, Pencil, Check, X, Video, Share2, Mail,
-  Loader2, FileText, Scale, Link2,
+  Loader2, FileText, Scale, Link2, Download,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRateCard, RateCardItem, RateCardTerm } from "@/hooks/use-rate-card";
+import { useWorkspaceDetails } from "@/hooks/use-settings";
+import { exportRateCardPDF } from "@/lib/rate-card-pdf";
+import { toast } from "sonner";
 
 const CATEGORY_META: Record<string, { label: string; icon: React.ElementType; color: string }> = {
   video: { label: "YouTube Video", icon: Video, color: "text-red-400" },
