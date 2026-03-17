@@ -290,6 +290,21 @@ export function RateCardCalculator() {
 
   return (
     <div className="space-y-5">
+      {/* Header with Export */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm font-semibold text-foreground">Pricing & Terms</h2>
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-1.5 text-xs"
+          onClick={handleExportPDF}
+          disabled={exporting}
+        >
+          {exporting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+          Export PDF
+        </Button>
+      </div>
+
       {/* Summary */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <div className="rounded-xl border border-border bg-card p-3">
