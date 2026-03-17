@@ -79,3 +79,17 @@ export function useUpdateAffiliateTransaction() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["affiliate-transactions"] }),
   });
 }
+
+export function useDeleteAffiliateTransaction() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from("affiliate_transactions" as any)
+        .delete()
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["affiliate-transactions"] }),
+  });
+}

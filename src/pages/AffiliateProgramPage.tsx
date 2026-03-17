@@ -25,6 +25,7 @@ import {
   useAffiliateTransactions,
   useCreateAffiliateTransaction,
   useUpdateAffiliateTransaction,
+  useDeleteAffiliateTransaction,
   type AffiliateTransaction,
 } from "@/hooks/use-affiliate-transactions";
 import { ExportRevenueDialog } from "@/components/revenue/ExportRevenueDialog";
