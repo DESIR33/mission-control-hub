@@ -28,6 +28,7 @@ const AffiliateProgramPage = lazy(() => import("./pages/AffiliateProgramPage"));
 const NewAffiliateProgramPage = lazy(() => import("./pages/NewAffiliateProgramPage"));
 const EditAffiliateProgramPage = lazy(() => import("./pages/EditAffiliateProgramPage"));
 const AddTransactionPage = lazy(() => import("./pages/AddTransactionPage"));
+const EditCompanyPage = lazy(() => import("./pages/EditCompanyPage"));
 const EditTransactionPage = lazy(() => import("./pages/EditTransactionPage"));
 const AddCompanyPage = lazy(() => import("./pages/AddCompanyPage"));
 const AddContactPage = lazy(() => import("./pages/AddContactPage"));
