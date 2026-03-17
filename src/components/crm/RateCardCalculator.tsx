@@ -1,12 +1,15 @@
 import { useState } from "react";
 import {
   DollarSign, Plus, Trash2, Pencil, Check, X, Video, Share2, Mail,
-  Loader2, FileText, Scale, Link2,
+  Loader2, FileText, Scale, Link2, Download,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRateCard, RateCardItem, RateCardTerm } from "@/hooks/use-rate-card";
+import { useWorkspaceDetails } from "@/hooks/use-settings";
+import { exportRateCardPDF } from "@/lib/rate-card-pdf";
+import { toast } from "sonner";
 
 const CATEGORY_META: Record<string, { label: string; icon: React.ElementType; color: string }> = {
   video: { label: "YouTube Video", icon: Video, color: "text-red-400" },
@@ -235,6 +238,27 @@ export function RateCardCalculator() {
     updateTerm, addTerm, deleteTerm,
   } = useRateCard();
 
+  const { data: workspace } = useWorkspaceDetails();
+  const [exporting, setExporting] = useState(false);
+
+  const handleExportPDF = async () => {
+    setExporting(true);
+    try {
+      await exportRateCardPDF({
+        items,
+        terms,
+        workspaceName: workspace?.name ?? "My Workspace",
+        logoUrl: workspace?.logo_url,
+      });
+      toast.success("Rate card PDF downloaded");
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to export PDF");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   if (isLoading) {
     return <div className="rounded-xl border border-border bg-card p-6 animate-pulse h-96" />;
   }
@@ -266,6 +290,21 @@ export function RateCardCalculator() {
 
   return (
     <div className="space-y-5">
+      {/* Header with Export */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm font-semibold text-foreground">Pricing & Terms</h2>
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-1.5 text-xs"
+          onClick={handleExportPDF}
+          disabled={exporting}
+        >
+          {exporting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+          Export PDF
+        </Button>
+      </div>
+
       {/* Summary */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <div className="rounded-xl border border-border bg-card p-3">
