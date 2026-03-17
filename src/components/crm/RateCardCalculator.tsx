@@ -238,6 +238,27 @@ export function RateCardCalculator() {
     updateTerm, addTerm, deleteTerm,
   } = useRateCard();
 
+  const { data: workspace } = useWorkspaceDetails();
+  const [exporting, setExporting] = useState(false);
+
+  const handleExportPDF = async () => {
+    setExporting(true);
+    try {
+      await exportRateCardPDF({
+        items,
+        terms,
+        workspaceName: workspace?.name ?? "My Workspace",
+        logoUrl: workspace?.logo_url,
+      });
+      toast.success("Rate card PDF downloaded");
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to export PDF");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   if (isLoading) {
     return <div className="rounded-xl border border-border bg-card p-6 animate-pulse h-96" />;
   }
