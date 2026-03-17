@@ -446,6 +446,24 @@ export default function AffiliateProgramPage() {
                             >
                               Edit
                             </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-xs h-7 text-destructive hover:text-destructive"
+                              onClick={async () => {
+                                if (window.confirm("Delete this transaction?")) {
+                                  try {
+                                    await deleteTx.mutateAsync(tx.id);
+                                    toast({ title: "Deleted", description: "Transaction deleted" });
+                                  } catch (e: any) {
+                                    toast({ title: "Error", description: e.message, variant: "destructive" });
+                                  }
+                                }
+                              }}
+                              disabled={deleteTx.isPending}
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
                           </div>
                         </TableCell>
                       </TableRow>
