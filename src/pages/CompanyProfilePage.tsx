@@ -356,7 +356,7 @@ export default function CompanyProfilePage() {
               {isEnriching ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
               <span className="hidden sm:inline">{isEnriching ? "Enriching..." : "Enrich"}</span>
             </Button>
-            <Button variant="outline" size="sm" onClick={() => setEditOpen(true)} className="gap-1.5">
+            <Button variant="outline" size="sm" onClick={() => navigate(`/relationships/companies/${company.id}/edit`)} className="gap-1.5">
               <Pencil className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Edit</span>
             </Button>
