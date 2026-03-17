@@ -157,6 +157,7 @@ const App = () => (
               <Route path="/relationships/new-company" element={<LazyPage section="Add Company"><AddCompanyPage /></LazyPage>} />
               <Route path="/relationships/new-contact" element={<LazyPage section="Add Contact"><AddContactPage /></LazyPage>} />
               <Route path="/relationships/companies/:companyId" element={<LazyPage section="Company Profile"><CompanyProfilePage /></LazyPage>} />
+              <Route path="/relationships/companies/:companyId/edit" element={<LazyPage section="Edit Company"><EditCompanyPage /></LazyPage>} />
               <Route path="/relationships/contacts/:contactId" element={<LazyPage section="Contact Profile"><ContactProfilePage /></LazyPage>} />
               <Route path="/contacts/:contactId" element={<LazyPage section="Contact Profile"><ContactProfilePage /></LazyPage>} />
               <Route path="/contacts/:contactId/edit" element={<LazyPage section="Edit Contact"><EditContactPage /></LazyPage>} />

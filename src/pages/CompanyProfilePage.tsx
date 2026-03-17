@@ -818,8 +818,6 @@ export default function CompanyProfilePage() {
         </div>
       </div>
 
-      {/* Edit Dialog */}
-      <EditCompanyDialog company={company} open={editOpen} onOpenChange={setEditOpen} />
 
       {/* Delete Confirmation */}
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
