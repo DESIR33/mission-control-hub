@@ -21,7 +21,7 @@ import {
 import { ActivityTimeline } from "@/components/crm/ActivityTimeline";
 import { CompanyIntelFeed } from "@/components/companies/CompanyIntelFeed";
 import { AssociateContactPopover } from "@/components/crm/AssociateContactPopover";
-import { EditCompanyDialog } from "@/components/crm/EditCompanyDialog";
+
 import { useCompanies, useDeleteCompany, useCompanyContacts } from "@/hooks/use-companies";
 import { useActivities } from "@/hooks/use-contacts";
 import { useVideoQueue } from "@/hooks/use-video-queue";
