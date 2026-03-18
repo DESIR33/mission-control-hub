@@ -105,14 +105,12 @@ Do NOT include any text outside the JSON object.`;
 }
 
 async function getOpenRouterKey(workspaceId: string): Promise<string> {
-  const { data } = await supabase
-    .from("workspace_integrations" as any)
-    .select("config")
-    .eq("workspace_id", workspaceId)
-    .eq("integration_key", "openrouter")
-    .single();
+  const { data, error } = await supabase.functions.invoke("integration-config-read", {
+    body: { workspace_id: workspaceId, integration_key: "openrouter" },
+  });
 
-  const config = (data as any)?.config;
+  if (error) throw new Error("AI generation unavailable — using template fallback");
+  const config = data?.raw_non_secret;
   if (config?.api_key) return config.api_key;
 
   throw new Error("AI generation unavailable — using template fallback");
