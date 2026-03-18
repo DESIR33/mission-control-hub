@@ -307,6 +307,10 @@ Deno.serve(async (req) => {
       return jsonResponse({ error: "Missing workspace_id" }, 400);
     }
 
+    // Auth: validate caller is a workspace member or service role
+    const auth = await validateCallerOrServiceRole(req, workspace_id);
+    if (!auth.authorized) return auth.response;
+
     const openrouterKey = Deno.env.get("OPENROUTER_API_KEY");
     if (!openrouterKey) {
       return jsonResponse({ error: "OPENROUTER_API_KEY not configured" }, 500);
