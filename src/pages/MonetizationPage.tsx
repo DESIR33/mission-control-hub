@@ -264,13 +264,14 @@ export default function MonetizationPage() {
     enabled: !!workspaceId
   });
 
-  const { data: transactions = [] } = useQuery<ProductTransaction[]>({
-    queryKey: ["/api/product-transactions"]
-  });
-
-  const { data: products = [] } = useQuery<Product[]>({
-    queryKey: ["/api/products"]
-  });
+  const {
+    products,
+    transactions,
+    createProduct: createProductMutation,
+    deleteProduct: deleteProductMutation,
+    deleteTransaction: deleteTransactionMutation,
+    updateTransaction: updateTransactionMutation,
+  } = useProducts();
 
   const handleAddWidget = (newMetric: RevenueMetric) => {
     setMetrics((prev) => [...prev, { ...newMetric, id: crypto.randomUUID() }]);
