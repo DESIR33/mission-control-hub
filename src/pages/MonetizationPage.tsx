@@ -1349,7 +1349,7 @@ export default function MonetizationPage() {
                 type: "digital" as const,
                 category,
                 marketplace: formData.get("marketplace") as string || "",
-                company_id: (formData.get("company_id") as string) || null,
+                company_id: ((formData.get("company_id") as string) !== "none" ? (formData.get("company_id") as string) : null) || null,
                 sale_price: salePrice,
                 commission: commissionVal,
                 net_amount: salePrice - commissionVal,
