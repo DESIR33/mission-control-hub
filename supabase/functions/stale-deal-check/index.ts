@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { validateCallerOrServiceRole } from "../_shared/auth-guard.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,6 +12,10 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Auth: require service role key (this is a cron-only function)
+    const auth = await validateCallerOrServiceRole(req);
+    if (!auth.authorized) return auth.response;
+
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
@@ -81,10 +86,11 @@ Deno.serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: unknown) {
+    console.error("stale-deal-check error:", error);
     return new Response(
-      JSON.stringify({ success: false, error: error instanceof Error ? error.message : String(error) }),
+      JSON.stringify({ success: false, error: "Internal server error" }),
       {
-        status: 400,
+        status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       }
     );

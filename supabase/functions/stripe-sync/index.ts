@@ -153,6 +153,10 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Auth: require valid user (workspace member) or service role key
+    const auth = await validateCallerOrServiceRole(req, workspace_id);
+    if (!auth.authorized) return auth.response;
+
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!

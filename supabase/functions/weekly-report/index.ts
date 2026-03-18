@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { validateCallerOrServiceRole } from "../_shared/auth-guard.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,13 +12,17 @@ Deno.serve(async (req) => {
   }
 
   try {
+    const { workspace_id } = await req.json();
+    if (!workspace_id) throw new Error("Missing workspace_id");
+
+    // Auth: require valid user (workspace member) or service role key
+    const auth = await validateCallerOrServiceRole(req, workspace_id);
+    if (!auth.authorized) return auth.response;
+
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
-
-    const { workspace_id } = await req.json();
-    if (!workspace_id) throw new Error("Missing workspace_id");
 
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);

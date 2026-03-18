@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { validateCallerOrServiceRole } from "../_shared/auth-guard.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -19,6 +20,10 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Auth: require service role key (this is a cron-only function)
+    const auth = await validateCallerOrServiceRole(req);
+    if (!auth.authorized) return auth.response;
+
     const supabase = getSupabaseAdmin();
     const body = await req.json().catch(() => ({}));
     const source = body.source || "scheduled";
