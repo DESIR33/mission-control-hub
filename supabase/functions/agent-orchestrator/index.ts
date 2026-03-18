@@ -1,5 +1,6 @@
 import { corsHeaders, corsResponse, jsonResponse, errorResponse } from "../_shared/cors.ts";
 import { getSupabaseAdmin } from "../_shared/supabase-admin.ts";
+import { validateCallerOrServiceRole } from "../_shared/auth-guard.ts";
 
 import {
   queryYoutubeStats,
@@ -305,6 +306,10 @@ Deno.serve(async (req) => {
     if (!workspace_id) {
       return jsonResponse({ error: "Missing workspace_id" }, 400);
     }
+
+    // Auth: validate caller is a workspace member or service role
+    const auth = await validateCallerOrServiceRole(req, workspace_id);
+    if (!auth.authorized) return auth.response;
 
     const openrouterKey = Deno.env.get("OPENROUTER_API_KEY");
     if (!openrouterKey) {

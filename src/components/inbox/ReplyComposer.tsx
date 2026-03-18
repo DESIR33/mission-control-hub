@@ -176,8 +176,9 @@ export function ReplyComposer({ email, mode, quotedText, onClose, onSent }: Repl
       });
       if (error) throw error;
       if (data?.response && editorRef.current) {
-        const html = data.response.replace(/\n/g, "<br>");
-        editorRef.current.innerHTML = `<p>${html}</p>`;
+        const rawHtml = data.response.replace(/\n/g, "<br>");
+        const safeHtml = DOMPurify.sanitize(rawHtml, { FORBID_TAGS: ['script', 'style'] });
+        editorRef.current.innerHTML = `<p>${safeHtml}</p>`;
       }
     } catch {
       toast.error("Failed to generate AI draft");
