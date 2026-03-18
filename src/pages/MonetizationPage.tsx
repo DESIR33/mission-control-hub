@@ -276,6 +276,7 @@ export default function MonetizationPage() {
     products,
     transactions,
     createProduct: createProductMutation,
+    updateProduct: updateProductMutation,
     deleteProduct: deleteProductMutation,
     deleteTransaction: deleteTransactionMutation,
     updateTransaction: updateTransactionMutation,
