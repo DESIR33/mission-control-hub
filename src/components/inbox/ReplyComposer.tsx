@@ -26,6 +26,7 @@ import {
   SparklesIcon,
   Trash2Icon,
 } from "lucide-react";
+import DOMPurify from "dompurify";
 import { cn } from "@/lib/utils";
 import { useOutlookSend } from "@/hooks/use-smart-inbox";
 import { useWorkspace } from "@/hooks/use-workspace";
@@ -73,7 +74,8 @@ export function ReplyComposer({ email, mode, quotedText, onClose, onSent }: Repl
         editorRef.current.focus();
         // If there's quoted text, set it
         if (quotedText) {
-          editorRef.current.innerHTML = `<p><br></p><blockquote style="border-left: 2px solid hsl(var(--border)); padding-left: 12px; margin-left: 0; color: hsl(var(--muted-foreground));">${quotedText.replace(/\n/g, "<br>")}</blockquote>`;
+          const safeQuoted = DOMPurify.sanitize(quotedText.replace(/\n/g, "<br>"), { FORBID_TAGS: ['script', 'style'] });
+          editorRef.current.innerHTML = `<p><br></p><blockquote style="border-left: 2px solid hsl(var(--border)); padding-left: 12px; margin-left: 0; color: hsl(var(--muted-foreground));">${safeQuoted}</blockquote>`;
           // Place cursor at the beginning
           const range = document.createRange();
           const sel = window.getSelection();
