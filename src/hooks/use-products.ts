@@ -139,6 +139,16 @@ export function useProducts() {
     },
   });
 
+  const updateProduct = useMutation({
+    mutationFn: async ({ id, ...updates }: { id: string } & Partial<CreateProductInput>) => {
+      const { error } = await supabase.from("products" as any).update(updates as any).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products", workspaceId] });
+    },
+  });
+
   const deleteProduct = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from("products" as any).delete().eq("id", id);
@@ -198,6 +208,7 @@ export function useProducts() {
     isLoadingProducts: productsQuery.isLoading,
     isLoadingTransactions: transactionsQuery.isLoading,
     createProduct,
+    updateProduct,
     deleteProduct,
     createTransaction,
     updateTransaction,
