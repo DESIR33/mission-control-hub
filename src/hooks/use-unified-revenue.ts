@@ -99,19 +99,6 @@ export function useUnifiedRevenue(monthCount: number = 12) {
     enabled: !!workspaceId,
   });
 
-  const { data: publishedVideoCount = 0 } = useQuery({
-    queryKey: ["unified-rev-video-count", workspaceId],
-    queryFn: async () => {
-      const { count, error } = await supabase
-        .from("video_queue")
-        .select("id", { count: "exact", head: true })
-        .eq("workspace_id", workspaceId!)
-        .eq("status", "published");
-      if (error) throw error;
-      return count ?? 0;
-    },
-    enabled: !!workspaceId,
-  });
 
   const revenue = useMemo((): UnifiedRevenueData | null => {
     const monthly: MonthlyRevenue[] = [];
