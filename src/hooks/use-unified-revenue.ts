@@ -169,9 +169,9 @@ export function useUnifiedRevenue(monthCount: number = 12) {
     const affiliateTotal = affiliateTx.reduce((s: number, t: any) => s + (t.amount || 0), 0);
     const totalRevenue = sponsorTotal + affiliateTotal + adSenseTotal;
 
-    const subscriberCount = channelStats?.subscriber_count || 1;
-    const videoCount = channelStats?.video_count || 1;
-    const revenuePerSub = totalRevenue / subscriberCount;
+    const subscriberCount = channelStats?.subscriber_count || 0;
+    const videoCount = publishedVideoCount || 1;
+    const revenuePerSub = subscriberCount > 0 ? totalRevenue / subscriberCount : 0;
     const revenuePerThousandSubs = subscriberCount > 0 ? totalRevenue / (subscriberCount / 1000) : 0;
     const revenuePerVideo = totalRevenue / videoCount;
 
