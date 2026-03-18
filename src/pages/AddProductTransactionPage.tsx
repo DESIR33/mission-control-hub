@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
   Card,
@@ -36,18 +36,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-
-interface Product {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  type: 'digital' | 'physical';
-  platform: string;
-  createdAt: string;
-  categoryId?: number;
-  imageUrl?: string;
-}
+import { useProducts, type Product } from "@/hooks/use-products";
 
 const transactionSchema = z.object({
   productId: z.string().min(1, { message: "Please select a product" }),
