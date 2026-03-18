@@ -156,6 +156,7 @@ export function useUnifiedRevenue(monthCount: number = 12) {
     const subscriberCount = channelStats?.subscriber_count || 1;
     const videoCount = channelStats?.video_count || 1;
     const revenuePerSub = totalRevenue / subscriberCount;
+    const revenuePerThousandSubs = subscriberCount > 0 ? totalRevenue / (subscriberCount / 1000) : 0;
     const revenuePerVideo = totalRevenue / videoCount;
 
     // Month over month growth
