@@ -140,8 +140,8 @@ function generateInvoicePDF(invoice: Invoice) {
       <div class="row total"><span>Total</span><span>${fmtCurrency(invoice.total_amount, invoice.currency)}</span></div>
     </div>
   </div>
-  ${invoice.notes ? `<div class="footer"><p><strong>Notes:</strong> ${invoice.notes}</p></div>` : ""}
-  ${invoice.stripe_payment_url ? `<div class="footer"><p>Pay online: <a href="${invoice.stripe_payment_url}">${invoice.stripe_payment_url}</a></p></div>` : ""}
+  ${invoice.notes ? `<div class="footer"><p><strong>Notes:</strong> ${escapeHtml(invoice.notes)}</p></div>` : ""}
+  ${invoice.stripe_payment_url ? `<div class="footer"><p>Pay online: <a href="${escapeHtml(invoice.stripe_payment_url)}">${escapeHtml(invoice.stripe_payment_url)}</a></p></div>` : ""}
 </body></html>`);
   w.document.close();
   setTimeout(() => w.print(), 500);

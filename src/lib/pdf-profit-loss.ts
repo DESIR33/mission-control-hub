@@ -67,7 +67,7 @@ export function generateProfitLossPdf({
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Profit & Loss Statement — ${period}</title>
+  <title>Profit &amp; Loss Statement — ${escapeHtml(period)}</title>
   <style>
     @media print {
       body { margin: 0; }
