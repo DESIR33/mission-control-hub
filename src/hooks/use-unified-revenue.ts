@@ -178,6 +178,7 @@ export function useUnifiedRevenue(monthCount: number = 12) {
       affiliateTotal,
       adSenseTotal: Math.round(adSenseTotal * 100) / 100,
       revenuePerSub: Math.round(revenuePerSub * 100) / 100,
+      revenuePerThousandSubs: Math.round(revenuePerThousandSubs * 100) / 100,
       revenuePerVideo: Math.round(revenuePerVideo),
       momGrowth: Math.round(momGrowth),
       projectedAnnual: Math.round(projectedAnnual),

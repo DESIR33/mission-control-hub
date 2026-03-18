@@ -56,7 +56,7 @@ export function RevenueOverview() {
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Rev/1K Subs</p>
           </div>
           <p className="text-lg font-bold font-mono text-foreground">
-            {fmtDollar(revenue.revenuePerSub * 1000)}
+            {fmtDollar(revenue.revenuePerThousandSubs)}
           </p>
         </div>
 
