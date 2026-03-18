@@ -1168,10 +1168,12 @@ export default function MonetizationPage() {
                         onClick={() => navigate(`/products/${product.id}`)}>
                         
                               <TableCell className="text-sm text-card-foreground">{product.name}</TableCell>
-                              <TableCell className="hidden md:table-cell text-sm text-muted-foreground">{product.description}</TableCell>
-                              <TableCell className="text-sm font-mono text-card-foreground">${product.price.toLocaleString()}</TableCell>
-                              <TableCell className="text-sm text-muted-foreground">{product.type}</TableCell>
-                              <TableCell className="text-sm text-muted-foreground">{format(new Date(product.createdAt), "MMM d, yyyy")}</TableCell>
+                              <TableCell><Badge variant="outline" className="text-xs capitalize">{product.category}</Badge></TableCell>
+                              <TableCell className="text-sm text-muted-foreground">{product.marketplace || "—"}</TableCell>
+                              <TableCell className="text-sm font-mono text-card-foreground">${product.salePrice.toLocaleString()}</TableCell>
+                              <TableCell className="text-sm font-mono text-muted-foreground">${product.commission.toLocaleString()}</TableCell>
+                              <TableCell className="text-sm font-mono text-card-foreground">${product.netAmount.toLocaleString()}</TableCell>
+                              <TableCell className="hidden md:table-cell text-sm font-mono text-muted-foreground">{product.recurringPrice != null ? `$${product.recurringPrice}/mo` : "—"}</TableCell>
                               <TableCell>
                                 <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                                   <Button
