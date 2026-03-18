@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+import { validateCallerOrServiceRole } from "../_shared/auth-guard.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -151,6 +152,10 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    // Auth: require valid user (workspace member) or service role key
+    const auth = await validateCallerOrServiceRole(req, workspace_id);
+    if (!auth.authorized) return auth.response;
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
@@ -24,8 +23,6 @@ export function useGenerateOutreachEmail() {
       tone: "professional" | "casual" | "bold";
       additionalContext?: string;
     }): Promise<OutreachEmailResult> => {
-      const openrouterKey = await getOpenRouterKey(workspaceId!);
-
       const channelContext = channelStats
         ? `Channel Stats: ${channelStats.subscriber_count.toLocaleString()} subscribers, ${channelStats.video_count} videos, ${channelStats.total_view_count.toLocaleString()} total views.`
         : "Channel Stats: Growing YouTube channel with an engaged audience.";
@@ -68,52 +65,38 @@ Return ONLY a JSON object with two keys:
 
 Do NOT include any text outside the JSON object.`;
 
-      const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${openrouterKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "anthropic/claude-3.5-sonnet",
-          max_tokens: 800,
-          messages: [{ role: "user", content: prompt }],
-        }),
-      });
-
-      if (!res.ok) {
-        // Fallback to local template
-        return generateLocalOutreach(sponsor, channelStats, tone);
-      }
-
-      const data = await res.json();
-      const text = data.choices?.[0]?.message?.content || "";
-
       try {
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          const parsed = JSON.parse(jsonMatch[0]);
-          if (parsed.subject && parsed.body) return parsed;
+        const { data, error } = await supabase.functions.invoke("ai-proxy", {
+          body: {
+            workspace_id: workspaceId,
+            prompt,
+            model: "anthropic/claude-3.5-sonnet",
+            max_tokens: 800,
+          },
+        });
+
+        if (error) {
+          return generateLocalOutreach(sponsor, channelStats, tone);
+        }
+
+        const text = data?.choices?.[0]?.message?.content || "";
+
+        try {
+          const jsonMatch = text.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            const parsed = JSON.parse(jsonMatch[0]);
+            if (parsed.subject && parsed.body) return parsed;
+          }
+        } catch {
+          // parse failed
         }
       } catch {
-        // parse failed
+        // fallback
       }
 
       return generateLocalOutreach(sponsor, channelStats, tone);
     },
   });
-}
-
-async function getOpenRouterKey(workspaceId: string): Promise<string> {
-  const { data, error } = await supabase.functions.invoke("integration-config-read", {
-    body: { workspace_id: workspaceId, integration_key: "openrouter" },
-  });
-
-  if (error) throw new Error("AI generation unavailable — using template fallback");
-  const config = data?.raw_non_secret;
-  if (config?.api_key) return config.api_key;
-
-  throw new Error("AI generation unavailable — using template fallback");
 }
 
 function generateLocalOutreach(

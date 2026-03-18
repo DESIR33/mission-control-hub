@@ -22,6 +22,7 @@ const SECRET_FIELDS: Record<string, string[]> = {
   stripe: ["secret_key", "webhook_secret"],
   paypal: ["client_secret"],
   n8n: ["api_key"],
+  openrouter: ["api_key"],
 };
 
 function maskValue(val: string): string {
