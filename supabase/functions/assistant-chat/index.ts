@@ -431,6 +431,58 @@ async function handleToolCall(
         return { error: `Agent delegation failed: ${(e as Error).message}` };
       }
     }
+    // Task management tools
+    case "create_task": {
+      const { error, data } = await supabase.from("tasks").insert({
+        workspace_id: workspaceId,
+        title: toolInput.title,
+        description: toolInput.description || null,
+        priority: toolInput.priority || "medium",
+        category: toolInput.category || "general",
+        due_date: toolInput.due_date || null,
+        entity_type: toolInput.entity_type || null,
+        entity_id: toolInput.entity_id || null,
+        recurrence_rule: toolInput.recurrence_rule || null,
+        source: "assistant",
+      }).select("id").single();
+      if (error) return { error: error.message };
+      await supabase.from("assistant_actions").insert({
+        workspace_id: workspaceId, action_type: "task_created",
+        title: `Created task: ${toolInput.title}`, task_id: data.id,
+      });
+      return { success: true, task_id: data.id };
+    }
+    case "query_tasks": {
+      let query = supabase.from("tasks").select("id, title, status, priority, category, due_date, entity_type, created_at")
+        .eq("workspace_id", workspaceId).order("created_at", { ascending: false }).limit(toolInput.limit || 20);
+      if (toolInput.status && toolInput.status !== "all") query = query.eq("status", toolInput.status);
+      if (toolInput.priority && toolInput.priority !== "all") query = query.eq("priority", toolInput.priority);
+      const { data, error } = await query;
+      if (error) return { error: error.message };
+      return { tasks: data || [] };
+    }
+    case "update_task": {
+      const updates: any = {};
+      if (toolInput.status) updates.status = toolInput.status;
+      if (toolInput.priority) updates.priority = toolInput.priority;
+      if (toolInput.title) updates.title = toolInput.title;
+      if (toolInput.due_date) updates.due_date = toolInput.due_date;
+      const { error } = await supabase.from("tasks").update(updates).eq("id", toolInput.task_id);
+      if (error) return { error: error.message };
+      return { success: true };
+    }
+    case "triage_inbox": {
+      try {
+        const triageUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/inbox-triage`;
+        const res = await fetch(triageUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}` },
+          body: JSON.stringify({ workspace_id: workspaceId, limit: toolInput.limit || 30 }),
+        });
+        if (!res.ok) return { error: `Triage failed: ${await res.text()}` };
+        return await res.json();
+      } catch (e: unknown) { return { error: (e as Error).message }; }
+    }
     default:
       return { error: `Unknown tool: ${toolName}` };
   }
