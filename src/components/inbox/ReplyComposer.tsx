@@ -26,6 +26,7 @@ import {
   SparklesIcon,
   Trash2Icon,
 } from "lucide-react";
+import DOMPurify from "dompurify";
 import { cn } from "@/lib/utils";
 import { useOutlookSend } from "@/hooks/use-smart-inbox";
 import { useWorkspace } from "@/hooks/use-workspace";
