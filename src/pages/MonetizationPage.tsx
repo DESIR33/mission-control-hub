@@ -1329,7 +1329,7 @@ export default function MonetizationPage() {
 
         {/* Add Product Dialog */}
         <Dialog open={isAddingProduct} onOpenChange={setIsAddingProduct}>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-[550px] max-h-[85vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Add New Product</DialogTitle>
               <DialogDescription>
@@ -1339,11 +1339,21 @@ export default function MonetizationPage() {
             <form onSubmit={(e) => {
               e.preventDefault();
               const formData = new FormData(e.currentTarget);
+              const category = formData.get("category") as "template" | "plugin";
+              const salePrice = parseFloat(formData.get("sale_price") as string) || 0;
+              const commissionVal = parseFloat(formData.get("commission") as string) || 0;
               const productData = {
                 name: formData.get("name") as string,
-                description: formData.get("description") as string,
-                price: parseFloat(formData.get("price") as string),
-                type: formData.get("type") as "digital" | "physical"
+                description: formData.get("description") as string || "",
+                price: salePrice,
+                type: "digital" as const,
+                category,
+                marketplace: formData.get("marketplace") as string || "",
+                company_id: (formData.get("company_id") as string) || null,
+                sale_price: salePrice,
+                commission: commissionVal,
+                net_amount: salePrice - commissionVal,
+                recurring_price: category === "plugin" ? (parseFloat(formData.get("recurring_price") as string) || null) : null,
               };
               createProductMutation.mutateAsync(productData).then(() => {
                 setIsAddingProduct(false);
@@ -1362,45 +1372,57 @@ export default function MonetizationPage() {
               <div className="grid gap-4 py-4">
                 <div className="grid gap-2">
                   <Label htmlFor="name">Product Name</Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    placeholder="Enter product name"
-                    required />
-                  
+                  <Input id="name" name="name" placeholder="Enter product name" required />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    name="description"
-                    placeholder="Enter product description"
-                    required />
-                  
+                  <Textarea id="description" name="description" placeholder="Enter product description" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="grid gap-2">
+                    <Label htmlFor="category">Category</Label>
+                    <Select name="category" required defaultValue="template">
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent position="popper" className="z-[1001]">
+                        <SelectItem value="template">Template</SelectItem>
+                        <SelectItem value="plugin">Plugin</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="marketplace">Marketplace</Label>
+                    <Input id="marketplace" name="marketplace" placeholder="e.g. Gumroad, Envato" />
+                  </div>
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="price">Price</Label>
-                  <Input
-                    id="price"
-                    name="price"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    placeholder="Enter price"
-                    required />
-                  
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="type">Product Type</Label>
-                  <Select name="type" required defaultValue="digital">
+                  <Label htmlFor="company_id">Linked Company (optional)</Label>
+                  <Select name="company_id">
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select product type" />
+                      <SelectValue placeholder="Link to a company" />
                     </SelectTrigger>
                     <SelectContent position="popper" className="z-[1001]">
-                      <SelectItem value="digital">Digital</SelectItem>
-                      <SelectItem value="physical">Physical</SelectItem>
+                      <SelectItem value="none">No company</SelectItem>
+                      {companies.map((c: any) => (
+                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="grid gap-2">
+                    <Label htmlFor="sale_price">Sale Price</Label>
+                    <Input id="sale_price" name="sale_price" type="number" step="0.01" min="0" placeholder="0.00" required />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="commission">Commission</Label>
+                    <Input id="commission" name="commission" type="number" step="0.01" min="0" placeholder="0.00" />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="recurring_price">Monthly (plugins)</Label>
+                    <Input id="recurring_price" name="recurring_price" type="number" step="0.01" min="0" placeholder="—" />
+                  </div>
                 </div>
               </div>
               <DialogFooter>
