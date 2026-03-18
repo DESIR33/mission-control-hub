@@ -1440,6 +1440,108 @@ export default function MonetizationPage() {
           </DialogContent>
         </Dialog>
 
+        {/* Edit Product Dialog */}
+        <Dialog open={!!editingProduct} onOpenChange={(open) => {
+          if (!open) setEditingProduct(null);
+        }}>
+          <DialogContent className="sm:max-w-[550px] max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Edit Product</DialogTitle>
+              <DialogDescription>
+                Update product details
+              </DialogDescription>
+            </DialogHeader>
+            {editingProduct && (
+              <form onSubmit={async (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                const category = formData.get("category") as "template" | "plugin";
+                const salePrice = parseFloat(formData.get("sale_price") as string) || 0;
+                const commissionVal = parseFloat(formData.get("commission") as string) || 0;
+                try {
+                  await updateProductMutation.mutateAsync({
+                    id: editingProduct.id,
+                    name: formData.get("name") as string,
+                    description: formData.get("description") as string || "",
+                    price: salePrice,
+                    category,
+                    marketplace: formData.get("marketplace") as string || "",
+                    company_id: ((formData.get("company_id") as string) !== "none" ? (formData.get("company_id") as string) : null) || null,
+                    sale_price: salePrice,
+                    commission: commissionVal,
+                    net_amount: salePrice - commissionVal,
+                    recurring_price: category === "plugin" ? (parseFloat(formData.get("recurring_price") as string) || null) : null,
+                  });
+                  toast({ title: "Success", description: "Product updated successfully" });
+                  setEditingProduct(null);
+                } catch {
+                  toast({ title: "Error", description: "Failed to update product", variant: "destructive" });
+                }
+              }} className="space-y-5">
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="edit-name">Product Name</Label>
+                    <Input id="edit-name" name="name" defaultValue={editingProduct.name} required />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="edit-description">Description</Label>
+                    <Textarea id="edit-description" name="description" defaultValue={editingProduct.description} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="grid gap-2">
+                      <Label htmlFor="edit-category">Category</Label>
+                      <Select name="category" defaultValue={editingProduct.category}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent position="popper" className="z-[1001]">
+                          <SelectItem value="template">Template</SelectItem>
+                          <SelectItem value="plugin">Plugin</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="edit-marketplace">Marketplace</Label>
+                      <Input id="edit-marketplace" name="marketplace" defaultValue={editingProduct.marketplace} />
+                    </div>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="edit-company_id">Linked Company (optional)</Label>
+                    <Select name="company_id" defaultValue={editingProduct.companyId || "none"}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Link to a company" />
+                      </SelectTrigger>
+                      <SelectContent position="popper" className="z-[1001]">
+                        <SelectItem value="none">No company</SelectItem>
+                        {companies.map((c: any) => (
+                          <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="grid gap-2">
+                      <Label htmlFor="edit-sale_price">Sale Price</Label>
+                      <Input id="edit-sale_price" name="sale_price" type="number" step="0.01" min="0" defaultValue={editingProduct.salePrice} required />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="edit-commission">Commission</Label>
+                      <Input id="edit-commission" name="commission" type="number" step="0.01" min="0" defaultValue={editingProduct.commission} />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="edit-recurring_price">Monthly (plugins)</Label>
+                      <Input id="edit-recurring_price" name="recurring_price" type="number" step="0.01" min="0" defaultValue={editingProduct.recurringPrice ?? ""} />
+                    </div>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button type="submit">Save Changes</Button>
+                </DialogFooter>
+              </form>
+            )}
+          </DialogContent>
+        </Dialog>
+
         {/* Edit Transaction Dialog */}
         <Dialog open={!!editingTransaction} onOpenChange={(open) => {
           if (!open) setEditingTransaction(null);
@@ -1454,27 +1556,21 @@ export default function MonetizationPage() {
             <form onSubmit={async (e) => {
               e.preventDefault();
               const formData = new FormData(e.currentTarget);
-              const transactionData = {
-                transactionDate: formData.get('transactionDate'),
-                productName: formData.get('productName'),
-                platform: formData.get('platform'),
-                quantity: parseInt(formData.get('quantity') as string),
-                totalAmount: parseFloat(formData.get('totalAmount') as string),
-                commission: parseFloat(formData.get('commission') as string),
-                netAmount: parseFloat(formData.get('totalAmount') as string) - parseFloat(formData.get('commission') as string)
-              };
+              const totalAmount = parseFloat(formData.get('totalAmount') as string);
+              const commissionVal = parseFloat(formData.get('commission') as string);
+              const netAmount = parseFloat(formData.get('netAmount') as string);
 
               try {
                 if (!editingTransaction) return;
                 await updateTransactionMutation.mutateAsync({
                   id: editingTransaction.id,
-                  transaction_date: transactionData.transactionDate,
-                  product_name: transactionData.productName,
-                  platform: transactionData.platform,
-                  quantity: transactionData.quantity,
-                  total_amount: transactionData.totalAmount,
-                  commission: transactionData.commission,
-                  net_amount: transactionData.netAmount,
+                  transaction_date: formData.get('transactionDate'),
+                  product_name: formData.get('productName'),
+                  platform: formData.get('platform'),
+                  quantity: parseInt(formData.get('quantity') as string),
+                  total_amount: totalAmount,
+                  commission: commissionVal,
+                  net_amount: netAmount,
                 });
                 toast({
                   title: "Success",
@@ -1498,7 +1594,6 @@ export default function MonetizationPage() {
                     type="datetime-local"
                     defaultValue={editingTransaction?.transactionDate}
                     required />
-                  
                 </div>
                 <div className="grid w-full gap-1.5">
                   <Label htmlFor="productName">Product</Label>
@@ -1522,7 +1617,6 @@ export default function MonetizationPage() {
                     name="platform"
                     defaultValue={editingTransaction?.platform}
                     required />
-                  
                 </div>
                 <div className="grid w-full gap-1.5">
                   <Label htmlFor="quantity">Quantity</Label>
@@ -1533,29 +1627,38 @@ export default function MonetizationPage() {
                     min="1"
                     defaultValue={editingTransaction?.quantity}
                     required />
-                  
                 </div>
-                <div className="grid w-full gap-1.5">
-                  <Label htmlFor="totalAmount">Total Amount</Label>
-                  <Input
-                    id="totalAmount"
-                    name="totalAmount"
-                    type="number"
-                    step="0.01"
-                    defaultValue={editingTransaction?.totalAmount}
-                    required />
-                  
-                </div>
-                <div className="grid w-full gap-1.5">
-                  <Label htmlFor="commission">Commission</Label>
-                  <Input
-                    id="commission"
-                    name="commission"
-                    type="number"
-                    step="0.01"
-                    defaultValue={editingTransaction?.commission}
-                    required />
-                  
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="grid gap-1.5">
+                    <Label htmlFor="totalAmount">Sale Price</Label>
+                    <Input
+                      id="totalAmount"
+                      name="totalAmount"
+                      type="number"
+                      step="0.01"
+                      defaultValue={editingTransaction?.totalAmount}
+                      required />
+                  </div>
+                  <div className="grid gap-1.5">
+                    <Label htmlFor="commission">Commission</Label>
+                    <Input
+                      id="commission"
+                      name="commission"
+                      type="number"
+                      step="0.01"
+                      defaultValue={editingTransaction?.commission}
+                      required />
+                  </div>
+                  <div className="grid gap-1.5">
+                    <Label htmlFor="netAmount">Net Amount</Label>
+                    <Input
+                      id="netAmount"
+                      name="netAmount"
+                      type="number"
+                      step="0.01"
+                      defaultValue={editingTransaction?.netAmount}
+                      required />
+                  </div>
                 </div>
               </div>
               <DialogFooter>
