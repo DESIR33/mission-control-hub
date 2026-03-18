@@ -113,3 +113,6 @@ verify_jwt = false
 
 [functions.weekly-sponsor-scan]
 verify_jwt = false
+
+[functions.ai-proxy]
+verify_jwt = false
