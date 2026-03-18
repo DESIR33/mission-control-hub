@@ -227,6 +227,70 @@ const toolDefinitions = [
       },
     },
   },
+  // Task management tools
+  {
+    type: "function",
+    function: {
+      name: "create_task",
+      description: "Create a task on the user's task board. Use for natural language commands like 'remind me to...', 'add a task to...', 'follow up with...'",
+      parameters: {
+        type: "object",
+        properties: {
+          title: { type: "string", description: "Task title" },
+          description: { type: "string" },
+          priority: { type: "string", enum: ["low", "medium", "high", "urgent"], default: "medium" },
+          category: { type: "string", enum: ["general", "crm", "content", "revenue", "email"], default: "general" },
+          due_date: { type: "string", description: "ISO date string, optional" },
+          entity_type: { type: "string", enum: ["deal", "contact", "company", "video_queue"] },
+          entity_id: { type: "string" },
+          recurrence_rule: { type: "string", description: "Natural language recurrence like 'every friday', 'weekly', 'monthly'" },
+        },
+        required: ["title"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "query_tasks",
+      description: "Query the user's task board. Use to check what tasks exist, what's overdue, or filter by status/priority.",
+      parameters: {
+        type: "object",
+        properties: {
+          status: { type: "string", enum: ["todo", "in_progress", "done", "all"], default: "all" },
+          priority: { type: "string", enum: ["low", "medium", "high", "urgent", "all"], default: "all" },
+          limit: { type: "integer", default: 20 },
+        },
+        required: [],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "update_task",
+      description: "Update an existing task's status, priority, or other fields.",
+      parameters: {
+        type: "object",
+        properties: {
+          task_id: { type: "string" },
+          status: { type: "string", enum: ["todo", "in_progress", "done"] },
+          priority: { type: "string", enum: ["low", "medium", "high", "urgent"] },
+          title: { type: "string" },
+          due_date: { type: "string" },
+        },
+        required: ["task_id"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "triage_inbox",
+      description: "Trigger AI inbox triage to categorize and prioritize unread emails. Returns a summary of what was triaged.",
+      parameters: { type: "object", properties: { limit: { type: "integer", default: 30 } }, required: [] },
+    },
+  },
 ];
 
 // ── Tool call handler ────────────────────────────────────────
