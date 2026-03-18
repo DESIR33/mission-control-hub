@@ -3074,36 +3074,64 @@ export type Database = {
       }
       products: {
         Row: {
+          category: string
+          commission: number
+          company_id: string | null
           created_at: string
           description: string | null
           id: string
+          marketplace: string | null
           name: string
+          net_amount: number
           price: number
+          recurring_price: number | null
+          sale_price: number
           type: string
           updated_at: string
           workspace_id: string
         }
         Insert: {
+          category?: string
+          commission?: number
+          company_id?: string | null
           created_at?: string
           description?: string | null
           id?: string
+          marketplace?: string | null
           name: string
+          net_amount?: number
           price?: number
+          recurring_price?: number | null
+          sale_price?: number
           type?: string
           updated_at?: string
           workspace_id: string
         }
         Update: {
+          category?: string
+          commission?: number
+          company_id?: string | null
           created_at?: string
           description?: string | null
           id?: string
+          marketplace?: string | null
           name?: string
+          net_amount?: number
           price?: number
+          recurring_price?: number | null
+          sale_price?: number
           type?: string
           updated_at?: string
           workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "products_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "products_workspace_id_fkey"
             columns: ["workspace_id"]

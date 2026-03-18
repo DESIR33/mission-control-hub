@@ -9,6 +9,13 @@ export interface Product {
   description: string;
   price: number;
   type: "digital" | "physical";
+  category: "template" | "plugin";
+  marketplace: string;
+  companyId: string | null;
+  salePrice: number;
+  commission: number;
+  netAmount: number;
+  recurringPrice: number | null;
   createdAt: string;
 }
 
@@ -34,6 +41,13 @@ function mapProduct(row: any): Product {
     description: row.description || "",
     price: Number(row.price),
     type: row.type as "digital" | "physical",
+    category: (row.category as "template" | "plugin") || "template",
+    marketplace: row.marketplace || "",
+    companyId: row.company_id || null,
+    salePrice: Number(row.sale_price || 0),
+    commission: Number(row.commission || 0),
+    netAmount: Number(row.net_amount || 0),
+    recurringPrice: row.recurring_price != null ? Number(row.recurring_price) : null,
     createdAt: row.created_at,
   };
 }
@@ -53,6 +67,20 @@ function mapTransaction(row: any): ProductTransaction {
     commission: Number(row.commission),
     approximatePayoutDate: row.approximate_payout_date,
   };
+}
+
+export interface CreateProductInput {
+  name: string;
+  description: string;
+  price: number;
+  type: "digital" | "physical";
+  category: "template" | "plugin";
+  marketplace: string;
+  company_id?: string | null;
+  sale_price: number;
+  commission: number;
+  net_amount: number;
+  recurring_price?: number | null;
 }
 
 export function useProducts() {
@@ -88,7 +116,7 @@ export function useProducts() {
   });
 
   const createProduct = useMutation({
-    mutationFn: async (product: { name: string; description: string; price: number; type: "digital" | "physical" }) => {
+    mutationFn: async (product: CreateProductInput) => {
       if (!workspaceId) throw new Error("No workspace");
       const { error } = await supabase.from("products" as any).insert({
         workspace_id: workspaceId,
@@ -96,6 +124,13 @@ export function useProducts() {
         description: product.description,
         price: product.price,
         type: product.type,
+        category: product.category,
+        marketplace: product.marketplace,
+        company_id: product.company_id || null,
+        sale_price: product.sale_price,
+        commission: product.commission,
+        net_amount: product.net_amount,
+        recurring_price: product.recurring_price ?? null,
       } as any);
       if (error) throw error;
     },
