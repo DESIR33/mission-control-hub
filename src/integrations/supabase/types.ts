@@ -963,6 +963,73 @@ export type Database = {
           },
         ]
       }
+      assistant_actions: {
+        Row: {
+          action_type: string
+          created_at: string
+          description: string | null
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          metadata: Json | null
+          proposal_id: string | null
+          status: string
+          task_id: string | null
+          title: string
+          workspace_id: string
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          description?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          metadata?: Json | null
+          proposal_id?: string | null
+          status?: string
+          task_id?: string | null
+          title: string
+          workspace_id: string
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          description?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          metadata?: Json | null
+          proposal_id?: string | null
+          status?: string
+          task_id?: string | null
+          title?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assistant_actions_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "ai_proposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assistant_actions_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assistant_actions_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assistant_conversations: {
         Row: {
           content: string
@@ -2585,6 +2652,9 @@ export type Database = {
       inbox_emails: {
         Row: {
           ai_category: string | null
+          ai_intent: string | null
+          ai_priority: string | null
+          ai_suggested_action: string | null
           ai_summary: string | null
           body_html: string | null
           conversation_id: string | null
@@ -2616,6 +2686,9 @@ export type Database = {
         }
         Insert: {
           ai_category?: string | null
+          ai_intent?: string | null
+          ai_priority?: string | null
+          ai_suggested_action?: string | null
           ai_summary?: string | null
           body_html?: string | null
           conversation_id?: string | null
@@ -2647,6 +2720,9 @@ export type Database = {
         }
         Update: {
           ai_category?: string | null
+          ai_intent?: string | null
+          ai_priority?: string | null
+          ai_suggested_action?: string | null
           ai_summary?: string | null
           body_html?: string | null
           conversation_id?: string | null
@@ -3847,6 +3923,84 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "tags_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tasks: {
+        Row: {
+          assigned_to: string | null
+          category: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          due_date: string | null
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          metadata: Json | null
+          priority: string
+          recurrence_rule: string | null
+          source: string | null
+          source_proposal_id: string | null
+          status: string
+          title: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          metadata?: Json | null
+          priority?: string
+          recurrence_rule?: string | null
+          source?: string | null
+          source_proposal_id?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          assigned_to?: string | null
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          metadata?: Json | null
+          priority?: string
+          recurrence_rule?: string | null
+          source?: string | null
+          source_proposal_id?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_source_proposal_id_fkey"
+            columns: ["source_proposal_id"]
+            isOneToOne: false
+            referencedRelation: "ai_proposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
