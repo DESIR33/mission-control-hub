@@ -125,7 +125,7 @@ function generateInvoicePDF(invoice: Invoice) {
     <tbody>
       ${lineItems.length > 0 ? lineItems.map((item: InvoiceLineItem) => `
         <tr>
-          <td>${item.description}</td>
+          <td>${escapeHtml(item.description)}</td>
           <td class="amount">${item.quantity}</td>
           <td class="amount">${fmtCurrency(item.amount, invoice.currency)}</td>
           <td class="amount">${fmtCurrency(item.amount * item.quantity, invoice.currency)}</td>
