@@ -20,6 +20,7 @@ export interface UnifiedRevenueData {
   affiliateTotal: number;
   adSenseTotal: number;
   revenuePerSub: number;
+  revenuePerThousandSubs: number;
   revenuePerVideo: number;
   momGrowth: number; // month over month %
   projectedAnnual: number;
