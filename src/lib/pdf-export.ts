@@ -5,6 +5,15 @@
 import { format } from "date-fns";
 import type { ChannelAnalytics, VideoAnalytics } from "@/hooks/use-youtube-analytics-api";
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 const fmtCount = (n: number): string => {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
   if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
@@ -88,7 +97,7 @@ function openPrintWindow(title: string, bodyHtml: string) {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>${title}</title>
+  <title>${escapeHtml(title)}</title>
   <style>${CSS}</style>
 </head>
 <body>
@@ -287,7 +296,7 @@ export function exportVideoReport(data: VideoAnalytics[], publishedAtMap?: Map<s
       <div class="chart-bar-container">
         ${videos.slice(0, 10).map((v) => `
           <div class="bar-row">
-            <div class="bar-label">${v.title}</div>
+            <div class="bar-label">${escapeHtml(v.title)}</div>
             <div class="bar-track"><div class="bar-fill" style="width: ${(v.views / maxViews * 100).toFixed(1)}%"></div></div>
             <div class="bar-value">${fmtCount(v.views)}</div>
           </div>
@@ -315,7 +324,7 @@ export function exportVideoReport(data: VideoAnalytics[], publishedAtMap?: Map<s
           ${videos.map((v, i) => `
             <tr>
               <td><span class="rank ${i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-default'}">${i + 1}</span></td>
-              <td class="truncate">${v.title}</td>
+              <td class="truncate">${escapeHtml(v.title)}</td>
               <td class="text-right mono">${v.views.toLocaleString()}</td>
               <td class="text-right mono">${v.ctr.toFixed(2)}%</td>
               <td class="text-right mono">${fmtDuration(v.avgDuration)}</td>
@@ -341,7 +350,7 @@ export function exportSingleVideoReport(video: VideoAnalytics & { engagementRate
   const html = `
     <div class="header">
       <div>
-        <h1>${video.title || "Untitled Video"}</h1>
+        <h1>${escapeHtml(video.title || "Untitled Video")}</h1>
         <div class="subtitle">Individual Video Performance Report</div>
       </div>
       <div class="date">

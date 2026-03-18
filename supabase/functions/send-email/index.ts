@@ -11,10 +11,32 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // --- Auth check ---
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("Missing authorization header");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
-    const supabase = createClient(
+    const userClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await userClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    const userId = claimsData.claims.sub;
+
+    const adminClient = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
@@ -22,11 +44,29 @@ Deno.serve(async (req) => {
     const { to, subject, body_html, body_text, workspace_id, contact_id, deal_id } = await req.json();
 
     if (!to || !subject || !workspace_id) {
-      throw new Error("Missing required fields: to, subject, workspace_id");
+      return new Response(
+        JSON.stringify({ success: false, error: "Missing required fields: to, subject, workspace_id" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // --- Verify workspace membership ---
+    const { data: membership } = await adminClient
+      .from("workspace_members")
+      .select("id")
+      .eq("workspace_id", workspace_id)
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (!membership) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Forbidden" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     // Get Resend integration config
-    const { data: integration } = await supabase
+    const { data: integration } = await adminClient
       .from("workspace_integrations")
       .select("config")
       .eq("workspace_id", workspace_id)
@@ -35,7 +75,10 @@ Deno.serve(async (req) => {
       .single();
 
     if (!integration?.config?.api_key) {
-      throw new Error("Resend integration not configured. Go to Integrations to set up your API key.");
+      return new Response(
+        JSON.stringify({ success: false, error: "Resend integration not configured. Go to Integrations to set up your API key." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const resendApiKey = integration.config.api_key;
@@ -59,14 +102,18 @@ Deno.serve(async (req) => {
 
     if (!resendRes.ok) {
       const errBody = await resendRes.text();
-      throw new Error(`Resend API error: ${resendRes.status} - ${errBody}`);
+      console.error("Resend API error:", resendRes.status, errBody);
+      return new Response(
+        JSON.stringify({ success: false, error: "Failed to send email" }),
+        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const resendData = await resendRes.json();
 
     // Log activity
     if (contact_id) {
-      await supabase.from("activities").insert({
+      await adminClient.from("activities").insert({
         workspace_id,
         entity_id: contact_id,
         entity_type: "contact",
@@ -78,7 +125,7 @@ Deno.serve(async (req) => {
       });
 
       // Update contact's last_contact_date
-      await supabase
+      await adminClient
         .from("contacts")
         .update({ last_contact_date: new Date().toISOString() })
         .eq("id", contact_id)
@@ -90,12 +137,10 @@ Deno.serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: unknown) {
+    console.error("send-email error:", error);
     return new Response(
-      JSON.stringify({ success: false, error: error instanceof Error ? error.message : String(error) }),
-      {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      JSON.stringify({ success: false, error: "Internal server error" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });

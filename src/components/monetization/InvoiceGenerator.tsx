@@ -48,6 +48,15 @@ function fmtCurrency(amount: number, currency = "USD") {
   return new Intl.NumberFormat("en-US", { style: "currency", currency }).format(amount);
 }
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 // ── PDF Export (client-side HTML→print) ──
 function generateInvoicePDF(invoice: Invoice) {
   const lineItems = invoice.line_items || [];
@@ -87,28 +96,28 @@ function generateInvoicePDF(invoice: Invoice) {
 </style></head><body>
   <div class="header">
     <div class="brand">
-      ${invoice.brand_logo_url ? `<img src="${invoice.brand_logo_url}" alt="" style="height:40px;margin-bottom:8px;">` : ""}
-      <h1>${invoice.brand_name || "Your Company"}</h1>
-      <p>${invoice.brand_address || ""}</p>
+      ${invoice.brand_logo_url ? `<img src="${escapeHtml(invoice.brand_logo_url)}" alt="" style="height:40px;margin-bottom:8px;">` : ""}
+      <h1>${escapeHtml(invoice.brand_name || "Your Company")}</h1>
+      <p>${escapeHtml(invoice.brand_address || "")}</p>
     </div>
     <div class="invoice-meta">
       <h2>INVOICE</h2>
-      <p><strong>${invoice.invoice_number}</strong></p>
+      <p><strong>${escapeHtml(invoice.invoice_number)}</strong></p>
       <p>Issued: ${invoice.issued_date ? format(parseISO(invoice.issued_date), "MMM d, yyyy") : "—"}</p>
       <p>Due: ${invoice.due_date ? format(parseISO(invoice.due_date), "MMM d, yyyy") : "—"}</p>
-      <p style="margin-top:8px"><span class="status-badge status-${invoice.status}">${invoice.status}</span></p>
+      <p style="margin-top:8px"><span class="status-badge status-${escapeHtml(invoice.status)}">${escapeHtml(invoice.status)}</span></p>
     </div>
   </div>
   <div class="parties">
     <div class="party">
       <h3>Bill To</h3>
-      <p><strong>${invoice.client_name || "—"}</strong></p>
-      <p>${invoice.client_email || ""}</p>
-      <p>${invoice.client_address || ""}</p>
+      <p><strong>${escapeHtml(invoice.client_name || "—")}</strong></p>
+      <p>${escapeHtml(invoice.client_email || "")}</p>
+      <p>${escapeHtml(invoice.client_address || "")}</p>
     </div>
     <div class="party" style="text-align:right">
       <h3>Payment Terms</h3>
-      <p>${invoice.payment_terms || "Net 30"}</p>
+      <p>${escapeHtml(invoice.payment_terms || "Net 30")}</p>
     </div>
   </div>
   <table>
@@ -116,7 +125,7 @@ function generateInvoicePDF(invoice: Invoice) {
     <tbody>
       ${lineItems.length > 0 ? lineItems.map((item: InvoiceLineItem) => `
         <tr>
-          <td>${item.description}</td>
+          <td>${escapeHtml(item.description)}</td>
           <td class="amount">${item.quantity}</td>
           <td class="amount">${fmtCurrency(item.amount, invoice.currency)}</td>
           <td class="amount">${fmtCurrency(item.amount * item.quantity, invoice.currency)}</td>
@@ -131,8 +140,8 @@ function generateInvoicePDF(invoice: Invoice) {
       <div class="row total"><span>Total</span><span>${fmtCurrency(invoice.total_amount, invoice.currency)}</span></div>
     </div>
   </div>
-  ${invoice.notes ? `<div class="footer"><p><strong>Notes:</strong> ${invoice.notes}</p></div>` : ""}
-  ${invoice.stripe_payment_url ? `<div class="footer"><p>Pay online: <a href="${invoice.stripe_payment_url}">${invoice.stripe_payment_url}</a></p></div>` : ""}
+  ${invoice.notes ? `<div class="footer"><p><strong>Notes:</strong> ${escapeHtml(invoice.notes)}</p></div>` : ""}
+  ${invoice.stripe_payment_url ? `<div class="footer"><p>Pay online: <a href="${escapeHtml(invoice.stripe_payment_url)}">${escapeHtml(invoice.stripe_payment_url)}</a></p></div>` : ""}
 </body></html>`);
   w.document.close();
   setTimeout(() => w.print(), 500);

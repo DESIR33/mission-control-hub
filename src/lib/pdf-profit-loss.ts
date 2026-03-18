@@ -2,6 +2,15 @@
  * Generate a printable P&L statement PDF for tax filing.
  */
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 interface PLRow {
   month: string;
   income: number;
@@ -58,7 +67,7 @@ export function generateProfitLossPdf({
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Profit & Loss Statement — ${period}</title>
+  <title>Profit &amp; Loss Statement — ${escapeHtml(period)}</title>
   <style>
     @media print {
       body { margin: 0; }
@@ -172,7 +181,7 @@ export function generateProfitLossPdf({
   <div class="header">
     <div>
       <h1>Profit & Loss Statement</h1>
-      <p class="subtitle">${businessName}</p>
+      <p class="subtitle">${escapeHtml(businessName)}</p>
     </div>
     <div class="meta">
       <p><strong>Period:</strong> ${period}</p>
