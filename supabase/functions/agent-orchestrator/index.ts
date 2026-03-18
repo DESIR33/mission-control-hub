@@ -1,5 +1,6 @@
 import { corsHeaders, corsResponse, jsonResponse, errorResponse } from "../_shared/cors.ts";
 import { getSupabaseAdmin } from "../_shared/supabase-admin.ts";
+import { validateCallerOrServiceRole } from "../_shared/auth-guard.ts";
 
 import {
   queryYoutubeStats,
