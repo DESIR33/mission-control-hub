@@ -114,49 +114,18 @@ export default function AddProductTransactionPage() {
 
   const createTransaction = useMutation({
     mutationFn: async (data: any) => {
-      const csrfResponse = await fetch('/api/csrf/token', {
-        credentials: 'include'
+      await createTransactionMutation.mutateAsync({
+        product_id: data.productId,
+        product_name: selectedProduct?.name || "",
+        quantity: data.quantity,
+        total_amount: data.totalAmount,
+        net_amount: data.netAmount,
+        commission: data.commission,
+        platform: data.platform,
+        transaction_date: data.transactionDate,
       });
-      if (!csrfResponse.ok) throw new Error("Failed to get CSRF token");
-      const { csrfToken } = await csrfResponse.json();
-
-      const response = await fetch("/api/product-transactions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRF-Token": csrfToken
-        },
-        credentials: 'include',
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        let errorMessage = "Failed to create transaction";
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.message || errorData.details || errorMessage;
-        } catch {
-          try {
-            const textResponse = await response.text();
-            if (textResponse.includes('<!DOCTYPE')) {
-              errorMessage = "Server returned HTML instead of JSON. This usually indicates an authentication or CSRF error.";
-            }
-          } catch {
-            // Unable to parse error response
-          }
-        }
-        throw new Error(errorMessage);
-      }
-
-      return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/product-transactions"] });
-      if (id) {
-        queryClient.invalidateQueries({ queryKey: ["/api/product-transactions", parseInt(id)] });
-      }
-      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
-
       toast({
         title: "Success",
         description: "Transaction created successfully",
@@ -171,14 +140,9 @@ export default function AddProductTransactionPage() {
       }
     },
     onError: (error: any) => {
-      let errorMessage = "Failed to create transaction";
-      if (error?.message) {
-        errorMessage = error.message;
-      }
-
       toast({
         title: "Error",
-        description: errorMessage,
+        description: error?.message || "Failed to create transaction",
         variant: "destructive",
       });
     },
@@ -188,7 +152,7 @@ export default function AddProductTransactionPage() {
     const totalAmount = values.salesPrice * values.quantity;
 
     const transactionData = {
-      productId: parseInt(values.productId),
+      productId: values.productId,
       transactionDate: values.transactionDate.toISOString(),
       quantity: values.quantity,
       platform: values.marketplace,
