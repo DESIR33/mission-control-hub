@@ -208,6 +208,7 @@ export function useProducts() {
     isLoadingProducts: productsQuery.isLoading,
     isLoadingTransactions: transactionsQuery.isLoading,
     createProduct,
+    updateProduct,
     deleteProduct,
     createTransaction,
     updateTransaction,
