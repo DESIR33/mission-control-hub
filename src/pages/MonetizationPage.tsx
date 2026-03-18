@@ -34,6 +34,7 @@ import { InvoiceGenerator } from "@/components/monetization/InvoiceGenerator";
 import { useCompanies } from "@/hooks/use-companies";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { useAffiliateTransactions } from "@/hooks/use-affiliate-transactions";
+import { useProducts } from "@/hooks/use-products";
 
 function TopEarningVideos() {
   const { data: revSummary } = useContentRevenue();
@@ -94,8 +95,8 @@ interface Sponsorship {
 }
 
 interface ProductTransaction {
-  id: number;
-  productId: number;
+  id: string;
+  productId: string | null;
   productName: string;
   quantity: number;
   totalAmount: number | string;
@@ -130,7 +131,7 @@ interface Company {
 }
 
 interface Product {
-  id: number;
+  id: string;
   name: string;
   description: string;
   price: number;
@@ -264,13 +265,14 @@ export default function MonetizationPage() {
     enabled: !!workspaceId
   });
 
-  const { data: transactions = [] } = useQuery<ProductTransaction[]>({
-    queryKey: ["/api/product-transactions"]
-  });
-
-  const { data: products = [] } = useQuery<Product[]>({
-    queryKey: ["/api/products"]
-  });
+  const {
+    products,
+    transactions,
+    createProduct: createProductMutation,
+    deleteProduct: deleteProductMutation,
+    deleteTransaction: deleteTransactionMutation,
+    updateTransaction: updateTransactionMutation,
+  } = useProducts();
 
   const handleAddWidget = (newMetric: RevenueMetric) => {
     setMetrics((prev) => [...prev, { ...newMetric, id: crypto.randomUUID() }]);
@@ -462,67 +464,21 @@ export default function MonetizationPage() {
     });
   }, [affiliatePrograms, sortConfig]);
 
-  const handleDeleteProduct = async (id: number) => {
+  const handleDeleteProduct = async (id: string) => {
     try {
-      const csrfResponse = await fetch('/api/csrf/token', {
-        credentials: 'include'
-      });
-      if (!csrfResponse.ok) throw new Error("Failed to get CSRF token");
-      const { csrfToken } = await csrfResponse.json();
-
-      const response = await fetch(`/api/products/${id}`, {
-        method: "DELETE",
-        headers: {
-          "X-CSRF-Token": csrfToken
-        },
-        credentials: 'include'
-      });
-
-      if (!response.ok) throw new Error("Failed to delete product");
-
-      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
-      toast({
-        title: "Success",
-        description: "Product deleted successfully"
-      });
+      await deleteProductMutation.mutateAsync(id);
+      toast({ title: "Success", description: "Product deleted successfully" });
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete product",
-        variant: "destructive"
-      });
+      toast({ title: "Error", description: "Failed to delete product", variant: "destructive" });
     }
   };
 
-  const handleDeleteTransaction = async (id: number) => {
+  const handleDeleteTransaction = async (id: string) => {
     try {
-      const csrfResponse = await fetch('/api/csrf/token', {
-        credentials: 'include'
-      });
-      if (!csrfResponse.ok) throw new Error("Failed to get CSRF token");
-      const { csrfToken } = await csrfResponse.json();
-
-      const response = await fetch(`/api/product-transactions/${id}`, {
-        method: "DELETE",
-        headers: {
-          "X-CSRF-Token": csrfToken
-        },
-        credentials: 'include'
-      });
-
-      if (!response.ok) throw new Error("Failed to delete transaction");
-
-      queryClient.invalidateQueries({ queryKey: ["/api/product-transactions"] });
-      toast({
-        title: "Success",
-        description: "Transaction deleted successfully"
-      });
+      await deleteTransactionMutation.mutateAsync(id);
+      toast({ title: "Success", description: "Transaction deleted successfully" });
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete transaction",
-        variant: "destructive"
-      });
+      toast({ title: "Error", description: "Failed to delete transaction", variant: "destructive" });
     }
   };
 
@@ -1385,15 +1341,7 @@ export default function MonetizationPage() {
                 price: parseFloat(formData.get("price") as string),
                 type: formData.get("type") as "digital" | "physical"
               };
-              fetch("/api/products", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(productData)
-              }).then((response) => {
-                if (!response.ok) throw new Error("Failed to create product");
-                return response.json();
-              }).then(() => {
-                queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+              createProductMutation.mutateAsync(productData).then(() => {
                 setIsAddingProduct(false);
                 toast({
                   title: "Success",
@@ -1484,15 +1432,16 @@ export default function MonetizationPage() {
 
               try {
                 if (!editingTransaction) return;
-                const response = await fetch(`/api/product-transactions/${editingTransaction.id}`, {
-                  method: 'PUT',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify(transactionData)
+                await updateTransactionMutation.mutateAsync({
+                  id: editingTransaction.id,
+                  transaction_date: transactionData.transactionDate,
+                  product_name: transactionData.productName,
+                  platform: transactionData.platform,
+                  quantity: transactionData.quantity,
+                  total_amount: transactionData.totalAmount,
+                  commission: transactionData.commission,
+                  net_amount: transactionData.netAmount,
                 });
-
-                if (!response.ok) throw new Error('Failed to update transaction');
-
-                queryClient.invalidateQueries({ queryKey: ["/api/product-transactions"] });
                 toast({
                   title: "Success",
                   description: "Transaction updated successfully"

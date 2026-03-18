@@ -3003,6 +3003,116 @@ export type Database = {
           },
         ]
       }
+      product_transactions: {
+        Row: {
+          approximate_payout_date: string | null
+          commission: number | null
+          created_at: string
+          id: string
+          is_paid: boolean | null
+          net_amount: number
+          payment_method: string | null
+          platform: string | null
+          product_id: string | null
+          product_name: string
+          quantity: number
+          total_amount: number
+          transaction_date: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          approximate_payout_date?: string | null
+          commission?: number | null
+          created_at?: string
+          id?: string
+          is_paid?: boolean | null
+          net_amount?: number
+          payment_method?: string | null
+          platform?: string | null
+          product_id?: string | null
+          product_name?: string
+          quantity?: number
+          total_amount?: number
+          transaction_date?: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          approximate_payout_date?: string | null
+          commission?: number | null
+          created_at?: string
+          id?: string
+          is_paid?: boolean | null
+          net_amount?: number
+          payment_method?: string | null
+          platform?: string | null
+          product_id?: string | null
+          product_name?: string
+          quantity?: number
+          total_amount?: number
+          transaction_date?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_transactions_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_transactions_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          price: number
+          type: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          price?: number
+          type?: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          price?: number
+          type?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
