@@ -324,7 +324,7 @@ export function exportVideoReport(data: VideoAnalytics[], publishedAtMap?: Map<s
           ${videos.map((v, i) => `
             <tr>
               <td><span class="rank ${i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-default'}">${i + 1}</span></td>
-              <td class="truncate">${v.title}</td>
+              <td class="truncate">${escapeHtml(v.title)}</td>
               <td class="text-right mono">${v.views.toLocaleString()}</td>
               <td class="text-right mono">${v.ctr.toFixed(2)}%</td>
               <td class="text-right mono">${fmtDuration(v.avgDuration)}</td>
