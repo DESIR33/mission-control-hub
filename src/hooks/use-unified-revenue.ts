@@ -90,9 +90,25 @@ export function useUnifiedRevenue(monthCount: number = 12) {
         .from("youtube_channel_stats" as any)
         .select("subscriber_count, video_count")
         .eq("workspace_id", workspaceId!)
+        .order("fetched_at", { ascending: false })
+        .limit(1)
         .maybeSingle();
       if (error) throw error;
       return data as any;
+    },
+    enabled: !!workspaceId,
+  });
+
+  const { data: publishedVideoCount = 0 } = useQuery({
+    queryKey: ["unified-rev-video-count", workspaceId],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("video_queue")
+        .select("id", { count: "exact", head: true })
+        .eq("workspace_id", workspaceId!)
+        .eq("status", "published");
+      if (error) throw error;
+      return count ?? 0;
     },
     enabled: !!workspaceId,
   });
@@ -153,9 +169,9 @@ export function useUnifiedRevenue(monthCount: number = 12) {
     const affiliateTotal = affiliateTx.reduce((s: number, t: any) => s + (t.amount || 0), 0);
     const totalRevenue = sponsorTotal + affiliateTotal + adSenseTotal;
 
-    const subscriberCount = channelStats?.subscriber_count || 1;
-    const videoCount = channelStats?.video_count || 1;
-    const revenuePerSub = totalRevenue / subscriberCount;
+    const subscriberCount = channelStats?.subscriber_count || 0;
+    const videoCount = publishedVideoCount || 1;
+    const revenuePerSub = subscriberCount > 0 ? totalRevenue / subscriberCount : 0;
     const revenuePerThousandSubs = subscriberCount > 0 ? totalRevenue / (subscriberCount / 1000) : 0;
     const revenuePerVideo = totalRevenue / videoCount;
 
@@ -183,7 +199,7 @@ export function useUnifiedRevenue(monthCount: number = 12) {
       momGrowth: Math.round(momGrowth),
       projectedAnnual: Math.round(projectedAnnual),
     };
-  }, [monthCount, wonDeals, affiliateTx, adRevenue, manualAdRevenue, channelStats]);
+  }, [monthCount, wonDeals, affiliateTx, adRevenue, manualAdRevenue, channelStats, publishedVideoCount]);
 
   return { data: revenue, isLoading: dealsLoading };
 }
