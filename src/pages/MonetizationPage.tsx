@@ -1147,14 +1147,16 @@ export default function MonetizationPage() {
                     </div>
 
                     <div className="overflow-auto rounded-md border border-border">
-                      <Table className="min-w-[650px]">
+                      <Table className="min-w-[850px]">
                         <TableHeader>
                           <TableRow className="border-b border-border">
                             <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Name</TableHead>
-                            <TableHead className="hidden md:table-cell text-xs font-medium text-muted-foreground uppercase tracking-wider">Description</TableHead>
-                            <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Price</TableHead>
-                            <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Type</TableHead>
-                            <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Created</TableHead>
+                            <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Category</TableHead>
+                            <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Marketplace</TableHead>
+                            <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Sale Price</TableHead>
+                            <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Commission</TableHead>
+                            <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Net</TableHead>
+                            <TableHead className="hidden md:table-cell text-xs font-medium text-muted-foreground uppercase tracking-wider">Recurring</TableHead>
                             <TableHead className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">Actions</TableHead>
                           </TableRow>
                         </TableHeader>
