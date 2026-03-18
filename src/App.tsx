@@ -33,6 +33,7 @@ const EditTransactionPage = lazy(() => import("./pages/EditTransactionPage"));
 const AddCompanyPage = lazy(() => import("./pages/AddCompanyPage"));
 const AddContactPage = lazy(() => import("./pages/AddContactPage"));
 const AddProductTransactionPage = lazy(() => import("./pages/AddProductTransactionPage"));
+const ProductDetailPage = lazy(() => import("./pages/ProductDetailPage"));
 const NewSponsorshipPage = lazy(() => import("./pages/NewSponsorshipPage"));
 const EditSponsorshipPage = lazy(() => import("./pages/EditSponsorshipPage"));
 const VideoDetailPage = lazy(() => import("./pages/VideoDetailPage"));
