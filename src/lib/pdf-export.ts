@@ -296,7 +296,7 @@ export function exportVideoReport(data: VideoAnalytics[], publishedAtMap?: Map<s
       <div class="chart-bar-container">
         ${videos.slice(0, 10).map((v) => `
           <div class="bar-row">
-            <div class="bar-label">${v.title}</div>
+            <div class="bar-label">${escapeHtml(v.title)}</div>
             <div class="bar-track"><div class="bar-fill" style="width: ${(v.views / maxViews * 100).toFixed(1)}%"></div></div>
             <div class="bar-value">${fmtCount(v.views)}</div>
           </div>
