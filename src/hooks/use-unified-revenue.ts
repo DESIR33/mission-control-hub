@@ -199,7 +199,7 @@ export function useUnifiedRevenue(monthCount: number = 12) {
       momGrowth: Math.round(momGrowth),
       projectedAnnual: Math.round(projectedAnnual),
     };
-  }, [monthCount, wonDeals, affiliateTx, adRevenue, manualAdRevenue, channelStats]);
+  }, [monthCount, wonDeals, affiliateTx, adRevenue, manualAdRevenue, channelStats, publishedVideoCount]);
 
   return { data: revenue, isLoading: dealsLoading };
 }
