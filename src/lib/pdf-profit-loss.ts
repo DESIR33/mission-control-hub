@@ -2,6 +2,15 @@
  * Generate a printable P&L statement PDF for tax filing.
  */
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 interface PLRow {
   month: string;
   income: number;
