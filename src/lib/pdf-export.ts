@@ -97,7 +97,7 @@ function openPrintWindow(title: string, bodyHtml: string) {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>${title}</title>
+  <title>${escapeHtml(title)}</title>
   <style>${CSS}</style>
 </head>
 <body>
