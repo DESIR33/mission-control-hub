@@ -136,6 +136,13 @@ interface Product {
   description: string;
   price: number;
   type: 'digital' | 'physical';
+  category: 'template' | 'plugin';
+  marketplace: string;
+  companyId: string | null;
+  salePrice: number;
+  commission: number;
+  netAmount: number;
+  recurringPrice: number | null;
   createdAt: string;
 }
 
