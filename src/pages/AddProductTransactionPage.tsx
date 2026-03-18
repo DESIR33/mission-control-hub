@@ -81,16 +81,9 @@ export default function AddProductTransactionPage() {
   const watchCommission = form.watch("commission");
   const watchFinalAmount = form.watch("finalAmount");
 
-  const { data: products = [], isLoading: isLoadingProducts } = useQuery<Product[]>({
-    queryKey: ["/api/products"],
-    queryFn: async () => {
-      const response = await fetch("/api/products");
-      if (!response.ok) throw new Error("Failed to fetch products");
-      return response.json();
-    },
-  });
+  const { products, isLoadingProducts, createTransaction: createTransactionMutation } = useProducts();
 
-  const selectedProduct = products.find(p => p.id.toString() === watchProductId);
+  const selectedProduct = products.find(p => p.id === watchProductId);
 
   useEffect(() => {
     if (selectedProduct && selectedProduct.price !== form.getValues("salesPrice")) {
