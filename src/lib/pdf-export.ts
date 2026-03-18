@@ -350,7 +350,7 @@ export function exportSingleVideoReport(video: VideoAnalytics & { engagementRate
   const html = `
     <div class="header">
       <div>
-        <h1>${video.title || "Untitled Video"}</h1>
+        <h1>${escapeHtml(video.title || "Untitled Video")}</h1>
         <div class="subtitle">Individual Video Performance Report</div>
       </div>
       <div class="date">
