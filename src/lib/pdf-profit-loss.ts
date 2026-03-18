@@ -181,7 +181,7 @@ export function generateProfitLossPdf({
   <div class="header">
     <div>
       <h1>Profit & Loss Statement</h1>
-      <p class="subtitle">${businessName}</p>
+      <p class="subtitle">${escapeHtml(businessName)}</p>
     </div>
     <div class="meta">
       <p><strong>Period:</strong> ${period}</p>
