@@ -1341,15 +1341,7 @@ export default function MonetizationPage() {
                 price: parseFloat(formData.get("price") as string),
                 type: formData.get("type") as "digital" | "physical"
               };
-              fetch("/api/products", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(productData)
-              }).then((response) => {
-                if (!response.ok) throw new Error("Failed to create product");
-                return response.json();
-              }).then(() => {
-                queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+              createProductMutation.mutateAsync(productData).then(() => {
                 setIsAddingProduct(false);
                 toast({
                   title: "Success",
