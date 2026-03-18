@@ -1432,15 +1432,16 @@ export default function MonetizationPage() {
 
               try {
                 if (!editingTransaction) return;
-                const response = await fetch(`/api/product-transactions/${editingTransaction.id}`, {
-                  method: 'PUT',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify(transactionData)
+                await updateTransactionMutation.mutateAsync({
+                  id: editingTransaction.id,
+                  transaction_date: transactionData.transactionDate,
+                  product_name: transactionData.productName,
+                  platform: transactionData.platform,
+                  quantity: transactionData.quantity,
+                  total_amount: transactionData.totalAmount,
+                  commission: transactionData.commission,
+                  net_amount: transactionData.netAmount,
                 });
-
-                if (!response.ok) throw new Error('Failed to update transaction');
-
-                queryClient.invalidateQueries({ queryKey: ["/api/product-transactions"] });
                 toast({
                   title: "Success",
                   description: "Transaction updated successfully"
