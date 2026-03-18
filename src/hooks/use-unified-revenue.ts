@@ -20,6 +20,7 @@ export interface UnifiedRevenueData {
   affiliateTotal: number;
   adSenseTotal: number;
   revenuePerSub: number;
+  revenuePerThousandSubs: number;
   revenuePerVideo: number;
   momGrowth: number; // month over month %
   projectedAnnual: number;
@@ -155,6 +156,7 @@ export function useUnifiedRevenue(monthCount: number = 12) {
     const subscriberCount = channelStats?.subscriber_count || 1;
     const videoCount = channelStats?.video_count || 1;
     const revenuePerSub = totalRevenue / subscriberCount;
+    const revenuePerThousandSubs = subscriberCount > 0 ? totalRevenue / (subscriberCount / 1000) : 0;
     const revenuePerVideo = totalRevenue / videoCount;
 
     // Month over month growth
@@ -176,6 +178,7 @@ export function useUnifiedRevenue(monthCount: number = 12) {
       affiliateTotal,
       adSenseTotal: Math.round(adSenseTotal * 100) / 100,
       revenuePerSub: Math.round(revenuePerSub * 100) / 100,
+      revenuePerThousandSubs: Math.round(revenuePerThousandSubs * 100) / 100,
       revenuePerVideo: Math.round(revenuePerVideo),
       momGrowth: Math.round(momGrowth),
       projectedAnnual: Math.round(projectedAnnual),
