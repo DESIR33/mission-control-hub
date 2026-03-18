@@ -95,8 +95,8 @@ interface Sponsorship {
 }
 
 interface ProductTransaction {
-  id: number;
-  productId: number;
+  id: string;
+  productId: string | null;
   productName: string;
   quantity: number;
   totalAmount: number | string;
@@ -131,7 +131,7 @@ interface Company {
 }
 
 interface Product {
-  id: number;
+  id: string;
   name: string;
   description: string;
   price: number;
