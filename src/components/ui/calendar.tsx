@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 
 function CustomCaption(props: CaptionProps) {
-  const { goToMonth } = useNavigation();
+  const { goToMonth, previousMonth, nextMonth } = useNavigation();
   const currentMonth = props.displayMonth;
 
   const months = Array.from({ length: 12 }, (_, i) =>
@@ -25,42 +25,68 @@ function CustomCaption(props: CaptionProps) {
   const years = Array.from({ length: 21 }, (_, i) => currentYear - 10 + i);
 
   return (
-    <div className="flex justify-center items-center gap-1 pt-1 relative">
-      <Select
-        value={currentMonth.getMonth().toString()}
-        onValueChange={(value) => {
-          goToMonth(setMonth(currentMonth, parseInt(value)));
-        }}
+    <div className="flex justify-between items-center pt-1 relative px-1">
+      <button
+        type="button"
+        onClick={() => previousMonth && goToMonth(previousMonth)}
+        disabled={!previousMonth}
+        className={cn(
+          buttonVariants({ variant: "outline" }),
+          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 disabled:opacity-20"
+        )}
       >
-        <SelectTrigger className="h-7 border-none shadow-none px-2 text-sm font-medium focus:ring-0 gap-0.5 w-auto">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent className="max-h-60">
-          {months.map((month, i) => (
-            <SelectItem key={i} value={i.toString()}>
-              {month}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        <ChevronLeft className="h-4 w-4" />
+      </button>
 
-      <Select
-        value={currentMonth.getFullYear().toString()}
-        onValueChange={(value) => {
-          goToMonth(setYear(currentMonth, parseInt(value)));
-        }}
+      <div className="flex items-center gap-1">
+        <Select
+          value={currentMonth.getMonth().toString()}
+          onValueChange={(value) => {
+            goToMonth(setMonth(currentMonth, parseInt(value)));
+          }}
+        >
+          <SelectTrigger className="h-7 border-none shadow-none px-2 text-sm font-medium focus:ring-0 gap-0.5 w-auto">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="max-h-60">
+            {months.map((month, i) => (
+              <SelectItem key={i} value={i.toString()}>
+                {month}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select
+          value={currentMonth.getFullYear().toString()}
+          onValueChange={(value) => {
+            goToMonth(setYear(currentMonth, parseInt(value)));
+          }}
+        >
+          <SelectTrigger className="h-7 border-none shadow-none px-2 text-sm font-medium focus:ring-0 gap-0.5 w-auto">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="max-h-60">
+            {years.map((year) => (
+              <SelectItem key={year} value={year.toString()}>
+                {year}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <button
+        type="button"
+        onClick={() => nextMonth && goToMonth(nextMonth)}
+        disabled={!nextMonth}
+        className={cn(
+          buttonVariants({ variant: "outline" }),
+          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 disabled:opacity-20"
+        )}
       >
-        <SelectTrigger className="h-7 border-none shadow-none px-2 text-sm font-medium focus:ring-0 gap-0.5 w-auto">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent className="max-h-60">
-          {years.map((year) => (
-            <SelectItem key={year} value={year.toString()}>
-              {year}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        <ChevronRight className="h-4 w-4" />
+      </button>
     </div>
   );
 }
