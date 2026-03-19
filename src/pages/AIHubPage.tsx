@@ -88,7 +88,7 @@ function ChatContent() {
   );
 }
 
-const VALID_TABS = new Set(["chat", "proposals", "agents", "memory", "training", "thumbnails"]);
+const VALID_TABS = new Set(["chat", "proposals", "agents", "memory", "training", "thumbnails", "assistant"]);
 
 export default function AIHubPage() {
   const { tab } = useParams<{ tab: string }>();
