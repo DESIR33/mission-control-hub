@@ -4,6 +4,10 @@ import { FinancialHealthAlerts } from "@/components/finance/FinancialHealthAlert
 import { UnifiedPLDashboard } from "@/components/finance/UnifiedPLDashboard";
 import { BudgetAllocationEngine } from "@/components/finance/BudgetAllocationEngine";
 import { TaxPrepDashboard } from "@/components/finance/TaxPrepDashboard";
+import { RevenueOverview } from "@/components/monetization/RevenueOverview";
+import { RevenueGoalTracker } from "@/components/monetization/RevenueGoalTracker";
+import { YearlyIncomeTracker } from "@/components/monetization/YearlyIncomeTracker";
+import { motion } from "framer-motion";
 
 const TABS = [
   { value: "overview", label: "Overview" },
@@ -25,11 +29,15 @@ export default function FinanceCommandCenterPage() {
   }
 
   return (
-    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Financial Command Center</h1>
-        <p className="text-sm text-muted-foreground mt-1">Unified P&L, budgeting, and tax intelligence</p>
-      </div>
+    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-5">
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">Financial Command Center</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">Revenue analytics, P&L, budgeting, and tax intelligence</p>
+      </motion.div>
 
       <Tabs value={currentTab} onValueChange={(v) => navigate(`/finance/hub/${v}`, { replace: true })}>
         <TabsList className="h-auto flex-wrap gap-1">
@@ -38,19 +46,22 @@ export default function FinanceCommandCenterPage() {
           ))}
         </TabsList>
 
-        <TabsContent value="overview" className="mt-6 space-y-6">
+        <TabsContent value="overview" className="mt-5 space-y-5">
+          <RevenueOverview />
           <FinancialHealthAlerts />
+          <RevenueGoalTracker />
+          <YearlyIncomeTracker />
         </TabsContent>
 
-        <TabsContent value="pl" className="mt-6">
+        <TabsContent value="pl" className="mt-5">
           <UnifiedPLDashboard />
         </TabsContent>
 
-        <TabsContent value="budget" className="mt-6">
+        <TabsContent value="budget" className="mt-5">
           <BudgetAllocationEngine />
         </TabsContent>
 
-        <TabsContent value="tax" className="mt-6">
+        <TabsContent value="tax" className="mt-5">
           <TaxPrepDashboard />
         </TabsContent>
       </Tabs>

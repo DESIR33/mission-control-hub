@@ -1,9 +1,10 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
-import { TrendingUp, TrendingDown, AlertTriangle, CheckCircle2, PieChart as PieIcon } from "lucide-react";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
+import { TrendingUp, TrendingDown, AlertTriangle, CheckCircle2, PieChart as PieIcon, DollarSign, Percent, Layers } from "lucide-react";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { useFinancialIntelligence } from "@/hooks/use-financial-intelligence";
 import { Badge } from "@/components/ui/badge";
+import { chartTooltipStyle, pieDefaults } from "@/lib/chart-theme";
 
 const fmtMoney = (v: number) => `$${Math.abs(v).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
 
@@ -20,10 +21,8 @@ export function BudgetAllocationEngine() {
     return plData.reduce((s, m) => s + m.income, 0) / plData.length;
   }, [plData]);
 
-  // Simple ROI-based recommendations
   const recommendations = useMemo(() => {
     const recs: { title: string; description: string; type: "increase" | "decrease" | "maintain" }[] = [];
-
     const expenseRatio = avgMonthlyIncome > 0 ? (totalMonthlySpend / avgMonthlyIncome) * 100 : 0;
 
     if (expenseRatio > 60) {
@@ -63,7 +62,7 @@ export function BudgetAllocationEngine() {
     return recs;
   }, [budgetCategories, avgMonthlyIncome, totalMonthlySpend, health]);
 
-  if (isLoading) return <div className="text-sm text-muted-foreground py-8 text-center">Loading…</div>;
+  if (isLoading) return <div className="rounded-xl border border-border bg-card p-6 animate-pulse h-96" />;
 
   const pieData = budgetCategories.slice(0, 8).map((c) => ({
     name: c.name,
@@ -71,65 +70,72 @@ export function BudgetAllocationEngine() {
     color: c.color,
   }));
 
+  const expenseRatio = avgMonthlyIncome > 0 ? ((totalMonthlySpend / avgMonthlyIncome) * 100).toFixed(0) : "—";
+
   return (
-    <div className="space-y-6">
-      {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="bg-card border border-border rounded-lg p-4">
-          <p className="text-xs text-muted-foreground">Avg Monthly Spend</p>
-          <p className="text-2xl font-mono font-bold">{fmtMoney(totalMonthlySpend)}</p>
+    <div className="space-y-5">
+      {/* KPI Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="rounded-xl border border-border bg-card p-3">
+          <div className="flex items-center gap-1.5 mb-1">
+            <DollarSign className="w-3.5 h-3.5 text-red-500" />
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Avg Monthly Spend</p>
+          </div>
+          <p className="text-lg font-bold font-mono text-foreground">{fmtMoney(totalMonthlySpend)}</p>
         </div>
-        <div className="bg-card border border-border rounded-lg p-4">
-          <p className="text-xs text-muted-foreground">Avg Monthly Income</p>
-          <p className="text-2xl font-mono font-bold text-emerald-500">{fmtMoney(avgMonthlyIncome)}</p>
+        <div className="rounded-xl border border-border bg-card p-3">
+          <div className="flex items-center gap-1.5 mb-1">
+            <DollarSign className="w-3.5 h-3.5 text-green-500" />
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Avg Monthly Income</p>
+          </div>
+          <p className="text-lg font-bold font-mono text-green-400">{fmtMoney(avgMonthlyIncome)}</p>
         </div>
-        <div className="bg-card border border-border rounded-lg p-4">
-          <p className="text-xs text-muted-foreground">Expense Ratio</p>
-          <p className="text-2xl font-mono font-bold">
-            {avgMonthlyIncome > 0 ? `${((totalMonthlySpend / avgMonthlyIncome) * 100).toFixed(0)}%` : "—"}
-          </p>
+        <div className="rounded-xl border border-border bg-card p-3">
+          <div className="flex items-center gap-1.5 mb-1">
+            <Percent className="w-3.5 h-3.5 text-blue-500" />
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Expense Ratio</p>
+          </div>
+          <p className="text-lg font-bold font-mono text-foreground">{expenseRatio}%</p>
         </div>
-        <div className="bg-card border border-border rounded-lg p-4">
-          <p className="text-xs text-muted-foreground">Categories Tracked</p>
-          <p className="text-2xl font-mono font-bold">{budgetCategories.length}</p>
+        <div className="rounded-xl border border-border bg-card p-3">
+          <div className="flex items-center gap-1.5 mb-1">
+            <Layers className="w-3.5 h-3.5 text-purple-500" />
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Categories</p>
+          </div>
+          <p className="text-lg font-bold font-mono text-foreground">{budgetCategories.length}</p>
         </div>
       </div>
 
       {/* Pie + Category Table */}
-      <div className="grid md:grid-cols-2 gap-4">
-        <div className="bg-card border border-border rounded-lg p-5">
-          <h3 className="text-sm font-medium mb-4 flex items-center gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="rounded-xl border border-border bg-card p-4">
+          <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
             <PieIcon className="w-4 h-4 text-muted-foreground" />
             Spend Distribution
           </h3>
-          <div className="h-[260px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={pieData} cx="50%" cy="50%" outerRadius={100} innerRadius={50} dataKey="value" paddingAngle={2}>
-                  {pieData.map((entry, i) => (
-                    <Cell key={i} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
-                  formatter={(value: number) => [`$${value}`, undefined]}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
+          <ResponsiveContainer width="100%" height={240}>
+            <PieChart>
+              <Pie data={pieData} dataKey="value" {...pieDefaults}>
+                {pieData.map((entry, i) => (
+                  <Cell key={i} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip contentStyle={chartTooltipStyle} formatter={(value: number) => [`$${value}`, undefined]} />
+            </PieChart>
+          </ResponsiveContainer>
         </div>
 
-        <div className="bg-card border border-border rounded-lg p-5">
-          <h3 className="text-sm font-medium mb-3">Category Breakdown</h3>
-          <div className="space-y-2 max-h-[280px] overflow-y-auto">
+        <div className="rounded-xl border border-border bg-card p-4">
+          <h3 className="text-sm font-semibold text-foreground mb-3">Category Breakdown</h3>
+          <div className="space-y-2 max-h-[260px] overflow-y-auto">
             {budgetCategories.map((cat) => (
               <div key={cat.categoryId} className="flex items-center gap-3 py-1.5">
-                <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: cat.color }} />
+                <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: cat.color }} />
                 <span className="text-sm flex-1 truncate">{cat.name}</span>
                 <span className="text-xs font-mono text-muted-foreground w-12 text-right">{cat.percentOfTotal.toFixed(0)}%</span>
                 <span className="text-sm font-mono font-medium w-20 text-right">{fmtMoney(cat.avgMonthlySpend)}</span>
                 {cat.trend !== 0 && (
-                  <span className={`text-xs flex items-center gap-0.5 w-14 justify-end ${cat.trend > 0 ? "text-red-500" : "text-emerald-500"}`}>
+                  <span className={`text-xs flex items-center gap-0.5 w-14 justify-end ${cat.trend > 0 ? "text-red-400" : "text-green-400"}`}>
                     {cat.trend > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
                     {Math.abs(cat.trend).toFixed(0)}%
                   </span>
@@ -141,19 +147,19 @@ export function BudgetAllocationEngine() {
       </div>
 
       {/* Recommendations */}
-      <div className="bg-card border border-border rounded-lg p-5">
-        <h3 className="text-sm font-medium mb-4">Budget Recommendations</h3>
-        <div className="space-y-3">
+      <div className="rounded-xl border border-border bg-card p-4">
+        <h3 className="text-sm font-semibold text-foreground mb-3">Budget Recommendations</h3>
+        <div className="space-y-2">
           {recommendations.map((rec, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, x: -8 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.1 }}
-              className="flex items-start gap-3 p-3 rounded-lg bg-muted/30"
+              className="flex items-start gap-3 p-3 rounded-xl bg-muted/30"
             >
               {rec.type === "decrease" && <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />}
-              {rec.type === "increase" && <TrendingUp className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />}
+              {rec.type === "increase" && <TrendingUp className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />}
               {rec.type === "maintain" && <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 shrink-0" />}
               <div>
                 <p className="text-sm font-medium">{rec.title}</p>

@@ -19,44 +19,44 @@ const colorMap = {
 export function FinancialHealthAlerts() {
   const { health, isLoading } = useFinancialIntelligence(6);
 
-  if (isLoading) return null;
+  if (isLoading) return <div className="rounded-xl border border-border bg-card p-6 animate-pulse h-48" />;
 
   return (
     <div className="space-y-4">
       {/* Health Score Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="bg-card border border-border rounded-lg p-4">
-          <div className="flex items-center gap-2 mb-1">
-            <Activity className="w-4 h-4 text-muted-foreground" />
-            <p className="text-xs text-muted-foreground">Profit Margin</p>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="rounded-xl border border-border bg-card p-3">
+          <div className="flex items-center gap-1.5 mb-1">
+            <Activity className="w-3.5 h-3.5 text-muted-foreground" />
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Profit Margin</p>
           </div>
-          <p className={`text-2xl font-mono font-bold ${health.profitMargin >= 30 ? "text-emerald-500" : health.profitMargin >= 15 ? "text-amber-500" : "text-red-500"}`}>
+          <p className={`text-lg font-bold font-mono ${health.profitMargin >= 30 ? "text-green-400" : health.profitMargin >= 15 ? "text-amber-400" : "text-red-400"}`}>
             {health.profitMargin}%
           </p>
         </div>
-        <div className="bg-card border border-border rounded-lg p-4">
-          <div className="flex items-center gap-2 mb-1">
-            <Flame className="w-4 h-4 text-muted-foreground" />
-            <p className="text-xs text-muted-foreground">Monthly Burn</p>
+        <div className="rounded-xl border border-border bg-card p-3">
+          <div className="flex items-center gap-1.5 mb-1">
+            <Flame className="w-3.5 h-3.5 text-muted-foreground" />
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Monthly Burn</p>
           </div>
-          <p className="text-2xl font-mono font-bold">${health.burnRate.toLocaleString()}</p>
+          <p className="text-lg font-bold font-mono text-foreground">${health.burnRate.toLocaleString()}</p>
         </div>
-        <div className="bg-card border border-border rounded-lg p-4">
-          <div className="flex items-center gap-2 mb-1">
-            <PieChart className="w-4 h-4 text-muted-foreground" />
-            <p className="text-xs text-muted-foreground">Diversification</p>
+        <div className="rounded-xl border border-border bg-card p-3">
+          <div className="flex items-center gap-1.5 mb-1">
+            <PieChart className="w-3.5 h-3.5 text-muted-foreground" />
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Diversification</p>
           </div>
-          <p className={`text-2xl font-mono font-bold ${health.diversificationScore >= 50 ? "text-emerald-500" : "text-amber-500"}`}>
+          <p className={`text-lg font-bold font-mono ${health.diversificationScore >= 50 ? "text-green-400" : "text-amber-400"}`}>
             {health.diversificationScore}%
           </p>
           <p className="text-xs text-muted-foreground mt-0.5">{health.topRevenueSource} @ {health.topRevenuePercent}%</p>
         </div>
-        <div className="bg-card border border-border rounded-lg p-4">
-          <div className="flex items-center gap-2 mb-1">
-            <Shield className="w-4 h-4 text-muted-foreground" />
-            <p className="text-xs text-muted-foreground">Savings Rate</p>
+        <div className="rounded-xl border border-border bg-card p-3">
+          <div className="flex items-center gap-1.5 mb-1">
+            <Shield className="w-3.5 h-3.5 text-muted-foreground" />
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Savings Rate</p>
           </div>
-          <p className={`text-2xl font-mono font-bold ${health.savingsRate >= 20 ? "text-emerald-500" : "text-amber-500"}`}>
+          <p className={`text-lg font-bold font-mono ${health.savingsRate >= 20 ? "text-green-400" : "text-amber-400"}`}>
             {health.savingsRate}%
           </p>
         </div>
@@ -73,7 +73,7 @@ export function FinancialHealthAlerts() {
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.08 }}
-                className={`flex items-start gap-3 p-3.5 rounded-lg border ${colorMap[alert.type]}`}
+                className={`flex items-start gap-3 p-3.5 rounded-xl border ${colorMap[alert.type]}`}
               >
                 <Icon className="w-4 h-4 mt-0.5 shrink-0" />
                 <div>
