@@ -102,8 +102,21 @@ export function TaxPrepDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Export */}
-      <div className="flex justify-end">
+      {/* Year selector + Export */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-medium text-muted-foreground">Tax Year</span>
+          <Select value={String(selectedYear)} onValueChange={(v) => setSelectedYear(Number(v))}>
+            <SelectTrigger className="w-[120px] h-9">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {availableYears.map((y) => (
+                <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <Button variant="outline" size="sm" onClick={handleExportTaxReport}>
           <Download className="w-3.5 h-3.5 mr-1.5" />Export Tax Report
         </Button>
