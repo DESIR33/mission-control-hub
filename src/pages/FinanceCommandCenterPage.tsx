@@ -40,12 +40,6 @@ export default function FinanceCommandCenterPage() {
 
         <TabsContent value="overview" className="mt-6 space-y-6">
           <FinancialHealthAlerts />
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-card border border-border rounded-lg p-5">
-              <h3 className="text-sm font-medium mb-3">Quick P&L (Last 6 months)</h3>
-              <UnifiedPLDashboard />
-            </div>
-          </div>
         </TabsContent>
 
         <TabsContent value="pl" className="mt-6">
