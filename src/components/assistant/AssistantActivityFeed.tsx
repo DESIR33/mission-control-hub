@@ -29,6 +29,17 @@ const ACTION_COLORS: Record<string, string> = {
   task_created: "text-primary",
 };
 
+const COMMAND_EXAMPLES = [
+  { icon: Clock, text: "Follow up with sponsors who haven't replied in 7 days", category: "CRM" },
+  { icon: Mail, text: "Triage my inbox and flag anything urgent", category: "Email" },
+  { icon: TrendingUp, text: "Which videos had the best RPM this month?", category: "Analytics" },
+  { icon: ListTodo, text: "Create a task to review Q2 brand deals by Friday", category: "Tasks" },
+  { icon: AlertTriangle, text: "Show me deals that have been stuck for over 2 weeks", category: "Pipeline" },
+  { icon: FileText, text: "Draft a follow-up email for Acme Corp's sponsorship", category: "Outreach" },
+  { icon: Calendar, text: "What deadlines do I have coming up this week?", category: "Schedule" },
+  { icon: TrendingUp, text: "Compare my revenue this quarter vs last quarter", category: "Finance" },
+];
+
 export function AssistantActivityFeed() {
   const { data: actions = [], isLoading } = useAssistantActions(30);
   const { data: tasks = [] } = useTasks();
