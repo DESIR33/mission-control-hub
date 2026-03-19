@@ -125,8 +125,8 @@ export function TaxPrepDashboard() {
       {/* YTD KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: "YTD Gross Income", value: fmtMoney(ytdTotals.ytdIncome), color: "text-emerald-500" },
-          { label: "YTD Deductions", value: fmtMoney(ytdTotals.ytdDeductions), color: "text-primary" },
+          { label: `${selectedYear} Gross Income`, value: fmtMoney(ytdTotals.ytdIncome), color: "text-emerald-500" },
+          { label: `${selectedYear} Deductions`, value: fmtMoney(ytdTotals.ytdDeductions), color: "text-primary" },
           { label: "Taxable Income", value: fmtMoney(ytdTotals.taxableIncome), color: "text-foreground" },
           { label: "Estimated Tax Due", value: fmtMoney(ytdTotals.ytdTax), color: "text-red-500" },
         ].map((kpi) => (
