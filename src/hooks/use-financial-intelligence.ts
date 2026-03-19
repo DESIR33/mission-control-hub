@@ -60,7 +60,7 @@ export interface FinancialAlert {
   message: string;
 }
 
-export function useFinancialIntelligence(monthCount: number = 12) {
+export function useFinancialIntelligence(monthCount: number = 12, taxYear?: number) {
   const { data: revenueData, isLoading: revLoading } = useUnifiedRevenue(monthCount);
   const { data: expenses = [], isLoading: expLoading } = useExpenses();
   const { data: subs = [] } = useRecurringSubscriptions();
@@ -186,8 +186,7 @@ export function useFinancialIntelligence(monthCount: number = 12) {
 
   // Quarterly tax
   const quarterlyTax = useMemo((): QuarterlyTax[] => {
-    const now = new Date();
-    const year = now.getFullYear();
+    const year = taxYear ?? new Date().getFullYear();
     const quarters: QuarterlyTax[] = [];
     const taxRate = 0.25; // estimated self-employment + income
 
@@ -236,7 +235,7 @@ export function useFinancialIntelligence(monthCount: number = 12) {
     }
 
     return quarters;
-  }, [plData, expenses, subs]);
+  }, [plData, expenses, subs, taxYear]);
 
   // Financial health
   const health = useMemo((): FinancialHealth => {

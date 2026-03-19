@@ -17,12 +17,14 @@ const availableYears = Array.from({ length: 5 }, (_, i) => currentYear - i);
 
 export function TaxPrepDashboard() {
   const [selectedYear, setSelectedYear] = useState(currentYear);
-  const { quarterlyTax, budgetCategories, plData, isLoading } = useFinancialIntelligence(12);
+  const monthsNeeded = useMemo(() => {
+    const now = new Date();
+    return (now.getFullYear() - selectedYear) * 12 + now.getMonth() + 1;
+  }, [selectedYear]);
+  const { quarterlyTax, budgetCategories, plData, isLoading } = useFinancialIntelligence(Math.max(monthsNeeded, 12), selectedYear);
   const { data: expenses = [] } = useExpenses();
 
-  const filteredQuarterlyTax = useMemo(() => {
-    return quarterlyTax.filter((q) => q.quarterLabel?.includes(String(selectedYear)));
-  }, [quarterlyTax, selectedYear]);
+  const filteredQuarterlyTax = quarterlyTax;
 
   const filteredExpenses = useMemo(() => {
     return expenses.filter((e) => {
