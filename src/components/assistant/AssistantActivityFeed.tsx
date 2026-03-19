@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { format, formatDistanceToNow } from "date-fns";
 import {
   Bot, CheckCircle2, AlertTriangle, Mail, Calendar,
-  TrendingUp, FileText, Zap, Clock, ListTodo
+  TrendingUp, FileText, Zap, Clock, ListTodo, MessageSquareText, Sparkles
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useAssistantActions, useTasks } from "@/hooks/use-assistant-actions";
@@ -28,6 +28,17 @@ const ACTION_COLORS: Record<string, string> = {
   daily_briefing: "text-success",
   task_created: "text-primary",
 };
+
+const COMMAND_EXAMPLES = [
+  { icon: Clock, text: "Follow up with sponsors who haven't replied in 7 days", category: "CRM" },
+  { icon: Mail, text: "Triage my inbox and flag anything urgent", category: "Email" },
+  { icon: TrendingUp, text: "Which videos had the best RPM this month?", category: "Analytics" },
+  { icon: ListTodo, text: "Create a task to review Q2 brand deals by Friday", category: "Tasks" },
+  { icon: AlertTriangle, text: "Show me deals that have been stuck for over 2 weeks", category: "Pipeline" },
+  { icon: FileText, text: "Draft a follow-up email for Acme Corp's sponsorship", category: "Outreach" },
+  { icon: Calendar, text: "What deadlines do I have coming up this week?", category: "Schedule" },
+  { icon: TrendingUp, text: "Compare my revenue this quarter vs last quarter", category: "Finance" },
+];
 
 export function AssistantActivityFeed() {
   const { data: actions = [], isLoading } = useAssistantActions(30);
@@ -71,6 +82,34 @@ export function AssistantActivityFeed() {
             <p className="text-lg font-bold font-mono text-card-foreground">{stat.value}</p>
           </div>
         ))}
+      </div>
+
+      {/* Command Examples */}
+      <div className="rounded-xl border border-border bg-card p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <MessageSquareText className="w-4 h-4 text-primary" />
+          <h3 className="text-sm font-semibold text-card-foreground">Try Asking</h3>
+          <Badge variant="secondary" className="text-xs ml-auto">
+            <Sparkles className="w-3 h-3 mr-1" />Natural Language
+          </Badge>
+        </div>
+        <div className="grid sm:grid-cols-2 gap-2">
+          {COMMAND_EXAMPLES.map((cmd, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.04 }}
+              className="flex items-start gap-2.5 p-2.5 rounded-lg bg-muted/40 hover:bg-muted/70 transition-colors cursor-default group"
+            >
+              <cmd.icon className="w-3.5 h-3.5 mt-0.5 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+              <div className="min-w-0">
+                <p className="text-xs text-card-foreground leading-relaxed">{cmd.text}</p>
+                <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{cmd.category}</span>
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </div>
 
       {/* Activity Feed */}
