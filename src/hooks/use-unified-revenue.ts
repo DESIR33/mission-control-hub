@@ -91,7 +91,7 @@ export function useUnifiedRevenue(monthCount: number = 12) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("product_transactions" as any)
-        .select("sale_price, net_amount, transaction_date")
+        .select("total_amount, net_amount, transaction_date")
         .eq("workspace_id", workspaceId!);
       if (error) throw error;
       return (data ?? []) as any[];
