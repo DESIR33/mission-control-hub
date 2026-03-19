@@ -235,7 +235,7 @@ export function useFinancialIntelligence(monthCount: number = 12, taxYear?: numb
     }
 
     return quarters;
-  }, [plData, expenses, subs]);
+  }, [plData, expenses, subs, taxYear]);
 
   // Financial health
   const health = useMemo((): FinancialHealth => {
