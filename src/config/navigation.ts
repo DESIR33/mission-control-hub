@@ -35,6 +35,9 @@ import {
   Wallet,
   UserPlus,
   Video,
+  PieChart,
+  Calculator,
+  Gauge,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
