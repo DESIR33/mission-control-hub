@@ -135,6 +135,9 @@ export default function AIHubPage() {
           <TabsTrigger value="thumbnails" className="flex-shrink-0 gap-1.5">
             <Image className="h-3.5 w-3.5" /> Thumbnails
           </TabsTrigger>
+          <TabsTrigger value="assistant" className="flex-shrink-0 gap-1.5">
+            <Activity className="h-3.5 w-3.5" /> Assistant
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="chat" className="mt-4">
