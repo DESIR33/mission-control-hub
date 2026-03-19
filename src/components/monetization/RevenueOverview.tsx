@@ -10,7 +10,12 @@ import {
   chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, pieDefaults, lineDefaults,
 } from "@/lib/chart-theme";
 
-const COLORS = { sponsors: "hsl(var(--chart-1))", affiliates: "hsl(var(--chart-2))", adSense: "hsl(var(--chart-3))" };
+const COLORS = {
+  sponsors: "hsl(var(--chart-1))",
+  affiliates: "hsl(var(--chart-2))",
+  adSense: "hsl(var(--chart-3))",
+  products: "hsl(var(--chart-5))",
+};
 
 const fmtDollar = (n: number) => `$${n.toLocaleString()}`;
 
@@ -34,9 +39,10 @@ export function RevenueOverview() {
     { name: "Sponsors", value: revenue.sponsorTotal },
     { name: "Affiliates", value: revenue.affiliateTotal },
     { name: "AdSense", value: revenue.adSenseTotal },
+    { name: "Products", value: revenue.productTotal },
   ].filter((d) => d.value > 0);
 
-  const pieColors = [COLORS.sponsors, COLORS.affiliates, COLORS.adSense];
+  const pieColors = [COLORS.sponsors, COLORS.affiliates, COLORS.adSense, COLORS.products];
 
   return (
     <div className="space-y-5">
@@ -91,6 +97,7 @@ export function RevenueOverview() {
             <Area type="monotone" dataKey="sponsors" stackId="1" stroke={COLORS.sponsors} fill={COLORS.sponsors} fillOpacity={0.6} name="Sponsors" strokeWidth={2.5} dot={false} activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }} />
             <Area type="monotone" dataKey="affiliates" stackId="1" stroke={COLORS.affiliates} fill={COLORS.affiliates} fillOpacity={0.6} name="Affiliates" strokeWidth={2.5} dot={false} activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }} />
             <Area type="monotone" dataKey="adSense" stackId="1" stroke={COLORS.adSense} fill={COLORS.adSense} fillOpacity={0.6} name="AdSense" strokeWidth={2.5} dot={false} activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }} />
+            <Area type="monotone" dataKey="products" stackId="1" stroke={COLORS.products} fill={COLORS.products} fillOpacity={0.6} name="Products" strokeWidth={2.5} dot={false} activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--background))" }} />
           </AreaChart>
         </ResponsiveContainer>
       </div>
@@ -111,7 +118,7 @@ export function RevenueOverview() {
                   label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                   labelLine={false}
                 >
-                  {pieData.map((_, i) => (
+                  {pieData.map((entry, i) => (
                     <Cell key={i} fill={pieColors[i]} />
                   ))}
                 </Pie>
@@ -121,31 +128,24 @@ export function RevenueOverview() {
           </div>
         )}
 
-        {/* Projected Annual */}
+        {/* Revenue by Stream + Projected Annual */}
         <div className="rounded-xl border border-border bg-card p-4">
-          <h3 className="text-sm font-semibold text-foreground mb-3">Revenue Breakdown</h3>
+          <h3 className="text-sm font-semibold text-foreground mb-3">Revenue by Stream</h3>
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS.sponsors }} />
-                <span className="text-xs text-foreground">Sponsors</span>
+            {[
+              { label: "Sponsors", value: revenue.sponsorTotal, color: COLORS.sponsors },
+              { label: "Affiliates", value: revenue.affiliateTotal, color: COLORS.affiliates },
+              { label: "AdSense", value: revenue.adSenseTotal, color: COLORS.adSense },
+              { label: "Products", value: revenue.productTotal, color: COLORS.products },
+            ].map((stream) => (
+              <div key={stream.label} className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: stream.color }} />
+                  <span className="text-xs text-foreground">{stream.label}</span>
+                </div>
+                <span className="text-xs font-mono text-muted-foreground">{fmtDollar(stream.value)}</span>
               </div>
-              <span className="text-xs font-mono text-muted-foreground">{fmtDollar(revenue.sponsorTotal)}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS.affiliates }} />
-                <span className="text-xs text-foreground">Affiliates</span>
-              </div>
-              <span className="text-xs font-mono text-muted-foreground">{fmtDollar(revenue.affiliateTotal)}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS.adSense }} />
-                <span className="text-xs text-foreground">AdSense</span>
-              </div>
-              <span className="text-xs font-mono text-muted-foreground">{fmtDollar(revenue.adSenseTotal)}</span>
-            </div>
+            ))}
 
             <div className="border-t border-border pt-3 mt-3">
               <div className="flex items-center justify-between">
