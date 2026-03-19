@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { format, formatDistanceToNow } from "date-fns";
 import {
   Bot, CheckCircle2, AlertTriangle, Mail, Calendar,
-  TrendingUp, FileText, Zap, Clock, ListTodo
+  TrendingUp, FileText, Zap, Clock, ListTodo, MessageSquareText, Sparkles
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useAssistantActions, useTasks } from "@/hooks/use-assistant-actions";
