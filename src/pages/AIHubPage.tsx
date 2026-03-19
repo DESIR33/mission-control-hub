@@ -29,6 +29,7 @@ import { FluxTrainingContent } from "@/components/ai-hub/FluxTrainingContent";
 
 // Thumbnail Lab
 import { ThumbnailLab } from "@/components/command-center/ThumbnailLab";
+import { AssistantActivityFeed } from "@/components/assistant/AssistantActivityFeed";
 
 function ChatContent() {
   const chat = useChat();
