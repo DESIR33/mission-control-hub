@@ -35,6 +35,9 @@ import {
   Wallet,
   UserPlus,
   Video,
+  PieChart,
+  Calculator,
+  Gauge,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -92,6 +95,10 @@ export const mainNavItems: NavItem[] = [
     icon: Wallet,
     label: "Finance",
     children: [
+      { to: "/finance/hub/overview", label: "Command Center", icon: Gauge },
+      { to: "/finance/hub/pl", label: "Profit & Loss", icon: PieChart },
+      { to: "/finance/hub/budget", label: "Budget", icon: Calculator },
+      { to: "/finance/hub/tax", label: "Tax Prep", icon: FileText },
       { to: "/revenue/overview", label: "Revenue Analytics", icon: BarChart3 },
       { to: "/revenue/income-tracker", label: "Yearly Income", icon: DollarSign },
       { to: "/revenue/affiliate", label: "Affiliate Programs", icon: Handshake },
