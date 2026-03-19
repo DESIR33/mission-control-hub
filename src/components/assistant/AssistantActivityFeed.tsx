@@ -84,6 +84,34 @@ export function AssistantActivityFeed() {
         ))}
       </div>
 
+      {/* Command Examples */}
+      <div className="rounded-xl border border-border bg-card p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <MessageSquareText className="w-4 h-4 text-primary" />
+          <h3 className="text-sm font-semibold text-card-foreground">Try Asking</h3>
+          <Badge variant="secondary" className="text-xs ml-auto">
+            <Sparkles className="w-3 h-3 mr-1" />Natural Language
+          </Badge>
+        </div>
+        <div className="grid sm:grid-cols-2 gap-2">
+          {COMMAND_EXAMPLES.map((cmd, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.04 }}
+              className="flex items-start gap-2.5 p-2.5 rounded-lg bg-muted/40 hover:bg-muted/70 transition-colors cursor-default group"
+            >
+              <cmd.icon className="w-3.5 h-3.5 mt-0.5 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+              <div className="min-w-0">
+                <p className="text-xs text-card-foreground leading-relaxed">{cmd.text}</p>
+                <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{cmd.category}</span>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
       {/* Activity Feed */}
       <div className="rounded-xl border border-border bg-card p-5">
         <div className="flex items-center gap-2 mb-4">
