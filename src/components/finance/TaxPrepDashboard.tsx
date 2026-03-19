@@ -78,10 +78,10 @@ export function TaxPrepDashboard() {
 
   const handleExportTaxReport = () => {
     const headers = "Quarter,Gross Income,Deductions,Taxable Income,Estimated Tax,Effective Rate";
-    const rows = quarterlyTax.map((q) =>
+    const rows = filteredQuarterlyTax.map((q) =>
       [q.quarterLabel, q.income.toFixed(2), q.deductions.toFixed(2), q.taxableIncome.toFixed(2), q.estimatedTax.toFixed(2), `${q.effectiveRate.toFixed(1)}%`].join(",")
     );
-    rows.push(["YTD Total", ytdTotals.ytdIncome.toFixed(2), ytdTotals.ytdDeductions.toFixed(2), ytdTotals.taxableIncome.toFixed(2), ytdTotals.ytdTax.toFixed(2), ""].join(","));
+    rows.push([`${selectedYear} Total`, ytdTotals.ytdIncome.toFixed(2), ytdTotals.ytdDeductions.toFixed(2), ytdTotals.taxableIncome.toFixed(2), ytdTotals.ytdTax.toFixed(2), ""].join(","));
 
     // Deduction breakdown
     rows.push("", "Deduction Breakdown");
@@ -93,7 +93,7 @@ export function TaxPrepDashboard() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `tax-report-${new Date().getFullYear()}.csv`;
+    a.download = `tax-report-${selectedYear}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
