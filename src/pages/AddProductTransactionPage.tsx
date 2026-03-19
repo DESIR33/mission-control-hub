@@ -241,10 +241,12 @@ export default function AddProductTransactionPage() {
                 <FormField
                   control={form.control}
                   name="transactionDate"
-                  render={({ field }) => (
+                  render={({ field }) => {
+                    const [calendarOpen, setCalendarOpen] = React.useState(false);
+                    return (
                     <FormItem className="flex flex-col">
                       <FormLabel>Transaction Date</FormLabel>
-                      <Popover>
+                      <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
@@ -267,14 +269,19 @@ export default function AddProductTransactionPage() {
                           <Calendar
                             mode="single"
                             selected={field.value}
-                            onSelect={field.onChange}
+                            onSelect={(date) => {
+                              field.onChange(date);
+                              setCalendarOpen(false);
+                            }}
                             initialFocus
+                            className="pointer-events-auto"
                           />
                         </PopoverContent>
                       </Popover>
                       <FormMessage />
                     </FormItem>
-                  )}
+                    );
+                  }}
                 />
 
                 {/* Quantity */}
