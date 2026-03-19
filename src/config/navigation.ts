@@ -146,6 +146,7 @@ export const mainNavItems: NavItem[] = [
     label: "AI Hub",
     children: [
       { to: "/ai/chat", label: "Chat", icon: MessageCircle },
+      { to: "/ai/assistant", label: "Assistant", icon: Activity },
       { to: "/ai/proposals", label: "Proposals", icon: Brain },
       { to: "/ai/agents", label: "Agents", icon: Bot },
       { to: "/ai/memory", label: "Memory", icon: BookOpen },

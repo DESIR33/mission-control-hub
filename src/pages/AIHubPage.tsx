@@ -163,6 +163,10 @@ export default function AIHubPage() {
         <TabsContent value="thumbnails" className="mt-4">
           <ThumbnailLab />
         </TabsContent>
+
+        <TabsContent value="assistant" className="mt-4">
+          <AssistantActivityFeed />
+        </TabsContent>
       </Tabs>
     </div>
   );
