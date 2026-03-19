@@ -131,12 +131,10 @@ export default function AddProductTransactionPage() {
         description: "Transaction created successfully",
       });
 
-      if (fromMonetization) {
-        navigate("/monetization?tab=products");
-      } else if (id) {
+      if (id) {
         navigate(`/products/${id}`);
       } else {
-        navigate("/monetization?tab=products");
+        navigate("/revenue/products");
       }
     },
     onError: (error: any) => {
@@ -166,41 +164,34 @@ export default function AddProductTransactionPage() {
   };
 
   const handleGoBack = () => {
-    if (fromMonetization) {
-      navigate("/monetization?tab=products");
-    } else if (id) {
+    if (id) {
       navigate(`/products/${id}`);
     } else {
-      navigate("/monetization?tab=products");
+      navigate("/revenue/products");
     }
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="border-b border-border bg-card">
-        <div className="container px-4 md:px-8 py-8">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 mb-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleGoBack}
-                className="gap-1.5"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Back
-              </Button>
-            </div>
-            <h1 className="text-4xl font-bold text-foreground">Add Product Transaction</h1>
-            <p className="text-muted-foreground text-lg">
-              Record a new product sale transaction
-            </p>
-          </div>
+    <div className="p-4 md:p-6 space-y-5">
+      <div className="space-y-1">
+        <div className="flex items-center gap-2 mb-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleGoBack}
+            className="gap-1.5"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Button>
         </div>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">Add Product Transaction</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">
+          Record a new product sale transaction
+        </p>
       </div>
 
-      <div className="container px-4 md:px-8 py-8 max-w-2xl">
-        <div className="rounded-lg border border-border bg-card p-6">
+      <div className="rounded-xl border border-border bg-card p-6">
           {isLoadingProducts ? (
             <div className="flex flex-col items-center justify-center p-8">
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent mb-4"></div>
@@ -433,7 +424,6 @@ export default function AddProductTransactionPage() {
             </Form>
           )}
         </div>
-      </div>
     </div>
   );
 }
