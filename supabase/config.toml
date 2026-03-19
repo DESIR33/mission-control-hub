@@ -116,3 +116,9 @@ verify_jwt = false
 
 [functions.ai-proxy]
 verify_jwt = false
+
+[functions.assistant-proactive-scan]
+verify_jwt = false
+
+[functions.inbox-triage]
+verify_jwt = false

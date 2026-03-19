@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageSquare, Brain, Bot, BookOpen, Sparkles, Image } from "lucide-react";
+import { MessageSquare, Brain, Bot, BookOpen, Sparkles, Image, Activity } from "lucide-react";
 
 // Chat components
 import { ChatSidebar } from "@/components/chat/ChatSidebar";
@@ -29,6 +29,7 @@ import { FluxTrainingContent } from "@/components/ai-hub/FluxTrainingContent";
 
 // Thumbnail Lab
 import { ThumbnailLab } from "@/components/command-center/ThumbnailLab";
+import { AssistantActivityFeed } from "@/components/assistant/AssistantActivityFeed";
 
 function ChatContent() {
   const chat = useChat();
@@ -87,7 +88,7 @@ function ChatContent() {
   );
 }
 
-const VALID_TABS = new Set(["chat", "proposals", "agents", "memory", "training", "thumbnails"]);
+const VALID_TABS = new Set(["chat", "proposals", "agents", "memory", "training", "thumbnails", "assistant"]);
 
 export default function AIHubPage() {
   const { tab } = useParams<{ tab: string }>();
@@ -134,6 +135,9 @@ export default function AIHubPage() {
           <TabsTrigger value="thumbnails" className="flex-shrink-0 gap-1.5">
             <Image className="h-3.5 w-3.5" /> Thumbnails
           </TabsTrigger>
+          <TabsTrigger value="assistant" className="flex-shrink-0 gap-1.5">
+            <Activity className="h-3.5 w-3.5" /> Assistant
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="chat" className="mt-4">
@@ -158,6 +162,10 @@ export default function AIHubPage() {
 
         <TabsContent value="thumbnails" className="mt-4">
           <ThumbnailLab />
+        </TabsContent>
+
+        <TabsContent value="assistant" className="mt-4">
+          <AssistantActivityFeed />
         </TabsContent>
       </Tabs>
     </div>
