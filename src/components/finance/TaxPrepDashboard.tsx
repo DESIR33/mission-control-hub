@@ -24,9 +24,7 @@ export function TaxPrepDashboard() {
   const { quarterlyTax, budgetCategories, plData, isLoading } = useFinancialIntelligence(Math.max(monthsNeeded, 12), selectedYear);
   const { data: expenses = [] } = useExpenses();
 
-  const filteredQuarterlyTax = useMemo(() => {
-    return quarterlyTax.filter((q) => q.quarterLabel?.includes(String(selectedYear)));
-  }, [quarterlyTax, selectedYear]);
+  const filteredQuarterlyTax = quarterlyTax;
 
   const filteredExpenses = useMemo(() => {
     return expenses.filter((e) => {
