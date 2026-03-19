@@ -186,8 +186,7 @@ export function useFinancialIntelligence(monthCount: number = 12, taxYear?: numb
 
   // Quarterly tax
   const quarterlyTax = useMemo((): QuarterlyTax[] => {
-    const now = new Date();
-    const year = now.getFullYear();
+    const year = taxYear ?? new Date().getFullYear();
     const quarters: QuarterlyTax[] = [];
     const taxRate = 0.25; // estimated self-employment + income
 
