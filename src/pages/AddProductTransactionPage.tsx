@@ -422,7 +422,6 @@ export default function AddProductTransactionPage() {
                 </div>
               </form>
             </Form>
-          )}
         </div>
       </div>
     </div>
