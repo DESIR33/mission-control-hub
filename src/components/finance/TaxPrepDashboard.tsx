@@ -32,11 +32,11 @@ export function TaxPrepDashboard() {
   }, [expenses, selectedYear]);
 
   const ytdTotals = useMemo(() => {
-    const ytdIncome = quarterlyTax.reduce((s, q) => s + q.income, 0);
-    const ytdDeductions = quarterlyTax.reduce((s, q) => s + q.deductions, 0);
-    const ytdTax = quarterlyTax.reduce((s, q) => s + q.estimatedTax, 0);
+    const ytdIncome = filteredQuarterlyTax.reduce((s, q) => s + q.income, 0);
+    const ytdDeductions = filteredQuarterlyTax.reduce((s, q) => s + q.deductions, 0);
+    const ytdTax = filteredQuarterlyTax.reduce((s, q) => s + q.estimatedTax, 0);
     return { ytdIncome, ytdDeductions, ytdTax, taxableIncome: ytdIncome - ytdDeductions };
-  }, [quarterlyTax]);
+  }, [filteredQuarterlyTax]);
 
   // Deduction categories
   const deductionBreakdown = useMemo(() => {
