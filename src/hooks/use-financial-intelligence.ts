@@ -60,7 +60,7 @@ export interface FinancialAlert {
   message: string;
 }
 
-export function useFinancialIntelligence(monthCount: number = 12) {
+export function useFinancialIntelligence(monthCount: number = 12, taxYear?: number) {
   const { data: revenueData, isLoading: revLoading } = useUnifiedRevenue(monthCount);
   const { data: expenses = [], isLoading: expLoading } = useExpenses();
   const { data: subs = [] } = useRecurringSubscriptions();
