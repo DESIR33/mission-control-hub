@@ -146,7 +146,7 @@ export function useUnifiedRevenue(monthCount: number = 12) {
       let products = 0;
       for (const tx of productTx) {
         if (tx.transaction_date?.startsWith(monthStr)) {
-          products += Number(tx.net_amount || tx.sale_price) || 0;
+          products += Number(tx.net_amount || tx.total_amount) || 0;
         }
       }
 
