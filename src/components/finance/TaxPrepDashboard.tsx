@@ -40,7 +40,7 @@ export function TaxPrepDashboard() {
 
   // Deduction categories
   const deductionBreakdown = useMemo(() => {
-    const deductibleExpenses = expenses.filter((e) => e.is_tax_deductible);
+    const deductibleExpenses = filteredExpenses.filter((e) => e.is_tax_deductible);
     const byCategory = new Map<string, number>();
     deductibleExpenses.forEach((e) => {
       const key = e.category_id || "uncategorized";
@@ -56,25 +56,25 @@ export function TaxPrepDashboard() {
         };
       })
       .sort((a, b) => b.total - a.total);
-  }, [expenses, budgetCategories]);
+  }, [filteredExpenses, budgetCategories]);
 
   // Items needing attention
   const actionItems = useMemo(() => {
     const items: { text: string; type: "warning" | "info" }[] = [];
-    const uncategorized = expenses.filter((e) => !e.category_id && e.is_tax_deductible);
+    const uncategorized = filteredExpenses.filter((e) => !e.category_id && e.is_tax_deductible);
     if (uncategorized.length > 0) {
       items.push({ text: `${uncategorized.length} deductible expenses need categorization`, type: "warning" });
     }
-    const noReceipt = expenses.filter((e) => !e.receipt_url && Number(e.amount) > 75);
+    const noReceipt = filteredExpenses.filter((e) => !e.receipt_url && Number(e.amount) > 75);
     if (noReceipt.length > 0) {
       items.push({ text: `${noReceipt.length} expenses over $75 missing receipts`, type: "warning" });
     }
-    const nonDeductible = expenses.filter((e) => !e.is_tax_deductible);
+    const nonDeductible = filteredExpenses.filter((e) => !e.is_tax_deductible);
     if (nonDeductible.length > 5) {
       items.push({ text: `Review ${nonDeductible.length} non-deductible expenses — some may qualify`, type: "info" });
     }
     return items;
-  }, [expenses]);
+  }, [filteredExpenses]);
 
   const handleExportTaxReport = () => {
     const headers = "Quarter,Gross Income,Deductions,Taxable Income,Estimated Tax,Effective Rate";
