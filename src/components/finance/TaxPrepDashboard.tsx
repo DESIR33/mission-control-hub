@@ -180,7 +180,7 @@ export function TaxPrepDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {quarterlyTax.map((q) => (
+                {filteredQuarterlyTax.map((q) => (
                   <tr key={q.quarter} className="border-b border-border/50 hover:bg-muted/20">
                     <td className="px-4 py-2.5 font-medium">{q.quarterLabel}</td>
                     <td className="px-4 py-2.5 text-right font-mono text-emerald-500">{fmtMoney(q.income)}</td>
