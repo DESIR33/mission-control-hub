@@ -74,7 +74,7 @@ export function useFinancialIntelligence(monthCount: number = 12) {
         .select("*")
         .eq("workspace_id", workspaceId!);
       if (error) throw error;
-      return (data ?? []) as ExpenseCategory[];
+      return (data ?? []) as unknown as ExpenseCategory[];
     },
     enabled: !!workspaceId,
   });
