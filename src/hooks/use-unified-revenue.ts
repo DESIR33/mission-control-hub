@@ -91,7 +91,7 @@ export function useUnifiedRevenue(monthCount: number = 12) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("product_transactions" as any)
-        .select("sale_price, net_amount, transaction_date")
+        .select("total_amount, net_amount, transaction_date")
         .eq("workspace_id", workspaceId!);
       if (error) throw error;
       return (data ?? []) as any[];
@@ -146,7 +146,7 @@ export function useUnifiedRevenue(monthCount: number = 12) {
       let products = 0;
       for (const tx of productTx) {
         if (tx.transaction_date?.startsWith(monthStr)) {
-          products += Number(tx.net_amount || tx.sale_price) || 0;
+          products += Number(tx.net_amount || tx.total_amount) || 0;
         }
       }
 
@@ -177,7 +177,7 @@ export function useUnifiedRevenue(monthCount: number = 12) {
 
     const sponsorTotal = wonDeals.reduce((s: number, d: any) => s + (d.value || 0), 0);
     const affiliateTotal = affiliateTx.reduce((s: number, t: any) => s + (t.amount || 0), 0);
-    const productTotal = productTx.reduce((s: number, tx: any) => s + (Number(tx.net_amount || tx.sale_price) || 0), 0);
+    const productTotal = productTx.reduce((s: number, tx: any) => s + (Number(tx.net_amount || tx.total_amount) || 0), 0);
     const totalRevenue = sponsorTotal + affiliateTotal + adSenseTotal + productTotal;
 
     const subscriberCount = channelStats?.subscriber_count || 0;

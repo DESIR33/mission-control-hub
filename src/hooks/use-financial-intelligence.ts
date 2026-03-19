@@ -84,7 +84,7 @@ export function useFinancialIntelligence(monthCount: number = 12, taxYear?: numb
     queryFn: async () => {
       const { data, error } = await supabase
         .from("product_transactions" as any)
-        .select("sale_price, net_amount, transaction_date")
+        .select("total_amount, net_amount, transaction_date")
         .eq("workspace_id", workspaceId!);
       if (error) throw error;
       return (data ?? []) as any[];
@@ -124,7 +124,7 @@ export function useFinancialIntelligence(monthCount: number = 12, taxYear?: numb
       let productIncome = 0;
       for (const tx of productTx) {
         if (tx.transaction_date?.startsWith(monthKey)) {
-          productIncome += Number(tx.net_amount || tx.sale_price) || 0;
+          productIncome += Number(tx.net_amount || tx.total_amount) || 0;
         }
       }
 
