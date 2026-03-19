@@ -1,17 +1,35 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Download, Calculator, FileText, CheckCircle2, AlertCircle } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useFinancialIntelligence } from "@/hooks/use-financial-intelligence";
 import { useExpenses } from "@/hooks/use-expenses";
 
 const fmtMoney = (v: number) => `$${v.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
 
+const currentYear = new Date().getFullYear();
+const availableYears = Array.from({ length: 5 }, (_, i) => currentYear - i);
+
 export function TaxPrepDashboard() {
+  const [selectedYear, setSelectedYear] = useState(currentYear);
   const { quarterlyTax, budgetCategories, plData, isLoading } = useFinancialIntelligence(12);
   const { data: expenses = [] } = useExpenses();
+
+  // Filter quarterly tax data by selected year
+  const filteredQuarterlyTax = useMemo(() => {
+    return quarterlyTax.filter((q) => q.quarterLabel?.includes(String(selectedYear)));
+  }, [quarterlyTax, selectedYear]);
+
+  // Filter expenses by selected year
+  const filteredExpenses = useMemo(() => {
+    return expenses.filter((e) => {
+      const expenseYear = new Date(e.date || e.created_at).getFullYear();
+      return expenseYear === selectedYear;
+    });
+  }, [expenses, selectedYear]);
 
   const ytdTotals = useMemo(() => {
     const ytdIncome = quarterlyTax.reduce((s, q) => s + q.income, 0);
