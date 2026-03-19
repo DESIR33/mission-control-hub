@@ -177,7 +177,7 @@ export function useUnifiedRevenue(monthCount: number = 12) {
 
     const sponsorTotal = wonDeals.reduce((s: number, d: any) => s + (d.value || 0), 0);
     const affiliateTotal = affiliateTx.reduce((s: number, t: any) => s + (t.amount || 0), 0);
-    const productTotal = productTx.reduce((s: number, tx: any) => s + (Number(tx.net_amount || tx.sale_price) || 0), 0);
+    const productTotal = productTx.reduce((s: number, tx: any) => s + (Number(tx.net_amount || tx.total_amount) || 0), 0);
     const totalRevenue = sponsorTotal + affiliateTotal + adSenseTotal + productTotal;
 
     const subscriberCount = channelStats?.subscriber_count || 0;
