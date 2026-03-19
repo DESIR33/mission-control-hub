@@ -1,28 +1,46 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Download, Calculator, FileText, CheckCircle2, AlertCircle } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useFinancialIntelligence } from "@/hooks/use-financial-intelligence";
 import { useExpenses } from "@/hooks/use-expenses";
 
 const fmtMoney = (v: number) => `$${v.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
 
+const currentYear = new Date().getFullYear();
+const availableYears = Array.from({ length: 5 }, (_, i) => currentYear - i);
+
 export function TaxPrepDashboard() {
+  const [selectedYear, setSelectedYear] = useState(currentYear);
   const { quarterlyTax, budgetCategories, plData, isLoading } = useFinancialIntelligence(12);
   const { data: expenses = [] } = useExpenses();
 
+  // Filter quarterly tax data by selected year
+  const filteredQuarterlyTax = useMemo(() => {
+    return quarterlyTax.filter((q) => q.quarterLabel?.includes(String(selectedYear)));
+  }, [quarterlyTax, selectedYear]);
+
+  // Filter expenses by selected year
+  const filteredExpenses = useMemo(() => {
+    return expenses.filter((e) => {
+      const expenseYear = new Date(e.expense_date || e.created_at).getFullYear();
+      return expenseYear === selectedYear;
+    });
+  }, [expenses, selectedYear]);
+
   const ytdTotals = useMemo(() => {
-    const ytdIncome = quarterlyTax.reduce((s, q) => s + q.income, 0);
-    const ytdDeductions = quarterlyTax.reduce((s, q) => s + q.deductions, 0);
-    const ytdTax = quarterlyTax.reduce((s, q) => s + q.estimatedTax, 0);
+    const ytdIncome = filteredQuarterlyTax.reduce((s, q) => s + q.income, 0);
+    const ytdDeductions = filteredQuarterlyTax.reduce((s, q) => s + q.deductions, 0);
+    const ytdTax = filteredQuarterlyTax.reduce((s, q) => s + q.estimatedTax, 0);
     return { ytdIncome, ytdDeductions, ytdTax, taxableIncome: ytdIncome - ytdDeductions };
-  }, [quarterlyTax]);
+  }, [filteredQuarterlyTax]);
 
   // Deduction categories
   const deductionBreakdown = useMemo(() => {
-    const deductibleExpenses = expenses.filter((e) => e.is_tax_deductible);
+    const deductibleExpenses = filteredExpenses.filter((e) => e.is_tax_deductible);
     const byCategory = new Map<string, number>();
     deductibleExpenses.forEach((e) => {
       const key = e.category_id || "uncategorized";
@@ -38,32 +56,32 @@ export function TaxPrepDashboard() {
         };
       })
       .sort((a, b) => b.total - a.total);
-  }, [expenses, budgetCategories]);
+  }, [filteredExpenses, budgetCategories]);
 
   // Items needing attention
   const actionItems = useMemo(() => {
     const items: { text: string; type: "warning" | "info" }[] = [];
-    const uncategorized = expenses.filter((e) => !e.category_id && e.is_tax_deductible);
+    const uncategorized = filteredExpenses.filter((e) => !e.category_id && e.is_tax_deductible);
     if (uncategorized.length > 0) {
       items.push({ text: `${uncategorized.length} deductible expenses need categorization`, type: "warning" });
     }
-    const noReceipt = expenses.filter((e) => !e.receipt_url && Number(e.amount) > 75);
+    const noReceipt = filteredExpenses.filter((e) => !e.receipt_url && Number(e.amount) > 75);
     if (noReceipt.length > 0) {
       items.push({ text: `${noReceipt.length} expenses over $75 missing receipts`, type: "warning" });
     }
-    const nonDeductible = expenses.filter((e) => !e.is_tax_deductible);
+    const nonDeductible = filteredExpenses.filter((e) => !e.is_tax_deductible);
     if (nonDeductible.length > 5) {
       items.push({ text: `Review ${nonDeductible.length} non-deductible expenses — some may qualify`, type: "info" });
     }
     return items;
-  }, [expenses]);
+  }, [filteredExpenses]);
 
   const handleExportTaxReport = () => {
     const headers = "Quarter,Gross Income,Deductions,Taxable Income,Estimated Tax,Effective Rate";
-    const rows = quarterlyTax.map((q) =>
+    const rows = filteredQuarterlyTax.map((q) =>
       [q.quarterLabel, q.income.toFixed(2), q.deductions.toFixed(2), q.taxableIncome.toFixed(2), q.estimatedTax.toFixed(2), `${q.effectiveRate.toFixed(1)}%`].join(",")
     );
-    rows.push(["YTD Total", ytdTotals.ytdIncome.toFixed(2), ytdTotals.ytdDeductions.toFixed(2), ytdTotals.taxableIncome.toFixed(2), ytdTotals.ytdTax.toFixed(2), ""].join(","));
+    rows.push([`${selectedYear} Total`, ytdTotals.ytdIncome.toFixed(2), ytdTotals.ytdDeductions.toFixed(2), ytdTotals.taxableIncome.toFixed(2), ytdTotals.ytdTax.toFixed(2), ""].join(","));
 
     // Deduction breakdown
     rows.push("", "Deduction Breakdown");
@@ -75,7 +93,7 @@ export function TaxPrepDashboard() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `tax-report-${new Date().getFullYear()}.csv`;
+    a.download = `tax-report-${selectedYear}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -84,8 +102,21 @@ export function TaxPrepDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Export */}
-      <div className="flex justify-end">
+      {/* Year selector + Export */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-medium text-muted-foreground">Tax Year</span>
+          <Select value={String(selectedYear)} onValueChange={(v) => setSelectedYear(Number(v))}>
+            <SelectTrigger className="w-[120px] h-9">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {availableYears.map((y) => (
+                <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <Button variant="outline" size="sm" onClick={handleExportTaxReport}>
           <Download className="w-3.5 h-3.5 mr-1.5" />Export Tax Report
         </Button>
@@ -94,8 +125,8 @@ export function TaxPrepDashboard() {
       {/* YTD KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: "YTD Gross Income", value: fmtMoney(ytdTotals.ytdIncome), color: "text-emerald-500" },
-          { label: "YTD Deductions", value: fmtMoney(ytdTotals.ytdDeductions), color: "text-primary" },
+          { label: `${selectedYear} Gross Income`, value: fmtMoney(ytdTotals.ytdIncome), color: "text-emerald-500" },
+          { label: `${selectedYear} Deductions`, value: fmtMoney(ytdTotals.ytdDeductions), color: "text-primary" },
           { label: "Taxable Income", value: fmtMoney(ytdTotals.taxableIncome), color: "text-foreground" },
           { label: "Estimated Tax Due", value: fmtMoney(ytdTotals.ytdTax), color: "text-red-500" },
         ].map((kpi) => (
@@ -114,7 +145,7 @@ export function TaxPrepDashboard() {
         </h3>
         <div className="h-[280px]">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={quarterlyTax} barGap={4}>
+            <BarChart data={filteredQuarterlyTax} barGap={4}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
               <XAxis dataKey="quarterLabel" tick={{ fontSize: 12 }} className="text-muted-foreground" />
               <YAxis tick={{ fontSize: 11 }} className="text-muted-foreground" tickFormatter={(v) => `$${v}`} />
@@ -149,7 +180,7 @@ export function TaxPrepDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {quarterlyTax.map((q) => (
+                {filteredQuarterlyTax.map((q) => (
                   <tr key={q.quarter} className="border-b border-border/50 hover:bg-muted/20">
                     <td className="px-4 py-2.5 font-medium">{q.quarterLabel}</td>
                     <td className="px-4 py-2.5 text-right font-mono text-emerald-500">{fmtMoney(q.income)}</td>
