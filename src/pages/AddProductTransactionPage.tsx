@@ -131,12 +131,10 @@ export default function AddProductTransactionPage() {
         description: "Transaction created successfully",
       });
 
-      if (fromMonetization) {
-        navigate("/monetization?tab=products");
-      } else if (id) {
+      if (id) {
         navigate(`/products/${id}`);
       } else {
-        navigate("/monetization?tab=products");
+        navigate("/revenue/products");
       }
     },
     onError: (error: any) => {
