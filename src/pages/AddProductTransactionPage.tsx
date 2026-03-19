@@ -164,12 +164,10 @@ export default function AddProductTransactionPage() {
   };
 
   const handleGoBack = () => {
-    if (fromMonetization) {
-      navigate("/monetization?tab=products");
-    } else if (id) {
+    if (id) {
       navigate(`/products/${id}`);
     } else {
-      navigate("/monetization?tab=products");
+      navigate("/revenue/products");
     }
   };
 
