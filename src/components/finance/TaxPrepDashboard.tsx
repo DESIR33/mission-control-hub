@@ -145,7 +145,7 @@ export function TaxPrepDashboard() {
         </h3>
         <div className="h-[280px]">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={quarterlyTax} barGap={4}>
+            <BarChart data={filteredQuarterlyTax} barGap={4}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
               <XAxis dataKey="quarterLabel" tick={{ fontSize: 12 }} className="text-muted-foreground" />
               <YAxis tick={{ fontSize: 11 }} className="text-muted-foreground" tickFormatter={(v) => `$${v}`} />
