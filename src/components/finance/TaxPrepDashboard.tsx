@@ -26,7 +26,7 @@ export function TaxPrepDashboard() {
   // Filter expenses by selected year
   const filteredExpenses = useMemo(() => {
     return expenses.filter((e) => {
-      const expenseYear = new Date(e.date || e.created_at).getFullYear();
+      const expenseYear = new Date(e.expense_date || e.created_at).getFullYear();
       return expenseYear === selectedYear;
     });
   }, [expenses, selectedYear]);
