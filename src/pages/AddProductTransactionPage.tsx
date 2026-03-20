@@ -86,8 +86,13 @@ export default function AddProductTransactionPage() {
   const selectedProduct = products.find(p => p.id === watchProductId);
 
   useEffect(() => {
-    if (selectedProduct && selectedProduct.price !== form.getValues("salesPrice")) {
-      form.setValue("salesPrice", selectedProduct.price);
+    if (selectedProduct) {
+      form.setValue("salesPrice", selectedProduct.salePrice || selectedProduct.price);
+      form.setValue("commission", selectedProduct.commission || 0);
+      form.setValue("finalAmount", selectedProduct.netAmount || 0);
+      if (selectedProduct.marketplace) {
+        form.setValue("marketplace", selectedProduct.marketplace);
+      }
     }
   }, [selectedProduct, form]);
 
