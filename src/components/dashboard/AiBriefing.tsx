@@ -1,5 +1,4 @@
 import { memo } from "react";
-import { motion } from "framer-motion";
 import { Brain, Sparkles, AlertCircle, ArrowRight, Clock, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
@@ -27,12 +26,7 @@ export const AiBriefing = memo(function AiBriefing({ items = [], attentionItems 
   const urgentCount = attentionItems.filter((i) => i.urgency === "high").length;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: 0.15 }}
-      className="rounded-lg border border-border bg-card p-3 sm:p-5 overflow-hidden min-w-0"
-    >
+    <div className="rounded-lg border border-border bg-card p-3 sm:p-5 overflow-hidden min-w-0 animate-fade-in">
       {/* Header */}
       <div className="flex items-center gap-2 mb-4">
         <div className="p-1.5 rounded-md bg-primary/10">
@@ -112,6 +106,6 @@ export const AiBriefing = memo(function AiBriefing({ items = [], attentionItems 
           View all proposals →
         </Link>
       </div>
-    </motion.div>
+    </div>
   );
 });

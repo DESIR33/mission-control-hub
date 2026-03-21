@@ -21,11 +21,6 @@ import {
   Users,
 } from "lucide-react";
 import { differenceInDays, format, subDays } from "date-fns";
-import { motion } from "framer-motion";
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
 
 interface ChannelStats {
   subscriber_count: number;
@@ -77,10 +72,6 @@ interface CommandData {
   levers: GrowthLever[];
 }
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
 const DEFAULT_TARGET = 50_000;
 const DEFAULT_TARGET_DATE_MONTHS = 10;
 
@@ -130,10 +121,6 @@ const paceConfig: Record<
   },
 };
 
-// ---------------------------------------------------------------------------
-// Growth lever generation (data-driven)
-// ---------------------------------------------------------------------------
-
 function generateLevers(
   analytics: AnalyticsRow[],
   stats: ChannelStats | null,
@@ -144,151 +131,66 @@ function generateLevers(
   const levers: GrowthLever[] = [];
 
   if (analytics.length === 0) {
-    // Fallback levers when no analytics data
     return [
-      {
-        id: "connect",
-        icon: <Video className="w-4 h-4 text-blue-400" />,
-        label: "Connect YouTube channel",
-        detail: "Link your channel to enable data-driven recommendations",
-        priority: "high",
-      },
-      {
-        id: "set-goal",
-        icon: <Target className="w-4 h-4 text-purple-400" />,
-        label: "Set your growth goal",
-        detail: "Define a subscriber milestone to track progress",
-        priority: "high",
-      },
-      {
-        id: "upload",
-        icon: <Flame className="w-4 h-4 text-orange-400" />,
-        label: "Publish consistently",
-        detail: "Aim for 2-3 videos per week to build momentum",
-        priority: "medium",
-      },
+      { id: "connect", icon: <Video className="w-4 h-4 text-blue-400" />, label: "Connect YouTube channel", detail: "Link your channel to enable data-driven recommendations", priority: "high" },
+      { id: "set-goal", icon: <Target className="w-4 h-4 text-purple-400" />, label: "Set your growth goal", detail: "Define a subscriber milestone to track progress", priority: "high" },
+      { id: "upload", icon: <Flame className="w-4 h-4 text-orange-400" />, label: "Publish consistently", detail: "Aim for 2-3 videos per week to build momentum", priority: "medium" },
     ];
   }
 
-  // Analyze recent data (last 7 days vs prior 7 days)
   const recent7 = analytics.slice(0, 7);
   const prior7 = analytics.slice(7, 14);
 
-  const avgRecentCTR =
-    recent7.length > 0 ? recent7.reduce((s, r) => s + r.impressions_ctr, 0) / recent7.length : 0;
-  const avgPriorCTR =
-    prior7.length > 0 ? prior7.reduce((s, r) => s + r.impressions_ctr, 0) / prior7.length : 0;
-
-  const avgRecentViews =
-    recent7.length > 0 ? recent7.reduce((s, r) => s + r.views, 0) / recent7.length : 0;
-  const avgPriorViews =
-    prior7.length > 0 ? prior7.reduce((s, r) => s + r.views, 0) / prior7.length : 0;
-
+  const avgRecentCTR = recent7.length > 0 ? recent7.reduce((s, r) => s + r.impressions_ctr, 0) / recent7.length : 0;
+  const avgPriorCTR = prior7.length > 0 ? prior7.reduce((s, r) => s + r.impressions_ctr, 0) / prior7.length : 0;
+  const avgRecentViews = recent7.length > 0 ? recent7.reduce((s, r) => s + r.views, 0) / recent7.length : 0;
+  const avgPriorViews = prior7.length > 0 ? prior7.reduce((s, r) => s + r.views, 0) / prior7.length : 0;
   const totalRecentImpressions = recent7.reduce((s, r) => s + r.impressions, 0);
   const totalPriorImpressions = prior7.reduce((s, r) => s + r.impressions, 0);
-
   const recentSubsGained = recent7.reduce((s, r) => s + r.subscribers_gained, 0);
   const recentSubsLost = recent7.reduce((s, r) => s + r.subscribers_lost, 0);
 
-  // 1. CTR drop detection
   if (prior7.length > 0 && avgRecentCTR < avgPriorCTR * 0.85 && avgRecentCTR > 0) {
-    levers.push({
-      id: "ctr-drop",
-      icon: <MousePointerClick className="w-4 h-4 text-amber-400" />,
-      label: "Improve thumbnails & titles",
-      detail: `CTR dropped ${((1 - avgRecentCTR / avgPriorCTR) * 100).toFixed(0)}% week-over-week. A/B test new thumbnail styles.`,
-      priority: "high",
-    });
+    levers.push({ id: "ctr-drop", icon: <MousePointerClick className="w-4 h-4 text-amber-400" />, label: "Improve thumbnails & titles", detail: `CTR dropped ${((1 - avgRecentCTR / avgPriorCTR) * 100).toFixed(0)}% week-over-week. A/B test new thumbnail styles.`, priority: "high" });
   }
 
-  // 2. Impressions gap
   if (prior7.length > 0 && totalRecentImpressions < totalPriorImpressions * 0.8) {
-    levers.push({
-      id: "impressions-drop",
-      icon: <Eye className="w-4 h-4 text-blue-400" />,
-      label: "Boost discoverability",
-      detail: `Impressions fell ${((1 - totalRecentImpressions / totalPriorImpressions) * 100).toFixed(0)}%. Optimize tags, descriptions, and post timing.`,
-      priority: "high",
-    });
+    levers.push({ id: "impressions-drop", icon: <Eye className="w-4 h-4 text-blue-400" />, label: "Boost discoverability", detail: `Impressions fell ${((1 - totalRecentImpressions / totalPriorImpressions) * 100).toFixed(0)}%. Optimize tags, descriptions, and post timing.`, priority: "high" });
   }
 
-  // 3. Subscriber churn spike
   if (recentSubsGained > 0 && recentSubsLost / recentSubsGained > 0.3) {
-    levers.push({
-      id: "churn-spike",
-      icon: <Users className="w-4 h-4 text-red-400" />,
-      label: "Reduce subscriber churn",
-      detail: `Lost ${recentSubsLost} subs this week (${((recentSubsLost / recentSubsGained) * 100).toFixed(0)}% of gained). Review recent content alignment.`,
-      priority: "high",
-    });
+    levers.push({ id: "churn-spike", icon: <Users className="w-4 h-4 text-red-400" />, label: "Reduce subscriber churn", detail: `Lost ${recentSubsLost} subs this week (${((recentSubsLost / recentSubsGained) * 100).toFixed(0)}% of gained). Review recent content alignment.`, priority: "high" });
   }
 
-  // 4. Pace-based daily upload lever
   if (paceStatus === "behind" || paceStatus === "slightly-behind") {
     const gap = requiredDaily - actualDaily;
-    levers.push({
-      id: "increase-output",
-      icon: <Flame className="w-4 h-4 text-orange-400" />,
-      label: "Increase publishing cadence",
-      detail: `Need +${fmtRate(gap)} subs/day more. An extra video this week could close the gap.`,
-      priority: paceStatus === "behind" ? "high" : "medium",
-    });
+    levers.push({ id: "increase-output", icon: <Flame className="w-4 h-4 text-orange-400" />, label: "Increase publishing cadence", detail: `Need +${fmtRate(gap)} subs/day more. An extra video this week could close the gap.`, priority: paceStatus === "behind" ? "high" : "medium" });
   }
 
-  // 5. View-to-sub conversion
   if (avgRecentViews > 0 && recentSubsGained > 0) {
     const conversionRate = recentSubsGained / (avgRecentViews * 7);
     if (conversionRate < 0.02) {
-      levers.push({
-        id: "conversion",
-        icon: <Video className="w-4 h-4 text-purple-400" />,
-        label: "Add stronger CTAs in videos",
-        detail: `Only ${(conversionRate * 100).toFixed(1)}% of viewers subscribe. Add mid-roll CTA cards and end screens.`,
-        priority: "medium",
-      });
+      levers.push({ id: "conversion", icon: <Video className="w-4 h-4 text-purple-400" />, label: "Add stronger CTAs in videos", detail: `Only ${(conversionRate * 100).toFixed(1)}% of viewers subscribe. Add mid-roll CTA cards and end screens.`, priority: "medium" });
     }
   }
 
-  // 6. Views trending up -> capitalize
   if (prior7.length > 0 && avgRecentViews > avgPriorViews * 1.15) {
-    levers.push({
-      id: "views-momentum",
-      icon: <TrendingUp className="w-4 h-4 text-emerald-400" />,
-      label: "Capitalize on view momentum",
-      detail: `Views up ${((avgRecentViews / avgPriorViews - 1) * 100).toFixed(0)}% WoW. Publish a follow-up to your trending content.`,
-      priority: "medium",
-    });
+    levers.push({ id: "views-momentum", icon: <TrendingUp className="w-4 h-4 text-emerald-400" />, label: "Capitalize on view momentum", detail: `Views up ${((avgRecentViews / avgPriorViews - 1) * 100).toFixed(0)}% WoW. Publish a follow-up to your trending content.`, priority: "medium" });
   }
 
-  // Always include a consistency lever if we have less than 5
   if (levers.length < 3) {
-    levers.push({
-      id: "consistency",
-      icon: <Zap className="w-4 h-4 text-yellow-400" />,
-      label: "Maintain upload consistency",
-      detail: "Keep a steady 2-3x/week schedule. The algorithm rewards predictable creators.",
-      priority: "low",
-    });
+    levers.push({ id: "consistency", icon: <Zap className="w-4 h-4 text-yellow-400" />, label: "Maintain upload consistency", detail: "Keep a steady 2-3x/week schedule. The algorithm rewards predictable creators.", priority: "low" });
   }
 
-  // Sort by priority and return top 5
   const priorityOrder: Record<string, number> = { high: 0, medium: 1, low: 2 };
   levers.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
   return levers.slice(0, 5);
 }
 
-// ---------------------------------------------------------------------------
-// Custom hook: useGrowthCommandData
-// ---------------------------------------------------------------------------
-
 function useGrowthCommandData() {
   const { workspaceId } = useWorkspace();
 
-  // Fetch latest channel stats
-  const {
-    data: latestStats,
-    isLoading: statsLoading,
-  } = useQuery({
+  const { data: latestStats, isLoading: statsLoading } = useQuery({
     queryKey: ["growth-command-stats", workspaceId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -304,11 +206,7 @@ function useGrowthCommandData() {
     enabled: !!workspaceId,
   });
 
-  // Fetch growth goal (subscribers)
-  const {
-    data: growthGoal,
-    isLoading: goalLoading,
-  } = useQuery({
+  const { data: growthGoal, isLoading: goalLoading } = useQuery({
     queryKey: ["growth-command-goal", workspaceId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -325,11 +223,7 @@ function useGrowthCommandData() {
     enabled: !!workspaceId,
   });
 
-  // Fetch recent analytics (last 30 days)
-  const {
-    data: analytics = [],
-    isLoading: analyticsLoading,
-  } = useQuery({
+  const { data: analytics = [], isLoading: analyticsLoading } = useQuery({
     queryKey: ["growth-command-analytics", workspaceId],
     queryFn: async () => {
       const since = format(subDays(new Date(), 30), "yyyy-MM-dd");
@@ -345,14 +239,11 @@ function useGrowthCommandData() {
     enabled: !!workspaceId,
   });
 
-  // Compute command data
   const commandData = useMemo((): CommandData | null => {
     const currentSubs = latestStats?.subscriber_count ?? growthGoal?.current_value ?? null;
     if (currentSubs === null) return null;
 
     const targetSubs = growthGoal?.target_value ?? DEFAULT_TARGET;
-
-    // Calculate target date
     let targetDate: Date;
     if (growthGoal?.target_date) {
       targetDate = new Date(growthGoal.target_date);
@@ -366,7 +257,6 @@ function useGrowthCommandData() {
     const subsNeeded = Math.max(0, targetSubs - currentSubs);
     const requiredDailyRate = subsNeeded / daysRemaining;
 
-    // Calculate 7-day rolling average from analytics
     const recent7 = analytics.slice(0, 7);
     let actualDailyAvg7d = 0;
     if (recent7.length > 0) {
@@ -375,35 +265,14 @@ function useGrowthCommandData() {
     }
 
     const paceStatus = getPaceStatus(actualDailyAvg7d, requiredDailyRate);
-    const progressPercent =
-      targetSubs > 0 ? Math.max(0, Math.min(100, (currentSubs / targetSubs) * 100)) : 0;
-
+    const progressPercent = targetSubs > 0 ? Math.max(0, Math.min(100, (currentSubs / targetSubs) * 100)) : 0;
     const levers = generateLevers(analytics, latestStats, paceStatus, requiredDailyRate, actualDailyAvg7d);
 
-    return {
-      currentSubs,
-      targetSubs,
-      progressPercent,
-      subsNeeded,
-      daysRemaining,
-      requiredDailyRate,
-      actualDailyAvg7d,
-      paceStatus,
-      levers,
-    };
+    return { currentSubs, targetSubs, progressPercent, subsNeeded, daysRemaining, requiredDailyRate, actualDailyAvg7d, paceStatus, levers };
   }, [latestStats, growthGoal, analytics]);
 
-  return {
-    data: commandData,
-    isLoading: statsLoading || goalLoading || analyticsLoading,
-    hasGoal: !!growthGoal,
-    hasStats: !!latestStats,
-  };
+  return { data: commandData, isLoading: statsLoading || goalLoading || analyticsLoading, hasGoal: !!growthGoal, hasStats: !!latestStats };
 }
-
-// ---------------------------------------------------------------------------
-// Skeleton loader
-// ---------------------------------------------------------------------------
 
 function GrowthCommandSkeleton() {
   return (
@@ -439,10 +308,6 @@ function GrowthCommandSkeleton() {
   );
 }
 
-// ---------------------------------------------------------------------------
-// No-data state
-// ---------------------------------------------------------------------------
-
 function SetupPrompt() {
   return (
     <Card className="relative overflow-hidden border-dashed border-2 border-muted-foreground/20">
@@ -465,10 +330,6 @@ function SetupPrompt() {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Lever checklist item
-// ---------------------------------------------------------------------------
-
 function LeverItem({ lever }: { lever: GrowthLever }) {
   const [checked, setChecked] = useState(false);
 
@@ -479,14 +340,11 @@ function LeverItem({ lever }: { lever: GrowthLever }) {
   };
 
   return (
-    <motion.button
+    <button
       onClick={() => setChecked(!checked)}
-      className={`w-full flex items-start gap-3 p-3 rounded-lg text-left transition-colors ${
-        checked
-          ? "bg-muted/30 opacity-60"
-          : "bg-muted/50 hover:bg-muted/70"
+      className={`w-full flex items-start gap-3 p-3 rounded-lg text-left transition-all active:scale-[0.99] ${
+        checked ? "bg-muted/30 opacity-60" : "bg-muted/50 hover:bg-muted/70"
       }`}
-      whileTap={{ scale: 0.99 }}
     >
       <div className="mt-0.5 shrink-0">
         {checked ? (
@@ -498,24 +356,16 @@ function LeverItem({ lever }: { lever: GrowthLever }) {
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           {lever.icon}
-          <span
-            className={`text-sm font-medium ${
-              checked ? "line-through text-muted-foreground" : "text-foreground"
-            }`}
-          >
+          <span className={`text-sm font-medium ${checked ? "line-through text-muted-foreground" : "text-foreground"}`}>
             {lever.label}
           </span>
           <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${priorityDot[lever.priority]}`} />
         </div>
         <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{lever.detail}</p>
       </div>
-    </motion.button>
+    </button>
   );
 }
-
-// ---------------------------------------------------------------------------
-// Main component
-// ---------------------------------------------------------------------------
 
 export function GrowthCommandWidget() {
   const { data, isLoading, hasGoal, hasStats } = useGrowthCommandData();
@@ -526,15 +376,8 @@ export function GrowthCommandWidget() {
   const pace = paceConfig[data.paceStatus];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-    >
-      <Card
-        className={`relative overflow-hidden ${pace.borderClass} ${pace.glowClass} transition-shadow duration-500`}
-      >
-        {/* Gradient overlay for visual prominence */}
+    <div className="animate-fade-in">
+      <Card className={`relative overflow-hidden ${pace.borderClass} ${pace.glowClass} transition-shadow duration-500`}>
         <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.06] via-transparent to-purple-500/[0.06] pointer-events-none" />
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
@@ -545,12 +388,8 @@ export function GrowthCommandWidget() {
                 <Target className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <CardTitle className="text-base font-bold tracking-tight">
-                  Growth Command Center
-                </CardTitle>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Road to {fmtCount(data.targetSubs)} subscribers
-                </p>
+                <CardTitle className="text-base font-bold tracking-tight">Growth Command Center</CardTitle>
+                <p className="text-xs text-muted-foreground mt-0.5">Road to {fmtCount(data.targetSubs)} subscribers</p>
               </div>
             </div>
             <Badge variant="outline" className={`text-xs font-semibold gap-1 ${pace.badgeClass}`}>
@@ -561,31 +400,20 @@ export function GrowthCommandWidget() {
         </CardHeader>
 
         <CardContent className="relative space-y-5">
-          {/* Main progress section */}
           <div>
             <div className="flex items-end justify-between mb-2">
               <div>
-                <p className="text-3xl font-bold font-mono tracking-tight text-foreground">
-                  {fmtCount(data.currentSubs)}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {fmtCount(data.subsNeeded)} to go
-                </p>
+                <p className="text-3xl font-bold font-mono tracking-tight text-foreground">{fmtCount(data.currentSubs)}</p>
+                <p className="text-xs text-muted-foreground">{fmtCount(data.subsNeeded)} to go</p>
               </div>
-              <p className="text-sm font-mono font-semibold text-muted-foreground">
-                {data.progressPercent.toFixed(1)}%
-              </p>
+              <p className="text-sm font-mono font-semibold text-muted-foreground">{data.progressPercent.toFixed(1)}%</p>
             </div>
 
-            {/* Custom progress bar with gradient */}
             <div className="relative h-3 w-full rounded-full bg-secondary overflow-hidden">
-              <motion.div
-                className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-primary via-primary to-purple-500"
-                initial={{ width: 0 }}
-                animate={{ width: `${data.progressPercent}%` }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
+              <div
+                className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-primary via-primary to-purple-500 transition-all duration-700 ease-out"
+                style={{ width: `${data.progressPercent}%` }}
               />
-              {/* Shimmer effect */}
               <div
                 className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse"
                 style={{ width: `${data.progressPercent}%` }}
@@ -593,86 +421,47 @@ export function GrowthCommandWidget() {
             </div>
           </div>
 
-          {/* Stats row */}
           <div className="grid grid-cols-3 gap-2 sm:gap-3">
             <div className="rounded-lg bg-muted/50 p-2 sm:p-3 text-center min-w-0">
-              <p className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium truncate">
-                Days Left
-              </p>
-              <p className="text-base sm:text-lg font-bold font-mono text-foreground mt-0.5">
-                {data.daysRemaining}
-              </p>
+              <p className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium truncate">Days Left</p>
+              <p className="text-base sm:text-lg font-bold font-mono text-foreground mt-0.5">{data.daysRemaining}</p>
             </div>
-
             <div className="rounded-lg bg-muted/50 p-2 sm:p-3 text-center min-w-0">
-              <p className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium truncate">
-                Need/Day
-              </p>
-              <p className="text-base sm:text-lg font-bold font-mono text-foreground mt-0.5">
-                +{fmtRate(data.requiredDailyRate)}
-              </p>
+              <p className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium truncate">Need/Day</p>
+              <p className="text-base sm:text-lg font-bold font-mono text-foreground mt-0.5">+{fmtRate(data.requiredDailyRate)}</p>
             </div>
-
             <div className="rounded-lg bg-muted/50 p-2 sm:p-3 text-center min-w-0">
-              <p className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium truncate">
-                Avg 7d/Day
-              </p>
-              <p
-                className={`text-base sm:text-lg font-bold font-mono mt-0.5 ${
-                  data.actualDailyAvg7d >= data.requiredDailyRate
-                    ? "text-emerald-400"
-                    : data.actualDailyAvg7d >= data.requiredDailyRate * 0.65
-                      ? "text-amber-400"
-                      : "text-red-400"
-                }`}
-              >
-                +{fmtRate(data.actualDailyAvg7d)}
-              </p>
+              <p className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium truncate">Avg 7d/Day</p>
+              <p className={`text-base sm:text-lg font-bold font-mono mt-0.5 ${
+                data.actualDailyAvg7d >= data.requiredDailyRate ? "text-emerald-400"
+                  : data.actualDailyAvg7d >= data.requiredDailyRate * 0.65 ? "text-amber-400" : "text-red-400"
+              }`}>+{fmtRate(data.actualDailyAvg7d)}</p>
             </div>
           </div>
 
-          {/* Rate comparison bar */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between text-xs text-muted-foreground">
               <span>Daily rate vs required</span>
               <span className="font-mono">
-                {data.requiredDailyRate > 0
-                  ? `${((data.actualDailyAvg7d / data.requiredDailyRate) * 100).toFixed(0)}%`
-                  : "--"}
+                {data.requiredDailyRate > 0 ? `${((data.actualDailyAvg7d / data.requiredDailyRate) * 100).toFixed(0)}%` : "--"}
               </span>
             </div>
             <div className="relative h-2 w-full rounded-full bg-secondary overflow-hidden">
-              <motion.div
-                className={`absolute inset-y-0 left-0 rounded-full ${
-                  data.paceStatus === "on-track"
-                    ? "bg-emerald-500"
-                    : data.paceStatus === "slightly-behind"
-                      ? "bg-amber-500"
-                      : "bg-red-500"
+              <div
+                className={`absolute inset-y-0 left-0 rounded-full transition-all duration-500 ease-out ${
+                  data.paceStatus === "on-track" ? "bg-emerald-500"
+                    : data.paceStatus === "slightly-behind" ? "bg-amber-500" : "bg-red-500"
                 }`}
-                initial={{ width: 0 }}
-                animate={{
-                  width: `${Math.min(
-                    100,
-                    data.requiredDailyRate > 0
-                      ? (data.actualDailyAvg7d / data.requiredDailyRate) * 100
-                      : 0,
-                  )}%`,
-                }}
-                transition={{ duration: 0.6, ease: "easeOut", delay: 0.3 }}
+                style={{ width: `${Math.min(100, data.requiredDailyRate > 0 ? (data.actualDailyAvg7d / data.requiredDailyRate) * 100 : 0)}%` }}
               />
-              {/* Required rate marker */}
               <div className="absolute inset-y-0 right-0 w-px bg-foreground/30" />
             </div>
           </div>
 
-          {/* Growth levers section */}
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Zap className="w-4 h-4 text-primary" />
-              <h4 className="text-sm font-semibold text-foreground">
-                This Week&apos;s Growth Levers
-              </h4>
+              <h4 className="text-sm font-semibold text-foreground">This Week&apos;s Growth Levers</h4>
             </div>
             <div className="space-y-2">
               {data.levers.map((lever) => (
@@ -682,6 +471,6 @@ export function GrowthCommandWidget() {
           </div>
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   );
 }
