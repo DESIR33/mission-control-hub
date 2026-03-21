@@ -76,10 +76,13 @@ export function useCommentIntelligence() {
   const commentsQuery = useQuery({
     queryKey: ["youtube-comments-intel", workspaceId],
     queryFn: async () => {
+      const cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - 90);
       const { data, error } = await supabase
         .from("youtube_comments" as any)
         .select("id,workspace_id,youtube_video_id,video_title,comment_id,author_name,author_avatar,text,like_count,sentiment,our_reply,published_at,created_at")
         .eq("workspace_id", workspaceId!)
+        .gte("published_at", cutoff.toISOString())
         .order("published_at", { ascending: false })
         .limit(1000);
       if (error) throw error;

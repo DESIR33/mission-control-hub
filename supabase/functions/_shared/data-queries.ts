@@ -46,10 +46,13 @@ export async function queryRevenueData(supabase: any, workspaceId: string) {
 }
 
 export async function queryComments(supabase: any, workspaceId: string, input: any) {
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - 90);
   const { data } = await supabase
     .from("youtube_comments")
     .select("video_id, author_name, text, like_count, published_at")
     .eq("workspace_id", workspaceId)
+    .gte("published_at", cutoffDate.toISOString())
     .order("published_at", { ascending: false })
     .limit(input?.limit || 50);
   return { comments: data ?? [] };
