@@ -1699,6 +1699,47 @@ export type Database = {
           },
         ]
       }
+      competitor_stats_history: {
+        Row: {
+          channel_id: string
+          created_at: string
+          id: string
+          recorded_at: string
+          subscriber_count: number | null
+          total_views: number | null
+          video_count: number | null
+          workspace_id: string
+        }
+        Insert: {
+          channel_id: string
+          created_at?: string
+          id?: string
+          recorded_at?: string
+          subscriber_count?: number | null
+          total_views?: number | null
+          video_count?: number | null
+          workspace_id: string
+        }
+        Update: {
+          channel_id?: string
+          created_at?: string
+          id?: string
+          recorded_at?: string
+          subscriber_count?: number | null
+          total_views?: number | null
+          video_count?: number | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitor_stats_history_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_roles: {
         Row: {
           created_at: string
@@ -5311,6 +5352,110 @@ export type Database = {
           },
         ]
       }
+      youtube_comments: {
+        Row: {
+          author_avatar: string | null
+          author_avatar_url: string | null
+          author_channel_id: string | null
+          author_channel_url: string | null
+          author_name: string | null
+          author_profile_url: string | null
+          comment_id: string | null
+          created_at: string
+          id: string
+          is_hearted: boolean | null
+          is_pinned: boolean | null
+          is_replied: boolean | null
+          like_count: number | null
+          our_reply: string | null
+          priority: string | null
+          published_at: string | null
+          reply_count: number | null
+          sentiment: string | null
+          status: string | null
+          suggested_reply: string | null
+          synced_at: string | null
+          text: string | null
+          text_display: string | null
+          updated_at: string
+          video_id: string | null
+          video_title: string | null
+          workspace_id: string
+          youtube_comment_id: string
+          youtube_video_id: string | null
+        }
+        Insert: {
+          author_avatar?: string | null
+          author_avatar_url?: string | null
+          author_channel_id?: string | null
+          author_channel_url?: string | null
+          author_name?: string | null
+          author_profile_url?: string | null
+          comment_id?: string | null
+          created_at?: string
+          id?: string
+          is_hearted?: boolean | null
+          is_pinned?: boolean | null
+          is_replied?: boolean | null
+          like_count?: number | null
+          our_reply?: string | null
+          priority?: string | null
+          published_at?: string | null
+          reply_count?: number | null
+          sentiment?: string | null
+          status?: string | null
+          suggested_reply?: string | null
+          synced_at?: string | null
+          text?: string | null
+          text_display?: string | null
+          updated_at?: string
+          video_id?: string | null
+          video_title?: string | null
+          workspace_id: string
+          youtube_comment_id: string
+          youtube_video_id?: string | null
+        }
+        Update: {
+          author_avatar?: string | null
+          author_avatar_url?: string | null
+          author_channel_id?: string | null
+          author_channel_url?: string | null
+          author_name?: string | null
+          author_profile_url?: string | null
+          comment_id?: string | null
+          created_at?: string
+          id?: string
+          is_hearted?: boolean | null
+          is_pinned?: boolean | null
+          is_replied?: boolean | null
+          like_count?: number | null
+          our_reply?: string | null
+          priority?: string | null
+          published_at?: string | null
+          reply_count?: number | null
+          sentiment?: string | null
+          status?: string | null
+          suggested_reply?: string | null
+          synced_at?: string | null
+          text?: string | null
+          text_display?: string | null
+          updated_at?: string
+          video_id?: string | null
+          video_title?: string | null
+          workspace_id?: string
+          youtube_comment_id?: string
+          youtube_video_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "youtube_comments_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       youtube_demographics: {
         Row: {
           age_group: string
@@ -5430,6 +5575,89 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      youtube_sync_logs: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          records_synced: number | null
+          started_at: string | null
+          status: string
+          sync_type: string
+          workspace_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          records_synced?: number | null
+          started_at?: string | null
+          status?: string
+          sync_type: string
+          workspace_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          records_synced?: number | null
+          started_at?: string | null
+          status?: string
+          sync_type?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "youtube_sync_logs_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      youtube_sync_status: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          last_synced_at: string | null
+          records_synced: number | null
+          started_at: string | null
+          status: string
+          sync_type: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          last_synced_at?: string | null
+          records_synced?: number | null
+          started_at?: string | null
+          status?: string
+          sync_type: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          last_synced_at?: string | null
+          records_synced?: number | null
+          started_at?: string | null
+          status?: string
+          sync_type?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: []
       }
       youtube_traffic_sources: {
         Row: {
