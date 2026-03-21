@@ -294,6 +294,7 @@ export function useRevenueData() {
 
 export function useNeedsAttention() {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
 
   return useQuery({
     queryKey: ["needs-attention", workspaceId],
