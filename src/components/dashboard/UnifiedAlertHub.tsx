@@ -172,19 +172,14 @@ export function UnifiedAlertHub() {
 
       {/* Alerts list */}
       <div className="divide-y divide-border max-h-[320px] overflow-y-auto">
-        <AnimatePresence>
           {shown.map((alert) => {
             const style = severityStyle[alert.severity] ?? severityStyle.info;
             const Icon = alert.icon;
 
             return (
-              <motion.div
+              <div
                 key={alert.id}
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 8, height: 0 }}
-                transition={{ duration: 0.2 }}
-                className={`px-4 py-3 flex items-start gap-3 ${!alert.isRead ? style.bg : ""}`}
+                className={`px-4 py-3 flex items-start gap-3 animate-fade-in ${!alert.isRead ? style.bg : ""}`}
               >
                 <div className={`mt-0.5 shrink-0 ${style.icon}`}>
                   <Icon className="w-4 h-4" />
@@ -209,10 +204,9 @@ export function UnifiedAlertHub() {
                 >
                   <X className="w-3.5 h-3.5 text-muted-foreground" />
                 </button>
-              </motion.div>
+              </div>
             );
           })}
-        </AnimatePresence>
       </div>
     </motion.div>
   );

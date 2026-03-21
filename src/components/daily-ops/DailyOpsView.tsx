@@ -158,7 +158,6 @@ export function DailyOpsView() {
         </motion.div>
       ) : (
         <div className="space-y-2">
-          <AnimatePresence>
             {filtered.map((item) => (
               <OpsItemCard
                 key={item.id}
@@ -167,7 +166,6 @@ export function DailyOpsView() {
                 isActing={actionMutation.isPending}
               />
             ))}
-          </AnimatePresence>
         </div>
       )}
     </div>
