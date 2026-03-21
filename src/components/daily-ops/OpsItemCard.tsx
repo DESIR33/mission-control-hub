@@ -119,7 +119,7 @@ export const OpsItemCard = memo(function OpsItemCard({ item, onAction, isActing 
 
         {item.source_type === "proposal" && (
           <>
-            <Button size="sm" variant="ghost" className="h-7 text-xs gap-1 text-green-600" disabled={isActing} onClick={() => onAction("approved")}>
+            <Button size="sm" variant="ghost" className="h-7 text-xs gap-1 text-primary" disabled={isActing} onClick={() => onAction("approved")}>
               <ThumbsUp className="w-3.5 h-3.5" /> Approve
             </Button>
             <Button size="sm" variant="ghost" className="h-7 text-xs gap-1 text-destructive" disabled={isActing} onClick={() => onAction("rejected")}>
