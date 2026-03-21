@@ -1,5 +1,4 @@
 import { DollarSign, Users, Film, CheckSquare, TrendingUp, AlertTriangle } from "lucide-react";
-import { DollarSign, Users, Film, CheckSquare, TrendingUp, AlertTriangle } from "lucide-react";
 import { KpiCard } from "@/components/dashboard/KpiCard";
 import { AiBriefing } from "@/components/dashboard/AiBriefing";
 import { PipelineHealth } from "@/components/dashboard/PipelineHealth";
