@@ -73,24 +73,11 @@ export default function AnalyticsPage() {
   const { data: deviceTypes = [], isLoading: loadingDevices } = useDeviceTypes();
   const syncAnalytics = useSyncYouTubeAnalytics();
 
-  // Auto-sync YouTube data on page load only if last sync was 30+ minutes ago
-  const hasSynced = useRef(false);
-  useEffect(() => {
-    if (hasSynced.current || workspaceLoading) return;
-    hasSynced.current = true;
-
-    const THROTTLE_MS = 12 * 60 * 60 * 1000; // 12 hours
-    const lastSyncKey = "yt_last_sync_ts";
-    const lastSync = Number(localStorage.getItem(lastSyncKey) || "0");
-    const now = Date.now();
-
-    if (now - lastSync < THROTTLE_MS) return;
-
-    localStorage.setItem(lastSyncKey, String(now));
-    // Stagger: run youtube-sync first, then analytics-sync after 10s
-    syncYouTube.mutate();
-    setTimeout(() => syncAnalytics.mutate({ start_date: subDays(new Date(), 90).toISOString().split("T")[0] }), 10_000);
-  }, [workspaceLoading]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Freshness / cooldown metadata
+  const { getStatus, canRefreshNow } = useDatasetSyncStatus(["youtubeAnalytics", "youtubeVideoStats"]);
+  const manualRefresh = useManualDatasetRefresh();
+  const analyticsStatus = getStatus("youtubeAnalytics");
+  const canManualSync = canRefreshNow("youtubeAnalytics");
 
   const isLoading = workspaceLoading || loadingChannel || loadingVideos;
 
