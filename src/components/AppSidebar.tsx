@@ -6,11 +6,6 @@ import { useAuth } from "@/hooks/use-auth";
 import { useNotifications } from "@/hooks/use-notifications";
 import { mainNavItems, bottomItems } from "@/config/navigation";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
-import {
-  Collapsible,
-  CollapsibleTrigger,
-  CollapsibleContent,
-} from "@/components/ui/collapsible";
 
 interface AppSidebarProps {
   headerless?: boolean;
@@ -123,12 +118,10 @@ export function AppSidebar({ headerless }: AppSidebarProps) {
           const hasActiveChild = item.children.some((c) => location.pathname.startsWith(c.to));
 
           return (
-            <Collapsible
-              key={item.label}
-              open={isOpen}
-              onOpenChange={(nextOpen) => handleGroupOpenChange(item.label, nextOpen)}
-            >
-              <CollapsibleTrigger
+            <div key={item.label}>
+              <button
+                type="button"
+                onClick={() => handleGroupOpenChange(item.label, !isOpen)}
                 className={cn(
                   "flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm transition-colors",
                   hasActiveChild
@@ -144,9 +137,10 @@ export function AppSidebar({ headerless }: AppSidebarProps) {
                     isOpen && "rotate-180"
                   )}
                 />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-0.5 mt-0.5">
-                {item.children.map((child) => {
+              </button>
+              {isOpen && (
+                <div className="space-y-0.5 mt-0.5">
+                  {item.children.map((child) => {
                   const active = location.pathname.startsWith(child.to);
                   
                   if (active) {
@@ -181,9 +175,10 @@ export function AppSidebar({ headerless }: AppSidebarProps) {
                       <span className="truncate">{child.label}</span>
                     </RouterNavLink>
                   );
-                })}
-              </CollapsibleContent>
-            </Collapsible>
+                  })}
+                </div>
+              )}
+            </div>
           );
         })}
       </nav>
