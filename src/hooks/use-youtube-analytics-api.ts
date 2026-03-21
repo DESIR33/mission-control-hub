@@ -267,7 +267,7 @@ export function useGeography() {
       return ((data ?? []) as unknown as Geography[]).map(r => ({ ...r, workspace_id: workspaceId! }));
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("youtubeAnalyticsApi"),
   });
 }
 
