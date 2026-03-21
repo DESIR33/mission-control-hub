@@ -80,7 +80,7 @@ export function LaunchMonitor() {
       return { recentVideos, benchmarks };
     },
     enabled: !!workspaceId,
-    refetchInterval: 300000, // every 5 min
+    ...getFreshness("launchMonitor"),
   });
 
   const statusConfig: Record<string, { color: string; icon: React.ElementType; label: string }> = {

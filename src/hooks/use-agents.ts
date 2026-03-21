@@ -142,8 +142,7 @@ export function useExecutions(limit = 20) {
       return (data as AgentExecution[]) || [];
     },
     enabled: !!workspaceId,
-    refetchInterval: 300_000,
-    staleTime: 120_000,
+    ...getFreshness("agentExecutions"),
   });
 }
 

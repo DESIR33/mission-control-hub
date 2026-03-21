@@ -222,7 +222,7 @@ export function useFolderCounts() {
       return counts;
     },
     enabled: !!workspaceId,
-    staleTime: 60_000,
+    ...getFreshness("inbox"),
   });
 }
 

@@ -96,8 +96,7 @@ export function FollowUpRadar() {
         .slice(0, 20);
     },
     enabled: !!workspaceId,
-    refetchInterval: 300_000,
-    staleTime: 120_000,
+    ...getFreshness("followUpRadar"),
   });
 
   // Filter out excluded emails
