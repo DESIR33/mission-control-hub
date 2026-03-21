@@ -245,6 +245,12 @@ export const DATA_FRESHNESS = {
   },
 
   // ─── Monetisation ─────────────────────────────────────────────────────
+  youtubeMonetisation: {
+    label: "YouTube monetisation / ad revenue",
+    cadence: "daily",
+    refetchInterval: false,
+    staleTime: TWO_MIN,
+  },
   rateCard: {
     label: "Rate card & pricing tiers",
     cadence: "manual_only",
