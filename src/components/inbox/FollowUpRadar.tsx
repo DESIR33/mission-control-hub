@@ -35,6 +35,7 @@ interface FollowUpItem {
 
 export function FollowUpRadar() {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
   const { excludedEmails, submitFeedback, removeFeedback, feedbackList } = useInboxFeedback();
 
   const { data: items = [], isLoading } = useQuery<FollowUpItem[]>({
