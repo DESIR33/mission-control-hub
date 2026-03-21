@@ -1,5 +1,3 @@
-import { motion } from "framer-motion";
-import { format } from "date-fns";
 import { DollarSign, Users, Film, CheckSquare, TrendingUp, AlertTriangle } from "lucide-react";
 import { KpiCard } from "@/components/dashboard/KpiCard";
 import { AiBriefing } from "@/components/dashboard/AiBriefing";
@@ -10,7 +8,6 @@ import { UnifiedAlertHub } from "@/components/dashboard/UnifiedAlertHub";
 import { SprintWidget } from "@/components/dashboard/SprintWidget";
 import { GoalPaceWidget } from "@/components/dashboard/GoalPaceWidget";
 import { GrowthCommandWidget } from "@/components/dashboard/GrowthCommandWidget";
-import { SyncStatusIndicator } from "@/components/dashboard/SyncStatusIndicator";
 import { WeeklyActionPlanCard } from "@/components/dashboard/WeeklyActionPlanCard";
 import { DailyOpsView } from "@/components/daily-ops/DailyOpsView";
 import {
