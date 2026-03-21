@@ -12,6 +12,7 @@ import { GoalPaceWidget } from "@/components/dashboard/GoalPaceWidget";
 import { GrowthCommandWidget } from "@/components/dashboard/GrowthCommandWidget";
 import { SyncStatusIndicator } from "@/components/dashboard/SyncStatusIndicator";
 import { WeeklyActionPlanCard } from "@/components/dashboard/WeeklyActionPlanCard";
+import { DailyOpsView } from "@/components/daily-ops/DailyOpsView";
 import {
   useDashboardStats,
   usePipelineHealth,
@@ -28,13 +29,6 @@ function Index() {
   const { data: attentionItems } = useNeedsAttention();
   const { data: briefingItems } = useAiBriefing();
 
-  const greeting = (() => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 17) return "Good afternoon";
-    return "Good evening";
-  })();
-
   const pipelineValue = stats?.pipelineValue ?? 0;
   const pipelineDisplay =
     pipelineValue >= 1000
@@ -43,25 +37,13 @@ function Index() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen overflow-hidden min-w-0">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-foreground">Mission Control</h1>
-          <SyncStatusIndicator />
-        </div>
-        <p className="text-sm text-muted-foreground mt-0.5">
-          {format(new Date(), "EEEE, MMM d")} · {greeting}
-        </p>
-      </motion.div>
+      {/* Daily Operations — primary view */}
+      <DailyOpsView />
 
-      {/* Growth Command Widget (consolidated countdown + command center) */}
+      {/* Growth Command Widget */}
       <GrowthCommandWidget />
 
-      {/* Unified Alerts Hub (consolidates Growth Alerts, YouTube Alerts, Notifications) */}
+      {/* Unified Alerts Hub */}
       <UnifiedAlertHub />
 
       {/* Sprint + Goal Pace Widgets */}
