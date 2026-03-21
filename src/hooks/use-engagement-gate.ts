@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useSyncExternalStore } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
 
 // ── Configuration ───────────────────────────────────────────────────────────
 
@@ -61,12 +61,22 @@ function subscribe(cb: () => void) {
   return () => { _listeners.delete(cb); };
 }
 
+// Cache the snapshot to maintain referential stability (useSyncExternalStore contract)
+let _cachedSnapshot = { tabVisible: _tabVisible, lastInteraction: _lastInteraction };
+
 function getSnapshot() {
-  return { tabVisible: _tabVisible, lastInteraction: _lastInteraction };
+  if (
+    _cachedSnapshot.tabVisible !== _tabVisible ||
+    _cachedSnapshot.lastInteraction !== _lastInteraction
+  ) {
+    _cachedSnapshot = { tabVisible: _tabVisible, lastInteraction: _lastInteraction };
+  }
+  return _cachedSnapshot;
 }
 
+const _serverSnapshot = { tabVisible: true, lastInteraction: Date.now() };
 function getServerSnapshot() {
-  return { tabVisible: true, lastInteraction: Date.now() };
+  return _serverSnapshot;
 }
 
 // ── Hook ────────────────────────────────────────────────────────────────────
