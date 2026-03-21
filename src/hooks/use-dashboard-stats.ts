@@ -134,7 +134,7 @@ export function useDashboardStats() {
       };
     },
     enabled: !!workspaceId,
-    ...getFreshness("dashboardStats"),
+    ...getGatedFreshness("dashboardStats", canRefresh),
   });
 }
 
