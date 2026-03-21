@@ -98,24 +98,6 @@ const TAB_COMPONENTS: Record<Tab, React.ComponentType> = {
 export default function YouTubeCommandCenterPage() {
   const [activeTab, setActiveTab] = useState<Tab>("briefing");
   const { isLoading: workspaceLoading } = useWorkspace();
-  const syncYouTube = useSyncYouTube();
-  const syncAnalytics = useSyncYouTubeAnalytics();
-
-  // Auto-sync YouTube data on page load (staggered + throttled)
-  const hasSynced = useRef(false);
-  useEffect(() => {
-    if (hasSynced.current || workspaceLoading) return;
-    hasSynced.current = true;
-
-    const THROTTLE_MS = 12 * 60 * 60 * 1000; // 12 hours
-    const lastSyncKey = "yt_cc_last_sync_ts";
-    const lastSync = Number(localStorage.getItem(lastSyncKey) || "0");
-    if (Date.now() - lastSync < THROTTLE_MS) return;
-
-    localStorage.setItem(lastSyncKey, String(Date.now()));
-    syncYouTube.mutate();
-    setTimeout(() => syncAnalytics.mutate({}), 10_000);
-  }, [workspaceLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (workspaceLoading) {
     return (
