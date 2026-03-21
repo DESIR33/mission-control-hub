@@ -3,11 +3,6 @@ import { useWebhookCacheInvalidation } from "@/hooks/use-webhook-cache-invalidat
 import { Outlet, NavLink as RouterNavLink, useLocation, useNavigate } from "react-router-dom";
 import { AppSidebar } from "./AppSidebar";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
-import {
-  Collapsible,
-  CollapsibleTrigger,
-  CollapsibleContent,
-} from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { Bell, LogOut, Menu, ChevronDown, Search } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
@@ -90,17 +85,17 @@ function MobileNav({
           const isOpen = openGroups[item.label] ?? false;
 
           return (
-            <Collapsible
-              key={item.label}
-              open={isOpen}
-              onOpenChange={(nextOpen) => handleGroupOpenChange(item.label, nextOpen)}
-            >
-              <CollapsibleTrigger className="flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
+            <div key={item.label}>
+              <button
+                type="button"
+                onClick={() => handleGroupOpenChange(item.label, !isOpen)}
+                className="flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+              >
                 <item.icon className="w-4 h-4 shrink-0" />
                 <span className="flex-1 text-left">{item.label}</span>
                 <ChevronDown className={cn("w-3.5 h-3.5 transition-transform duration-200", isOpen && "rotate-180")} />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-0.5 mt-0.5">
+              </button>
+              {isOpen && (<div className="space-y-0.5 mt-0.5">
                 {item.children.map((child) => {
                   const active = location.pathname === child.to;
                   return (
@@ -120,8 +115,8 @@ function MobileNav({
                     </RouterNavLink>
                   );
                 })}
-              </CollapsibleContent>
-            </Collapsible>
+              </div>)}
+            </div>
           );
         })}
       </nav>
