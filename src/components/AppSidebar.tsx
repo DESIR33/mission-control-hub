@@ -35,15 +35,24 @@ export function AppSidebar({ headerless }: AppSidebarProps) {
 
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(initialOpen);
 
-  const toggleGroup = (label: string) => {
+  const handleGroupOpenChange = (label: string, nextOpen: boolean) => {
     setOpenGroups((prev) => {
-      const isCurrentlyOpen = prev[label];
-      // Close all groups, then toggle the clicked one
-      const allClosed = Object.keys(prev).reduce<Record<string, boolean>>((acc, key) => {
-        acc[key] = false;
-        return acc;
-      }, {});
-      return { ...allClosed, [label]: !isCurrentlyOpen };
+      const isCurrentlyOpen = !!prev[label];
+
+      if (nextOpen) {
+        const alreadyOnlyOpen = isCurrentlyOpen && Object.entries(prev).every(([key, value]) => (key === label ? value : !value));
+        if (alreadyOnlyOpen) return prev;
+
+        const allClosed = Object.keys(prev).reduce<Record<string, boolean>>((acc, key) => {
+          acc[key] = false;
+          return acc;
+        }, {});
+
+        return { ...allClosed, [label]: true };
+      }
+
+      if (!isCurrentlyOpen) return prev;
+      return { ...prev, [label]: false };
     });
   };
 
@@ -114,7 +123,11 @@ export function AppSidebar({ headerless }: AppSidebarProps) {
           const hasActiveChild = item.children.some((c) => location.pathname.startsWith(c.to));
 
           return (
-            <Collapsible key={item.label} open={isOpen} onOpenChange={() => toggleGroup(item.label)}>
+            <Collapsible
+              key={item.label}
+              open={isOpen}
+              onOpenChange={(nextOpen) => handleGroupOpenChange(item.label, nextOpen)}
+            >
               <CollapsibleTrigger
                 className={cn(
                   "flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm transition-colors",
