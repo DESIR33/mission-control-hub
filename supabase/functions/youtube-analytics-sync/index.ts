@@ -10,6 +10,7 @@ interface AnalyticsRequest {
   workspace_id: string;
   start_date?: string;
   end_date?: string;
+  triggered_by?: string;
 }
 
 function daysAgo(n: number): string {
