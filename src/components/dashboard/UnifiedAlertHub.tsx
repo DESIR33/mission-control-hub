@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import {
   Bell, TrendingUp, TrendingDown, Zap, DollarSign,
@@ -70,53 +70,56 @@ export function UnifiedAlertHub() {
     isRead: boolean;
   };
 
-  const unified: UnifiedAlert[] = [];
+  const unified = useMemo(() => {
+    const items: UnifiedAlert[] = [];
 
-  // YouTube alerts
-  ytAlerts.forEach((a) => {
-    unified.push({
-      id: `yt-${a.id}`,
-      source: "youtube",
-      icon: alertIcon[a.alert_type] || AlertTriangle,
-      title: a.title,
-      description: a.description,
-      severity: a.severity,
-      timestamp: new Date(a.created_at),
-      isRead: a.is_read,
-    });
-  });
-
-  // Feed alerts
-  feedAlerts.forEach((a) => {
-    unified.push({
-      id: `feed-${a.id}`,
-      source: "feed",
-      icon: alertIcon[a.alert_type] || AlertTriangle,
-      title: a.title,
-      description: a.description,
-      severity: a.severity,
-      timestamp: new Date(a.created_at),
-      isRead: false,
-    });
-  });
-
-  // Growth alerts
-  growthAlerts
-    .filter((a) => !dismissedGrowth.has(a.id))
-    .forEach((a) => {
-      unified.push({
-        id: `growth-${a.id}`,
-        source: "growth",
-        icon: growthIcon[a.severity] || Info,
-        title: a.message,
+    // YouTube alerts
+    ytAlerts.forEach((a) => {
+      items.push({
+        id: `yt-${a.id}`,
+        source: "youtube",
+        icon: alertIcon[a.alert_type] || AlertTriangle,
+        title: a.title,
+        description: a.description,
         severity: a.severity,
-        timestamp: new Date(),
+        timestamp: new Date(a.created_at),
+        isRead: a.is_read,
+      });
+    });
+
+    // Feed alerts
+    feedAlerts.forEach((a) => {
+      items.push({
+        id: `feed-${a.id}`,
+        source: "feed",
+        icon: alertIcon[a.alert_type] || AlertTriangle,
+        title: a.title,
+        description: a.description,
+        severity: a.severity,
+        timestamp: new Date(a.created_at),
         isRead: false,
       });
     });
 
-  // Sort by time, newest first
-  unified.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    // Growth alerts
+    growthAlerts
+      .filter((a) => !dismissedGrowth.has(a.id))
+      .forEach((a) => {
+        items.push({
+          id: `growth-${a.id}`,
+          source: "growth",
+          icon: growthIcon[a.severity] || Info,
+          title: a.message,
+          severity: a.severity,
+          timestamp: new Date(),
+          isRead: false,
+        });
+      });
+
+    // Sort by time, newest first
+    items.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    return items;
+  }, [ytAlerts, feedAlerts, growthAlerts, dismissedGrowth]);
 
   const unreadCount = unified.filter((a) => !a.isRead).length;
 
