@@ -122,3 +122,9 @@ verify_jwt = false
 
 [functions.inbox-triage]
 verify_jwt = false
+
+[functions.youtube-push-webhook]
+verify_jwt = false
+
+[functions.youtube-webhook-processor]
+verify_jwt = false

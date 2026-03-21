@@ -77,7 +77,7 @@ export const DATA_FRESHNESS = {
   },
   youtubeVideoStats: {
     label: "YouTube per-video stats",
-    cadence: "daily",
+    cadence: "webhook_only",
     refetchInterval: false,
     staleTime: TWO_MIN,
   },
