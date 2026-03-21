@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Bell, TrendingUp, TrendingDown, Zap, DollarSign,
   Eye, X, CheckCircle2, AlertTriangle, Info, Trophy,
