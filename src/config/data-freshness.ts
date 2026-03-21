@@ -33,12 +33,17 @@ export interface DatasetFreshness {
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
-const FIVE_MIN = 300_000;
+const ONE_HOUR = 3_600_000;
 const TWO_MIN = 120_000;
 const ONE_MIN = 60_000;
+const FIVE_MIN = 300_000;
 const TEN_MIN = 600_000;
-const ONE_HOUR = 3_600_000;
-const TWENTY_FOUR_H = 86_400_000;
+
+/**
+ * Hard lower-bound for any periodic refetchInterval.
+ * No dataset may poll faster than once per hour.
+ */
+export const REFETCH_FLOOR_MS = ONE_HOUR;
 
 // ── Registry ────────────────────────────────────────────────────────────────
 
