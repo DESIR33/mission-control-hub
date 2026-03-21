@@ -375,6 +375,7 @@ export function useNeedsAttention() {
 
 export function useAiBriefing() {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
 
   return useQuery({
     queryKey: ["ai-briefing", workspaceId],

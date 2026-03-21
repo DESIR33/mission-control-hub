@@ -14,6 +14,7 @@ import { fmtCount } from "@/lib/chart-theme";
 
 export function LaunchMonitor() {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
 
   const { data, isLoading } = useQuery({
     queryKey: ["launch-monitor", workspaceId],

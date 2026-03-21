@@ -28,6 +28,7 @@ interface ContactEngagement {
 
 function useRecentOpens() {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
   return useQuery<OpenEvent[]>({
     queryKey: ["recent-opens", workspaceId],
     queryFn: async () => {
