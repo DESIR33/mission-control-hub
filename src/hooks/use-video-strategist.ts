@@ -183,8 +183,7 @@ export function useActiveExperiments() {
       return (data ?? []) as unknown as VideoOptimizationExperiment[];
     },
     enabled: !!workspaceId,
-    refetchInterval: 300_000,
-    staleTime: 120_000,
+    ...getFreshness("activeExperiments"),
   });
 }
 
