@@ -1,4 +1,3 @@
-import { useEffect, useRef } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import {
   BarChart3, TrendingUp, DollarSign,
@@ -8,8 +7,6 @@ import {
   Target, Tv, FileText, Wrench,
 } from "lucide-react";
 import { useWorkspace } from "@/hooks/use-workspace";
-import { useSyncYouTube } from "@/hooks/use-youtube-analytics";
-import { useSyncYouTubeAnalytics } from "@/hooks/use-youtube-analytics-api";
 
 // Command Center section components
 import { GrowthForecastSection } from "@/components/command-center/sections/GrowthForecastSection";
