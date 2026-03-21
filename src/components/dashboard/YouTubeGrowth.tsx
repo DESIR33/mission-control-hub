@@ -77,16 +77,13 @@ export function YouTubeGrowth() {
             <Target className="w-3 h-3" />
             {targetValue.toLocaleString()} goal
           </span>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 px-2 text-xs text-muted-foreground"
-            onClick={handleSync}
-            disabled={syncYouTube.isPending}
-          >
-            <RefreshCw className={`w-3 h-3 mr-1 ${syncYouTube.isPending ? "animate-spin" : ""}`} />
-            Sync
-          </Button>
+          <DataFreshnessBadge
+            status={syncStatus}
+            cadenceLabel="Updated via webhook"
+            canRefresh={canRefresh}
+            onRefresh={handleSync}
+            isRefreshing={manualRefresh.isPending}
+          />
         </div>
       </div>
 
