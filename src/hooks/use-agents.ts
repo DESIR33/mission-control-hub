@@ -54,6 +54,7 @@ export function useToggleAgent() {
 
 export function useSkills() {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
   return useQuery<AgentSkill[]>({
     queryKey: ["agent-skills", workspaceId],
     queryFn: async () => {
@@ -67,7 +68,7 @@ export function useSkills() {
       return (data as AgentSkill[]) || [];
     },
     enabled: !!workspaceId,
-    ...getFreshness("agentExecutions"),
+    ...getGatedFreshness("agentExecutions", canRefresh),
   });
 }
 
