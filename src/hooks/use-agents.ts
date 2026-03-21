@@ -29,7 +29,7 @@ export function useAgents() {
       return (data as AgentDefinition[]) || [];
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("agentExecutions"),
   });
 }
 
