@@ -35,6 +35,7 @@ const typeIcons: Record<string, React.ReactNode> = {
 
 export function ProactiveAlertDigest() {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
 
   const { data: alerts = [] } = useQuery<AlertItem[]>({
     queryKey: ["proactive-alerts", workspaceId],
