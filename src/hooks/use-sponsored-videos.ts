@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { getFreshness } from "@/config/data-freshness";
 
 /**
  * Returns a Set of youtube_video_ids that are linked to any deal (sponsored videos).
