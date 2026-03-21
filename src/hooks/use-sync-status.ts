@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { toast } from "sonner";
 import { differenceInHours } from "date-fns";
+import { getAdaptiveRefetchInterval, DATA_FRESHNESS } from "@/config/data-freshness";
 
 export type SyncHealthStatus = "healthy" | "stale" | "critical" | "never";
 
