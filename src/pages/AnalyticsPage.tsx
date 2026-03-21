@@ -302,6 +302,10 @@ export default function AnalyticsPage() {
   }, [channelAnalytics, daysForRange]);
 
   const handleSync = () => {
+    if (!canManualSync) {
+      toast.error("Sync is on cooldown. Please wait before trying again.");
+      return;
+    }
     syncYouTube.mutate(undefined, {
       onSuccess: () => toast.success("YouTube data synced successfully!"),
       onError: (err: Error) => toast.error(`Sync failed: ${err.message}`),
@@ -309,10 +313,17 @@ export default function AnalyticsPage() {
   };
 
   const handleAnalyticsSync = () => {
-    syncAnalytics.mutate(undefined, {
-      onSuccess: () => toast.success("YouTube Analytics synced!"),
-      onError: (err: Error) => toast.error(`Analytics sync failed: ${err.message}`),
-    });
+    if (!canManualSync) {
+      toast.error("Analytics sync is on cooldown.");
+      return;
+    }
+    manualRefresh.mutate(
+      { datasetKey: "youtubeAnalytics", edgeFunctionName: "youtube-analytics-sync" },
+      {
+        onSuccess: () => toast.success("YouTube Analytics synced!"),
+        onError: (err: Error) => toast.error(`Analytics sync failed: ${err.message}`),
+      }
+    );
   };
 
   const handleSyncAll = () => {
