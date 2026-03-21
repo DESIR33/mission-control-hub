@@ -116,7 +116,7 @@ export function useSequenceEnrollments(sequenceId?: string) {
       return (data ?? []) as unknown as SequenceEnrollment[];
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("emailSequences"),
   });
 }
 
