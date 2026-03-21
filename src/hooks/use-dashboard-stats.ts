@@ -207,7 +207,7 @@ export function usePipelineHealth() {
       return { contacts: contactsPipeline, content: contentPipeline, deals: dealsPipeline };
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("pipelineHealth"),
   });
 }
 
