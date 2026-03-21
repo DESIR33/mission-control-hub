@@ -4978,6 +4978,53 @@ export type Database = {
           },
         ]
       }
+      webhook_sync_queue: {
+        Row: {
+          attempts: number
+          created_at: string
+          entity_id: string
+          event_type: string
+          id: string
+          last_error: string | null
+          payload: Json | null
+          processed_at: string | null
+          status: string
+          workspace_id: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          entity_id: string
+          event_type: string
+          id?: string
+          last_error?: string | null
+          payload?: Json | null
+          processed_at?: string | null
+          status?: string
+          workspace_id: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          entity_id?: string
+          event_type?: string
+          id?: string
+          last_error?: string | null
+          payload?: Json | null
+          processed_at?: string | null
+          status?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_sync_queue_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workspace_identity: {
         Row: {
           content: string
