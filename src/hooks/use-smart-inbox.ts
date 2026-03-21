@@ -105,7 +105,7 @@ export function useInboxEmails(folder: string = "inbox", searchQuery: string = "
       }));
     },
     enabled: !!workspaceId,
-    staleTime: 60_000,
+    ...getFreshness("inbox"),
   });
 }
 
