@@ -48,7 +48,7 @@ export function useEmailSequences() {
       return (data ?? []) as unknown as EmailSequence[];
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("emailSequences"),
   });
 }
 
