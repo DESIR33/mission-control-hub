@@ -65,7 +65,7 @@ export function useSkills() {
       return (data as AgentSkill[]) || [];
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("agentExecutions"),
   });
 }
 
