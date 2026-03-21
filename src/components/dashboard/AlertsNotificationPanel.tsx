@@ -1,4 +1,3 @@
-import { motion, AnimatePresence } from "framer-motion";
 import {
   Bell, TrendingUp, TrendingDown, Zap, DollarSign,
   Eye, X, CheckCircle2, AlertTriangle, Info,
@@ -64,12 +63,7 @@ export function AlertsNotificationPanel() {
   if (isLoading || alerts.length === 0) return null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: 0.1 }}
-      className="rounded-xl border border-border bg-card/80 backdrop-blur-sm overflow-hidden"
-    >
+    <div className="rounded-xl border border-border bg-card/80 backdrop-blur-sm overflow-hidden animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border">
         <div className="flex items-center gap-2">
@@ -96,60 +90,54 @@ export function AlertsNotificationPanel() {
 
       {/* Alerts list */}
       <div className="divide-y divide-border max-h-[280px] overflow-y-auto">
-        <AnimatePresence>
-          {alerts.map((alert) => {
-            const config = alertTypeConfig[alert.alert_type];
-            const style = severityStyles[alert.severity] ?? severityStyles.info;
-            const TypeIcon = config?.icon ?? AlertTriangle;
+        {alerts.map((alert) => {
+          const config = alertTypeConfig[alert.alert_type];
+          const style = severityStyles[alert.severity] ?? severityStyles.info;
+          const TypeIcon = config?.icon ?? AlertTriangle;
 
-            return (
-              <motion.div
-                key={alert.id}
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 8, height: 0 }}
-                transition={{ duration: 0.2 }}
-                className={`px-4 py-3 flex items-start gap-3 ${style.bg}`}
-              >
-                {/* Category icon */}
-                <div className={`mt-0.5 shrink-0 ${style.icon}`}>
-                  <TypeIcon className="w-4 h-4" />
-                </div>
+          return (
+            <div
+              key={alert.id}
+              className={`px-4 py-3 flex items-start gap-3 animate-fade-in ${style.bg}`}
+            >
+              {/* Category icon */}
+              <div className={`mt-0.5 shrink-0 ${style.icon}`}>
+                <TypeIcon className="w-4 h-4" />
+              </div>
 
-                {/* Content */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <p className="text-xs font-medium text-foreground truncate">
-                      {alert.title}
-                    </p>
-                    <span className={`inline-flex items-center gap-0.5 text-[10px] ${style.text}`}>
-                      <SeverityIcon severity={alert.severity} />
-                    </span>
-                  </div>
-                  {alert.description && (
-                    <p className="text-xs text-muted-foreground line-clamp-2">
-                      {alert.description}
-                    </p>
-                  )}
-                  <p className="text-[10px] text-muted-foreground/60 mt-1">
-                    {formatDistanceToNow(new Date(alert.created_at), { addSuffix: true })}
+              {/* Content */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <p className="text-xs font-medium text-foreground truncate">
+                    {alert.title}
                   </p>
+                  <span className={`inline-flex items-center gap-0.5 text-[10px] ${style.text}`}>
+                    <SeverityIcon severity={alert.severity} />
+                  </span>
                 </div>
+                {alert.description && (
+                  <p className="text-xs text-muted-foreground line-clamp-2">
+                    {alert.description}
+                  </p>
+                )}
+                <p className="text-[10px] text-muted-foreground/60 mt-1">
+                  {formatDistanceToNow(new Date(alert.created_at), { addSuffix: true })}
+                </p>
+              </div>
 
-                {/* Dismiss button */}
-                <button
-                  className="p-1 rounded hover:bg-black/10 dark:hover:bg-white/10 transition-colors shrink-0 mt-0.5"
-                  onClick={() => markRead.mutate(alert.id)}
-                  disabled={markRead.isPending}
-                  aria-label="Dismiss notification"
-                >
-                  <X className="w-3.5 h-3.5 text-muted-foreground" />
-                </button>
-              </motion.div>
-            );
-          })}
-        </AnimatePresence>
+              {/* Dismiss button */}
+              <button
+                className="p-1 rounded hover:bg-black/10 dark:hover:bg-white/10 transition-colors shrink-0 mt-0.5"
+                onClick={() => markRead.mutate(alert.id)}
+                disabled={markRead.isPending}
+                aria-label="Dismiss notification"
+              >
+                <X className="w-3.5 h-3.5 text-muted-foreground" />
+              </button>
+            </div>
+          );
+        })}
       </div>
-    </motion.div>
+    </div>
   );
 }

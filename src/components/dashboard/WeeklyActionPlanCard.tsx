@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   Calendar, Lightbulb, Repeat, FlaskConical, Sparkles,
   ChevronDown, ChevronRight, Check, X, Loader2,
@@ -59,11 +58,7 @@ function ActionItemRow({ item }: { item: ActionItem }) {
   const badge = statusBadge[localStatus];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 4 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="flex items-start gap-2 py-2 px-1 group"
-    >
+    <div className="flex items-start gap-2 py-2 px-1 group animate-fade-in">
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <p className={`text-sm ${localStatus === "dismissed" ? "text-muted-foreground line-through" : "text-foreground"}`}>
@@ -98,7 +93,7 @@ function ActionItemRow({ item }: { item: ActionItem }) {
           </button>
         </div>
       )}
-    </motion.div>
+    </div>
   );
 }
 
@@ -133,23 +128,15 @@ function CollapsibleSection({
         )}
       </button>
 
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden"
-          >
-            <div className="pl-2 space-y-0.5">
-              {items.map((item) => (
-                <ActionItemRow key={item.id} item={item} />
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {open && (
+        <div className="overflow-hidden animate-fade-in">
+          <div className="pl-2 space-y-0.5">
+            {items.map((item) => (
+              <ActionItemRow key={item.id} item={item} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -175,12 +162,7 @@ export function WeeklyActionPlanCard() {
 
   if (!plan) {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="rounded-xl border border-dashed border-muted-foreground/30 bg-card/50 backdrop-blur-sm p-6 text-center"
-      >
+      <div className="rounded-xl border border-dashed border-muted-foreground/30 bg-card/50 backdrop-blur-sm p-6 text-center animate-fade-in">
         <Sparkles className="w-6 h-6 mx-auto mb-2 text-muted-foreground" />
         <p className="text-sm font-medium text-foreground mb-1">No plan for this week</p>
         <p className="text-xs text-muted-foreground mb-3">
@@ -204,17 +186,12 @@ export function WeeklyActionPlanCard() {
             </>
           )}
         </Button>
-      </motion.div>
+      </div>
     );
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: 0.15 }}
-      className="rounded-xl border border-border bg-card/80 backdrop-blur-sm p-5"
-    >
+    <div className="rounded-xl border border-border bg-card/80 backdrop-blur-sm p-5 animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
@@ -255,6 +232,6 @@ export function WeeklyActionPlanCard() {
           Plan has no actionable items. Try regenerating.
         </p>
       )}
-    </motion.div>
+    </div>
   );
 }
