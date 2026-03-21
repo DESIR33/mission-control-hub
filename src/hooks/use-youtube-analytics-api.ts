@@ -214,7 +214,7 @@ export function useTrafficSources(daysRange = 90) {
       return ((data ?? []) as unknown as TrafficSource[]).map(r => ({ ...r, workspace_id: workspaceId! }));
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("youtubeAnalyticsApi"),
   });
 }
 
