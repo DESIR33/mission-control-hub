@@ -228,6 +228,7 @@ export function AppLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const { unreadCount } = useNotifications();
+  useWebhookCacheInvalidation();
 
   const toggleSidebar = () => {
     if (window.innerWidth < 768) {
