@@ -64,7 +64,20 @@ export function useExpenseCategories() {
         .eq("workspace_id", workspaceId!)
         .order("name");
       if (error) throw error;
-      return (data ?? []) as ExpenseCategory[];
+      const categories = (data ?? []) as ExpenseCategory[];
+
+      // Seed default categories if none exist
+      if (categories.length === 0 && workspaceId) {
+        await supabase.rpc("seed_default_expense_categories", { ws_id: workspaceId });
+        const { data: seeded } = await supabase
+          .from("expense_categories")
+          .select("*")
+          .eq("workspace_id", workspaceId)
+          .order("name");
+        return (seeded ?? []) as ExpenseCategory[];
+      }
+
+      return categories;
     },
     enabled: !!workspaceId,
   });
