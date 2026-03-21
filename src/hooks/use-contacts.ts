@@ -35,7 +35,7 @@ export function useContacts() {
       }));
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("contacts"),
   });
 }
 
