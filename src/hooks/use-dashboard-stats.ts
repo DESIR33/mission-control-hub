@@ -215,6 +215,7 @@ export function usePipelineHealth() {
 
 export function useRevenueData() {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
 
   return useQuery({
     queryKey: ["revenue-data", workspaceId],
