@@ -49,10 +49,12 @@ export function useCohortAnalysis() {
   const { data: videoAnalytics = [] } = useQuery({
     queryKey: ["cohort-video-analytics", workspaceId],
     queryFn: async () => {
+      const cutoff = format(subDays(new Date(), 180), "yyyy-MM-dd");
       const { data, error } = await supabase
         .from("youtube_video_analytics" as any)
         .select("youtube_video_id, title, date, subscribers_gained, views")
-        .eq("workspace_id", workspaceId!);
+        .eq("workspace_id", workspaceId!)
+        .gte("date", cutoff);
       if (error) throw error;
       return (data ?? []) as any[];
     },

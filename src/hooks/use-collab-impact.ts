@@ -35,10 +35,13 @@ export function useCollabImpact(collaborations: Collaboration[]) {
       if (publishedCollabs.length === 0) return [];
 
       // Fetch youtube_channel_analytics data around collab dates
+      const cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - 180);
       const { data, error } = await supabase
         .from("youtube_channel_analytics" as any)
         .select("date, subscriber_count")
         .eq("workspace_id", workspaceId!)
+        .gte("date", cutoff.toISOString().split("T")[0])
         .order("date", { ascending: true });
 
       if (error) throw error;
