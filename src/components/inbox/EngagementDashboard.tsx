@@ -6,6 +6,7 @@ import { EyeIcon, MailOpenIcon, ClockIcon, TrendingUpIcon, Loader2Icon } from "l
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { getFreshness } from "@/config/data-freshness";
 
 interface OpenEvent {
   id: string;
