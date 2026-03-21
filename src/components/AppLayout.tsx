@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useWebhookCacheInvalidation } from "@/hooks/use-webhook-cache-invalidation";
 import { Outlet, NavLink as RouterNavLink, useLocation, useNavigate } from "react-router-dom";
 import { AppSidebar } from "./AppSidebar";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
