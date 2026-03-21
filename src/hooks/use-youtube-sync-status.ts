@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { toast } from "sonner";
+import { getAdaptiveRefetchInterval, DATA_FRESHNESS } from "@/config/data-freshness";
 
 export interface SyncStatus {
   id: string;
