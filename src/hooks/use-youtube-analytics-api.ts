@@ -163,7 +163,7 @@ export function useVideoAnalytics(daysRange = 90) {
       }));
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("youtubeAnalyticsApi"),
   });
 }
 
