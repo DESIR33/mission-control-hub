@@ -33,10 +33,12 @@ export function useCohortAnalysis() {
   const { data: channelAnalytics = [], isLoading: channelLoading } = useQuery({
     queryKey: ["cohort-channel-analytics", workspaceId],
     queryFn: async () => {
+      const cutoff = format(subDays(new Date(), 180), "yyyy-MM-dd");
       const { data, error } = await supabase
         .from("youtube_channel_analytics" as any)
         .select("date, subscribers, net_subscribers")
         .eq("workspace_id", workspaceId!)
+        .gte("date", cutoff)
         .order("date", { ascending: true });
       if (error) throw error;
       return (data ?? []) as any[];
