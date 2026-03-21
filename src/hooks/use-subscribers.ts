@@ -38,7 +38,7 @@ export function useSubscribers() {
       }));
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("subscriberGuides"),
   });
 }
 
