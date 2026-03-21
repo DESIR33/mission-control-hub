@@ -282,6 +282,7 @@ export function useStrategistRuns() {
 
 export function useStrategistNotifications() {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
   return useQuery<StrategistNotification[]>({
     queryKey: ["strategist-notifications", workspaceId],
     queryFn: async () => {
@@ -296,7 +297,7 @@ export function useStrategistNotifications() {
       return (data ?? []) as unknown as StrategistNotification[];
     },
     enabled: !!workspaceId,
-    ...getFreshness("strategistNotifications"),
+    ...getGatedFreshness("strategistNotifications", canRefresh),
   });
 }
 

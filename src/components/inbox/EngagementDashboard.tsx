@@ -51,7 +51,7 @@ function useRecentOpens() {
       }));
     },
     enabled: !!workspaceId,
-    ...getFreshness("inboxEngagement"),
+    ...getGatedFreshness("inboxEngagement", canRefresh),
   });
 }
 

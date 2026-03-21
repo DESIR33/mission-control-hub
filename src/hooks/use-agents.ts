@@ -132,6 +132,7 @@ export function useDeleteSkill() {
 
 export function useExecutions(limit = 20) {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
   return useQuery<AgentExecution[]>({
     queryKey: ["agent-executions", workspaceId, limit],
     queryFn: async () => {
@@ -145,7 +146,7 @@ export function useExecutions(limit = 20) {
       return (data as AgentExecution[]) || [];
     },
     enabled: !!workspaceId,
-    ...getFreshness("agentExecutions"),
+    ...getGatedFreshness("agentExecutions", canRefresh),
   });
 }
 

@@ -24,6 +24,7 @@ export interface Notification {
 
 export function useNotifications() {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
   const qc = useQueryClient();
   const queryKey = ["notifications", workspaceId];
 
@@ -40,7 +41,7 @@ export function useNotifications() {
       return (data ?? []) as Notification[];
     },
     enabled: !!workspaceId,
-    ...getFreshness("notifications"),
+    ...getGatedFreshness("notifications", canRefresh),
   });
 
   const unreadCount = notifications.filter((n) => !n.read_at).length;

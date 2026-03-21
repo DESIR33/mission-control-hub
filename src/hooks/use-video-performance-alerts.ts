@@ -21,6 +21,7 @@ export interface VideoPerformanceAlert {
 
 export function useVideoPerformanceAlerts() {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
   return useQuery<VideoPerformanceAlert[]>({
     queryKey: ["video-performance-alerts", workspaceId],
     queryFn: async () => {
@@ -34,7 +35,7 @@ export function useVideoPerformanceAlerts() {
       return (data ?? []) as VideoPerformanceAlert[];
     },
     enabled: !!workspaceId,
-    ...getFreshness("videoPerformanceAlerts"),
+    ...getGatedFreshness("videoPerformanceAlerts", canRefresh),
   });
 }
 

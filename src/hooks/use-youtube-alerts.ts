@@ -41,6 +41,7 @@ export function useYouTubeAlerts(limit = 20) {
 
 export function useUnreadAlertCount() {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
 
   return useQuery({
     queryKey: ["youtube-alerts-unread", workspaceId],
@@ -54,7 +55,7 @@ export function useUnreadAlertCount() {
       return count ?? 0;
     },
     enabled: !!workspaceId,
-    ...getFreshness("youtubeAlerts"),
+    ...getGatedFreshness("youtubeAlerts", canRefresh),
   });
 }
 

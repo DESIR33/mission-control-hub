@@ -81,7 +81,7 @@ export function LaunchMonitor() {
       return { recentVideos, benchmarks };
     },
     enabled: !!workspaceId,
-    ...getFreshness("launchMonitor"),
+    ...getGatedFreshness("launchMonitor", canRefresh),
   });
 
   const statusConfig: Record<string, { color: string; icon: React.ElementType; label: string }> = {

@@ -113,7 +113,7 @@ export function ProactiveAlertDigest() {
       });
     },
     enabled: !!workspaceId,
-    ...getFreshness("proactiveAlerts"),
+    ...getGatedFreshness("proactiveAlerts", canRefresh),
   });
 
   return (

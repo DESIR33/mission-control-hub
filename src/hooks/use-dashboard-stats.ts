@@ -542,6 +542,6 @@ export function useAiBriefing() {
         : [{ type: "insight", text: "All caught up! No urgent items right now." }];
     },
     enabled: !!workspaceId,
-    ...getFreshness("dashboardStats"),
+    ...getGatedFreshness("dashboardStats", canRefresh),
   });
 }
