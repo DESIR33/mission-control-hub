@@ -48,6 +48,8 @@ const AIHubPage = lazy(() => import("./pages/AIHubPage"));
 const ProposalDetailPage = lazy(() => import("./pages/ProposalDetailPage"));
 const TrendScannerPage = lazy(() => import("./pages/TrendScannerPage"));
 const ExpenseTrackerPage = lazy(() => import("./pages/ExpenseTrackerPage"));
+const AddExpensePage = lazy(() => import("./pages/AddExpensePage"));
+const EditExpensePage = lazy(() => import("./pages/EditExpensePage"));
 const FinanceCommandCenterPage = lazy(() => import("./pages/FinanceCommandCenterPage"));
 const SubscriberProfilePage = lazy(() => import("./pages/SubscriberProfilePage"));
 const SubscriberGuidesPage = lazy(() => import("./pages/SubscriberGuidesPage"));
@@ -143,6 +145,8 @@ const App = () => (
               <Route path="/revenue/:tab" element={<LazyPage section="Revenue"><MonetizationPage /></LazyPage>} />
               <Route path="/finance" element={<Navigate to="/finance/hub/overview" replace />} />
               <Route path="/finance/hub/:tab" element={<LazyPage section="Finance Command Center"><FinanceCommandCenterPage /></LazyPage>} />
+              <Route path="/finance/expenses/new" element={<LazyPage section="Add Expense"><AddExpensePage /></LazyPage>} />
+              <Route path="/finance/expenses/:id/edit" element={<LazyPage section="Edit Expense"><EditExpensePage /></LazyPage>} />
               <Route path="/finance/expenses/:tab" element={<LazyPage section="Expenses"><ExpenseTrackerPage /></LazyPage>} />
               <Route path="/affiliate-program/new" element={<LazyPage section="New Affiliate"><NewAffiliateProgramPage /></LazyPage>} />
               <Route path="/affiliate-program/:id" element={<LazyPage section="Affiliate Program"><AffiliateProgramPage /></LazyPage>} />
