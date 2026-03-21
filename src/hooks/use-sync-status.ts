@@ -41,6 +41,7 @@ function formatTimeSince(hours: number | null): string {
 
 export function useSyncStatusData() {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
 
   const { data: syncLogs = [], isLoading } = useQuery({
     queryKey: ["sync-status-logs", workspaceId],
