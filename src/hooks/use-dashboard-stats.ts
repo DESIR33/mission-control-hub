@@ -366,7 +366,7 @@ export function useNeedsAttention() {
       return items.slice(0, 5);
     },
     enabled: !!workspaceId,
-    ...getFreshness("dashboardStats"),
+    ...getGatedFreshness("dashboardStats", canRefresh),
   });
 }
 
