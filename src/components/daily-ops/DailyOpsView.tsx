@@ -158,7 +158,7 @@ export function DailyOpsView() {
         </motion.div>
       ) : (
         <div className="space-y-2">
-          <AnimatePresence mode="popLayout">
+          <AnimatePresence>
             {filtered.map((item) => (
               <OpsItemCard
                 key={item.id}
