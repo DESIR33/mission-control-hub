@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   BarChart3, TrendingUp, TrendingDown, Eye, ThumbsUp, MessageSquare,
@@ -14,6 +14,7 @@ import {
   useChannelAnalytics, useVideoAnalytics, useDemographics,
   useTrafficSources, useGeography, useDeviceTypes, useSyncYouTubeAnalytics,
 } from "@/hooks/use-youtube-analytics-api";
+import { useDatasetSyncStatus, useManualDatasetRefresh } from "@/hooks/use-dataset-sync-status";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -72,24 +73,11 @@ export default function AnalyticsPage() {
   const { data: deviceTypes = [], isLoading: loadingDevices } = useDeviceTypes();
   const syncAnalytics = useSyncYouTubeAnalytics();
 
-  // Auto-sync YouTube data on page load only if last sync was 30+ minutes ago
-  const hasSynced = useRef(false);
-  useEffect(() => {
-    if (hasSynced.current || workspaceLoading) return;
-    hasSynced.current = true;
-
-    const THROTTLE_MS = 12 * 60 * 60 * 1000; // 12 hours
-    const lastSyncKey = "yt_last_sync_ts";
-    const lastSync = Number(localStorage.getItem(lastSyncKey) || "0");
-    const now = Date.now();
-
-    if (now - lastSync < THROTTLE_MS) return;
-
-    localStorage.setItem(lastSyncKey, String(now));
-    // Stagger: run youtube-sync first, then analytics-sync after 10s
-    syncYouTube.mutate();
-    setTimeout(() => syncAnalytics.mutate({ start_date: subDays(new Date(), 90).toISOString().split("T")[0] }), 10_000);
-  }, [workspaceLoading]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Freshness / cooldown metadata
+  const { getStatus, canRefreshNow } = useDatasetSyncStatus(["youtubeAnalytics", "youtubeVideoStats"]);
+  const manualRefresh = useManualDatasetRefresh();
+  const analyticsStatus = getStatus("youtubeAnalytics");
+  const canManualSync = canRefreshNow("youtubeAnalytics");
 
   const isLoading = workspaceLoading || loadingChannel || loadingVideos;
 
@@ -314,6 +302,10 @@ export default function AnalyticsPage() {
   }, [channelAnalytics, daysForRange]);
 
   const handleSync = () => {
+    if (!canManualSync) {
+      toast.error("Sync is on cooldown. Please wait before trying again.");
+      return;
+    }
     syncYouTube.mutate(undefined, {
       onSuccess: () => toast.success("YouTube data synced successfully!"),
       onError: (err: Error) => toast.error(`Sync failed: ${err.message}`),
@@ -321,10 +313,17 @@ export default function AnalyticsPage() {
   };
 
   const handleAnalyticsSync = () => {
-    syncAnalytics.mutate(undefined, {
-      onSuccess: () => toast.success("YouTube Analytics synced!"),
-      onError: (err: Error) => toast.error(`Analytics sync failed: ${err.message}`),
-    });
+    if (!canManualSync) {
+      toast.error("Analytics sync is on cooldown.");
+      return;
+    }
+    manualRefresh.mutate(
+      { datasetKey: "youtubeAnalytics", edgeFunctionName: "youtube-analytics-sync" },
+      {
+        onSuccess: () => toast.success("YouTube Analytics synced!"),
+        onError: (err: Error) => toast.error(`Analytics sync failed: ${err.message}`),
+      }
+    );
   };
 
   const handleSyncAll = () => {
@@ -390,10 +389,10 @@ export default function AnalyticsPage() {
             variant="outline"
             size="sm"
             onClick={handleSyncAll}
-            disabled={syncYouTube.isPending || syncAnalytics.isPending}
+            disabled={!canManualSync || syncYouTube.isPending || manualRefresh.isPending}
           >
-            <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${(syncYouTube.isPending || syncAnalytics.isPending) ? "animate-spin" : ""}`} />
-            Sync All
+            <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${(syncYouTube.isPending || manualRefresh.isPending) ? "animate-spin" : ""}`} />
+            {canManualSync ? "Sync All" : "On Cooldown"}
           </Button>
         </div>
       </div>

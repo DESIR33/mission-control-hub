@@ -1,4 +1,3 @@
-import { useEffect, useRef } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import {
   BarChart3, TrendingUp, DollarSign,
@@ -8,8 +7,6 @@ import {
   Target, Tv, FileText, Wrench,
 } from "lucide-react";
 import { useWorkspace } from "@/hooks/use-workspace";
-import { useSyncYouTube } from "@/hooks/use-youtube-analytics";
-import { useSyncYouTubeAnalytics } from "@/hooks/use-youtube-analytics-api";
 
 // Command Center section components
 import { GrowthForecastSection } from "@/components/command-center/sections/GrowthForecastSection";
@@ -92,25 +89,6 @@ export default function YouTubeHubPage() {
   const activeSection = (section && VALID_SECTIONS.has(section) ? section : null) as Section | null;
 
   const { isLoading: workspaceLoading } = useWorkspace();
-  const syncYouTube = useSyncYouTube();
-  const syncAnalytics = useSyncYouTubeAnalytics();
-
-  // Auto-sync YouTube data on page load (staggered + throttled)
-  const hasSynced = useRef(false);
-  useEffect(() => {
-    if (hasSynced.current || workspaceLoading) return;
-    hasSynced.current = true;
-
-    const THROTTLE_MS = 12 * 60 * 60 * 1000; // 12 hours
-    const lastSyncKey = "yt_hub_last_sync_ts";
-    const lastSync = Number(localStorage.getItem(lastSyncKey) || "0");
-    if (Date.now() - lastSync < THROTTLE_MS) return;
-
-    localStorage.setItem(lastSyncKey, String(Date.now()));
-    // Stagger: run youtube-sync first, then analytics-sync after 10s
-    syncYouTube.mutate();
-    setTimeout(() => syncAnalytics.mutate({}), 10_000);
-  }, [workspaceLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Redirect bare /youtube to /youtube/dashboard
   if (!activeSection) {
