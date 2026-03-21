@@ -87,7 +87,7 @@ export function useChannelStats() {
       return data as unknown as YouTubeChannelStats | null;
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("youtubeChannelStats"),
   });
 }
 
