@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { RefreshCw, Zap, CalendarClock, Clock, LayoutList } from "lucide-react";
 import { Button } from "@/components/ui/button";
