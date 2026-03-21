@@ -389,10 +389,10 @@ export default function AnalyticsPage() {
             variant="outline"
             size="sm"
             onClick={handleSyncAll}
-            disabled={syncYouTube.isPending || syncAnalytics.isPending}
+            disabled={!canManualSync || syncYouTube.isPending || manualRefresh.isPending}
           >
-            <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${(syncYouTube.isPending || syncAnalytics.isPending) ? "animate-spin" : ""}`} />
-            Sync All
+            <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${(syncYouTube.isPending || manualRefresh.isPending) ? "animate-spin" : ""}`} />
+            {canManualSync ? "Sync All" : "On Cooldown"}
           </Button>
         </div>
       </div>

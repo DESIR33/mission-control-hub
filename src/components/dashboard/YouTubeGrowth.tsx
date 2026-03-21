@@ -7,8 +7,9 @@ import {
   useGrowthGoal,
   useChannelStats,
   useYouTubeChannelStats,
-  useSyncYouTube,
 } from "@/hooks/use-youtube-analytics";
+import { useDatasetSyncStatus, useManualDatasetRefresh } from "@/hooks/use-dataset-sync-status";
+import { DataFreshnessBadge } from "@/components/ui/DataFreshnessBadge";
 import { differenceInDays, format, addMonths } from "date-fns";
 
 const SUBSCRIBER_GOAL = 50_000;
@@ -23,7 +24,11 @@ export function YouTubeGrowth() {
   const { data: goal } = useGrowthGoal();
   const { data: channelStats } = useChannelStats();
   const { data: snapshots = [], isLoading } = useYouTubeChannelStats(30);
-  const syncYouTube = useSyncYouTube();
+
+  const { getStatus, canRefreshNow } = useDatasetSyncStatus(["youtubeVideoStats"]);
+  const manualRefresh = useManualDatasetRefresh();
+  const syncStatus = getStatus("youtubeVideoStats");
+  const canRefresh = canRefreshNow("youtubeVideoStats");
 
   // Use goal data → latest snapshot → fallback 21K
   const currentValue = goal?.current_value ?? channelStats?.subscriber_count ?? 21000;
@@ -43,10 +48,13 @@ export function YouTubeGrowth() {
   const maxSubs = Math.max(...trend.map((s) => s.subscriber_count), 1);
 
   const handleSync = () => {
-    syncYouTube.mutate(undefined, {
-      onSuccess: () => toast.success("YouTube data synced successfully!"),
-      onError: (err) => toast.error(`Sync failed: ${err.message}`),
-    });
+    manualRefresh.mutate(
+      { datasetKey: "youtubeVideoStats", edgeFunctionName: "youtube-sync" },
+      {
+        onSuccess: () => toast.success("YouTube data synced successfully!"),
+        onError: (err) => toast.error(`Sync failed: ${err.message}`),
+      }
+    );
   };
 
   return (
