@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { RefreshCw, Zap, CalendarClock, Clock, LayoutList } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -158,7 +158,6 @@ export function DailyOpsView() {
         </motion.div>
       ) : (
         <div className="space-y-2">
-          <AnimatePresence>
             {filtered.map((item) => (
               <OpsItemCard
                 key={item.id}
@@ -167,7 +166,6 @@ export function DailyOpsView() {
                 isActing={actionMutation.isPending}
               />
             ))}
-          </AnimatePresence>
         </div>
       )}
     </div>

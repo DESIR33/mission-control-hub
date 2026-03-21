@@ -1,5 +1,4 @@
 import { memo, useState } from "react";
-import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import {
   CheckCircle2, X, Clock, Send, ThumbsUp, ThumbsDown,
@@ -36,12 +35,9 @@ export const OpsItemCard = memo(function OpsItemCard({ item, onAction, isActing 
   const TbIcon = tb.icon;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 4 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, x: -20 }}
+    <div
       className={cn(
-        "group rounded-lg border bg-card p-3 transition-all hover:shadow-md",
+        "group rounded-lg border bg-card p-3 transition-all hover:shadow-md animate-fade-in",
         item.urgency_score >= 70 && "border-destructive/30"
       )}
     >
@@ -156,6 +152,6 @@ export const OpsItemCard = memo(function OpsItemCard({ item, onAction, isActing 
           <X className="w-3.5 h-3.5" /> Dismiss
         </Button>
       </div>
-    </motion.div>
+    </div>
   );
 });
