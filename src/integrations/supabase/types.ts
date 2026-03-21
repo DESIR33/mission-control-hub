@@ -2466,6 +2466,8 @@ export type Database = {
           receipt_url: string | null
           recurring_end_date: string | null
           recurring_interval: string | null
+          tax_deductible_reason: string | null
+          tax_review_status: string | null
           title: string
           updated_at: string
           vendor: string | null
@@ -2485,6 +2487,8 @@ export type Database = {
           receipt_url?: string | null
           recurring_end_date?: string | null
           recurring_interval?: string | null
+          tax_deductible_reason?: string | null
+          tax_review_status?: string | null
           title: string
           updated_at?: string
           vendor?: string | null
@@ -2504,6 +2508,8 @@ export type Database = {
           receipt_url?: string | null
           recurring_end_date?: string | null
           recurring_interval?: string | null
+          tax_deductible_reason?: string | null
+          tax_review_status?: string | null
           title?: string
           updated_at?: string
           vendor?: string | null
@@ -7050,6 +7056,10 @@ export type Database = {
           p_workspace_id: string
         }
         Returns: Json
+      }
+      seed_default_expense_categories: {
+        Args: { ws_id: string }
+        Returns: undefined
       }
       soft_delete_company: {
         Args: { company_id: string; ws_id: string }
