@@ -39,8 +39,11 @@ function MobileNav({
 
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(initialOpen);
 
-  const toggleGroup = (label: string) => {
-    setOpenGroups((prev) => ({ ...prev, [label]: !prev[label] }));
+  const handleGroupOpenChange = (label: string, nextOpen: boolean) => {
+    setOpenGroups((prev) => {
+      if (!!prev[label] === nextOpen) return prev;
+      return { ...prev, [label]: nextOpen };
+    });
   };
 
   return (
@@ -87,7 +90,11 @@ function MobileNav({
           const isOpen = openGroups[item.label] ?? false;
 
           return (
-            <Collapsible key={item.label} open={isOpen} onOpenChange={() => toggleGroup(item.label)}>
+            <Collapsible
+              key={item.label}
+              open={isOpen}
+              onOpenChange={(nextOpen) => handleGroupOpenChange(item.label, nextOpen)}
+            >
               <CollapsibleTrigger className="flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
                 <item.icon className="w-4 h-4 shrink-0" />
                 <span className="flex-1 text-left">{item.label}</span>
