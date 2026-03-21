@@ -3164,6 +3164,131 @@ export type Database = {
           },
         ]
       }
+      ops_completion_outcomes: {
+        Row: {
+          acted_at: string
+          action_taken: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          ops_item_id: string | null
+          outcome_quality: string | null
+          source_id: string
+          source_type: string
+          time_to_action_minutes: number | null
+          urgency_score_at_action: number | null
+          workspace_id: string
+        }
+        Insert: {
+          acted_at?: string
+          action_taken: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          ops_item_id?: string | null
+          outcome_quality?: string | null
+          source_id: string
+          source_type: string
+          time_to_action_minutes?: number | null
+          urgency_score_at_action?: number | null
+          workspace_id: string
+        }
+        Update: {
+          acted_at?: string
+          action_taken?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          ops_item_id?: string | null
+          outcome_quality?: string | null
+          source_id?: string
+          source_type?: string
+          time_to_action_minutes?: number | null
+          urgency_score_at_action?: number | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_completion_outcomes_ops_item_id_fkey"
+            columns: ["ops_item_id"]
+            isOneToOne: false
+            referencedRelation: "ops_daily_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_completion_outcomes_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_daily_items: {
+        Row: {
+          created_at: string
+          due_at: string | null
+          id: string
+          metadata: Json | null
+          scored_at: string
+          snoozed_until: string | null
+          source_id: string
+          source_type: string
+          status: string
+          subtitle: string | null
+          time_block: string | null
+          title: string
+          updated_at: string
+          urgency_factors: Json | null
+          urgency_score: number
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          due_at?: string | null
+          id?: string
+          metadata?: Json | null
+          scored_at?: string
+          snoozed_until?: string | null
+          source_id: string
+          source_type: string
+          status?: string
+          subtitle?: string | null
+          time_block?: string | null
+          title: string
+          updated_at?: string
+          urgency_factors?: Json | null
+          urgency_score?: number
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          due_at?: string | null
+          id?: string
+          metadata?: Json | null
+          scored_at?: string
+          snoozed_until?: string | null
+          source_id?: string
+          source_type?: string
+          status?: string
+          subtitle?: string | null
+          time_block?: string | null
+          title?: string
+          updated_at?: string
+          urgency_factors?: Json | null
+          urgency_score?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_daily_items_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_transactions: {
         Row: {
           approximate_payout_date: string | null
