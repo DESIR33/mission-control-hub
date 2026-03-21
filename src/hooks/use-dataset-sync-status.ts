@@ -32,7 +32,7 @@ export function useDatasetSyncStatus(datasetKeys?: string[]) {
 
       const { data, error } = await q;
       if (error) throw error;
-      return (data ?? []) as DatasetSyncRow[];
+      return (data ?? []) as unknown as DatasetSyncRow[];
     },
     enabled: !!workspaceId,
     staleTime: 60_000,
