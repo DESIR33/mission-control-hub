@@ -17,6 +17,7 @@ const query = (table: string) => (supabase as any).from(table);
 
 export function useAgents() {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
   return useQuery<AgentDefinition[]>({
     queryKey: ["agents", workspaceId],
     queryFn: async () => {
@@ -30,7 +31,7 @@ export function useAgents() {
       return (data as AgentDefinition[]) || [];
     },
     enabled: !!workspaceId,
-    ...getFreshness("agentExecutions"),
+    ...getGatedFreshness("agentExecutions", canRefresh),
   });
 }
 
