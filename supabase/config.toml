@@ -128,3 +128,6 @@ verify_jwt = false
 
 [functions.youtube-webhook-processor]
 verify_jwt = false
+
+[functions.tax-deductibility-review]
+verify_jwt = false

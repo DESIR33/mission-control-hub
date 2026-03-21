@@ -1,24 +1,24 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
-import { Plus, Trash2, Receipt, Search, Filter, Tag, CheckCircle2 } from "lucide-react";
+import { Plus, Trash2, Receipt, Search, Filter, Tag, CheckCircle2, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useExpenses, useDeleteExpense, type ExpenseCategory } from "@/hooks/use-expenses";
-import { AddExpenseDialog } from "./AddExpenseDialog";
 
 interface Props {
   categories: ExpenseCategory[];
 }
 
 export function ExpenseList({ categories }: Props) {
+  const navigate = useNavigate();
   const { data: expenses = [], isLoading } = useExpenses();
   const deleteExpense = useDeleteExpense();
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState("all");
-  const [showAdd, setShowAdd] = useState(false);
 
   const catMap = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
 
@@ -66,7 +66,7 @@ export function ExpenseList({ categories }: Props) {
             </SelectContent>
           </Select>
         </div>
-        <Button onClick={() => setShowAdd(true)} size="sm" className="gap-1.5">
+        <Button onClick={() => navigate("/finance/expenses/new")} size="sm" className="gap-1.5">
           <Plus className="h-4 w-4" /> Add Expense
         </Button>
       </div>
@@ -80,7 +80,7 @@ export function ExpenseList({ categories }: Props) {
               <TableHead>Category</TableHead>
               <TableHead>Vendor</TableHead>
               <TableHead className="text-right">Amount</TableHead>
-              <TableHead className="w-[60px]"></TableHead>
+              <TableHead className="w-[80px]"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -98,7 +98,11 @@ export function ExpenseList({ categories }: Props) {
               filtered.map((expense) => {
                 const cat = expense.category_id ? catMap.get(expense.category_id) : null;
                 return (
-                  <TableRow key={expense.id}>
+                  <TableRow
+                    key={expense.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => navigate(`/finance/expenses/${expense.id}/edit`)}
+                  >
                     <TableCell className="text-sm tabular-nums">
                       {format(new Date(expense.expense_date), "MMM d, yyyy")}
                     </TableCell>
@@ -123,14 +127,24 @@ export function ExpenseList({ categories }: Props) {
                       ${Number(expense.amount).toFixed(2)}
                     </TableCell>
                     <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                        onClick={() => deleteExpense.mutate(expense.id)}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
+                      <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                          onClick={(e) => { e.stopPropagation(); navigate(`/finance/expenses/${expense.id}/edit`); }}
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                          onClick={(e) => { e.stopPropagation(); deleteExpense.mutate(expense.id); }}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
@@ -145,8 +159,6 @@ export function ExpenseList({ categories }: Props) {
           </div>
         )}
       </div>
-
-      <AddExpenseDialog open={showAdd} onOpenChange={setShowAdd} categories={categories} />
     </div>
   );
 }
