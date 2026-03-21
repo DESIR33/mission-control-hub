@@ -171,6 +171,7 @@ export function useGenerateThumbnail() {
 
 export function useActiveExperiments() {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
   return useQuery<VideoOptimizationExperiment[]>({
     queryKey: ["active-experiments", workspaceId],
     queryFn: async () => {
@@ -184,7 +185,7 @@ export function useActiveExperiments() {
       return (data ?? []) as unknown as VideoOptimizationExperiment[];
     },
     enabled: !!workspaceId,
-    ...getFreshness("activeExperiments"),
+    ...getGatedFreshness("activeExperiments", canRefresh),
   });
 }
 
