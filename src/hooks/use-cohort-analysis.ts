@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
-import { startOfWeek, format, differenceInWeeks } from "date-fns";
+import { startOfWeek, format, differenceInWeeks, subDays } from "date-fns";
 
 export interface WeeklyCohort {
   week: string; // ISO week like "2026-W10"
