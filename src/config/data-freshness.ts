@@ -299,8 +299,9 @@ export function getAdaptiveRefetchInterval(
   isActive: boolean,
 ): number | false {
   const cfg = DATA_FRESHNESS[key];
-  if (isActive && cfg.activeRefetchInterval) {
-    return cfg.activeRefetchInterval;
+  const activeInterval = (cfg as any).activeRefetchInterval as number | undefined;
+  if (isActive && activeInterval) {
+    return activeInterval;
   }
   return cfg.refetchInterval;
 }
