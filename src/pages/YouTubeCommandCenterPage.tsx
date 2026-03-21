@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import {
   Rocket, TrendingUp, DollarSign,
   Eye, MousePointerClick, Handshake, Users,
@@ -7,8 +7,6 @@ import {
   RefreshCw, Mail, Zap, Sparkles, FlaskConical, Lightbulb,
 } from "lucide-react";
 import { useWorkspace } from "@/hooks/use-workspace";
-import { useSyncYouTube } from "@/hooks/use-youtube-analytics";
-import { useSyncYouTubeAnalytics } from "@/hooks/use-youtube-analytics-api";
 
 
 import { GrowthForecastSection } from "@/components/command-center/sections/GrowthForecastSection";
