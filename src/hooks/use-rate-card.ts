@@ -61,7 +61,7 @@ export function useRateCard() {
       return (data ?? []) as unknown as RateCardItem[];
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("rateCard"),
   });
 
   const { data: terms = [], isLoading: termsLoading } = useQuery({
