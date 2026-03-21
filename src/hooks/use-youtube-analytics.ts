@@ -58,7 +58,7 @@ export function useYouTubeChannelStats(limit = 30) {
       return (data ?? []) as unknown as YouTubeChannelStats[];
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("youtubeChannelStats"),
   });
 }
 
