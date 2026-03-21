@@ -17,6 +17,7 @@ export interface SyncStatus {
 
 export function useSyncStatus() {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
   return useQuery({
     queryKey: ["youtube-sync-status", workspaceId],
     queryFn: async (): Promise<SyncStatus[]> => {
