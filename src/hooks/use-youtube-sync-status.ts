@@ -31,9 +31,9 @@ export function useSyncStatus() {
     refetchInterval: (query) => {
       const statuses = query.state.data as any[] | undefined;
       const isSyncing = statuses?.some((s: any) => s.status === "syncing");
-      return isSyncing ? 30_000 : 600_000;
+      return getAdaptiveRefetchInterval("syncStatus", !!isSyncing);
     },
-    staleTime: 60_000,
+    staleTime: DATA_FRESHNESS.syncStatus.staleTime,
   });
 }
 

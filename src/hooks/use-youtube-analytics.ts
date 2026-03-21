@@ -136,7 +136,7 @@ export function useYouTubeVideoStats(limit = 50) {
       return (data ?? []) as unknown as YouTubeVideoStats[];
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("youtubeVideoStats"),
   });
 }
 

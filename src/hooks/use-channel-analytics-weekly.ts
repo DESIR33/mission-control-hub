@@ -53,6 +53,6 @@ export function useChannelAnalyticsWeekly(days = 180) {
       }
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("channelAnalyticsWeekly"),
   });
 }

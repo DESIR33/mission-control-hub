@@ -111,8 +111,7 @@ export function ProactiveAlertDigest() {
       });
     },
     enabled: !!workspaceId,
-    refetchInterval: 300_000,
-    staleTime: 120_000,
+    ...getFreshness("proactiveAlerts"),
   });
 
   return (

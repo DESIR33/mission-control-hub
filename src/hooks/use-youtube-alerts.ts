@@ -53,8 +53,7 @@ export function useUnreadAlertCount() {
       return count ?? 0;
     },
     enabled: !!workspaceId,
-    refetchInterval: 300_000,
-    staleTime: 120_000,
+    ...getFreshness("youtubeAlerts"),
   });
 }
 
