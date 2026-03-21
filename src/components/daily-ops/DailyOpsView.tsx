@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
-import { RefreshCw, Zap, CalendarClock, Clock, Filter, LayoutList } from "lucide-react";
+import { RefreshCw, Zap, CalendarClock, Clock, LayoutList } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
