@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
-import { getFreshness } from "@/config/data-freshness";
+import { getGatedFreshness, getFreshness } from "@/config/data-freshness";
+import { useEngagementGate } from "@/hooks/use-engagement-gate";
 import { subDays, subMonths, startOfMonth, format } from "date-fns";
 import { getDealAttributionDate } from "@/lib/deal-date-utils";
 
@@ -41,6 +42,7 @@ export interface BriefingItem {
 
 export function useDashboardStats() {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
 
   return useQuery({
     queryKey: ["dashboard-stats", workspaceId],
@@ -133,7 +135,7 @@ export function useDashboardStats() {
       };
     },
     enabled: !!workspaceId,
-    ...getFreshness("dashboardStats"),
+    ...getGatedFreshness("dashboardStats", canRefresh),
   });
 }
 
@@ -213,6 +215,7 @@ export function usePipelineHealth() {
 
 export function useRevenueData() {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
 
   return useQuery({
     queryKey: ["revenue-data", workspaceId],
@@ -285,12 +288,13 @@ export function useRevenueData() {
       };
     },
     enabled: !!workspaceId,
-    ...getFreshness("dashboardStats"),
+    ...getGatedFreshness("dashboardStats", canRefresh),
   });
 }
 
 export function useNeedsAttention() {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
 
   return useQuery({
     queryKey: ["needs-attention", workspaceId],
@@ -365,12 +369,13 @@ export function useNeedsAttention() {
       return items.slice(0, 5);
     },
     enabled: !!workspaceId,
-    ...getFreshness("dashboardStats"),
+    ...getGatedFreshness("dashboardStats", canRefresh),
   });
 }
 
 export function useAiBriefing() {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
 
   return useQuery({
     queryKey: ["ai-briefing", workspaceId],
@@ -541,6 +546,6 @@ export function useAiBriefing() {
         : [{ type: "insight", text: "All caught up! No urgent items right now." }];
     },
     enabled: !!workspaceId,
-    ...getFreshness("dashboardStats"),
+    ...getGatedFreshness("dashboardStats", canRefresh),
   });
 }

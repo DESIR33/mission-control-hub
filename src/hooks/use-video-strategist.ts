@@ -2,7 +2,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { toast } from "sonner";
-import { getFreshness } from "@/config/data-freshness";
+import { getGatedFreshness } from "@/config/data-freshness";
+import { useEngagementGate } from "@/hooks/use-engagement-gate";
 import type {
   VideoOptimizationExperiment,
   StrategistDailyRun,
@@ -170,6 +171,7 @@ export function useGenerateThumbnail() {
 
 export function useActiveExperiments() {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
   return useQuery<VideoOptimizationExperiment[]>({
     queryKey: ["active-experiments", workspaceId],
     queryFn: async () => {
@@ -183,7 +185,7 @@ export function useActiveExperiments() {
       return (data ?? []) as unknown as VideoOptimizationExperiment[];
     },
     enabled: !!workspaceId,
-    ...getFreshness("activeExperiments"),
+    ...getGatedFreshness("activeExperiments", canRefresh),
   });
 }
 
@@ -280,6 +282,7 @@ export function useStrategistRuns() {
 
 export function useStrategistNotifications() {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
   return useQuery<StrategistNotification[]>({
     queryKey: ["strategist-notifications", workspaceId],
     queryFn: async () => {
@@ -294,7 +297,7 @@ export function useStrategistNotifications() {
       return (data ?? []) as unknown as StrategistNotification[];
     },
     enabled: !!workspaceId,
-    ...getFreshness("strategistNotifications"),
+    ...getGatedFreshness("strategistNotifications", canRefresh),
   });
 }
 

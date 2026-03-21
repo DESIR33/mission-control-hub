@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
-import { getFreshness } from "@/config/data-freshness";
+import { getGatedFreshness } from "@/config/data-freshness";
+import { useEngagementGate } from "@/hooks/use-engagement-gate";
 import { differenceInHours, format } from "date-fns";
 import {
   Rocket, Eye, MousePointerClick, TrendingUp, TrendingDown,
@@ -13,6 +14,7 @@ import { fmtCount } from "@/lib/chart-theme";
 
 export function LaunchMonitor() {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
 
   const { data, isLoading } = useQuery({
     queryKey: ["launch-monitor", workspaceId],
@@ -80,7 +82,7 @@ export function LaunchMonitor() {
       return { recentVideos, benchmarks };
     },
     enabled: !!workspaceId,
-    ...getFreshness("launchMonitor"),
+    ...getGatedFreshness("launchMonitor", canRefresh),
   });
 
   const statusConfig: Record<string, { color: string; icon: React.ElementType; label: string }> = {

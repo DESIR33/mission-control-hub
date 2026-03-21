@@ -6,7 +6,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { formatDistanceToNow } from "date-fns";
-import { getFreshness } from "@/config/data-freshness";
+import { getGatedFreshness } from "@/config/data-freshness";
+import { useEngagementGate } from "@/hooks/use-engagement-gate";
 
 interface AlertItem {
   id: string;
@@ -34,6 +35,7 @@ const typeIcons: Record<string, React.ReactNode> = {
 
 export function ProactiveAlertDigest() {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
 
   const { data: alerts = [] } = useQuery<AlertItem[]>({
     queryKey: ["proactive-alerts", workspaceId],
@@ -111,7 +113,7 @@ export function ProactiveAlertDigest() {
       });
     },
     enabled: !!workspaceId,
-    ...getFreshness("proactiveAlerts"),
+    ...getGatedFreshness("proactiveAlerts", canRefresh),
   });
 
   return (

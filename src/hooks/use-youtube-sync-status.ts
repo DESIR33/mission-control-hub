@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { toast } from "sonner";
 import { getAdaptiveRefetchInterval, DATA_FRESHNESS } from "@/config/data-freshness";
+import { useEngagementGate } from "@/hooks/use-engagement-gate";
 
 export interface SyncStatus {
   id: string;
@@ -16,6 +17,7 @@ export interface SyncStatus {
 
 export function useSyncStatus() {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
   return useQuery({
     queryKey: ["youtube-sync-status", workspaceId],
     queryFn: async (): Promise<SyncStatus[]> => {
@@ -31,7 +33,7 @@ export function useSyncStatus() {
     refetchInterval: (query) => {
       const statuses = query.state.data as any[] | undefined;
       const isSyncing = statuses?.some((s: any) => s.status === "syncing");
-      return getAdaptiveRefetchInterval("syncStatus", !!isSyncing);
+      return getAdaptiveRefetchInterval("syncStatus", !!isSyncing, canRefresh);
     },
     staleTime: DATA_FRESHNESS.syncStatus.staleTime,
   });

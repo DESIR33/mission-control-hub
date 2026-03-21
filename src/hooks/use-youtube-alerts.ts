@@ -1,7 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
-import { getFreshness } from "@/config/data-freshness";
+import { getGatedFreshness } from "@/config/data-freshness";
+import { useEngagementGate } from "@/hooks/use-engagement-gate";
 
 export interface YouTubeAlert {
   id: string;
@@ -40,6 +41,7 @@ export function useYouTubeAlerts(limit = 20) {
 
 export function useUnreadAlertCount() {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
 
   return useQuery({
     queryKey: ["youtube-alerts-unread", workspaceId],
@@ -53,7 +55,7 @@ export function useUnreadAlertCount() {
       return count ?? 0;
     },
     enabled: !!workspaceId,
-    ...getFreshness("youtubeAlerts"),
+    ...getGatedFreshness("youtubeAlerts", canRefresh),
   });
 }
 

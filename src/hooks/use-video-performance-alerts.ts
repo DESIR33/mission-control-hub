@@ -1,7 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
-import { getFreshness } from "@/config/data-freshness";
+import { getGatedFreshness } from "@/config/data-freshness";
+import { useEngagementGate } from "@/hooks/use-engagement-gate";
 
 const query = (table: string) => (supabase as any).from(table);
 
@@ -20,6 +21,7 @@ export interface VideoPerformanceAlert {
 
 export function useVideoPerformanceAlerts() {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
   return useQuery<VideoPerformanceAlert[]>({
     queryKey: ["video-performance-alerts", workspaceId],
     queryFn: async () => {
@@ -33,7 +35,7 @@ export function useVideoPerformanceAlerts() {
       return (data ?? []) as VideoPerformanceAlert[];
     },
     enabled: !!workspaceId,
-    ...getFreshness("videoPerformanceAlerts"),
+    ...getGatedFreshness("videoPerformanceAlerts", canRefresh),
   });
 }
 

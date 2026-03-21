@@ -1,7 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
-import { getFreshness } from "@/config/data-freshness";
+import { getGatedFreshness } from "@/config/data-freshness";
+import { useEngagementGate } from "@/hooks/use-engagement-gate";
 import type {
   AgentDefinition,
   AgentSkill,
@@ -16,6 +17,7 @@ const query = (table: string) => (supabase as any).from(table);
 
 export function useAgents() {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
   return useQuery<AgentDefinition[]>({
     queryKey: ["agents", workspaceId],
     queryFn: async () => {
@@ -29,7 +31,7 @@ export function useAgents() {
       return (data as AgentDefinition[]) || [];
     },
     enabled: !!workspaceId,
-    ...getFreshness("agentExecutions"),
+    ...getGatedFreshness("agentExecutions", canRefresh),
   });
 }
 
@@ -52,6 +54,7 @@ export function useToggleAgent() {
 
 export function useSkills() {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
   return useQuery<AgentSkill[]>({
     queryKey: ["agent-skills", workspaceId],
     queryFn: async () => {
@@ -65,7 +68,7 @@ export function useSkills() {
       return (data as AgentSkill[]) || [];
     },
     enabled: !!workspaceId,
-    ...getFreshness("agentExecutions"),
+    ...getGatedFreshness("agentExecutions", canRefresh),
   });
 }
 
@@ -129,6 +132,7 @@ export function useDeleteSkill() {
 
 export function useExecutions(limit = 20) {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
   return useQuery<AgentExecution[]>({
     queryKey: ["agent-executions", workspaceId, limit],
     queryFn: async () => {
@@ -142,7 +146,7 @@ export function useExecutions(limit = 20) {
       return (data as AgentExecution[]) || [];
     },
     enabled: !!workspaceId,
-    ...getFreshness("agentExecutions"),
+    ...getGatedFreshness("agentExecutions", canRefresh),
   });
 }
 

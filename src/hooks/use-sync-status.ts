@@ -5,6 +5,7 @@ import { useWorkspace } from "@/hooks/use-workspace";
 import { toast } from "sonner";
 import { differenceInHours } from "date-fns";
 import { getAdaptiveRefetchInterval, DATA_FRESHNESS } from "@/config/data-freshness";
+import { useEngagementGate } from "@/hooks/use-engagement-gate";
 
 export type SyncHealthStatus = "healthy" | "stale" | "critical" | "never";
 
@@ -40,6 +41,7 @@ function formatTimeSince(hours: number | null): string {
 
 export function useSyncStatusData() {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
 
   const { data: syncLogs = [], isLoading } = useQuery({
     queryKey: ["sync-status-logs", workspaceId],
@@ -66,7 +68,7 @@ export function useSyncStatusData() {
     refetchInterval: (query) => {
       const logs = query.state.data as any[] | undefined;
       const isSyncing = logs?.some((l: any) => l.status === "syncing");
-      return getAdaptiveRefetchInterval("syncStatusLogs", !!isSyncing);
+      return getAdaptiveRefetchInterval("syncStatusLogs", !!isSyncing, canRefresh);
     },
     staleTime: DATA_FRESHNESS.syncStatusLogs.staleTime,
   });

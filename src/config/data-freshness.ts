@@ -33,12 +33,17 @@ export interface DatasetFreshness {
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
-const FIVE_MIN = 300_000;
+const ONE_HOUR = 3_600_000;
 const TWO_MIN = 120_000;
 const ONE_MIN = 60_000;
+const FIVE_MIN = 300_000;
 const TEN_MIN = 600_000;
-const ONE_HOUR = 3_600_000;
-const TWENTY_FOUR_H = 86_400_000;
+
+/**
+ * Hard lower-bound for any periodic refetchInterval.
+ * No dataset may poll faster than once per hour.
+ */
+export const REFETCH_FLOOR_MS = ONE_HOUR;
 
 // ── Registry ────────────────────────────────────────────────────────────────
 
@@ -280,28 +285,49 @@ export const DATA_FRESHNESS = {
 
 export type DatasetKey = keyof typeof DATA_FRESHNESS;
 
+/** Clamp a refetch interval to the hard floor. */
+function clampInterval(interval: number | false): number | false {
+  if (interval === false) return false;
+  return Math.max(interval, REFETCH_FLOOR_MS);
+}
+
 /** Shorthand: returns `{ refetchInterval, staleTime }` ready to spread into useQuery options. */
 export function getFreshness(key: DatasetKey) {
   const cfg = DATA_FRESHNESS[key];
   return {
-    refetchInterval: cfg.refetchInterval,
+    refetchInterval: clampInterval(cfg.refetchInterval),
+    staleTime: cfg.staleTime,
+  } as const;
+}
+
+/**
+ * Returns freshness config gated by engagement.
+ * When `canRefresh` is false, polling is turned **off** (not slowed).
+ */
+export function getGatedFreshness(key: DatasetKey, canRefresh: boolean) {
+  const cfg = DATA_FRESHNESS[key];
+  const interval = clampInterval(cfg.refetchInterval);
+  return {
+    refetchInterval: canRefresh ? interval : false,
     staleTime: cfg.staleTime,
   } as const;
 }
 
 /**
  * For datasets with adaptive polling (e.g. sync status that polls faster
- * while a sync is in-flight), returns a function compatible with
- * React-Query's `refetchInterval` callback.
+ * while a sync is in-flight), returns a clamped interval.
+ * When `canRefresh` is false, returns false (off).
  */
 export function getAdaptiveRefetchInterval(
   key: DatasetKey,
   isActive: boolean,
+  canRefresh = true,
 ): number | false {
+  if (!canRefresh) return false;
   const cfg = DATA_FRESHNESS[key];
   const activeInterval = (cfg as any).activeRefetchInterval as number | undefined;
   if (isActive && activeInterval) {
-    return activeInterval;
+    return Math.max(activeInterval, REFETCH_FLOOR_MS);
   }
-  return cfg.refetchInterval;
+  return clampInterval(cfg.refetchInterval);
 }
