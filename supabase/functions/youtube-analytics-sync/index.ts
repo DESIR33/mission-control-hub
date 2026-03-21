@@ -503,6 +503,28 @@ Deno.serve(async (req) => {
     }
 
     syncResult.ok = syncResult.errors.length === 0;
+
+    // Record sync status for freshness tracking
+    try {
+      await supabase.rpc("record_dataset_sync", {
+        p_workspace_id: workspace_id,
+        p_dataset_key: "youtubeAnalytics",
+        p_triggered_by: body.triggered_by || "cron",
+        p_cooldown_hours: 20, // ~daily with buffer
+        p_error: syncResult.ok ? null : syncResult.errors.join("; "),
+      });
+      // Also stamp monetisation-specific dataset
+      await supabase.rpc("record_dataset_sync", {
+        p_workspace_id: workspace_id,
+        p_dataset_key: "youtubeMonetisation",
+        p_triggered_by: body.triggered_by || "cron",
+        p_cooldown_hours: 20,
+        p_error: syncResult.ok ? null : syncResult.errors.join("; "),
+      });
+    } catch (stampErr: any) {
+      console.error("[YT Analytics] Failed to stamp sync status:", stampErr.message);
+    }
+
     // Strip sample rows from response to reduce payload size
     const leanResult = {
       ok: syncResult.ok,
