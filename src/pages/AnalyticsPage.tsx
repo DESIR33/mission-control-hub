@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   BarChart3, TrendingUp, TrendingDown, Eye, ThumbsUp, MessageSquare,
@@ -14,6 +14,7 @@ import {
   useChannelAnalytics, useVideoAnalytics, useDemographics,
   useTrafficSources, useGeography, useDeviceTypes, useSyncYouTubeAnalytics,
 } from "@/hooks/use-youtube-analytics-api";
+import { useDatasetSyncStatus, useManualDatasetRefresh } from "@/hooks/use-dataset-sync-status";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
