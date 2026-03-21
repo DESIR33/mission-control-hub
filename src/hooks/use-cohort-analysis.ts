@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
-import { startOfWeek, format, differenceInWeeks } from "date-fns";
+import { startOfWeek, format, differenceInWeeks, subDays } from "date-fns";
 
 export interface WeeklyCohort {
   week: string; // ISO week like "2026-W10"
@@ -33,10 +33,12 @@ export function useCohortAnalysis() {
   const { data: channelAnalytics = [], isLoading: channelLoading } = useQuery({
     queryKey: ["cohort-channel-analytics", workspaceId],
     queryFn: async () => {
+      const cutoff = format(subDays(new Date(), 180), "yyyy-MM-dd");
       const { data, error } = await supabase
         .from("youtube_channel_analytics" as any)
         .select("date, subscribers, net_subscribers")
         .eq("workspace_id", workspaceId!)
+        .gte("date", cutoff)
         .order("date", { ascending: true });
       if (error) throw error;
       return (data ?? []) as any[];
@@ -47,10 +49,12 @@ export function useCohortAnalysis() {
   const { data: videoAnalytics = [] } = useQuery({
     queryKey: ["cohort-video-analytics", workspaceId],
     queryFn: async () => {
+      const cutoff = format(subDays(new Date(), 180), "yyyy-MM-dd");
       const { data, error } = await supabase
         .from("youtube_video_analytics" as any)
         .select("youtube_video_id, title, date, subscribers_gained, views")
-        .eq("workspace_id", workspaceId!);
+        .eq("workspace_id", workspaceId!)
+        .gte("date", cutoff);
       if (error) throw error;
       return (data ?? []) as any[];
     },

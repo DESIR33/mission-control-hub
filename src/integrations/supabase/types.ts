@@ -5306,7 +5306,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "youtube_channel_analytics_workspace_id_fkey"
+            foreignKeyName: "youtube_channel_analytics_workspace_id_fkey1"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -5448,7 +5448,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "youtube_comments_workspace_id_fkey"
+            foreignKeyName: "youtube_comments_workspace_id_fkey1"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -5612,7 +5612,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "youtube_sync_logs_workspace_id_fkey"
+            foreignKeyName: "youtube_sync_logs_workspace_id_fkey1"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -5882,6 +5882,954 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      yt_chan_analytics_2026: {
+        Row: {
+          ad_impressions: number
+          average_view_duration_seconds: number
+          average_view_percentage: number
+          card_clicks: number
+          card_ctr: number
+          card_impressions: number
+          comments: number
+          cpm: number
+          date: string
+          dislikes: number
+          end_screen_element_clicks: number
+          end_screen_element_ctr: number
+          end_screen_element_impressions: number
+          estimated_ad_revenue: number
+          estimated_minutes_watched: number
+          estimated_red_partner_revenue: number
+          estimated_revenue: number
+          fetched_at: string
+          gross_revenue: number
+          id: string
+          impressions: number
+          impressions_ctr: number
+          likes: number
+          monetized_playbacks: number
+          net_subscribers: number
+          playback_based_cpm: number
+          shares: number
+          subscribers_gained: number
+          subscribers_lost: number
+          unique_viewers: number
+          views: number
+          workspace_id: string
+        }
+        Insert: {
+          ad_impressions?: number
+          average_view_duration_seconds?: number
+          average_view_percentage?: number
+          card_clicks?: number
+          card_ctr?: number
+          card_impressions?: number
+          comments?: number
+          cpm?: number
+          date: string
+          dislikes?: number
+          end_screen_element_clicks?: number
+          end_screen_element_ctr?: number
+          end_screen_element_impressions?: number
+          estimated_ad_revenue?: number
+          estimated_minutes_watched?: number
+          estimated_red_partner_revenue?: number
+          estimated_revenue?: number
+          fetched_at?: string
+          gross_revenue?: number
+          id?: string
+          impressions?: number
+          impressions_ctr?: number
+          likes?: number
+          monetized_playbacks?: number
+          net_subscribers?: number
+          playback_based_cpm?: number
+          shares?: number
+          subscribers_gained?: number
+          subscribers_lost?: number
+          unique_viewers?: number
+          views?: number
+          workspace_id: string
+        }
+        Update: {
+          ad_impressions?: number
+          average_view_duration_seconds?: number
+          average_view_percentage?: number
+          card_clicks?: number
+          card_ctr?: number
+          card_impressions?: number
+          comments?: number
+          cpm?: number
+          date?: string
+          dislikes?: number
+          end_screen_element_clicks?: number
+          end_screen_element_ctr?: number
+          end_screen_element_impressions?: number
+          estimated_ad_revenue?: number
+          estimated_minutes_watched?: number
+          estimated_red_partner_revenue?: number
+          estimated_revenue?: number
+          fetched_at?: string
+          gross_revenue?: number
+          id?: string
+          impressions?: number
+          impressions_ctr?: number
+          likes?: number
+          monetized_playbacks?: number
+          net_subscribers?: number
+          playback_based_cpm?: number
+          shares?: number
+          subscribers_gained?: number
+          subscribers_lost?: number
+          unique_viewers?: number
+          views?: number
+          workspace_id?: string
+        }
+        Relationships: []
+      }
+      yt_chan_analytics_2027: {
+        Row: {
+          ad_impressions: number
+          average_view_duration_seconds: number
+          average_view_percentage: number
+          card_clicks: number
+          card_ctr: number
+          card_impressions: number
+          comments: number
+          cpm: number
+          date: string
+          dislikes: number
+          end_screen_element_clicks: number
+          end_screen_element_ctr: number
+          end_screen_element_impressions: number
+          estimated_ad_revenue: number
+          estimated_minutes_watched: number
+          estimated_red_partner_revenue: number
+          estimated_revenue: number
+          fetched_at: string
+          gross_revenue: number
+          id: string
+          impressions: number
+          impressions_ctr: number
+          likes: number
+          monetized_playbacks: number
+          net_subscribers: number
+          playback_based_cpm: number
+          shares: number
+          subscribers_gained: number
+          subscribers_lost: number
+          unique_viewers: number
+          views: number
+          workspace_id: string
+        }
+        Insert: {
+          ad_impressions?: number
+          average_view_duration_seconds?: number
+          average_view_percentage?: number
+          card_clicks?: number
+          card_ctr?: number
+          card_impressions?: number
+          comments?: number
+          cpm?: number
+          date: string
+          dislikes?: number
+          end_screen_element_clicks?: number
+          end_screen_element_ctr?: number
+          end_screen_element_impressions?: number
+          estimated_ad_revenue?: number
+          estimated_minutes_watched?: number
+          estimated_red_partner_revenue?: number
+          estimated_revenue?: number
+          fetched_at?: string
+          gross_revenue?: number
+          id?: string
+          impressions?: number
+          impressions_ctr?: number
+          likes?: number
+          monetized_playbacks?: number
+          net_subscribers?: number
+          playback_based_cpm?: number
+          shares?: number
+          subscribers_gained?: number
+          subscribers_lost?: number
+          unique_viewers?: number
+          views?: number
+          workspace_id: string
+        }
+        Update: {
+          ad_impressions?: number
+          average_view_duration_seconds?: number
+          average_view_percentage?: number
+          card_clicks?: number
+          card_ctr?: number
+          card_impressions?: number
+          comments?: number
+          cpm?: number
+          date?: string
+          dislikes?: number
+          end_screen_element_clicks?: number
+          end_screen_element_ctr?: number
+          end_screen_element_impressions?: number
+          estimated_ad_revenue?: number
+          estimated_minutes_watched?: number
+          estimated_red_partner_revenue?: number
+          estimated_revenue?: number
+          fetched_at?: string
+          gross_revenue?: number
+          id?: string
+          impressions?: number
+          impressions_ctr?: number
+          likes?: number
+          monetized_playbacks?: number
+          net_subscribers?: number
+          playback_based_cpm?: number
+          shares?: number
+          subscribers_gained?: number
+          subscribers_lost?: number
+          unique_viewers?: number
+          views?: number
+          workspace_id?: string
+        }
+        Relationships: []
+      }
+      yt_chan_analytics_archive: {
+        Row: {
+          ad_impressions: number
+          average_view_duration_seconds: number
+          average_view_percentage: number
+          card_clicks: number
+          card_ctr: number
+          card_impressions: number
+          comments: number
+          cpm: number
+          date: string
+          dislikes: number
+          end_screen_element_clicks: number
+          end_screen_element_ctr: number
+          end_screen_element_impressions: number
+          estimated_ad_revenue: number
+          estimated_minutes_watched: number
+          estimated_red_partner_revenue: number
+          estimated_revenue: number
+          fetched_at: string
+          gross_revenue: number
+          id: string
+          impressions: number
+          impressions_ctr: number
+          likes: number
+          monetized_playbacks: number
+          net_subscribers: number
+          playback_based_cpm: number
+          shares: number
+          subscribers_gained: number
+          subscribers_lost: number
+          unique_viewers: number
+          views: number
+          workspace_id: string
+        }
+        Insert: {
+          ad_impressions?: number
+          average_view_duration_seconds?: number
+          average_view_percentage?: number
+          card_clicks?: number
+          card_ctr?: number
+          card_impressions?: number
+          comments?: number
+          cpm?: number
+          date: string
+          dislikes?: number
+          end_screen_element_clicks?: number
+          end_screen_element_ctr?: number
+          end_screen_element_impressions?: number
+          estimated_ad_revenue?: number
+          estimated_minutes_watched?: number
+          estimated_red_partner_revenue?: number
+          estimated_revenue?: number
+          fetched_at?: string
+          gross_revenue?: number
+          id?: string
+          impressions?: number
+          impressions_ctr?: number
+          likes?: number
+          monetized_playbacks?: number
+          net_subscribers?: number
+          playback_based_cpm?: number
+          shares?: number
+          subscribers_gained?: number
+          subscribers_lost?: number
+          unique_viewers?: number
+          views?: number
+          workspace_id: string
+        }
+        Update: {
+          ad_impressions?: number
+          average_view_duration_seconds?: number
+          average_view_percentage?: number
+          card_clicks?: number
+          card_ctr?: number
+          card_impressions?: number
+          comments?: number
+          cpm?: number
+          date?: string
+          dislikes?: number
+          end_screen_element_clicks?: number
+          end_screen_element_ctr?: number
+          end_screen_element_impressions?: number
+          estimated_ad_revenue?: number
+          estimated_minutes_watched?: number
+          estimated_red_partner_revenue?: number
+          estimated_revenue?: number
+          fetched_at?: string
+          gross_revenue?: number
+          id?: string
+          impressions?: number
+          impressions_ctr?: number
+          likes?: number
+          monetized_playbacks?: number
+          net_subscribers?: number
+          playback_based_cpm?: number
+          shares?: number
+          subscribers_gained?: number
+          subscribers_lost?: number
+          unique_viewers?: number
+          views?: number
+          workspace_id?: string
+        }
+        Relationships: []
+      }
+      yt_chan_analytics_default: {
+        Row: {
+          ad_impressions: number
+          average_view_duration_seconds: number
+          average_view_percentage: number
+          card_clicks: number
+          card_ctr: number
+          card_impressions: number
+          comments: number
+          cpm: number
+          date: string
+          dislikes: number
+          end_screen_element_clicks: number
+          end_screen_element_ctr: number
+          end_screen_element_impressions: number
+          estimated_ad_revenue: number
+          estimated_minutes_watched: number
+          estimated_red_partner_revenue: number
+          estimated_revenue: number
+          fetched_at: string
+          gross_revenue: number
+          id: string
+          impressions: number
+          impressions_ctr: number
+          likes: number
+          monetized_playbacks: number
+          net_subscribers: number
+          playback_based_cpm: number
+          shares: number
+          subscribers_gained: number
+          subscribers_lost: number
+          unique_viewers: number
+          views: number
+          workspace_id: string
+        }
+        Insert: {
+          ad_impressions?: number
+          average_view_duration_seconds?: number
+          average_view_percentage?: number
+          card_clicks?: number
+          card_ctr?: number
+          card_impressions?: number
+          comments?: number
+          cpm?: number
+          date: string
+          dislikes?: number
+          end_screen_element_clicks?: number
+          end_screen_element_ctr?: number
+          end_screen_element_impressions?: number
+          estimated_ad_revenue?: number
+          estimated_minutes_watched?: number
+          estimated_red_partner_revenue?: number
+          estimated_revenue?: number
+          fetched_at?: string
+          gross_revenue?: number
+          id?: string
+          impressions?: number
+          impressions_ctr?: number
+          likes?: number
+          monetized_playbacks?: number
+          net_subscribers?: number
+          playback_based_cpm?: number
+          shares?: number
+          subscribers_gained?: number
+          subscribers_lost?: number
+          unique_viewers?: number
+          views?: number
+          workspace_id: string
+        }
+        Update: {
+          ad_impressions?: number
+          average_view_duration_seconds?: number
+          average_view_percentage?: number
+          card_clicks?: number
+          card_ctr?: number
+          card_impressions?: number
+          comments?: number
+          cpm?: number
+          date?: string
+          dislikes?: number
+          end_screen_element_clicks?: number
+          end_screen_element_ctr?: number
+          end_screen_element_impressions?: number
+          estimated_ad_revenue?: number
+          estimated_minutes_watched?: number
+          estimated_red_partner_revenue?: number
+          estimated_revenue?: number
+          fetched_at?: string
+          gross_revenue?: number
+          id?: string
+          impressions?: number
+          impressions_ctr?: number
+          likes?: number
+          monetized_playbacks?: number
+          net_subscribers?: number
+          playback_based_cpm?: number
+          shares?: number
+          subscribers_gained?: number
+          subscribers_lost?: number
+          unique_viewers?: number
+          views?: number
+          workspace_id?: string
+        }
+        Relationships: []
+      }
+      yt_comments_2026: {
+        Row: {
+          author_avatar: string | null
+          author_avatar_url: string | null
+          author_channel_id: string | null
+          author_channel_url: string | null
+          author_name: string | null
+          author_profile_url: string | null
+          comment_id: string | null
+          created_at: string
+          id: string
+          is_hearted: boolean | null
+          is_pinned: boolean | null
+          is_replied: boolean | null
+          like_count: number | null
+          our_reply: string | null
+          priority: string | null
+          published_at: string | null
+          reply_count: number | null
+          sentiment: string | null
+          status: string | null
+          suggested_reply: string | null
+          synced_at: string | null
+          text: string | null
+          text_display: string | null
+          updated_at: string
+          video_id: string | null
+          video_title: string | null
+          workspace_id: string
+          youtube_comment_id: string
+          youtube_video_id: string | null
+        }
+        Insert: {
+          author_avatar?: string | null
+          author_avatar_url?: string | null
+          author_channel_id?: string | null
+          author_channel_url?: string | null
+          author_name?: string | null
+          author_profile_url?: string | null
+          comment_id?: string | null
+          created_at?: string
+          id?: string
+          is_hearted?: boolean | null
+          is_pinned?: boolean | null
+          is_replied?: boolean | null
+          like_count?: number | null
+          our_reply?: string | null
+          priority?: string | null
+          published_at?: string | null
+          reply_count?: number | null
+          sentiment?: string | null
+          status?: string | null
+          suggested_reply?: string | null
+          synced_at?: string | null
+          text?: string | null
+          text_display?: string | null
+          updated_at?: string
+          video_id?: string | null
+          video_title?: string | null
+          workspace_id: string
+          youtube_comment_id: string
+          youtube_video_id?: string | null
+        }
+        Update: {
+          author_avatar?: string | null
+          author_avatar_url?: string | null
+          author_channel_id?: string | null
+          author_channel_url?: string | null
+          author_name?: string | null
+          author_profile_url?: string | null
+          comment_id?: string | null
+          created_at?: string
+          id?: string
+          is_hearted?: boolean | null
+          is_pinned?: boolean | null
+          is_replied?: boolean | null
+          like_count?: number | null
+          our_reply?: string | null
+          priority?: string | null
+          published_at?: string | null
+          reply_count?: number | null
+          sentiment?: string | null
+          status?: string | null
+          suggested_reply?: string | null
+          synced_at?: string | null
+          text?: string | null
+          text_display?: string | null
+          updated_at?: string
+          video_id?: string | null
+          video_title?: string | null
+          workspace_id?: string
+          youtube_comment_id?: string
+          youtube_video_id?: string | null
+        }
+        Relationships: []
+      }
+      yt_comments_2027: {
+        Row: {
+          author_avatar: string | null
+          author_avatar_url: string | null
+          author_channel_id: string | null
+          author_channel_url: string | null
+          author_name: string | null
+          author_profile_url: string | null
+          comment_id: string | null
+          created_at: string
+          id: string
+          is_hearted: boolean | null
+          is_pinned: boolean | null
+          is_replied: boolean | null
+          like_count: number | null
+          our_reply: string | null
+          priority: string | null
+          published_at: string | null
+          reply_count: number | null
+          sentiment: string | null
+          status: string | null
+          suggested_reply: string | null
+          synced_at: string | null
+          text: string | null
+          text_display: string | null
+          updated_at: string
+          video_id: string | null
+          video_title: string | null
+          workspace_id: string
+          youtube_comment_id: string
+          youtube_video_id: string | null
+        }
+        Insert: {
+          author_avatar?: string | null
+          author_avatar_url?: string | null
+          author_channel_id?: string | null
+          author_channel_url?: string | null
+          author_name?: string | null
+          author_profile_url?: string | null
+          comment_id?: string | null
+          created_at?: string
+          id?: string
+          is_hearted?: boolean | null
+          is_pinned?: boolean | null
+          is_replied?: boolean | null
+          like_count?: number | null
+          our_reply?: string | null
+          priority?: string | null
+          published_at?: string | null
+          reply_count?: number | null
+          sentiment?: string | null
+          status?: string | null
+          suggested_reply?: string | null
+          synced_at?: string | null
+          text?: string | null
+          text_display?: string | null
+          updated_at?: string
+          video_id?: string | null
+          video_title?: string | null
+          workspace_id: string
+          youtube_comment_id: string
+          youtube_video_id?: string | null
+        }
+        Update: {
+          author_avatar?: string | null
+          author_avatar_url?: string | null
+          author_channel_id?: string | null
+          author_channel_url?: string | null
+          author_name?: string | null
+          author_profile_url?: string | null
+          comment_id?: string | null
+          created_at?: string
+          id?: string
+          is_hearted?: boolean | null
+          is_pinned?: boolean | null
+          is_replied?: boolean | null
+          like_count?: number | null
+          our_reply?: string | null
+          priority?: string | null
+          published_at?: string | null
+          reply_count?: number | null
+          sentiment?: string | null
+          status?: string | null
+          suggested_reply?: string | null
+          synced_at?: string | null
+          text?: string | null
+          text_display?: string | null
+          updated_at?: string
+          video_id?: string | null
+          video_title?: string | null
+          workspace_id?: string
+          youtube_comment_id?: string
+          youtube_video_id?: string | null
+        }
+        Relationships: []
+      }
+      yt_comments_archive: {
+        Row: {
+          author_avatar: string | null
+          author_avatar_url: string | null
+          author_channel_id: string | null
+          author_channel_url: string | null
+          author_name: string | null
+          author_profile_url: string | null
+          comment_id: string | null
+          created_at: string
+          id: string
+          is_hearted: boolean | null
+          is_pinned: boolean | null
+          is_replied: boolean | null
+          like_count: number | null
+          our_reply: string | null
+          priority: string | null
+          published_at: string | null
+          reply_count: number | null
+          sentiment: string | null
+          status: string | null
+          suggested_reply: string | null
+          synced_at: string | null
+          text: string | null
+          text_display: string | null
+          updated_at: string
+          video_id: string | null
+          video_title: string | null
+          workspace_id: string
+          youtube_comment_id: string
+          youtube_video_id: string | null
+        }
+        Insert: {
+          author_avatar?: string | null
+          author_avatar_url?: string | null
+          author_channel_id?: string | null
+          author_channel_url?: string | null
+          author_name?: string | null
+          author_profile_url?: string | null
+          comment_id?: string | null
+          created_at?: string
+          id?: string
+          is_hearted?: boolean | null
+          is_pinned?: boolean | null
+          is_replied?: boolean | null
+          like_count?: number | null
+          our_reply?: string | null
+          priority?: string | null
+          published_at?: string | null
+          reply_count?: number | null
+          sentiment?: string | null
+          status?: string | null
+          suggested_reply?: string | null
+          synced_at?: string | null
+          text?: string | null
+          text_display?: string | null
+          updated_at?: string
+          video_id?: string | null
+          video_title?: string | null
+          workspace_id: string
+          youtube_comment_id: string
+          youtube_video_id?: string | null
+        }
+        Update: {
+          author_avatar?: string | null
+          author_avatar_url?: string | null
+          author_channel_id?: string | null
+          author_channel_url?: string | null
+          author_name?: string | null
+          author_profile_url?: string | null
+          comment_id?: string | null
+          created_at?: string
+          id?: string
+          is_hearted?: boolean | null
+          is_pinned?: boolean | null
+          is_replied?: boolean | null
+          like_count?: number | null
+          our_reply?: string | null
+          priority?: string | null
+          published_at?: string | null
+          reply_count?: number | null
+          sentiment?: string | null
+          status?: string | null
+          suggested_reply?: string | null
+          synced_at?: string | null
+          text?: string | null
+          text_display?: string | null
+          updated_at?: string
+          video_id?: string | null
+          video_title?: string | null
+          workspace_id?: string
+          youtube_comment_id?: string
+          youtube_video_id?: string | null
+        }
+        Relationships: []
+      }
+      yt_comments_default: {
+        Row: {
+          author_avatar: string | null
+          author_avatar_url: string | null
+          author_channel_id: string | null
+          author_channel_url: string | null
+          author_name: string | null
+          author_profile_url: string | null
+          comment_id: string | null
+          created_at: string
+          id: string
+          is_hearted: boolean | null
+          is_pinned: boolean | null
+          is_replied: boolean | null
+          like_count: number | null
+          our_reply: string | null
+          priority: string | null
+          published_at: string | null
+          reply_count: number | null
+          sentiment: string | null
+          status: string | null
+          suggested_reply: string | null
+          synced_at: string | null
+          text: string | null
+          text_display: string | null
+          updated_at: string
+          video_id: string | null
+          video_title: string | null
+          workspace_id: string
+          youtube_comment_id: string
+          youtube_video_id: string | null
+        }
+        Insert: {
+          author_avatar?: string | null
+          author_avatar_url?: string | null
+          author_channel_id?: string | null
+          author_channel_url?: string | null
+          author_name?: string | null
+          author_profile_url?: string | null
+          comment_id?: string | null
+          created_at?: string
+          id?: string
+          is_hearted?: boolean | null
+          is_pinned?: boolean | null
+          is_replied?: boolean | null
+          like_count?: number | null
+          our_reply?: string | null
+          priority?: string | null
+          published_at?: string | null
+          reply_count?: number | null
+          sentiment?: string | null
+          status?: string | null
+          suggested_reply?: string | null
+          synced_at?: string | null
+          text?: string | null
+          text_display?: string | null
+          updated_at?: string
+          video_id?: string | null
+          video_title?: string | null
+          workspace_id: string
+          youtube_comment_id: string
+          youtube_video_id?: string | null
+        }
+        Update: {
+          author_avatar?: string | null
+          author_avatar_url?: string | null
+          author_channel_id?: string | null
+          author_channel_url?: string | null
+          author_name?: string | null
+          author_profile_url?: string | null
+          comment_id?: string | null
+          created_at?: string
+          id?: string
+          is_hearted?: boolean | null
+          is_pinned?: boolean | null
+          is_replied?: boolean | null
+          like_count?: number | null
+          our_reply?: string | null
+          priority?: string | null
+          published_at?: string | null
+          reply_count?: number | null
+          sentiment?: string | null
+          status?: string | null
+          suggested_reply?: string | null
+          synced_at?: string | null
+          text?: string | null
+          text_display?: string | null
+          updated_at?: string
+          video_id?: string | null
+          video_title?: string | null
+          workspace_id?: string
+          youtube_comment_id?: string
+          youtube_video_id?: string | null
+        }
+        Relationships: []
+      }
+      yt_sync_logs_2026: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          records_synced: number | null
+          started_at: string | null
+          status: string
+          sync_type: string
+          workspace_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          records_synced?: number | null
+          started_at?: string | null
+          status?: string
+          sync_type: string
+          workspace_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          records_synced?: number | null
+          started_at?: string | null
+          status?: string
+          sync_type?: string
+          workspace_id?: string
+        }
+        Relationships: []
+      }
+      yt_sync_logs_2027: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          records_synced: number | null
+          started_at: string | null
+          status: string
+          sync_type: string
+          workspace_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          records_synced?: number | null
+          started_at?: string | null
+          status?: string
+          sync_type: string
+          workspace_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          records_synced?: number | null
+          started_at?: string | null
+          status?: string
+          sync_type?: string
+          workspace_id?: string
+        }
+        Relationships: []
+      }
+      yt_sync_logs_archive: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          records_synced: number | null
+          started_at: string | null
+          status: string
+          sync_type: string
+          workspace_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          records_synced?: number | null
+          started_at?: string | null
+          status?: string
+          sync_type: string
+          workspace_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          records_synced?: number | null
+          started_at?: string | null
+          status?: string
+          sync_type?: string
+          workspace_id?: string
+        }
+        Relationships: []
+      }
+      yt_sync_logs_default: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          records_synced: number | null
+          started_at: string | null
+          status: string
+          sync_type: string
+          workspace_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          records_synced?: number | null
+          started_at?: string | null
+          status?: string
+          sync_type: string
+          workspace_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          records_synced?: number | null
+          started_at?: string | null
+          status?: string
+          sync_type?: string
+          workspace_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {
