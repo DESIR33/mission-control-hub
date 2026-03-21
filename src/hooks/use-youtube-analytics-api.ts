@@ -192,7 +192,7 @@ export function useDemographics() {
       return ((data ?? []) as unknown as Demographics[]).map(r => ({ ...r, workspace_id: workspaceId! }));
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("youtubeAnalyticsApi"),
   });
 }
 
