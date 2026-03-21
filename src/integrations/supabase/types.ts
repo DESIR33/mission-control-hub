@@ -1907,6 +1907,50 @@ export type Database = {
           },
         ]
       }
+      dataset_sync_status: {
+        Row: {
+          created_at: string
+          dataset_key: string
+          id: string
+          last_error: string | null
+          last_successful_sync_at: string | null
+          last_sync_triggered_by: string | null
+          next_eligible_sync_at: string | null
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          dataset_key: string
+          id?: string
+          last_error?: string | null
+          last_successful_sync_at?: string | null
+          last_sync_triggered_by?: string | null
+          next_eligible_sync_at?: string | null
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          dataset_key?: string
+          id?: string
+          last_error?: string | null
+          last_successful_sync_at?: string | null
+          last_sync_triggered_by?: string | null
+          next_eligible_sync_at?: string | null
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dataset_sync_status_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deal_videos: {
         Row: {
           created_at: string
@@ -5623,6 +5667,10 @@ export type Database = {
         Args: { ws_name: string; ws_slug: string }
         Returns: string
       }
+      can_manual_refresh: {
+        Args: { p_dataset_key: string; p_workspace_id: string }
+        Returns: boolean
+      }
       get_dashboard_polling_counts: {
         Args: { p_workspace_id: string }
         Returns: Json
@@ -5645,6 +5693,16 @@ export type Database = {
         }[]
       }
       is_workspace_member: { Args: { ws_id: string }; Returns: boolean }
+      record_dataset_sync: {
+        Args: {
+          p_cooldown_hours?: number
+          p_dataset_key: string
+          p_error?: string
+          p_triggered_by?: string
+          p_workspace_id: string
+        }
+        Returns: Json
+      }
       soft_delete_company: {
         Args: { company_id: string; ws_id: string }
         Returns: undefined
