@@ -57,6 +57,6 @@ export function usePollingCounts() {
       }
     },
     enabled: !!workspaceId,
-    ...getFreshness("pollingCounts"),
+    ...getGatedFreshness("pollingCounts", canRefresh),
   });
 }
