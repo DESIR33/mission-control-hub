@@ -17,6 +17,7 @@ export interface PollingCounts {
 
 export function usePollingCounts() {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
 
   return useQuery<PollingCounts>({
     queryKey: ["polling-counts", workspaceId],
