@@ -42,6 +42,7 @@ export interface BriefingItem {
 
 export function useDashboardStats() {
   const { workspaceId } = useWorkspace();
+  const { canRefresh } = useEngagementGate();
 
   return useQuery({
     queryKey: ["dashboard-stats", workspaceId],
