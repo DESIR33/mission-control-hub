@@ -285,7 +285,7 @@ export function useRevenueData() {
       };
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("dashboardStats"),
   });
 }
 
