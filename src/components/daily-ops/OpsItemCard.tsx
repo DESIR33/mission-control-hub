@@ -153,6 +153,6 @@ export const OpsItemCard = memo(function OpsItemCard({ item, onAction, isActing 
           <X className="w-3.5 h-3.5" /> Dismiss
         </Button>
       </div>
-    </motion.div>
+    </div>
   );
 });
