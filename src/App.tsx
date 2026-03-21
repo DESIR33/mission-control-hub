@@ -48,6 +48,8 @@ const AIHubPage = lazy(() => import("./pages/AIHubPage"));
 const ProposalDetailPage = lazy(() => import("./pages/ProposalDetailPage"));
 const TrendScannerPage = lazy(() => import("./pages/TrendScannerPage"));
 const ExpenseTrackerPage = lazy(() => import("./pages/ExpenseTrackerPage"));
+const AddExpensePage = lazy(() => import("./pages/AddExpensePage"));
+const EditExpensePage = lazy(() => import("./pages/EditExpensePage"));
 const FinanceCommandCenterPage = lazy(() => import("./pages/FinanceCommandCenterPage"));
 const SubscriberProfilePage = lazy(() => import("./pages/SubscriberProfilePage"));
 const SubscriberGuidesPage = lazy(() => import("./pages/SubscriberGuidesPage"));
