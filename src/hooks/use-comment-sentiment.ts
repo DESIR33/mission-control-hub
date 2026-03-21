@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { getFreshness } from "@/config/data-freshness";
 
 export interface CommentSentiment {
   id: string;
@@ -49,7 +50,7 @@ export function useCommentSentiments() {
       return (data ?? []) as unknown as CommentSentiment[];
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("commentSentiment"),
   });
 
   return query;

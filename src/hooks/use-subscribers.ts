@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { getFreshness } from "@/config/data-freshness";
 import type { Subscriber, SubscriberStatus, SubscriberSource, SubscriberEngagementData } from "@/types/subscriber";
 
 export function useSubscribers() {
@@ -37,7 +38,7 @@ export function useSubscribers() {
       }));
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("subscriberGuides"),
   });
 }
 
@@ -77,7 +78,7 @@ export function useSubscriber(id: string | null) {
       };
     },
     enabled: !!workspaceId && !!id,
-    staleTime: 120_000,
+    ...getFreshness("subscriberGuides"),
   });
 }
 

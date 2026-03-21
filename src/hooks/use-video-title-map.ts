@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { getFreshness } from "@/config/data-freshness";
 import { useCallback, useMemo } from "react";
 
 /**
@@ -24,7 +25,7 @@ export function useVideoTitleMap() {
       return (data || []) as { youtube_video_id: string; title: string }[];
     },
     enabled: !!workspaceId,
-    staleTime: 5 * 60 * 1000, // cache 5 min
+    ...getFreshness("videoTitleMap"),
   });
 
   const titleMap = useMemo(() => {

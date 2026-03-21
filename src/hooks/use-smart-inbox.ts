@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { getFreshness } from "@/config/data-freshness";
 import { useContacts } from "@/hooks/use-contacts";
 import { useDeals } from "@/hooks/use-deals";
 
@@ -104,7 +105,7 @@ export function useInboxEmails(folder: string = "inbox", searchQuery: string = "
       }));
     },
     enabled: !!workspaceId,
-    staleTime: 60_000,
+    ...getFreshness("inbox"),
   });
 }
 
@@ -193,7 +194,7 @@ export function useInboxStats(folder?: string) {
       return { total: total ?? 0, unread: unread ?? 0 };
     },
     enabled: !!workspaceId,
-    staleTime: 60_000,
+    ...getFreshness("inbox"),
   });
 }
 
@@ -221,7 +222,7 @@ export function useFolderCounts() {
       return counts;
     },
     enabled: !!workspaceId,
-    staleTime: 60_000,
+    ...getFreshness("inbox"),
   });
 }
 

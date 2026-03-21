@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { getFreshness } from "@/config/data-freshness";
 import type { Contact, Activity } from "@/types/crm";
 
 export function useContacts() {
@@ -34,7 +35,7 @@ export function useContacts() {
       }));
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("contacts"),
   });
 }
 
@@ -192,7 +193,7 @@ export function useActivities(entityId: string | null, entityType: string = "con
       }));
     },
     enabled: !!workspaceId && !!entityId,
-    staleTime: 120_000,
+    ...getFreshness("contacts"),
   });
 }
 

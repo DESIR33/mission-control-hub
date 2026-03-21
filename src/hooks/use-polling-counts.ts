@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { getFreshness } from "@/config/data-freshness";
 
 /**
  * Optimization #4: Single consolidated polling query replacing 5+ separate pollers.
@@ -54,7 +55,6 @@ export function usePollingCounts() {
       }
     },
     enabled: !!workspaceId,
-    refetchInterval: 300_000,
-    staleTime: 120_000,
+    ...getFreshness("pollingCounts"),
   });
 }

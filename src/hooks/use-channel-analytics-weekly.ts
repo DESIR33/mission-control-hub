@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { getFreshness } from "@/config/data-freshness";
 
 /**
  * Optimization #5: Server-side weekly aggregation for channel analytics.
@@ -52,6 +53,6 @@ export function useChannelAnalyticsWeekly(days = 180) {
       }
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("channelAnalyticsWeekly"),
   });
 }

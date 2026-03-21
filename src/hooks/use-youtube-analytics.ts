@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { getFreshness } from "@/config/data-freshness";
 
 export interface YouTubeChannelStats {
   id: string;
@@ -57,7 +58,7 @@ export function useYouTubeChannelStats(limit = 30) {
       return (data ?? []) as unknown as YouTubeChannelStats[];
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("youtubeChannelStats"),
   });
 }
 
@@ -86,7 +87,7 @@ export function useChannelStats() {
       return data as unknown as YouTubeChannelStats | null;
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("youtubeChannelStats"),
   });
 }
 
@@ -115,7 +116,7 @@ export function useGrowthGoal() {
       return data as unknown as GrowthGoal | null;
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("growthGoal"),
   });
 }
 
@@ -135,7 +136,7 @@ export function useYouTubeVideoStats(limit = 50) {
       return (data ?? []) as unknown as YouTubeVideoStats[];
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("youtubeVideoStats"),
   });
 }
 

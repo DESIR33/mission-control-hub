@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { getFreshness } from "@/config/data-freshness";
 
 export interface YouTubeAlert {
   id: string;
@@ -52,8 +53,7 @@ export function useUnreadAlertCount() {
       return count ?? 0;
     },
     enabled: !!workspaceId,
-    refetchInterval: 300_000,
-    staleTime: 120_000,
+    ...getFreshness("youtubeAlerts"),
   });
 }
 

@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { getFreshness } from "@/config/data-freshness";
 
 export interface VideoCompanyLink {
   youtube_video_id: string;
@@ -36,7 +37,7 @@ export function useAllVideoCompanies() {
       }));
     },
     enabled: !!workspaceId,
-    staleTime: 60_000,
+    ...getFreshness("allVideoCompanies"),
   });
 
   const lookup = new Map<string, VideoCompanyLink[]>();

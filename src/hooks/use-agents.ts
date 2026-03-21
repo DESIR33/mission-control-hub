@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { getFreshness } from "@/config/data-freshness";
 import type {
   AgentDefinition,
   AgentSkill,
@@ -28,7 +29,7 @@ export function useAgents() {
       return (data as AgentDefinition[]) || [];
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("agentExecutions"),
   });
 }
 
@@ -64,7 +65,7 @@ export function useSkills() {
       return (data as AgentSkill[]) || [];
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("agentExecutions"),
   });
 }
 
@@ -141,8 +142,7 @@ export function useExecutions(limit = 20) {
       return (data as AgentExecution[]) || [];
     },
     enabled: !!workspaceId,
-    refetchInterval: 300_000,
-    staleTime: 120_000,
+    ...getFreshness("agentExecutions"),
   });
 }
 

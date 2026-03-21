@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { getFreshness } from "@/config/data-freshness";
 import { subDays } from "date-fns";
 
 // ── Types ─────────────────────────────────────────────────────────────
@@ -133,7 +134,7 @@ export function useChannelAnalytics(days = 180) {
       }));
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("youtubeAnalyticsApi"),
   });
 }
 
@@ -162,7 +163,7 @@ export function useVideoAnalytics(daysRange = 90) {
       }));
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("youtubeAnalyticsApi"),
   });
 }
 
@@ -191,7 +192,7 @@ export function useDemographics() {
       return ((data ?? []) as unknown as Demographics[]).map(r => ({ ...r, workspace_id: workspaceId! }));
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("youtubeAnalyticsApi"),
   });
 }
 
@@ -213,7 +214,7 @@ export function useTrafficSources(daysRange = 90) {
       return ((data ?? []) as unknown as TrafficSource[]).map(r => ({ ...r, workspace_id: workspaceId! }));
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("youtubeAnalyticsApi"),
   });
 }
 
@@ -235,7 +236,7 @@ export function useTrafficSourcesWithPrevious(daysRange = 90) {
       return ((data ?? []) as unknown as TrafficSource[]).map(r => ({ ...r, workspace_id: workspaceId! }));
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("youtubeAnalyticsApi"),
   });
 }
 
@@ -266,7 +267,7 @@ export function useGeography() {
       return ((data ?? []) as unknown as Geography[]).map(r => ({ ...r, workspace_id: workspaceId! }));
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("youtubeAnalyticsApi"),
   });
 }
 
@@ -296,7 +297,7 @@ export function useDeviceTypes() {
       return ((data ?? []) as unknown as DeviceType[]).map(r => ({ ...r, workspace_id: workspaceId! }));
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("youtubeAnalyticsApi"),
   });
 }
 

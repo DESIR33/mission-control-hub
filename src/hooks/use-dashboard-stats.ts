@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { getFreshness } from "@/config/data-freshness";
 import { subDays, subMonths, startOfMonth, format } from "date-fns";
 import { getDealAttributionDate } from "@/lib/deal-date-utils";
 
@@ -132,8 +133,7 @@ export function useDashboardStats() {
       };
     },
     enabled: !!workspaceId,
-    refetchInterval: 300_000,
-    staleTime: 120_000,
+    ...getFreshness("dashboardStats"),
   });
 }
 
@@ -207,7 +207,7 @@ export function usePipelineHealth() {
       return { contacts: contactsPipeline, content: contentPipeline, deals: dealsPipeline };
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("pipelineHealth"),
   });
 }
 
@@ -285,7 +285,7 @@ export function useRevenueData() {
       };
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("dashboardStats"),
   });
 }
 
@@ -365,7 +365,7 @@ export function useNeedsAttention() {
       return items.slice(0, 5);
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("dashboardStats"),
   });
 }
 
@@ -541,6 +541,6 @@ export function useAiBriefing() {
         : [{ type: "insight", text: "All caught up! No urgent items right now." }];
     },
     enabled: !!workspaceId,
-    staleTime: 300_000,
+    ...getFreshness("dashboardStats"),
   });
 }

@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { getFreshness } from "@/config/data-freshness";
 
 export type NotificationType =
   | "overdue_task"
@@ -38,7 +39,7 @@ export function useNotifications() {
       return (data ?? []) as Notification[];
     },
     enabled: !!workspaceId,
-    staleTime: 60_000,
+    ...getFreshness("notifications"),
   });
 
   const unreadCount = notifications.filter((n) => !n.read_at).length;

@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { getFreshness } from "@/config/data-freshness";
 
 export interface SequenceStep {
   step_number: number;
@@ -47,7 +48,7 @@ export function useEmailSequences() {
       return (data ?? []) as unknown as EmailSequence[];
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("emailSequences"),
   });
 }
 
@@ -115,7 +116,7 @@ export function useSequenceEnrollments(sequenceId?: string) {
       return (data ?? []) as unknown as SequenceEnrollment[];
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("emailSequences"),
   });
 }
 
@@ -176,6 +177,6 @@ export function useSequenceSendLog(sequenceId?: string) {
       return (data ?? []) as any[];
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("emailSequences"),
   });
 }

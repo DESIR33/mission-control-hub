@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { formatDistanceToNow } from "date-fns";
+import { getFreshness } from "@/config/data-freshness";
 
 interface AlertItem {
   id: string;
@@ -110,8 +111,7 @@ export function ProactiveAlertDigest() {
       });
     },
     enabled: !!workspaceId,
-    refetchInterval: 300_000,
-    staleTime: 120_000,
+    ...getFreshness("proactiveAlerts"),
   });
 
   return (

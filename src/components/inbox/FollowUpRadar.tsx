@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { getFreshness } from "@/config/data-freshness";
 import { useInboxFeedback } from "@/hooks/use-inbox-feedback";
 import { differenceInHours } from "date-fns";
 import {
@@ -95,8 +96,7 @@ export function FollowUpRadar() {
         .slice(0, 20);
     },
     enabled: !!workspaceId,
-    refetchInterval: 300_000,
-    staleTime: 120_000,
+    ...getFreshness("followUpRadar"),
   });
 
   // Filter out excluded emails

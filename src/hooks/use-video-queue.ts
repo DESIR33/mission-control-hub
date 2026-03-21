@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { getFreshness } from "@/config/data-freshness";
 
 export interface VideoQueueItem {
   id: string;
@@ -106,7 +107,7 @@ export function useVideoQueue() {
       return (data ?? []).map(mapRow);
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("videoQueue"),
   });
 }
 
