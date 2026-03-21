@@ -194,7 +194,7 @@ export function useInboxStats(folder?: string) {
       return { total: total ?? 0, unread: unread ?? 0 };
     },
     enabled: !!workspaceId,
-    staleTime: 60_000,
+    ...getFreshness("inbox"),
   });
 }
 
