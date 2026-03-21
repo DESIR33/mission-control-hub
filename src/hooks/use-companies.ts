@@ -32,7 +32,7 @@ export function useCompanies() {
       }));
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("companies"),
   });
 }
 
