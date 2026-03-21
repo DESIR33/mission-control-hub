@@ -86,7 +86,7 @@ export function useCommentIntelligence() {
       return (data ?? []) as unknown as YouTubeComment[];
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("commentIntelligence"),
   });
 
   const comments = commentsQuery.data ?? [];

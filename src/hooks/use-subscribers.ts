@@ -78,7 +78,7 @@ export function useSubscriber(id: string | null) {
       };
     },
     enabled: !!workspaceId && !!id,
-    staleTime: 120_000,
+    ...getFreshness("subscriberGuides"),
   });
 }
 

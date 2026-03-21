@@ -297,7 +297,7 @@ export function useDeviceTypes() {
       return ((data ?? []) as unknown as DeviceType[]).map(r => ({ ...r, workspace_id: workspaceId! }));
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("youtubeAnalyticsApi"),
   });
 }
 

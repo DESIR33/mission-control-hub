@@ -37,7 +37,7 @@ export function useAllVideoCompanies() {
       }));
     },
     enabled: !!workspaceId,
-    staleTime: 60_000,
+    ...getFreshness("allVideoCompanies"),
   });
 
   const lookup = new Map<string, VideoCompanyLink[]>();

@@ -20,7 +20,7 @@ export function useSponsoredVideos() {
       return new Set((data ?? []).map((d: any) => d.youtube_video_id as string));
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("sponsoredVideos"),
   });
 
   return { sponsoredSet, isLoading };

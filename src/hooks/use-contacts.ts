@@ -193,7 +193,7 @@ export function useActivities(entityId: string | null, entityType: string = "con
       }));
     },
     enabled: !!workspaceId && !!entityId,
-    staleTime: 120_000,
+    ...getFreshness("contacts"),
   });
 }
 

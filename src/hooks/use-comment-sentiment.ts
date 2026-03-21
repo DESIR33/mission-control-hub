@@ -50,7 +50,7 @@ export function useCommentSentiments() {
       return (data ?? []) as unknown as CommentSentiment[];
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("commentSentiment"),
   });
 
   return query;

@@ -59,7 +59,7 @@ export function useDeals() {
       }));
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("deals"),
   });
 }
 

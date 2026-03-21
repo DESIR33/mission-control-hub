@@ -37,7 +37,7 @@ function useVideoQueueList() {
       return ((data as any[]) ?? []) as { id: number; title: string; youtube_video_id: string | null }[];
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("subscriberGuides"),
   });
 }
 

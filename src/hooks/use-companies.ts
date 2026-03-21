@@ -172,7 +172,7 @@ export function useCompanyContacts(companyId: string | null) {
       }));
     },
     enabled: !!workspaceId && !!companyId,
-    staleTime: 120_000,
+    ...getFreshness("companies"),
   });
 }
 

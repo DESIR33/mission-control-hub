@@ -39,7 +39,7 @@ export function useNotifications() {
       return (data ?? []) as Notification[];
     },
     enabled: !!workspaceId,
-    staleTime: 60_000,
+    ...getFreshness("notifications"),
   });
 
   const unreadCount = notifications.filter((n) => !n.read_at).length;

@@ -107,7 +107,7 @@ export function useVideoQueue() {
       return (data ?? []).map(mapRow);
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("videoQueue"),
   });
 }
 

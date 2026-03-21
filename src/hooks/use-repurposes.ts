@@ -34,7 +34,7 @@ export function useRepurposes(sourceVideoId?: number | string) {
       return (data ?? []) as unknown as ContentRepurpose[];
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("repurposes"),
   });
 }
 

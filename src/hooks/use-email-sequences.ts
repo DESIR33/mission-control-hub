@@ -177,6 +177,6 @@ export function useSequenceSendLog(sequenceId?: string) {
       return (data ?? []) as any[];
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("emailSequences"),
   });
 }

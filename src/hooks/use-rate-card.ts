@@ -76,7 +76,7 @@ export function useRateCard() {
       return (data ?? []) as unknown as RateCardTerm[];
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("rateCard"),
   });
 
   const seedDefaults = useMutation({
