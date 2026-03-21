@@ -116,7 +116,7 @@ export function useGrowthGoal() {
       return data as unknown as GrowthGoal | null;
     },
     enabled: !!workspaceId,
-    staleTime: 120_000,
+    ...getFreshness("growthGoal"),
   });
 }
 
