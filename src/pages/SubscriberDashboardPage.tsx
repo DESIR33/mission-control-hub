@@ -291,9 +291,12 @@ export default function SubscriberDashboardPage() {
         </TabsContent>
 
         <TabsContent value="retention">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <TopicRetentionCard />
-            <UnsubscribeReasonsChart />
+          <div className="space-y-6">
+            <TopicImpactHeatmap />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <TopicRetentionCard />
+              <UnsubscribeReasonsChart />
+            </div>
           </div>
         </TabsContent>
 
