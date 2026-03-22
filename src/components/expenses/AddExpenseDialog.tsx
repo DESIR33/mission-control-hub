@@ -92,7 +92,35 @@ export function AddExpenseDialog({ open, onOpenChange, categories }: Props) {
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Date</Label>
-              <Input type="date" value={form.expense_date} onChange={(e) => setForm({ ...form, expense_date: e.target.value })} />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !form.expense_date && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {form.expense_date
+                      ? format(parse(form.expense_date, "yyyy-MM-dd", new Date()), "PPP")
+                      : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={form.expense_date ? parse(form.expense_date, "yyyy-MM-dd", new Date()) : undefined}
+                    onSelect={(date) => {
+                      if (date) {
+                        setForm({ ...form, expense_date: format(date, "yyyy-MM-dd") });
+                      }
+                    }}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
             <div className="space-y-1.5">
               <Label>Category</Label>
