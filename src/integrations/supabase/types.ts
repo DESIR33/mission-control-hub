@@ -2765,6 +2765,7 @@ export type Database = {
         Row: {
           amount: number
           category_id: string | null
+          company_id: string | null
           created_at: string
           created_by: string | null
           currency: string
@@ -2786,6 +2787,7 @@ export type Database = {
         Insert: {
           amount?: number
           category_id?: string | null
+          company_id?: string | null
           created_at?: string
           created_by?: string | null
           currency?: string
@@ -2807,6 +2809,7 @@ export type Database = {
         Update: {
           amount?: number
           category_id?: string | null
+          company_id?: string | null
           created_at?: string
           created_by?: string | null
           currency?: string
@@ -2831,6 +2834,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "expense_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
           {
