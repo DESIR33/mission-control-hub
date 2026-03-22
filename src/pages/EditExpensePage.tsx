@@ -200,13 +200,9 @@ export default function EditExpensePage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <Label>Vendor</Label>
-            <Input value={form.vendor} onChange={(e) => setForm({ ...form, vendor: e.target.value })} />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Company</Label>
+            <Label>Vendor / Company</Label>
             <CompanyPicker value={form.company_id} onChange={(v) => setForm({ ...form, company_id: v })} />
           </div>
           <div className="space-y-1.5">
