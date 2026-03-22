@@ -209,20 +209,7 @@ export default function EditExpensePage() {
           </div>
           <div className="space-y-1.5">
             <Label>Company</Label>
-            <Select value={form.company_id} onValueChange={(v) => setForm({ ...form, company_id: v === "none" ? "" : v })}>
-              <SelectTrigger><SelectValue placeholder="Link to company..." /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">No company</SelectItem>
-                {companies.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>
-                    <span className="flex items-center gap-2">
-                      {c.logo_url && <img src={c.logo_url} alt="" className="w-4 h-4 rounded object-cover" />}
-                      {c.name}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <CompanyPicker value={form.company_id} onChange={(v) => setForm({ ...form, company_id: v })} />
           </div>
           <div className="space-y-1.5">
             <Label>Receipt</Label>
