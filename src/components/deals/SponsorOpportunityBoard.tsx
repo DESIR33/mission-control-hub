@@ -185,6 +185,9 @@ export function SponsorOpportunityBoard() {
             <TabsTrigger value="taxonomy" className="text-xs">
               <Zap className="w-3 h-3 mr-1" /> Taxonomy
             </TabsTrigger>
+            <TabsTrigger value="experiments" className="text-xs">
+              <Beaker className="w-3 h-3 mr-1" /> Experiments
+            </TabsTrigger>
           </TabsList>
 
           {/* Timeline View */}
