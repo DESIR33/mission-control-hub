@@ -1,16 +1,26 @@
 import { useState } from "react";
 import {
   Zap, TrendingUp, Share2, Eye, ThumbsUp,
-  MessageSquare, MousePointerClick, Clock, ChevronDown, ChevronUp,
+  MessageSquare, MousePointerClick, Clock, ChevronDown, ChevronUp, Flame, Loader2,
 } from "lucide-react";
 import {
   BarChart, Bar, ScatterChart, Scatter,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
 } from "recharts";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useViralPotential, type ViralScore } from "@/hooks/use-viral-potential";
 import { useAllVideoCompanies } from "@/hooks/use-all-video-companies";
 import { VideoCompanyLogos } from "@/components/VideoCompanyLogos";
+import { useTriggerViralPlaybook } from "@/hooks/use-viral-playbook";
+import { useToast } from "@/hooks/use-toast";
+import {
+  chartTooltipStyle,
+  fmtCount,
+  cartesianGridDefaults,
+  xAxisDefaults,
+  yAxisDefaults,
+} from "@/lib/chart-theme";
 import {
   chartTooltipStyle,
   fmtCount,
