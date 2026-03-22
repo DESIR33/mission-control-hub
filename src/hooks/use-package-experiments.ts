@@ -230,7 +230,7 @@ export function usePackageExperiments(outcomeFilter?: string) {
 
 export function useCreatePackageExperiment() {
   const { workspaceId } = useWorkspace();
-  const { data: channelStats } = useYouTubeChannelStats();
+  const { data: channelStats } = useChannelStats();
   const qc = useQueryClient();
 
   return useMutation({
