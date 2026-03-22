@@ -54,7 +54,7 @@ export function TaxPrepDashboard() {
         return { name: cat?.name || (id === "uncategorized" ? "Uncategorized" : "Unknown"), total, color: cat?.color || "#94a3b8" };
       })
       .sort((a, b) => b.total - a.total);
-  }, [filteredExpenses, budgetCategories]);
+  }, [filteredExpenses, expenseCategories]);
 
   const actionItems = useMemo(() => {
     const items: { text: string; type: "warning" | "info" }[] = [];
