@@ -21,15 +21,8 @@ export function useYouTubeAlertFeed(limit = 10) {
   return useQuery({
     queryKey: ["youtube-alert-feed", workspaceId, limit],
     queryFn: async (): Promise<AlertFeedItem[]> => {
-      const { data, error } = await supabase
-        .from("youtube_alerts" as any)
-        .select("*")
-        .eq("workspace_id", workspaceId!)
-        .eq("is_read", false)
-        .order("created_at", { ascending: false })
-        .limit(limit);
-      if (error) throw error;
-      return (data ?? []) as unknown as AlertFeedItem[];
+      // Table does not exist yet — return empty until migration is created
+      return [];
     },
     enabled: !!workspaceId,
   });

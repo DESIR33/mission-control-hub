@@ -110,12 +110,12 @@ export function useWeeklyActionPlan() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("youtube_video_analytics" as any)
-        .select("category, views, engagement_rate")
+        .select("title, views")
         .eq("workspace_id", workspaceId!)
         .order("views", { ascending: false })
         .limit(20);
       if (error) throw error;
-      return (data ?? []) as unknown as Array<{ category: string; views: number; engagement_rate: number }>;
+      return (data ?? []).map((d: any) => ({ category: d.title ?? "Unknown", views: d.views ?? 0, engagement_rate: 0 })) as Array<{ category: string; views: number; engagement_rate: number }>;
     },
     enabled: !!workspaceId,
   });

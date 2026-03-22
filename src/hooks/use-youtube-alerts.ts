@@ -40,13 +40,7 @@ export function useUnreadAlertCount() {
   return useQuery({
     queryKey: ["youtube-alerts-unread", workspaceId],
     queryFn: async (): Promise<number> => {
-      const { count, error } = await supabase
-        .from("youtube_alerts" as any)
-        .select("id", { count: "exact", head: true })
-        .eq("workspace_id", workspaceId!)
-        .eq("is_read", false);
-      if (error) throw error;
-      return count ?? 0;
+      return 0;
     },
     enabled: !!workspaceId,
     ...getGatedFreshness("youtubeAlerts", canRefresh),

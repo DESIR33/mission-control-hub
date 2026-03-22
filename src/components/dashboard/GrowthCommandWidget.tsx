@@ -209,7 +209,7 @@ function useGrowthCommandData() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("growth_goals" as any)
-        .select("id, target_value, current_value, start_date, target_date, status, micro_targets, weekly_required_rate")
+        .select("id, target_value, current_value, start_date, target_date, status")
         .eq("workspace_id", workspaceId!)
         .eq("metric", "subscribers")
         .order("created_at", { ascending: false })

@@ -51,17 +51,11 @@ export function useNewsletter() {
     enabled: !!workspaceId,
   });
 
-  // Fetch existing newsletter drafts from email_sequences
+  // email_sequences table does not exist yet
   const draftsQuery = useQuery({
     queryKey: ["newsletter-drafts", workspaceId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("email_sequences" as any)
-        .select("id, workspace_id, name, subject, body, status, video_queue_id, created_at")
-        .eq("workspace_id", workspaceId!)
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return (data ?? []) as unknown as NewsletterDraft[];
+    queryFn: async (): Promise<NewsletterDraft[]> => {
+      return [];
     },
     enabled: !!workspaceId,
   });
