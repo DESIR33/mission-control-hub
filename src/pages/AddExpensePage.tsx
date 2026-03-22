@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { format, parse } from "date-fns";
 import { ArrowLeft, Receipt, Upload, CalendarIcon, Eye } from "lucide-react";
+import { CompanyPicker } from "@/components/expenses/CompanyPicker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
