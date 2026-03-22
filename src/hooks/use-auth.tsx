@@ -22,25 +22,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+    const timeoutId = window.setTimeout(() => {
+      if (isMounted) {
+        console.warn("Auth session load timed out, continuing unauthenticated");
+        setIsLoading(false);
+      }
+    }, 8000);
+
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!isMounted) return;
+
       setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
+      window.clearTimeout(timeoutId);
     });
 
     // Then check initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setIsLoading(false);
-    });
+    supabase.auth
+      .getSession()
+      .then(({ data: { session } }) => {
+        if (!isMounted) return;
+        setSession(session);
+        setUser(session?.user ?? null);
+      })
+      .catch((error) => {
+        console.error("Failed to load auth session:", error);
+        if (!isMounted) return;
+        setSession(null);
+        setUser(null);
+      })
+      .finally(() => {
+        if (!isMounted) return;
+        setIsLoading(false);
+        window.clearTimeout(timeoutId);
+      });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      window.clearTimeout(timeoutId);
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error("Sign out failed:", error);
+    }
   };
 
   return (
