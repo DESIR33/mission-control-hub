@@ -2013,6 +2013,47 @@ export type Database = {
           },
         ]
       }
+      content_sponsor_taxonomy: {
+        Row: {
+          affinity_score: number
+          content_category: string
+          created_at: string
+          id: string
+          notes: string | null
+          sponsor_vertical: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          affinity_score?: number
+          content_category: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          sponsor_vertical: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          affinity_score?: number
+          content_category?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          sponsor_vertical?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_sponsor_taxonomy_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dataset_sync_status: {
         Row: {
           created_at: string
@@ -4186,6 +4227,87 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "shared_drafts_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sponsor_opportunity_board: {
+        Row: {
+          avg_deal_value: number
+          company_id: string | null
+          company_name: string
+          content_categories: string[]
+          created_at: string
+          historical_win_rate: number
+          id: string
+          match_score: number
+          month: string
+          notes: string | null
+          outreach_status: string
+          package_rationale: string | null
+          past_deal_count: number
+          sponsor_vertical: string
+          suggested_outreach_week: number
+          suggested_package: string
+          total_past_revenue: number
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          avg_deal_value?: number
+          company_id?: string | null
+          company_name: string
+          content_categories?: string[]
+          created_at?: string
+          historical_win_rate?: number
+          id?: string
+          match_score?: number
+          month: string
+          notes?: string | null
+          outreach_status?: string
+          package_rationale?: string | null
+          past_deal_count?: number
+          sponsor_vertical?: string
+          suggested_outreach_week?: number
+          suggested_package?: string
+          total_past_revenue?: number
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          avg_deal_value?: number
+          company_id?: string | null
+          company_name?: string
+          content_categories?: string[]
+          created_at?: string
+          historical_win_rate?: number
+          id?: string
+          match_score?: number
+          month?: string
+          notes?: string | null
+          outreach_status?: string
+          package_rationale?: string | null
+          past_deal_count?: number
+          sponsor_vertical?: string
+          suggested_outreach_week?: number
+          suggested_package?: string
+          total_past_revenue?: number
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sponsor_opportunity_board_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sponsor_opportunity_board_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
