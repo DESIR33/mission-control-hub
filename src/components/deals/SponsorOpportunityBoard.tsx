@@ -18,12 +18,17 @@ import {
   useSeedTaxonomy,
   type SponsorOpportunity,
 } from "@/hooks/use-sponsor-opportunity-board";
+import {
+  useSmartPackageRecommender,
+  useCreatePackageExperiment,
+} from "@/hooks/use-package-experiments";
+import { PackageRecommenderPanel } from "@/components/deals/PackageRecommender";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import {
   Target, Calendar, DollarSign, TrendingUp, Sparkles,
   ChevronLeft, ChevronRight, Loader2, RefreshCw, Layers,
-  Building2, Clock, Award, Zap,
+  Building2, Clock, Award, Zap, Beaker,
 } from "lucide-react";
 import { format, addMonths, startOfMonth } from "date-fns";
 
