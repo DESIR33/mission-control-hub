@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
-import { useYouTubeChannelStats } from "@/hooks/use-youtube-analytics";
+import { useChannelStats } from "@/hooks/use-youtube-analytics";
 import { useDeals, type Deal } from "@/hooks/use-deals";
 import { useMemo } from "react";
 
