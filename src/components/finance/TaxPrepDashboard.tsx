@@ -23,6 +23,7 @@ export function TaxPrepDashboard() {
   }, [selectedYear]);
   const { quarterlyTax, budgetCategories, plData, isLoading } = useFinancialIntelligence(Math.max(monthsNeeded, 12), selectedYear);
   const { data: expenses = [] } = useExpenses();
+  const { data: expenseCategories = [] } = useExpenseCategories();
 
   const filteredQuarterlyTax = quarterlyTax;
 
