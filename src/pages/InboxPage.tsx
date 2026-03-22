@@ -66,6 +66,9 @@ import { SnippetsWithVariables } from "@/components/inbox/SnippetsWithVariables"
 import { MassArchiveDialog } from "@/components/inbox/MassArchiveDialog";
 import { ShareAvailabilityButton } from "@/components/inbox/ShareAvailabilityButton";
 import { SmartSendSuggestion } from "@/components/inbox/SmartSendSuggestion";
+import { RouteActionQueue } from "@/components/inbox/RouteActionQueue";
+import { usePendingRouteActionCount } from "@/hooks/use-inbox-route-actions";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { toast as sonnerToast } from "sonner";
 import { useInboxRealtime } from "@/hooks/use-inbox-realtime";
 
