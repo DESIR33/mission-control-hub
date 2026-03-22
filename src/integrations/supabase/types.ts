@@ -657,6 +657,68 @@ export type Database = {
           },
         ]
       }
+      agent_roi_snapshots: {
+        Row: {
+          acceptance_rate: number
+          agent_slug: string
+          avg_confidence: number
+          created_at: string
+          errors_count: number
+          id: string
+          operations_executed: number
+          operations_proposed: number
+          operations_rejected: number
+          operations_rolled_back: number
+          period_end: string
+          period_start: string
+          revenue_influenced: number
+          time_saved_minutes: number
+          workspace_id: string
+        }
+        Insert: {
+          acceptance_rate?: number
+          agent_slug: string
+          avg_confidence?: number
+          created_at?: string
+          errors_count?: number
+          id?: string
+          operations_executed?: number
+          operations_proposed?: number
+          operations_rejected?: number
+          operations_rolled_back?: number
+          period_end: string
+          period_start: string
+          revenue_influenced?: number
+          time_saved_minutes?: number
+          workspace_id: string
+        }
+        Update: {
+          acceptance_rate?: number
+          agent_slug?: string
+          avg_confidence?: number
+          created_at?: string
+          errors_count?: number
+          id?: string
+          operations_executed?: number
+          operations_proposed?: number
+          operations_rejected?: number
+          operations_rolled_back?: number
+          period_end?: string
+          period_start?: string
+          revenue_influenced?: number
+          time_saved_minutes?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_roi_snapshots_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agent_scorecards: {
         Row: {
           accepted_proposals: number
@@ -1307,6 +1369,148 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "auto_execution_rules_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      automation_approval_policies: {
+        Row: {
+          agent_slug: string | null
+          auto_approve: boolean
+          confidence_threshold: number
+          created_at: string
+          domain: string | null
+          enabled: boolean
+          id: string
+          max_auto_executions_per_day: number
+          require_human_review: boolean
+          risk_level: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          agent_slug?: string | null
+          auto_approve?: boolean
+          confidence_threshold?: number
+          created_at?: string
+          domain?: string | null
+          enabled?: boolean
+          id?: string
+          max_auto_executions_per_day?: number
+          require_human_review?: boolean
+          risk_level?: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          agent_slug?: string | null
+          auto_approve?: boolean
+          confidence_threshold?: number
+          created_at?: string
+          domain?: string | null
+          enabled?: boolean
+          id?: string
+          max_auto_executions_per_day?: number
+          require_human_review?: boolean
+          risk_level?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_approval_policies_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      automation_operations_log: {
+        Row: {
+          agent_slug: string
+          approved_at: string | null
+          approved_by: string | null
+          confidence: number
+          created_at: string
+          domain: string
+          entity_id: string | null
+          entity_name: string | null
+          entity_type: string | null
+          executed_at: string | null
+          execution_error: string | null
+          id: string
+          operation_type: string
+          payload: Json
+          rationale: string | null
+          result: Json | null
+          risk_level: string
+          rollback_payload: Json | null
+          rolled_back_at: string | null
+          rolled_back_by: string | null
+          source_proposal_id: string | null
+          status: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          agent_slug: string
+          approved_at?: string | null
+          approved_by?: string | null
+          confidence?: number
+          created_at?: string
+          domain?: string
+          entity_id?: string | null
+          entity_name?: string | null
+          entity_type?: string | null
+          executed_at?: string | null
+          execution_error?: string | null
+          id?: string
+          operation_type: string
+          payload?: Json
+          rationale?: string | null
+          result?: Json | null
+          risk_level?: string
+          rollback_payload?: Json | null
+          rolled_back_at?: string | null
+          rolled_back_by?: string | null
+          source_proposal_id?: string | null
+          status?: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          agent_slug?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          confidence?: number
+          created_at?: string
+          domain?: string
+          entity_id?: string | null
+          entity_name?: string | null
+          entity_type?: string | null
+          executed_at?: string | null
+          execution_error?: string | null
+          id?: string
+          operation_type?: string
+          payload?: Json
+          rationale?: string | null
+          result?: Json | null
+          risk_level?: string
+          rollback_payload?: Json | null
+          rolled_back_at?: string | null
+          rolled_back_by?: string | null
+          source_proposal_id?: string | null
+          status?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_operations_log_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
