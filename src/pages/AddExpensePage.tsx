@@ -24,6 +24,7 @@ export default function AddExpensePage() {
   const { workspaceId } = useWorkspace();
   const createExpense = useCreateExpense();
   const { data: categories = [] } = useExpenseCategories();
+  const { data: companies = [] } = useCompanies();
   
   const [uploading, setUploading] = useState(false);
   const [createdExpenseId, setCreatedExpenseId] = useState<string | null>(null);

@@ -26,6 +26,7 @@ export default function EditExpensePage() {
   const { workspaceId } = useWorkspace();
   const { data: expenses = [] } = useExpenses();
   const { data: categories = [] } = useExpenseCategories();
+  const { data: companies = [] } = useCompanies();
   
   const updateExpense = useUpdateExpense();
   const deleteExpense = useDeleteExpense();
