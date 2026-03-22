@@ -26,14 +26,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const timeoutId = window.setTimeout(() => {
       if (isMounted) {
         console.warn("Auth session load timed out, continuing unauthenticated");
+        setSession(null);
+        setUser(null);
         setIsLoading(false);
       }
-    }, 8000);
+    }, 5000);
 
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!isMounted) return;
-
       setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
@@ -43,10 +44,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Then check initial session
     supabase.auth
       .getSession()
-      .then(({ data: { session } }) => {
+      .then(({ data: { session }, error }) => {
         if (!isMounted) return;
-        setSession(session);
-        setUser(session?.user ?? null);
+        if (error) {
+          console.error("Session error (likely bad JWT), clearing:", error);
+          setSession(null);
+          setUser(null);
+          // Attempt to sign out to clear the bad token
+          supabase.auth.signOut().catch(() => {});
+        } else {
+          setSession(session);
+          setUser(session?.user ?? null);
+        }
       })
       .catch((error) => {
         console.error("Failed to load auth session:", error);
