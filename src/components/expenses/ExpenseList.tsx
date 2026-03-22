@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
-import { Plus, Trash2, Receipt, Search, Filter, Tag, CheckCircle2, Pencil, Download, Eye, Loader2, FileArchive } from "lucide-react";
+import { Plus, Trash2, Receipt, Search, Filter, Tag, CheckCircle2, Pencil, Download, Eye, Loader2, FileArchive, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
