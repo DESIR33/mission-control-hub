@@ -4371,6 +4371,111 @@ export type Database = {
           },
         ]
       }
+      sponsor_package_experiments: {
+        Row: {
+          accepted_package: string | null
+          accepted_value: number | null
+          avg_ctr: number
+          avg_view_duration: number
+          channel_subscribers: number
+          channel_video_count: number
+          channel_views: number
+          company_id: string | null
+          company_name: string
+          created_at: string
+          historical_avg_deal: number
+          historical_win_rate: number
+          id: string
+          match_score: number
+          opportunity_id: string | null
+          outcome: string
+          outcome_notes: string | null
+          package_rationale: string | null
+          past_deal_count: number
+          recommended_package: string
+          recommended_value: number
+          rejection_reason: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          sponsor_vertical: string | null
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          accepted_package?: string | null
+          accepted_value?: number | null
+          avg_ctr?: number
+          avg_view_duration?: number
+          channel_subscribers?: number
+          channel_video_count?: number
+          channel_views?: number
+          company_id?: string | null
+          company_name: string
+          created_at?: string
+          historical_avg_deal?: number
+          historical_win_rate?: number
+          id?: string
+          match_score?: number
+          opportunity_id?: string | null
+          outcome?: string
+          outcome_notes?: string | null
+          package_rationale?: string | null
+          past_deal_count?: number
+          recommended_package: string
+          recommended_value?: number
+          rejection_reason?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          sponsor_vertical?: string | null
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          accepted_package?: string | null
+          accepted_value?: number | null
+          avg_ctr?: number
+          avg_view_duration?: number
+          channel_subscribers?: number
+          channel_video_count?: number
+          channel_views?: number
+          company_id?: string | null
+          company_name?: string
+          created_at?: string
+          historical_avg_deal?: number
+          historical_win_rate?: number
+          id?: string
+          match_score?: number
+          opportunity_id?: string | null
+          outcome?: string
+          outcome_notes?: string | null
+          package_rationale?: string | null
+          past_deal_count?: number
+          recommended_package?: string
+          recommended_value?: number
+          rejection_reason?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          sponsor_vertical?: string | null
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sponsor_package_experiments_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sponsor_package_experiments_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       strategist_daily_runs: {
         Row: {
           completed_at: string | null
