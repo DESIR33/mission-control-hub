@@ -67,6 +67,8 @@ export function SponsorOpportunityBoard() {
   const { data: opportunities = [], isLoading } = useSponsorOpportunityBoard(targetMonth);
   const generate = useGenerateOpportunityBoard();
   const updateStatus = useUpdateOpportunityStatus();
+  const recommend = useSmartPackageRecommender();
+  const createExperiment = useCreatePackageExperiment();
   const { data: taxonomy = [] } = useTaxonomyMappings();
   const seedTaxonomy = useSeedTaxonomy();
   const { toast } = useToast();
