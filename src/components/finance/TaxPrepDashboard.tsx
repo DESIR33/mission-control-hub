@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useFinancialIntelligence } from "@/hooks/use-financial-intelligence";
-import { useExpenses } from "@/hooks/use-expenses";
+import { useExpenses, useExpenseCategories } from "@/hooks/use-expenses";
 import { chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, barDefaults } from "@/lib/chart-theme";
 import { CartesianGrid } from "recharts";
 
@@ -23,6 +23,7 @@ export function TaxPrepDashboard() {
   }, [selectedYear]);
   const { quarterlyTax, budgetCategories, plData, isLoading } = useFinancialIntelligence(Math.max(monthsNeeded, 12), selectedYear);
   const { data: expenses = [] } = useExpenses();
+  const { data: expenseCategories = [] } = useExpenseCategories();
 
   const filteredQuarterlyTax = quarterlyTax;
 
@@ -49,11 +50,11 @@ export function TaxPrepDashboard() {
     });
     return Array.from(byCategory.entries())
       .map(([id, total]) => {
-        const cat = budgetCategories.find((c) => c.categoryId === id);
+        const cat = expenseCategories.find((c) => c.id === id);
         return { name: cat?.name || (id === "uncategorized" ? "Uncategorized" : "Unknown"), total, color: cat?.color || "#94a3b8" };
       })
       .sort((a, b) => b.total - a.total);
-  }, [filteredExpenses, budgetCategories]);
+  }, [filteredExpenses, expenseCategories]);
 
   const actionItems = useMemo(() => {
     const items: { text: string; type: "warning" | "info" }[] = [];
