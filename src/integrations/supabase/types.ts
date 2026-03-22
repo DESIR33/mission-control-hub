@@ -2994,6 +2994,62 @@ export type Database = {
           },
         ]
       }
+      inbox_route_actions: {
+        Row: {
+          action_type: string
+          confidence: number
+          created_at: string
+          email_id: string
+          id: string
+          payload: Json
+          rationale: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          result_entity_id: string | null
+          status: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          action_type: string
+          confidence?: number
+          created_at?: string
+          email_id: string
+          id?: string
+          payload?: Json
+          rationale?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          result_entity_id?: string | null
+          status?: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          action_type?: string
+          confidence?: number
+          created_at?: string
+          email_id?: string
+          id?: string
+          payload?: Json
+          rationale?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          result_entity_id?: string | null
+          status?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inbox_route_actions_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invoices: {
         Row: {
           amount: number
