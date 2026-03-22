@@ -1,16 +1,19 @@
 import { useState } from "react";
 import {
   Zap, TrendingUp, Share2, Eye, ThumbsUp,
-  MessageSquare, MousePointerClick, Clock, ChevronDown, ChevronUp,
+  MessageSquare, MousePointerClick, Clock, ChevronDown, ChevronUp, Flame, Loader2,
 } from "lucide-react";
 import {
   BarChart, Bar, ScatterChart, Scatter,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
 } from "recharts";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useViralPotential, type ViralScore } from "@/hooks/use-viral-potential";
 import { useAllVideoCompanies } from "@/hooks/use-all-video-companies";
 import { VideoCompanyLogos } from "@/components/VideoCompanyLogos";
+import { useTriggerViralPlaybook } from "@/hooks/use-viral-playbook";
+import { useToast } from "@/hooks/use-toast";
 import {
   chartTooltipStyle,
   fmtCount,
@@ -55,6 +58,27 @@ export function ViralPredictor() {
   const { data: analysis, isLoading } = useViralPotential();
   const { lookup: companyLookup } = useAllVideoCompanies();
   const [expanded, setExpanded] = useState<string | null>(null);
+  const triggerPlaybook = useTriggerViralPlaybook();
+  const { toast } = useToast();
+
+  const handleTriggerPlaybook = async (video: ViralScore) => {
+    try {
+      const result = await triggerPlaybook.mutateAsync({
+        video_id: video.videoId,
+        video_title: video.title,
+        viral_score: video.viralScore,
+        views: video.views,
+        subs: video.subsGained,
+      });
+      if (result?.triggered) {
+        toast({ title: "Viral playbook launched!", description: `${result.assets_generated} assets generated` });
+      } else {
+        toast({ title: "Playbook not triggered", description: result?.reason });
+      }
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
 
   if (isLoading) {
     return <div className="rounded-xl border border-border bg-card p-6 animate-pulse h-96" />;
@@ -229,6 +253,26 @@ export function ViralPredictor() {
                     <span>{video.subsGained} subs</span>
                     <span>{video.viewToSubRate.toFixed(2)}% sub rate</span>
                   </div>
+                  {video.viralScore >= 75 && (
+                    <div className="flex justify-center mt-3">
+                      <Button
+                        size="sm"
+                        className="gap-1.5 text-xs"
+                        disabled={triggerPlaybook.isPending}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleTriggerPlaybook(video);
+                        }}
+                      >
+                        {triggerPlaybook.isPending ? (
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                        ) : (
+                          <Flame className="w-3 h-3" />
+                        )}
+                        Launch Viral Playbook
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

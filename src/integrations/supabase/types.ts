@@ -5762,6 +5762,194 @@ export type Database = {
           },
         ]
       }
+      viral_conversion_assets: {
+        Row: {
+          asset_type: string
+          content: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          published_at: string | null
+          run_id: string
+          status: string
+          title: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          asset_type: string
+          content?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          published_at?: string | null
+          run_id: string
+          status?: string
+          title: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          asset_type?: string
+          content?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          published_at?: string | null
+          run_id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "viral_conversion_assets_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "viral_playbook_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "viral_conversion_assets_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      viral_playbook_checklist: {
+        Row: {
+          auto_generated: boolean
+          category: string
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_completed: boolean
+          run_id: string
+          step_order: number
+          title: string
+          workspace_id: string
+        }
+        Insert: {
+          auto_generated?: boolean
+          category?: string
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_completed?: boolean
+          run_id: string
+          step_order?: number
+          title: string
+          workspace_id: string
+        }
+        Update: {
+          auto_generated?: boolean
+          category?: string
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_completed?: boolean
+          run_id?: string
+          step_order?: number
+          title?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "viral_playbook_checklist_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "viral_playbook_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "viral_playbook_checklist_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      viral_playbook_runs: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          deals_generated: number
+          id: string
+          leads_generated: number
+          revenue_attributed: number
+          started_at: string
+          status: string
+          subs_at_trigger: number
+          subs_gained: number
+          trigger_reason: string
+          updated_at: string
+          video_title: string
+          views_at_trigger: number
+          views_current: number
+          viral_score: number
+          workspace_id: string
+          youtube_video_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          deals_generated?: number
+          id?: string
+          leads_generated?: number
+          revenue_attributed?: number
+          started_at?: string
+          status?: string
+          subs_at_trigger?: number
+          subs_gained?: number
+          trigger_reason?: string
+          updated_at?: string
+          video_title?: string
+          views_at_trigger?: number
+          views_current?: number
+          viral_score?: number
+          workspace_id: string
+          youtube_video_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          deals_generated?: number
+          id?: string
+          leads_generated?: number
+          revenue_attributed?: number
+          started_at?: string
+          status?: string
+          subs_at_trigger?: number
+          subs_gained?: number
+          trigger_reason?: string
+          updated_at?: string
+          video_title?: string
+          views_at_trigger?: number
+          views_current?: number
+          viral_score?: number
+          workspace_id?: string
+          youtube_video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "viral_playbook_runs_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       webhook_sync_queue: {
         Row: {
           attempts: number
