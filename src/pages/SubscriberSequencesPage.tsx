@@ -8,11 +8,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSubscriberSequences, useCreateSubscriberSequence, useDeleteSubscriberSequence } from "@/hooks/use-subscriber-sequences";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Mail, Trash2, Loader2, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { SubscriberSequenceStep, SubscriberSequenceTrigger } from "@/types/subscriber";
+import { ChurnRiskPanel } from "@/components/subscribers/ChurnRiskPanel";
+import { ReengagementABTestPanel } from "@/components/subscribers/ReengagementABTestPanel";
 
 export default function SubscriberSequencesPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -80,7 +83,7 @@ export default function SubscriberSequencesPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Subscriber Sequences</h1>
-          <p className="text-sm text-muted-foreground mt-1">Automated email drip campaigns for your subscribers</p>
+          <p className="text-sm text-muted-foreground mt-1">Automated email drip campaigns & re-engagement</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
@@ -180,61 +183,79 @@ export default function SubscriberSequencesPage() {
         </Dialog>
       </div>
 
-      {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Skeleton className="h-40" />
-          <Skeleton className="h-40" />
-        </div>
-      ) : sequences.length === 0 ? (
-        <div className="rounded-lg border border-border bg-card p-12 text-center">
-          <Mail className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-          <p className="text-sm text-muted-foreground">No sequences yet. Create one to automate subscriber emails.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {sequences.map((seq) => (
-            <Card key={seq.id} className="bg-card border-border">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-base">{seq.name}</CardTitle>
-                    {seq.description && <p className="text-xs text-muted-foreground mt-1">{seq.description}</p>}
-                  </div>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" onClick={() => handleDelete(seq.id)}>
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className={cn("text-xs", seq.status === "active" ? "bg-success/15 text-success border-success/30" : "bg-muted text-muted-foreground")}>
-                    {seq.status}
-                  </Badge>
-                  <Badge variant="outline" className="text-xs">
-                    <Zap className="w-3 h-3 mr-1" />
-                    {triggerLabels[seq.trigger_type]}
-                  </Badge>
-                  <Badge variant="outline" className="text-xs">
-                    {seq.steps.length} step{seq.steps.length !== 1 ? "s" : ""}
-                  </Badge>
-                </div>
-                <div className="space-y-1">
-                  {seq.steps.slice(0, 3).map((step) => (
-                    <div key={step.step_number} className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Mail className="w-3 h-3 shrink-0" />
-                      <span>Day {step.delay_days}:</span>
-                      <span className="text-foreground truncate">{step.subject || "(no subject)"}</span>
+      <Tabs defaultValue="sequences" className="space-y-6">
+        <TabsList className="flex-wrap h-auto gap-1">
+          <TabsTrigger value="sequences">Sequences</TabsTrigger>
+          <TabsTrigger value="churn">Churn Risk</TabsTrigger>
+          <TabsTrigger value="ab-tests">A/B Tests</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="sequences">
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Skeleton className="h-40" />
+              <Skeleton className="h-40" />
+            </div>
+          ) : sequences.length === 0 ? (
+            <div className="rounded-lg border border-border bg-card p-12 text-center">
+              <Mail className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+              <p className="text-sm text-muted-foreground">No sequences yet. Create one to automate subscriber emails.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {sequences.map((seq) => (
+                <Card key={seq.id} className="bg-card border-border">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <CardTitle className="text-base">{seq.name}</CardTitle>
+                        {seq.description && <p className="text-xs text-muted-foreground mt-1">{seq.description}</p>}
+                      </div>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" onClick={() => handleDelete(seq.id)}>
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
                     </div>
-                  ))}
-                  {seq.steps.length > 3 && (
-                    <p className="text-xs text-muted-foreground ml-5">+{seq.steps.length - 3} more steps</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className={cn("text-xs", seq.status === "active" ? "bg-success/15 text-success border-success/30" : "bg-muted text-muted-foreground")}>
+                        {seq.status}
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        <Zap className="w-3 h-3 mr-1" />
+                        {triggerLabels[seq.trigger_type]}
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        {seq.steps.length} step{seq.steps.length !== 1 ? "s" : ""}
+                      </Badge>
+                    </div>
+                    <div className="space-y-1">
+                      {seq.steps.slice(0, 3).map((step) => (
+                        <div key={step.step_number} className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Mail className="w-3 h-3 shrink-0" />
+                          <span>Day {step.delay_days}:</span>
+                          <span className="text-foreground truncate">{step.subject || "(no subject)"}</span>
+                        </div>
+                      ))}
+                      {seq.steps.length > 3 && (
+                        <p className="text-xs text-muted-foreground ml-5">+{seq.steps.length - 3} more steps</p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="churn">
+          <ChurnRiskPanel />
+        </TabsContent>
+
+        <TabsContent value="ab-tests">
+          <ReengagementABTestPanel />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
