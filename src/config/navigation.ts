@@ -151,6 +151,7 @@ export const mainNavItems: NavItem[] = [
       { to: "/ai/memory", label: "Memory", icon: BookOpen },
       { to: "/ai/training", label: "Training", icon: Sparkles },
       { to: "/ai/thumbnails", label: "Thumbnails", icon: ImageIcon },
+      { to: "/operations", label: "Operations Center", icon: Gauge },
     ],
   },
   { to: "/integrations", icon: Zap, label: "Integrations" },
