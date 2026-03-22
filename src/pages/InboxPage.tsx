@@ -66,6 +66,9 @@ import { SnippetsWithVariables } from "@/components/inbox/SnippetsWithVariables"
 import { MassArchiveDialog } from "@/components/inbox/MassArchiveDialog";
 import { ShareAvailabilityButton } from "@/components/inbox/ShareAvailabilityButton";
 import { SmartSendSuggestion } from "@/components/inbox/SmartSendSuggestion";
+import { RouteActionQueue } from "@/components/inbox/RouteActionQueue";
+import { usePendingRouteActionCount } from "@/hooks/use-inbox-route-actions";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { toast as sonnerToast } from "sonner";
 import { useInboxRealtime } from "@/hooks/use-inbox-realtime";
 
@@ -120,6 +123,7 @@ export default function InboxPage() {
   const outlookSend = useOutlookSend();
   const outlookAuth = useOutlookAuthUrl();
   const classifyEmails = useClassifyEmails();
+  const { data: pendingRouteCount = 0 } = usePendingRouteActionCount();
 
   // Apply split inbox filter
   const filteredEmails = filterBySplit(emails, splitTab);
@@ -457,6 +461,27 @@ export default function InboxPage() {
               {classifyEmails.isPending ? <Loader2Icon className="h-3.5 w-3.5 animate-spin" /> : <SparklesIcon className="h-3.5 w-3.5" />}
               <span className="hidden sm:inline">Classify</span>
             </Button>
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-1.5 relative">
+                  <InboxIcon className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Actions</span>
+                  {pendingRouteCount > 0 && (
+                    <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-destructive-foreground text-[9px] flex items-center justify-center font-bold">
+                      {pendingRouteCount}
+                    </span>
+                  )}
+                </Button>
+              </SheetTrigger>
+              <SheetContent className="w-full sm:max-w-xl bg-background border-border overflow-y-auto">
+                <SheetHeader>
+                  <SheetTitle className="text-base">Route Action Queue</SheetTitle>
+                </SheetHeader>
+                <div className="mt-4">
+                  <RouteActionQueue />
+                </div>
+              </SheetContent>
+            </Sheet>
             <Button
               variant="outline"
               size="sm"

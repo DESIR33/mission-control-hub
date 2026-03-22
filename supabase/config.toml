@@ -137,3 +137,6 @@ verify_jwt = false
 
 [functions.viral-playbook]
 verify_jwt = false
+
+[functions.execute-route-action]
+verify_jwt = false
