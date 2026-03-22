@@ -51,7 +51,6 @@ export default function EditExpensePage() {
         amount: String(expense.amount),
         expense_date: expense.expense_date,
         category_id: expense.category_id || "",
-        vendor: expense.vendor || "",
         notes: expense.notes || "",
         is_tax_deductible: expense.is_tax_deductible,
         receipt_url: expense.receipt_url,
