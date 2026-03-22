@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useFinancialIntelligence } from "@/hooks/use-financial-intelligence";
-import { useExpenses } from "@/hooks/use-expenses";
+import { useExpenses, useExpenseCategories } from "@/hooks/use-expenses";
 import { chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, barDefaults } from "@/lib/chart-theme";
 import { CartesianGrid } from "recharts";
 
