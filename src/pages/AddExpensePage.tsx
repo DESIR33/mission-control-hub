@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useCreateExpense, useExpenseCategories } from "@/hooks/use-expenses";
+import { useCompanies } from "@/hooks/use-companies";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
@@ -23,6 +24,7 @@ export default function AddExpensePage() {
   const { workspaceId } = useWorkspace();
   const createExpense = useCreateExpense();
   const { data: categories = [] } = useExpenseCategories();
+  const { data: companies = [] } = useCompanies();
   
   const [uploading, setUploading] = useState(false);
   const [createdExpenseId, setCreatedExpenseId] = useState<string | null>(null);
@@ -32,7 +34,6 @@ export default function AddExpensePage() {
     amount: "",
     expense_date: new Date().toISOString().split("T")[0],
     category_id: "",
-    vendor: "",
     notes: "",
     is_tax_deductible: false,
     receipt_url: null as string | null,
@@ -63,7 +64,7 @@ export default function AddExpensePage() {
       amount: parseFloat(form.amount),
       expense_date: form.expense_date,
       category_id: form.category_id || null,
-      vendor: form.vendor || null,
+      vendor: form.company_id ? (companies.find(c => c.id === form.company_id)?.name || null) : null,
       notes: form.notes || null,
       is_tax_deductible: form.is_tax_deductible,
       receipt_url: form.receipt_url,
@@ -79,7 +80,7 @@ export default function AddExpensePage() {
           expenseId={createdExpenseId}
           expenseTitle={form.title}
           expenseAmount={parseFloat(form.amount)}
-          expenseVendor={form.vendor}
+          expenseVendor={companies.find(c => c.id === form.company_id)?.name || ""}
           expenseCategory={categories.find(c => c.id === form.category_id)?.name || ""}
           onDone={() => navigate("/finance/expenses/expenses")}
         />
@@ -171,17 +172,9 @@ export default function AddExpensePage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <Label>Vendor</Label>
-            <Input
-              value={form.vendor}
-              onChange={(e) => setForm({ ...form, vendor: e.target.value })}
-              placeholder="e.g. Adobe, Amazon"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Company</Label>
+            <Label>Vendor / Company</Label>
             <CompanyPicker value={form.company_id} onChange={(v) => setForm({ ...form, company_id: v })} />
           </div>
           <div className="space-y-1.5">
