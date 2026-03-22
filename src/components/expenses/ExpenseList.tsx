@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useExpenses, useDeleteExpense, type ExpenseCategory } from "@/hooks/use-expenses";
+import { useExpenses, useDeleteExpense, useCreateExpense, type ExpenseCategory } from "@/hooks/use-expenses";
 import { ReceiptViewerDialog } from "./ReceiptViewerDialog";
 import { useToast } from "@/hooks/use-toast";
 import JSZip from "jszip";
