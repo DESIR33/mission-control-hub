@@ -248,6 +248,19 @@ export function ExpenseList({ categories }: Props) {
                         <Button
                           variant="ghost"
                           size="icon"
+                          className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                          title="Duplicate expense"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const { id, created_at, updated_at, created_by, ...rest } = expense;
+                            createExpense.mutate({ ...rest, title: `${expense.title} (copy)` });
+                          }}
+                        >
+                          <Copy className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           className="h-7 w-7 text-muted-foreground hover:text-destructive"
                           onClick={(e) => { e.stopPropagation(); deleteExpense.mutate(expense.id); }}
                         >
