@@ -3126,6 +3126,64 @@ export type Database = {
           },
         ]
       }
+      newsletter_click_events: {
+        Row: {
+          contact_id: string | null
+          created_at: string
+          deal_id: string | null
+          event_type: string
+          id: string
+          issue_id: string
+          link_url: string | null
+          subscriber_email: string
+          workspace_id: string
+        }
+        Insert: {
+          contact_id?: string | null
+          created_at?: string
+          deal_id?: string | null
+          event_type?: string
+          id?: string
+          issue_id: string
+          link_url?: string | null
+          subscriber_email: string
+          workspace_id: string
+        }
+        Update: {
+          contact_id?: string | null
+          created_at?: string
+          deal_id?: string | null
+          event_type?: string
+          id?: string
+          issue_id?: string
+          link_url?: string | null
+          subscriber_email?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "newsletter_click_events_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "newsletter_click_events_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "newsletter_click_events_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       newsletter_issues: {
         Row: {
           ab_test_config: Json | null
@@ -3253,6 +3311,74 @@ export type Database = {
           },
           {
             foreignKeyName: "newsletter_segment_stats_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      newsletter_topic_pipeline: {
+        Row: {
+          avg_click_rate: number
+          avg_open_rate: number
+          closed_revenue: number
+          deals_generated: number
+          id: string
+          issues_count: number
+          last_calculated_at: string
+          leads_generated: number
+          pipeline_per_send: number
+          pipeline_value: number
+          revenue_per_send: number
+          topic: string
+          total_clicked: number
+          total_opened: number
+          total_replied: number
+          total_sent: number
+          workspace_id: string
+        }
+        Insert: {
+          avg_click_rate?: number
+          avg_open_rate?: number
+          closed_revenue?: number
+          deals_generated?: number
+          id?: string
+          issues_count?: number
+          last_calculated_at?: string
+          leads_generated?: number
+          pipeline_per_send?: number
+          pipeline_value?: number
+          revenue_per_send?: number
+          topic: string
+          total_clicked?: number
+          total_opened?: number
+          total_replied?: number
+          total_sent?: number
+          workspace_id: string
+        }
+        Update: {
+          avg_click_rate?: number
+          avg_open_rate?: number
+          closed_revenue?: number
+          deals_generated?: number
+          id?: string
+          issues_count?: number
+          last_calculated_at?: string
+          leads_generated?: number
+          pipeline_per_send?: number
+          pipeline_value?: number
+          revenue_per_send?: number
+          topic?: string
+          total_clicked?: number
+          total_opened?: number
+          total_replied?: number
+          total_sent?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "newsletter_topic_pipeline_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -7447,6 +7573,10 @@ export type Database = {
         }[]
       }
       is_workspace_member: { Args: { ws_id: string }; Returns: boolean }
+      recalculate_topic_pipeline: {
+        Args: { p_workspace_id: string }
+        Returns: undefined
+      }
       record_dataset_sync: {
         Args: {
           p_cooldown_hours?: number
