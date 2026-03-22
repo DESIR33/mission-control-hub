@@ -56,6 +56,7 @@ const SubscriberGuidesPage = lazy(() => import("./pages/SubscriberGuidesPage"));
 const SubscriberSequencesPage = lazy(() => import("./pages/SubscriberSequencesPage"));
 const SubscriberDashboardPage = lazy(() => import("./pages/SubscriberDashboardPage"));
 const SubscribersListPage = lazy(() => import("./pages/SubscribersListPage"));
+const OperationsCenterPage = lazy(() => import("./pages/OperationsCenterPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
