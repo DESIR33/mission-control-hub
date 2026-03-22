@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { CheckCircle2, Sparkles, ArrowRight, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
@@ -30,6 +32,28 @@ export function TaxReviewBanner({ expenseId, expenseTitle, expenseAmount, expens
   const [result, setResult] = useState<TaxReviewResult | null>(null);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [error, setError] = useState<string | null>(null);
+  const [manualDeductible, setManualDeductible] = useState(false);
+  const [savingManual, setSavingManual] = useState(false);
+
+  const handleManualToggle = async (checked: boolean) => {
+    setManualDeductible(checked);
+    setSavingManual(true);
+    try {
+      await supabase
+        .from("expenses")
+        .update({
+          is_tax_deductible: checked,
+          tax_review_status: "reviewed",
+        } as any)
+        .eq("id", expenseId)
+        .eq("workspace_id", workspaceId);
+      queryClient.invalidateQueries({ queryKey: ["expenses", workspaceId] });
+    } catch {
+      // silently fail
+    } finally {
+      setSavingManual(false);
+    }
+  };
 
   const runReview = async (additionalContext?: string) => {
     setReviewing(true);
@@ -69,8 +93,18 @@ export function TaxReviewBanner({ expenseId, expenseTitle, expenseAmount, expens
 
         {!result && !reviewing && (
           <div className="space-y-3 pt-2">
+            <div className="flex items-center justify-center gap-2">
+              <Switch
+                checked={manualDeductible}
+                onCheckedChange={handleManualToggle}
+                disabled={savingManual}
+              />
+              <Label className="text-sm text-muted-foreground">
+                Mark as tax deductible
+              </Label>
+            </div>
             <p className="text-sm text-muted-foreground">
-              Want AI to assess if this expense could be tax deductible?
+              Or let AI assess if this expense could be tax deductible
             </p>
             <div className="flex justify-center gap-3">
               <Button variant="outline" onClick={onDone}>
@@ -153,7 +187,17 @@ export function TaxReviewBanner({ expenseId, expenseTitle, expenseAmount, expens
             </div>
           )}
 
-          <div className="flex justify-end pt-2">
+          <div className="flex items-center justify-between pt-2 border-t border-border">
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={result.is_deductible || manualDeductible}
+                onCheckedChange={handleManualToggle}
+                disabled={savingManual}
+              />
+              <Label className="text-sm text-muted-foreground">
+                Mark as tax deductible
+              </Label>
+            </div>
             <Button onClick={onDone}>
               Done <ArrowRight className="h-3.5 w-3.5 ml-1" />
             </Button>
