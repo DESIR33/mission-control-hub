@@ -28,6 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.warn("Auth session load timed out, continuing unauthenticated");
         setSession(null);
         setUser(null);
+        void supabase.auth.signOut({ scope: "local" }).catch(() => {});
         setIsLoading(false);
       }
     }, 5000);
@@ -50,8 +51,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           console.error("Session error (likely bad JWT), clearing:", error);
           setSession(null);
           setUser(null);
-          // Attempt to sign out to clear the bad token
-          supabase.auth.signOut().catch(() => {});
+          // Clear only local session storage when token is stale/invalid
+          supabase.auth.signOut({ scope: "local" }).catch(() => {});
         } else {
           setSession(session);
           setUser(session?.user ?? null);
@@ -62,6 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!isMounted) return;
         setSession(null);
         setUser(null);
+        void supabase.auth.signOut({ scope: "local" }).catch(() => {});
       })
       .finally(() => {
         if (!isMounted) return;
