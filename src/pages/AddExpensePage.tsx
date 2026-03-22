@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { format, parse } from "date-fns";
 import { ArrowLeft, Receipt, Upload, CalendarIcon, Eye } from "lucide-react";
+import { CompanyPicker } from "@/components/expenses/CompanyPicker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useCreateExpense, useExpenseCategories } from "@/hooks/use-expenses";
-import { useCompanies } from "@/hooks/use-companies";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { TaxReviewBanner } from "@/components/expenses/TaxReviewBanner";
@@ -22,7 +23,7 @@ export default function AddExpensePage() {
   const { workspaceId } = useWorkspace();
   const createExpense = useCreateExpense();
   const { data: categories = [] } = useExpenseCategories();
-  const { data: companies = [] } = useCompanies();
+  
   const [uploading, setUploading] = useState(false);
   const [createdExpenseId, setCreatedExpenseId] = useState<string | null>(null);
   const [viewingReceipt, setViewingReceipt] = useState(false);
@@ -181,20 +182,7 @@ export default function AddExpensePage() {
           </div>
           <div className="space-y-1.5">
             <Label>Company</Label>
-            <Select value={form.company_id} onValueChange={(v) => setForm({ ...form, company_id: v === "none" ? "" : v })}>
-              <SelectTrigger><SelectValue placeholder="Link to company..." /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">No company</SelectItem>
-                {companies.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>
-                    <span className="flex items-center gap-2">
-                      {c.logo_url && <img src={c.logo_url} alt="" className="w-4 h-4 rounded object-cover" />}
-                      {c.name}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <CompanyPicker value={form.company_id} onChange={(v) => setForm({ ...form, company_id: v })} />
           </div>
           <div className="space-y-1.5">
             <Label>Receipt</Label>
