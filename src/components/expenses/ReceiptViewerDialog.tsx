@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Download, ExternalLink } from "lucide-react";
 
@@ -46,6 +46,7 @@ export function ReceiptViewerDialog({ open, onOpenChange, receiptUrl, expenseTit
             </div>
           </div>
         </DialogHeader>
+        <DialogDescription className="sr-only">Preview receipt for {expenseTitle}</DialogDescription>
         <div className="mt-2 rounded-md border border-border overflow-hidden bg-muted/30" style={{ height: "70vh" }}>
           {isPdf ? (
             <iframe
