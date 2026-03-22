@@ -260,6 +260,26 @@ export function ViralPredictor() {
                     <span>{video.subsGained} subs</span>
                     <span>{video.viewToSubRate.toFixed(2)}% sub rate</span>
                   </div>
+                  {video.viralScore >= 75 && (
+                    <div className="flex justify-center mt-3">
+                      <Button
+                        size="sm"
+                        className="gap-1.5 text-xs"
+                        disabled={triggerPlaybook.isPending}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleTriggerPlaybook(video);
+                        }}
+                      >
+                        {triggerPlaybook.isPending ? (
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                        ) : (
+                          <Flame className="w-3 h-3" />
+                        )}
+                        Launch Viral Playbook
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

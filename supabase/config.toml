@@ -134,3 +134,6 @@ verify_jwt = false
 
 [functions.detect-churn-risk]
 verify_jwt = false
+
+[functions.viral-playbook]
+verify_jwt = false
