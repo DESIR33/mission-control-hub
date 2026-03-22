@@ -3126,6 +3126,190 @@ export type Database = {
           },
         ]
       }
+      newsletter_issues: {
+        Row: {
+          ab_test_config: Json | null
+          body: string
+          bounced_count: number
+          clicked_count: number
+          conversion_to_deal: number
+          conversion_to_lead: number
+          created_at: string
+          id: string
+          name: string
+          opened_count: number
+          replied_count: number
+          scheduled_at: string | null
+          segment_filter: Json | null
+          sent_at: string | null
+          sent_count: number
+          status: string
+          subject: string
+          topic_tags: string[] | null
+          total_recipients: number
+          unsubscribed_count: number
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          ab_test_config?: Json | null
+          body?: string
+          bounced_count?: number
+          clicked_count?: number
+          conversion_to_deal?: number
+          conversion_to_lead?: number
+          created_at?: string
+          id?: string
+          name: string
+          opened_count?: number
+          replied_count?: number
+          scheduled_at?: string | null
+          segment_filter?: Json | null
+          sent_at?: string | null
+          sent_count?: number
+          status?: string
+          subject?: string
+          topic_tags?: string[] | null
+          total_recipients?: number
+          unsubscribed_count?: number
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          ab_test_config?: Json | null
+          body?: string
+          bounced_count?: number
+          clicked_count?: number
+          conversion_to_deal?: number
+          conversion_to_lead?: number
+          created_at?: string
+          id?: string
+          name?: string
+          opened_count?: number
+          replied_count?: number
+          scheduled_at?: string | null
+          segment_filter?: Json | null
+          sent_at?: string | null
+          sent_count?: number
+          status?: string
+          subject?: string
+          topic_tags?: string[] | null
+          total_recipients?: number
+          unsubscribed_count?: number
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "newsletter_issues_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      newsletter_segment_stats: {
+        Row: {
+          click_count: number
+          created_at: string
+          id: string
+          issue_id: string
+          open_count: number
+          recipient_count: number
+          segment_name: string
+          unsubscribe_count: number
+          workspace_id: string
+        }
+        Insert: {
+          click_count?: number
+          created_at?: string
+          id?: string
+          issue_id: string
+          open_count?: number
+          recipient_count?: number
+          segment_name: string
+          unsubscribe_count?: number
+          workspace_id: string
+        }
+        Update: {
+          click_count?: number
+          created_at?: string
+          id?: string
+          issue_id?: string
+          open_count?: number
+          recipient_count?: number
+          segment_name?: string
+          unsubscribe_count?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "newsletter_segment_stats_issue_id_fkey"
+            columns: ["issue_id"]
+            isOneToOne: false
+            referencedRelation: "newsletter_issues"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "newsletter_segment_stats_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      newsletter_topic_retention: {
+        Row: {
+          avg_click_rate: number | null
+          avg_open_rate: number | null
+          id: string
+          last_calculated_at: string
+          retention_score: number | null
+          topic: string
+          total_clicked: number
+          total_opened: number
+          total_sent: number
+          total_unsubscribed: number
+          workspace_id: string
+        }
+        Insert: {
+          avg_click_rate?: number | null
+          avg_open_rate?: number | null
+          id?: string
+          last_calculated_at?: string
+          retention_score?: number | null
+          topic: string
+          total_clicked?: number
+          total_opened?: number
+          total_sent?: number
+          total_unsubscribed?: number
+          workspace_id: string
+        }
+        Update: {
+          avg_click_rate?: number | null
+          avg_open_rate?: number | null
+          id?: string
+          last_calculated_at?: string
+          retention_score?: number | null
+          topic?: string
+          total_clicked?: number
+          total_opened?: number
+          total_sent?: number
+          total_unsubscribed?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "newsletter_topic_retention_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           body: string | null
@@ -3632,6 +3816,65 @@ export type Database = {
           },
         ]
       }
+      reengagement_ab_tests: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          name: string
+          sequence_id: string | null
+          status: string
+          variant_a_opened: number
+          variant_a_sent: number
+          variant_a_subject: string
+          variant_b_opened: number
+          variant_b_sent: number
+          variant_b_subject: string
+          winner: string | null
+          workspace_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          sequence_id?: string | null
+          status?: string
+          variant_a_opened?: number
+          variant_a_sent?: number
+          variant_a_subject: string
+          variant_b_opened?: number
+          variant_b_sent?: number
+          variant_b_subject: string
+          winner?: string | null
+          workspace_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          sequence_id?: string | null
+          status?: string
+          variant_a_opened?: number
+          variant_a_sent?: number
+          variant_a_subject?: string
+          variant_b_opened?: number
+          variant_b_sent?: number
+          variant_b_subject?: string
+          winner?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reengagement_ab_tests_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       revenue_transactions: {
         Row: {
           amount: number
@@ -3898,6 +4141,71 @@ export type Database = {
           },
         ]
       }
+      subscriber_churn_risk: {
+        Row: {
+          created_at: string
+          days_since_last_click: number | null
+          days_since_last_open: number | null
+          declining_clicks: boolean | null
+          declining_opens: boolean | null
+          id: string
+          last_calculated_at: string
+          recent_click_rate: number | null
+          recent_open_rate: number | null
+          reengagement_sequence_id: string | null
+          reengagement_status: string | null
+          risk_level: string
+          risk_score: number
+          subscriber_id: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          days_since_last_click?: number | null
+          days_since_last_open?: number | null
+          declining_clicks?: boolean | null
+          declining_opens?: boolean | null
+          id?: string
+          last_calculated_at?: string
+          recent_click_rate?: number | null
+          recent_open_rate?: number | null
+          reengagement_sequence_id?: string | null
+          reengagement_status?: string | null
+          risk_level?: string
+          risk_score?: number
+          subscriber_id: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          days_since_last_click?: number | null
+          days_since_last_open?: number | null
+          declining_clicks?: boolean | null
+          declining_opens?: boolean | null
+          id?: string
+          last_calculated_at?: string
+          recent_click_rate?: number | null
+          recent_open_rate?: number | null
+          reengagement_sequence_id?: string | null
+          reengagement_status?: string | null
+          risk_level?: string
+          risk_score?: number
+          subscriber_id?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriber_churn_risk_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriber_guide_assignments: {
         Row: {
           created_at: string
@@ -4009,6 +4317,98 @@ export type Database = {
           },
           {
             foreignKeyName: "subscriber_guides_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscriber_referrals: {
+        Row: {
+          created_at: string
+          id: string
+          referral_code: string
+          referred_id: string
+          referrer_id: string
+          reward_granted_at: string | null
+          reward_type: string | null
+          reward_value: number | null
+          status: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          referral_code: string
+          referred_id: string
+          referrer_id: string
+          reward_granted_at?: string | null
+          reward_type?: string | null
+          reward_value?: number | null
+          status?: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          referral_code?: string
+          referred_id?: string
+          referrer_id?: string
+          reward_granted_at?: string | null
+          reward_type?: string | null
+          reward_value?: number | null
+          status?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriber_referrals_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscriber_unsubscribe_reasons: {
+        Row: {
+          created_at: string
+          id: string
+          issue_id: string | null
+          reason_category: string
+          reason_text: string | null
+          subscriber_id: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          issue_id?: string | null
+          reason_category?: string
+          reason_text?: string | null
+          subscriber_id: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          issue_id?: string | null
+          reason_category?: string
+          reason_text?: string | null
+          subscriber_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriber_unsubscribe_reasons_issue_id_fkey"
+            columns: ["issue_id"]
+            isOneToOne: false
+            referencedRelation: "newsletter_issues"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriber_unsubscribe_reasons_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
