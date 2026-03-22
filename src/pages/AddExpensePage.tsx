@@ -32,7 +32,6 @@ export default function AddExpensePage() {
     amount: "",
     expense_date: new Date().toISOString().split("T")[0],
     category_id: "",
-    vendor: "",
     notes: "",
     is_tax_deductible: false,
     receipt_url: null as string | null,
