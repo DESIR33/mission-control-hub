@@ -21,6 +21,7 @@ export function ExpenseList({ categories }: Props) {
   const { toast } = useToast();
   const { data: expenses = [], isLoading } = useExpenses();
   const deleteExpense = useDeleteExpense();
+  const createExpense = useCreateExpense();
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState("all");
   const [viewReceipt, setViewReceipt] = useState<{ url: string; title: string } | null>(null);
