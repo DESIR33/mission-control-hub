@@ -57,7 +57,7 @@ const RATE_CARD: Record<string, { base: number; label: string }> = {
  */
 export function useSmartPackageRecommender() {
   const { workspaceId } = useWorkspace();
-  const { data: channelStats } = useYouTubeChannelStats();
+  const { data: channelStats } = useChannelStats();
   const { data: deals = [] } = useDeals();
   const { data: experiments = [] } = usePackageExperiments();
 
