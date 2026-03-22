@@ -36,10 +36,25 @@ export function useCohortAnalysis() {
       const cutoff = format(subDays(new Date(), 180), "yyyy-MM-dd");
       const { data, error } = await supabase
         .from("youtube_channel_analytics" as any)
-        .select("date, subscribers, net_subscribers")
+        .select("date, net_subscribers")
         .eq("workspace_id", workspaceId!)
         .gte("date", cutoff)
         .order("date", { ascending: true });
+      if (error) throw error;
+      return (data ?? []) as any[];
+    },
+    enabled: !!workspaceId,
+  });
+
+  const { data: channelStats = [], isLoading: statsLoading } = useQuery({
+    queryKey: ["cohort-channel-stats", workspaceId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("youtube_channel_stats" as any)
+        .select("subscriber_count, fetched_at")
+        .eq("workspace_id", workspaceId!)
+        .order("fetched_at", { ascending: false })
+        .limit(1);
       if (error) throw error;
       return (data ?? []) as any[];
     },
@@ -159,8 +174,7 @@ export function useCohortAnalysis() {
     const bestCohortWeek = [...cohorts].sort((a, b) => b.netSubs - a.netSubs)[0] ?? null;
 
     // Current subscriber count from latest channel analytics
-    const latestEntry = channelAnalytics[channelAnalytics.length - 1];
-    const currentSubs = latestEntry?.subscribers || 21000;
+    const currentSubs = Number(channelStats[0]?.subscriber_count ?? 21000);
 
     const TARGET = 50000;
     const weeksRemaining = 43; // ~10 months
@@ -204,7 +218,7 @@ export function useCohortAnalysis() {
       stickyContentTypes,
       touristContentTypes,
     };
-  }, [channelAnalytics, videoAnalytics, videoQueue]);
+  }, [channelAnalytics, videoAnalytics, videoQueue, channelStats]);
 
-  return { data: analysis, isLoading: channelLoading };
+  return { data: analysis, isLoading: channelLoading || statsLoading };
 }
