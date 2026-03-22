@@ -93,8 +93,18 @@ export function TaxReviewBanner({ expenseId, expenseTitle, expenseAmount, expens
 
         {!result && !reviewing && (
           <div className="space-y-3 pt-2">
+            <div className="flex items-center justify-center gap-2">
+              <Switch
+                checked={manualDeductible}
+                onCheckedChange={handleManualToggle}
+                disabled={savingManual}
+              />
+              <Label className="text-sm text-muted-foreground">
+                Mark as tax deductible
+              </Label>
+            </div>
             <p className="text-sm text-muted-foreground">
-              Want AI to assess if this expense could be tax deductible?
+              Or let AI assess if this expense could be tax deductible
             </p>
             <div className="flex justify-center gap-3">
               <Button variant="outline" onClick={onDone}>
