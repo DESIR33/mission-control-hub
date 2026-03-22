@@ -3208,6 +3208,56 @@ export type Database = {
           },
         ]
       }
+      inbox_review_queue: {
+        Row: {
+          confidence: number
+          created_at: string
+          email_id: string
+          extracted_data: Json
+          id: string
+          resolved_at: string | null
+          resolved_by: string | null
+          review_type: string
+          status: string
+          suggested_matches: Json
+          workspace_id: string
+        }
+        Insert: {
+          confidence?: number
+          created_at?: string
+          email_id: string
+          extracted_data?: Json
+          id?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          review_type?: string
+          status?: string
+          suggested_matches?: Json
+          workspace_id: string
+        }
+        Update: {
+          confidence?: number
+          created_at?: string
+          email_id?: string
+          extracted_data?: Json
+          id?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          review_type?: string
+          status?: string
+          suggested_matches?: Json
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inbox_review_queue_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inbox_route_actions: {
         Row: {
           action_type: string
