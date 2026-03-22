@@ -53,7 +53,7 @@ const stageColors: Record<string, string> = {
 
 export function DealsContent() {
   const [view, setView] = useState<"kanban" | "list">("kanban");
-  const [pipelineMode, setPipelineMode] = useState<"all" | "sponsor">("all");
+  const [pipelineMode, setPipelineMode] = useState<"all" | "sponsor" | "opportunity">("all");
   const [outreachOpen, setOutreachOpen] = useState(false);
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
