@@ -198,17 +198,22 @@ export function useFinancialIntelligence(monthCount: number = 12, taxYear?: numb
       let income = 0;
       let deductions = 0;
 
+      // Sum income from P&L data for the quarter
       plData.forEach((m) => {
         const mDate = new Date(m.monthKey + "-01");
         if (mDate >= qStart && mDate <= qEnd) {
           income += m.income;
-          // Sum deductible expenses
-          const monthDeductible = expenses
-            .filter((e) => e.expense_date.startsWith(m.monthKey) && e.is_tax_deductible)
-            .reduce((s, e) => s + Number(e.amount), 0);
-          deductions += monthDeductible;
         }
       });
+
+      // Sum deductible expenses directly by expense_date within the quarter
+      deductions += expenses
+        .filter((e) => {
+          if (!e.is_tax_deductible) return false;
+          const eDate = new Date(e.expense_date);
+          return eDate >= qStart && eDate <= qEnd;
+        })
+        .reduce((s, e) => s + Number(e.amount), 0);
 
       // Add deductible recurring subs prorated
       const deductibleSubs = subs.filter((s) => s.status === "active" && s.is_tax_deductible);
