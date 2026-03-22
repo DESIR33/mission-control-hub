@@ -1,21 +1,27 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Receipt, Upload } from "lucide-react";
+import { format, parse } from "date-fns";
+import { ArrowLeft, Receipt, Upload, CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useCreateExpense, useExpenseCategories } from "@/hooks/use-expenses";
+import { useCompanies } from "@/hooks/use-companies";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { TaxReviewBanner } from "@/components/expenses/TaxReviewBanner";
+import { cn } from "@/lib/utils";
 
 export default function AddExpensePage() {
   const navigate = useNavigate();
   const { workspaceId } = useWorkspace();
   const createExpense = useCreateExpense();
   const { data: categories = [] } = useExpenseCategories();
+  const { data: companies = [] } = useCompanies();
   const [uploading, setUploading] = useState(false);
   const [createdExpenseId, setCreatedExpenseId] = useState<string | null>(null);
   const [form, setForm] = useState({
@@ -27,6 +33,7 @@ export default function AddExpensePage() {
     notes: "",
     is_tax_deductible: false,
     receipt_url: null as string | null,
+    company_id: "",
   });
 
   const handleFileUpload = async (file: File) => {
@@ -57,7 +64,8 @@ export default function AddExpensePage() {
       notes: form.notes || null,
       is_tax_deductible: form.is_tax_deductible,
       receipt_url: form.receipt_url,
-    });
+      company_id: form.company_id || null,
+    } as any);
     setCreatedExpenseId(result.id);
   };
 
@@ -120,11 +128,35 @@ export default function AddExpensePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label>Date</Label>
-              <Input
-                type="date"
-                value={form.expense_date}
-                onChange={(e) => setForm({ ...form, expense_date: e.target.value })}
-              />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !form.expense_date && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {form.expense_date
+                      ? format(parse(form.expense_date, "yyyy-MM-dd", new Date()), "PPP")
+                      : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={form.expense_date ? parse(form.expense_date, "yyyy-MM-dd", new Date()) : undefined}
+                    onSelect={(date) => {
+                      if (date) {
+                        setForm({ ...form, expense_date: format(date, "yyyy-MM-dd") });
+                      }
+                    }}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
             <div className="space-y-1.5">
               <Label>Category</Label>
@@ -144,13 +176,34 @@ export default function AddExpensePage() {
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <Label>Vendor</Label>
-            <Input
-              value={form.vendor}
-              onChange={(e) => setForm({ ...form, vendor: e.target.value })}
-              placeholder="e.g. Adobe, Amazon"
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label>Vendor</Label>
+              <Input
+                value={form.vendor}
+                onChange={(e) => setForm({ ...form, vendor: e.target.value })}
+                placeholder="e.g. Adobe, Amazon"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Company</Label>
+              <Select value={form.company_id} onValueChange={(v) => setForm({ ...form, company_id: v === "none" ? "" : v })}>
+                <SelectTrigger><SelectValue placeholder="Link to company..." /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No company</SelectItem>
+                  {companies.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      <span className="flex items-center gap-2">
+                        {c.logo_url && (
+                          <img src={c.logo_url} alt="" className="w-4 h-4 rounded object-cover" />
+                        )}
+                        {c.name}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="space-y-1.5">
