@@ -43,10 +43,25 @@ export function useGoalPace() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("youtube_channel_analytics" as any)
-        .select("date, subscribers")
+        .select("date, net_subscribers")
         .eq("workspace_id", workspaceId!)
         .order("date", { ascending: false })
-        .limit(60);
+        .limit(120);
+      if (error) throw error;
+      return (data ?? []) as any[];
+    },
+    enabled: !!workspaceId,
+  });
+
+  const { data: channelStats = [], isLoading: channelStatsLoading } = useQuery({
+    queryKey: ["goal-pace-channel-stats", workspaceId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("youtube_channel_stats" as any)
+        .select("subscriber_count, fetched_at")
+        .eq("workspace_id", workspaceId!)
+        .order("fetched_at", { ascending: false })
+        .limit(1);
       if (error) throw error;
       return (data ?? []) as any[];
     },
@@ -63,8 +78,8 @@ export function useGoalPace() {
     const targetDate = goal.target_date || "2027-01-01";
     const startDate = goal.start_date || "2026-03-01";
 
-    const latestChannel = channelData[0];
-    const currentSubs = latestChannel?.subscribers || goal.current_value || 0;
+    const latestStats = channelStats[0];
+    const currentSubs = Number(latestStats?.subscriber_count ?? goal.current_value ?? 0);
 
     const now = new Date();
     const target = new Date(targetDate);
@@ -72,14 +87,11 @@ export function useGoalPace() {
     const requiredWeeklyRate = (targetSubs - currentSubs) / weeksRemaining;
 
     let actualWeeklyRate = requiredWeeklyRate;
-    if (channelData.length >= 14) {
-      const fourWeeksAgo = channelData[Math.min(28, channelData.length - 1)];
-      const recent = channelData[0];
-      if (fourWeeksAgo && recent) {
-        const subsDiff = (recent.subscribers || 0) - (fourWeeksAgo.subscribers || 0);
-        const daysDiff = Math.max(1, Math.floor((new Date(recent.date).getTime() - new Date(fourWeeksAgo.date).getTime()) / (1000 * 60 * 60 * 24)));
-        actualWeeklyRate = (subsDiff / daysDiff) * 7;
-      }
+    if (channelData.length > 0) {
+      const recentWindow = channelData.slice(0, 28);
+      const netSubs = recentWindow.reduce((sum: number, row: any) => sum + Number(row.net_subscribers ?? 0), 0);
+      const daysCovered = Math.max(1, recentWindow.length);
+      actualWeeklyRate = (netSubs / daysCovered) * 7;
     }
 
     const pacePercent = requiredWeeklyRate > 0 ? (actualWeeklyRate / requiredWeeklyRate) * 100 : 100;
@@ -106,9 +118,12 @@ export function useGoalPace() {
 
       let actual: number | null = null;
       const weekStr = format(weekDate, "yyyy-MM-dd");
-      const channelEntry = channelData.find((c: any) => c.date <= weekStr);
-      if (channelEntry && weekDate <= now) {
-        actual = channelEntry.subscribers;
+      if (weekDate <= now) {
+        const cumulativeNetSubs = channelData.reduce((sum: number, entry: any) => {
+          if (entry.date < startDate || entry.date > weekStr) return sum;
+          return sum + Number(entry.net_subscribers ?? 0);
+        }, 0);
+        actual = Math.max(0, Math.round(startingSubs + cumulativeNetSubs));
       }
 
       microTargets.push({ week: weekKey, target: targetForWeek, actual });
@@ -129,9 +144,9 @@ export function useGoalPace() {
       microTargets,
       progressPercent: Math.max(0, Math.min(100, progressPercent)),
     };
-  }, [goals, channelData]);
+  }, [goals, channelData, channelStats]);
 
-  return { data: pace, isLoading: goalsLoading || channelLoading, goalRecord };
+  return { data: pace, isLoading: goalsLoading || channelLoading || channelStatsLoading, goalRecord };
 }
 
 export function useUpdateGoal() {
