@@ -177,7 +177,17 @@ export function TaxReviewBanner({ expenseId, expenseTitle, expenseAmount, expens
             </div>
           )}
 
-          <div className="flex justify-end pt-2">
+          <div className="flex items-center justify-between pt-2 border-t border-border">
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={result.is_deductible || manualDeductible}
+                onCheckedChange={handleManualToggle}
+                disabled={savingManual}
+              />
+              <Label className="text-sm text-muted-foreground">
+                Mark as tax deductible
+              </Label>
+            </div>
             <Button onClick={onDone}>
               Done <ArrowRight className="h-3.5 w-3.5 ml-1" />
             </Button>
