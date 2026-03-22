@@ -217,6 +217,9 @@ export function DealsContent() {
       {/* Sponsor Pipeline View */}
       {pipelineMode === "sponsor" && <SponsorPipelineView />}
 
+      {/* Sponsor Opportunity Board */}
+      {pipelineMode === "opportunity" && <SponsorOpportunityBoard />}
+
       {/* Outreach Generator Dialog */}
       <SponsorOutreachGenerator open={outreachOpen} onOpenChange={setOutreachOpen} />
 
