@@ -123,6 +123,7 @@ export default function InboxPage() {
   const outlookSend = useOutlookSend();
   const outlookAuth = useOutlookAuthUrl();
   const classifyEmails = useClassifyEmails();
+  const { data: pendingRouteCount = 0 } = usePendingRouteActionCount();
 
   // Apply split inbox filter
   const filteredEmails = filterBySplit(emails, splitTab);
