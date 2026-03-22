@@ -29,6 +29,7 @@ import { DealDetailSheet } from "@/components/deals/DealDetailSheet";
 import { PipelineVelocity } from "@/components/deals/PipelineVelocity";
 import { SponsorPipelineView } from "@/components/deals/SponsorPipelineView";
 import { SponsorOutreachGenerator } from "@/components/deals/SponsorOutreachGenerator";
+import { SponsorOpportunityBoard } from "@/components/deals/SponsorOpportunityBoard";
 import { useSponsorMatchScore } from "@/hooks/use-sponsor-match-score";
 import { useToast } from "@/hooks/use-toast";
 
