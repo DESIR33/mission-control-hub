@@ -41,12 +41,12 @@ export function useNewsletter() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("video_queue" as any)
-        .select("id, title, youtube_video_id, status, published_at, description, created_at")
+        .select("id, title, status, description, created_at")
         .eq("workspace_id", workspaceId!)
         .eq("status", "published")
-        .order("published_at", { ascending: false });
+        .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as unknown as PublishedVideo[];
+      return (data ?? []).map((v: any) => ({ ...v, youtube_video_id: null, published_at: null })) as unknown as PublishedVideo[];
     },
     enabled: !!workspaceId,
   });
