@@ -1314,6 +1314,71 @@ export type Database = {
           },
         ]
       }
+      churn_recovery_outcomes: {
+        Row: {
+          created_at: string
+          critical_risk_count: number
+          high_risk_count: number
+          id: string
+          incremental_retained: number
+          journeys_completed: number
+          journeys_triggered: number
+          low_risk_count: number
+          medium_risk_count: number
+          period_end: string
+          period_start: string
+          saved_rate: number
+          subscribers_lost: number
+          subscribers_saved: number
+          total_at_risk: number
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          critical_risk_count?: number
+          high_risk_count?: number
+          id?: string
+          incremental_retained?: number
+          journeys_completed?: number
+          journeys_triggered?: number
+          low_risk_count?: number
+          medium_risk_count?: number
+          period_end: string
+          period_start: string
+          saved_rate?: number
+          subscribers_lost?: number
+          subscribers_saved?: number
+          total_at_risk?: number
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          critical_risk_count?: number
+          high_risk_count?: number
+          id?: string
+          incremental_retained?: number
+          journeys_completed?: number
+          journeys_triggered?: number
+          low_risk_count?: number
+          medium_risk_count?: number
+          period_end?: string
+          period_start?: string
+          saved_rate?: number
+          subscribers_lost?: number
+          subscribers_saved?: number
+          total_at_risk?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "churn_recovery_outcomes_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           city: string | null
@@ -4275,13 +4340,20 @@ export type Database = {
           declining_clicks: boolean | null
           declining_opens: boolean | null
           id: string
+          journey_completed_at: string | null
+          journey_started_at: string | null
+          journey_tier: string
           last_calculated_at: string
+          post_journey_open_rate: number | null
+          pre_journey_open_rate: number | null
           recent_click_rate: number | null
           recent_open_rate: number | null
           reengagement_sequence_id: string | null
           reengagement_status: string | null
           risk_level: string
           risk_score: number
+          saved: boolean
+          saved_at: string | null
           subscriber_id: string
           updated_at: string
           workspace_id: string
@@ -4293,13 +4365,20 @@ export type Database = {
           declining_clicks?: boolean | null
           declining_opens?: boolean | null
           id?: string
+          journey_completed_at?: string | null
+          journey_started_at?: string | null
+          journey_tier?: string
           last_calculated_at?: string
+          post_journey_open_rate?: number | null
+          pre_journey_open_rate?: number | null
           recent_click_rate?: number | null
           recent_open_rate?: number | null
           reengagement_sequence_id?: string | null
           reengagement_status?: string | null
           risk_level?: string
           risk_score?: number
+          saved?: boolean
+          saved_at?: string | null
           subscriber_id: string
           updated_at?: string
           workspace_id: string
@@ -4311,13 +4390,20 @@ export type Database = {
           declining_clicks?: boolean | null
           declining_opens?: boolean | null
           id?: string
+          journey_completed_at?: string | null
+          journey_started_at?: string | null
+          journey_tier?: string
           last_calculated_at?: string
+          post_journey_open_rate?: number | null
+          pre_journey_open_rate?: number | null
           recent_click_rate?: number | null
           recent_open_rate?: number | null
           reengagement_sequence_id?: string | null
           reengagement_status?: string | null
           risk_level?: string
           risk_score?: number
+          saved?: boolean
+          saved_at?: string | null
           subscriber_id?: string
           updated_at?: string
           workspace_id?: string
