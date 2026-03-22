@@ -65,6 +65,27 @@ export function ViralPredictor() {
   const { data: analysis, isLoading } = useViralPotential();
   const { lookup: companyLookup } = useAllVideoCompanies();
   const [expanded, setExpanded] = useState<string | null>(null);
+  const triggerPlaybook = useTriggerViralPlaybook();
+  const { toast } = useToast();
+
+  const handleTriggerPlaybook = async (video: ViralScore) => {
+    try {
+      const result = await triggerPlaybook.mutateAsync({
+        video_id: video.videoId,
+        video_title: video.title,
+        viral_score: video.viralScore,
+        views: video.views,
+        subs: video.subsGained,
+      });
+      if (result?.triggered) {
+        toast({ title: "Viral playbook launched!", description: `${result.assets_generated} assets generated` });
+      } else {
+        toast({ title: "Playbook not triggered", description: result?.reason });
+      }
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
 
   if (isLoading) {
     return <div className="rounded-xl border border-border bg-card p-6 animate-pulse h-96" />;
