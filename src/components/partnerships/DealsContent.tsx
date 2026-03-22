@@ -168,10 +168,18 @@ export function DealsContent() {
           <Button
             variant="ghost"
             size="sm"
-            className={cn("rounded-l-none h-8 text-xs", pipelineMode === "sponsor" && "bg-muted")}
+            className={cn("h-8 text-xs rounded-none", pipelineMode === "sponsor" && "bg-muted")}
             onClick={() => setPipelineMode("sponsor")}
           >
             Sponsor Pipeline
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn("rounded-l-none h-8 text-xs", pipelineMode === "opportunity" && "bg-muted")}
+            onClick={() => setPipelineMode("opportunity")}
+          >
+            Opportunity Board
           </Button>
         </div>
 
