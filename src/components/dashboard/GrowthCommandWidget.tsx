@@ -46,8 +46,6 @@ interface GrowthGoal {
   start_date: string | null;
   target_date: string | null;
   status: string;
-  micro_targets: unknown;
-  weekly_required_rate?: number;
 }
 
 interface GrowthLever {
