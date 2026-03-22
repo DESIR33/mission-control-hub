@@ -1,0 +1,1 @@
+ALTER TABLE public.expenses ADD COLUMN company_id uuid REFERENCES public.companies(id) ON DELETE SET NULL DEFAULT NULL;
