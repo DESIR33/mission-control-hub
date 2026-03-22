@@ -21,13 +21,6 @@ import {
   xAxisDefaults,
   yAxisDefaults,
 } from "@/lib/chart-theme";
-import {
-  chartTooltipStyle,
-  fmtCount,
-  cartesianGridDefaults,
-  xAxisDefaults,
-  yAxisDefaults,
-} from "@/lib/chart-theme";
 
 const tierConfig: Record<string, { color: string; bg: string; label: string }> = {
   viral: { color: "text-yellow-400", bg: "bg-yellow-400/10 border-yellow-400/30", label: "Viral" },
