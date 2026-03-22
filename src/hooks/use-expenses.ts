@@ -77,7 +77,13 @@ export function useExpenseCategories() {
         return (seeded ?? []) as ExpenseCategory[];
       }
 
-      return categories;
+      // Deduplicate by name (keep first occurrence)
+      const seen = new Set<string>();
+      return categories.filter((c) => {
+        if (seen.has(c.name)) return false;
+        seen.add(c.name);
+        return true;
+      });
     },
     enabled: !!workspaceId,
   });
