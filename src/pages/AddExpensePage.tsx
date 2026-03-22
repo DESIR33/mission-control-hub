@@ -62,7 +62,7 @@ export default function AddExpensePage() {
       amount: parseFloat(form.amount),
       expense_date: form.expense_date,
       category_id: form.category_id || null,
-      vendor: form.vendor || null,
+      vendor: form.company_id ? (companies.find(c => c.id === form.company_id)?.name || null) : null,
       notes: form.notes || null,
       is_tax_deductible: form.is_tax_deductible,
       receipt_url: form.receipt_url,
