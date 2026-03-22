@@ -195,6 +195,9 @@ const App = () => (
               {/* Growth Sprints */}
               <Route path="/sprints" element={<LazyPage section="Sprints"><WeeklySprintPage /></LazyPage>} />
 
+              {/* Operations Center */}
+              <Route path="/operations" element={<LazyPage section="Operations Center"><OperationsCenterPage /></LazyPage>} />
+
               {/* Communication */}
               <Route path="/inbox" element={<LazyPage section="Inbox"><InboxPage /></LazyPage>} />
               <Route path="/inbox/*" element={<LazyPage section="Inbox"><InboxPage /></LazyPage>} />
