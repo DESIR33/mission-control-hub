@@ -32,6 +32,28 @@ export function TaxReviewBanner({ expenseId, expenseTitle, expenseAmount, expens
   const [result, setResult] = useState<TaxReviewResult | null>(null);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [error, setError] = useState<string | null>(null);
+  const [manualDeductible, setManualDeductible] = useState(false);
+  const [savingManual, setSavingManual] = useState(false);
+
+  const handleManualToggle = async (checked: boolean) => {
+    setManualDeductible(checked);
+    setSavingManual(true);
+    try {
+      await supabase
+        .from("expenses")
+        .update({
+          is_tax_deductible: checked,
+          tax_review_status: "reviewed",
+        } as any)
+        .eq("id", expenseId)
+        .eq("workspace_id", workspaceId);
+      queryClient.invalidateQueries({ queryKey: ["expenses", workspaceId] });
+    } catch {
+      // silently fail
+    } finally {
+      setSavingManual(false);
+    }
+  };
 
   const runReview = async (additionalContext?: string) => {
     setReviewing(true);
