@@ -78,7 +78,7 @@ export default function AddExpensePage() {
           expenseId={createdExpenseId}
           expenseTitle={form.title}
           expenseAmount={parseFloat(form.amount)}
-          expenseVendor={form.vendor}
+          expenseVendor={companies.find(c => c.id === form.company_id)?.name || ""}
           expenseCategory={categories.find(c => c.id === form.category_id)?.name || ""}
           onDone={() => navigate("/finance/expenses/expenses")}
         />
