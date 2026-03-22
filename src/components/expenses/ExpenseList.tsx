@@ -1,13 +1,16 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
-import { Plus, Trash2, Receipt, Search, Filter, Tag, CheckCircle2, Pencil } from "lucide-react";
+import { Plus, Trash2, Receipt, Search, Filter, Tag, CheckCircle2, Pencil, Download, Eye, Loader2, FileArchive } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useExpenses, useDeleteExpense, type ExpenseCategory } from "@/hooks/use-expenses";
+import { ReceiptViewerDialog } from "./ReceiptViewerDialog";
+import { useToast } from "@/hooks/use-toast";
+import JSZip from "jszip";
 
 interface Props {
   categories: ExpenseCategory[];
@@ -15,10 +18,13 @@ interface Props {
 
 export function ExpenseList({ categories }: Props) {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { data: expenses = [], isLoading } = useExpenses();
   const deleteExpense = useDeleteExpense();
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState("all");
+  const [viewReceipt, setViewReceipt] = useState<{ url: string; title: string } | null>(null);
+  const [bulkDownloading, setBulkDownloading] = useState(false);
 
   const catMap = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
 
@@ -39,6 +45,65 @@ export function ExpenseList({ categories }: Props) {
   }, [expenses, search, catFilter]);
 
   const totalFiltered = filtered.reduce((s, e) => s + Number(e.amount), 0);
+  const expensesWithReceipts = filtered.filter((e) => e.receipt_url);
+
+  const handleDownloadSingle = async (url: string, title: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      const ext = url.split(".").pop()?.split("?")[0] || "file";
+      a.download = `${title.replace(/[^a-zA-Z0-9]/g, "_")}_receipt.${ext}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+    } catch {
+      window.open(url, "_blank");
+    }
+  };
+
+  const handleBulkDownload = async () => {
+    if (expensesWithReceipts.length === 0) return;
+    setBulkDownloading(true);
+    try {
+      const zip = new JSZip();
+      const folder = zip.folder("receipts")!;
+
+      await Promise.all(
+        expensesWithReceipts.map(async (expense, i) => {
+          try {
+            const res = await fetch(expense.receipt_url!);
+            const blob = await res.blob();
+            const ext = expense.receipt_url!.split(".").pop()?.split("?")[0] || "file";
+            const safeName = expense.title.replace(/[^a-zA-Z0-9]/g, "_");
+            const dateStr = format(new Date(expense.expense_date), "yyyy-MM-dd");
+            folder.file(`${dateStr}_${safeName}_${i + 1}.${ext}`, blob);
+          } catch {
+            // skip failed downloads
+          }
+        })
+      );
+
+      const content = await zip.generateAsync({ type: "blob" });
+      const url = URL.createObjectURL(content);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `receipts_${format(new Date(), "yyyy-MM-dd")}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast({ title: "Receipts downloaded", description: `${expensesWithReceipts.length} receipt(s) packaged into ZIP.` });
+    } catch {
+      toast({ title: "Download failed", description: "Could not create ZIP archive.", variant: "destructive" });
+    } finally {
+      setBulkDownloading(false);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -66,9 +131,27 @@ export function ExpenseList({ categories }: Props) {
             </SelectContent>
           </Select>
         </div>
-        <Button onClick={() => navigate("/finance/expenses/new")} size="sm" className="gap-1.5">
-          <Plus className="h-4 w-4" /> Add Expense
-        </Button>
+        <div className="flex gap-2">
+          {expensesWithReceipts.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleBulkDownload}
+              disabled={bulkDownloading}
+              className="gap-1.5"
+            >
+              {bulkDownloading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <FileArchive className="h-4 w-4" />
+              )}
+              {bulkDownloading ? "Zipping..." : `Download All Receipts (${expensesWithReceipts.length})`}
+            </Button>
+          )}
+          <Button onClick={() => navigate("/finance/expenses/new")} size="sm" className="gap-1.5">
+            <Plus className="h-4 w-4" /> Add Expense
+          </Button>
+        </div>
       </div>
 
       <div className="rounded-lg border border-border bg-card">
@@ -80,7 +163,7 @@ export function ExpenseList({ categories }: Props) {
               <TableHead>Category</TableHead>
               <TableHead>Vendor</TableHead>
               <TableHead className="text-right">Amount</TableHead>
-              <TableHead className="w-[80px]"></TableHead>
+              <TableHead className="w-[120px]"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -128,6 +211,31 @@ export function ExpenseList({ categories }: Props) {
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-1">
+                        {expense.receipt_url && (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                              title="View receipt"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setViewReceipt({ url: expense.receipt_url!, title: expense.title });
+                              }}
+                            >
+                              <Eye className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                              title="Download receipt"
+                              onClick={(e) => handleDownloadSingle(expense.receipt_url!, expense.title, e)}
+                            >
+                              <Download className="h-3.5 w-3.5" />
+                            </Button>
+                          </>
+                        )}
                         <Button
                           variant="ghost"
                           size="icon"
@@ -159,6 +267,15 @@ export function ExpenseList({ categories }: Props) {
           </div>
         )}
       </div>
+
+      {viewReceipt && (
+        <ReceiptViewerDialog
+          open={!!viewReceipt}
+          onOpenChange={(open) => !open && setViewReceipt(null)}
+          receiptUrl={viewReceipt.url}
+          expenseTitle={viewReceipt.title}
+        />
+      )}
     </div>
   );
 }
