@@ -29,14 +29,17 @@ export function useGrowthCountdown() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("youtube_channel_analytics" as any)
-        .select("date, subscribers, subscribers_gained, subscribers_lost")
+        .select("date, subscribers_gained, subscribers_lost, net_subscribers")
         .eq("workspace_id", workspaceId!)
         .order("date", { ascending: false })
         .limit(60);
       if (error) throw error;
-      return (data ?? []) as unknown as Array<{
+      return (data ?? []).map((d: any) => ({
+        ...d,
+        subscribers: null,
+      })) as unknown as Array<{
         date: string;
-        subscribers: number;
+        subscribers: number | null;
         subscribers_gained: number | null;
         subscribers_lost: number | null;
       }>;

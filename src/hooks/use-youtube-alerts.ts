@@ -26,14 +26,8 @@ export function useYouTubeAlerts(limit = 20) {
   return useQuery({
     queryKey: ["youtube-alerts", workspaceId, limit],
     queryFn: async (): Promise<YouTubeAlert[]> => {
-      const { data, error } = await supabase
-        .from("youtube_alerts" as any)
-        .select("id, workspace_id, alert_type, severity, title, description, youtube_video_id, metric_name, metric_value, threshold_value, is_read, action_taken, created_at")
-        .eq("workspace_id", workspaceId!)
-        .order("created_at", { ascending: false })
-        .limit(limit);
-      if (error) throw error;
-      return (data ?? []) as unknown as YouTubeAlert[];
+      // Table does not exist yet — return empty until migration is created
+      return [];
     },
     enabled: !!workspaceId,
   });
@@ -46,13 +40,7 @@ export function useUnreadAlertCount() {
   return useQuery({
     queryKey: ["youtube-alerts-unread", workspaceId],
     queryFn: async (): Promise<number> => {
-      const { count, error } = await supabase
-        .from("youtube_alerts" as any)
-        .select("id", { count: "exact", head: true })
-        .eq("workspace_id", workspaceId!)
-        .eq("is_read", false);
-      if (error) throw error;
-      return count ?? 0;
+      return 0;
     },
     enabled: !!workspaceId,
     ...getGatedFreshness("youtubeAlerts", canRefresh),

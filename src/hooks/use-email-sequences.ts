@@ -39,13 +39,8 @@ export function useEmailSequences() {
   return useQuery({
     queryKey: ["email-sequences", workspaceId],
     queryFn: async (): Promise<EmailSequence[]> => {
-      const { data, error } = await supabase
-        .from("email_sequences" as any)
-        .select("id, workspace_id, name, description, steps, status, created_at, updated_at")
-        .eq("workspace_id", workspaceId!)
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return (data ?? []) as unknown as EmailSequence[];
+      // Table does not exist yet — return empty until migration is created
+      return [];
     },
     enabled: !!workspaceId,
     ...getFreshness("emailSequences"),

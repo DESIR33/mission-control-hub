@@ -64,10 +64,10 @@ export function useContentRevenue(days = 180) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("video_queue" as any)
-        .select("id, title, youtube_video_id")
+        .select("id, title")
         .eq("workspace_id", workspaceId!);
       if (error) throw error;
-      return (data ?? []) as any[];
+      return (data ?? []).map((v: any) => ({ ...v, youtube_video_id: null })) as any[];
     },
     enabled: !!workspaceId,
   });
