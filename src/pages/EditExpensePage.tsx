@@ -38,7 +38,6 @@ export default function EditExpensePage() {
     amount: "",
     expense_date: "",
     category_id: "",
-    vendor: "",
     notes: "",
     is_tax_deductible: false,
     receipt_url: null as string | null,
