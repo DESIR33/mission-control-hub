@@ -309,25 +309,64 @@ export function SponsorOpportunityBoard() {
           <TabsContent value="taxonomy">
             <TaxonomyView taxonomy={taxonomy} onSeed={() => seedTaxonomy.mutateAsync()} />
           </TabsContent>
+
+          {/* Experiments View */}
+          <TabsContent value="experiments">
+            <PackageRecommenderPanel />
+          </TabsContent>
         </Tabs>
       )}
     </div>
   );
 }
 
-function OpportunityCard({ opp, onStatusChange }: { opp: SponsorOpportunity; onStatusChange: (p: { id: string; status: string }) => void }) {
+import type { SmartPackageRecommendation } from "@/hooks/use-package-experiments";
+
+function OpportunityCard({ opp, onStatusChange, recommend, onTrackPackage, isTracking }: {
+  opp: SponsorOpportunity;
+  onStatusChange: (p: { id: string; status: string }) => void;
+  recommend?: (companyName: string, vertical: string, matchScore: number, winRate: number, avgDealValue: number, pastDealCount: number) => SmartPackageRecommendation;
+  onTrackPackage?: (opp: SponsorOpportunity, rec: SmartPackageRecommendation) => void;
+  isTracking?: boolean;
+}) {
+  const smartRec = useMemo(() => {
+    if (!recommend) return null;
+    return recommend(opp.company_name, opp.sponsor_vertical, opp.match_score, opp.historical_win_rate, opp.avg_deal_value, opp.past_deal_count);
+  }, [recommend, opp]);
+
   return (
     <div className="flex items-start gap-3 p-3 rounded-lg border border-border hover:bg-accent/30 transition-colors">
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
+        <div className="flex items-center gap-2 mb-1 flex-wrap">
           <Building2 className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
           <p className="text-sm font-semibold text-foreground truncate">{opp.company_name}</p>
           <ScoreBadge score={opp.match_score} />
-          <Badge variant="outline" className={cn("text-[10px] capitalize ml-auto shrink-0", packageStyles[opp.suggested_package])}>
-            {opp.suggested_package}
-          </Badge>
+          {smartRec && (
+            <>
+              <Badge variant="outline" className={cn("text-[10px] capitalize", packageStyles[smartRec.package])}>
+                {smartRec.package}
+              </Badge>
+              <span className="text-xs font-mono font-bold text-foreground">{formatCurrency(smartRec.suggestedValue)}</span>
+              <Badge variant="outline" className="text-[10px] font-mono">{smartRec.confidence}% conf</Badge>
+            </>
+          )}
+          {!smartRec && (
+            <Badge variant="outline" className={cn("text-[10px] capitalize ml-auto shrink-0", packageStyles[opp.suggested_package])}>
+              {opp.suggested_package}
+            </Badge>
+          )}
         </div>
-        <p className="text-xs text-muted-foreground mb-1.5">{opp.package_rationale}</p>
+        <p className="text-xs text-muted-foreground mb-1.5">{smartRec?.rationale ?? opp.package_rationale}</p>
+        {smartRec && smartRec.alternatives.length > 0 && (
+          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+            <span className="text-[10px] text-muted-foreground">Alt:</span>
+            {smartRec.alternatives.map(alt => (
+              <Badge key={alt.package} variant="outline" className={cn("text-[10px] capitalize", packageStyles[alt.package])}>
+                {alt.package} {formatCurrency(alt.value)}
+              </Badge>
+            ))}
+          </div>
+        )}
         <div className="flex items-center gap-3 text-[10px] text-muted-foreground flex-wrap">
           <span className="flex items-center gap-1">
             <Layers className="w-2.5 h-2.5" /> {opp.sponsor_vertical}
@@ -341,21 +380,35 @@ function OpportunityCard({ opp, onStatusChange }: { opp: SponsorOpportunity; onS
           <span>Win rate: {opp.historical_win_rate}%</span>
         </div>
       </div>
-      <Select
-        value={opp.outreach_status}
-        onValueChange={(v) => onStatusChange({ id: opp.id, status: v })}
-      >
-        <SelectTrigger className="h-7 text-[10px] w-[100px] shrink-0">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="pending">Pending</SelectItem>
-          <SelectItem value="scheduled">Scheduled</SelectItem>
-          <SelectItem value="contacted">Contacted</SelectItem>
-          <SelectItem value="responded">Responded</SelectItem>
-          <SelectItem value="passed">Passed</SelectItem>
-        </SelectContent>
-      </Select>
+      <div className="flex items-center gap-1 shrink-0">
+        {smartRec && onTrackPackage && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 text-[10px] gap-1"
+            disabled={isTracking}
+            onClick={() => onTrackPackage(opp, smartRec)}
+          >
+            {isTracking ? <Loader2 className="w-2.5 h-2.5 animate-spin" /> : <Beaker className="w-2.5 h-2.5" />}
+            Track
+          </Button>
+        )}
+        <Select
+          value={opp.outreach_status}
+          onValueChange={(v) => onStatusChange({ id: opp.id, status: v })}
+        >
+          <SelectTrigger className="h-7 text-[10px] w-[100px] shrink-0">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="scheduled">Scheduled</SelectItem>
+            <SelectItem value="contacted">Contacted</SelectItem>
+            <SelectItem value="responded">Responded</SelectItem>
+            <SelectItem value="passed">Passed</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
     </div>
   );
 }
