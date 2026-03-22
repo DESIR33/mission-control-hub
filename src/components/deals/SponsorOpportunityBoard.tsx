@@ -208,7 +208,33 @@ export function SponsorOpportunityBoard() {
                     <CardContent>
                       <div className="space-y-2">
                         {weekOpps.map((opp) => (
-                          <OpportunityCard key={opp.id} opp={opp} onStatusChange={updateStatus.mutate} />
+                          <OpportunityCard
+                            key={opp.id}
+                            opp={opp}
+                            onStatusChange={updateStatus.mutate}
+                            recommend={recommend}
+                            onTrackPackage={async (opp, rec) => {
+                              try {
+                                await createExperiment.mutateAsync({
+                                  opportunity_id: opp.id,
+                                  company_id: opp.company_id ?? undefined,
+                                  company_name: opp.company_name,
+                                  recommended_package: rec.package,
+                                  recommended_value: rec.suggestedValue,
+                                  sponsor_vertical: opp.sponsor_vertical,
+                                  match_score: opp.match_score,
+                                  historical_win_rate: opp.historical_win_rate,
+                                  historical_avg_deal: opp.avg_deal_value,
+                                  past_deal_count: opp.past_deal_count,
+                                  package_rationale: rec.rationale,
+                                });
+                                toast({ title: "Package experiment created" });
+                              } catch (err: any) {
+                                toast({ title: "Error", description: err.message, variant: "destructive" });
+                              }
+                            }}
+                            isTracking={createExperiment.isPending}
+                          />
                         ))}
                       </div>
                     </CardContent>
