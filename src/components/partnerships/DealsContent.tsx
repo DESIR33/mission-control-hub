@@ -29,6 +29,7 @@ import { DealDetailSheet } from "@/components/deals/DealDetailSheet";
 import { PipelineVelocity } from "@/components/deals/PipelineVelocity";
 import { SponsorPipelineView } from "@/components/deals/SponsorPipelineView";
 import { SponsorOutreachGenerator } from "@/components/deals/SponsorOutreachGenerator";
+import { SponsorOpportunityBoard } from "@/components/deals/SponsorOpportunityBoard";
 import { useSponsorMatchScore } from "@/hooks/use-sponsor-match-score";
 import { useToast } from "@/hooks/use-toast";
 
@@ -52,7 +53,7 @@ const stageColors: Record<string, string> = {
 
 export function DealsContent() {
   const [view, setView] = useState<"kanban" | "list">("kanban");
-  const [pipelineMode, setPipelineMode] = useState<"all" | "sponsor">("all");
+  const [pipelineMode, setPipelineMode] = useState<"all" | "sponsor" | "opportunity">("all");
   const [outreachOpen, setOutreachOpen] = useState(false);
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -167,10 +168,18 @@ export function DealsContent() {
           <Button
             variant="ghost"
             size="sm"
-            className={cn("rounded-l-none h-8 text-xs", pipelineMode === "sponsor" && "bg-muted")}
+            className={cn("h-8 text-xs rounded-none", pipelineMode === "sponsor" && "bg-muted")}
             onClick={() => setPipelineMode("sponsor")}
           >
             Sponsor Pipeline
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn("rounded-l-none h-8 text-xs", pipelineMode === "opportunity" && "bg-muted")}
+            onClick={() => setPipelineMode("opportunity")}
+          >
+            Opportunity Board
           </Button>
         </div>
 
@@ -207,6 +216,9 @@ export function DealsContent() {
 
       {/* Sponsor Pipeline View */}
       {pipelineMode === "sponsor" && <SponsorPipelineView />}
+
+      {/* Sponsor Opportunity Board */}
+      {pipelineMode === "opportunity" && <SponsorOpportunityBoard />}
 
       {/* Outreach Generator Dialog */}
       <SponsorOutreachGenerator open={outreachOpen} onOpenChange={setOutreachOpen} />
