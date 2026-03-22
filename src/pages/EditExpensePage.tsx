@@ -1,16 +1,22 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Receipt, Upload, Trash2 } from "lucide-react";
+import { format, parse } from "date-fns";
+import { ArrowLeft, Receipt, Upload, Trash2, CalendarIcon, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useExpenses, useUpdateExpense, useDeleteExpense, useExpenseCategories } from "@/hooks/use-expenses";
+import { useCompanies } from "@/hooks/use-companies";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { Badge } from "@/components/ui/badge";
+import { ReceiptViewerDialog } from "@/components/expenses/ReceiptViewerDialog";
+import { cn } from "@/lib/utils";
 
 export default function EditExpensePage() {
   const { id } = useParams<{ id: string }>();
@@ -18,9 +24,11 @@ export default function EditExpensePage() {
   const { workspaceId } = useWorkspace();
   const { data: expenses = [] } = useExpenses();
   const { data: categories = [] } = useExpenseCategories();
+  const { data: companies = [] } = useCompanies();
   const updateExpense = useUpdateExpense();
   const deleteExpense = useDeleteExpense();
   const [uploading, setUploading] = useState(false);
+  const [viewingReceipt, setViewingReceipt] = useState(false);
 
   const expense = expenses.find((e) => e.id === id);
 
@@ -33,6 +41,7 @@ export default function EditExpensePage() {
     notes: "",
     is_tax_deductible: false,
     receipt_url: null as string | null,
+    company_id: "",
   });
 
   useEffect(() => {
@@ -46,6 +55,7 @@ export default function EditExpensePage() {
         notes: expense.notes || "",
         is_tax_deductible: expense.is_tax_deductible,
         receipt_url: expense.receipt_url,
+        company_id: (expense as any).company_id || "",
       });
     }
   }, [expense]);
@@ -79,6 +89,7 @@ export default function EditExpensePage() {
       notes: form.notes || null,
       is_tax_deductible: form.is_tax_deductible,
       receipt_url: form.receipt_url,
+      company_id: form.company_id || null,
     } as any);
     navigate("/finance/expenses/expenses");
   };
@@ -92,9 +103,7 @@ export default function EditExpensePage() {
   if (!expense) {
     return (
       <div className="p-4 md:p-6 min-h-screen">
-        <div className="mx-auto max-w-2xl">
-          <p className="text-muted-foreground">Expense not found.</p>
-        </div>
+        <p className="text-muted-foreground">Expense not found.</p>
       </div>
     );
   }
@@ -104,104 +113,159 @@ export default function EditExpensePage() {
 
   return (
     <div className="p-4 md:p-6 min-h-screen space-y-5">
-      <div className="mx-auto max-w-2xl">
-        <button
-          onClick={() => navigate("/finance/expenses/expenses")}
-          className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Expenses
-        </button>
+      <button
+        onClick={() => navigate("/finance/expenses/expenses")}
+        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Back to Expenses
+      </button>
 
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <Receipt className="h-5 w-5 text-foreground" />
-            <h1 className="text-xl font-bold text-foreground">Edit Expense</h1>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Receipt className="h-5 w-5 text-foreground" />
+          <h1 className="text-xl font-bold text-foreground tracking-tight">Edit Expense</h1>
+        </div>
+        <Button variant="destructive" size="sm" onClick={handleDelete} className="gap-1.5">
+          <Trash2 className="h-3.5 w-3.5" /> Delete
+        </Button>
+      </div>
+
+      {taxStatus === "reviewed" && taxReason && (
+        <div className="rounded-lg border border-border bg-muted/30 p-4">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-sm font-medium">AI Tax Assessment</span>
+            <Badge variant={form.is_tax_deductible ? "default" : "secondary"} className="text-xs">
+              {form.is_tax_deductible ? "Likely Deductible" : "Not Deductible"}
+            </Badge>
           </div>
-          <Button variant="destructive" size="sm" onClick={handleDelete} className="gap-1.5">
-            <Trash2 className="h-3.5 w-3.5" /> Delete
-          </Button>
+          <p className="text-sm text-muted-foreground">{taxReason}</p>
+        </div>
+      )}
+
+      <div className="space-y-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="space-y-1.5">
+            <Label>Title *</Label>
+            <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Amount ($) *</Label>
+            <Input type="number" step="0.01" min="0" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Date</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !form.expense_date && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {form.expense_date
+                    ? format(parse(form.expense_date, "yyyy-MM-dd", new Date()), "PPP")
+                    : <span>Pick a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={form.expense_date ? parse(form.expense_date, "yyyy-MM-dd", new Date()) : undefined}
+                  onSelect={(date) => {
+                    if (date) setForm({ ...form, expense_date: format(date, "yyyy-MM-dd") });
+                  }}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Category</Label>
+            <Select value={form.category_id} onValueChange={(v) => setForm({ ...form, category_id: v })}>
+              <SelectTrigger><SelectValue placeholder="Select category..." /></SelectTrigger>
+              <SelectContent>
+                {categories.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    <span className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full" style={{ backgroundColor: c.color }} />
+                      {c.name}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
-        {taxStatus === "reviewed" && taxReason && (
-          <div className="mb-4 rounded-lg border border-border bg-muted/30 p-4">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-sm font-medium">AI Tax Assessment</span>
-              <Badge variant={form.is_tax_deductible ? "default" : "secondary"} className="text-xs">
-                {form.is_tax_deductible ? "Likely Deductible" : "Not Deductible"}
-              </Badge>
-            </div>
-            <p className="text-sm text-muted-foreground">{taxReason}</p>
-          </div>
-        )}
-
-        <div className="space-y-5 rounded-lg border border-border bg-card p-5">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label>Title *</Label>
-              <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Amount ($) *</Label>
-              <Input type="number" step="0.01" min="0" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label>Date</Label>
-              <Input type="date" value={form.expense_date} onChange={(e) => setForm({ ...form, expense_date: e.target.value })} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Category</Label>
-              <Select value={form.category_id} onValueChange={(v) => setForm({ ...form, category_id: v })}>
-                <SelectTrigger><SelectValue placeholder="Select category..." /></SelectTrigger>
-                <SelectContent>
-                  {categories.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      <span className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: c.color }} />
-                        {c.name}
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div className="space-y-1.5">
             <Label>Vendor</Label>
             <Input value={form.vendor} onChange={(e) => setForm({ ...form, vendor: e.target.value })} />
           </div>
-
           <div className="space-y-1.5">
-            <Label>Notes</Label>
-            <Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} rows={3} />
+            <Label>Company</Label>
+            <Select value={form.company_id} onValueChange={(v) => setForm({ ...form, company_id: v === "none" ? "" : v })}>
+              <SelectTrigger><SelectValue placeholder="Link to company..." /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No company</SelectItem>
+                {companies.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    <span className="flex items-center gap-2">
+                      {c.logo_url && <img src={c.logo_url} alt="" className="w-4 h-4 rounded object-cover" />}
+                      {c.name}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-
           <div className="space-y-1.5">
             <Label>Receipt</Label>
-            <label className="flex items-center gap-2 px-4 py-3 border border-dashed border-border rounded-md cursor-pointer hover:bg-muted/50 text-sm text-muted-foreground w-fit">
-              <Upload className="h-4 w-4" />
-              {uploading ? "Uploading..." : form.receipt_url ? "Receipt attached ✓" : "Upload receipt"}
-              <input type="file" className="hidden" accept="image/*,.pdf" onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0])} />
-            </label>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Switch checked={form.is_tax_deductible} onCheckedChange={(v) => setForm({ ...form, is_tax_deductible: v })} />
-            <Label>Tax deductible</Label>
-          </div>
-
-          <div className="flex justify-end gap-3 pt-3 border-t border-border">
-            <Button variant="outline" onClick={() => navigate("/finance/expenses/expenses")}>Cancel</Button>
-            <Button onClick={handleSubmit} disabled={updateExpense.isPending || !form.title || !form.amount}>
-              {updateExpense.isPending ? "Saving..." : "Save Changes"}
-            </Button>
+            <div className="flex items-center gap-2">
+              <label className="flex items-center gap-2 px-4 py-2 border border-dashed border-border rounded-md cursor-pointer hover:bg-muted/50 text-sm text-muted-foreground flex-1">
+                <Upload className="h-4 w-4 shrink-0" />
+                {uploading ? "Uploading..." : form.receipt_url ? "Receipt attached ✓" : "Upload receipt"}
+                <input type="file" className="hidden" accept="image/*,.pdf" onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0])} />
+              </label>
+              {form.receipt_url && (
+                <Button variant="outline" size="icon" className="shrink-0" onClick={() => setViewingReceipt(true)}>
+                  <Eye className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
           </div>
         </div>
+
+        <div className="space-y-1.5">
+          <Label>Notes</Label>
+          <Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} rows={3} />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Switch checked={form.is_tax_deductible} onCheckedChange={(v) => setForm({ ...form, is_tax_deductible: v })} />
+          <Label>Tax deductible</Label>
+        </div>
+
+        <div className="flex justify-end gap-3 pt-3 border-t border-border">
+          <Button variant="outline" onClick={() => navigate("/finance/expenses/expenses")}>Cancel</Button>
+          <Button onClick={handleSubmit} disabled={updateExpense.isPending || !form.title || !form.amount}>
+            {updateExpense.isPending ? "Saving..." : "Save Changes"}
+          </Button>
+        </div>
       </div>
+
+      {viewingReceipt && form.receipt_url && (
+        <ReceiptViewerDialog
+          open={viewingReceipt}
+          onOpenChange={setViewingReceipt}
+          receiptUrl={form.receipt_url}
+          expenseTitle={form.title}
+        />
+      )}
     </div>
   );
 }
