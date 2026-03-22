@@ -1,13 +1,13 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
-import { Plus, Trash2, Receipt, Search, Filter, Tag, CheckCircle2, Pencil, Download, Eye, Loader2, FileArchive } from "lucide-react";
+import { Plus, Trash2, Receipt, Search, Filter, Tag, CheckCircle2, Pencil, Download, Eye, Loader2, FileArchive, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useExpenses, useDeleteExpense, type ExpenseCategory } from "@/hooks/use-expenses";
+import { useExpenses, useDeleteExpense, useCreateExpense, type ExpenseCategory } from "@/hooks/use-expenses";
 import { ReceiptViewerDialog } from "./ReceiptViewerDialog";
 import { useToast } from "@/hooks/use-toast";
 import JSZip from "jszip";
@@ -21,6 +21,7 @@ export function ExpenseList({ categories }: Props) {
   const { toast } = useToast();
   const { data: expenses = [], isLoading } = useExpenses();
   const deleteExpense = useDeleteExpense();
+  const createExpense = useCreateExpense();
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState("all");
   const [viewReceipt, setViewReceipt] = useState<{ url: string; title: string } | null>(null);
@@ -243,6 +244,19 @@ export function ExpenseList({ categories }: Props) {
                           onClick={(e) => { e.stopPropagation(); navigate(`/finance/expenses/${expense.id}/edit`); }}
                         >
                           <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                          title="Duplicate expense"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const { id, created_at, updated_at, created_by, ...rest } = expense;
+                            createExpense.mutate({ ...rest, title: `${expense.title} (copy)` });
+                          }}
+                        >
+                          <Copy className="h-3.5 w-3.5" />
                         </Button>
                         <Button
                           variant="ghost"
