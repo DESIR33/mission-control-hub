@@ -210,9 +210,15 @@ export default function AddCompanyPage() {
                   <Input id="social_tiktok" name="social_tiktok" placeholder="@handle" className="bg-secondary border-border" />
                 </div>
               </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="social_producthunt" className="text-xs">Product Hunt</Label>
-                <Input id="social_producthunt" name="social_producthunt" placeholder="producthunt.com/products/..." className="bg-secondary border-border" />
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="social_producthunt" className="text-xs">Product Hunt</Label>
+                  <Input id="social_producthunt" name="social_producthunt" placeholder="producthunt.com/products/..." className="bg-secondary border-border" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="social_crunchbase" className="text-xs">Crunchbase</Label>
+                  <Input id="social_crunchbase" name="social_crunchbase" placeholder="crunchbase.com/organization/..." className="bg-secondary border-border" />
+                </div>
               </div>
             </CollapsibleContent>
           </Collapsible>
