@@ -1608,6 +1608,7 @@ export type Database = {
           revenue: string | null
           secondary_email: string | null
           size: string | null
+          social_crunchbase: string | null
           social_facebook: string | null
           social_instagram: string | null
           social_linkedin: string | null
@@ -1646,6 +1647,7 @@ export type Database = {
           revenue?: string | null
           secondary_email?: string | null
           size?: string | null
+          social_crunchbase?: string | null
           social_facebook?: string | null
           social_instagram?: string | null
           social_linkedin?: string | null
@@ -1684,6 +1686,7 @@ export type Database = {
           revenue?: string | null
           secondary_email?: string | null
           size?: string | null
+          social_crunchbase?: string | null
           social_facebook?: string | null
           social_instagram?: string | null
           social_linkedin?: string | null
