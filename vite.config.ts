@@ -30,8 +30,10 @@ export default defineConfig(({ mode }) => ({
           // Data layer
           if (id.includes("@tanstack/react-query")) return "vendor-query";
           if (id.includes("@supabase/")) return "vendor-supabase";
-          // Heavy visualization — keep recharts + all transitive d3/internals together to avoid circular-dep TDZ crashes
-          if (id.includes("node_modules/recharts") || id.includes("node_modules/d3-") || id.includes("node_modules/victory-") || id.includes("node_modules/internmap") || id.includes("node_modules/robust-predicates") || id.includes("node_modules/delaunator")) return "vendor-charts";
+          // NOTE: recharts and its transitive deps (d3-*, victory-vendor, etc.) are intentionally
+          // NOT manually chunked here. They have circular imports that cause TDZ crashes
+          // ("Cannot access 'X' before initialization") when forced into a single chunk.
+          // Rollup handles their ordering correctly when left to auto-chunk.
           // Animation
           if (id.includes("node_modules/framer-motion")) return "vendor-motion";
           // Date utilities
