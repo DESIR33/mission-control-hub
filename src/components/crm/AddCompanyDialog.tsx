@@ -18,6 +18,7 @@ export function AddCompanyDialog() {
   const [open, setOpen] = useState(false);
   const [socialOpen, setSocialOpen] = useState(false);
   const [logoUrl, setLogoUrl] = useState("");
+  const [isAgency, setIsAgency] = useState(false);
   const createCompany = useCreateCompany();
   const { toast } = useToast();
 
