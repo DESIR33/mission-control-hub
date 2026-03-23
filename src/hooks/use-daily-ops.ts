@@ -63,7 +63,8 @@ export function useDailyOpsItems() {
         .select("*")
         .eq("workspace_id", workspaceId)
         .in("status", ["pending", "snoozed"])
-        .order("urgency_score", { ascending: false });
+        .order("urgency_score", { ascending: false })
+        .limit(100);
       if (error) throw error;
       return (data as unknown as OpsItem[]) ?? [];
     },

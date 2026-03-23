@@ -47,7 +47,8 @@ export function useDeals() {
         .select("*, contacts(id, first_name, last_name, email), companies(id, name, logo_url)")
         .eq("workspace_id", workspaceId)
         .is("deleted_at", null)
-        .order("updated_at", { ascending: false });
+        .order("updated_at", { ascending: false })
+        .limit(500);
 
       if (error) throw error;
 
