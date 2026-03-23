@@ -244,5 +244,13 @@ export async function exportRateCardPDF(options: ExportOptions) {
     );
   }
 
-  doc.save(`${workspaceName.replace(/\s+/g, "-").toLowerCase()}-rate-card.pdf`);
+  const blob = doc.output("blob");
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${workspaceName.replace(/\s+/g, "-").toLowerCase()}-rate-card.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
