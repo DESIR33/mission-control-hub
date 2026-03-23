@@ -243,16 +243,21 @@ export function useRevenueData() {
           .select("value, closed_at, created_at, notes")
           .eq("workspace_id", workspaceId)
           .eq("stage", "closed_won")
-          .is("deleted_at", null),
+          .is("deleted_at", null)
+          .gte("created_at", cutoff)
+          .limit(500),
         supabase
           .from("affiliate_transactions" as any)
           .select("amount, transaction_date")
-          .eq("workspace_id", workspaceId),
+          .eq("workspace_id", workspaceId)
+          .gte("transaction_date", cutoff)
+          .limit(500),
         supabase
           .from("youtube_channel_analytics" as any)
           .select("date, estimated_revenue")
           .eq("workspace_id", workspaceId)
-          .gte("date", cutoff),
+          .gte("date", cutoff)
+          .limit(500),
       ]);
 
       const deals = wonDealsRes.data ?? [];
