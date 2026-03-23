@@ -247,12 +247,25 @@ export default function EditSponsorshipPage() {
         }));
         const { error: linkError } = await supabase.from("deal_videos" as any).insert(rows as any);
         if (linkError) throw linkError;
+
+        // Auto-create content pipeline entries for linked videos
+        const { syncDealToPipeline } = await import("@/hooks/use-pipeline-deal-sync");
+        const companyName = companies.find(c => c.id === formData.companyId)?.name || "Unknown";
+        await syncDealToPipeline({
+          dealId: id,
+          workspaceId,
+          companyId: formData.companyId || null,
+          companyName,
+          dealTitle: `${formData.dealType || "Sponsorship"} - ${companyName}`,
+          linkedVideoIds: linkedVideos.map(v => v.youtube_video_id),
+        });
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["deals"] });
       queryClient.invalidateQueries({ queryKey: ["sponsorships"] });
       queryClient.invalidateQueries({ queryKey: ["deal-videos"] });
+      queryClient.invalidateQueries({ queryKey: ["video-queue"] });
       toast({ title: "Success", description: "Sponsorship updated successfully" });
       navigate("/revenue/sponsorships");
     },

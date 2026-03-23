@@ -122,6 +122,17 @@ export default function NewSponsorshipPage() {
           workspace_id: workspaceId,
         }));
         await supabase.from("deal_videos" as any).insert(rows as any);
+
+        // Auto-create content pipeline entries for linked videos
+        const { syncDealToPipeline } = await import("@/hooks/use-pipeline-deal-sync");
+        await syncDealToPipeline({
+          dealId: data.id,
+          workspaceId,
+          companyId: formData.companyId || null,
+          companyName: companies.find(c => c.id === formData.companyId)?.name || "Unknown",
+          dealTitle: data.title,
+          linkedVideoIds: selectedVideos.map(v => v.id),
+        });
       }
 
       return data;
@@ -130,6 +141,7 @@ export default function NewSponsorshipPage() {
       queryClient.invalidateQueries({ queryKey: ["deals"] });
       queryClient.invalidateQueries({ queryKey: ["sponsorships"] });
       queryClient.invalidateQueries({ queryKey: ["deal-videos"] });
+      queryClient.invalidateQueries({ queryKey: ["video-queue"] });
       toast({ title: "Success", description: "Sponsorship created successfully" });
       navigate("/revenue/sponsorships");
     },

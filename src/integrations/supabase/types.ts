@@ -5957,6 +5957,7 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string | null
+          deal_id: string | null
           description: string | null
           id: string
           metadata: Json | null
@@ -5964,15 +5965,18 @@ export type Database = {
           priority: string
           published_url: string | null
           scheduled_date: string | null
+          script_content: string | null
           status: string
           thumbnail_url: string | null
           title: string
           updated_at: string
           workspace_id: string
+          youtube_video_id: string | null
         }
         Insert: {
           created_at?: string
           created_by?: string | null
+          deal_id?: string | null
           description?: string | null
           id?: string
           metadata?: Json | null
@@ -5980,15 +5984,18 @@ export type Database = {
           priority?: string
           published_url?: string | null
           scheduled_date?: string | null
+          script_content?: string | null
           status?: string
           thumbnail_url?: string | null
           title: string
           updated_at?: string
           workspace_id: string
+          youtube_video_id?: string | null
         }
         Update: {
           created_at?: string
           created_by?: string | null
+          deal_id?: string | null
           description?: string | null
           id?: string
           metadata?: Json | null
@@ -5996,13 +6003,22 @@ export type Database = {
           priority?: string
           published_url?: string | null
           scheduled_date?: string | null
+          script_content?: string | null
           status?: string
           thumbnail_url?: string | null
           title?: string
           updated_at?: string
           workspace_id?: string
+          youtube_video_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "video_queue_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "video_queue_workspace_id_fkey"
             columns: ["workspace_id"]

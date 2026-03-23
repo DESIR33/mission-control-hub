@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { AlertCircle, ArrowLeft, CalendarIcon, DollarSign, Film, Plus, RefreshCw, X } from "lucide-react";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import { AlertCircle, ArrowLeft, CalendarIcon, DollarSign, ExternalLink, Film, Handshake, Plus, RefreshCw, X } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import {
   Select,
@@ -18,6 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import {
   useCreateVideo,
@@ -28,6 +29,8 @@ import {
 import { useCompanies } from "@/hooks/use-companies";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { cn } from "@/lib/utils";
+import { syncPipelineToDeal } from "@/hooks/use-pipeline-deal-sync";
+import { useQueryClient } from "@tanstack/react-query";
 
 const ALL_PLATFORMS = [
   "YouTube",
@@ -55,6 +58,7 @@ export default function VideoQueueFormPage() {
   const isEditing = !!id;
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: existingVideo, isLoading: loadingVideo } = useVideoQueueItem(
     id ?? null
@@ -79,6 +83,7 @@ export default function VideoQueueFormPage() {
   const [newChecklistItem, setNewChecklistItem] = useState("");
   const [productionCost, setProductionCost] = useState("");
   const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
     if (existingVideo && isEditing) {
@@ -120,6 +125,8 @@ export default function VideoQueueFormPage() {
   const getCompanyById = (cId: string) =>
     companies.find((c) => c.id === cId) ?? null;
 
+  const linkedDealId = existingVideo?.metadata?.dealId as string | null ?? null;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -160,7 +167,28 @@ export default function VideoQueueFormPage() {
           productionCost: productionCost ? Number(productionCost) : null,
         },
         {
-          onSuccess: () => {
+          onSuccess: async () => {
+            // Auto-create/link sponsorship deal if marked as sponsored with a company
+            if (isSponsored && sponsoringCompanyId && workspaceId) {
+              setIsSyncing(true);
+              try {
+                await syncPipelineToDeal({
+                  videoQueueId: id!,
+                  workspaceId,
+                  title: title.trim(),
+                  companyId: sponsoringCompanyId,
+                  companyName: sponsor?.name ?? "Unknown",
+                  youtubeVideoId: existingVideo?.youtubeVideoId ?? null,
+                  existingDealId: linkedDealId,
+                });
+                queryClient.invalidateQueries({ queryKey: ["deals"] });
+                queryClient.invalidateQueries({ queryKey: ["sponsorships"] });
+              } catch {
+                // Non-critical sync failure
+              } finally {
+                setIsSyncing(false);
+              }
+            }
             toast({ title: "Success", description: "Video updated." });
             navigate("/content");
           },
@@ -218,24 +246,33 @@ export default function VideoQueueFormPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-6">
+    <div className="p-4 md:p-6 space-y-5">
       <button
         onClick={() => navigate("/content")}
-        className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to Video Queue
+        Back to Content Pipeline
       </button>
 
-      <div className="flex items-center gap-2 mb-6">
+      <div className="flex items-center gap-2">
         <Film className="h-5 w-5 text-foreground" />
         <h1 className="text-xl font-bold text-foreground">
           {isEditing ? "Edit Video" : "Add Video"}
         </h1>
+        {linkedDealId && (
+          <Link to={`/sponsorship/${linkedDealId}/edit`}>
+            <Badge variant="secondary" className="gap-1 cursor-pointer hover:bg-accent">
+              <Handshake className="h-3 w-3" />
+              Linked Sponsorship
+              <ExternalLink className="h-3 w-3" />
+            </Badge>
+          </Link>
+        )}
       </div>
 
       {workspaceError && (
-        <div className="mb-4 flex items-center gap-3 rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3">
+        <div className="flex items-center gap-3 rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3">
           <AlertCircle className="h-5 w-5 shrink-0 text-destructive" />
           <div className="flex-1">
             <p className="text-sm font-medium text-destructive">
@@ -257,7 +294,7 @@ export default function VideoQueueFormPage() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-5 max-w-3xl">
         {/* Title */}
         <div>
           <label className="mb-1.5 block text-sm font-medium text-foreground">
@@ -414,50 +451,36 @@ export default function VideoQueueFormPage() {
         </div>
 
         {/* Sponsorship */}
-        <div className="flex items-center gap-3">
-          <label className="relative inline-flex cursor-pointer items-center">
-            <input
-              type="checkbox"
-              checked={isSponsored}
-              onChange={(e) => setIsSponsored(e.target.checked)}
-              className="peer sr-only"
-            />
-            <div className="h-5 w-9 rounded-full bg-muted peer-checked:bg-primary after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-full" />
-          </label>
-          <span className="text-sm text-foreground">Sponsored video</span>
-        </div>
-
-        {/* Company & Sponsoring Company */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-foreground">
-              Brand / Company
+        <div className="rounded-xl border border-border p-4 space-y-4">
+          <div className="flex items-center gap-3">
+            <label className="relative inline-flex cursor-pointer items-center">
+              <input
+                type="checkbox"
+                checked={isSponsored}
+                onChange={(e) => setIsSponsored(e.target.checked)}
+                className="peer sr-only"
+              />
+              <div className="h-5 w-9 rounded-full bg-muted peer-checked:bg-primary after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-full" />
             </label>
-            <Select value={companyId || "none"} onValueChange={(v) => setCompanyId(v === "none" ? "" : v)}>
-              <SelectTrigger className="w-full rounded-xl">
-                <SelectValue placeholder="Select company" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">None</SelectItem>
-                {companies.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>
-                    {c.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div>
+              <span className="text-sm font-medium text-foreground">Sponsored video</span>
+              {isSponsored && !linkedDealId && (
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  A sponsorship deal will be auto-created when you save with a sponsoring company selected.
+                </p>
+              )}
+            </div>
           </div>
-          {isSponsored && (
+
+          {/* Company & Sponsoring Company */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="mb-1.5 block text-sm font-medium text-foreground">
-                Sponsoring Company
+                Brand / Company
               </label>
-              <Select
-                value={sponsoringCompanyId || "none"}
-                onValueChange={(v) => setSponsoringCompanyId(v === "none" ? "" : v)}
-              >
+              <Select value={companyId || "none"} onValueChange={(v) => setCompanyId(v === "none" ? "" : v)}>
                 <SelectTrigger className="w-full rounded-xl">
-                  <SelectValue placeholder="Select sponsor" />
+                  <SelectValue placeholder="Select company" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">None</SelectItem>
@@ -469,7 +492,30 @@ export default function VideoQueueFormPage() {
                 </SelectContent>
               </Select>
             </div>
-          )}
+            {isSponsored && (
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-foreground">
+                  Sponsoring Company
+                </label>
+                <Select
+                  value={sponsoringCompanyId || "none"}
+                  onValueChange={(v) => setSponsoringCompanyId(v === "none" ? "" : v)}
+                >
+                  <SelectTrigger className="w-full rounded-xl">
+                    <SelectValue placeholder="Select sponsor" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
+                    {companies.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Checklist (create only) */}
@@ -527,13 +573,13 @@ export default function VideoQueueFormPage() {
         <div className="flex items-center gap-3 pt-2">
           <Button
             type="submit"
-            disabled={workspaceLoading || createVideo.isPending || updateVideo.isPending || !workspaceId}
+            disabled={workspaceLoading || createVideo.isPending || updateVideo.isPending || !workspaceId || isSyncing}
           >
             {workspaceLoading
               ? "Loading workspace..."
               : workspaceError
                 ? "Workspace unavailable"
-                : createVideo.isPending || updateVideo.isPending
+                : createVideo.isPending || updateVideo.isPending || isSyncing
                   ? "Saving..."
                   : isEditing
                     ? "Update Video"

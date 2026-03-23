@@ -82,10 +82,10 @@ function mapRow(row: any): VideoQueueItem {
     assignedTo: meta.assignedTo ?? null,
     checklists: meta.checklists ?? [],
     notes: row.notes,
-    youtubeVideoId: meta.youtubeVideoId ?? null,
-    scriptContent: meta.scriptContent ?? null,
+    youtubeVideoId: row.youtube_video_id ?? meta.youtubeVideoId ?? null,
+    scriptContent: row.script_content ?? meta.scriptContent ?? null,
     productionCost: typeof meta.productionCost === "number" ? meta.productionCost : null,
-    metadata: meta,
+    metadata: { ...meta, dealId: row.deal_id ?? meta.dealId ?? null },
     created_by: row.created_by,
     created_at: row.created_at,
     updated_at: row.updated_at,
@@ -100,7 +100,7 @@ export function useVideoQueue() {
     queryFn: async (): Promise<VideoQueueItem[]> => {
       const { data, error } = await supabase
         .from("video_queue")
-        .select("id, title, description, status, priority, scheduled_date, notes, metadata, created_by, created_at, updated_at, workspace_id")
+        .select("id, title, description, status, priority, scheduled_date, notes, metadata, created_by, created_at, updated_at, workspace_id, deal_id, youtube_video_id, script_content")
         .eq("workspace_id", workspaceId!)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -118,7 +118,7 @@ export function useVideoQueueItem(id: number | string | null) {
     queryFn: async (): Promise<VideoQueueItem | null> => {
       const { data, error } = await supabase
         .from("video_queue")
-        .select("id, title, description, status, priority, scheduled_date, notes, metadata, created_by, created_at, updated_at, workspace_id")
+        .select("id, title, description, status, priority, scheduled_date, notes, metadata, created_by, created_at, updated_at, workspace_id, deal_id, youtube_video_id, script_content")
         .eq("id", String(id))
         .single();
       if (error) throw error;
