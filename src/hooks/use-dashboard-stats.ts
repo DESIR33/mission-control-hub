@@ -149,61 +149,71 @@ export function usePipelineHealth() {
         return { contacts: [], content: [], deals: [] };
       }
 
-      const [contactsRes, videosRes, dealsRes] = await Promise.all([
-        supabase
-          .from("contacts")
-          .select("status")
-          .eq("workspace_id", workspaceId)
-          .is("deleted_at", null),
-        supabase
-          .from("video_queue")
-          .select("status")
-          .eq("workspace_id", workspaceId),
-        supabase
-          .from("deals")
-          .select("stage")
-          .eq("workspace_id", workspaceId)
-          .is("deleted_at", null),
+      // Use server-side count queries instead of fetching all rows
+      const contactStatuses = ["lead", "active", "customer", "inactive"];
+      const videoStatuses = ["idea", "scripting", "recording", "editing", "scheduled"];
+      const dealStages = ["prospecting", "qualification", "proposal", "negotiation", "closed_won"];
+
+      const [contactCounts, videoCounts, dealCounts] = await Promise.all([
+        Promise.all(
+          contactStatuses.map((s) =>
+            supabase
+              .from("contacts")
+              .select("id", { count: "exact", head: true })
+              .eq("workspace_id", workspaceId)
+              .is("deleted_at", null)
+              .eq("status", s)
+              .then((r) => ({ status: s, count: r.count ?? 0 }))
+          )
+        ),
+        Promise.all(
+          videoStatuses.map((s) =>
+            supabase
+              .from("video_queue")
+              .select("id", { count: "exact", head: true })
+              .eq("workspace_id", workspaceId)
+              .eq("status", s)
+              .then((r) => ({ status: s, count: r.count ?? 0 }))
+          )
+        ),
+        Promise.all(
+          dealStages.map((s) =>
+            supabase
+              .from("deals")
+              .select("id", { count: "exact", head: true })
+              .eq("workspace_id", workspaceId)
+              .is("deleted_at", null)
+              .eq("stage", s)
+              .then((r) => ({ stage: s, count: r.count ?? 0 }))
+          )
+        ),
       ]);
 
-      const contacts = contactsRes.data ?? [];
-      const videos = videosRes.data ?? [];
-      const deals = dealsRes.data ?? [];
-
-      const countBy = <T extends Record<string, unknown>>(arr: T[], key: keyof T) => {
-        const counts: Record<string, number> = {};
-        for (const item of arr) {
-          const val = String(item[key]);
-          counts[val] = (counts[val] ?? 0) + 1;
-        }
-        return counts;
-      };
-
-      const contactCounts = countBy(contacts, "status");
-      const videoCounts = countBy(videos, "status");
-      const dealCounts = countBy(deals, "stage");
+      const cc = Object.fromEntries(contactCounts.map((c) => [c.status, c.count]));
+      const vc = Object.fromEntries(videoCounts.map((v) => [v.status, v.count]));
+      const dc = Object.fromEntries(dealCounts.map((d) => [d.stage, d.count]));
 
       const contactsPipeline: PipelineStage[] = [
-        { label: "Lead", count: contactCounts["lead"] ?? 0, color: "bg-primary" },
-        { label: "Active", count: contactCounts["active"] ?? 0, color: "bg-success" },
-        { label: "Customer", count: contactCounts["customer"] ?? 0, color: "bg-warning" },
-        { label: "Inactive", count: contactCounts["inactive"] ?? 0, color: "bg-destructive" },
+        { label: "Lead", count: cc["lead"] ?? 0, color: "bg-primary" },
+        { label: "Active", count: cc["active"] ?? 0, color: "bg-success" },
+        { label: "Customer", count: cc["customer"] ?? 0, color: "bg-warning" },
+        { label: "Inactive", count: cc["inactive"] ?? 0, color: "bg-destructive" },
       ];
 
       const contentPipeline: PipelineStage[] = [
-        { label: "Idea", count: videoCounts["idea"] ?? 0, color: "bg-muted-foreground" },
-        { label: "Script", count: videoCounts["scripting"] ?? 0, color: "bg-primary" },
-        { label: "Recording", count: videoCounts["recording"] ?? 0, color: "bg-warning" },
-        { label: "Editing", count: videoCounts["editing"] ?? 0, color: "bg-success" },
-        { label: "Scheduled", count: videoCounts["scheduled"] ?? 0, color: "bg-primary" },
+        { label: "Idea", count: vc["idea"] ?? 0, color: "bg-muted-foreground" },
+        { label: "Script", count: vc["scripting"] ?? 0, color: "bg-primary" },
+        { label: "Recording", count: vc["recording"] ?? 0, color: "bg-warning" },
+        { label: "Editing", count: vc["editing"] ?? 0, color: "bg-success" },
+        { label: "Scheduled", count: vc["scheduled"] ?? 0, color: "bg-primary" },
       ];
 
       const dealsPipeline: PipelineStage[] = [
-        { label: "Prospect", count: dealCounts["prospecting"] ?? 0, color: "bg-muted-foreground" },
-        { label: "Qualified", count: dealCounts["qualification"] ?? 0, color: "bg-primary" },
-        { label: "Proposal", count: dealCounts["proposal"] ?? 0, color: "bg-primary" },
-        { label: "Negotiation", count: dealCounts["negotiation"] ?? 0, color: "bg-warning" },
-        { label: "Won", count: dealCounts["closed_won"] ?? 0, color: "bg-success" },
+        { label: "Prospect", count: dc["prospecting"] ?? 0, color: "bg-muted-foreground" },
+        { label: "Qualified", count: dc["qualification"] ?? 0, color: "bg-primary" },
+        { label: "Proposal", count: dc["proposal"] ?? 0, color: "bg-primary" },
+        { label: "Negotiation", count: dc["negotiation"] ?? 0, color: "bg-warning" },
+        { label: "Won", count: dc["closed_won"] ?? 0, color: "bg-success" },
       ];
 
       return { contacts: contactsPipeline, content: contentPipeline, deals: dealsPipeline };
