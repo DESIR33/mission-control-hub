@@ -6,6 +6,9 @@ const corsHeaders = {
 };
 
 const GRAPH_BASE = "https://graph.microsoft.com/v1.0";
+const MAX_PAGES = 4; // Cap at ~1000 messages per folder
+const PAGE_SIZE = 250;
+const DB_CHUNK_SIZE = 50; // Smaller batches = shorter lock durations
 
 interface OutlookMessage {
   id: string;
@@ -57,17 +60,15 @@ async function refreshAccessToken(
   return { access_token: data.access_token, refresh_token: data.refresh_token };
 }
 
-async function fetchAllOutlookMessages(
+async function fetchOutlookMessages(
   accessToken: string,
   folder: string = "inbox",
-  maxPages: number = 4,
 ): Promise<OutlookMessage[]> {
   const allMessages: OutlookMessage[] = [];
-  const pageSize = 250;
-  let url: string | null = `${GRAPH_BASE}/me/mailFolders/${folder}/messages?$top=${pageSize}&$orderby=receivedDateTime desc&$select=id,conversationId,from,toRecipients,subject,bodyPreview,body,receivedDateTime,isRead,importance,hasAttachments,parentFolderId`;
-
+  let url: string | null = `${GRAPH_BASE}/me/mailFolders/${folder}/messages?$top=${PAGE_SIZE}&$orderby=receivedDateTime desc&$select=id,conversationId,from,toRecipients,subject,bodyPreview,body,receivedDateTime,isRead,importance,hasAttachments,parentFolderId`;
   let pageCount = 0;
-  while (url && pageCount < maxPages) {
+
+  while (url && pageCount < MAX_PAGES) {
     const response = await fetch(url, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
@@ -83,11 +84,11 @@ async function fetchAllOutlookMessages(
     pageCount++;
 
     url = data["@odata.nextLink"] || null;
-    console.log(`Fetched page ${pageCount}: ${messages.length} messages (total so far: ${allMessages.length})`);
+    console.log(`Fetched page ${pageCount}/${MAX_PAGES}: ${messages.length} messages (total: ${allMessages.length})`);
   }
 
   if (url) {
-    console.log(`Stopped after ${maxPages} pages (${allMessages.length} messages). Remaining pages skipped.`);
+    console.log(`Pagination capped at ${MAX_PAGES} pages (${allMessages.length} messages). Older messages skipped.`);
   }
 
   return allMessages;
@@ -170,14 +171,15 @@ Deno.serve(async (req) => {
 
     let totalFetched = 0;
     let totalUpserted = 0;
+    let totalSkipped = 0;
     let totalDeleted = 0;
     let totalReadUpdated = 0;
 
     for (const syncFolder of foldersToSync) {
       console.log(`Syncing folder: ${syncFolder}`);
 
-      // Fetch ALL messages from Outlook (paginated)
-      const messages = await fetchAllOutlookMessages(tokenResult.access_token, syncFolder);
+      // Fetch messages from Outlook (capped at MAX_PAGES)
+      const messages = await fetchOutlookMessages(tokenResult.access_token, syncFolder);
       totalFetched += messages.length;
 
       const dbFolder = mapGraphFolderToDb(syncFolder);
@@ -185,22 +187,30 @@ Deno.serve(async (req) => {
       // Build set of Outlook message IDs for this folder
       const outlookMessageIds = new Set(messages.map((m) => m.id));
 
-      // ── Delta: Delete emails from DB that no longer exist in Outlook ──
+      // ── Get existing emails from DB for delta detection ──
       const { data: existingEmails } = await supabase
         .from("inbox_emails")
         .select("id, message_id, is_read")
         .eq("workspace_id", workspace_id)
         .eq("folder", dbFolder);
 
+      // Build lookup of existing message_ids for skip-already-synced logic
+      const existingMessageMap = new Map<string, { id: string; is_read: boolean }>();
+      if (existingEmails) {
+        for (const e of existingEmails) {
+          existingMessageMap.set(e.message_id, { id: e.id, is_read: e.is_read });
+        }
+      }
+
+      // ── Delta: Delete emails from DB that no longer exist in Outlook ──
       if (existingEmails && existingEmails.length > 0) {
         const toDelete = existingEmails.filter(
           (e: any) => !outlookMessageIds.has(e.message_id)
         );
         if (toDelete.length > 0) {
           const deleteIds = toDelete.map((e: any) => e.id);
-          const CHUNK = 200;
-          for (let i = 0; i < deleteIds.length; i += CHUNK) {
-            const chunk = deleteIds.slice(i, i + CHUNK);
+          for (let i = 0; i < deleteIds.length; i += DB_CHUNK_SIZE) {
+            const chunk = deleteIds.slice(i, i + DB_CHUNK_SIZE);
             const { error: delErr } = await supabase
               .from("inbox_emails")
               .delete()
@@ -211,58 +221,55 @@ Deno.serve(async (req) => {
               totalDeleted += chunk.length;
             }
           }
-          console.log(`Deleted ${toDelete.length} emails from ${dbFolder} (removed in Outlook)`);
+          console.log(`Deleted ${toDelete.length} emails from ${dbFolder}`);
         }
 
-        // ── Delta: Update read status for emails that changed in Outlook ──
-        const outlookReadMap = new Map<string, boolean>();
-        messages.forEach((m) => {
-          outlookReadMap.set(m.id, m.isRead ?? false);
-        });
-
+        // ── Delta: Update read status for emails that changed ──
         const toUpdateRead: string[] = [];
         const toUpdateUnread: string[] = [];
-        existingEmails.forEach((e: any) => {
-          if (!outlookMessageIds.has(e.message_id)) return; // already deleted
-          const outlookIsRead = outlookReadMap.get(e.message_id);
-          if (outlookIsRead !== undefined && outlookIsRead !== e.is_read) {
+        for (const msg of messages) {
+          const existing = existingMessageMap.get(msg.id);
+          if (!existing) continue;
+          const outlookIsRead = msg.isRead ?? false;
+          if (outlookIsRead !== existing.is_read) {
             if (outlookIsRead) {
-              toUpdateRead.push(e.id);
+              toUpdateRead.push(existing.id);
             } else {
-              toUpdateUnread.push(e.id);
+              toUpdateUnread.push(existing.id);
             }
           }
-        });
+        }
 
         if (toUpdateRead.length > 0) {
-          const { error: readErr } = await supabase
-            .from("inbox_emails")
-            .update({ is_read: true })
-            .in("id", toUpdateRead);
-          if (readErr) console.error("Read update error:", JSON.stringify(readErr));
-          else totalReadUpdated += toUpdateRead.length;
-          console.log(`Marked ${toUpdateRead.length} emails as read (synced from Outlook)`);
+          for (let i = 0; i < toUpdateRead.length; i += DB_CHUNK_SIZE) {
+            const chunk = toUpdateRead.slice(i, i + DB_CHUNK_SIZE);
+            const { error: readErr } = await supabase
+              .from("inbox_emails")
+              .update({ is_read: true })
+              .in("id", chunk);
+            if (readErr) console.error("Read update error:", JSON.stringify(readErr));
+            else totalReadUpdated += chunk.length;
+          }
+          console.log(`Marked ${toUpdateRead.length} emails as read`);
         }
 
         if (toUpdateUnread.length > 0) {
-          const { error: unreadErr } = await supabase
-            .from("inbox_emails")
-            .update({ is_read: false })
-            .in("id", toUpdateUnread);
-          if (unreadErr) console.error("Unread update error:", JSON.stringify(unreadErr));
-          else totalReadUpdated += toUpdateUnread.length;
-          console.log(`Marked ${toUpdateUnread.length} emails as unread (synced from Outlook)`);
+          for (let i = 0; i < toUpdateUnread.length; i += DB_CHUNK_SIZE) {
+            const chunk = toUpdateUnread.slice(i, i + DB_CHUNK_SIZE);
+            const { error: unreadErr } = await supabase
+              .from("inbox_emails")
+              .update({ is_read: false })
+              .in("id", chunk);
+            if (unreadErr) console.error("Unread update error:", JSON.stringify(unreadErr));
+            else totalReadUpdated += chunk.length;
+          }
+          console.log(`Marked ${toUpdateUnread.length} emails as unread`);
         }
       }
 
-      // ── Upsert only NEW messages (skip already-synced ones) ──
-      const existingMessageIds = new Set(
-        (existingEmails || []).map((e: any) => e.message_id)
-      );
-
-      const newMessages = messages.filter(
-        (msg) => !existingMessageIds.has(msg.id)
-      );
+      // ── Only upsert genuinely NEW messages (not already in DB) ──
+      const newMessages = messages.filter((msg) => !existingMessageMap.has(msg.id));
+      totalSkipped += messages.length - newMessages.length;
 
       const rows = newMessages.map((msg) => {
         const fromEmail = msg.from?.emailAddress?.address || "";
@@ -291,22 +298,21 @@ Deno.serve(async (req) => {
       });
 
       if (rows.length > 0) {
-        const CHUNK_SIZE = 50;
-        for (let i = 0; i < rows.length; i += CHUNK_SIZE) {
-          const chunk = rows.slice(i, i + CHUNK_SIZE);
+        for (let i = 0; i < rows.length; i += DB_CHUNK_SIZE) {
+          const chunk = rows.slice(i, i + DB_CHUNK_SIZE);
           const { error: upsertError } = await supabase
             .from("inbox_emails")
             .upsert(chunk, { onConflict: "workspace_id,message_id" });
 
           if (upsertError) {
-            console.error(`Batch upsert error (${syncFolder}, chunk ${i / CHUNK_SIZE + 1}):`, JSON.stringify(upsertError));
+            console.error(`Upsert error (${syncFolder}, chunk ${i / DB_CHUNK_SIZE + 1}):`, JSON.stringify(upsertError));
             throw new Error(`Failed to upsert emails: ${upsertError.message}`);
           }
           totalUpserted += chunk.length;
-          console.log(`Upserted ${syncFolder} chunk: ${chunk.length} new emails (total: ${totalUpserted})`);
         }
+        console.log(`Upserted ${rows.length} NEW emails in ${dbFolder}`);
       } else {
-        console.log(`No new messages in folder: ${syncFolder} (${messages.length} already synced)`);
+        console.log(`No new messages in ${syncFolder} (${messages.length} already synced)`);
       }
     }
 
@@ -315,6 +321,7 @@ Deno.serve(async (req) => {
         success: true,
         fetched: totalFetched,
         upserted: totalUpserted,
+        skipped: totalSkipped,
         deleted: totalDeleted,
         read_status_updated: totalReadUpdated,
         folders_synced: foldersToSync,
