@@ -535,6 +535,9 @@ export default function CompanyProfilePage() {
             </Card>
           )}
 
+          {/* Agency / Client Links */}
+          <AgencyClientsPanel companyId={company.id} isAgency={company.is_agency} />
+
           {hasEnrichment && (
             <Card className="bg-card border-border">
               <CardHeader className="pb-2">
