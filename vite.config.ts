@@ -31,7 +31,7 @@ export default defineConfig(({ mode }) => ({
           if (id.includes("@tanstack/react-query")) return "vendor-query";
           if (id.includes("@supabase/")) return "vendor-supabase";
           // Heavy visualization — keep recharts + all transitive d3/internals together to avoid circular-dep TDZ crashes
-          if (id.includes("node_modules/recharts") || id.includes("node_modules/d3-") || id.includes("node_modules/victory-") || id.includes("node_modules/internmap") || id.includes("node_modules/robust-predicates") || id.includes("node_modules/delaunator")) return "vendor-charts";
+          if (id.includes("node_modules/recharts") || id.includes("node_modules/d3-") || id.includes("node_modules/victory-") || id.includes("node_modules/internmap") || id.includes("node_modules/robust-predicates") || id.includes("node_modules/delaunator") || id.includes("node_modules/react-smooth") || id.includes("node_modules/react-is") || id.includes("node_modules/decimal.js") || id.includes("node_modules/eventemitter3")) return "vendor-charts";
           // Animation
           if (id.includes("node_modules/framer-motion")) return "vendor-motion";
           // Date utilities
