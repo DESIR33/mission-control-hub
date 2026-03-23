@@ -118,7 +118,7 @@ export function useVideoQueueItem(id: number | string | null) {
     queryFn: async (): Promise<VideoQueueItem | null> => {
       const { data, error } = await supabase
         .from("video_queue")
-        .select("id, title, description, status, priority, scheduled_date, notes, metadata, created_by, created_at, updated_at, workspace_id")
+        .select("id, title, description, status, priority, scheduled_date, notes, metadata, created_by, created_at, updated_at, workspace_id, deal_id, youtube_video_id, script_content")
         .eq("id", String(id))
         .single();
       if (error) throw error;
