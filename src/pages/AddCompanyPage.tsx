@@ -90,6 +90,17 @@ export default function AddCompanyPage() {
             size="lg"
           />
 
+          <div className="flex items-center justify-between rounded-lg border border-border bg-secondary/30 px-3 py-2.5">
+            <div className="flex items-center gap-2">
+              <Briefcase className="w-4 h-4 text-muted-foreground" />
+              <div>
+                <Label htmlFor="is_agency" className="text-sm font-medium cursor-pointer">This is an agency</Label>
+                <p className="text-xs text-muted-foreground">Agencies represent and work on behalf of other companies</p>
+              </div>
+            </div>
+            <Switch id="is_agency" checked={isAgency} onCheckedChange={setIsAgency} />
+          </div>
+
           <div className="space-y-1.5">
             <Label htmlFor="name">Company Name *</Label>
             <Input id="name" name="name" required className="bg-secondary border-border" />
