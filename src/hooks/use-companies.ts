@@ -102,6 +102,7 @@ export function useUpdateCompany() {
       name?: string;
       logo_url?: string;
       industry?: string;
+      is_agency?: boolean;
       website?: string;
       description?: string;
       size?: string;
