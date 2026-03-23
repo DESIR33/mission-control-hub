@@ -39,6 +39,7 @@ export function AddCompanyDialog() {
       await createCompany.mutateAsync({
         name: form.get("name") as string,
         logo_url: logoUrl || undefined,
+        is_agency: isAgency,
         industry: (form.get("industry") as string) || undefined,
         website: (form.get("website") as string) || undefined,
         size: form.get("size") as string || undefined,
