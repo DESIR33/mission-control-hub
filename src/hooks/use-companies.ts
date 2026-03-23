@@ -25,6 +25,7 @@ export function useCompanies() {
       return (data ?? []).map((row) => ({
         ...row,
         vip_tier: (row.vip_tier ?? "none") as Company["vip_tier"],
+        is_agency: (row as any).is_agency ?? false,
         enrichment_brandfetch: null,
         enrichment_clay: null,
         enrichment_firecrawl: null,
