@@ -56,6 +56,7 @@ import {
   Handshake,
   Calendar,
   Phone,
+  Briefcase,
   Linkedin,
   Twitter,
   Instagram,
