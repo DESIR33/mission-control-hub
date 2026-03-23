@@ -8,7 +8,6 @@ const DEFAULT_INTERACTION_TTL = 5 * 60 * 1000; // 5 minutes
 /** Events that count as "user interaction". */
 const INTERACTION_EVENTS: (keyof DocumentEventMap)[] = [
   "mousedown",
-  "mousemove",
   "keydown",
   "scroll",
   "touchstart",
@@ -16,35 +15,54 @@ const INTERACTION_EVENTS: (keyof DocumentEventMap)[] = [
 ];
 
 // ── Singleton state (shared across all hook instances) ──────────────────────
-// Using a module-level store avoids duplicate listeners when many components
-// call useEngagementGate().
 
 let _tabVisible = typeof document !== "undefined"
   ? document.visibilityState === "visible"
   : true;
 
 let _lastInteraction = Date.now();
+let _recentlyInteracted = true;
 let _listeners = new Set<() => void>();
+let _expiryTimer: ReturnType<typeof setTimeout> | null = null;
 
 function _notify() {
   _listeners.forEach((fn) => fn());
 }
 
-// Visibility listener
+/**
+ * Schedule a timer to flip _recentlyInteracted to false after TTL expires.
+ * Only notifies subscribers when the boolean value actually changes.
+ */
+function _scheduleExpiry(ttl: number) {
+  if (_expiryTimer) clearTimeout(_expiryTimer);
+  const remaining = Math.max(0, ttl - (Date.now() - _lastInteraction));
+  _expiryTimer = setTimeout(() => {
+    const wasRecent = _recentlyInteracted;
+    _recentlyInteracted = false;
+    if (wasRecent) _notify();
+  }, remaining + 100); // small buffer
+}
+
 if (typeof document !== "undefined") {
+  // Visibility listener
   document.addEventListener("visibilitychange", () => {
+    const wasVisible = _tabVisible;
     _tabVisible = document.visibilityState === "visible";
-    _notify();
+    if (wasVisible !== _tabVisible) _notify();
   });
 
-  // Interaction listeners (passive, throttled via rAF)
-  let _rafScheduled = false;
+  // Interaction listeners — only notify when boolean state changes
+  let _throttled = false;
   const handleInteraction = () => {
     _lastInteraction = Date.now();
-    if (!_rafScheduled) {
-      _rafScheduled = true;
+    const wasRecent = _recentlyInteracted;
+    _recentlyInteracted = true;
+    _scheduleExpiry(DEFAULT_INTERACTION_TTL);
+    // Only notify if state changed (was false, now true)
+    if (!wasRecent && !_throttled) {
+      _throttled = true;
       requestAnimationFrame(() => {
-        _rafScheduled = false;
+        _throttled = false;
         _notify();
       });
     }
@@ -53,28 +71,30 @@ if (typeof document !== "undefined") {
   INTERACTION_EVENTS.forEach((evt) => {
     document.addEventListener(evt, handleInteraction, { passive: true, capture: true });
   });
+
+  // Start initial expiry timer
+  _scheduleExpiry(DEFAULT_INTERACTION_TTL);
 }
 
-// useSyncExternalStore contract
+// useSyncExternalStore contract — stable snapshots that only change on boolean state transitions
+let _cachedSnapshot = { tabVisible: _tabVisible, recentlyInteracted: _recentlyInteracted };
+
 function subscribe(cb: () => void) {
   _listeners.add(cb);
   return () => { _listeners.delete(cb); };
 }
 
-// Cache the snapshot to maintain referential stability (useSyncExternalStore contract)
-let _cachedSnapshot = { tabVisible: _tabVisible, lastInteraction: _lastInteraction };
-
 function getSnapshot() {
   if (
     _cachedSnapshot.tabVisible !== _tabVisible ||
-    _cachedSnapshot.lastInteraction !== _lastInteraction
+    _cachedSnapshot.recentlyInteracted !== _recentlyInteracted
   ) {
-    _cachedSnapshot = { tabVisible: _tabVisible, lastInteraction: _lastInteraction };
+    _cachedSnapshot = { tabVisible: _tabVisible, recentlyInteracted: _recentlyInteracted };
   }
   return _cachedSnapshot;
 }
 
-const _serverSnapshot = { tabVisible: true, lastInteraction: Date.now() };
+const _serverSnapshot = { tabVisible: true, recentlyInteracted: true };
 function getServerSnapshot() {
   return _serverSnapshot;
 }
@@ -82,19 +102,12 @@ function getServerSnapshot() {
 // ── Hook ────────────────────────────────────────────────────────────────────
 
 export interface EngagementGateOptions {
-  /**
-   * Route prefixes that count as "correct route".
-   * If omitted the gate ignores route matching (always passes).
-   */
   routes?: string[];
-  /** Override default interaction TTL (ms). */
   interactionTtl?: number;
 }
 
 export interface EngagementGateResult {
-  /** Master flag — true only when ALL conditions are met. */
   canRefresh: boolean;
-  /** Individual signals for debugging / logging. */
   tabVisible: boolean;
   recentlyInteracted: boolean;
   routeMatch: boolean;
@@ -106,29 +119,19 @@ export interface EngagementGateResult {
  *  2. The user interacted within `interactionTtl` ms.
  *  3. (Optional) The current pathname starts with one of the supplied `routes`.
  *
- * All polling queries should gate on this value.
+ * Optimized: only triggers re-renders when boolean state changes, not on every
+ * mouse/keyboard event. This prevents cascading re-renders across the dashboard.
  */
 export function useEngagementGate(
   opts: EngagementGateOptions = {},
 ): EngagementGateResult {
-  const { routes, interactionTtl = DEFAULT_INTERACTION_TTL } = opts;
+  const { routes } = opts;
 
-  // Subscribe to the shared singleton store
-  const { tabVisible, lastInteraction } = useSyncExternalStore(
+  const { tabVisible, recentlyInteracted } = useSyncExternalStore(
     subscribe,
     getSnapshot,
     getServerSnapshot,
   );
-
-  // Re-evaluate "recently interacted" on a 30-second tick so the flag
-  // eventually flips to false even without new events.
-  const [tick, setTick] = useState(0);
-  useEffect(() => {
-    const id = setInterval(() => setTick((t) => t + 1), 30_000);
-    return () => clearInterval(id);
-  }, []);
-
-  const recentlyInteracted = Date.now() - lastInteraction < interactionTtl;
 
   // Route matching
   const routeMatch =
