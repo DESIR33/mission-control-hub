@@ -1596,6 +1596,7 @@ export type Database = {
           enrichment_firecrawl: Json | null
           id: string
           industry: string | null
+          is_agency: boolean
           last_contact_date: string | null
           location: string | null
           logo_url: string | null
@@ -1633,6 +1634,7 @@ export type Database = {
           enrichment_firecrawl?: Json | null
           id?: string
           industry?: string | null
+          is_agency?: boolean
           last_contact_date?: string | null
           location?: string | null
           logo_url?: string | null
@@ -1670,6 +1672,7 @@ export type Database = {
           enrichment_firecrawl?: Json | null
           id?: string
           industry?: string | null
+          is_agency?: boolean
           last_contact_date?: string | null
           location?: string | null
           logo_url?: string | null
@@ -1698,6 +1701,58 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "companies_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_agency_links: {
+        Row: {
+          agency_id: string
+          client_company_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          agency_id: string
+          client_company_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          agency_id?: string
+          client_company_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_agency_links_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_agency_links_client_company_id_fkey"
+            columns: ["client_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_agency_links_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
