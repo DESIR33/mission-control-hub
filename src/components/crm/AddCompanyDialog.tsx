@@ -10,13 +10,15 @@ import { ImageUpload } from "@/components/settings/ImageUpload";
 import { useCreateCompany } from "@/hooks/use-companies";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, Loader2, ChevronDown } from "lucide-react";
+import { Plus, Loader2, ChevronDown, Briefcase } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Switch } from "@/components/ui/switch";
 
 export function AddCompanyDialog() {
   const [open, setOpen] = useState(false);
   const [socialOpen, setSocialOpen] = useState(false);
   const [logoUrl, setLogoUrl] = useState("");
+  const [isAgency, setIsAgency] = useState(false);
   const createCompany = useCreateCompany();
   const { toast } = useToast();
 
@@ -37,6 +39,7 @@ export function AddCompanyDialog() {
       await createCompany.mutateAsync({
         name: form.get("name") as string,
         logo_url: logoUrl || undefined,
+        is_agency: isAgency,
         industry: (form.get("industry") as string) || undefined,
         website: (form.get("website") as string) || undefined,
         size: form.get("size") as string || undefined,
@@ -61,6 +64,7 @@ export function AddCompanyDialog() {
       });
       toast({ title: "Company created" });
       setLogoUrl("");
+      setIsAgency(false);
       setSocialOpen(false);
       setOpen(false);
     } catch (err: any) {
@@ -89,6 +93,17 @@ export function AddCompanyDialog() {
             shape="rounded"
             size="lg"
           />
+
+          <div className="flex items-center justify-between rounded-lg border border-border bg-secondary/30 px-3 py-2.5">
+            <div className="flex items-center gap-2">
+              <Briefcase className="w-4 h-4 text-muted-foreground" />
+              <div>
+                <Label htmlFor="dlg_is_agency" className="text-sm font-medium cursor-pointer">This is an agency</Label>
+                <p className="text-xs text-muted-foreground">Represents other companies</p>
+              </div>
+            </div>
+            <Switch id="dlg_is_agency" checked={isAgency} onCheckedChange={setIsAgency} />
+          </div>
 
           <div className="space-y-1.5">
             <Label htmlFor="name">Company Name *</Label>

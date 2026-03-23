@@ -74,6 +74,7 @@ export interface Company {
   enrichment_firecrawl: Record<string, unknown> | null;
   notes: string | null;
   last_contact_date: string | null;
+  is_agency: boolean;
   deleted_at: string | null;
   created_by: string | null;
   created_at: string;

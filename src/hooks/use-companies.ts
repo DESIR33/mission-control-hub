@@ -14,7 +14,7 @@ export function useCompanies() {
 
       const { data, error } = await supabase
         .from("companies")
-        .select("id, workspace_id, name, logo_url, industry, website, description, size, revenue, location, country, state, city, phone, primary_email, secondary_email, vip_tier, notes, last_contact_date, social_twitter, social_linkedin, social_youtube, social_instagram, social_facebook, social_tiktok, social_producthunt, social_whatsapp, created_at, updated_at, deleted_at, created_by, response_sla_minutes, contacts(id, first_name, last_name, email, role, status)")
+        .select("id, workspace_id, name, logo_url, industry, website, description, size, revenue, location, country, state, city, phone, primary_email, secondary_email, vip_tier, notes, last_contact_date, is_agency, social_twitter, social_linkedin, social_youtube, social_instagram, social_facebook, social_tiktok, social_producthunt, social_whatsapp, created_at, updated_at, deleted_at, created_by, response_sla_minutes, contacts(id, first_name, last_name, email, role, status)")
         .eq("workspace_id", workspaceId)
         .is("deleted_at", null)
         .order("updated_at", { ascending: false })
@@ -25,6 +25,7 @@ export function useCompanies() {
       return (data ?? []).map((row) => ({
         ...row,
         vip_tier: (row.vip_tier ?? "none") as Company["vip_tier"],
+        is_agency: (row as any).is_agency ?? false,
         enrichment_brandfetch: null,
         enrichment_clay: null,
         enrichment_firecrawl: null,
@@ -45,6 +46,7 @@ export function useCreateCompany() {
       name: string;
       logo_url?: string;
       industry?: string;
+      is_agency?: boolean;
       website?: string;
       description?: string;
       size?: string;
@@ -100,6 +102,7 @@ export function useUpdateCompany() {
       name?: string;
       logo_url?: string;
       industry?: string;
+      is_agency?: boolean;
       website?: string;
       description?: string;
       size?: string;

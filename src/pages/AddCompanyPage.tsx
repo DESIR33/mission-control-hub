@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Building2, Loader2, ChevronDown } from "lucide-react";
+import { ArrowLeft, Building2, Loader2, ChevronDown, Briefcase } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +20,7 @@ export default function AddCompanyPage() {
   const { toast } = useToast();
   const [socialOpen, setSocialOpen] = useState(false);
   const [logoUrl, setLogoUrl] = useState("");
+  const [isAgency, setIsAgency] = useState(false);
 
   const handleLogoUpload = useCallback(async (file: File): Promise<string> => {
     const fileExt = file.name.split(".").pop() ?? "png";
@@ -37,6 +39,7 @@ export default function AddCompanyPage() {
       await createCompany.mutateAsync({
         name: form.get("name") as string,
         logo_url: logoUrl || undefined,
+        is_agency: isAgency,
         industry: (form.get("industry") as string) || undefined,
         website: (form.get("website") as string) || undefined,
         size: (form.get("size") as string) || undefined,
@@ -86,6 +89,17 @@ export default function AddCompanyPage() {
             shape="rounded"
             size="lg"
           />
+
+          <div className="flex items-center justify-between rounded-lg border border-border bg-secondary/30 px-3 py-2.5">
+            <div className="flex items-center gap-2">
+              <Briefcase className="w-4 h-4 text-muted-foreground" />
+              <div>
+                <Label htmlFor="is_agency" className="text-sm font-medium cursor-pointer">This is an agency</Label>
+                <p className="text-xs text-muted-foreground">Agencies represent and work on behalf of other companies</p>
+              </div>
+            </div>
+            <Switch id="is_agency" checked={isAgency} onCheckedChange={setIsAgency} />
+          </div>
 
           <div className="space-y-1.5">
             <Label htmlFor="name">Company Name *</Label>

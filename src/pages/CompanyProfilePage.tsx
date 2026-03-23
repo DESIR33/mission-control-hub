@@ -21,6 +21,7 @@ import {
 import { ActivityTimeline } from "@/components/crm/ActivityTimeline";
 import { CompanyIntelFeed } from "@/components/companies/CompanyIntelFeed";
 import { AssociateContactPopover } from "@/components/crm/AssociateContactPopover";
+import { AgencyClientsPanel } from "@/components/companies/AgencyClientsPanel";
 
 import { useCompanies, useDeleteCompany, useCompanyContacts } from "@/hooks/use-companies";
 import { useActivities } from "@/hooks/use-contacts";
@@ -55,6 +56,7 @@ import {
   Handshake,
   Calendar,
   Phone,
+  Briefcase,
   Linkedin,
   Twitter,
   Instagram,
@@ -331,6 +333,12 @@ export default function CompanyProfilePage() {
           <div className="flex-1 min-w-0 pb-1">
             <h1 className="text-2xl font-bold text-foreground tracking-tight truncate">{company.name}</h1>
             <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+              {company.is_agency && (
+                <Badge variant="outline" className="text-xs border-primary/30 bg-primary/10 text-primary gap-1">
+                  <Briefcase className="w-3 h-3" />
+                  Agency
+                </Badge>
+              )}
               {company.industry && (
                 <Badge variant="outline" className="text-xs">
                   {company.industry}
@@ -526,6 +534,9 @@ export default function CompanyProfilePage() {
               </CardContent>
             </Card>
           )}
+
+          {/* Agency / Client Links */}
+          <AgencyClientsPanel companyId={company.id} isAgency={company.is_agency} />
 
           {hasEnrichment && (
             <Card className="bg-card border-border">

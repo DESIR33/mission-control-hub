@@ -18,6 +18,7 @@ const baseCompany = {
   enrichment_clay: null,
   enrichment_firecrawl: null,
   created_by: null,
+  is_agency: false,
 } satisfies Partial<Company>;
 
 // Mock data for development before auth is wired up
