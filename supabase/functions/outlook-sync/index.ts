@@ -60,12 +60,14 @@ async function refreshAccessToken(
 async function fetchAllOutlookMessages(
   accessToken: string,
   folder: string = "inbox",
+  maxPages: number = 4,
 ): Promise<OutlookMessage[]> {
   const allMessages: OutlookMessage[] = [];
   const pageSize = 250;
   let url: string | null = `${GRAPH_BASE}/me/mailFolders/${folder}/messages?$top=${pageSize}&$orderby=receivedDateTime desc&$select=id,conversationId,from,toRecipients,subject,bodyPreview,body,receivedDateTime,isRead,importance,hasAttachments,parentFolderId`;
 
-  while (url) {
+  let pageCount = 0;
+  while (url && pageCount < maxPages) {
     const response = await fetch(url, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
@@ -78,9 +80,14 @@ async function fetchAllOutlookMessages(
     const data = await response.json();
     const messages: OutlookMessage[] = data.value || [];
     allMessages.push(...messages);
+    pageCount++;
 
     url = data["@odata.nextLink"] || null;
-    console.log(`Fetched page: ${messages.length} messages (total so far: ${allMessages.length})`);
+    console.log(`Fetched page ${pageCount}: ${messages.length} messages (total so far: ${allMessages.length})`);
+  }
+
+  if (url) {
+    console.log(`Stopped after ${maxPages} pages (${allMessages.length} messages). Remaining pages skipped.`);
   }
 
   return allMessages;
@@ -248,8 +255,16 @@ Deno.serve(async (req) => {
         }
       }
 
-      // ── Upsert current messages ──
-      const rows = messages.map((msg) => {
+      // ── Upsert only NEW messages (skip already-synced ones) ──
+      const existingMessageIds = new Set(
+        (existingEmails || []).map((e: any) => e.message_id)
+      );
+
+      const newMessages = messages.filter(
+        (msg) => !existingMessageIds.has(msg.id)
+      );
+
+      const rows = newMessages.map((msg) => {
         const fromEmail = msg.from?.emailAddress?.address || "";
         const fromName = msg.from?.emailAddress?.name || "";
         const toRecipients = (msg.toRecipients || []).map((r) => ({
@@ -276,7 +291,7 @@ Deno.serve(async (req) => {
       });
 
       if (rows.length > 0) {
-        const CHUNK_SIZE = 200;
+        const CHUNK_SIZE = 50;
         for (let i = 0; i < rows.length; i += CHUNK_SIZE) {
           const chunk = rows.slice(i, i + CHUNK_SIZE);
           const { error: upsertError } = await supabase
@@ -288,10 +303,10 @@ Deno.serve(async (req) => {
             throw new Error(`Failed to upsert emails: ${upsertError.message}`);
           }
           totalUpserted += chunk.length;
-          console.log(`Upserted ${syncFolder} chunk: ${chunk.length} emails (total: ${totalUpserted})`);
+          console.log(`Upserted ${syncFolder} chunk: ${chunk.length} new emails (total: ${totalUpserted})`);
         }
       } else {
-        console.log(`No messages in folder: ${syncFolder}`);
+        console.log(`No new messages in folder: ${syncFolder} (${messages.length} already synced)`);
       }
     }
 
