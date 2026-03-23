@@ -122,6 +122,7 @@ export function useUpdateCompany() {
       social_facebook?: string;
       social_tiktok?: string;
       social_producthunt?: string;
+      social_crunchbase?: string;
       social_whatsapp?: string;
       vip_tier?: string;
       response_sla_minutes?: number | null;
