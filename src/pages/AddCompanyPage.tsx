@@ -55,6 +55,7 @@ export default function AddCompanyPage() {
         social_facebook: (form.get("social_facebook") as string) || undefined,
         social_tiktok: (form.get("social_tiktok") as string) || undefined,
         social_producthunt: (form.get("social_producthunt") as string) || undefined,
+        social_crunchbase: (form.get("social_crunchbase") as string) || undefined,
         notes: (form.get("notes") as string) || undefined,
       });
       toast({ title: "Company created" });
