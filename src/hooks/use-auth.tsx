@@ -2,6 +2,46 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 
+const AUTH_SESSION_TIMEOUT_MS = 3000;
+
+function hasValidJwtSub(token: unknown): boolean {
+  if (typeof token !== "string") return false;
+
+  const parts = token.split(".");
+  if (parts.length !== 3) return false;
+
+  try {
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")));
+    return typeof payload?.sub === "string" && payload.sub.length > 0;
+  } catch {
+    return false;
+  }
+}
+
+function sanitizeStoredSupabaseSession() {
+  if (typeof window === "undefined") return;
+
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key || !key.startsWith("sb-") || !key.endsWith("-auth-token")) continue;
+
+    const raw = localStorage.getItem(key);
+    if (!raw) continue;
+
+    try {
+      const parsed = JSON.parse(raw);
+      const accessToken = parsed?.access_token ?? parsed?.currentSession?.access_token;
+      const refreshToken = parsed?.refresh_token ?? parsed?.currentSession?.refresh_token;
+
+      if (!hasValidJwtSub(accessToken) || typeof refreshToken !== "string") {
+        localStorage.removeItem(key);
+      }
+    } catch {
+      localStorage.removeItem(key);
+    }
+  }
+}
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
@@ -22,6 +62,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    sanitizeStoredSupabaseSession();
+
     let isMounted = true;
     const timeoutId = window.setTimeout(() => {
       if (isMounted) {
@@ -31,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         void supabase.auth.signOut({ scope: "local" }).catch(() => {});
         setIsLoading(false);
       }
-    }, 5000);
+    }, AUTH_SESSION_TIMEOUT_MS);
 
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
