@@ -64,6 +64,7 @@ export function AddCompanyDialog() {
       });
       toast({ title: "Company created" });
       setLogoUrl("");
+      setIsAgency(false);
       setSocialOpen(false);
       setOpen(false);
     } catch (err: any) {
