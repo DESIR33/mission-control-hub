@@ -108,7 +108,7 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
   }
 
   return (
-    <div className="space-y-4 p-4 overflow-y-auto">
+    <div className="space-y-4 p-4 overflow-y-auto h-full">
       {/* AI Summary & Category */}
       {((email as any).ai_summary || (email as any).ai_category) && (
         <Card>
