@@ -206,19 +206,23 @@ export function useFolderCounts() {
     queryFn: async () => {
       if (!workspaceId) return {};
 
-      // Single query: fetch all emails' folder field and count client-side
-      const { data, error } = await supabase
-        .from("inbox_emails" as any)
-        .select("folder")
-        .eq("workspace_id", workspaceId);
-
-      if (error) throw error;
+      // Use server-side count queries per folder instead of fetching all rows
+      const folders = ["inbox", "sent", "junk", "trash", "archive", "drafts"];
+      const results = await Promise.all(
+        folders.map((f) =>
+          supabase
+            .from("inbox_emails" as any)
+            .select("id", { count: "exact", head: true })
+            .eq("workspace_id", workspaceId)
+            .eq("folder", f)
+        )
+      );
 
       const counts: Record<string, number> = {};
-      for (const row of (data as any[]) ?? []) {
-        const f = (row.folder as string) ?? "inbox";
-        counts[f] = (counts[f] || 0) + 1;
-      }
+      folders.forEach((f, i) => {
+        const c = results[i].count ?? 0;
+        if (c > 0) counts[f] = c;
+      });
       return counts;
     },
     enabled: !!workspaceId,
