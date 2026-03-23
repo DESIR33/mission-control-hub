@@ -55,6 +55,7 @@ export default function AddCompanyPage() {
         social_facebook: (form.get("social_facebook") as string) || undefined,
         social_tiktok: (form.get("social_tiktok") as string) || undefined,
         social_producthunt: (form.get("social_producthunt") as string) || undefined,
+        social_crunchbase: (form.get("social_crunchbase") as string) || undefined,
         notes: (form.get("notes") as string) || undefined,
       });
       toast({ title: "Company created" });
@@ -209,9 +210,15 @@ export default function AddCompanyPage() {
                   <Input id="social_tiktok" name="social_tiktok" placeholder="@handle" className="bg-secondary border-border" />
                 </div>
               </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="social_producthunt" className="text-xs">Product Hunt</Label>
-                <Input id="social_producthunt" name="social_producthunt" placeholder="producthunt.com/products/..." className="bg-secondary border-border" />
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="social_producthunt" className="text-xs">Product Hunt</Label>
+                  <Input id="social_producthunt" name="social_producthunt" placeholder="producthunt.com/products/..." className="bg-secondary border-border" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="social_crunchbase" className="text-xs">Crunchbase</Label>
+                  <Input id="social_crunchbase" name="social_crunchbase" placeholder="crunchbase.com/organization/..." className="bg-secondary border-border" />
+                </div>
               </div>
             </CollapsibleContent>
           </Collapsible>

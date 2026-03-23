@@ -14,7 +14,7 @@ export function useCompanies() {
 
       const { data, error } = await supabase
         .from("companies")
-        .select("id, workspace_id, name, logo_url, industry, website, description, size, revenue, location, country, state, city, phone, primary_email, secondary_email, vip_tier, notes, last_contact_date, is_agency, social_twitter, social_linkedin, social_youtube, social_instagram, social_facebook, social_tiktok, social_producthunt, social_whatsapp, created_at, updated_at, deleted_at, created_by, response_sla_minutes, contacts(id, first_name, last_name, email, role, status)")
+        .select("id, workspace_id, name, logo_url, industry, website, description, size, revenue, location, country, state, city, phone, primary_email, secondary_email, vip_tier, notes, last_contact_date, is_agency, social_twitter, social_linkedin, social_youtube, social_instagram, social_facebook, social_tiktok, social_producthunt, social_crunchbase, social_whatsapp, created_at, updated_at, deleted_at, created_by, response_sla_minutes, contacts(id, first_name, last_name, email, role, status)")
         .eq("workspace_id", workspaceId)
         .is("deleted_at", null)
         .order("updated_at", { ascending: false })
@@ -66,6 +66,7 @@ export function useCreateCompany() {
       social_facebook?: string;
       social_tiktok?: string;
       social_producthunt?: string;
+      social_crunchbase?: string;
       social_whatsapp?: string;
       notes?: string;
     }) => {
@@ -121,6 +122,7 @@ export function useUpdateCompany() {
       social_facebook?: string;
       social_tiktok?: string;
       social_producthunt?: string;
+      social_crunchbase?: string;
       social_whatsapp?: string;
       vip_tier?: string;
       response_sla_minutes?: number | null;

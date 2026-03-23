@@ -1,0 +1,1 @@
+ALTER TABLE public.companies ADD COLUMN social_crunchbase text DEFAULT NULL;

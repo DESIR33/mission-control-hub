@@ -96,6 +96,7 @@ export default function EditCompanyPage() {
         social_facebook: (form.get("social_facebook") as string) || undefined,
         social_tiktok: (form.get("social_tiktok") as string) || undefined,
         social_producthunt: (form.get("social_producthunt") as string) || undefined,
+        social_crunchbase: (form.get("social_crunchbase") as string) || undefined,
         social_whatsapp: (form.get("social_whatsapp") as string) || undefined,
         notes: (form.get("notes") as string) || undefined,
       });
@@ -364,9 +365,15 @@ export default function EditCompanyPage() {
                           <Input id="edit_social_tiktok" name="social_tiktok" defaultValue={company.social_tiktok ?? ""} placeholder="@handle" className="bg-secondary border-border" />
                         </div>
                       </div>
-                      <div className="space-y-1.5">
-                        <Label htmlFor="edit_social_producthunt" className="text-xs">Product Hunt</Label>
-                        <Input id="edit_social_producthunt" name="social_producthunt" defaultValue={company.social_producthunt ?? ""} className="bg-secondary border-border" />
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1.5">
+                          <Label htmlFor="edit_social_producthunt" className="text-xs">Product Hunt</Label>
+                          <Input id="edit_social_producthunt" name="social_producthunt" defaultValue={company.social_producthunt ?? ""} className="bg-secondary border-border" />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label htmlFor="edit_social_crunchbase" className="text-xs">Crunchbase</Label>
+                          <Input id="edit_social_crunchbase" name="social_crunchbase" defaultValue={(company as any).social_crunchbase ?? ""} placeholder="crunchbase.com/organization/..." className="bg-secondary border-border" />
+                        </div>
                       </div>
                     </CardContent>
                   </CollapsibleContent>
