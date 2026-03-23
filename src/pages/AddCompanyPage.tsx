@@ -20,6 +20,7 @@ export default function AddCompanyPage() {
   const { toast } = useToast();
   const [socialOpen, setSocialOpen] = useState(false);
   const [logoUrl, setLogoUrl] = useState("");
+  const [isAgency, setIsAgency] = useState(false);
 
   const handleLogoUpload = useCallback(async (file: File): Promise<string> => {
     const fileExt = file.name.split(".").pop() ?? "png";
