@@ -141,6 +141,7 @@ export default function NewSponsorshipPage() {
       queryClient.invalidateQueries({ queryKey: ["deals"] });
       queryClient.invalidateQueries({ queryKey: ["sponsorships"] });
       queryClient.invalidateQueries({ queryKey: ["deal-videos"] });
+      queryClient.invalidateQueries({ queryKey: ["video-queue"] });
       toast({ title: "Success", description: "Sponsorship created successfully" });
       navigate("/revenue/sponsorships");
     },
