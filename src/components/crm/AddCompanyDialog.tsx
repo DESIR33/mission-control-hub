@@ -10,8 +10,9 @@ import { ImageUpload } from "@/components/settings/ImageUpload";
 import { useCreateCompany } from "@/hooks/use-companies";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, Loader2, ChevronDown } from "lucide-react";
+import { Plus, Loader2, ChevronDown, Briefcase } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Switch } from "@/components/ui/switch";
 
 export function AddCompanyDialog() {
   const [open, setOpen] = useState(false);
