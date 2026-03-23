@@ -509,7 +509,8 @@ export function useAiBriefing() {
           .from("youtube_video_analytics" as any)
           .select("estimated_revenue")
           .eq("workspace_id", workspaceId)
-          .gte("date", thirtyDaysAgo),
+          .gte("date", thirtyDaysAgo)
+          .limit(500),
         supabase
           .from("deals")
           .select("title, updated_at")
