@@ -30,7 +30,7 @@ export default defineConfig(({ mode }) => ({
           // Data layer
           if (id.includes("@tanstack/react-query")) return "vendor-query";
           if (id.includes("@supabase/")) return "vendor-supabase";
-          // Heavy visualization — keep recharts + all transitive d3/internals together to avoid circular-dep TDZ crashes
+          // Heavy visualization — keep ALL recharts + transitive deps in one chunk
           if (
             id.includes("node_modules/recharts") ||
             id.includes("node_modules/d3-") ||
@@ -39,15 +39,12 @@ export default defineConfig(({ mode }) => ({
             id.includes("node_modules/robust-predicates") ||
             id.includes("node_modules/delaunator") ||
             id.includes("node_modules/react-smooth") ||
-            id.includes("node_modules/react-is") ||
             id.includes("node_modules/react-transition-group") ||
+            id.includes("node_modules/recharts-scale") ||
             id.includes("node_modules/decimal.js") ||
             id.includes("node_modules/eventemitter3") ||
-            id.includes("node_modules/recharts-scale") ||
             id.includes("node_modules/fast-equals") ||
-            id.includes("node_modules/tiny-invariant") ||
-            id.includes("node_modules/prop-types") ||
-            id.includes("node_modules/lodash")
+            id.includes("node_modules/tiny-invariant")
           ) return "vendor-charts";
           // Animation
           if (id.includes("node_modules/framer-motion")) return "vendor-motion";
