@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Search, Filter, Mail, ChevronRight, BookOpen, Video, Trash2, Download, Loader2 } from "lucide-react";
+import { Search, Filter, Mail, ChevronRight, BookOpen, Video, Trash2, Download, Loader2, ArrowUpDown, Eye, MousePointer } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Subscriber, SubscriberStatus } from "@/types/subscriber";
 import { formatDistanceToNow } from "date-fns";
@@ -32,6 +32,7 @@ export function SubscribersTable({ subscribers, onSelectSubscriber, selectedId, 
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [sortBy, setSortBy] = useState<"engagement" | "opens" | "ctr" | "recent">("recent");
 
   const bulkDelete = useBulkDeleteSubscribers();
   const { toast } = useToast();
@@ -44,16 +45,39 @@ export function SubscribersTable({ subscribers, onSelectSubscriber, selectedId, 
     }
   };
 
-  const filtered = subscribers.filter((s) => {
-    const matchesSearch =
-      !search ||
-      `${s.first_name ?? ""} ${s.last_name ?? ""} ${s.email} ${s.guide_requested ?? ""}`
-        .toLowerCase()
-        .includes(search.toLowerCase());
-    const matchesStatus = statusFilter === "all" || s.status === statusFilter;
-    const matchesSource = sourceFilter === "all" || s.source === sourceFilter;
-    return matchesSearch && matchesStatus && matchesSource;
-  });
+  const filtered = useMemo(() => {
+    const base = subscribers.filter((s) => {
+      const matchesSearch =
+        !search ||
+        `${s.first_name ?? ""} ${s.last_name ?? ""} ${s.email} ${s.guide_requested ?? ""}`
+          .toLowerCase()
+          .includes(search.toLowerCase());
+      const matchesStatus = statusFilter === "all" || s.status === statusFilter;
+      const matchesSource = sourceFilter === "all" || s.source === sourceFilter;
+      return matchesSearch && matchesStatus && matchesSource;
+    });
+
+    return [...base].sort((a, b) => {
+      const aEd = a.engagement_data;
+      const bEd = b.engagement_data;
+      switch (sortBy) {
+        case "engagement":
+          return b.engagement_score - a.engagement_score;
+        case "opens": {
+          const aRate = (aEd.emails_sent || 0) > 0 ? (aEd.emails_opened || 0) / aEd.emails_sent : 0;
+          const bRate = (bEd.emails_sent || 0) > 0 ? (bEd.emails_opened || 0) / bEd.emails_sent : 0;
+          return bRate - aRate;
+        }
+        case "ctr": {
+          const aCtr = (aEd.emails_sent || 0) > 0 ? (aEd.emails_clicked || 0) / aEd.emails_sent : 0;
+          const bCtr = (bEd.emails_sent || 0) > 0 ? (bEd.emails_clicked || 0) / bEd.emails_sent : 0;
+          return bCtr - aCtr;
+        }
+        default:
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }
+    });
+  }, [subscribers, search, statusFilter, sourceFilter, sortBy]);
 
   const handleBulkDelete = async () => {
     if (selectedIds.size === 0) return;
