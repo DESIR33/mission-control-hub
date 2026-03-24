@@ -165,13 +165,35 @@ Deno.serve(async (req) => {
       );
 
       for (const sub of subscriptions) {
-        const emailsSent = sub.stats?.emails_sent ?? 0;
-        const emailsOpened = sub.stats?.emails_opened ?? 0;
-        const emailsClicked = sub.stats?.emails_clicked ?? 0;
-        const uniqueOpened = sub.stats?.unique_emails_opened ?? emailsOpened;
-        const uniqueClicked = sub.stats?.unique_emails_clicked ?? emailsClicked;
-        const openRate = emailsSent > 0 ? Math.round((uniqueOpened / emailsSent) * 1000) / 10 : 0;
-        const clickRate = emailsSent > 0 ? Math.round((uniqueClicked / emailsSent) * 1000) / 10 : 0;
+        const rawEmailsSent = (sub.stats as any)?.emails_sent ?? (sub.stats as any)?.emails_received ?? 0;
+        const normalizeRate = (value: unknown) => {
+          const numeric = typeof value === "number" ? value : Number(value ?? 0);
+          if (!Number.isFinite(numeric) || numeric <= 0) return 0;
+          const percent = numeric <= 1 ? numeric * 100 : numeric;
+          return Math.round(percent * 10) / 10;
+        };
+
+        const emailsSent = rawEmailsSent;
+        const fallbackOpenRate = normalizeRate((sub.stats as any)?.open_rate);
+        const fallbackClickRate = normalizeRate((sub.stats as any)?.click_through_rate);
+
+        const emailsOpened =
+          (sub.stats as any)?.emails_opened ??
+          (emailsSent > 0 ? Math.round((fallbackOpenRate / 100) * emailsSent) : 0);
+        const emailsClicked =
+          (sub.stats as any)?.emails_clicked ??
+          (emailsSent > 0 ? Math.round((fallbackClickRate / 100) * emailsSent) : 0);
+
+        const uniqueOpened = (sub.stats as any)?.unique_emails_opened ?? emailsOpened;
+        const uniqueClicked = (sub.stats as any)?.unique_emails_clicked ?? emailsClicked;
+        const openRate =
+          emailsSent > 0
+            ? Math.round((uniqueOpened / emailsSent) * 1000) / 10
+            : fallbackOpenRate;
+        const clickRate =
+          emailsSent > 0
+            ? Math.round((uniqueClicked / emailsSent) * 1000) / 10
+            : fallbackClickRate;
 
         const engData = {
           emails_sent: emailsSent,
@@ -188,8 +210,9 @@ Deno.serve(async (req) => {
           last_clicked_at: null,
         };
 
-        const totalSent = emailsSent || 1;
-        const engScore = Math.min(100, Math.round((uniqueOpened / totalSent) * 60 + (uniqueClicked / totalSent) * 40));
+        const openScore = Math.max(0, Math.min(100, openRate));
+        const clickScore = Math.max(0, Math.min(100, clickRate));
+        const engScore = Math.min(100, Math.round(openScore * 0.6 + clickScore * 0.4));
 
         const row = {
           workspace_id,
