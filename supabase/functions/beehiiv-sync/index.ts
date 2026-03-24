@@ -163,13 +163,6 @@ Deno.serve(async (req) => {
         apiKey,
         { "expand[]": "stats" }
       );
-
-      // Log first subscriber's raw stats to debug field names
-      if (subscriptions.length > 0) {
-        const sample = subscriptions[0];
-        console.log(`Sample subscriber stats keys: ${JSON.stringify(sample.stats)}`);
-      }
-
       for (const sub of subscriptions) {
         const s = (sub.stats ?? {}) as Record<string, unknown>;
         const emailsSent = Number(s.total_sent ?? s.total_received ?? s.emails_received ?? s.emails_sent ?? 0);
