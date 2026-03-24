@@ -230,6 +230,8 @@ export function SubscribersTable({ subscribers, onSelectSubscriber, selectedId, 
               <TableHead className="text-muted-foreground font-semibold">Source</TableHead>
               <TableHead className="text-muted-foreground font-semibold">Guide</TableHead>
               <TableHead className="text-muted-foreground font-semibold">Referrer</TableHead>
+              <TableHead className="text-muted-foreground font-semibold">Opens</TableHead>
+              <TableHead className="text-muted-foreground font-semibold">CTR</TableHead>
               <TableHead className="text-muted-foreground font-semibold">Engagement</TableHead>
               <TableHead className="text-muted-foreground font-semibold">Subscribed</TableHead>
             </TableRow>
@@ -237,7 +239,7 @@ export function SubscribersTable({ subscribers, onSelectSubscriber, selectedId, 
           <TableBody>
             {filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="text-center py-12 text-muted-foreground">
+                <TableCell colSpan={11} className="text-center py-12 text-muted-foreground">
                   No subscribers found
                 </TableCell>
               </TableRow>
@@ -315,6 +317,34 @@ export function SubscribersTable({ subscribers, onSelectSubscriber, selectedId, 
                     ) : (
                       <span className="text-sm text-muted-foreground">—</span>
                     )}
+                  </TableCell>
+                  <TableCell>
+                    {(() => {
+                      const ed = sub.engagement_data;
+                      const sent = ed.emails_sent || 0;
+                      const opened = ed.emails_opened || 0;
+                      const rate = sent > 0 ? Math.round((opened / sent) * 100) : 0;
+                      return (
+                        <span className="text-xs font-mono text-foreground">
+                          {sent > 0 ? `${rate}%` : "—"}
+                          {sent > 0 && <span className="text-muted-foreground ml-1">({opened}/{sent})</span>}
+                        </span>
+                      );
+                    })()}
+                  </TableCell>
+                  <TableCell>
+                    {(() => {
+                      const ed = sub.engagement_data;
+                      const sent = ed.emails_sent || 0;
+                      const clicked = ed.emails_clicked || 0;
+                      const rate = sent > 0 ? Math.round((clicked / sent) * 100) : 0;
+                      return (
+                        <span className="text-xs font-mono text-foreground">
+                          {sent > 0 ? `${rate}%` : "—"}
+                          {sent > 0 && <span className="text-muted-foreground ml-1">({clicked})</span>}
+                        </span>
+                      );
+                    })()}
                   </TableCell>
                   <TableCell>
                     <SubscriberEngagementBadge score={sub.engagement_score} />
