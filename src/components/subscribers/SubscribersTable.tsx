@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Search, Filter, Mail, ChevronRight, BookOpen, Video, Trash2, Download, Loader2, ArrowUpDown, Eye, MousePointer } from "lucide-react";
+import { Search, Filter, Mail, ChevronRight, BookOpen, Video, Trash2, Download, Loader2, ArrowUpDown, Eye, MousePointer, ArrowUp, ArrowDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Subscriber, SubscriberStatus } from "@/types/subscriber";
 import { formatDistanceToNow } from "date-fns";
