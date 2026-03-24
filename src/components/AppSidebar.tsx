@@ -115,7 +115,11 @@ export function AppSidebar({ headerless }: AppSidebarProps) {
 
           const isOpen = openGroups[item.label] ?? false;
 
-          const hasActiveChild = item.children.some((c) => location.pathname.startsWith(c.to));
+          const hasActiveChild = item.children.some((c) =>
+            c.to === "/subscribers"
+              ? location.pathname === "/subscribers"
+              : location.pathname.startsWith(c.to)
+          );
 
           return (
             <div key={item.label}>
