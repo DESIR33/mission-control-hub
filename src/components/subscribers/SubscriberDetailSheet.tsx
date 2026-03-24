@@ -311,24 +311,48 @@ export function SubscriberDetailSheet({ subscriber, open, onOpenChange, onDelete
             </TabsContent>
 
             <TabsContent value="engagement" className="mt-4 space-y-4">
+              {/* Rate cards */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-md border border-border bg-muted/30 p-3">
+                  <p className="text-xs text-muted-foreground">Open Rate</p>
+                  <p className="text-lg font-bold font-mono text-foreground">
+                    {(subscriber.engagement_data.open_rate ?? 0).toFixed(1)}%
+                  </p>
+                </div>
+                <div className="rounded-md border border-border bg-muted/30 p-3">
+                  <p className="text-xs text-muted-foreground">Click Rate (CTR)</p>
+                  <p className="text-lg font-bold font-mono text-foreground">
+                    {(subscriber.engagement_data.click_rate ?? 0).toFixed(1)}%
+                  </p>
+                </div>
+              </div>
+              {/* Absolute counts */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-md border border-border bg-muted/30 p-3">
                   <p className="text-xs text-muted-foreground">Emails Sent</p>
                   <p className="text-lg font-bold font-mono text-foreground">{subscriber.engagement_data.emails_sent}</p>
                 </div>
                 <div className="rounded-md border border-border bg-muted/30 p-3">
-                  <p className="text-xs text-muted-foreground">Emails Opened</p>
-                  <p className="text-lg font-bold font-mono text-foreground">{subscriber.engagement_data.emails_opened}</p>
+                  <p className="text-xs text-muted-foreground">Unique Opens</p>
+                  <p className="text-lg font-bold font-mono text-foreground">{subscriber.engagement_data.unique_opens ?? subscriber.engagement_data.emails_opened}</p>
                 </div>
                 <div className="rounded-md border border-border bg-muted/30 p-3">
-                  <p className="text-xs text-muted-foreground">Links Clicked</p>
-                  <p className="text-lg font-bold font-mono text-foreground">{subscriber.engagement_data.emails_clicked}</p>
+                  <p className="text-xs text-muted-foreground">Unique Clicks</p>
+                  <p className="text-lg font-bold font-mono text-foreground">{subscriber.engagement_data.unique_clicks ?? subscriber.engagement_data.emails_clicked}</p>
                 </div>
                 <div className="rounded-md border border-border bg-muted/30 p-3">
                   <p className="text-xs text-muted-foreground">Guides Downloaded</p>
                   <p className="text-lg font-bold font-mono text-foreground">{subscriber.engagement_data.guides_downloaded}</p>
                 </div>
               </div>
+              {/* Beehiiv metadata */}
+              {subscriber.beehiiv_tier && (
+                <div className="rounded-md border border-border bg-muted/30 p-3">
+                  <p className="text-xs text-muted-foreground mb-1">Beehiiv Tier</p>
+                  <Badge variant="outline" className="capitalize">{subscriber.beehiiv_tier}</Badge>
+                </div>
+              )}
+              {/* Engagement score bar */}
               <div className="rounded-md border border-border bg-muted/30 p-3">
                 <p className="text-xs text-muted-foreground mb-1">Engagement Score</p>
                 <div className="flex items-center gap-3">
