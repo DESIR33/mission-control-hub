@@ -157,8 +157,22 @@ export function SubscribersTable({ subscribers, onSelectSubscriber, selectedId, 
             <SelectItem value="all">All Sources</SelectItem>
             <SelectItem value="website">Website</SelectItem>
             <SelectItem value="youtube">YouTube</SelectItem>
+            <SelectItem value="beehiiv">Beehiiv</SelectItem>
             <SelectItem value="manual">Manual</SelectItem>
             <SelectItem value="import">Import</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={sortBy} onValueChange={(v) => setSortBy(v as any)}>
+          <SelectTrigger className="w-[140px] bg-card border-border shrink-0">
+            <ArrowUpDown className="w-3.5 h-3.5 mr-1.5 text-muted-foreground" />
+            <SelectValue placeholder="Sort" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="recent">Most Recent</SelectItem>
+            <SelectItem value="engagement">Top Engagement</SelectItem>
+            <SelectItem value="opens">Top Open Rate</SelectItem>
+            <SelectItem value="ctr">Top CTR</SelectItem>
           </SelectContent>
         </Select>
 
