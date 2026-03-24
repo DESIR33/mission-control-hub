@@ -3671,15 +3671,24 @@ export type Database = {
       newsletter_issues: {
         Row: {
           ab_test_config: Json | null
+          audience: string | null
+          beehiiv_post_id: string | null
           body: string
           bounced_count: number
           clicked_count: number
           conversion_to_deal: number
           conversion_to_lead: number
           created_at: string
+          email_click_count: number | null
+          email_open_count: number | null
+          email_sent_count: number | null
+          email_unique_click_count: number | null
+          email_unique_open_count: number | null
           id: string
           name: string
           opened_count: number
+          preview_url: string | null
+          publish_date: string | null
           replied_count: number
           scheduled_at: string | null
           segment_filter: Json | null
@@ -3691,19 +3700,29 @@ export type Database = {
           total_recipients: number
           unsubscribed_count: number
           updated_at: string
+          web_url: string | null
           workspace_id: string
         }
         Insert: {
           ab_test_config?: Json | null
+          audience?: string | null
+          beehiiv_post_id?: string | null
           body?: string
           bounced_count?: number
           clicked_count?: number
           conversion_to_deal?: number
           conversion_to_lead?: number
           created_at?: string
+          email_click_count?: number | null
+          email_open_count?: number | null
+          email_sent_count?: number | null
+          email_unique_click_count?: number | null
+          email_unique_open_count?: number | null
           id?: string
           name: string
           opened_count?: number
+          preview_url?: string | null
+          publish_date?: string | null
           replied_count?: number
           scheduled_at?: string | null
           segment_filter?: Json | null
@@ -3715,19 +3734,29 @@ export type Database = {
           total_recipients?: number
           unsubscribed_count?: number
           updated_at?: string
+          web_url?: string | null
           workspace_id: string
         }
         Update: {
           ab_test_config?: Json | null
+          audience?: string | null
+          beehiiv_post_id?: string | null
           body?: string
           bounced_count?: number
           clicked_count?: number
           conversion_to_deal?: number
           conversion_to_lead?: number
           created_at?: string
+          email_click_count?: number | null
+          email_open_count?: number | null
+          email_sent_count?: number | null
+          email_unique_click_count?: number | null
+          email_unique_open_count?: number | null
           id?: string
           name?: string
           opened_count?: number
+          preview_url?: string | null
+          publish_date?: string | null
           replied_count?: number
           scheduled_at?: string | null
           segment_filter?: Json | null
@@ -3739,6 +3768,7 @@ export type Database = {
           total_recipients?: number
           unsubscribed_count?: number
           updated_at?: string
+          web_url?: string | null
           workspace_id?: string
         }
         Relationships: [
@@ -5236,6 +5266,9 @@ export type Database = {
       subscribers: {
         Row: {
           avatar_url: string | null
+          beehiiv_id: string | null
+          beehiiv_status: string | null
+          beehiiv_tier: string | null
           city: string | null
           country: string | null
           created_at: string
@@ -5261,10 +5294,16 @@ export type Database = {
           state: string | null
           status: string
           updated_at: string
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
           workspace_id: string
         }
         Insert: {
           avatar_url?: string | null
+          beehiiv_id?: string | null
+          beehiiv_status?: string | null
+          beehiiv_tier?: string | null
           city?: string | null
           country?: string | null
           created_at?: string
@@ -5290,10 +5329,16 @@ export type Database = {
           state?: string | null
           status?: string
           updated_at?: string
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
           workspace_id: string
         }
         Update: {
           avatar_url?: string | null
+          beehiiv_id?: string | null
+          beehiiv_status?: string | null
+          beehiiv_tier?: string | null
           city?: string | null
           country?: string | null
           created_at?: string
@@ -5319,6 +5364,9 @@ export type Database = {
           state?: string | null
           status?: string
           updated_at?: string
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
           workspace_id?: string
         }
         Relationships: [
@@ -6658,6 +6706,8 @@ export type Database = {
           enabled: boolean
           id: string
           integration_key: string
+          last_sync_at: string | null
+          last_sync_error: string | null
           updated_at: string
           workspace_id: string
         }
@@ -6668,6 +6718,8 @@ export type Database = {
           enabled?: boolean
           id?: string
           integration_key: string
+          last_sync_at?: string | null
+          last_sync_error?: string | null
           updated_at?: string
           workspace_id: string
         }
@@ -6678,6 +6730,8 @@ export type Database = {
           enabled?: boolean
           id?: string
           integration_key?: string
+          last_sync_at?: string | null
+          last_sync_error?: string | null
           updated_at?: string
           workspace_id?: string
         }
@@ -8490,6 +8544,7 @@ export type Database = {
         Args: { company_id: string; ws_id: string }
         Returns: undefined
       }
+      trigger_beehiiv_sync: { Args: never; Returns: undefined }
     }
     Enums: {
       [_ in never]: never

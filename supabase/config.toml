@@ -140,3 +140,6 @@ verify_jwt = false
 
 [functions.execute-route-action]
 verify_jwt = false
+
+[functions.beehiiv-sync]
+verify_jwt = false

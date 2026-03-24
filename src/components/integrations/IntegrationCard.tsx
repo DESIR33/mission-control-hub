@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useTestIntegration, type IntegrationKey, type WorkspaceIntegration } from "@/hooks/use-integrations";
 import { useStripeSync } from "@/hooks/use-stripe-sync";
 import { useSlackNotify } from "@/hooks/use-slack-notify";
+import { useBeehiivSync } from "@/hooks/use-beehiiv-sync";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { supabase } from "@/integrations/supabase/client";
 import type { IntegrationDef } from "@/pages/IntegrationsPage";
@@ -34,6 +35,7 @@ export function IntegrationCard({
   const testMutation = useTestIntegration();
   const stripeSync = useStripeSync();
   const slackNotify = useSlackNotify();
+  const beehiivSync = useBeehiivSync();
   const [testResult, setTestResult] = useState<any>(null);
   const [oauthLoading, setOauthLoading] = useState(false);
 
@@ -218,6 +220,31 @@ export function IntegrationCard({
                       <RefreshCw className="w-3 h-3 mr-1" />
                     )}
                     Send Test
+                  </Button>
+                )}
+                {def.key === "beehiiv" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-xs"
+                    onClick={() => {
+                      beehiivSync.mutate(undefined, {
+                        onSuccess: (data) => {
+                          toast({ title: `✅ Synced ${data.subscribers_synced} subscribers, ${data.posts_synced} posts` });
+                        },
+                        onError: (err) => {
+                          toast({ title: "Beehiiv sync failed", description: err.message, variant: "destructive" });
+                        },
+                      });
+                    }}
+                    disabled={beehiivSync.isPending}
+                  >
+                    {beehiivSync.isPending ? (
+                      <Loader2 className="w-3 h-3 animate-spin mr-1" />
+                    ) : (
+                      <RefreshCw className="w-3 h-3 mr-1" />
+                    )}
+                    Sync Now
                   </Button>
                 )}
                 {def.key === "ms_outlook" && (
