@@ -74,27 +74,53 @@ export function SubscribersTable({ subscribers, onSelectSubscriber, selectedId, 
       return matchesSearch && matchesStatus && matchesSource;
     });
 
+    const dir = sortDirection === "asc" ? 1 : -1;
     return [...base].sort((a, b) => {
       const aEd = a.engagement_data;
       const bEd = b.engagement_data;
-      switch (sortBy) {
-        case "engagement":
-          return b.engagement_score - a.engagement_score;
-        case "opens": {
-          const aRate = (aEd.emails_sent || 0) > 0 ? (aEd.emails_opened || 0) / aEd.emails_sent : 0;
-          const bRate = (bEd.emails_sent || 0) > 0 ? (bEd.emails_opened || 0) / bEd.emails_sent : 0;
-          return bRate - aRate;
+      let cmp = 0;
+      switch (sortColumn) {
+        case "subscriber":
+          cmp = (a.first_name ?? a.email).localeCompare(b.first_name ?? b.email);
+          break;
+        case "status":
+          cmp = a.status.localeCompare(b.status);
+          break;
+        case "tier":
+          cmp = (a.beehiiv_tier ?? "").localeCompare(b.beehiiv_tier ?? "");
+          break;
+        case "source":
+          cmp = (a.source ?? "").localeCompare(b.source ?? "");
+          break;
+        case "sent":
+          cmp = (aEd.emails_sent || 0) - (bEd.emails_sent || 0);
+          break;
+        case "openrate": {
+          const aRate = aEd.open_rate ?? ((aEd.emails_sent || 0) > 0 ? (aEd.emails_opened || 0) / aEd.emails_sent * 100 : 0);
+          const bRate = bEd.open_rate ?? ((bEd.emails_sent || 0) > 0 ? (bEd.emails_opened || 0) / bEd.emails_sent * 100 : 0);
+          cmp = aRate - bRate;
+          break;
         }
         case "ctr": {
-          const aCtr = (aEd.emails_sent || 0) > 0 ? (aEd.emails_clicked || 0) / aEd.emails_sent : 0;
-          const bCtr = (bEd.emails_sent || 0) > 0 ? (bEd.emails_clicked || 0) / bEd.emails_sent : 0;
-          return bCtr - aCtr;
+          const aCtr = aEd.click_rate ?? ((aEd.emails_sent || 0) > 0 ? (aEd.emails_clicked || 0) / aEd.emails_sent * 100 : 0);
+          const bCtr = bEd.click_rate ?? ((bEd.emails_sent || 0) > 0 ? (bEd.emails_clicked || 0) / bEd.emails_sent * 100 : 0);
+          cmp = aCtr - bCtr;
+          break;
         }
+        case "clicks":
+          cmp = (aEd.unique_clicks ?? aEd.emails_clicked ?? 0) - (bEd.unique_clicks ?? bEd.emails_clicked ?? 0);
+          break;
+        case "engagement":
+          cmp = a.engagement_score - b.engagement_score;
+          break;
+        case "subscribed":
         default:
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+          cmp = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+          break;
       }
+      return cmp * dir;
     });
-  }, [subscribers, search, statusFilter, sourceFilter, sortBy]);
+  }, [subscribers, search, statusFilter, sourceFilter, sortColumn, sortDirection]);
 
   const handleBulkDelete = async () => {
     if (selectedIds.size === 0) return;
