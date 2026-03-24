@@ -37,17 +37,42 @@ export function useUpsertIntegration() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (args: { integration_key: IntegrationKey; enabled: boolean; config?: Record<string, string> }) => {
-      const { error } = await supabase.from("workspace_integrations").upsert(
-        {
-          workspace_id: workspaceId!,
-          integration_key: args.integration_key,
-          enabled: args.enabled,
-          config: args.config ?? null,
-          connected_at: args.enabled ? new Date().toISOString() : null,
-        } as any,
-        { onConflict: "workspace_id,integration_key" }
-      );
-      if (error) throw error;
+      const connectedAt = args.enabled ? new Date().toISOString() : null;
+      const insertPayload = {
+        workspace_id: workspaceId!,
+        integration_key: args.integration_key,
+        enabled: args.enabled,
+        config: args.config ?? null,
+        connected_at: connectedAt,
+      } as const;
+
+      const { error: insertError } = await supabase
+        .from("workspace_integrations")
+        .insert(insertPayload as any);
+
+      if (!insertError) return;
+
+      const isDuplicate =
+        insertError.code === "23505" ||
+        insertError.message?.toLowerCase().includes("duplicate key");
+
+      if (!isDuplicate) {
+        throw insertError;
+      }
+
+      const { error: updateError } = await supabase
+        .from("workspace_integrations")
+        .update(
+          {
+            enabled: args.enabled,
+            config: args.config ?? null,
+            connected_at: connectedAt,
+          } as any
+        )
+        .eq("workspace_id", workspaceId!)
+        .eq("integration_key", args.integration_key);
+
+      if (updateError) throw updateError;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["workspace_integrations", workspaceId] }),
   });
