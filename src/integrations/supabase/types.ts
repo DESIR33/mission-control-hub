@@ -8544,6 +8544,7 @@ export type Database = {
         Args: { company_id: string; ws_id: string }
         Returns: undefined
       }
+      trigger_beehiiv_sync: { Args: never; Returns: undefined }
     }
     Enums: {
       [_ in never]: never
