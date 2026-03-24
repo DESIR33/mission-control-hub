@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useNewsletterIssues, useCreateNewsletterIssue } from "@/hooks/use-newsletter-issues";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import { Plus, Mail, Send, Eye, MousePointer, MessageSquare, Loader2, Calendar } from "lucide-react";
+import { Plus, Mail, Send, Eye, MousePointer, MessageSquare, Loader2, Calendar, ExternalLink } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 const statusStyles: Record<string, string> = {
@@ -94,8 +94,12 @@ export function NewsletterIssuesList() {
       ) : (
         <div className="space-y-3">
           {issues.map((issue) => {
-            const openRate = issue.total_recipients > 0 ? Math.round((issue.opened_count / issue.total_recipients) * 100) : 0;
-            const clickRate = issue.total_recipients > 0 ? Math.round((issue.clicked_count / issue.total_recipients) * 100) : 0;
+            const recipients = issue.email_sent_count || issue.total_recipients || 1;
+            const opens = issue.email_unique_open_count || issue.opened_count;
+            const clicks = issue.email_unique_click_count || issue.clicked_count;
+            const openRate = recipients > 0 ? Math.round((opens / recipients) * 100) : 0;
+            const clickRate = recipients > 0 ? Math.round((clicks / recipients) * 100) : 0;
+            const isBeehiiv = !!issue.beehiiv_post_id;
             return (
               <Card key={issue.id} className="bg-card border-border">
                 <CardContent className="p-4">
@@ -106,13 +110,18 @@ export function NewsletterIssuesList() {
                         <Badge variant="outline" className={cn("text-xs shrink-0", statusStyles[issue.status])}>
                           {issue.status}
                         </Badge>
+                        {isBeehiiv && (
+                          <Badge variant="outline" className="text-[10px] shrink-0 border-amber-600/40 text-amber-400 bg-amber-950/30">🐝 Beehiiv</Badge>
+                        )}
                       </div>
                       <p className="text-xs text-muted-foreground truncate mb-2">{issue.subject}</p>
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1"><Send className="w-3 h-3" />{issue.sent_count} sent</span>
-                        <span className="flex items-center gap-1"><Eye className="w-3 h-3" />{openRate}% opened</span>
-                        <span className="flex items-center gap-1"><MousePointer className="w-3 h-3" />{clickRate}% clicked</span>
-                        <span className="flex items-center gap-1"><MessageSquare className="w-3 h-3" />{issue.replied_count} replies</span>
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
+                        <span className="flex items-center gap-1"><Send className="w-3 h-3" />{recipients} sent</span>
+                        <span className="flex items-center gap-1"><Eye className="w-3 h-3" />{openRate}% opened ({opens})</span>
+                        <span className="flex items-center gap-1"><MousePointer className="w-3 h-3" />{clickRate}% clicked ({clicks})</span>
+                        {issue.replied_count > 0 && (
+                          <span className="flex items-center gap-1"><MessageSquare className="w-3 h-3" />{issue.replied_count} replies</span>
+                        )}
                       </div>
                       {issue.topic_tags.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-2">
@@ -122,15 +131,22 @@ export function NewsletterIssuesList() {
                         </div>
                       )}
                     </div>
-                    <div className="text-right shrink-0">
+                    <div className="text-right shrink-0 space-y-1">
+                      {issue.web_url && (
+                        <a href={issue.web_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
+                          <ExternalLink className="w-3 h-3" /> View
+                        </a>
+                      )}
                       {issue.conversion_to_lead > 0 && (
                         <p className="text-xs text-primary font-medium">{issue.conversion_to_lead} leads</p>
                       )}
                       {issue.conversion_to_deal > 0 && (
                         <p className="text-xs text-success font-medium">{issue.conversion_to_deal} deals</p>
                       )}
-                      <p className="text-[10px] text-muted-foreground mt-1">
-                        {issue.sent_at
+                      <p className="text-[10px] text-muted-foreground">
+                        {issue.publish_date
+                          ? formatDistanceToNow(new Date(issue.publish_date), { addSuffix: true })
+                          : issue.sent_at
                           ? formatDistanceToNow(new Date(issue.sent_at), { addSuffix: true })
                           : formatDistanceToNow(new Date(issue.created_at), { addSuffix: true })}
                       </p>
