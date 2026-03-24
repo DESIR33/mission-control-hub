@@ -200,9 +200,7 @@ Deno.serve(async (req) => {
           last_clicked_at: null,
         };
 
-        const openScore = Math.max(0, Math.min(100, openRate));
-        const clickScore = Math.max(0, Math.min(100, clickRate));
-        const engScore = Math.min(100, Math.round(openScore * 0.6 + clickScore * 0.4));
+        const engScore = Math.min(100, Math.round(finalOpenRate * 0.6 + finalClickRate * 0.4));
 
         const row = {
           workspace_id,
