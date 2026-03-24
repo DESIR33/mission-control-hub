@@ -32,7 +32,24 @@ export function SubscribersTable({ subscribers, onSelectSubscriber, selectedId, 
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [sortBy, setSortBy] = useState<"engagement" | "opens" | "ctr" | "recent">("recent");
+  const [sortColumn, setSortColumn] = useState<string>("subscribed");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+
+  const handleSort = (column: string) => {
+    if (sortColumn === column) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortColumn(column);
+      setSortDirection("desc");
+    }
+  };
+
+  const SortIcon = ({ column }: { column: string }) => {
+    if (sortColumn !== column) return <ArrowUpDown className="w-3 h-3 ml-1 opacity-40" />;
+    return sortDirection === "asc"
+      ? <ArrowUp className="w-3 h-3 ml-1 text-primary" />
+      : <ArrowDown className="w-3 h-3 ml-1 text-primary" />;
+  };
 
   const bulkDelete = useBulkDeleteSubscribers();
   const { toast } = useToast();
