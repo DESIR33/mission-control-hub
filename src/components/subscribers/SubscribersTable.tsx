@@ -292,20 +292,36 @@ export function SubscribersTable({ subscribers, onSelectSubscriber, selectedId, 
                   onCheckedChange={toggleSelectAll}
                 />
               </TableHead>
-              <TableHead className="text-muted-foreground font-semibold">Subscriber</TableHead>
-              <TableHead className="text-muted-foreground font-semibold">Status</TableHead>
-              <TableHead className="text-muted-foreground font-semibold">Tier</TableHead>
-              <TableHead className="text-muted-foreground font-semibold">Source</TableHead>
-              <TableHead className="text-muted-foreground font-semibold text-center">Sent</TableHead>
-              <TableHead className="text-muted-foreground font-semibold text-center">
-                <span className="flex items-center gap-1 justify-center"><Eye className="w-3 h-3" /> Open Rate</span>
+              <TableHead className="text-muted-foreground font-semibold cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => handleSort("subscriber")}>
+                <span className="flex items-center">Subscriber<SortIcon column="subscriber" /></span>
               </TableHead>
-              <TableHead className="text-muted-foreground font-semibold text-center">
-                <span className="flex items-center gap-1 justify-center"><MousePointer className="w-3 h-3" /> CTR</span>
+              <TableHead className="text-muted-foreground font-semibold cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => handleSort("status")}>
+                <span className="flex items-center">Status<SortIcon column="status" /></span>
               </TableHead>
-              <TableHead className="text-muted-foreground font-semibold text-center">Clicks</TableHead>
-              <TableHead className="text-muted-foreground font-semibold">Engagement</TableHead>
-              <TableHead className="text-muted-foreground font-semibold">Subscribed</TableHead>
+              <TableHead className="text-muted-foreground font-semibold cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => handleSort("tier")}>
+                <span className="flex items-center">Tier<SortIcon column="tier" /></span>
+              </TableHead>
+              <TableHead className="text-muted-foreground font-semibold cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => handleSort("source")}>
+                <span className="flex items-center">Source<SortIcon column="source" /></span>
+              </TableHead>
+              <TableHead className="text-muted-foreground font-semibold text-center cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => handleSort("sent")}>
+                <span className="flex items-center justify-center">Sent<SortIcon column="sent" /></span>
+              </TableHead>
+              <TableHead className="text-muted-foreground font-semibold text-center cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => handleSort("openrate")}>
+                <span className="flex items-center gap-1 justify-center"><Eye className="w-3 h-3" /> Open Rate<SortIcon column="openrate" /></span>
+              </TableHead>
+              <TableHead className="text-muted-foreground font-semibold text-center cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => handleSort("ctr")}>
+                <span className="flex items-center gap-1 justify-center"><MousePointer className="w-3 h-3" /> CTR<SortIcon column="ctr" /></span>
+              </TableHead>
+              <TableHead className="text-muted-foreground font-semibold text-center cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => handleSort("clicks")}>
+                <span className="flex items-center justify-center">Clicks<SortIcon column="clicks" /></span>
+              </TableHead>
+              <TableHead className="text-muted-foreground font-semibold cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => handleSort("engagement")}>
+                <span className="flex items-center">Engagement<SortIcon column="engagement" /></span>
+              </TableHead>
+              <TableHead className="text-muted-foreground font-semibold cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => handleSort("subscribed")}>
+                <span className="flex items-center">Subscribed<SortIcon column="subscribed" /></span>
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
