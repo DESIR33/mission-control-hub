@@ -209,7 +209,31 @@ export function IntegrationCard({
                           onError: (err) => {
                             toast({ title: "Slack test failed", description: err.message, variant: "destructive" });
                           },
-                        }
+                )}
+                {def.key === "beehiiv" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-xs"
+                    onClick={() => {
+                      beehiivSync.mutate(undefined, {
+                        onSuccess: (data) => {
+                          toast({ title: `✅ Synced ${data.subscribers_synced} subscribers, ${data.posts_synced} posts` });
+                        },
+                        onError: (err) => {
+                          toast({ title: "Beehiiv sync failed", description: err.message, variant: "destructive" });
+                        },
+                      });
+                    }}
+                    disabled={beehiivSync.isPending}
+                  >
+                    {beehiivSync.isPending ? (
+                      <Loader2 className="w-3 h-3 animate-spin mr-1" />
+                    ) : (
+                      <RefreshCw className="w-3 h-3 mr-1" />
+                    )}
+                    Sync Now
+                  </Button>
                       );
                     }}
                     disabled={slackNotify.isPending}
