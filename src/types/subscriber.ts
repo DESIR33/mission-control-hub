@@ -1,5 +1,5 @@
 export type SubscriberStatus = 'active' | 'inactive' | 'unsubscribed' | 'bounced';
-export type SubscriberSource = 'website' | 'youtube' | 'manual' | 'import';
+export type SubscriberSource = 'website' | 'youtube' | 'manual' | 'import' | 'beehiiv';
 
 export interface Subscriber {
   id: string;
