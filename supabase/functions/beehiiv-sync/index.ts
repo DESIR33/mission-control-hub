@@ -208,10 +208,10 @@ Deno.serve(async (req) => {
           updated_at: new Date().toISOString(),
         };
 
-        // Upsert by beehiiv_id
+        // Upsert by email (handles both new beehiiv subs and pre-existing manual subs)
         const { error } = await sb
           .from("subscribers")
-          .upsert(row as any, { onConflict: "workspace_id,beehiiv_id" });
+          .upsert(row as any, { onConflict: "workspace_id,email" });
 
         if (error) {
           console.error(`Subscriber upsert error (${sub.email}):`, error.message);
