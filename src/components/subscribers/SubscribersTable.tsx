@@ -263,13 +263,17 @@ export function SubscribersTable({ subscribers, onSelectSubscriber, selectedId, 
                 />
               </TableHead>
               <TableHead className="text-muted-foreground font-semibold">Subscriber</TableHead>
-              <TableHead className="text-muted-foreground font-semibold">Email</TableHead>
               <TableHead className="text-muted-foreground font-semibold">Status</TableHead>
+              <TableHead className="text-muted-foreground font-semibold">Tier</TableHead>
               <TableHead className="text-muted-foreground font-semibold">Source</TableHead>
-              <TableHead className="text-muted-foreground font-semibold">Guide</TableHead>
-              <TableHead className="text-muted-foreground font-semibold">Referrer</TableHead>
-              <TableHead className="text-muted-foreground font-semibold">Opens</TableHead>
-              <TableHead className="text-muted-foreground font-semibold">CTR</TableHead>
+              <TableHead className="text-muted-foreground font-semibold text-center">Sent</TableHead>
+              <TableHead className="text-muted-foreground font-semibold text-center">
+                <span className="flex items-center gap-1 justify-center"><Eye className="w-3 h-3" /> Open Rate</span>
+              </TableHead>
+              <TableHead className="text-muted-foreground font-semibold text-center">
+                <span className="flex items-center gap-1 justify-center"><MousePointer className="w-3 h-3" /> CTR</span>
+              </TableHead>
+              <TableHead className="text-muted-foreground font-semibold text-center">Clicks</TableHead>
               <TableHead className="text-muted-foreground font-semibold">Engagement</TableHead>
               <TableHead className="text-muted-foreground font-semibold">Subscribed</TableHead>
             </TableRow>
@@ -282,118 +286,126 @@ export function SubscribersTable({ subscribers, onSelectSubscriber, selectedId, 
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((sub) => (
-                <TableRow
-                  key={sub.id}
-                  onClick={() => onSelectSubscriber(sub)}
-                  className={cn(
-                    "cursor-pointer border-border transition-colors",
-                    selectedIds.has(sub.id) && "bg-primary/5",
-                    selectedId === sub.id
-                      ? "bg-primary/5 border-l-2 border-l-primary"
-                      : "hover:bg-accent/50"
-                  )}
-                >
-                  <TableCell className="w-[40px]" onClick={(e) => e.stopPropagation()}>
-                    <Checkbox
-                      checked={selectedIds.has(sub.id)}
-                      onCheckedChange={() => {
-                        setSelectedIds((prev) => {
-                          const next = new Set(prev);
-                          if (next.has(sub.id)) next.delete(sub.id);
-                          else next.add(sub.id);
-                          return next;
-                        });
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                        <span className="text-xs font-semibold text-primary">
-                          {(sub.first_name ?? sub.email)[0].toUpperCase()}
-                        </span>
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">
-                          {sub.first_name ? `${sub.first_name} ${sub.last_name ?? ""}`.trim() : "—"}
-                        </p>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1.5">
-                      <Mail className="w-3.5 h-3.5 text-muted-foreground" />
-                      <span className="text-sm text-foreground truncate">{sub.email}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className={cn("text-xs uppercase tracking-wider", statusColors[sub.status])}>
-                      {sub.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-sm text-muted-foreground capitalize">{sub.source ?? "—"}</span>
-                  </TableCell>
-                  <TableCell>
-                    {sub.guide_requested ? (
-                      <span className="text-sm text-foreground flex items-center gap-1">
-                        <BookOpen className="w-3.5 h-3.5 text-muted-foreground" />
-                        {sub.guide_requested}
-                      </span>
-                    ) : (
-                      <span className="text-sm text-muted-foreground">—</span>
+              filtered.map((sub) => {
+                const ed = sub.engagement_data;
+                const sent = ed.emails_sent || 0;
+                const opened = ed.unique_opens ?? ed.emails_opened ?? 0;
+                const clicked = ed.unique_clicks ?? ed.emails_clicked ?? 0;
+                const openRate = ed.open_rate ?? (sent > 0 ? Math.round((opened / sent) * 1000) / 10 : 0);
+                const ctr = ed.click_rate ?? (sent > 0 ? Math.round((clicked / sent) * 1000) / 10 : 0);
+
+                return (
+                  <TableRow
+                    key={sub.id}
+                    onClick={() => onSelectSubscriber(sub)}
+                    className={cn(
+                      "cursor-pointer border-border transition-colors",
+                      selectedIds.has(sub.id) && "bg-primary/5",
+                      selectedId === sub.id
+                        ? "bg-primary/5 border-l-2 border-l-primary"
+                        : "hover:bg-accent/50"
                     )}
-                  </TableCell>
-                  <TableCell>
-                    {sub.referrer ? (
-                      <span className="text-sm text-foreground truncate max-w-[180px] block" title={sub.referrer}>
-                        {(() => {
-                          try { return new URL(sub.referrer).hostname; } catch { return sub.referrer; }
-                        })()}
+                  >
+                    <TableCell className="w-[40px]" onClick={(e) => e.stopPropagation()}>
+                      <Checkbox
+                        checked={selectedIds.has(sub.id)}
+                        onCheckedChange={() => {
+                          setSelectedIds((prev) => {
+                            const next = new Set(prev);
+                            if (next.has(sub.id)) next.delete(sub.id);
+                            else next.add(sub.id);
+                            return next;
+                          });
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                          <span className="text-xs font-semibold text-primary">
+                            {(sub.first_name ?? sub.email)[0].toUpperCase()}
+                          </span>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-foreground truncate">
+                            {sub.first_name ? `${sub.first_name} ${sub.last_name ?? ""}`.trim() : sub.email}
+                          </p>
+                          <p className="text-[11px] text-muted-foreground truncate">{sub.email}</p>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col gap-0.5">
+                        <Badge variant="outline" className={cn("text-xs uppercase tracking-wider w-fit", statusColors[sub.status])}>
+                          {sub.status}
+                        </Badge>
+                        {sub.beehiiv_status && sub.beehiiv_status !== sub.status && (
+                          <span className="text-[10px] text-muted-foreground">🐝 {sub.beehiiv_status}</span>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {sub.beehiiv_tier ? (
+                        <Badge variant="outline" className="text-[10px] capitalize">
+                          {sub.beehiiv_tier}
+                        </Badge>
+                      ) : (
+                        <span className="text-sm text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-sm text-muted-foreground capitalize">{sub.source ?? "—"}</span>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <span className="text-xs font-mono text-foreground">
+                        {sent > 0 ? sent.toLocaleString() : "—"}
                       </span>
-                    ) : (
-                      <span className="text-sm text-muted-foreground">—</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {(() => {
-                      const ed = sub.engagement_data;
-                      const sent = ed.emails_sent || 0;
-                      const opened = ed.emails_opened || 0;
-                      const rate = sent > 0 ? Math.round((opened / sent) * 100) : 0;
-                      return (
-                        <span className="text-xs font-mono text-foreground">
-                          {sent > 0 ? `${rate}%` : "—"}
-                          {sent > 0 && <span className="text-muted-foreground ml-1">({opened}/{sent})</span>}
-                        </span>
-                      );
-                    })()}
-                  </TableCell>
-                  <TableCell>
-                    {(() => {
-                      const ed = sub.engagement_data;
-                      const sent = ed.emails_sent || 0;
-                      const clicked = ed.emails_clicked || 0;
-                      const rate = sent > 0 ? Math.round((clicked / sent) * 100) : 0;
-                      return (
-                        <span className="text-xs font-mono text-foreground">
-                          {sent > 0 ? `${rate}%` : "—"}
-                          {sent > 0 && <span className="text-muted-foreground ml-1">({clicked})</span>}
-                        </span>
-                      );
-                    })()}
-                  </TableCell>
-                  <TableCell>
-                    <SubscriberEngagementBadge score={sub.engagement_score} />
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(new Date(sub.created_at), { addSuffix: true })}
-                    </span>
-                  </TableCell>
-                </TableRow>
-              ))
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {sent > 0 ? (
+                        <div className="flex flex-col items-center">
+                          <span className={cn(
+                            "text-xs font-semibold font-mono",
+                            openRate >= 50 ? "text-success" : openRate >= 25 ? "text-foreground" : "text-muted-foreground"
+                          )}>
+                            {openRate}%
+                          </span>
+                          <span className="text-[10px] text-muted-foreground">{opened} opens</span>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {sent > 0 ? (
+                        <div className="flex flex-col items-center">
+                          <span className={cn(
+                            "text-xs font-semibold font-mono",
+                            ctr >= 10 ? "text-success" : ctr >= 3 ? "text-foreground" : "text-muted-foreground"
+                          )}>
+                            {ctr}%
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <span className="text-xs font-mono text-foreground">
+                        {clicked > 0 ? clicked.toLocaleString() : "—"}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <SubscriberEngagementBadge score={sub.engagement_score} />
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-xs text-muted-foreground">
+                        {formatDistanceToNow(new Date(sub.created_at), { addSuffix: true })}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
         </Table>
