@@ -293,6 +293,7 @@ export function SubscribersTable({ subscribers, onSelectSubscriber, selectedId, 
                 const clicked = ed.unique_clicks ?? ed.emails_clicked ?? 0;
                 const openRate = ed.open_rate ?? (sent > 0 ? Math.round((opened / sent) * 1000) / 10 : 0);
                 const ctr = ed.click_rate ?? (sent > 0 ? Math.round((clicked / sent) * 1000) / 10 : 0);
+                const hasAnyData = sent > 0 || openRate > 0 || ctr > 0 || opened > 0 || clicked > 0;
 
                 return (
                   <TableRow
@@ -362,7 +363,7 @@ export function SubscribersTable({ subscribers, onSelectSubscriber, selectedId, 
                       </span>
                     </TableCell>
                     <TableCell className="text-center">
-                      {sent > 0 ? (
+                      {hasAnyData ? (
                         <div className="flex flex-col items-center">
                           <span className={cn(
                             "text-xs font-semibold font-mono",
@@ -370,14 +371,14 @@ export function SubscribersTable({ subscribers, onSelectSubscriber, selectedId, 
                           )}>
                             {openRate}%
                           </span>
-                          <span className="text-[10px] text-muted-foreground">{opened} opens</span>
+                          {opened > 0 && <span className="text-[10px] text-muted-foreground">{opened} opens</span>}
                         </div>
                       ) : (
                         <span className="text-xs text-muted-foreground">—</span>
                       )}
                     </TableCell>
                     <TableCell className="text-center">
-                      {sent > 0 ? (
+                      {hasAnyData ? (
                         <div className="flex flex-col items-center">
                           <span className={cn(
                             "text-xs font-semibold font-mono",
