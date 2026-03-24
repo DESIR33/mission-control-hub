@@ -164,8 +164,14 @@ Deno.serve(async (req) => {
         { "expand[]": "stats" }
       );
 
+      // Log first subscriber's raw stats to debug field names
+      if (subscriptions.length > 0) {
+        const sample = subscriptions[0];
+        console.log(`Sample subscriber stats keys: ${JSON.stringify(sample.stats)}`);
+      }
+
       for (const sub of subscriptions) {
-        const rawEmailsSent = (sub.stats as any)?.emails_sent ?? (sub.stats as any)?.emails_received ?? 0;
+        const rawEmailsSent = (sub.stats as any)?.emails_received ?? (sub.stats as any)?.emails_sent ?? 0;
         const normalizeRate = (value: unknown) => {
           const numeric = typeof value === "number" ? value : Number(value ?? 0);
           if (!Number.isFinite(numeric) || numeric <= 0) return 0;
