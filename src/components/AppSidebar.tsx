@@ -141,7 +141,9 @@ export function AppSidebar({ headerless }: AppSidebarProps) {
               {isOpen && (
                 <div className="space-y-0.5 mt-0.5">
                   {item.children.map((child) => {
-                  const active = location.pathname.startsWith(child.to);
+                  const active = child.to === "/subscribers"
+                    ? location.pathname === "/subscribers"
+                    : location.pathname.startsWith(child.to);
                   
                   if (active) {
                     return (
