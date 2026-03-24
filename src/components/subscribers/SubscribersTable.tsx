@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Search, Filter, Mail, ChevronRight, BookOpen, Video, Trash2, Download, Loader2, ArrowUpDown, Eye, MousePointer } from "lucide-react";
+import { Search, Filter, Mail, ChevronRight, BookOpen, Video, Trash2, Download, Loader2, ArrowUpDown, Eye, MousePointer, ArrowUp, ArrowDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Subscriber, SubscriberStatus } from "@/types/subscriber";
 import { formatDistanceToNow } from "date-fns";
@@ -32,7 +32,24 @@ export function SubscribersTable({ subscribers, onSelectSubscriber, selectedId, 
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [sortBy, setSortBy] = useState<"engagement" | "opens" | "ctr" | "recent">("recent");
+  const [sortColumn, setSortColumn] = useState<string>("subscribed");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+
+  const handleSort = (column: string) => {
+    if (sortColumn === column) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortColumn(column);
+      setSortDirection("desc");
+    }
+  };
+
+  const SortIcon = ({ column }: { column: string }) => {
+    if (sortColumn !== column) return <ArrowUpDown className="w-3 h-3 ml-1 opacity-40" />;
+    return sortDirection === "asc"
+      ? <ArrowUp className="w-3 h-3 ml-1 text-primary" />
+      : <ArrowDown className="w-3 h-3 ml-1 text-primary" />;
+  };
 
   const bulkDelete = useBulkDeleteSubscribers();
   const { toast } = useToast();
@@ -57,27 +74,53 @@ export function SubscribersTable({ subscribers, onSelectSubscriber, selectedId, 
       return matchesSearch && matchesStatus && matchesSource;
     });
 
+    const dir = sortDirection === "asc" ? 1 : -1;
     return [...base].sort((a, b) => {
       const aEd = a.engagement_data;
       const bEd = b.engagement_data;
-      switch (sortBy) {
-        case "engagement":
-          return b.engagement_score - a.engagement_score;
-        case "opens": {
-          const aRate = (aEd.emails_sent || 0) > 0 ? (aEd.emails_opened || 0) / aEd.emails_sent : 0;
-          const bRate = (bEd.emails_sent || 0) > 0 ? (bEd.emails_opened || 0) / bEd.emails_sent : 0;
-          return bRate - aRate;
+      let cmp = 0;
+      switch (sortColumn) {
+        case "subscriber":
+          cmp = (a.first_name ?? a.email).localeCompare(b.first_name ?? b.email);
+          break;
+        case "status":
+          cmp = a.status.localeCompare(b.status);
+          break;
+        case "tier":
+          cmp = (a.beehiiv_tier ?? "").localeCompare(b.beehiiv_tier ?? "");
+          break;
+        case "source":
+          cmp = (a.source ?? "").localeCompare(b.source ?? "");
+          break;
+        case "sent":
+          cmp = (aEd.emails_sent || 0) - (bEd.emails_sent || 0);
+          break;
+        case "openrate": {
+          const aRate = aEd.open_rate ?? ((aEd.emails_sent || 0) > 0 ? (aEd.emails_opened || 0) / aEd.emails_sent * 100 : 0);
+          const bRate = bEd.open_rate ?? ((bEd.emails_sent || 0) > 0 ? (bEd.emails_opened || 0) / bEd.emails_sent * 100 : 0);
+          cmp = aRate - bRate;
+          break;
         }
         case "ctr": {
-          const aCtr = (aEd.emails_sent || 0) > 0 ? (aEd.emails_clicked || 0) / aEd.emails_sent : 0;
-          const bCtr = (bEd.emails_sent || 0) > 0 ? (bEd.emails_clicked || 0) / bEd.emails_sent : 0;
-          return bCtr - aCtr;
+          const aCtr = aEd.click_rate ?? ((aEd.emails_sent || 0) > 0 ? (aEd.emails_clicked || 0) / aEd.emails_sent * 100 : 0);
+          const bCtr = bEd.click_rate ?? ((bEd.emails_sent || 0) > 0 ? (bEd.emails_clicked || 0) / bEd.emails_sent * 100 : 0);
+          cmp = aCtr - bCtr;
+          break;
         }
+        case "clicks":
+          cmp = (aEd.unique_clicks ?? aEd.emails_clicked ?? 0) - (bEd.unique_clicks ?? bEd.emails_clicked ?? 0);
+          break;
+        case "engagement":
+          cmp = a.engagement_score - b.engagement_score;
+          break;
+        case "subscribed":
         default:
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+          cmp = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+          break;
       }
+      return cmp * dir;
     });
-  }, [subscribers, search, statusFilter, sourceFilter, sortBy]);
+  }, [subscribers, search, statusFilter, sourceFilter, sortColumn, sortDirection]);
 
   const handleBulkDelete = async () => {
     if (selectedIds.size === 0) return;
@@ -160,19 +203,6 @@ export function SubscribersTable({ subscribers, onSelectSubscriber, selectedId, 
             <SelectItem value="beehiiv">Beehiiv</SelectItem>
             <SelectItem value="manual">Manual</SelectItem>
             <SelectItem value="import">Import</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Select value={sortBy} onValueChange={(v) => setSortBy(v as any)}>
-          <SelectTrigger className="w-[140px] bg-card border-border shrink-0">
-            <ArrowUpDown className="w-3.5 h-3.5 mr-1.5 text-muted-foreground" />
-            <SelectValue placeholder="Sort" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="recent">Most Recent</SelectItem>
-            <SelectItem value="engagement">Top Engagement</SelectItem>
-            <SelectItem value="opens">Top Open Rate</SelectItem>
-            <SelectItem value="ctr">Top CTR</SelectItem>
           </SelectContent>
         </Select>
 
@@ -262,20 +292,36 @@ export function SubscribersTable({ subscribers, onSelectSubscriber, selectedId, 
                   onCheckedChange={toggleSelectAll}
                 />
               </TableHead>
-              <TableHead className="text-muted-foreground font-semibold">Subscriber</TableHead>
-              <TableHead className="text-muted-foreground font-semibold">Status</TableHead>
-              <TableHead className="text-muted-foreground font-semibold">Tier</TableHead>
-              <TableHead className="text-muted-foreground font-semibold">Source</TableHead>
-              <TableHead className="text-muted-foreground font-semibold text-center">Sent</TableHead>
-              <TableHead className="text-muted-foreground font-semibold text-center">
-                <span className="flex items-center gap-1 justify-center"><Eye className="w-3 h-3" /> Open Rate</span>
+              <TableHead className="text-muted-foreground font-semibold cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => handleSort("subscriber")}>
+                <span className="flex items-center">Subscriber<SortIcon column="subscriber" /></span>
               </TableHead>
-              <TableHead className="text-muted-foreground font-semibold text-center">
-                <span className="flex items-center gap-1 justify-center"><MousePointer className="w-3 h-3" /> CTR</span>
+              <TableHead className="text-muted-foreground font-semibold cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => handleSort("status")}>
+                <span className="flex items-center">Status<SortIcon column="status" /></span>
               </TableHead>
-              <TableHead className="text-muted-foreground font-semibold text-center">Clicks</TableHead>
-              <TableHead className="text-muted-foreground font-semibold">Engagement</TableHead>
-              <TableHead className="text-muted-foreground font-semibold">Subscribed</TableHead>
+              <TableHead className="text-muted-foreground font-semibold cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => handleSort("tier")}>
+                <span className="flex items-center">Tier<SortIcon column="tier" /></span>
+              </TableHead>
+              <TableHead className="text-muted-foreground font-semibold cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => handleSort("source")}>
+                <span className="flex items-center">Source<SortIcon column="source" /></span>
+              </TableHead>
+              <TableHead className="text-muted-foreground font-semibold text-center cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => handleSort("sent")}>
+                <span className="flex items-center justify-center">Sent<SortIcon column="sent" /></span>
+              </TableHead>
+              <TableHead className="text-muted-foreground font-semibold text-center cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => handleSort("openrate")}>
+                <span className="flex items-center gap-1 justify-center"><Eye className="w-3 h-3" /> Open Rate<SortIcon column="openrate" /></span>
+              </TableHead>
+              <TableHead className="text-muted-foreground font-semibold text-center cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => handleSort("ctr")}>
+                <span className="flex items-center gap-1 justify-center"><MousePointer className="w-3 h-3" /> CTR<SortIcon column="ctr" /></span>
+              </TableHead>
+              <TableHead className="text-muted-foreground font-semibold text-center cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => handleSort("clicks")}>
+                <span className="flex items-center justify-center">Clicks<SortIcon column="clicks" /></span>
+              </TableHead>
+              <TableHead className="text-muted-foreground font-semibold cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => handleSort("engagement")}>
+                <span className="flex items-center">Engagement<SortIcon column="engagement" /></span>
+              </TableHead>
+              <TableHead className="text-muted-foreground font-semibold cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => handleSort("subscribed")}>
+                <span className="flex items-center">Subscribed<SortIcon column="subscribed" /></span>
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
