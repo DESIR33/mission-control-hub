@@ -210,8 +210,9 @@ Deno.serve(async (req) => {
           last_clicked_at: null,
         };
 
-        const totalSent = emailsSent || 1;
-        const engScore = Math.min(100, Math.round((uniqueOpened / totalSent) * 60 + (uniqueClicked / totalSent) * 40));
+        const openScore = Math.max(0, Math.min(100, openRate));
+        const clickScore = Math.max(0, Math.min(100, clickRate));
+        const engScore = Math.min(100, Math.round(openScore * 0.6 + clickScore * 0.4));
 
         const row = {
           workspace_id,
