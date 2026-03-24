@@ -209,6 +209,18 @@ export function IntegrationCard({
                           onError: (err) => {
                             toast({ title: "Slack test failed", description: err.message, variant: "destructive" });
                           },
+                        }
+                      );
+                    }}
+                    disabled={slackNotify.isPending}
+                  >
+                    {slackNotify.isPending ? (
+                      <Loader2 className="w-3 h-3 animate-spin mr-1" />
+                    ) : (
+                      <RefreshCw className="w-3 h-3 mr-1" />
+                    )}
+                    Send Test
+                  </Button>
                 )}
                 {def.key === "beehiiv" && (
                   <Button
@@ -233,17 +245,6 @@ export function IntegrationCard({
                       <RefreshCw className="w-3 h-3 mr-1" />
                     )}
                     Sync Now
-                  </Button>
-                      );
-                    }}
-                    disabled={slackNotify.isPending}
-                  >
-                    {slackNotify.isPending ? (
-                      <Loader2 className="w-3 h-3 animate-spin mr-1" />
-                    ) : (
-                      <RefreshCw className="w-3 h-3 mr-1" />
-                    )}
-                    Send Test
                   </Button>
                 )}
                 {def.key === "ms_outlook" && (
