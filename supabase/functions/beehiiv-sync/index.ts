@@ -165,19 +165,31 @@ Deno.serve(async (req) => {
       );
 
       for (const sub of subscriptions) {
+        const emailsSent = sub.stats?.emails_sent ?? 0;
+        const emailsOpened = sub.stats?.emails_opened ?? 0;
+        const emailsClicked = sub.stats?.emails_clicked ?? 0;
+        const uniqueOpened = sub.stats?.unique_emails_opened ?? emailsOpened;
+        const uniqueClicked = sub.stats?.unique_emails_clicked ?? emailsClicked;
+        const openRate = emailsSent > 0 ? Math.round((uniqueOpened / emailsSent) * 1000) / 10 : 0;
+        const clickRate = emailsSent > 0 ? Math.round((uniqueClicked / emailsSent) * 1000) / 10 : 0;
+
         const engData = {
-          emails_sent: sub.stats?.emails_sent ?? 0,
-          emails_opened: sub.stats?.unique_emails_opened ?? sub.stats?.emails_opened ?? 0,
-          emails_clicked: sub.stats?.unique_emails_clicked ?? sub.stats?.emails_clicked ?? 0,
+          emails_sent: emailsSent,
+          emails_opened: uniqueOpened,
+          emails_clicked: uniqueClicked,
+          total_opens: emailsOpened,
+          total_clicks: emailsClicked,
+          unique_opens: uniqueOpened,
+          unique_clicks: uniqueClicked,
+          open_rate: openRate,
+          click_rate: clickRate,
           guides_downloaded: 0,
           last_email_opened_at: null,
           last_clicked_at: null,
         };
 
-        const totalSent = engData.emails_sent || 1;
-        const openRate = engData.emails_opened / totalSent;
-        const clickRate = engData.emails_clicked / totalSent;
-        const engScore = Math.min(100, Math.round(openRate * 60 + clickRate * 40));
+        const totalSent = emailsSent || 1;
+        const engScore = Math.min(100, Math.round((uniqueOpened / totalSent) * 60 + (uniqueClicked / totalSent) * 40));
 
         const row = {
           workspace_id,
@@ -186,7 +198,7 @@ Deno.serve(async (req) => {
           status: mapBeehiivStatus(sub.status),
           beehiiv_status: sub.status,
           beehiiv_tier: sub.subscription_tier ?? null,
-          source: "import" as const,
+          source: "beehiiv" as const,
           utm_source: sub.utm_source ?? null,
           utm_medium: sub.utm_medium ?? null,
           utm_campaign: sub.utm_campaign ?? null,

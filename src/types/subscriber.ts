@@ -1,5 +1,5 @@
 export type SubscriberStatus = 'active' | 'inactive' | 'unsubscribed' | 'bounced';
-export type SubscriberSource = 'website' | 'youtube' | 'manual' | 'import';
+export type SubscriberSource = 'website' | 'youtube' | 'manual' | 'import' | 'beehiiv';
 
 export interface Subscriber {
   id: string;
@@ -29,6 +29,13 @@ export interface Subscriber {
   deleted_at: string | null;
   created_at: string;
   updated_at: string;
+  // Beehiiv fields
+  beehiiv_id?: string | null;
+  beehiiv_status?: string | null;
+  beehiiv_tier?: string | null;
+  utm_source?: string | null;
+  utm_medium?: string | null;
+  utm_campaign?: string | null;
   // Joined
   tags?: SubscriberTag[];
 }
@@ -37,6 +44,12 @@ export interface SubscriberEngagementData {
   emails_sent: number;
   emails_opened: number;
   emails_clicked: number;
+  total_opens?: number;
+  total_clicks?: number;
+  unique_opens?: number;
+  unique_clicks?: number;
+  open_rate?: number;
+  click_rate?: number;
   guides_downloaded: number;
   last_email_opened_at: string | null;
   last_clicked_at: string | null;
