@@ -23,6 +23,17 @@ export interface NewsletterIssue {
   conversion_to_deal: number;
   topic_tags: string[];
   ab_test_config: Record<string, unknown> | null;
+  // Beehiiv-enriched fields
+  beehiiv_post_id: string | null;
+  preview_url: string | null;
+  web_url: string | null;
+  audience: string;
+  publish_date: string | null;
+  email_sent_count: number;
+  email_open_count: number;
+  email_click_count: number;
+  email_unique_open_count: number;
+  email_unique_click_count: number;
   created_at: string;
   updated_at: string;
 }
