@@ -126,7 +126,7 @@ export const mainNavItems: NavItem[] = [
     label: "Subscribers",
     children: [
       { to: "/subscribers/dashboard", label: "Dashboard", icon: BarChart3 },
-      { to: "/subscribers/all", label: "All Subscribers", icon: Users },
+      { to: "/subscribers", label: "All Subscribers", icon: Users },
       { to: "/subscribers/guides", label: "Guides", icon: BookOpen },
       { to: "/subscribers/sequences", label: "Sequences", icon: Mail },
     ],
