@@ -59,7 +59,20 @@ export function useTriggerSync() {
         { onConflict: "workspace_id,sync_type" },
       );
 
-      // Call edge function
+      // Step 1: Pull new video metadata via youtube-sync
+      const { error: syncError } = await supabase.functions.invoke(
+        "youtube-sync",
+        {
+          body: { workspace_id: workspaceId },
+        },
+      );
+
+      if (syncError) {
+        console.warn("youtube-sync warning:", syncError.message);
+        // Continue to analytics sync even if video sync has issues
+      }
+
+      // Step 2: Pull analytics data via youtube-analytics-sync
       const { data, error } = await supabase.functions.invoke(
         "youtube-analytics-sync",
         {
@@ -99,7 +112,7 @@ export function useTriggerSync() {
       return data;
     },
     onSuccess: () => {
-      toast.success("YouTube analytics synced successfully");
+      toast.success("YouTube data synced successfully");
       queryClient.invalidateQueries({ queryKey: ["youtube-sync-status"] });
       queryClient.invalidateQueries({ queryKey: ["youtube-channel-analytics"] });
       queryClient.invalidateQueries({ queryKey: ["youtube-video-analytics"] });
@@ -107,6 +120,8 @@ export function useTriggerSync() {
       queryClient.invalidateQueries({ queryKey: ["youtube-traffic-sources"] });
       queryClient.invalidateQueries({ queryKey: ["youtube-geography"] });
       queryClient.invalidateQueries({ queryKey: ["youtube-device-types"] });
+      queryClient.invalidateQueries({ queryKey: ["youtube-video-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["sync-status-logs"] });
     },
     onError: (err: Error) => {
       toast.error(`Sync failed: ${err.message}`);
