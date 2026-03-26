@@ -72,9 +72,14 @@ export function ConnectDialog({
   // Fetch masked config for pre-fill when updating
   const { data: maskedData } = useMaskedConfig(open && isUpdate && def ? def.key : null);
 
-  // Pre-fill non-secret values when updating
+  // Pre-fill values when updating — non-secret fields get real values, secret fields stay empty with masked placeholder
   useEffect(() => {
-    if (isUpdate && maskedData && def) {
+    if (!isUpdate || !def) {
+      setValues({});
+      setTouched(new Set());
+      return;
+    }
+    if (maskedData) {
       const prefill: Record<string, string> = {};
       for (const field of def.fields) {
         if (!field.secret && maskedData.raw_non_secret[field.name]) {
@@ -82,6 +87,7 @@ export function ConnectDialog({
         }
       }
       setValues(prefill);
+      setTouched(new Set());
     }
   }, [maskedData, isUpdate, def]);
 
