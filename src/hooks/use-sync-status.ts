@@ -127,17 +127,35 @@ export function useTriggerManualSync() {
   return useMutation({
     mutationFn: async () => {
       if (!workspaceId) throw new Error("No workspace");
-      const { data, error } = await supabase.functions.invoke("youtube-sync", {
+
+      // Step 1: Pull latest channel + video metadata
+      const { data: syncData, error: syncError } = await supabase.functions.invoke("youtube-sync", {
         body: { workspace_id: workspaceId },
       });
-      if (error) throw error;
-      return data;
+      if (syncError) throw syncError;
+
+      // Step 2: Refresh analytics datasets
+      const { error: analyticsError } = await supabase.functions.invoke("youtube-analytics-sync", {
+        body: {
+          workspace_id: workspaceId,
+          sync_type: "analytics",
+          backfill_days: 90,
+        },
+      });
+      if (analyticsError) throw analyticsError;
+
+      return syncData;
     },
     onSuccess: () => {
-      toast.success("YouTube sync triggered successfully");
+      toast.success("YouTube data synced successfully");
       queryClient.invalidateQueries({ queryKey: ["sync-status-logs"] });
       queryClient.invalidateQueries({ queryKey: ["youtube-channel-analytics"] });
       queryClient.invalidateQueries({ queryKey: ["youtube-video-analytics"] });
+      queryClient.invalidateQueries({ queryKey: ["youtube-channel-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["youtube_channel_stats"] });
+      queryClient.invalidateQueries({ queryKey: ["youtube-video-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["growth_goals"] });
+      queryClient.invalidateQueries({ queryKey: ["youtube-sync-status"] });
     },
     onError: (err: Error) => {
       toast.error(`Sync failed: ${err.message}`);
