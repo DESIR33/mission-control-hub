@@ -27,13 +27,13 @@ export function LaunchMonitor() {
 
       const { data: recent } = await (supabase as any)
         .from("youtube_video_stats")
-        .select("video_id, title, views, likes, comments, ctr_percent, impressions, published_at")
+        .select("youtube_video_id, title, views, likes, comments, ctr_percent, published_at")
         .eq("workspace_id", workspaceId)
         .gte("published_at", sevenDaysAgo.toISOString())
         .order("published_at", { ascending: false });
 
       // Get hourly stats for recently published videos
-      const recentIds = (recent || []).map((v: any) => v.video_id);
+      const recentIds = (recent || []).map((v: any) => v.youtube_video_id);
       let hourlyData: any[] = [];
       if (recentIds.length > 0) {
         const { data: hourly } = await (supabase as any)
@@ -48,7 +48,7 @@ export function LaunchMonitor() {
       // Get channel benchmarks (average first-48h performance from older videos)
       const { data: allVideos } = await (supabase as any)
         .from("youtube_video_stats")
-        .select("views, ctr_percent, impressions, likes")
+        .select("views, ctr_percent, likes")
         .eq("workspace_id", workspaceId)
         .lt("published_at", sevenDaysAgo.toISOString())
         .order("published_at", { ascending: false })
@@ -57,12 +57,11 @@ export function LaunchMonitor() {
       const benchmarks = allVideos && allVideos.length > 0 ? {
         avgViews: allVideos.reduce((s: number, v: any) => s + (v.views || 0), 0) / allVideos.length,
         avgCtr: allVideos.reduce((s: number, v: any) => s + (v.ctr_percent || 0), 0) / allVideos.length,
-        avgImpressions: allVideos.reduce((s: number, v: any) => s + (v.impressions || 0), 0) / allVideos.length,
       } : null;
 
       const recentVideos = (recent || []).map((v: any) => {
         const hoursLive = differenceInHours(new Date(), new Date(v.published_at));
-        const videoHourly = hourlyData.filter((h: any) => h.youtube_video_id === v.video_id);
+        const videoHourly = hourlyData.filter((h: any) => h.youtube_video_id === v.youtube_video_id);
 
         let status: "outperforming" | "on_track" | "underperforming" = "on_track";
         if (benchmarks) {
@@ -108,7 +107,7 @@ export function LaunchMonitor() {
         ) : (
           <>
             {data?.benchmarks && (
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="rounded-lg border border-border p-2 text-center">
                   <p className="text-[10px] text-muted-foreground">Avg Views</p>
                   <p className="text-sm font-mono font-bold text-foreground">{fmtCount(data.benchmarks.avgViews)}</p>
@@ -117,10 +116,6 @@ export function LaunchMonitor() {
                   <p className="text-[10px] text-muted-foreground">Avg CTR</p>
                   <p className="text-sm font-mono font-bold text-foreground">{data.benchmarks.avgCtr.toFixed(1)}%</p>
                 </div>
-                <div className="rounded-lg border border-border p-2 text-center">
-                  <p className="text-[10px] text-muted-foreground">Avg Impressions</p>
-                  <p className="text-sm font-mono font-bold text-foreground">{fmtCount(data.benchmarks.avgImpressions)}</p>
-                </div>
               </div>
             )}
 
@@ -128,7 +123,7 @@ export function LaunchMonitor() {
               const sc = statusConfig[v.status];
               const StatusIcon = sc.icon;
               return (
-                <div key={v.video_id} className="rounded-lg border border-border p-3 space-y-2">
+                <div key={v.youtube_video_id} className="rounded-lg border border-border p-3 space-y-2">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <p className="text-xs font-medium text-foreground truncate">{v.title}</p>
@@ -142,7 +137,7 @@ export function LaunchMonitor() {
                       {sc.label}
                     </Badge>
                   </div>
-                  <div className="grid grid-cols-4 gap-2 text-center">
+                  <div className="grid grid-cols-3 gap-2 text-center">
                     <div>
                       <p className="text-[10px] text-muted-foreground">Views</p>
                       <p className="text-xs font-mono font-bold text-foreground">{fmtCount(v.views)}</p>
@@ -152,12 +147,8 @@ export function LaunchMonitor() {
                       <p className="text-xs font-mono font-bold text-foreground">{v.ctr_percent?.toFixed(1) || "—"}%</p>
                     </div>
                     <div>
-                      <p className="text-[10px] text-muted-foreground">Impressions</p>
-                      <p className="text-xs font-mono font-bold text-foreground">{fmtCount(v.impressions)}</p>
-                    </div>
-                    <div>
                       <p className="text-[10px] text-muted-foreground">Engagement</p>
-                      <p className="text-xs font-mono font-bold text-foreground">{fmtCount(v.likes + v.comments)}</p>
+                      <p className="text-xs font-mono font-bold text-foreground">{fmtCount((v.likes || 0) + (v.comments || 0))}</p>
                     </div>
                   </div>
                   {v.hourlyData.length > 0 && (
