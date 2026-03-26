@@ -35,11 +35,13 @@ function SecretInput({
   onChange: (v: string) => void;
 }) {
   const [show, setShow] = useState(false);
+  // Use text type when empty so masked placeholder is readable (password type hides placeholder chars)
+  const inputType = value ? (show ? "text" : "password") : "text";
   return (
     <div className="relative">
       <Input
         id={id}
-        type={show ? "text" : "password"}
+        type={inputType}
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
