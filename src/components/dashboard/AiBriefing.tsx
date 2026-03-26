@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { Brain, Sparkles, AlertCircle, ArrowRight, Clock, User } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import type { BriefingItem, AttentionItem } from "@/hooks/use-dashboard-stats";
 
 const urgencyStyles = {
@@ -23,6 +23,7 @@ interface AiBriefingProps {
 }
 
 export const AiBriefing = memo(function AiBriefing({ items = [], attentionItems = [] }: AiBriefingProps) {
+  const navigate = useNavigate();
   const urgentCount = attentionItems.filter((i) => i.urgency === "high").length;
 
   return (
@@ -86,6 +87,7 @@ export const AiBriefing = memo(function AiBriefing({ items = [], attentionItems 
                       "w-full flex items-center gap-3 px-3 py-2.5 rounded-md border-l-2 text-left transition-colors hover:bg-secondary",
                       urgencyStyles[item.urgency]
                     )}
+                    onClick={() => item.link && navigate(item.link)}
                   >
                     <Icon className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                     <div className="flex-1 min-w-0">

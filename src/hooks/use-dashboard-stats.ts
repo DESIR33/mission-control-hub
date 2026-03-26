@@ -33,6 +33,7 @@ export interface AttentionItem {
   subtitle: string;
   type: "overdue" | "follow-up" | "approval" | "deadline";
   urgency: "high" | "medium" | "low";
+  link?: string;
 }
 
 export interface BriefingItem {
@@ -335,7 +336,7 @@ export function useNeedsAttention() {
           .limit(3),
         supabase
           .from("ai_proposals")
-          .select("title")
+          .select("id, title")
           .eq("workspace_id", workspaceId)
           .eq("status", "pending")
           .limit(3),
@@ -369,6 +370,7 @@ export function useNeedsAttention() {
           subtitle: "Awaiting your approval",
           type: "approval",
           urgency: "medium",
+          link: `/ai/proposals/${p.id}`,
         });
       }
 
