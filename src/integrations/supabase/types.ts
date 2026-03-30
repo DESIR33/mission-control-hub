@@ -2099,7 +2099,9 @@ export type Database = {
       contacts: {
         Row: {
           avatar_url: string | null
+          city: string | null
           company_id: string | null
+          country: string | null
           created_at: string
           created_by: string | null
           custom_fields: Json | null
@@ -2119,6 +2121,8 @@ export type Database = {
           preferred_channel: string | null
           response_sla_minutes: number | null
           role: string | null
+          role_id: string | null
+          social_discord: string | null
           social_facebook: string | null
           social_instagram: string | null
           social_linkedin: string | null
@@ -2127,6 +2131,7 @@ export type Database = {
           social_whatsapp: string | null
           social_youtube: string | null
           source: string | null
+          state: string | null
           status: string
           updated_at: string
           vip_tier: string | null
@@ -2135,7 +2140,9 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          city?: string | null
           company_id?: string | null
+          country?: string | null
           created_at?: string
           created_by?: string | null
           custom_fields?: Json | null
@@ -2155,6 +2162,8 @@ export type Database = {
           preferred_channel?: string | null
           response_sla_minutes?: number | null
           role?: string | null
+          role_id?: string | null
+          social_discord?: string | null
           social_facebook?: string | null
           social_instagram?: string | null
           social_linkedin?: string | null
@@ -2163,6 +2172,7 @@ export type Database = {
           social_whatsapp?: string | null
           social_youtube?: string | null
           source?: string | null
+          state?: string | null
           status?: string
           updated_at?: string
           vip_tier?: string | null
@@ -2171,7 +2181,9 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          city?: string | null
           company_id?: string | null
+          country?: string | null
           created_at?: string
           created_by?: string | null
           custom_fields?: Json | null
@@ -2191,6 +2203,8 @@ export type Database = {
           preferred_channel?: string | null
           response_sla_minutes?: number | null
           role?: string | null
+          role_id?: string | null
+          social_discord?: string | null
           social_facebook?: string | null
           social_instagram?: string | null
           social_linkedin?: string | null
@@ -2199,6 +2213,7 @@ export type Database = {
           social_whatsapp?: string | null
           social_youtube?: string | null
           source?: string | null
+          state?: string | null
           status?: string
           updated_at?: string
           vip_tier?: string | null
@@ -2206,6 +2221,13 @@ export type Database = {
           workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "contacts_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "contact_roles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "contacts_workspace_id_fkey"
             columns: ["workspace_id"]
