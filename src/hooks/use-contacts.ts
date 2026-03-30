@@ -69,6 +69,8 @@ export function useCreateContact() {
       country?: string;
       notes?: string;
     }) => {
+      const { role_id, ...rest } = contact;
+
       if (!workspaceId) throw new Error("No workspace");
 
       const { data: { user } } = await supabase.auth.getUser();
