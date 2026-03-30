@@ -24,6 +24,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Check, ChevronsUpDown, Plus, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CountrySelect } from "@/components/ui/country-select";
 import { useState } from "react";
 import { useCreateContact, useContactRoles, useCreateContactRole } from "@/hooks/use-contacts";
 import { useCompanies } from "@/hooks/use-companies";
@@ -306,7 +307,10 @@ export default function AddContactForm({ onSuccess }: AddContactFormProps) {
           <div className="grid grid-cols-3 gap-3">
             <Input placeholder="City" {...form.register("city")} />
             <Input placeholder="State/Province" {...form.register("state")} />
-            <Input placeholder="Country" {...form.register("country")} />
+            <CountrySelect
+              value={form.watch("country")}
+              onChange={(val) => form.setValue("country", val)}
+            />
           </div>
         </div>
 
