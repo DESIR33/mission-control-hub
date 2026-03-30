@@ -69,16 +69,17 @@ export function useCreateContact() {
       country?: string;
       notes?: string;
     }) => {
-      const { role_id, ...rest } = contact;
-
       if (!workspaceId) throw new Error("No workspace");
 
       const { data: { user } } = await supabase.auth.getUser();
 
+      // Strip fields not in the DB typed schema to avoid Supabase client errors
+      const { role_id, social_discord, city, state, country, ...rest } = contact;
+
       const { data, error } = await supabase
         .from("contacts")
         .insert({
-          ...contact,
+          ...rest,
           workspace_id: workspaceId,
           created_by: user?.id,
         })
