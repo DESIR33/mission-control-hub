@@ -307,7 +307,10 @@ export default function AddContactForm({ onSuccess }: AddContactFormProps) {
           <div className="grid grid-cols-3 gap-3">
             <Input placeholder="City" {...form.register("city")} />
             <Input placeholder="State/Province" {...form.register("state")} />
-            <Input placeholder="Country" {...form.register("country")} />
+            <CountrySelect
+              value={form.watch("country")}
+              onChange={(val) => form.setValue("country", val)}
+            />
           </div>
         </div>
 
