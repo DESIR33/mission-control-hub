@@ -61,6 +61,8 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
   const [search, setSearch] = useState("");
   const [industryFilter, setIndustryFilter] = useState<string>("all");
   const [sizeFilter, setSizeFilter] = useState<string>("all");
+  const [outreachFilter, setOutreachFilter] = useState<string>("all");
+  const [competitorFilter, setCompetitorFilter] = useState<string>("all");
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
