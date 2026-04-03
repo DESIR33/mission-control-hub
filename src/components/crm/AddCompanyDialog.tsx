@@ -20,7 +20,11 @@ export function AddCompanyDialog() {
   const [socialOpen, setSocialOpen] = useState(false);
   const [logoUrl, setLogoUrl] = useState("");
   const [isAgency, setIsAgency] = useState(false);
+  const [dupName, setDupName] = useState("");
+  const [dupEmail, setDupEmail] = useState("");
+  const [dupWebsite, setDupWebsite] = useState("");
   const createCompany = useCreateCompany();
+  const { data: existingCompanies = [] } = useCompanies();
   const { toast } = useToast();
 
   const handleLogoUpload = useCallback(async (file: File): Promise<string> => {
