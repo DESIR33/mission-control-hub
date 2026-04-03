@@ -134,9 +134,21 @@ export function useUpdateCompany() {
       social_producthunt?: string;
       social_crunchbase?: string;
       social_whatsapp?: string;
+      social_github?: string;
+      social_discord?: string;
       vip_tier?: string;
       response_sla_minutes?: number | null;
       notes?: string;
+      funding_stage?: string | null;
+      total_funding?: number | null;
+      last_funding_date?: string | null;
+      founded_year?: number | null;
+      founder_names?: string | null;
+      pricing_model?: string | null;
+      tech_stack?: string | null;
+      outreach_status?: string | null;
+      sponsor_fit_score?: number | null;
+      competitor_group?: string | null;
     }) => {
       if (!workspaceId) throw new Error("No workspace");
 
