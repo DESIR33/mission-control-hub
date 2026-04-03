@@ -14,7 +14,7 @@ export function useContacts() {
 
       const { data, error } = await supabase
         .from("contacts")
-        .select("id, workspace_id, first_name, last_name, email, phone, status, role, source, company_id, vip_tier, website, avatar_url, preferred_channel, last_contact_date, notes, created_at, updated_at, deleted_at, custom_fields, owner_id, escalation_owner_id, response_sla_minutes, created_by, social_twitter, social_linkedin, social_youtube, social_instagram, social_facebook, social_telegram, social_whatsapp, companies(id, name, logo_url, industry)")
+        .select("id, workspace_id, first_name, last_name, email, phone, status, role, source, company_id, vip_tier, website, avatar_url, preferred_channel, last_contact_date, notes, created_at, updated_at, deleted_at, custom_fields, owner_id, escalation_owner_id, response_sla_minutes, created_by, social_twitter, social_linkedin, social_youtube, social_instagram, social_facebook, social_telegram, social_whatsapp, social_discord, social_github, contact_type, job_title, department, is_decision_maker, reports_to, last_outreach_date, last_response_date, next_follow_up_date, outreach_count, typical_budget_range, preferred_deal_type, payment_terms, lead_score, warmth, secondary_email, timezone, referral_source, source_detail, companies(id, name, logo_url, industry)")
         .eq("workspace_id", workspaceId)
         .is("deleted_at", null)
         .order("updated_at", { ascending: false })
@@ -124,6 +124,22 @@ export function useUpdateContact() {
       social_telegram?: string;
       social_whatsapp?: string;
       social_discord?: string;
+      social_github?: string;
+      contact_type?: string;
+      job_title?: string;
+      department?: string;
+      is_decision_maker?: boolean;
+      reports_to?: string;
+      next_follow_up_date?: string | null;
+      typical_budget_range?: string;
+      preferred_deal_type?: string;
+      payment_terms?: string;
+      lead_score?: number | null;
+      warmth?: string;
+      secondary_email?: string;
+      timezone?: string;
+      referral_source?: string;
+      source_detail?: string;
     }) => {
       if (!workspaceId) throw new Error("No workspace");
 
