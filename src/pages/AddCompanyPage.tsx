@@ -21,6 +21,10 @@ export default function AddCompanyPage() {
   const [socialOpen, setSocialOpen] = useState(false);
   const [logoUrl, setLogoUrl] = useState("");
   const [isAgency, setIsAgency] = useState(false);
+  const [dupName, setDupName] = useState("");
+  const [dupEmail, setDupEmail] = useState("");
+  const [dupWebsite, setDupWebsite] = useState("");
+  const { data: existingCompanies = [] } = useCompanies();
 
   const handleLogoUpload = useCallback(async (file: File): Promise<string> => {
     const fileExt = file.name.split(".").pop() ?? "png";
