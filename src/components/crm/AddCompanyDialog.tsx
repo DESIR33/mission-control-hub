@@ -7,7 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ImageUpload } from "@/components/settings/ImageUpload";
-import { useCreateCompany } from "@/hooks/use-companies";
+import { useCreateCompany, useCompanies } from "@/hooks/use-companies";
+import CompanyDuplicateWarning from "@/components/crm/CompanyDuplicateWarning";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Plus, Loader2, ChevronDown, Briefcase } from "lucide-react";
@@ -19,7 +20,11 @@ export function AddCompanyDialog() {
   const [socialOpen, setSocialOpen] = useState(false);
   const [logoUrl, setLogoUrl] = useState("");
   const [isAgency, setIsAgency] = useState(false);
+  const [dupName, setDupName] = useState("");
+  const [dupEmail, setDupEmail] = useState("");
+  const [dupWebsite, setDupWebsite] = useState("");
   const createCompany = useCreateCompany();
+  const { data: existingCompanies = [] } = useCompanies();
   const { toast } = useToast();
 
   const handleLogoUpload = useCallback(async (file: File): Promise<string> => {
@@ -106,9 +111,16 @@ export function AddCompanyDialog() {
             <Switch id="dlg_is_agency" checked={isAgency} onCheckedChange={setIsAgency} />
           </div>
 
+          <CompanyDuplicateWarning
+            name={dupName}
+            email={dupEmail}
+            website={dupWebsite}
+            existingCompanies={existingCompanies}
+          />
+
           <div className="space-y-1.5">
             <Label htmlFor="name">Company Name *</Label>
-            <Input id="name" name="name" required className="bg-secondary border-border" />
+            <Input id="name" name="name" required className="bg-secondary border-border" onChange={(e) => setDupName(e.target.value)} />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -118,7 +130,7 @@ export function AddCompanyDialog() {
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="website">Website</Label>
-              <Input id="website" name="website" placeholder="https://..." className="bg-secondary border-border" />
+              <Input id="website" name="website" placeholder="https://..." className="bg-secondary border-border" onChange={(e) => setDupWebsite(e.target.value)} />
             </div>
           </div>
 
@@ -129,7 +141,7 @@ export function AddCompanyDialog() {
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="primary_email">Email</Label>
-              <Input id="primary_email" name="primary_email" type="email" className="bg-secondary border-border" />
+              <Input id="primary_email" name="primary_email" type="email" className="bg-secondary border-border" onChange={(e) => setDupEmail(e.target.value)} />
             </div>
           </div>
 
