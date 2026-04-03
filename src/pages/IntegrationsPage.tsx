@@ -604,7 +604,24 @@ export function IntegrationsContent() {
         </p>
       </div>
 
-      {isLoading ? (
+      {/* Token Health Alerts */}
+      {tokenHealthRecords.filter((t) => t.status === "expired" || t.status === "degraded").map((t) => (
+        <Alert key={t.id} variant="destructive" className="border-yellow-500/50 text-yellow-700 dark:text-yellow-400 [&>svg]:text-yellow-600 dark:[&>svg]:text-yellow-400">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription className="flex items-center justify-between">
+            <span>
+              <strong className="capitalize">{t.integration_key.replace("_", " ")}</strong> OAuth token is {t.status}.{" "}
+              {t.error_message && <span className="text-xs opacity-80">{t.error_message}</span>}
+            </span>
+            <Button size="sm" variant="outline" className="ml-3 shrink-0" onClick={handleHealthCheck} disabled={checkingHealth}>
+              <RefreshCw className={`h-3 w-3 mr-1 ${checkingHealth ? "animate-spin" : ""}`} />
+              Re-check
+            </Button>
+          </AlertDescription>
+        </Alert>
+      ))}
+
+
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {INTEGRATIONS.map((d) => (
             <Skeleton key={d.key} className="h-52 rounded-lg" />
