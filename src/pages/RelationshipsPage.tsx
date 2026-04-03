@@ -9,6 +9,7 @@ import { ImportContactsDialog } from "@/components/crm/ImportContactsDialog";
 import { ImportCompaniesDialog } from "@/components/crm/ImportCompaniesDialog";
 import { ExportContactsDialog, ExportCompaniesDialog } from "@/components/crm/ExportDialog";
 import { RelationshipGraph } from "@/components/crm/RelationshipGraph";
+import { SponsorPipelineKanban } from "@/components/crm/SponsorPipelineKanban";
 import { SponsorAttributionPanel } from "@/components/crm/SponsorAttributionPanel";
 import { PartnershipPipeline } from "@/components/crm/PartnershipPipeline";
 import { YouTubeLeadInbox } from "@/components/crm/YouTubeLeadInbox";
@@ -80,6 +81,7 @@ export default function RelationshipsPage() {
           <TabsTrigger value="graph" className="flex-shrink-0">Relationships</TabsTrigger>
           <TabsTrigger value="sponsors" className="flex-shrink-0">Sponsors</TabsTrigger>
           <TabsTrigger value="sponsor_pipeline" className="flex-shrink-0">Sponsor Pipeline</TabsTrigger>
+          <TabsTrigger value="sponsor_kanban" className="flex-shrink-0">Sponsor Kanban</TabsTrigger>
           <TabsTrigger value="affiliate_pipeline" className="flex-shrink-0">Affiliate Pipeline</TabsTrigger>
           <TabsTrigger value="collab_pipeline" className="flex-shrink-0">Collaborator Pipeline</TabsTrigger>
           <TabsTrigger value="subscribers" className="flex-shrink-0">Subscribers</TabsTrigger>
@@ -134,6 +136,14 @@ export default function RelationshipsPage() {
                 </div>
               }
             />
+          )}
+        </TabsContent>
+
+        <TabsContent value="sponsor_kanban" className="mt-4">
+          {companiesLoading ? (
+            <Skeleton className="h-64 w-full" />
+          ) : (
+            <SponsorPipelineKanban companies={companies} onSelectCompany={handleSelectCompany} />
           )}
         </TabsContent>
 

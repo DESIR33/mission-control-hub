@@ -14,7 +14,7 @@ export function useCompanies() {
 
       const { data, error } = await supabase
         .from("companies")
-        .select("id, workspace_id, name, logo_url, industry, website, description, size, revenue, location, country, state, city, phone, primary_email, secondary_email, vip_tier, notes, last_contact_date, is_agency, social_twitter, social_linkedin, social_youtube, social_instagram, social_facebook, social_tiktok, social_producthunt, social_crunchbase, social_whatsapp, created_at, updated_at, deleted_at, created_by, response_sla_minutes, contacts(id, first_name, last_name, email, role, status)")
+        .select("id, workspace_id, name, logo_url, industry, website, description, size, revenue, location, country, state, city, phone, primary_email, secondary_email, vip_tier, notes, last_contact_date, is_agency, social_twitter, social_linkedin, social_youtube, social_instagram, social_facebook, social_tiktok, social_producthunt, social_crunchbase, social_whatsapp, social_github, social_discord, funding_stage, total_funding, last_funding_date, founded_year, founder_names, pricing_model, tech_stack, outreach_status, sponsor_fit_score, competitor_group, created_at, updated_at, deleted_at, created_by, response_sla_minutes, contacts(id, first_name, last_name, email, role, status)")
         .eq("workspace_id", workspaceId)
         .is("deleted_at", null)
         .order("updated_at", { ascending: false })
@@ -29,6 +29,16 @@ export function useCompanies() {
         enrichment_brandfetch: null,
         enrichment_clay: null,
         enrichment_firecrawl: null,
+        funding_stage: (row as any).funding_stage ?? null,
+        total_funding: (row as any).total_funding ?? null,
+        last_funding_date: (row as any).last_funding_date ?? null,
+        founded_year: (row as any).founded_year ?? null,
+        founder_names: (row as any).founder_names ?? null,
+        pricing_model: (row as any).pricing_model ?? null,
+        tech_stack: (row as any).tech_stack ?? null,
+        outreach_status: (row as any).outreach_status ?? null,
+        sponsor_fit_score: (row as any).sponsor_fit_score ?? null,
+        competitor_group: (row as any).competitor_group ?? null,
         contacts: (row.contacts ?? []) as Contact[],
       }));
     },
@@ -124,9 +134,21 @@ export function useUpdateCompany() {
       social_producthunt?: string;
       social_crunchbase?: string;
       social_whatsapp?: string;
+      social_github?: string;
+      social_discord?: string;
       vip_tier?: string;
       response_sla_minutes?: number | null;
       notes?: string;
+      funding_stage?: string | null;
+      total_funding?: number | null;
+      last_funding_date?: string | null;
+      founded_year?: number | null;
+      founder_names?: string | null;
+      pricing_model?: string | null;
+      tech_stack?: string | null;
+      outreach_status?: string | null;
+      sponsor_fit_score?: number | null;
+      competitor_group?: string | null;
     }) => {
       if (!workspaceId) throw new Error("No workspace");
 

@@ -1586,6 +1586,7 @@ export type Database = {
       companies: {
         Row: {
           city: string | null
+          competitor_group: string | null
           country: string | null
           created_at: string
           created_by: string | null
@@ -1594,22 +1595,30 @@ export type Database = {
           enrichment_brandfetch: Json | null
           enrichment_clay: Json | null
           enrichment_firecrawl: Json | null
+          founded_year: number | null
+          founder_names: string | null
+          funding_stage: string | null
           id: string
           industry: string | null
           is_agency: boolean
           last_contact_date: string | null
+          last_funding_date: string | null
           location: string | null
           logo_url: string | null
           name: string
           notes: string | null
+          outreach_status: string | null
           phone: string | null
+          pricing_model: string | null
           primary_email: string | null
           response_sla_minutes: number | null
           revenue: string | null
           secondary_email: string | null
           size: string | null
           social_crunchbase: string | null
+          social_discord: string | null
           social_facebook: string | null
+          social_github: string | null
           social_instagram: string | null
           social_linkedin: string | null
           social_producthunt: string | null
@@ -1617,7 +1626,10 @@ export type Database = {
           social_twitter: string | null
           social_whatsapp: string | null
           social_youtube: string | null
+          sponsor_fit_score: number | null
           state: string | null
+          tech_stack: string | null
+          total_funding: number | null
           updated_at: string
           vip_tier: string | null
           website: string | null
@@ -1625,6 +1637,7 @@ export type Database = {
         }
         Insert: {
           city?: string | null
+          competitor_group?: string | null
           country?: string | null
           created_at?: string
           created_by?: string | null
@@ -1633,22 +1646,30 @@ export type Database = {
           enrichment_brandfetch?: Json | null
           enrichment_clay?: Json | null
           enrichment_firecrawl?: Json | null
+          founded_year?: number | null
+          founder_names?: string | null
+          funding_stage?: string | null
           id?: string
           industry?: string | null
           is_agency?: boolean
           last_contact_date?: string | null
+          last_funding_date?: string | null
           location?: string | null
           logo_url?: string | null
           name: string
           notes?: string | null
+          outreach_status?: string | null
           phone?: string | null
+          pricing_model?: string | null
           primary_email?: string | null
           response_sla_minutes?: number | null
           revenue?: string | null
           secondary_email?: string | null
           size?: string | null
           social_crunchbase?: string | null
+          social_discord?: string | null
           social_facebook?: string | null
+          social_github?: string | null
           social_instagram?: string | null
           social_linkedin?: string | null
           social_producthunt?: string | null
@@ -1656,7 +1677,10 @@ export type Database = {
           social_twitter?: string | null
           social_whatsapp?: string | null
           social_youtube?: string | null
+          sponsor_fit_score?: number | null
           state?: string | null
+          tech_stack?: string | null
+          total_funding?: number | null
           updated_at?: string
           vip_tier?: string | null
           website?: string | null
@@ -1664,6 +1688,7 @@ export type Database = {
         }
         Update: {
           city?: string | null
+          competitor_group?: string | null
           country?: string | null
           created_at?: string
           created_by?: string | null
@@ -1672,22 +1697,30 @@ export type Database = {
           enrichment_brandfetch?: Json | null
           enrichment_clay?: Json | null
           enrichment_firecrawl?: Json | null
+          founded_year?: number | null
+          founder_names?: string | null
+          funding_stage?: string | null
           id?: string
           industry?: string | null
           is_agency?: boolean
           last_contact_date?: string | null
+          last_funding_date?: string | null
           location?: string | null
           logo_url?: string | null
           name?: string
           notes?: string | null
+          outreach_status?: string | null
           phone?: string | null
+          pricing_model?: string | null
           primary_email?: string | null
           response_sla_minutes?: number | null
           revenue?: string | null
           secondary_email?: string | null
           size?: string | null
           social_crunchbase?: string | null
+          social_discord?: string | null
           social_facebook?: string | null
+          social_github?: string | null
           social_instagram?: string | null
           social_linkedin?: string | null
           social_producthunt?: string | null
@@ -1695,7 +1728,10 @@ export type Database = {
           social_twitter?: string | null
           social_whatsapp?: string | null
           social_youtube?: string | null
+          sponsor_fit_score?: number | null
           state?: string | null
+          tech_stack?: string | null
+          total_funding?: number | null
           updated_at?: string
           vip_tier?: string | null
           website?: string | null
@@ -1882,6 +1918,197 @@ export type Database = {
           },
           {
             foreignKeyName: "company_intel_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_people: {
+        Row: {
+          company_id: string
+          contact_id: string | null
+          created_at: string
+          email: string | null
+          id: string
+          is_founder: boolean | null
+          linkedin_url: string | null
+          name: string
+          notes: string | null
+          phone: string | null
+          role: string | null
+          twitter_handle: string | null
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          company_id: string
+          contact_id?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_founder?: boolean | null
+          linkedin_url?: string | null
+          name: string
+          notes?: string | null
+          phone?: string | null
+          role?: string | null
+          twitter_handle?: string | null
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          company_id?: string
+          contact_id?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_founder?: boolean | null
+          linkedin_url?: string | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          role?: string | null
+          twitter_handle?: string | null
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_people_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_people_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_people_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_pricing: {
+        Row: {
+          company_id: string
+          created_at: string
+          currency: string | null
+          features: string | null
+          id: string
+          is_most_popular: boolean | null
+          last_verified_at: string | null
+          notes: string | null
+          price_monthly: number | null
+          price_yearly: number | null
+          sort_order: number | null
+          tier_name: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          currency?: string | null
+          features?: string | null
+          id?: string
+          is_most_popular?: boolean | null
+          last_verified_at?: string | null
+          notes?: string | null
+          price_monthly?: number | null
+          price_yearly?: number | null
+          sort_order?: number | null
+          tier_name: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          currency?: string | null
+          features?: string | null
+          id?: string
+          is_most_popular?: boolean | null
+          last_verified_at?: string | null
+          notes?: string | null
+          price_monthly?: number | null
+          price_yearly?: number | null
+          sort_order?: number | null
+          tier_name?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_pricing_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_pricing_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_relationships: {
+        Row: {
+          company_a_id: string
+          company_b_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          relationship_type: string
+          workspace_id: string
+        }
+        Insert: {
+          company_a_id: string
+          company_b_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          relationship_type: string
+          workspace_id: string
+        }
+        Update: {
+          company_a_id?: string
+          company_b_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          relationship_type?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_relationships_company_a_id_fkey"
+            columns: ["company_a_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_relationships_company_b_id_fkey"
+            columns: ["company_b_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_relationships_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -3083,6 +3310,72 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "flux_training_sessions_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      funding_rounds: {
+        Row: {
+          amount: number | null
+          company_id: string
+          created_at: string
+          date: string | null
+          id: string
+          lead_investor: string | null
+          notes: string | null
+          other_investors: string | null
+          round_type: string
+          source_url: string | null
+          updated_at: string
+          valuation_post: number | null
+          valuation_pre: number | null
+          workspace_id: string
+        }
+        Insert: {
+          amount?: number | null
+          company_id: string
+          created_at?: string
+          date?: string | null
+          id?: string
+          lead_investor?: string | null
+          notes?: string | null
+          other_investors?: string | null
+          round_type: string
+          source_url?: string | null
+          updated_at?: string
+          valuation_post?: number | null
+          valuation_pre?: number | null
+          workspace_id: string
+        }
+        Update: {
+          amount?: number | null
+          company_id?: string
+          created_at?: string
+          date?: string | null
+          id?: string
+          lead_investor?: string | null
+          notes?: string | null
+          other_investors?: string | null
+          round_type?: string
+          source_url?: string | null
+          updated_at?: string
+          valuation_post?: number | null
+          valuation_pre?: number | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funding_rounds_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "funding_rounds_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"

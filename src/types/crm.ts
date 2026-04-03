@@ -67,6 +67,9 @@ export interface Company {
   social_tiktok: string | null;
   social_producthunt: string | null;
   social_whatsapp: string | null;
+  social_crunchbase?: string | null;
+  social_github?: string | null;
+  social_discord?: string | null;
   vip_tier: 'none' | 'silver' | 'gold' | 'platinum';
   response_sla_minutes: number | null;
   enrichment_brandfetch: Record<string, unknown> | null;
@@ -75,12 +78,85 @@ export interface Company {
   notes: string | null;
   last_contact_date: string | null;
   is_agency: boolean;
+  funding_stage: string | null;
+  total_funding: number | null;
+  last_funding_date: string | null;
+  founded_year: number | null;
+  founder_names: string | null;
+  pricing_model: string | null;
+  tech_stack: string | null;
+  outreach_status: string | null;
+  sponsor_fit_score: number | null;
+  competitor_group: string | null;
   deleted_at: string | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;
   // Joined
   contacts?: Contact[];
+}
+
+export interface FundingRound {
+  id: string;
+  workspace_id: string;
+  company_id: string;
+  round_type: string;
+  amount: number | null;
+  valuation_pre: number | null;
+  valuation_post: number | null;
+  date: string | null;
+  lead_investor: string | null;
+  other_investors: string | null;
+  source_url: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CompanyPerson {
+  id: string;
+  workspace_id: string;
+  company_id: string;
+  name: string;
+  role: string | null;
+  is_founder: boolean;
+  email: string | null;
+  phone: string | null;
+  linkedin_url: string | null;
+  twitter_handle: string | null;
+  notes: string | null;
+  contact_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CompanyPricing {
+  id: string;
+  workspace_id: string;
+  company_id: string;
+  tier_name: string;
+  price_monthly: number | null;
+  price_yearly: number | null;
+  currency: string;
+  features: string | null;
+  is_most_popular: boolean;
+  sort_order: number;
+  last_verified_at: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CompanyRelationship {
+  id: string;
+  workspace_id: string;
+  company_a_id: string;
+  company_b_id: string;
+  relationship_type: string;
+  notes: string | null;
+  created_at: string;
+  company_a?: Company;
+  company_b?: Company;
 }
 
 export interface Activity {

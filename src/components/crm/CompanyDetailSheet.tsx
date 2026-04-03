@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { ActivityTimeline } from "./ActivityTimeline";
 import { AssociateContactPopover } from "./AssociateContactPopover";
+import { FundingRoundsSection, KeyPeopleSection, PricingTiersSection, RelatedCompaniesSection } from "./CompanyDetailSections";
 import { Button } from "@/components/ui/button";
 import { useDeleteCompany } from "@/hooks/use-companies";
 import { useVideoQueue } from "@/hooks/use-video-queue";
@@ -24,8 +25,9 @@ import {
   Mail, Globe, Linkedin, Twitter, Instagram, MapPin, Building2,
   Users, DollarSign, Clock, Pencil, Trash2, Loader2, Sparkles,
   Film, Play, Lightbulb, TrendingUp, Target, BarChart3,
-  Phone, MessageCircle, Facebook, Youtube,
+  Phone, MessageCircle, Facebook, Youtube, Github,
 } from "lucide-react";
+import { FaDiscord } from "react-icons/fa";
 import { cn } from "@/lib/utils";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { supabase } from "@/integrations/supabase/client";
@@ -325,14 +327,11 @@ export function CompanyDetailSheet({ company, activities, companyContacts, open,
           )}
 
           <Tabs defaultValue="details" className="mt-2">
-            <TabsList className="w-full">
+            <TabsList className="w-full flex-wrap h-auto gap-1">
               <TabsTrigger value="details" className="flex-1">Details</TabsTrigger>
-              <TabsTrigger value="videos" className="flex-1">
-                Videos ({companyVideos.length})
-              </TabsTrigger>
-              <TabsTrigger value="contacts" className="flex-1">
-                Contacts ({companyContacts.length})
-              </TabsTrigger>
+              <TabsTrigger value="intel" className="flex-1">Intel</TabsTrigger>
+              <TabsTrigger value="videos" className="flex-1">Videos</TabsTrigger>
+              <TabsTrigger value="contacts" className="flex-1">Contacts</TabsTrigger>
               <TabsTrigger value="timeline" className="flex-1">Timeline</TabsTrigger>
             </TabsList>
 
@@ -378,10 +377,64 @@ export function CompanyDetailSheet({ company, activities, companyContacts, open,
                   <DetailRow icon={Youtube} label="YouTube" value={company.social_youtube} href={company.social_youtube ?? undefined} />
                   <DetailRow icon={Globe} label="TikTok" value={company.social_tiktok} href={company.social_tiktok ? `https://tiktok.com/@${company.social_tiktok.replace("@", "")}` : undefined} />
                   <DetailRow icon={Globe} label="Product Hunt" value={company.social_producthunt} href={company.social_producthunt ?? undefined} />
+                  <DetailRow icon={Github} label="GitHub" value={company.social_github} href={company.social_github ? `https://github.com/${company.social_github}` : undefined} />
+                  <DetailRow icon={Globe} label="Discord" value={company.social_discord} href={company.social_discord ?? undefined} />
                 </div>
               </div>
 
               <Separator className="bg-border" />
+
+              {/* Funding & Background */}
+              {(company.funding_stage || company.total_funding || company.founded_year || company.pricing_model) && (
+                <>
+                  <div>
+                    <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Funding & Background</h4>
+                    <div className="space-y-0.5">
+                      <DetailRow icon={DollarSign} label="Funding Stage" value={company.funding_stage} />
+                      <DetailRow icon={DollarSign} label="Total Funding" value={company.total_funding ? `$${company.total_funding.toLocaleString()}` : null} />
+                      <DetailRow icon={Clock} label="Last Funding" value={company.last_funding_date} />
+                      <DetailRow icon={Building2} label="Founded" value={company.founded_year?.toString()} />
+                      <DetailRow icon={Users} label="Founders" value={company.founder_names} />
+                      <DetailRow icon={Target} label="Pricing Model" value={company.pricing_model} />
+                      <DetailRow icon={Globe} label="Tech Stack" value={company.tech_stack} />
+                    </div>
+                  </div>
+                  <Separator className="bg-border" />
+                </>
+              )}
+
+              {/* Sponsor Pipeline */}
+              {(company.outreach_status && company.outreach_status !== "not_contacted") || company.sponsor_fit_score || company.competitor_group ? (
+                <>
+                  <div>
+                    <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Sponsor Pipeline</h4>
+                    <div className="space-y-1.5">
+                      {company.outreach_status && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground">Outreach:</span>
+                          <Badge variant="outline" className="text-xs capitalize">{company.outreach_status.replace(/_/g, " ")}</Badge>
+                        </div>
+                      )}
+                      {company.sponsor_fit_score != null && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground">Fit Score:</span>
+                          <span className={cn("text-sm font-bold font-mono",
+                            company.sponsor_fit_score <= 3 ? "text-destructive" :
+                            company.sponsor_fit_score <= 6 ? "text-yellow-500" : "text-emerald-500"
+                          )}>{company.sponsor_fit_score}/10</span>
+                        </div>
+                      )}
+                      {company.competitor_group && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground">Category:</span>
+                          <Badge variant="outline" className="text-xs">{company.competitor_group}</Badge>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <Separator className="bg-border" />
+                </>
+              ) : null}
 
               {/* SLA */}
               {company.response_sla_minutes && (
@@ -407,18 +460,8 @@ export function CompanyDetailSheet({ company, activities, companyContacts, open,
 
               {/* Enrichment */}
               <div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleEnrich}
-                  disabled={isEnriching}
-                  className="w-full"
-                >
-                  {isEnriching ? (
-                    <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                  ) : (
-                    <Sparkles className="w-3.5 h-3.5 mr-1.5" />
-                  )}
+                <Button variant="outline" size="sm" onClick={handleEnrich} disabled={isEnriching} className="w-full">
+                  {isEnriching ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 mr-1.5" />}
                   {isEnriching ? "Enriching..." : "Enrich Company"}
                 </Button>
                 {hasEnrichment && (
@@ -440,6 +483,17 @@ export function CompanyDetailSheet({ company, activities, companyContacts, open,
                 <p>Created: {format(new Date(company.created_at), "MMM d, yyyy")}</p>
                 <p>Updated: {format(new Date(company.updated_at), "MMM d, yyyy")}</p>
               </div>
+            </TabsContent>
+
+            {/* Intel Tab — Funding Rounds, Key People, Pricing, Relationships */}
+            <TabsContent value="intel" className="mt-4 space-y-6">
+              <FundingRoundsSection companyId={company.id} />
+              <Separator className="bg-border" />
+              <KeyPeopleSection companyId={company.id} />
+              <Separator className="bg-border" />
+              <PricingTiersSection companyId={company.id} />
+              <Separator className="bg-border" />
+              <RelatedCompaniesSection companyId={company.id} />
             </TabsContent>
 
             {/* Videos & Content Pipeline Tab */}

@@ -34,7 +34,7 @@ const tierIcons: Record<VipTier, string> = {
 
 const tierOrder: Record<VipTier, number> = { none: 0, silver: 1, gold: 2, platinum: 3 };
 
-type SortKey = "name" | "industry" | "location" | "videos" | "vip" | "revenue" | "contacts" | "lastContact";
+type SortKey = "name" | "industry" | "location" | "videos" | "vip" | "revenue" | "contacts" | "lastContact" | "outreach" | "fitScore" | "funding";
 type SortDir = "asc" | "desc";
 
 function formatCurrency(value: number): string {
@@ -61,6 +61,8 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
   const [search, setSearch] = useState("");
   const [industryFilter, setIndustryFilter] = useState<string>("all");
   const [sizeFilter, setSizeFilter] = useState<string>("all");
+  const [outreachFilter, setOutreachFilter] = useState<string>("all");
+  const [competitorFilter, setCompetitorFilter] = useState<string>("all");
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -110,7 +112,9 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
           .includes(search.toLowerCase());
       const matchesIndustry = industryFilter === "all" || c.industry === industryFilter;
       const matchesSize = sizeFilter === "all" || c.size === sizeFilter;
-      return matchesSearch && matchesIndustry && matchesSize;
+      const matchesOutreach = outreachFilter === "all" || c.outreach_status === outreachFilter;
+      const matchesCompetitor = competitorFilter === "all" || c.competitor_group === competitorFilter;
+      return matchesSearch && matchesIndustry && matchesSize && matchesOutreach && matchesCompetitor;
     });
 
     if (sortKey) {
@@ -130,6 +134,9 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
             cmp = da - db;
             break;
           }
+          case "outreach": cmp = (a.outreach_status ?? "").localeCompare(b.outreach_status ?? ""); break;
+          case "fitScore": cmp = (a.sponsor_fit_score ?? 0) - (b.sponsor_fit_score ?? 0); break;
+          case "funding": cmp = (a.total_funding ?? 0) - (b.total_funding ?? 0); break;
         }
         return sortDir === "asc" ? cmp : -cmp;
       });
@@ -221,6 +228,30 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
           </SelectContent>
         </Select>
 
+        <Select value={outreachFilter} onValueChange={setOutreachFilter}>
+          <SelectTrigger className="w-[140px] bg-card border-border shrink-0">
+            <SelectValue placeholder="Outreach" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Outreach</SelectItem>
+            {["not_contacted","researching","contacted","in_conversation","negotiating","sponsor","former_sponsor","passed","not_a_fit"].map((s) => (
+              <SelectItem key={s} value={s}>{s.replace(/_/g, " ")}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={competitorFilter} onValueChange={setCompetitorFilter}>
+          <SelectTrigger className="w-[150px] bg-card border-border shrink-0">
+            <SelectValue placeholder="Category" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Categories</SelectItem>
+            {Array.from(new Set(companies.map((c) => c.competitor_group).filter(Boolean))).map((g) => (
+              <SelectItem key={g!} value={g!}>{g}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
         <div className="ml-auto shrink-0">
           {addButton}
         </div>
@@ -229,7 +260,7 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
       {/* Count */}
       <p className="text-xs text-muted-foreground">
         {filtered.length} compan{filtered.length !== 1 ? "ies" : "y"}
-        {search || industryFilter !== "all" || sizeFilter !== "all" ? " (filtered)" : ""}
+        {search || industryFilter !== "all" || sizeFilter !== "all" || outreachFilter !== "all" || competitorFilter !== "all" ? " (filtered)" : ""}
       </p>
 
       {/* Bulk Actions */}
@@ -329,13 +360,19 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
               <TableHead className={thClass} onClick={() => handleSort("lastContact")}>
                 <div className="flex items-center">Last Contact<SortIcon column="lastContact" sortKey={sortKey} sortDir={sortDir} /></div>
               </TableHead>
+              <TableHead className={thClass} onClick={() => handleSort("outreach")}>
+                <div className="flex items-center">Outreach<SortIcon column="outreach" sortKey={sortKey} sortDir={sortDir} /></div>
+              </TableHead>
+              <TableHead className={thClass} onClick={() => handleSort("fitScore")}>
+                <div className="flex items-center">Fit<SortIcon column="fitScore" sortKey={sortKey} sortDir={sortDir} /></div>
+              </TableHead>
               <TableHead className="text-muted-foreground font-semibold w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="text-center py-12 text-muted-foreground">
+                <TableCell colSpan={11} className="text-center py-12 text-muted-foreground">
                   No companies found
                 </TableCell>
               </TableRow>
@@ -410,6 +447,23 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
                           ? formatDistanceToNow(new Date(company.last_contact_date), { addSuffix: true })
                           : "Never"}
                       </span>
+                    </TableCell>
+                    <TableCell>
+                      {company.outreach_status && company.outreach_status !== "not_contacted" ? (
+                        <Badge variant="outline" className="text-xs capitalize">{company.outreach_status.replace(/_/g, " ")}</Badge>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {company.sponsor_fit_score != null ? (
+                        <span className={cn("text-xs font-bold font-mono",
+                          company.sponsor_fit_score <= 3 ? "text-destructive" :
+                          company.sponsor_fit_score <= 6 ? "text-yellow-500" : "text-emerald-500"
+                        )}>{company.sponsor_fit_score}</span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center gap-1">
