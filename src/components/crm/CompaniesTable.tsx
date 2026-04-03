@@ -228,6 +228,30 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
           </SelectContent>
         </Select>
 
+        <Select value={outreachFilter} onValueChange={setOutreachFilter}>
+          <SelectTrigger className="w-[140px] bg-card border-border shrink-0">
+            <SelectValue placeholder="Outreach" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Outreach</SelectItem>
+            {["not_contacted","researching","contacted","in_conversation","negotiating","sponsor","former_sponsor","passed","not_a_fit"].map((s) => (
+              <SelectItem key={s} value={s}>{s.replace(/_/g, " ")}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={competitorFilter} onValueChange={setCompetitorFilter}>
+          <SelectTrigger className="w-[150px] bg-card border-border shrink-0">
+            <SelectValue placeholder="Category" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Categories</SelectItem>
+            {Array.from(new Set(companies.map((c) => c.competitor_group).filter(Boolean))).map((g) => (
+              <SelectItem key={g!} value={g!}>{g}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
         <div className="ml-auto shrink-0">
           {addButton}
         </div>
