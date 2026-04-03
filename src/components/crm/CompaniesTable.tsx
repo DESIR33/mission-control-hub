@@ -112,7 +112,9 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
           .includes(search.toLowerCase());
       const matchesIndustry = industryFilter === "all" || c.industry === industryFilter;
       const matchesSize = sizeFilter === "all" || c.size === sizeFilter;
-      return matchesSearch && matchesIndustry && matchesSize;
+      const matchesOutreach = outreachFilter === "all" || c.outreach_status === outreachFilter;
+      const matchesCompetitor = competitorFilter === "all" || c.competitor_group === competitorFilter;
+      return matchesSearch && matchesIndustry && matchesSize && matchesOutreach && matchesCompetitor;
     });
 
     if (sortKey) {
