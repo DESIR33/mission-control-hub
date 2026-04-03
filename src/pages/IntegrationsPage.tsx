@@ -621,7 +621,7 @@ export function IntegrationsContent() {
         </Alert>
       ))}
 
-
+      {isLoading ? (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {INTEGRATIONS.map((d) => (
             <Skeleton key={d.key} className="h-52 rounded-lg" />
