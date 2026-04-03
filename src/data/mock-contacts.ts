@@ -19,6 +19,16 @@ const baseCompany = {
   enrichment_firecrawl: null,
   created_by: null,
   is_agency: false,
+  funding_stage: null,
+  total_funding: null,
+  last_funding_date: null,
+  founded_year: null,
+  founder_names: null,
+  pricing_model: null,
+  tech_stack: null,
+  outreach_status: null,
+  sponsor_fit_score: null,
+  competitor_group: null,
 } satisfies Partial<Company>;
 
 // Mock data for development before auth is wired up
