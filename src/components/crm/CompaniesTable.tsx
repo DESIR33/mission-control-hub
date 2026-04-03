@@ -448,6 +448,23 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
                           : "Never"}
                       </span>
                     </TableCell>
+                    <TableCell>
+                      {company.outreach_status && company.outreach_status !== "not_contacted" ? (
+                        <Badge variant="outline" className="text-xs capitalize">{company.outreach_status.replace(/_/g, " ")}</Badge>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {company.sponsor_fit_score != null ? (
+                        <span className={cn("text-xs font-bold font-mono",
+                          company.sponsor_fit_score <= 3 ? "text-destructive" :
+                          company.sponsor_fit_score <= 6 ? "text-yellow-500" : "text-emerald-500"
+                        )}>{company.sponsor_fit_score}</span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center gap-1">
                         <Button
