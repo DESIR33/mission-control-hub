@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Zap } from "lucide-react";
+import { Zap, AlertTriangle, CheckCircle, RefreshCw } from "lucide-react";
+import { useTokenHealth } from "@/hooks/use-token-health";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useWorkspace } from "@/hooks/use-workspace";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   useIntegrations,
