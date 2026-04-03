@@ -9,6 +9,7 @@ import { ImportContactsDialog } from "@/components/crm/ImportContactsDialog";
 import { ImportCompaniesDialog } from "@/components/crm/ImportCompaniesDialog";
 import { ExportContactsDialog, ExportCompaniesDialog } from "@/components/crm/ExportDialog";
 import { RelationshipGraph } from "@/components/crm/RelationshipGraph";
+import { SponsorPipelineKanban } from "@/components/crm/SponsorPipelineKanban";
 import { SponsorAttributionPanel } from "@/components/crm/SponsorAttributionPanel";
 import { PartnershipPipeline } from "@/components/crm/PartnershipPipeline";
 import { YouTubeLeadInbox } from "@/components/crm/YouTubeLeadInbox";
