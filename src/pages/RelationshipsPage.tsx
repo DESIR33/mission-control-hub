@@ -81,6 +81,7 @@ export default function RelationshipsPage() {
           <TabsTrigger value="graph" className="flex-shrink-0">Relationships</TabsTrigger>
           <TabsTrigger value="sponsors" className="flex-shrink-0">Sponsors</TabsTrigger>
           <TabsTrigger value="sponsor_pipeline" className="flex-shrink-0">Sponsor Pipeline</TabsTrigger>
+          <TabsTrigger value="sponsor_kanban" className="flex-shrink-0">Sponsor Kanban</TabsTrigger>
           <TabsTrigger value="affiliate_pipeline" className="flex-shrink-0">Affiliate Pipeline</TabsTrigger>
           <TabsTrigger value="collab_pipeline" className="flex-shrink-0">Collaborator Pipeline</TabsTrigger>
           <TabsTrigger value="subscribers" className="flex-shrink-0">Subscribers</TabsTrigger>
