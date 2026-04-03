@@ -260,7 +260,7 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
       {/* Count */}
       <p className="text-xs text-muted-foreground">
         {filtered.length} compan{filtered.length !== 1 ? "ies" : "y"}
-        {search || industryFilter !== "all" || sizeFilter !== "all" ? " (filtered)" : ""}
+        {search || industryFilter !== "all" || sizeFilter !== "all" || outreachFilter !== "all" || competitorFilter !== "all" ? " (filtered)" : ""}
       </p>
 
       {/* Bulk Actions */}
