@@ -327,14 +327,11 @@ export function CompanyDetailSheet({ company, activities, companyContacts, open,
           )}
 
           <Tabs defaultValue="details" className="mt-2">
-            <TabsList className="w-full">
+            <TabsList className="w-full flex-wrap h-auto gap-1">
               <TabsTrigger value="details" className="flex-1">Details</TabsTrigger>
-              <TabsTrigger value="videos" className="flex-1">
-                Videos ({companyVideos.length})
-              </TabsTrigger>
-              <TabsTrigger value="contacts" className="flex-1">
-                Contacts ({companyContacts.length})
-              </TabsTrigger>
+              <TabsTrigger value="intel" className="flex-1">Intel</TabsTrigger>
+              <TabsTrigger value="videos" className="flex-1">Videos</TabsTrigger>
+              <TabsTrigger value="contacts" className="flex-1">Contacts</TabsTrigger>
               <TabsTrigger value="timeline" className="flex-1">Timeline</TabsTrigger>
             </TabsList>
 
