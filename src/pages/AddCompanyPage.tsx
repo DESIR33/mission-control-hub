@@ -9,7 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ImageUpload } from "@/components/settings/ImageUpload";
-import { useCreateCompany } from "@/hooks/use-companies";
+import { useCreateCompany, useCompanies } from "@/hooks/use-companies";
+import CompanyDuplicateWarning from "@/components/crm/CompanyDuplicateWarning";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
