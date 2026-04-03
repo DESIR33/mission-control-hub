@@ -3394,6 +3394,53 @@ export type Database = {
           },
         ]
       }
+      integration_token_health: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          expires_in_seconds: number | null
+          id: string
+          integration_key: string
+          last_checked_at: string
+          last_healthy_at: string | null
+          status: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          expires_in_seconds?: number | null
+          id?: string
+          integration_key: string
+          last_checked_at?: string
+          last_healthy_at?: string | null
+          status?: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          expires_in_seconds?: number | null
+          id?: string
+          integration_key?: string
+          last_checked_at?: string
+          last_healthy_at?: string | null
+          status?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_token_health_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invoices: {
         Row: {
           amount: number

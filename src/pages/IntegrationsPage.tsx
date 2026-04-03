@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Zap } from "lucide-react";
+import { Zap, AlertTriangle, CheckCircle, RefreshCw } from "lucide-react";
+import { useTokenHealth } from "@/hooks/use-token-health";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useWorkspace } from "@/hooks/use-workspace";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   useIntegrations,
@@ -519,12 +525,35 @@ export function IntegrationsContent() {
 
   const [dialogKey, setDialogKey] = useState<IntegrationKey | null>(null);
 
+  const { workspaceId } = useWorkspace();
+  const qc = useQueryClient();
+  const { data: tokenHealthRecords = [] } = useTokenHealth();
+  const [checkingHealth, setCheckingHealth] = useState(false);
+
   const activeDef = dialogKey
     ? INTEGRATIONS.find((d) => d.key === dialogKey) ?? null
     : null;
 
   const recordFor = (key: IntegrationKey) =>
     integrations.find((r) => r.integration_key === key);
+
+  const tokenHealthFor = (key: string) =>
+    tokenHealthRecords.find((t) => t.integration_key === key);
+
+  const handleHealthCheck = async () => {
+    setCheckingHealth(true);
+    try {
+      await supabase.functions.invoke("youtube-token-health", {
+        body: { workspace_id: workspaceId },
+      });
+      qc.invalidateQueries({ queryKey: ["integration_token_health"] });
+      toast.success("Token health check complete");
+    } catch {
+      toast.error("Health check failed");
+    } finally {
+      setCheckingHealth(false);
+    }
+  };
 
   const isUpdateMode = dialogKey ? !!recordFor(dialogKey)?.enabled : false;
 
@@ -574,6 +603,23 @@ export function IntegrationsContent() {
           )}
         </p>
       </div>
+
+      {/* Token Health Alerts */}
+      {tokenHealthRecords.filter((t) => t.status === "expired" || t.status === "degraded").map((t) => (
+        <Alert key={t.id} variant="destructive" className="border-yellow-500/50 text-yellow-700 dark:text-yellow-400 [&>svg]:text-yellow-600 dark:[&>svg]:text-yellow-400">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription className="flex items-center justify-between">
+            <span>
+              <strong className="capitalize">{t.integration_key.replace("_", " ")}</strong> OAuth token is {t.status}.{" "}
+              {t.error_message && <span className="text-xs opacity-80">{t.error_message}</span>}
+            </span>
+            <Button size="sm" variant="outline" className="ml-3 shrink-0" onClick={handleHealthCheck} disabled={checkingHealth}>
+              <RefreshCw className={`h-3 w-3 mr-1 ${checkingHealth ? "animate-spin" : ""}`} />
+              Re-check
+            </Button>
+          </AlertDescription>
+        </Alert>
+      ))}
 
       {isLoading ? (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
