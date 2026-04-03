@@ -134,6 +134,9 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
             cmp = da - db;
             break;
           }
+          case "outreach": cmp = (a.outreach_status ?? "").localeCompare(b.outreach_status ?? ""); break;
+          case "fitScore": cmp = (a.sponsor_fit_score ?? 0) - (b.sponsor_fit_score ?? 0); break;
+          case "funding": cmp = (a.total_funding ?? 0) - (b.total_funding ?? 0); break;
         }
         return sortDir === "asc" ? cmp : -cmp;
       });
