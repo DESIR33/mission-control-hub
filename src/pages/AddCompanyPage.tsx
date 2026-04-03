@@ -107,9 +107,16 @@ export default function AddCompanyPage() {
             <Switch id="is_agency" checked={isAgency} onCheckedChange={setIsAgency} />
           </div>
 
+          <CompanyDuplicateWarning
+            name={dupName}
+            email={dupEmail}
+            website={dupWebsite}
+            existingCompanies={existingCompanies}
+          />
+
           <div className="space-y-1.5">
             <Label htmlFor="name">Company Name *</Label>
-            <Input id="name" name="name" required className="bg-secondary border-border" />
+            <Input id="name" name="name" required className="bg-secondary border-border" onChange={(e) => setDupName(e.target.value)} />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
