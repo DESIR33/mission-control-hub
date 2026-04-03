@@ -139,6 +139,14 @@ export default function RelationshipsPage() {
           )}
         </TabsContent>
 
+        <TabsContent value="sponsor_kanban" className="mt-4">
+          {companiesLoading ? (
+            <Skeleton className="h-64 w-full" />
+          ) : (
+            <SponsorPipelineKanban companies={companies} onSelectCompany={handleSelectCompany} />
+          )}
+        </TabsContent>
+
         <TabsContent value="graph" className="mt-4">
           {contactsLoading || companiesLoading ? (
             <div className="space-y-3">
