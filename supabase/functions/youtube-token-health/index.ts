@@ -64,9 +64,7 @@ Deno.serve(async (req) => {
         await supabase.from("strategist_notifications").insert({
           workspace_id: wsId,
           title: `YouTube Token ${result.status === "expired" ? "Expired" : "Expiring Soon"}`,
-          message,
-          type: "warning",
-          category: "integration",
+          body: message,
           read: false,
         });
       }
