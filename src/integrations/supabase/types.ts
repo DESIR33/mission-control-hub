@@ -2294,6 +2294,70 @@ export type Database = {
           },
         ]
       }
+      contact_interactions: {
+        Row: {
+          contact_id: string
+          created_at: string
+          deal_id: string | null
+          direction: string
+          email_id: string | null
+          id: string
+          interaction_date: string
+          interaction_type: string
+          notes: string | null
+          subject: string | null
+          workspace_id: string
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string
+          deal_id?: string | null
+          direction?: string
+          email_id?: string | null
+          id?: string
+          interaction_date?: string
+          interaction_type: string
+          notes?: string | null
+          subject?: string | null
+          workspace_id: string
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string
+          deal_id?: string | null
+          direction?: string
+          email_id?: string | null
+          id?: string
+          interaction_date?: string
+          interaction_type?: string
+          notes?: string | null
+          subject?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_interactions_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_interactions_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_interactions_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_roles: {
         Row: {
           created_at: string
@@ -2323,16 +2387,57 @@ export type Database = {
           },
         ]
       }
+      contact_tags: {
+        Row: {
+          contact_id: string
+          created_at: string
+          id: string
+          tag: string
+          workspace_id: string
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string
+          id?: string
+          tag: string
+          workspace_id: string
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string
+          id?: string
+          tag?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_tags_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_tags_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contacts: {
         Row: {
           avatar_url: string | null
           city: string | null
           company_id: string | null
+          contact_type: string | null
           country: string | null
           created_at: string
           created_by: string | null
           custom_fields: Json | null
           deleted_at: string | null
+          department: string | null
           email: string | null
           enrichment_ai: Json | null
           enrichment_hunter: Json | null
@@ -2340,17 +2445,30 @@ export type Database = {
           escalation_owner_id: string | null
           first_name: string
           id: string
+          is_decision_maker: boolean | null
+          job_title: string | null
           last_contact_date: string | null
           last_name: string | null
+          last_outreach_date: string | null
+          last_response_date: string | null
+          lead_score: number | null
+          next_follow_up_date: string | null
           notes: string | null
+          outreach_count: number | null
           owner_id: string | null
+          payment_terms: string | null
           phone: string | null
           preferred_channel: string | null
+          preferred_deal_type: string | null
+          referral_source: string | null
+          reports_to: string | null
           response_sla_minutes: number | null
           role: string | null
           role_id: string | null
+          secondary_email: string | null
           social_discord: string | null
           social_facebook: string | null
+          social_github: string | null
           social_instagram: string | null
           social_linkedin: string | null
           social_telegram: string | null
@@ -2358,10 +2476,14 @@ export type Database = {
           social_whatsapp: string | null
           social_youtube: string | null
           source: string | null
+          source_detail: string | null
           state: string | null
           status: string
+          timezone: string | null
+          typical_budget_range: string | null
           updated_at: string
           vip_tier: string | null
+          warmth: string | null
           website: string | null
           workspace_id: string
         }
@@ -2369,11 +2491,13 @@ export type Database = {
           avatar_url?: string | null
           city?: string | null
           company_id?: string | null
+          contact_type?: string | null
           country?: string | null
           created_at?: string
           created_by?: string | null
           custom_fields?: Json | null
           deleted_at?: string | null
+          department?: string | null
           email?: string | null
           enrichment_ai?: Json | null
           enrichment_hunter?: Json | null
@@ -2381,17 +2505,30 @@ export type Database = {
           escalation_owner_id?: string | null
           first_name: string
           id?: string
+          is_decision_maker?: boolean | null
+          job_title?: string | null
           last_contact_date?: string | null
           last_name?: string | null
+          last_outreach_date?: string | null
+          last_response_date?: string | null
+          lead_score?: number | null
+          next_follow_up_date?: string | null
           notes?: string | null
+          outreach_count?: number | null
           owner_id?: string | null
+          payment_terms?: string | null
           phone?: string | null
           preferred_channel?: string | null
+          preferred_deal_type?: string | null
+          referral_source?: string | null
+          reports_to?: string | null
           response_sla_minutes?: number | null
           role?: string | null
           role_id?: string | null
+          secondary_email?: string | null
           social_discord?: string | null
           social_facebook?: string | null
+          social_github?: string | null
           social_instagram?: string | null
           social_linkedin?: string | null
           social_telegram?: string | null
@@ -2399,10 +2536,14 @@ export type Database = {
           social_whatsapp?: string | null
           social_youtube?: string | null
           source?: string | null
+          source_detail?: string | null
           state?: string | null
           status?: string
+          timezone?: string | null
+          typical_budget_range?: string | null
           updated_at?: string
           vip_tier?: string | null
+          warmth?: string | null
           website?: string | null
           workspace_id: string
         }
@@ -2410,11 +2551,13 @@ export type Database = {
           avatar_url?: string | null
           city?: string | null
           company_id?: string | null
+          contact_type?: string | null
           country?: string | null
           created_at?: string
           created_by?: string | null
           custom_fields?: Json | null
           deleted_at?: string | null
+          department?: string | null
           email?: string | null
           enrichment_ai?: Json | null
           enrichment_hunter?: Json | null
@@ -2422,17 +2565,30 @@ export type Database = {
           escalation_owner_id?: string | null
           first_name?: string
           id?: string
+          is_decision_maker?: boolean | null
+          job_title?: string | null
           last_contact_date?: string | null
           last_name?: string | null
+          last_outreach_date?: string | null
+          last_response_date?: string | null
+          lead_score?: number | null
+          next_follow_up_date?: string | null
           notes?: string | null
+          outreach_count?: number | null
           owner_id?: string | null
+          payment_terms?: string | null
           phone?: string | null
           preferred_channel?: string | null
+          preferred_deal_type?: string | null
+          referral_source?: string | null
+          reports_to?: string | null
           response_sla_minutes?: number | null
           role?: string | null
           role_id?: string | null
+          secondary_email?: string | null
           social_discord?: string | null
           social_facebook?: string | null
+          social_github?: string | null
           social_instagram?: string | null
           social_linkedin?: string | null
           social_telegram?: string | null
@@ -2440,10 +2596,14 @@ export type Database = {
           social_whatsapp?: string | null
           social_youtube?: string | null
           source?: string | null
+          source_detail?: string | null
           state?: string | null
           status?: string
+          timezone?: string | null
+          typical_budget_range?: string | null
           updated_at?: string
           vip_tier?: string | null
+          warmth?: string | null
           website?: string | null
           workspace_id?: string
         }
@@ -3441,6 +3601,7 @@ export type Database = {
           ai_suggested_action: string | null
           ai_summary: string | null
           body_html: string | null
+          contact_id: string | null
           conversation_id: string | null
           created_at: string
           folder: string
@@ -3475,6 +3636,7 @@ export type Database = {
           ai_suggested_action?: string | null
           ai_summary?: string | null
           body_html?: string | null
+          contact_id?: string | null
           conversation_id?: string | null
           created_at?: string
           folder?: string
@@ -3509,6 +3671,7 @@ export type Database = {
           ai_suggested_action?: string | null
           ai_summary?: string | null
           body_html?: string | null
+          contact_id?: string | null
           conversation_id?: string | null
           created_at?: string
           folder?: string
@@ -3537,6 +3700,13 @@ export type Database = {
           workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "inbox_emails_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "inbox_emails_workspace_id_fkey"
             columns: ["workspace_id"]
