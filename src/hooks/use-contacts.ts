@@ -124,6 +124,22 @@ export function useUpdateContact() {
       social_telegram?: string;
       social_whatsapp?: string;
       social_discord?: string;
+      social_github?: string;
+      contact_type?: string;
+      job_title?: string;
+      department?: string;
+      is_decision_maker?: boolean;
+      reports_to?: string;
+      next_follow_up_date?: string | null;
+      typical_budget_range?: string;
+      preferred_deal_type?: string;
+      payment_terms?: string;
+      lead_score?: number | null;
+      warmth?: string;
+      secondary_email?: string;
+      timezone?: string;
+      referral_source?: string;
+      source_detail?: string;
     }) => {
       if (!workspaceId) throw new Error("No workspace");
 

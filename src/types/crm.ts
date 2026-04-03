@@ -23,6 +23,7 @@ export interface Contact {
   social_telegram: string | null;
   social_whatsapp: string | null;
   social_discord?: string | null;
+  social_github?: string | null;
   role_id?: string | null;
   city?: string | null;
   state?: string | null;
@@ -38,8 +39,49 @@ export interface Contact {
   created_by: string | null;
   created_at: string;
   updated_at: string;
+  // New CRM fields
+  contact_type?: string | null;
+  job_title?: string | null;
+  department?: string | null;
+  is_decision_maker?: boolean;
+  reports_to?: string | null;
+  last_outreach_date?: string | null;
+  last_response_date?: string | null;
+  next_follow_up_date?: string | null;
+  outreach_count?: number;
+  typical_budget_range?: string | null;
+  preferred_deal_type?: string | null;
+  payment_terms?: string | null;
+  lead_score?: number | null;
+  warmth?: string | null;
+  secondary_email?: string | null;
+  timezone?: string | null;
+  referral_source?: string | null;
+  source_detail?: string | null;
   // Joined
   company?: Company | null;
+}
+
+export interface ContactInteraction {
+  id: string;
+  workspace_id: string;
+  contact_id: string;
+  interaction_type: string;
+  direction: string;
+  subject: string | null;
+  notes: string | null;
+  email_id: string | null;
+  deal_id: string | null;
+  interaction_date: string;
+  created_at: string;
+}
+
+export interface ContactTag {
+  id: string;
+  workspace_id: string;
+  contact_id: string;
+  tag: string;
+  created_at: string;
 }
 
 export interface Company {
