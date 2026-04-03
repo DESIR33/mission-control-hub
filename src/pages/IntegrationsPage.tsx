@@ -525,12 +525,35 @@ export function IntegrationsContent() {
 
   const [dialogKey, setDialogKey] = useState<IntegrationKey | null>(null);
 
+  const { workspaceId } = useWorkspace();
+  const qc = useQueryClient();
+  const { data: tokenHealthRecords = [] } = useTokenHealth();
+  const [checkingHealth, setCheckingHealth] = useState(false);
+
   const activeDef = dialogKey
     ? INTEGRATIONS.find((d) => d.key === dialogKey) ?? null
     : null;
 
   const recordFor = (key: IntegrationKey) =>
     integrations.find((r) => r.integration_key === key);
+
+  const tokenHealthFor = (key: string) =>
+    tokenHealthRecords.find((t) => t.integration_key === key);
+
+  const handleHealthCheck = async () => {
+    setCheckingHealth(true);
+    try {
+      await supabase.functions.invoke("youtube-token-health", {
+        body: { workspace_id: workspaceId },
+      });
+      qc.invalidateQueries({ queryKey: ["integration_token_health"] });
+      toast.success("Token health check complete");
+    } catch {
+      toast.error("Health check failed");
+    } finally {
+      setCheckingHealth(false);
+    }
+  };
 
   const isUpdateMode = dialogKey ? !!recordFor(dialogKey)?.enabled : false;
 
