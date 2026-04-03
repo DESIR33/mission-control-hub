@@ -141,7 +141,7 @@ export function AddCompanyDialog() {
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="primary_email">Email</Label>
-              <Input id="primary_email" name="primary_email" type="email" className="bg-secondary border-border" />
+              <Input id="primary_email" name="primary_email" type="email" className="bg-secondary border-border" onChange={(e) => setDupEmail(e.target.value)} />
             </div>
           </div>
 
