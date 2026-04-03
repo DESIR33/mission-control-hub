@@ -126,7 +126,7 @@ export default function AddCompanyPage() {
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="website">Website</Label>
-              <Input id="website" name="website" placeholder="https://..." className="bg-secondary border-border" />
+              <Input id="website" name="website" placeholder="https://..." className="bg-secondary border-border" onChange={(e) => setDupWebsite(e.target.value)} />
             </div>
           </div>
 
