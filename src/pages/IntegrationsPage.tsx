@@ -162,9 +162,9 @@ const INTEGRATIONS: IntegrationDef[] = [
     docsUrl: "https://developers.google.com/youtube/v3",
     usedFor: "Used for: channel analytics · video stats · subscriber growth · audience demographics · revenue",
     connectHint:
-      "Enter your YouTube Data API key and channel ID for basic stats. For full analytics (demographics, traffic, revenue), add OAuth2 credentials.",
+      "Enter your YouTube Data API key, Channel ID, and OAuth credentials. After saving, click 'Authorize YouTube' to connect via Google.",
     warningNote:
-      "Required Google Cloud APIs: YouTube Data API v3 + YouTube Analytics API. OAuth scopes needed: yt-analytics.readonly, yt-analytics-monetary.readonly, youtube.readonly, youtube.force-ssl (for video updates).",
+      "Required Google Cloud APIs: YouTube Data API v3 + YouTube Analytics API. Add your app's redirect URI in Google Cloud Console: {your-domain}/auth/youtube/callback",
     fields: [
       {
         name: "api_key",
@@ -179,31 +179,23 @@ const INTEGRATIONS: IntegrationDef[] = [
         label: "Channel ID",
         placeholder: "UC…",
         required: true,
-        hint: "Your YouTube channel ID (starts with UC). Find it at youtube.com → Settings → Advanced settings, or youtube.com/account_advanced.",
+        hint: "Your YouTube channel ID (starts with UC). Find it at youtube.com → Settings → Advanced settings.",
       },
       {
         name: "client_id",
-        label: "OAuth Client ID (for Analytics + Revenue)",
+        label: "OAuth Client ID",
         placeholder: "123456789.apps.googleusercontent.com",
         secret: false,
-        required: false,
-        hint: "Google Cloud Console → APIs & Services → Credentials → OAuth 2.0 Client ID. Use 'Web application' type.",
+        required: true,
+        hint: "Google Cloud Console → APIs & Services → Credentials → OAuth 2.0 Client ID. Use 'Web application' type. Add redirect URI: " + window.location.origin + "/auth/youtube/callback",
       },
       {
         name: "client_secret",
         label: "OAuth Client Secret",
         placeholder: "GOCSPX-…",
         secret: true,
-        required: false,
+        required: true,
         hint: "The client secret for your OAuth 2.0 app.",
-      },
-      {
-        name: "refresh_token",
-        label: "OAuth Refresh Token",
-        placeholder: "1//0…",
-        secret: true,
-        required: false,
-        hint: "Generate at developers.google.com/oauthplayground — select ALL 4 scopes: yt-analytics.readonly, yt-analytics-monetary.readonly, youtube.readonly, youtube.force-ssl. Use your own OAuth credentials (gear icon → 'Use your own OAuth credentials').",
       },
     ],
   },
@@ -570,10 +562,13 @@ export function IntegrationsContent() {
   };
 
   const handleSave = (key: IntegrationKey, values: Record<string, string>) => {
-    // Auto-set redirect_uri for Outlook OAuth
-    const config = key === "ms_outlook"
-      ? { ...values, redirect_uri: `${window.location.origin}/auth/outlook/callback` }
-      : values;
+    // Auto-set redirect_uri for OAuth integrations
+    let config = values;
+    if (key === "ms_outlook") {
+      config = { ...values, redirect_uri: `${window.location.origin}/auth/outlook/callback` };
+    } else if (key === "youtube") {
+      config = { ...values, redirect_uri: `${window.location.origin}/auth/youtube/callback` };
+    }
 
     upsert.mutate(
       { integration_key: key, enabled: true, config },

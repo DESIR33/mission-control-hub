@@ -39,16 +39,16 @@ export function IntegrationCard({
   const [testResult, setTestResult] = useState<any>(null);
   const [oauthLoading, setOauthLoading] = useState(false);
 
-  const handleOutlookOAuth = async () => {
+  const handleOAuth = async (functionName: string) => {
     if (!workspaceId) return;
     setOauthLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("outlook-auth-url", {
+      const { data, error } = await supabase.functions.invoke(functionName, {
         body: { workspace_id: workspaceId },
       });
       if (error) throw error;
       if (data?.auth_url) {
-        window.open(data.auth_url, "_blank");
+        window.location.href = data.auth_url;
       } else {
         throw new Error(data?.error || "Failed to generate auth URL");
       }
@@ -252,7 +252,7 @@ export function IntegrationCard({
                     size="sm"
                     variant="outline"
                     className="h-7 text-xs bg-[#0078d4]/10 border-[#0078d4]/30 text-[#0078d4] hover:bg-[#0078d4]/20"
-                    onClick={handleOutlookOAuth}
+                    onClick={() => handleOAuth("outlook-auth-url")}
                     disabled={oauthLoading}
                   >
                     {oauthLoading ? (
@@ -261,6 +261,22 @@ export function IntegrationCard({
                       <LogIn className="w-3 h-3 mr-1" />
                     )}
                     Authorize Outlook
+                  </Button>
+                )}
+                {def.key === "youtube" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-xs bg-red-500/10 border-red-500/30 text-red-500 hover:bg-red-500/20"
+                    onClick={() => handleOAuth("youtube-auth-url")}
+                    disabled={oauthLoading}
+                  >
+                    {oauthLoading ? (
+                      <Loader2 className="w-3 h-3 animate-spin mr-1" />
+                    ) : (
+                      <LogIn className="w-3 h-3 mr-1" />
+                    )}
+                    Authorize YouTube
                   </Button>
                 )}
                 <Button
