@@ -124,6 +124,7 @@ const App = () => (
             <Route path="/auth" element={<PublicRoute><LazyPage section="Auth"><AuthPage /></LazyPage></PublicRoute>} />
             <Route path="/reset-password" element={<LazyPage section="Reset Password"><ResetPasswordPage /></LazyPage>} />
             <Route path="/auth/outlook/callback" element={<LazyPage section="Outlook"><OutlookCallbackPage /></LazyPage>} />
+            <Route path="/auth/youtube/callback" element={<LazyPage section="YouTube"><YouTubeCallbackPage /></LazyPage>} />
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route path="/" element={<LazyPage section="Dashboard"><Index /></LazyPage>} />
 
