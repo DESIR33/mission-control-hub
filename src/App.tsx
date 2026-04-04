@@ -16,6 +16,7 @@ const AuthPage = lazy(() => import("./pages/AuthPage"));
 const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
 const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
 const OutlookCallbackPage = lazy(() => import("./pages/OutlookCallbackPage"));
+const YouTubeCallbackPage = lazy(() => import("./pages/YouTubeCallbackPage"));
 const Tasks = lazy(() => import("./pages/Tasks"));
 const MonetizationPage = lazy(() => import("./pages/MonetizationPage"));
 const ContentProjectsPage = lazy(() => import("./pages/ContentProjectsPage"));
