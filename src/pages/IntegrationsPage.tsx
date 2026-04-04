@@ -562,10 +562,13 @@ export function IntegrationsContent() {
   };
 
   const handleSave = (key: IntegrationKey, values: Record<string, string>) => {
-    // Auto-set redirect_uri for Outlook OAuth
-    const config = key === "ms_outlook"
-      ? { ...values, redirect_uri: `${window.location.origin}/auth/outlook/callback` }
-      : values;
+    // Auto-set redirect_uri for OAuth integrations
+    let config = values;
+    if (key === "ms_outlook") {
+      config = { ...values, redirect_uri: `${window.location.origin}/auth/outlook/callback` };
+    } else if (key === "youtube") {
+      config = { ...values, redirect_uri: `${window.location.origin}/auth/youtube/callback` };
+    }
 
     upsert.mutate(
       { integration_key: key, enabled: true, config },
