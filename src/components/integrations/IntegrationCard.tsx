@@ -39,16 +39,16 @@ export function IntegrationCard({
   const [testResult, setTestResult] = useState<any>(null);
   const [oauthLoading, setOauthLoading] = useState(false);
 
-  const handleOutlookOAuth = async () => {
+  const handleOAuth = async (functionName: string) => {
     if (!workspaceId) return;
     setOauthLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("outlook-auth-url", {
+      const { data, error } = await supabase.functions.invoke(functionName, {
         body: { workspace_id: workspaceId },
       });
       if (error) throw error;
       if (data?.auth_url) {
-        window.open(data.auth_url, "_blank");
+        window.location.href = data.auth_url;
       } else {
         throw new Error(data?.error || "Failed to generate auth URL");
       }
