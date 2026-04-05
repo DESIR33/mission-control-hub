@@ -191,7 +191,17 @@ export function TaxPrepDashboard() {
               {deductionBreakdown.map((d) => {
                 const maxTotal = deductionBreakdown[0]?.total || 1;
                 return (
-                  <div key={d.name} className="flex items-center gap-3">
+                  <div
+                    key={d.name}
+                    className="flex items-center gap-3 cursor-pointer rounded-lg px-1 py-1 hover:bg-muted/40 transition-colors"
+                    onClick={() => {
+                      const params = new URLSearchParams();
+                      if (d.categoryId !== "uncategorized") params.set("category", d.categoryId);
+                      params.set("year", String(selectedYear));
+                      navigate(`/finance/expenses/expenses?${params.toString()}`);
+                    }}
+                    title={`View ${d.name} expenses for ${selectedYear}`}
+                  >
                     <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: d.color }} />
                     <span className="text-sm w-32 truncate">{d.name}</span>
                     <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
