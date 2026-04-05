@@ -17,6 +17,7 @@ const currentYear = new Date().getFullYear();
 const availableYears = Array.from({ length: 5 }, (_, i) => currentYear - i);
 
 export function TaxPrepDashboard() {
+  const navigate = useNavigate();
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const monthsNeeded = useMemo(() => {
     const now = new Date();
