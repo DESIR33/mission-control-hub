@@ -139,6 +139,43 @@ export function TaxPrepDashboard() {
         ))}
       </div>
 
+      {/* Business Income Breakdown */}
+      <div className="rounded-xl border border-border bg-card overflow-hidden">
+        <div className="p-4 border-b border-border">
+          <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <DollarSign className="w-4 h-4 text-muted-foreground" />
+            {selectedYear} Total Business Income
+          </h3>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-muted/30">
+                <th className="text-left px-4 py-2 text-xs font-medium text-muted-foreground uppercase">Source</th>
+                <th className="text-right px-4 py-2 text-xs font-medium text-muted-foreground uppercase">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                { label: "AdSense", amount: incomeBySource.adSense },
+                { label: "Affiliate Commissions", amount: incomeBySource.affiliates },
+                { label: "Sponsorships", amount: incomeBySource.sponsors },
+                { label: "Product Sales (gross)", amount: incomeBySource.products },
+              ].map((row) => (
+                <tr key={row.label} className="border-b border-border/50 hover:bg-muted/20">
+                  <td className="px-4 py-2.5">{row.label}</td>
+                  <td className="px-4 py-2.5 text-right font-mono font-medium">${row.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                </tr>
+              ))}
+              <tr className="bg-muted/40 font-semibold">
+                <td className="px-4 py-2.5">Grand Total</td>
+                <td className="px-4 py-2.5 text-right font-mono text-green-500">${incomeBySource.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       {/* Quarterly Breakdown Chart */}
       <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
