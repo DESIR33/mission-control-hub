@@ -120,15 +120,7 @@ export function useFinancialIntelligence(monthCount: number = 12, taxYear?: numb
       const discretionaryTotal = monthExpenses.reduce((s, e) => s + Number(e.amount), 0);
       const totalExpenses = discretionaryTotal + recurringTotal;
 
-      // Product income for this month
-      let productIncome = 0;
-      for (const tx of productTx) {
-        if (tx.transaction_date?.startsWith(monthKey)) {
-          productIncome += Number(tx.net_amount || tx.total_amount) || 0;
-        }
-      }
-
-      const income = rm.total + productIncome;
+      const income = rm.total;
       const netProfit = income - totalExpenses;
       const margin = income > 0 ? (netProfit / income) * 100 : 0;
 
