@@ -79,18 +79,6 @@ export function useFinancialIntelligence(monthCount: number = 12, taxYear?: numb
     enabled: !!workspaceId,
   });
 
-  const { data: productTx = [] } = useQuery({
-    queryKey: ["fi-product-tx", workspaceId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("product_transactions" as any)
-        .select("total_amount, net_amount, transaction_date")
-        .eq("workspace_id", workspaceId!);
-      if (error) throw error;
-      return (data ?? []) as any[];
-    },
-    enabled: !!workspaceId,
-  });
 
   const catMap = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
 
