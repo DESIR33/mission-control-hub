@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { format } from "date-fns";
 import { Plus, Trash2, Receipt, Search, Filter, Tag, CheckCircle2, Pencil, Download, Eye, Loader2, FileArchive, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,12 +18,14 @@ interface Props {
 
 export function ExpenseList({ categories }: Props) {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const { data: expenses = [], isLoading } = useExpenses();
   const deleteExpense = useDeleteExpense();
   const createExpense = useCreateExpense();
   const [search, setSearch] = useState("");
-  const [catFilter, setCatFilter] = useState("all");
+  const [catFilter, setCatFilter] = useState(searchParams.get("category") || "all");
+  const [yearFilter, setYearFilter] = useState(searchParams.get("year") || "all");
   const [viewReceipt, setViewReceipt] = useState<{ url: string; title: string } | null>(null);
   const [bulkDownloading, setBulkDownloading] = useState(false);
 
@@ -42,8 +44,12 @@ export function ExpenseList({ categories }: Props) {
     if (catFilter !== "all") {
       result = result.filter((e) => e.category_id === catFilter);
     }
+    if (yearFilter !== "all") {
+      const yr = Number(yearFilter);
+      result = result.filter((e) => new Date(e.expense_date || e.created_at).getFullYear() === yr);
+    }
     return result;
-  }, [expenses, search, catFilter]);
+  }, [expenses, search, catFilter, yearFilter]);
 
   const totalFiltered = filtered.reduce((s, e) => s + Number(e.amount), 0);
   const expensesWithReceipts = filtered.filter((e) => e.receipt_url);
@@ -128,6 +134,17 @@ export function ExpenseList({ categories }: Props) {
               <SelectItem value="all">All Categories</SelectItem>
               {categories.map((c) => (
                 <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={yearFilter} onValueChange={setYearFilter}>
+            <SelectTrigger className="w-[120px]">
+              <SelectValue placeholder="Year" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Years</SelectItem>
+              {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map((y) => (
+                <SelectItem key={y} value={String(y)}>{y}</SelectItem>
               ))}
             </SelectContent>
           </Select>

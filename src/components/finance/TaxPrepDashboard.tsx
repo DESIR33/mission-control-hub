@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Download, Calculator, FileText, CheckCircle2, AlertCircle, DollarSign, Percent } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
@@ -16,6 +17,7 @@ const currentYear = new Date().getFullYear();
 const availableYears = Array.from({ length: 5 }, (_, i) => currentYear - i);
 
 export function TaxPrepDashboard() {
+  const navigate = useNavigate();
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const monthsNeeded = useMemo(() => {
     const now = new Date();
@@ -51,7 +53,7 @@ export function TaxPrepDashboard() {
     return Array.from(byCategory.entries())
       .map(([id, total]) => {
         const cat = expenseCategories.find((c) => c.id === id);
-        return { name: cat?.name || (id === "uncategorized" ? "Uncategorized" : "Unknown"), total, color: cat?.color || "#94a3b8" };
+        return { categoryId: id, name: cat?.name || (id === "uncategorized" ? "Uncategorized" : "Unknown"), total, color: cat?.color || "#94a3b8" };
       })
       .sort((a, b) => b.total - a.total);
   }, [filteredExpenses, expenseCategories]);
@@ -189,7 +191,17 @@ export function TaxPrepDashboard() {
               {deductionBreakdown.map((d) => {
                 const maxTotal = deductionBreakdown[0]?.total || 1;
                 return (
-                  <div key={d.name} className="flex items-center gap-3">
+                  <div
+                    key={d.name}
+                    className="flex items-center gap-3 cursor-pointer rounded-lg px-1 py-1 hover:bg-muted/40 transition-colors"
+                    onClick={() => {
+                      const params = new URLSearchParams();
+                      if (d.categoryId !== "uncategorized") params.set("category", d.categoryId);
+                      params.set("year", String(selectedYear));
+                      navigate(`/finance/expenses/expenses?${params.toString()}`);
+                    }}
+                    title={`View ${d.name} expenses for ${selectedYear}`}
+                  >
                     <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: d.color }} />
                     <span className="text-sm w-32 truncate">{d.name}</span>
                     <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
