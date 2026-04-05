@@ -7,10 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useCreateExpense, useExpenseCategories } from "@/hooks/use-expenses";
+import { useCreateExpense, useExpenseCategories, useCreateSubscription } from "@/hooks/use-expenses";
 import { useCompanies } from "@/hooks/use-companies";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -23,12 +24,15 @@ export default function AddExpensePage() {
   const navigate = useNavigate();
   const { workspaceId } = useWorkspace();
   const createExpense = useCreateExpense();
+  const createSubscription = useCreateSubscription();
   const { data: categories = [] } = useExpenseCategories();
   const { data: companies = [] } = useCompanies();
   
   const [uploading, setUploading] = useState(false);
   const [createdExpenseId, setCreatedExpenseId] = useState<string | null>(null);
   const [viewingReceipt, setViewingReceipt] = useState(false);
+  const [isSubscription, setIsSubscription] = useState(false);
+  const [billingCycle, setBillingCycle] = useState("monthly");
   const [form, setForm] = useState({
     title: "",
     amount: "",
@@ -59,17 +63,37 @@ export default function AddExpensePage() {
 
   const handleSubmit = async () => {
     if (!form.title || !form.amount) return;
+    const vendorName = form.company_id ? (companies.find(c => c.id === form.company_id)?.name || null) : null;
+
     const result = await createExpense.mutateAsync({
       title: form.title,
       amount: parseFloat(form.amount),
       expense_date: form.expense_date,
       category_id: form.category_id || null,
-      vendor: form.company_id ? (companies.find(c => c.id === form.company_id)?.name || null) : null,
+      vendor: vendorName,
       notes: form.notes || null,
       is_tax_deductible: form.is_tax_deductible,
       receipt_url: form.receipt_url,
       company_id: form.company_id || null,
+      is_recurring: isSubscription,
+      recurring_interval: isSubscription ? billingCycle : null,
     } as any);
+
+    // Also create a recurring subscription entry
+    if (isSubscription) {
+      await createSubscription.mutateAsync({
+        name: form.title,
+        amount: parseFloat(form.amount),
+        billing_cycle: billingCycle,
+        category_id: form.category_id || null,
+        vendor: vendorName,
+        notes: form.notes || null,
+        is_tax_deductible: form.is_tax_deductible,
+        start_date: form.expense_date,
+        status: "active",
+      });
+    }
+
     setCreatedExpenseId(result.id);
   };
 
@@ -199,6 +223,34 @@ export default function AddExpensePage() {
           </div>
         </div>
 
+        {/* Subscription toggle */}
+        <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <Label className="text-sm font-medium">Recurring Subscription</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Toggle on to also add this as a tracked subscription
+              </p>
+            </div>
+            <Switch checked={isSubscription} onCheckedChange={setIsSubscription} />
+          </div>
+          {isSubscription && (
+            <div className="space-y-1.5 pt-1">
+              <Label className="text-xs">Billing Cycle</Label>
+              <Select value={billingCycle} onValueChange={setBillingCycle}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="monthly">Monthly</SelectItem>
+                  <SelectItem value="quarterly">Quarterly</SelectItem>
+                  <SelectItem value="yearly">Yearly</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
+
         <div className="space-y-1.5">
           <Label>Notes</Label>
           <Textarea
@@ -215,9 +267,9 @@ export default function AddExpensePage() {
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={createExpense.isPending || !form.title || !form.amount}
+            disabled={createExpense.isPending || createSubscription.isPending || !form.title || !form.amount}
           >
-            {createExpense.isPending ? "Saving..." : "Save Expense"}
+            {(createExpense.isPending || createSubscription.isPending) ? "Saving..." : isSubscription ? "Save Expense & Subscription" : "Save Expense"}
           </Button>
         </div>
       </div>
