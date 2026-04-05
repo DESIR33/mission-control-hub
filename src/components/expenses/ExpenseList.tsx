@@ -18,12 +18,14 @@ interface Props {
 
 export function ExpenseList({ categories }: Props) {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const { data: expenses = [], isLoading } = useExpenses();
   const deleteExpense = useDeleteExpense();
   const createExpense = useCreateExpense();
   const [search, setSearch] = useState("");
-  const [catFilter, setCatFilter] = useState("all");
+  const [catFilter, setCatFilter] = useState(searchParams.get("category") || "all");
+  const [yearFilter, setYearFilter] = useState(searchParams.get("year") || "all");
   const [viewReceipt, setViewReceipt] = useState<{ url: string; title: string } | null>(null);
   const [bulkDownloading, setBulkDownloading] = useState(false);
 
