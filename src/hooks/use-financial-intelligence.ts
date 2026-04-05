@@ -131,7 +131,7 @@ export function useFinancialIntelligence(monthCount: number = 12, taxYear?: numb
         sponsorIncome: rm.sponsors,
         affiliateIncome: rm.affiliates,
         adSenseIncome: rm.adSense,
-        productIncome,
+        productIncome: rm.products,
         expenses: totalExpenses,
         recurringExpenses: recurringTotal,
         discretionaryExpenses: discretionaryTotal,
