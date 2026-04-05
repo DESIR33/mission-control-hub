@@ -44,8 +44,12 @@ export function ExpenseList({ categories }: Props) {
     if (catFilter !== "all") {
       result = result.filter((e) => e.category_id === catFilter);
     }
+    if (yearFilter !== "all") {
+      const yr = Number(yearFilter);
+      result = result.filter((e) => new Date(e.expense_date || e.created_at).getFullYear() === yr);
+    }
     return result;
-  }, [expenses, search, catFilter]);
+  }, [expenses, search, catFilter, yearFilter]);
 
   const totalFiltered = filtered.reduce((s, e) => s + Number(e.amount), 0);
   const expensesWithReceipts = filtered.filter((e) => e.receipt_url);
