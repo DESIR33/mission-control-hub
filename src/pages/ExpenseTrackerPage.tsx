@@ -1,14 +1,16 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Receipt, CreditCard, Tag, TrendingUp } from "lucide-react";
+import { Receipt, CreditCard, Tag, TrendingUp, Building2 } from "lucide-react";
 import { useExpenseCategories } from "@/hooks/use-expenses";
 import { ExpenseList } from "@/components/expenses/ExpenseList";
 import { SubscriptionsList } from "@/components/expenses/SubscriptionsList";
 import { CategoryManager } from "@/components/expenses/CategoryManager";
 import { ExpenseProjections } from "@/components/expenses/ExpenseProjections";
+import { VendorSummary } from "@/components/expenses/VendorSummary";
 
 const TABS = [
   { value: "expenses", label: "Expenses", icon: Receipt },
+  { value: "vendors", label: "By Vendor", icon: Building2 },
   { value: "subscriptions", label: "Subscriptions", icon: CreditCard },
   { value: "projections", label: "Projections", icon: TrendingUp },
   { value: "categories", label: "Categories", icon: Tag },
@@ -47,6 +49,9 @@ export default function ExpenseTrackerPage() {
 
           <TabsContent value="expenses">
             <ExpenseList categories={categories} />
+          </TabsContent>
+          <TabsContent value="vendors">
+            <VendorSummary categories={categories} />
           </TabsContent>
           <TabsContent value="subscriptions">
             <SubscriptionsList categories={categories} />
