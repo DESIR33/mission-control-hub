@@ -36,6 +36,16 @@ export function TaxPrepDashboard() {
     });
   }, [expenses, selectedYear]);
 
+  const incomeBySource = useMemo(() => {
+    const yearMonths = plData.filter((m) => m.monthKey.startsWith(String(selectedYear)));
+    const adSense = yearMonths.reduce((s, m) => s + m.adSenseIncome, 0);
+    const affiliates = yearMonths.reduce((s, m) => s + m.affiliateIncome, 0);
+    const sponsors = yearMonths.reduce((s, m) => s + m.sponsorIncome, 0);
+    const products = yearMonths.reduce((s, m) => s + m.productIncome, 0);
+    const total = adSense + affiliates + sponsors + products;
+    return { adSense, affiliates, sponsors, products, total };
+  }, [plData, selectedYear]);
+
   const ytdTotals = useMemo(() => {
     const ytdIncome = filteredQuarterlyTax.reduce((s, q) => s + q.income, 0);
     const ytdDeductions = filteredQuarterlyTax.reduce((s, q) => s + q.deductions, 0);
