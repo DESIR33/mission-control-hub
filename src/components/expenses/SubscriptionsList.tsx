@@ -63,6 +63,8 @@ export function SubscriptionsList({ categories }: Props) {
         </Button>
       </div>
 
+      <DetectedSubscriptions categories={categories} />
+
       <div className="rounded-lg border border-border bg-card">
         <Table>
           <TableHeader>
