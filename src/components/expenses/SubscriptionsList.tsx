@@ -11,6 +11,7 @@ import {
   type ExpenseCategory,
 } from "@/hooks/use-expenses";
 import { AddSubscriptionDialog } from "./AddSubscriptionDialog";
+import { DetectedSubscriptions } from "./DetectedSubscriptions";
 
 interface Props {
   categories: ExpenseCategory[];
@@ -61,6 +62,8 @@ export function SubscriptionsList({ categories }: Props) {
           <Plus className="h-4 w-4" /> Add Subscription
         </Button>
       </div>
+
+      <DetectedSubscriptions categories={categories} />
 
       <div className="rounded-lg border border-border bg-card">
         <Table>
