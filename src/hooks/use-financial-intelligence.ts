@@ -127,7 +127,7 @@ export function useFinancialIntelligence(monthCount: number = 12, taxYear?: numb
         margin,
       };
     });
-  }, [revenueData, expenses, subs, productTx, monthCount]);
+  }, [revenueData, expenses, subs, monthCount]);
 
   // Budget categories
   const budgetCategories = useMemo((): BudgetCategory[] => {
