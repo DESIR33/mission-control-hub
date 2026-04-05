@@ -53,7 +53,7 @@ export function TaxPrepDashboard() {
     return Array.from(byCategory.entries())
       .map(([id, total]) => {
         const cat = expenseCategories.find((c) => c.id === id);
-        return { name: cat?.name || (id === "uncategorized" ? "Uncategorized" : "Unknown"), total, color: cat?.color || "#94a3b8" };
+        return { categoryId: id, name: cat?.name || (id === "uncategorized" ? "Uncategorized" : "Unknown"), total, color: cat?.color || "#94a3b8" };
       })
       .sort((a, b) => b.total - a.total);
   }, [filteredExpenses, expenseCategories]);
