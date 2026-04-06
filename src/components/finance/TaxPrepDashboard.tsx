@@ -50,7 +50,7 @@ export function TaxPrepDashboard() {
     const ytdIncome = filteredQuarterlyTax.reduce((s, q) => s + q.income, 0);
     const ytdDeductions = filteredQuarterlyTax.reduce((s, q) => s + q.deductions, 0);
     const ytdTax = filteredQuarterlyTax.reduce((s, q) => s + q.estimatedTax, 0);
-    return { ytdIncome, ytdDeductions, ytdTax, taxableIncome: ytdIncome - ytdDeductions };
+    return { ytdIncome: incomeBySource.total, ytdDeductions, ytdTax, taxableIncome: incomeBySource.total - ytdDeductions };
   }, [filteredQuarterlyTax]);
 
   const deductionBreakdown = useMemo(() => {
