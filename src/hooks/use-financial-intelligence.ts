@@ -181,9 +181,10 @@ export function useFinancialIntelligence(monthCount: number = 12, taxYear?: numb
       let income = 0;
       let deductions = 0;
 
-      // Sum income from P&L data for the quarter
+      // Sum income from P&L data for the quarter using local month parsing
       plData.forEach((m) => {
-        const mDate = new Date(m.monthKey + "-01");
+        const [yearPart, monthPart] = m.monthKey.split("-").map(Number);
+        const mDate = new Date(yearPart, monthPart - 1, 1);
         if (mDate >= qStart && mDate <= qEnd) {
           income += m.income;
         }
