@@ -11,7 +11,7 @@ import { useExpenses, useExpenseCategories } from "@/hooks/use-expenses";
 import { chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, barDefaults } from "@/lib/chart-theme";
 import { CartesianGrid } from "recharts";
 
-const fmtMoney = (v: number) => `$${v.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+const fmtMoney = (v: number) => `$${v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 const currentYear = new Date().getFullYear();
 const availableYears = Array.from({ length: 5 }, (_, i) => currentYear - i);
@@ -47,11 +47,11 @@ export function TaxPrepDashboard() {
   }, [plData, selectedYear]);
 
   const ytdTotals = useMemo(() => {
-    const ytdIncome = filteredQuarterlyTax.reduce((s, q) => s + q.income, 0);
+    const ytdIncome = incomeBySource.total;
     const ytdDeductions = filteredQuarterlyTax.reduce((s, q) => s + q.deductions, 0);
     const ytdTax = filteredQuarterlyTax.reduce((s, q) => s + q.estimatedTax, 0);
     return { ytdIncome, ytdDeductions, ytdTax, taxableIncome: ytdIncome - ytdDeductions };
-  }, [filteredQuarterlyTax]);
+  }, [filteredQuarterlyTax, incomeBySource.total]);
 
   const deductionBreakdown = useMemo(() => {
     const deductibleExpenses = filteredExpenses.filter((e) => e.is_tax_deductible);

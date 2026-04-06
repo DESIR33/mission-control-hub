@@ -107,8 +107,11 @@ export function useFinancialIntelligence(monthCount: number = 12, taxYear?: numb
 
       const discretionaryTotal = monthExpenses.reduce((s, e) => s + Number(e.amount), 0);
       const totalExpenses = discretionaryTotal + recurringTotal;
-
-      const income = rm.total;
+      const sponsorIncome = rm.sponsors;
+      const affiliateIncome = rm.affiliates;
+      const adSenseIncome = rm.adSense;
+      const productIncome = rm.products;
+      const income = sponsorIncome + affiliateIncome + adSenseIncome + productIncome;
       const netProfit = income - totalExpenses;
       const margin = income > 0 ? (netProfit / income) * 100 : 0;
 
@@ -116,10 +119,10 @@ export function useFinancialIntelligence(monthCount: number = 12, taxYear?: numb
         month: rm.month,
         monthKey,
         income,
-        sponsorIncome: rm.sponsors,
-        affiliateIncome: rm.affiliates,
-        adSenseIncome: rm.adSense,
-        productIncome: rm.products,
+        sponsorIncome,
+        affiliateIncome,
+        adSenseIncome,
+        productIncome,
         expenses: totalExpenses,
         recurringExpenses: recurringTotal,
         discretionaryExpenses: discretionaryTotal,
@@ -178,9 +181,10 @@ export function useFinancialIntelligence(monthCount: number = 12, taxYear?: numb
       let income = 0;
       let deductions = 0;
 
-      // Sum income from P&L data for the quarter
+      // Sum income from P&L data for the quarter using local month parsing
       plData.forEach((m) => {
-        const mDate = new Date(m.monthKey + "-01");
+        const [yearPart, monthPart] = m.monthKey.split("-").map(Number);
+        const mDate = new Date(yearPart, monthPart - 1, 1);
         if (mDate >= qStart && mDate <= qEnd) {
           income += m.income;
         }
