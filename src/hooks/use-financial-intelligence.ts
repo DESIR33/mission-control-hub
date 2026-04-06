@@ -79,18 +79,6 @@ export function useFinancialIntelligence(monthCount: number = 12, taxYear?: numb
     enabled: !!workspaceId,
   });
 
-  const { data: productTx = [] } = useQuery({
-    queryKey: ["fi-product-tx", workspaceId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("product_transactions" as any)
-        .select("total_amount, net_amount, transaction_date")
-        .eq("workspace_id", workspaceId!);
-      if (error) throw error;
-      return (data ?? []) as any[];
-    },
-    enabled: !!workspaceId,
-  });
 
   const catMap = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
 
@@ -120,15 +108,7 @@ export function useFinancialIntelligence(monthCount: number = 12, taxYear?: numb
       const discretionaryTotal = monthExpenses.reduce((s, e) => s + Number(e.amount), 0);
       const totalExpenses = discretionaryTotal + recurringTotal;
 
-      // Product income for this month
-      let productIncome = 0;
-      for (const tx of productTx) {
-        if (tx.transaction_date?.startsWith(monthKey)) {
-          productIncome += Number(tx.net_amount || tx.total_amount) || 0;
-        }
-      }
-
-      const income = rm.total + productIncome;
+      const income = rm.total;
       const netProfit = income - totalExpenses;
       const margin = income > 0 ? (netProfit / income) * 100 : 0;
 
@@ -139,7 +119,7 @@ export function useFinancialIntelligence(monthCount: number = 12, taxYear?: numb
         sponsorIncome: rm.sponsors,
         affiliateIncome: rm.affiliates,
         adSenseIncome: rm.adSense,
-        productIncome,
+        productIncome: rm.products,
         expenses: totalExpenses,
         recurringExpenses: recurringTotal,
         discretionaryExpenses: discretionaryTotal,
@@ -147,7 +127,7 @@ export function useFinancialIntelligence(monthCount: number = 12, taxYear?: numb
         margin,
       };
     });
-  }, [revenueData, expenses, subs, productTx, monthCount]);
+  }, [revenueData, expenses, subs, monthCount]);
 
   // Budget categories
   const budgetCategories = useMemo((): BudgetCategory[] => {
