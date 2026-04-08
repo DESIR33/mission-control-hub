@@ -1518,6 +1518,60 @@ export type Database = {
           },
         ]
       }
+      beehiiv_post_link_clicks: {
+        Row: {
+          beehiiv_post_id: string
+          created_at: string
+          id: string
+          newsletter_issue_id: string | null
+          total_clicks: number | null
+          total_unique_clicks: number | null
+          unique_clicks: number | null
+          updated_at: string
+          url: string
+          workspace_id: string
+        }
+        Insert: {
+          beehiiv_post_id: string
+          created_at?: string
+          id?: string
+          newsletter_issue_id?: string | null
+          total_clicks?: number | null
+          total_unique_clicks?: number | null
+          unique_clicks?: number | null
+          updated_at?: string
+          url: string
+          workspace_id: string
+        }
+        Update: {
+          beehiiv_post_id?: string
+          created_at?: string
+          id?: string
+          newsletter_issue_id?: string | null
+          total_clicks?: number | null
+          total_unique_clicks?: number | null
+          unique_clicks?: number | null
+          updated_at?: string
+          url?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "beehiiv_post_link_clicks_newsletter_issue_id_fkey"
+            columns: ["newsletter_issue_id"]
+            isOneToOne: false
+            referencedRelation: "newsletter_issues"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "beehiiv_post_link_clicks_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       beehiiv_publication_snapshots: {
         Row: {
           acquisition_sources: Json | null
@@ -4307,18 +4361,38 @@ export type Database = {
         Row: {
           ab_test_config: Json | null
           audience: string | null
+          beehiiv_created_at: string | null
+          beehiiv_last_synced_at: string | null
           beehiiv_post_id: string | null
+          beehiiv_status: string | null
+          beehiiv_sync_error: string | null
+          beehiiv_updated_at: string | null
           body: string
           bounced_count: number
           clicked_count: number
           conversion_to_deal: number
           conversion_to_lead: number
           created_at: string
+          email_bounce_rate: number | null
           email_click_count: number | null
+          email_click_rate: number | null
+          email_click_rate_verified: number | null
+          email_delivered_count: number | null
+          email_delivery_rate: number | null
+          email_hard_bounced: number | null
           email_open_count: number | null
+          email_open_rate: number | null
           email_sent_count: number | null
+          email_soft_bounced: number | null
+          email_spam_reported: number | null
+          email_suppressions: number | null
+          email_total_clicks_raw: number | null
+          email_total_clicks_verified: number | null
           email_unique_click_count: number | null
+          email_unique_clicks_raw: number | null
+          email_unique_clicks_verified: number | null
           email_unique_open_count: number | null
+          email_unsubscribe_rate: number | null
           id: string
           name: string
           opened_count: number
@@ -4335,24 +4409,48 @@ export type Database = {
           total_recipients: number
           unsubscribed_count: number
           updated_at: string
+          web_click_count: number | null
+          web_unique_click_count: number | null
+          web_upgrades: number | null
           web_url: string | null
+          web_view_count: number | null
           workspace_id: string
         }
         Insert: {
           ab_test_config?: Json | null
           audience?: string | null
+          beehiiv_created_at?: string | null
+          beehiiv_last_synced_at?: string | null
           beehiiv_post_id?: string | null
+          beehiiv_status?: string | null
+          beehiiv_sync_error?: string | null
+          beehiiv_updated_at?: string | null
           body?: string
           bounced_count?: number
           clicked_count?: number
           conversion_to_deal?: number
           conversion_to_lead?: number
           created_at?: string
+          email_bounce_rate?: number | null
           email_click_count?: number | null
+          email_click_rate?: number | null
+          email_click_rate_verified?: number | null
+          email_delivered_count?: number | null
+          email_delivery_rate?: number | null
+          email_hard_bounced?: number | null
           email_open_count?: number | null
+          email_open_rate?: number | null
           email_sent_count?: number | null
+          email_soft_bounced?: number | null
+          email_spam_reported?: number | null
+          email_suppressions?: number | null
+          email_total_clicks_raw?: number | null
+          email_total_clicks_verified?: number | null
           email_unique_click_count?: number | null
+          email_unique_clicks_raw?: number | null
+          email_unique_clicks_verified?: number | null
           email_unique_open_count?: number | null
+          email_unsubscribe_rate?: number | null
           id?: string
           name: string
           opened_count?: number
@@ -4369,24 +4467,48 @@ export type Database = {
           total_recipients?: number
           unsubscribed_count?: number
           updated_at?: string
+          web_click_count?: number | null
+          web_unique_click_count?: number | null
+          web_upgrades?: number | null
           web_url?: string | null
+          web_view_count?: number | null
           workspace_id: string
         }
         Update: {
           ab_test_config?: Json | null
           audience?: string | null
+          beehiiv_created_at?: string | null
+          beehiiv_last_synced_at?: string | null
           beehiiv_post_id?: string | null
+          beehiiv_status?: string | null
+          beehiiv_sync_error?: string | null
+          beehiiv_updated_at?: string | null
           body?: string
           bounced_count?: number
           clicked_count?: number
           conversion_to_deal?: number
           conversion_to_lead?: number
           created_at?: string
+          email_bounce_rate?: number | null
           email_click_count?: number | null
+          email_click_rate?: number | null
+          email_click_rate_verified?: number | null
+          email_delivered_count?: number | null
+          email_delivery_rate?: number | null
+          email_hard_bounced?: number | null
           email_open_count?: number | null
+          email_open_rate?: number | null
           email_sent_count?: number | null
+          email_soft_bounced?: number | null
+          email_spam_reported?: number | null
+          email_suppressions?: number | null
+          email_total_clicks_raw?: number | null
+          email_total_clicks_verified?: number | null
           email_unique_click_count?: number | null
+          email_unique_clicks_raw?: number | null
+          email_unique_clicks_verified?: number | null
           email_unique_open_count?: number | null
+          email_unsubscribe_rate?: number | null
           id?: string
           name?: string
           opened_count?: number
@@ -4403,7 +4525,11 @@ export type Database = {
           total_recipients?: number
           unsubscribed_count?: number
           updated_at?: string
+          web_click_count?: number | null
+          web_unique_click_count?: number | null
+          web_upgrades?: number | null
           web_url?: string | null
+          web_view_count?: number | null
           workspace_id?: string
         }
         Relationships: [
