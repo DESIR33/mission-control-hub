@@ -1518,6 +1518,109 @@ export type Database = {
           },
         ]
       }
+      beehiiv_publication_snapshots: {
+        Row: {
+          acquisition_sources: Json | null
+          active_subscribers: number
+          all_time_click_rate: number | null
+          all_time_open_rate: number | null
+          churned_subscribers: number | null
+          created_at: string
+          id: string
+          net_subscribers: number | null
+          new_subscribers: number | null
+          publication_id: string
+          snapshot_date: string
+          workspace_id: string
+        }
+        Insert: {
+          acquisition_sources?: Json | null
+          active_subscribers?: number
+          all_time_click_rate?: number | null
+          all_time_open_rate?: number | null
+          churned_subscribers?: number | null
+          created_at?: string
+          id?: string
+          net_subscribers?: number | null
+          new_subscribers?: number | null
+          publication_id: string
+          snapshot_date?: string
+          workspace_id: string
+        }
+        Update: {
+          acquisition_sources?: Json | null
+          active_subscribers?: number
+          all_time_click_rate?: number | null
+          all_time_open_rate?: number | null
+          churned_subscribers?: number | null
+          created_at?: string
+          id?: string
+          net_subscribers?: number | null
+          new_subscribers?: number | null
+          publication_id?: string
+          snapshot_date?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "beehiiv_publication_snapshots_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      beehiiv_sync_logs: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          new_subscribers_count: number | null
+          started_at: string
+          status: string
+          status_changes_count: number | null
+          subscribers_synced: number | null
+          sync_type: string
+          workspace_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          new_subscribers_count?: number | null
+          started_at?: string
+          status?: string
+          status_changes_count?: number | null
+          subscribers_synced?: number | null
+          sync_type?: string
+          workspace_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          new_subscribers_count?: number | null
+          started_at?: string
+          status?: string
+          status_changes_count?: number | null
+          subscribers_synced?: number | null
+          sync_type?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "beehiiv_sync_logs_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       churn_recovery_outcomes: {
         Row: {
           created_at: string
