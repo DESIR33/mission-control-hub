@@ -143,3 +143,6 @@ verify_jwt = false
 
 [functions.beehiiv-sync]
 verify_jwt = false
+
+[functions.beehiiv-post-sync]
+verify_jwt = false
