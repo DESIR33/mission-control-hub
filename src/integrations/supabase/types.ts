@@ -9435,6 +9435,7 @@ export type Database = {
       trigger_beehiiv_post_sync: { Args: never; Returns: undefined }
       trigger_beehiiv_subscriber_sync: { Args: never; Returns: undefined }
       trigger_beehiiv_sync: { Args: never; Returns: undefined }
+      trigger_memory_decay_processor: { Args: never; Returns: undefined }
     }
     Enums: {
       [_ in never]: never
