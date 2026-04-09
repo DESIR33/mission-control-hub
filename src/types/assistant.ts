@@ -11,6 +11,23 @@ export interface Memory {
   created_at: string;
   updated_at: string;
   rrf_score?: number;
+  current_version?: number;
+  agent_scope?: string[];
+}
+
+export interface MemoryVersion {
+  id: string;
+  memory_id: string;
+  version_number: number;
+  content: string;
+  origin?: string;
+  tags?: string[];
+  memory_type?: string;
+  confidence_score?: number;
+  importance_score?: number;
+  changed_by: string;
+  change_reason?: string;
+  created_at: string;
 }
 
 export interface DailyLog {

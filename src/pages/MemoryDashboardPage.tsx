@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Brain, Search, Pin, PinOff, Trash2, Pencil, LayoutGrid, TableIcon,
-  Star, Eye, Clock, Shield, AlertTriangle, Filter, X, ChevronRight
+  Star, Eye, Clock, Shield, AlertTriangle, Filter, X, ChevronRight, History, Bot, RotateCcw
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -47,9 +47,33 @@ interface MemoryRow {
   valid_until: string | null;
   decay_rate: number | null;
   related_memory_ids: string[] | null;
+  current_version: number | null;
+  agent_scope: string[] | null;
   created_at: string;
   updated_at: string;
 }
+
+interface MemoryVersionRow {
+  id: string;
+  version_number: number;
+  content: string;
+  origin: string | null;
+  tags: string[] | null;
+  memory_type: string | null;
+  confidence_score: number | null;
+  importance_score: number | null;
+  changed_by: string;
+  change_reason: string | null;
+  created_at: string;
+}
+
+const AGENT_SLUGS = [
+  "competitor-analyst",
+  "content-strategist",
+  "growth-optimizer",
+  "audience-analyst",
+  "revenue-optimizer",
+];
 
 const TYPE_COLORS: Record<string, string> = {
   semantic: "bg-blue-500/20 text-blue-400 border-blue-500/30",
@@ -83,6 +107,7 @@ export default function MemoryDashboardPage() {
   const [statusFilters, setStatusFilters] = useState<ReviewStatus[]>([]);
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [entityFilter, setEntityFilter] = useState<string>("all");
+  const [agentScopeFilter, setAgentScopeFilter] = useState<string>("all");
   const [pinnedOnly, setPinnedOnly] = useState(false);
   const [sortBy, setSortBy] = useState<string>("created_at");
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
@@ -99,7 +124,7 @@ export default function MemoryDashboardPage() {
 
   // Fetch memories
   const { data: memories = [], isLoading } = useQuery({
-    queryKey: ["memory-dashboard", workspaceId, typeFilters, statusFilters, sourceFilter, entityFilter, pinnedOnly, sortBy, debouncedSearch],
+    queryKey: ["memory-dashboard", workspaceId, typeFilters, statusFilters, sourceFilter, entityFilter, agentScopeFilter, pinnedOnly, sortBy, debouncedSearch],
     queryFn: async () => {
       if (!workspaceId) return [];
 
@@ -131,6 +156,13 @@ export default function MemoryDashboardPage() {
       if (statusFilters.length > 0) q = q.in("review_status", statusFilters);
       if (sourceFilter !== "all") q = q.eq("source_type", sourceFilter);
       if (entityFilter !== "all") q = q.eq("entity_type", entityFilter);
+      if (agentScopeFilter !== "all") {
+        if (agentScopeFilter === "global") {
+          q = q.is("agent_scope", null);
+        } else {
+          q = q.contains("agent_scope", [agentScopeFilter]);
+        }
+      }
       if (pinnedOnly) q = q.eq("is_pinned", true);
 
       const sortMap: Record<string, string> = {
@@ -205,6 +237,35 @@ export default function MemoryDashboardPage() {
       return data || [];
     },
     enabled: !!selectedMemory,
+  });
+
+  // Version history query
+  const { data: versionHistory = [] } = useQuery({
+    queryKey: ["memory-versions", selectedMemory?.id],
+    queryFn: async () => {
+      if (!selectedMemory) return [];
+      const { data } = await query("memory_versions")
+        .select("id, version_number, content, origin, tags, memory_type, confidence_score, importance_score, changed_by, change_reason, created_at")
+        .eq("memory_id", selectedMemory.id)
+        .order("version_number", { ascending: false });
+      return (data as MemoryVersionRow[]) || [];
+    },
+    enabled: !!selectedMemory,
+  });
+
+  // Rollback mutation
+  const rollbackMutation = useMutation({
+    mutationFn: async ({ memoryId, versionNumber }: { memoryId: string; versionNumber: number }) => {
+      await supabase.functions.invoke("assistant-memory-manage", {
+        body: { action: "rollback", workspace_id: workspaceId, id: memoryId, version_number: versionNumber },
+      });
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["memory-dashboard"] });
+      qc.invalidateQueries({ queryKey: ["memory-versions"] });
+      setSelectedMemory(null);
+      toast.success("Memory rolled back");
+    },
   });
 
   // Keyboard shortcuts
@@ -294,6 +355,20 @@ export default function MemoryDashboardPage() {
                 <SelectItem value="company">Company</SelectItem>
                 <SelectItem value="deal">Deal</SelectItem>
                 <SelectItem value="video">Video</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Agent Scope</Label>
+            <Select value={agentScopeFilter} onValueChange={setAgentScopeFilter}>
+              <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Scopes</SelectItem>
+                <SelectItem value="global">Global Only</SelectItem>
+                {AGENT_SLUGS.map(slug => (
+                  <SelectItem key={slug} value={slug}>{slug}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -390,6 +465,8 @@ export default function MemoryDashboardPage() {
                 <MetaRow label="Source" value={selectedMemory.source_type || selectedMemory.origin} />
                 <MetaRow label="Entity" value={selectedMemory.entity_type ? `${selectedMemory.entity_type}${selectedMemory.entity_id ? ` (${selectedMemory.entity_id.slice(0, 8)}...)` : ""}` : "Global"} />
                 <MetaRow label="Tags" value={selectedMemory.tags?.length ? <div className="flex flex-wrap gap-1">{selectedMemory.tags.map(t => <Badge key={t} variant="secondary" className="text-xs">{t}</Badge>)}</div> : "None"} />
+                <MetaRow label="Agent Scope" value={selectedMemory.agent_scope?.length ? <div className="flex flex-wrap gap-1">{selectedMemory.agent_scope.map(s => <Badge key={s} variant="outline" className="text-xs bg-violet-500/10 text-violet-400 border-violet-500/30"><Bot className="h-2.5 w-2.5 mr-0.5" />{s}</Badge>)}</div> : "Global"} />
+                <MetaRow label="Version" value={selectedMemory.current_version ?? 1} />
                 <MetaRow label="Access Count" value={selectedMemory.access_count ?? 0} />
                 <MetaRow label="Last Accessed" value={selectedMemory.last_accessed_at ? formatDistanceToNow(new Date(selectedMemory.last_accessed_at), { addSuffix: true }) : "Never"} />
                 <MetaRow label="Valid Until" value={selectedMemory.valid_until ? format(new Date(selectedMemory.valid_until), "PPp") : "Indefinite"} />
@@ -417,6 +494,41 @@ export default function MemoryDashboardPage() {
                         <span className="mx-1">·</span>
                         <span>{log.accessed_by}</span>
                         {log.query_context && <p className="text-muted-foreground mt-0.5 truncate">{log.query_context}</p>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Version History */}
+              {versionHistory.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+                    <History className="h-3 w-3" /> Version History
+                  </h4>
+                  <div className="space-y-1.5">
+                    {versionHistory.map((v: MemoryVersionRow) => (
+                      <div key={v.id} className="text-xs bg-muted/30 rounded p-2 group/ver">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-medium">v{v.version_number}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-muted-foreground">{formatDistanceToNow(new Date(v.created_at), { addSuffix: true })}</span>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-5 w-5 opacity-0 group-hover/ver:opacity-100 transition-opacity"
+                              onClick={() => rollbackMutation.mutate({ memoryId: selectedMemory.id, versionNumber: v.version_number })}
+                              title={`Restore version ${v.version_number}`}
+                            >
+                              <RotateCcw className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                        <p className="text-muted-foreground line-clamp-2">{v.content}</p>
+                        <div className="flex items-center gap-2 mt-1 text-muted-foreground">
+                          <span>by {v.changed_by}</span>
+                          {v.change_reason && <><span>·</span><span>{v.change_reason}</span></>}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -491,10 +603,13 @@ function MemoryCard({ memory: m, onClick, onPin, onDelete, onEdit }: { memory: M
   return (
     <Card className="p-3 cursor-pointer hover:ring-1 hover:ring-primary/30 transition-all group relative" onClick={onClick}>
       {m.is_pinned && <Pin className="absolute top-2 right-2 h-3 w-3 text-yellow-400" />}
-      <div className="flex items-center gap-1.5 mb-2">
+      <div className="flex items-center gap-1.5 mb-2 flex-wrap">
         <Badge variant="outline" className={`text-xs ${TYPE_COLORS[m.memory_type || "contextual"]}`}>{m.memory_type || "—"}</Badge>
         <Badge variant="outline" className="text-xs">{m.review_status}</Badge>
         {m.source_type && <Badge variant="secondary" className="text-xs">{m.source_type}</Badge>}
+        {m.agent_scope?.length ? m.agent_scope.map(s => (
+          <Badge key={s} variant="outline" className="text-xs bg-violet-500/10 text-violet-400 border-violet-500/30"><Bot className="h-2.5 w-2.5 mr-0.5" />{s}</Badge>
+        )) : null}
       </div>
       <p className="text-sm text-foreground mb-2 line-clamp-3">{m.content}</p>
       <div className="flex items-center gap-2 mb-2">

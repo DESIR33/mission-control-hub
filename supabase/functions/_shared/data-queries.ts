@@ -154,7 +154,7 @@ export async function getEmbedding(text: string): Promise<number[] | null> {
   } catch { return null; }
 }
 
-export async function memorySearch(supabase: any, workspaceId: string, input: any) {
+export async function memorySearch(supabase: any, workspaceId: string, input: any, agentSlug?: string) {
   try {
     const embedding = await getEmbedding(input.query);
     const embeddingStr = embedding ? `[${embedding.join(",")}]` : "";
@@ -164,6 +164,7 @@ export async function memorySearch(supabase: any, workspaceId: string, input: an
       ws_id: workspaceId,
       origin_filter: input.origin_filter || "any",
       match_count: 5,
+      agent_slug_filter: agentSlug || null,
     });
     if (error) return { error: error.message };
     return { results: data || [] };
@@ -172,7 +173,7 @@ export async function memorySearch(supabase: any, workspaceId: string, input: an
   }
 }
 
-export async function saveInsight(supabase: any, workspaceId: string, input: any) {
+export async function saveInsight(supabase: any, workspaceId: string, input: any, agentSlug?: string) {
   try {
     const embedding = await getEmbedding(input.content);
     const insertData: any = {
@@ -182,8 +183,20 @@ export async function saveInsight(supabase: any, workspaceId: string, input: any
       tags: input.tags || [],
     };
     if (embedding) insertData.embedding = `[${embedding.join(",")}]`;
-    const { error } = await supabase.from("assistant_memory").insert(insertData);
+    if (agentSlug) insertData.agent_scope = [agentSlug];
+    const { data, error } = await supabase
+      .from("assistant_memory")
+      .insert(insertData)
+      .select("id")
+      .single();
     if (error) return { error: error.message };
+    // Sync junction table
+    if (agentSlug && data?.id) {
+      await supabase.from("memory_agent_scope").insert({
+        memory_id: data.id,
+        agent_slug: agentSlug,
+      });
+    }
     return { success: true };
   } catch (e: any) {
     return { error: e.message };

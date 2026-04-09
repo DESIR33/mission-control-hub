@@ -241,7 +241,7 @@ const coreToolDefinitions = [
 
 // ── Tool call handler ────────────────────────────────────────
 
-async function handleToolCall(toolName: string, toolInput: any, workspaceId: string, supabase: any): Promise<any> {
+async function handleToolCall(toolName: string, toolInput: any, workspaceId: string, supabase: any, agentSlug?: string): Promise<any> {
   switch (toolName) {
     case "query_youtube_stats": return queryYoutubeStats(supabase, workspaceId, toolInput);
     case "query_competitors": return queryCompetitors(supabase, workspaceId);
@@ -253,8 +253,8 @@ async function handleToolCall(toolName: string, toolInput: any, workspaceId: str
     case "query_all_video_analytics": return queryAllVideoAnalytics(supabase, workspaceId, toolInput);
     case "query_experiments": return queryExperiments(supabase, workspaceId, toolInput);
     case "create_proposal": return createProposal(supabase, workspaceId, toolInput);
-    case "save_insight": return saveInsight(supabase, workspaceId, toolInput);
-    case "memory_search": return memorySearch(supabase, workspaceId, toolInput);
+    case "save_insight": return saveInsight(supabase, workspaceId, toolInput, agentSlug);
+    case "memory_search": return memorySearch(supabase, workspaceId, toolInput, agentSlug);
     default: return { error: `Unknown tool: ${toolName}` };
   }
 }
@@ -468,7 +468,7 @@ Today's date: ${today}${goalContext}${soulContext}${userProfileContext}${instruc
         for (const tc of toolCalls) {
           const args = typeof tc.function.arguments === "string"
             ? JSON.parse(tc.function.arguments) : tc.function.arguments;
-          const result = await handleToolCall(tc.function.name, args, workspace_id, supabase);
+          const result = await handleToolCall(tc.function.name, args, workspace_id, supabase, resolvedSlug);
           toolCallsMade.push(tc.function.name);
           if (tc.function.name === "create_proposal" && result.success) proposalsCreated++;
           messages.push({ role: "tool", tool_call_id: tc.id, content: JSON.stringify(result) });
@@ -482,7 +482,7 @@ Today's date: ${today}${goalContext}${soulContext}${userProfileContext}${instruc
           await saveInsight(supabase, workspace_id, {
             content: summaryContent,
             tags: [resolvedSlug, "auto-summary", today],
-          });
+          }, resolvedSlug);
         } catch { /* non-critical */ }
       }
 

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
-import type { Memory, DailyLog, ServiceSnapshot, MemoryOrigin } from "@/types/assistant";
+import type { Memory, MemoryVersion, DailyLog, ServiceSnapshot, MemoryOrigin } from "@/types/assistant";
 
 const query = (table: string) => (supabase as any).from(table);
 
@@ -20,7 +20,7 @@ export function useAssistantMemory() {
   const loadMemories = useCallback(async () => {
     if (!workspaceId) return;
     let q = query("assistant_memory")
-      .select("id, content, origin, tags, created_at, updated_at")
+      .select("id, content, origin, tags, current_version, agent_scope, created_at, updated_at")
       .eq("workspace_id", workspaceId)
       .order("updated_at", { ascending: false })
       .limit(100);
@@ -56,12 +56,12 @@ export function useAssistantMemory() {
   }, [workspaceId]);
 
   const createMemory = useCallback(
-    async (content: string, origin: MemoryOrigin, tags: string[] = []) => {
+    async (content: string, origin: MemoryOrigin, tags: string[] = [], agentScope?: string[]) => {
       if (!workspaceId) return;
       setIsLoading(true);
       try {
         await supabase.functions.invoke("assistant-memory-manage", {
-          body: { action: "create", workspace_id: workspaceId, content, origin, tags },
+          body: { action: "create", workspace_id: workspaceId, content, origin, tags, agent_scope: agentScope },
         });
         await loadMemories();
       } finally {
@@ -72,12 +72,12 @@ export function useAssistantMemory() {
   );
 
   const updateMemory = useCallback(
-    async (id: string, content: string, origin: MemoryOrigin, tags: string[] = []) => {
+    async (id: string, content: string, origin: MemoryOrigin, tags: string[] = [], agentScope?: string[]) => {
       if (!workspaceId) return;
       setIsLoading(true);
       try {
         await supabase.functions.invoke("assistant-memory-manage", {
-          body: { action: "update", workspace_id: workspaceId, id, content, origin, tags },
+          body: { action: "update", workspace_id: workspaceId, id, content, origin, tags, agent_scope: agentScope },
         });
         await loadMemories();
       } finally {
@@ -94,6 +94,33 @@ export function useAssistantMemory() {
         body: { action: "delete", workspace_id: workspaceId, id },
       });
       await loadMemories();
+    },
+    [workspaceId, loadMemories]
+  );
+
+  const getVersions = useCallback(
+    async (memoryId: string): Promise<MemoryVersion[]> => {
+      if (!workspaceId) return [];
+      const { data } = await supabase.functions.invoke("assistant-memory-manage", {
+        body: { action: "get_versions", workspace_id: workspaceId, id: memoryId },
+      });
+      return (data as MemoryVersion[]) || [];
+    },
+    [workspaceId]
+  );
+
+  const rollbackMemory = useCallback(
+    async (memoryId: string, versionNumber: number) => {
+      if (!workspaceId) return;
+      setIsLoading(true);
+      try {
+        await supabase.functions.invoke("assistant-memory-manage", {
+          body: { action: "rollback", workspace_id: workspaceId, id: memoryId, version_number: versionNumber },
+        });
+        await loadMemories();
+      } finally {
+        setIsLoading(false);
+      }
     },
     [workspaceId, loadMemories]
   );
@@ -152,6 +179,7 @@ export function useAssistantMemory() {
     memories, logs, snapshots, isLoading, originFilter, searchResults, logDate,
     setOriginFilter, setLogDate,
     createMemory, updateMemory, deleteMemory, searchMemories,
+    getVersions, rollbackMemory,
     createLog, deleteLog, loadSnapshots,
   };
 }
