@@ -58,6 +58,7 @@ const SubscriberSequencesPage = lazy(() => import("./pages/SubscriberSequencesPa
 const SubscriberDashboardPage = lazy(() => import("./pages/SubscriberDashboardPage"));
 const SubscribersListPage = lazy(() => import("./pages/SubscribersListPage"));
 const OperationsCenterPage = lazy(() => import("./pages/OperationsCenterPage"));
+const MemoryCapturePage = lazy(() => import("./pages/MemoryCapturePage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -188,6 +189,7 @@ const App = () => (
               <Route path="/ai" element={<Navigate to="/ai/chat" replace />} />
               <Route path="/ai/proposals/:proposalId" element={<LazyPage section="Proposal Detail"><ProposalDetailPage /></LazyPage>} />
               <Route path="/ai/:tab" element={<LazyPage section="AI Hub"><AIHubPage /></LazyPage>} />
+              <Route path="/memory/capture" element={<LazyPage section="Memory Capture"><MemoryCapturePage /></LazyPage>} />
 
               {/* Task detail/create routes */}
               <Route path="/tasks/:id" element={<LazyPage section="Tasks"><Tasks /></LazyPage>} />
