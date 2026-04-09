@@ -1174,6 +1174,7 @@ export type Database = {
       assistant_memory: {
         Row: {
           access_count: number | null
+          agent_id: string
           confidence_score: number | null
           content: string
           created_at: string
@@ -1193,14 +1194,17 @@ export type Database = {
           reviewed_by: string | null
           source_session_id: string | null
           source_type: string | null
+          status: string
           tags: string[] | null
           updated_at: string
           valid_from: string | null
           valid_until: string | null
+          visibility: string
           workspace_id: string
         }
         Insert: {
           access_count?: number | null
+          agent_id?: string
           confidence_score?: number | null
           content: string
           created_at?: string
@@ -1220,14 +1224,17 @@ export type Database = {
           reviewed_by?: string | null
           source_session_id?: string | null
           source_type?: string | null
+          status?: string
           tags?: string[] | null
           updated_at?: string
           valid_from?: string | null
           valid_until?: string | null
+          visibility?: string
           workspace_id: string
         }
         Update: {
           access_count?: number | null
+          agent_id?: string
           confidence_score?: number | null
           content?: string
           created_at?: string
@@ -1247,10 +1254,12 @@ export type Database = {
           reviewed_by?: string | null
           source_session_id?: string | null
           source_type?: string | null
+          status?: string
           tags?: string[] | null
           updated_at?: string
           valid_from?: string | null
           valid_until?: string | null
+          visibility?: string
           workspace_id?: string
         }
         Relationships: [
