@@ -19,7 +19,7 @@ import {
   Panel,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import dagre from "dagre";
+import * as dagre from "dagre";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { Badge } from "@/components/ui/badge";
