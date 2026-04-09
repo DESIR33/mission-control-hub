@@ -229,7 +229,7 @@ const App = () => (
               <Route path="/chat" element={<Navigate to="/ai/chat" replace />} />
               <Route path="/ai-bridge" element={<Navigate to="/ai/proposals" replace />} />
               <Route path="/agents" element={<Navigate to="/ai/agents" replace />} />
-              <Route path="/memory" element={<Navigate to="/ai/memory" replace />} />
+              <Route path="/memory" element={<LazyPage section="Memory Dashboard"><MemoryDashboardPage /></LazyPage>} />
               <Route path="/monetization" element={<Navigate to="/revenue/overview" replace />} />
               <Route path="/sequences" element={<Navigate to="/inbox" replace />} />
               <Route path="/projects" element={<Navigate to="/content" replace />} />
