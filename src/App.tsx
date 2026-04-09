@@ -212,10 +212,14 @@ const App = () => (
               <Route path="/memory/search" element={<LazyPage section="Memory Search"><MemorySearchPage /></LazyPage>} />
               <Route path="/memory/analytics" element={<LazyPage section="Memory Analytics"><MemoryAnalyticsPage /></LazyPage>} />
 
-              {/* Task detail/create routes */}
-              <Route path="/tasks/:id" element={<LazyPage section="Tasks"><Tasks /></LazyPage>} />
-              <Route path="/tasks/create" element={<LazyPage section="Tasks"><Tasks /></LazyPage>} />
-              <Route path="/projects/:projectId/tasks/create" element={<LazyPage section="Tasks"><Tasks /></LazyPage>} />
+              {/* Task routes */}
+              <Route path="/tasks/inbox" element={<LazyPage section="Tasks"><TasksPage defaultView="inbox" /></LazyPage>} />
+              <Route path="/tasks/all" element={<LazyPage section="Tasks"><TasksPage defaultView="list" /></LazyPage>} />
+              <Route path="/tasks/board" element={<LazyPage section="Tasks"><TasksPage defaultView="board" /></LazyPage>} />
+              <Route path="/tasks/calendar" element={<LazyPage section="Tasks"><TasksPage defaultView="calendar" /></LazyPage>} />
+              <Route path="/tasks/projects" element={<LazyPage section="Tasks"><TaskProjectsPage /></LazyPage>} />
+              <Route path="/tasks/projects/:projectId" element={<LazyPage section="Tasks"><TaskProjectDetailPage /></LazyPage>} />
+              <Route path="/tasks/:taskId" element={<LazyPage section="Tasks"><TaskDetailPage /></LazyPage>} />
 
               {/* Growth Sprints */}
               <Route path="/sprints" element={<LazyPage section="Sprints"><WeeklySprintPage /></LazyPage>} />
