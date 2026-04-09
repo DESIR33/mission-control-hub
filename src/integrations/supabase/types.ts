@@ -1179,6 +1179,7 @@ export type Database = {
           content: string
           created_at: string
           decay_rate: number | null
+          edit_history: Json | null
           embedding: string | null
           entity_id: string | null
           entity_type: string | null
@@ -1209,6 +1210,7 @@ export type Database = {
           content: string
           created_at?: string
           decay_rate?: number | null
+          edit_history?: Json | null
           embedding?: string | null
           entity_id?: string | null
           entity_type?: string | null
@@ -1239,6 +1241,7 @@ export type Database = {
           content?: string
           created_at?: string
           decay_rate?: number | null
+          edit_history?: Json | null
           embedding?: string | null
           entity_id?: string | null
           entity_type?: string | null
