@@ -563,7 +563,7 @@ function MemoryTable({ memories, onSelect, onPin, onDelete }: { memories: Memory
 
 function EditMemoryForm({ memory, onSave, onCancel, isSaving }: { memory: MemoryRow; onSave: (u: Partial<MemoryRow>) => void; onCancel: () => void; isSaving: boolean }) {
   const [content, setContent] = useState(memory.content);
-  const [memoryType, setMemoryType] = useState(memory.memory_type || "semantic");
+  const [memoryType, setMemoryType] = useState<string>(memory.memory_type || "semantic");
   const [importance, setImportance] = useState(String(memory.importance_score ?? 0.5));
   const [confidence, setConfidence] = useState(String(memory.confidence_score ?? 1));
   const [reviewStatus, setReviewStatus] = useState(memory.review_status || "approved");
