@@ -59,6 +59,7 @@ const SubscriberDashboardPage = lazy(() => import("./pages/SubscriberDashboardPa
 const SubscribersListPage = lazy(() => import("./pages/SubscribersListPage"));
 const OperationsCenterPage = lazy(() => import("./pages/OperationsCenterPage"));
 const MemoryCapturePage = lazy(() => import("./pages/MemoryCapturePage"));
+const MemoryReviewPage = lazy(() => import("./pages/MemoryReviewPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
