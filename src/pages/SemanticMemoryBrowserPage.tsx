@@ -309,8 +309,9 @@ function ScatterPlot({
 }: {
   members: (ClusterMember & { color: string; clusterId: string })[];
   highlightedIds: Set<string>;
-  onClickCluster: (id: string) => void;
+  onClickCluster: (clusterId: string) => void;
 }) {
+  type Member = ClusterMember & { color: string; clusterId: string };
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [tooltip, setTooltip] = useState<{ x: number; y: number; m: ClusterMember & { color: string } } | null>(null);
