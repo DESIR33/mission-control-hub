@@ -247,7 +247,7 @@ const App = () => (
               <Route path="/analytics" element={<Navigate to="/youtube/dashboard" replace />} />
               <Route path="/command-center" element={<Navigate to="/youtube/dashboard" replace />} />
               <Route path="/comments" element={<Navigate to="/youtube/comments" replace />} />
-              <Route path="/tasks" element={<Navigate to="/content" replace />} />
+              <Route path="/tasks" element={<Navigate to="/tasks/all" replace />} />
               <Route path="/chat" element={<Navigate to="/ai/chat" replace />} />
               <Route path="/ai-bridge" element={<Navigate to="/ai/proposals" replace />} />
               <Route path="/agents" element={<Navigate to="/ai/agents" replace />} />
