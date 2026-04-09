@@ -4492,6 +4492,51 @@ export type Database = {
           },
         ]
       }
+      memory_ratings: {
+        Row: {
+          created_at: string
+          id: string
+          memory_id: string
+          query_used: string | null
+          rated_at: string
+          rating: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          memory_id: string
+          query_used?: string | null
+          rated_at?: string
+          rating: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          memory_id?: string
+          query_used?: string | null
+          rated_at?: string
+          rating?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memory_ratings_memory_id_fkey"
+            columns: ["memory_id"]
+            isOneToOne: false
+            referencedRelation: "assistant_memory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "memory_ratings_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       muted_conversations: {
         Row: {
           conversation_id: string | null
