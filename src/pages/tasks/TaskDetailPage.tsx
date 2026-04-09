@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SubtaskList } from "@/components/tasks/SubtaskList";
 import { TaskComments } from "@/components/tasks/TaskComments";
+import { TaskActivityLog } from "@/components/tasks/TaskActivityLog";
 import { LabelPicker } from "@/components/tasks/LabelPicker";
 import { RecurrencePicker } from "@/components/tasks/RecurrencePicker";
 import { useTasks } from "@/hooks/use-tasks";
@@ -94,6 +95,9 @@ function TaskDetailContent() {
           <SubtaskList parentTaskId={task.id} />
           <div className="border-t pt-6">
             <TaskComments taskId={task.id} />
+          </div>
+          <div className="border-t pt-6">
+            <TaskActivityLog taskId={task.id} />
           </div>
         </div>
 

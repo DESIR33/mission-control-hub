@@ -48,10 +48,11 @@ export function QuickAddTask({ projectId }: { projectId?: string }) {
     <div className="relative">
       <Plus className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
       <Input
+        data-quick-add="true"
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Add a task... (Enter to create, !high for priority)"
+        placeholder="Add a task... (⌘K to focus, Enter to create, !high for priority)"
         className="pl-9 bg-muted/50 border-dashed"
       />
     </div>
