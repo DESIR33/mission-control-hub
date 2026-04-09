@@ -208,7 +208,7 @@ export default function MemoryConsolidationPage() {
             <ShieldCheck className="h-12 w-12 mx-auto text-emerald-400 opacity-50" />
             <h2 className="text-lg font-semibold">No duplicates detected</h2>
             <p className="text-sm text-muted-foreground">
-              Your memory store has no clusters with >90% similarity. Everything looks clean.
+              Your memory store has no clusters with &gt;90% similarity. Everything looks clean.
             </p>
           </CardContent>
         </Card>
