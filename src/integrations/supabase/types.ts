@@ -1173,33 +1173,84 @@ export type Database = {
       }
       assistant_memory: {
         Row: {
+          access_count: number | null
+          confidence_score: number | null
           content: string
           created_at: string
+          decay_rate: number | null
           embedding: string | null
+          entity_id: string | null
+          entity_type: string | null
           id: string
+          importance_score: number | null
+          is_pinned: boolean | null
+          last_accessed_at: string | null
+          memory_type: string | null
           origin: string
+          related_memory_ids: string[] | null
+          review_status: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          source_session_id: string | null
+          source_type: string | null
           tags: string[] | null
           updated_at: string
+          valid_from: string | null
+          valid_until: string | null
           workspace_id: string
         }
         Insert: {
+          access_count?: number | null
+          confidence_score?: number | null
           content: string
           created_at?: string
+          decay_rate?: number | null
           embedding?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
           id?: string
+          importance_score?: number | null
+          is_pinned?: boolean | null
+          last_accessed_at?: string | null
+          memory_type?: string | null
           origin?: string
+          related_memory_ids?: string[] | null
+          review_status?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source_session_id?: string | null
+          source_type?: string | null
           tags?: string[] | null
           updated_at?: string
+          valid_from?: string | null
+          valid_until?: string | null
           workspace_id: string
         }
         Update: {
+          access_count?: number | null
+          confidence_score?: number | null
           content?: string
           created_at?: string
+          decay_rate?: number | null
           embedding?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
           id?: string
+          importance_score?: number | null
+          is_pinned?: boolean | null
+          last_accessed_at?: string | null
+          memory_type?: string | null
           origin?: string
+          related_memory_ids?: string[] | null
+          review_status?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source_session_id?: string | null
+          source_type?: string | null
           tags?: string[] | null
           updated_at?: string
+          valid_from?: string | null
+          valid_until?: string | null
           workspace_id?: string
         }
         Relationships: [
@@ -4260,6 +4311,48 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "manual_adsense_revenue_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      memory_access_log: {
+        Row: {
+          accessed_at: string
+          accessed_by: string
+          id: string
+          memory_id: string
+          query_context: string | null
+          workspace_id: string
+        }
+        Insert: {
+          accessed_at?: string
+          accessed_by?: string
+          id?: string
+          memory_id: string
+          query_context?: string | null
+          workspace_id: string
+        }
+        Update: {
+          accessed_at?: string
+          accessed_by?: string
+          id?: string
+          memory_id?: string
+          query_context?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memory_access_log_memory_id_fkey"
+            columns: ["memory_id"]
+            isOneToOne: false
+            referencedRelation: "assistant_memory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "memory_access_log_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -9283,6 +9376,31 @@ export type Database = {
         }[]
       }
       is_workspace_member: { Args: { ws_id: string }; Returns: boolean }
+      memory_vector_search: {
+        Args: {
+          entity_id_filter?: string
+          entity_type_filter?: string
+          include_expired?: boolean
+          match_count?: number
+          memory_type_filter?: string
+          query_embedding: string
+          ws_id: string
+        }
+        Returns: {
+          confidence_score: number
+          content: string
+          created_at: string
+          entity_id: string
+          entity_type: string
+          id: string
+          importance_score: number
+          is_pinned: boolean
+          memory_type: string
+          origin: string
+          similarity: number
+          tags: string[]
+        }[]
+      }
       recalculate_topic_pipeline: {
         Args: { p_workspace_id: string }
         Returns: undefined
@@ -9296,6 +9414,15 @@ export type Database = {
           p_workspace_id: string
         }
         Returns: Json
+      }
+      record_memory_access: {
+        Args: {
+          p_accessed_by?: string
+          p_memory_id: string
+          p_query_context?: string
+          p_workspace_id: string
+        }
+        Returns: undefined
       }
       seed_default_expense_categories: {
         Args: { ws_id: string }
