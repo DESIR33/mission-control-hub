@@ -191,6 +191,7 @@ const App = () => (
               <Route path="/ai/proposals/:proposalId" element={<LazyPage section="Proposal Detail"><ProposalDetailPage /></LazyPage>} />
               <Route path="/ai/:tab" element={<LazyPage section="AI Hub"><AIHubPage /></LazyPage>} />
               <Route path="/memory/capture" element={<LazyPage section="Memory Capture"><MemoryCapturePage /></LazyPage>} />
+              <Route path="/memory/review" element={<LazyPage section="Memory Review"><MemoryReviewPage /></LazyPage>} />
 
               {/* Task detail/create routes */}
               <Route path="/tasks/:id" element={<LazyPage section="Tasks"><Tasks /></LazyPage>} />

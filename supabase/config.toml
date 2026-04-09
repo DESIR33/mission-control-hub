@@ -146,3 +146,6 @@ verify_jwt = false
 
 [functions.beehiiv-post-sync]
 verify_jwt = false
+
+[functions.memory-decay-processor]
+verify_jwt = false
