@@ -4440,6 +4440,58 @@ export type Database = {
           },
         ]
       }
+      memory_edges: {
+        Row: {
+          created_at: string
+          edge_type: Database["public"]["Enums"]["memory_edge_type"]
+          from_id: string
+          id: string
+          to_id: string
+          weight: number
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          edge_type?: Database["public"]["Enums"]["memory_edge_type"]
+          from_id: string
+          id?: string
+          to_id: string
+          weight?: number
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          edge_type?: Database["public"]["Enums"]["memory_edge_type"]
+          from_id?: string
+          id?: string
+          to_id?: string
+          weight?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memory_edges_from_id_fkey"
+            columns: ["from_id"]
+            isOneToOne: false
+            referencedRelation: "assistant_memory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "memory_edges_to_id_fkey"
+            columns: ["to_id"]
+            isOneToOne: false
+            referencedRelation: "assistant_memory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "memory_edges_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       muted_conversations: {
         Row: {
           conversation_id: string | null
@@ -9520,6 +9572,11 @@ export type Database = {
     Enums: {
       conflict_status: "pending" | "resolved"
       conflict_type: "factual" | "temporal" | "preference" | "scope"
+      memory_edge_type:
+        | "derived_from"
+        | "supports"
+        | "contradicts"
+        | "supersedes"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -9649,6 +9706,12 @@ export const Constants = {
     Enums: {
       conflict_status: ["pending", "resolved"],
       conflict_type: ["factual", "temporal", "preference", "scope"],
+      memory_edge_type: [
+        "derived_from",
+        "supports",
+        "contradicts",
+        "supersedes",
+      ],
     },
   },
 } as const
