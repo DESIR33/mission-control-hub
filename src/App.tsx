@@ -18,6 +18,10 @@ const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
 const OutlookCallbackPage = lazy(() => import("./pages/OutlookCallbackPage"));
 const YouTubeCallbackPage = lazy(() => import("./pages/YouTubeCallbackPage"));
 const Tasks = lazy(() => import("./pages/Tasks"));
+const TasksPage = lazy(() => import("./pages/tasks/TasksPage"));
+const TaskDetailPage = lazy(() => import("./pages/tasks/TaskDetailPage"));
+const TaskProjectsPage = lazy(() => import("./pages/tasks/TaskProjectsPage"));
+const TaskProjectDetailPage = lazy(() => import("./pages/tasks/TaskProjectDetailPage"));
 const MonetizationPage = lazy(() => import("./pages/MonetizationPage"));
 const ContentProjectsPage = lazy(() => import("./pages/ContentProjectsPage"));
 const VideoQueueFormPage = lazy(() => import("./pages/VideoQueueFormPage"));
@@ -212,10 +216,14 @@ const App = () => (
               <Route path="/memory/semantic" element={<LazyPage section="Semantic Browser"><SemanticMemoryBrowserPage /></LazyPage>} />
               <Route path="/memory/digest" element={<LazyPage section="Memory Digest"><MemoryDigestPage /></LazyPage>} />
 
-              {/* Task detail/create routes */}
-              <Route path="/tasks/:id" element={<LazyPage section="Tasks"><Tasks /></LazyPage>} />
-              <Route path="/tasks/create" element={<LazyPage section="Tasks"><Tasks /></LazyPage>} />
-              <Route path="/projects/:projectId/tasks/create" element={<LazyPage section="Tasks"><Tasks /></LazyPage>} />
+              {/* Task routes */}
+              <Route path="/tasks/inbox" element={<LazyPage section="Tasks"><TasksPage defaultView="inbox" /></LazyPage>} />
+              <Route path="/tasks/all" element={<LazyPage section="Tasks"><TasksPage defaultView="list" /></LazyPage>} />
+              <Route path="/tasks/board" element={<LazyPage section="Tasks"><TasksPage defaultView="board" /></LazyPage>} />
+              <Route path="/tasks/calendar" element={<LazyPage section="Tasks"><TasksPage defaultView="calendar" /></LazyPage>} />
+              <Route path="/tasks/projects" element={<LazyPage section="Tasks"><TaskProjectsPage /></LazyPage>} />
+              <Route path="/tasks/projects/:projectId" element={<LazyPage section="Tasks"><TaskProjectDetailPage /></LazyPage>} />
+              <Route path="/tasks/:taskId" element={<LazyPage section="Tasks"><TaskDetailPage /></LazyPage>} />
 
               {/* Growth Sprints */}
               <Route path="/sprints" element={<LazyPage section="Sprints"><WeeklySprintPage /></LazyPage>} />
@@ -243,7 +251,7 @@ const App = () => (
               <Route path="/analytics" element={<Navigate to="/youtube/dashboard" replace />} />
               <Route path="/command-center" element={<Navigate to="/youtube/dashboard" replace />} />
               <Route path="/comments" element={<Navigate to="/youtube/comments" replace />} />
-              <Route path="/tasks" element={<Navigate to="/content" replace />} />
+              <Route path="/tasks" element={<Navigate to="/tasks/all" replace />} />
               <Route path="/chat" element={<Navigate to="/ai/chat" replace />} />
               <Route path="/ai-bridge" element={<Navigate to="/ai/proposals" replace />} />
               <Route path="/agents" element={<Navigate to="/ai/agents" replace />} />

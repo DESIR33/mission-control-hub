@@ -38,6 +38,12 @@ import {
   PieChart,
   Calculator,
   Gauge,
+  CheckSquare,
+  Inbox,
+  List,
+  Calendar,
+  FolderKanban,
+  Grid,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -58,6 +64,18 @@ export interface NavItem {
 export const mainNavItems: NavItem[] = [
   { to: "/", icon: LayoutDashboard, label: "Mission Control" },
   { to: "/inbox", icon: Mail, label: "Inbox" },
+  {
+    to: "/tasks",
+    icon: CheckSquare,
+    label: "Tasks",
+    children: [
+      { to: "/tasks/inbox", label: "Inbox", icon: Inbox },
+      { to: "/tasks/all", label: "All Tasks", icon: List },
+      { to: "/tasks/board", label: "Board", icon: Grid },
+      { to: "/tasks/calendar", label: "Calendar", icon: Calendar },
+      { to: "/tasks/projects", label: "Projects", icon: FolderKanban },
+    ],
+  },
   { to: "/content", icon: Film, label: "Content Pipeline" },
   { to: "/trends", icon: Crosshair, label: "Trend Scanner" },
   {
