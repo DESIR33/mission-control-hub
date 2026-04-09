@@ -3110,6 +3110,94 @@ export type Database = {
           },
         ]
       }
+      digest_history: {
+        Row: {
+          content_json: Json
+          created_at: string
+          generated_at: string
+          id: string
+          settings_snapshot: Json
+          workspace_id: string
+        }
+        Insert: {
+          content_json?: Json
+          created_at?: string
+          generated_at?: string
+          id?: string
+          settings_snapshot?: Json
+          workspace_id: string
+        }
+        Update: {
+          content_json?: Json
+          created_at?: string
+          generated_at?: string
+          id?: string
+          settings_snapshot?: Json
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "digest_history_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      digest_settings: {
+        Row: {
+          agent_scope: string[]
+          created_at: string
+          delivery_time: string
+          frequency: string
+          id: string
+          include_conflicts: boolean
+          include_consolidations: boolean
+          include_health_score: boolean
+          include_new_memories: boolean
+          include_stale: boolean
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          agent_scope?: string[]
+          created_at?: string
+          delivery_time?: string
+          frequency?: string
+          id?: string
+          include_conflicts?: boolean
+          include_consolidations?: boolean
+          include_health_score?: boolean
+          include_new_memories?: boolean
+          include_stale?: boolean
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          agent_scope?: string[]
+          created_at?: string
+          delivery_time?: string
+          frequency?: string
+          id?: string
+          include_conflicts?: boolean
+          include_consolidations?: boolean
+          include_health_score?: boolean
+          include_new_memories?: boolean
+          include_stale?: boolean
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "digest_settings_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: true
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_auto_labels: {
         Row: {
           color: string | null
