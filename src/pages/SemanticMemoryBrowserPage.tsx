@@ -314,7 +314,7 @@ function ScatterPlot({
   type Member = ClusterMember & { color: string; clusterId: string };
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [tooltip, setTooltip] = useState<{ x: number; y: number; m: ClusterMember & { color: string } } | null>(null);
+  const [tooltip, setTooltip] = useState<{ x: number; y: number; m: Member } | null>(null);
   const [dims, setDims] = useState({ w: 800, h: 500 });
 
   useEffect(() => {
