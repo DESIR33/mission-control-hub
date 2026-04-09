@@ -149,3 +149,6 @@ verify_jwt = false
 
 [functions.memory-decay-processor]
 verify_jwt = false
+
+[functions.extract-memories]
+verify_jwt = false

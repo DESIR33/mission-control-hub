@@ -61,6 +61,7 @@ const OperationsCenterPage = lazy(() => import("./pages/OperationsCenterPage"));
 const MemoryCapturePage = lazy(() => import("./pages/MemoryCapturePage"));
 const MemoryDashboardPage = lazy(() => import("./pages/MemoryDashboardPage"));
 const MemoryReviewPage = lazy(() => import("./pages/MemoryReviewPage"));
+const ConversationMemoryExtractPage = lazy(() => import("./pages/ConversationMemoryExtractPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -193,6 +194,7 @@ const App = () => (
               <Route path="/ai/:tab" element={<LazyPage section="AI Hub"><AIHubPage /></LazyPage>} />
               <Route path="/memory/capture" element={<LazyPage section="Memory Capture"><MemoryCapturePage /></LazyPage>} />
               <Route path="/memory/review" element={<LazyPage section="Memory Review"><MemoryReviewPage /></LazyPage>} />
+              <Route path="/memory/extract" element={<LazyPage section="Memory Extract"><ConversationMemoryExtractPage /></LazyPage>} />
 
               {/* Task detail/create routes */}
               <Route path="/tasks/:id" element={<LazyPage section="Tasks"><Tasks /></LazyPage>} />
