@@ -1,23 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
-import type { Task, TaskFilters, TaskStatus } from "@/types/tasks";
+import type { Task, TaskFilters } from "@/types/tasks";
 
 export function useTasks(filters?: TaskFilters) {
-  const { currentWorkspace } = useWorkspace();
-  const wsId = currentWorkspace?.id;
+  const { workspaceId } = useWorkspace();
   const queryClient = useQueryClient();
 
   const query = useQuery({
-    queryKey: ["tasks", wsId, filters],
+    queryKey: ["tasks", workspaceId, filters],
     queryFn: async () => {
-      if (!wsId) return [];
-      let q = (supabase as any)
-        .from("tasks")
-        .select("*")
-        .eq("workspace_id", wsId)
-        .order("sort_order")
-        .order("created_at", { ascending: false });
+      if (!workspaceId) return [];
+      let q = (supabase as any).from("tasks").select("*").eq("workspace_id", workspaceId).order("sort_order").order("created_at", { ascending: false });
 
       if (filters?.domain_id) q = q.eq("domain_id", filters.domain_id);
       if (filters?.project_id) q = q.eq("project_id", filters.project_id);
@@ -36,16 +30,12 @@ export function useTasks(filters?: TaskFilters) {
       if (error) throw error;
       return data as Task[];
     },
-    enabled: !!wsId,
+    enabled: !!workspaceId,
   });
 
   const createTask = useMutation({
     mutationFn: async (task: Partial<Task>) => {
-      const { data, error } = await (supabase as any)
-        .from("tasks")
-        .insert({ ...task, workspace_id: wsId })
-        .select()
-        .single();
+      const { data, error } = await (supabase as any).from("tasks").insert({ ...task, workspace_id: workspaceId }).select().single();
       if (error) throw error;
       return data;
     },
@@ -54,19 +44,9 @@ export function useTasks(filters?: TaskFilters) {
 
   const updateTask = useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Task> & { id: string }) => {
-      // Auto-set completed_at
-      if (updates.status === "done" && !updates.completed_at) {
-        updates.completed_at = new Date().toISOString();
-      }
-      if (updates.status && updates.status !== "done") {
-        updates.completed_at = null;
-      }
-      const { data, error } = await (supabase as any)
-        .from("tasks")
-        .update(updates)
-        .eq("id", id)
-        .select()
-        .single();
+      if (updates.status === "done" && !updates.completed_at) updates.completed_at = new Date().toISOString();
+      if (updates.status && updates.status !== "done") updates.completed_at = null;
+      const { data, error } = await (supabase as any).from("tasks").update(updates).eq("id", id).select().single();
       if (error) throw error;
       return data;
     },
@@ -75,10 +55,7 @@ export function useTasks(filters?: TaskFilters) {
 
   const deleteTask = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await (supabase as any)
-        .from("tasks")
-        .delete()
-        .eq("id", id);
+      const { error } = await (supabase as any).from("tasks").delete().eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] }),

@@ -4,32 +4,23 @@ import { useWorkspace } from "@/hooks/use-workspace";
 import type { TaskLabel } from "@/types/tasks";
 
 export function useTaskLabels() {
-  const { currentWorkspace } = useWorkspace();
-  const wsId = currentWorkspace?.id;
+  const { workspaceId } = useWorkspace();
   const queryClient = useQueryClient();
 
   const query = useQuery({
-    queryKey: ["task-labels", wsId],
+    queryKey: ["task-labels", workspaceId],
     queryFn: async () => {
-      if (!wsId) return [];
-      const { data, error } = await (supabase as any)
-        .from("task_labels")
-        .select("*")
-        .eq("workspace_id", wsId)
-        .order("name");
+      if (!workspaceId) return [];
+      const { data, error } = await (supabase as any).from("task_labels").select("*").eq("workspace_id", workspaceId).order("name");
       if (error) throw error;
       return data as TaskLabel[];
     },
-    enabled: !!wsId,
+    enabled: !!workspaceId,
   });
 
   const createLabel = useMutation({
     mutationFn: async ({ name, color }: { name: string; color: string }) => {
-      const { data, error } = await (supabase as any)
-        .from("task_labels")
-        .insert({ workspace_id: wsId, name, color })
-        .select()
-        .single();
+      const { data, error } = await (supabase as any).from("task_labels").insert({ workspace_id: workspaceId, name, color }).select().single();
       if (error) throw error;
       return data;
     },
@@ -39,16 +30,10 @@ export function useTaskLabels() {
   const toggleLabel = useMutation({
     mutationFn: async ({ taskId, labelId, assigned }: { taskId: string; labelId: string; assigned: boolean }) => {
       if (assigned) {
-        const { error } = await (supabase as any)
-          .from("task_label_assignments")
-          .delete()
-          .eq("task_id", taskId)
-          .eq("label_id", labelId);
+        const { error } = await (supabase as any).from("task_label_assignments").delete().eq("task_id", taskId).eq("label_id", labelId);
         if (error) throw error;
       } else {
-        const { error } = await (supabase as any)
-          .from("task_label_assignments")
-          .insert({ task_id: taskId, label_id: labelId });
+        const { error } = await (supabase as any).from("task_label_assignments").insert({ task_id: taskId, label_id: labelId });
         if (error) throw error;
       }
     },
@@ -66,10 +51,7 @@ export function useTaskLabelAssignments(taskId: string | undefined) {
     queryKey: ["task-label-assignments", taskId],
     queryFn: async () => {
       if (!taskId) return [];
-      const { data, error } = await (supabase as any)
-        .from("task_label_assignments")
-        .select("*, label:task_labels(*)")
-        .eq("task_id", taskId);
+      const { data, error } = await (supabase as any).from("task_label_assignments").select("*, label:task_labels(*)").eq("task_id", taskId);
       if (error) throw error;
       return data;
     },

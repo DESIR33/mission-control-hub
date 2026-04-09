@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
@@ -6,7 +6,7 @@ import type { TaskDomain } from "@/types/tasks";
 
 interface TaskDomainContextValue {
   domains: TaskDomain[];
-  activeDomainId: string | null; // null = "All"
+  activeDomainId: string | null;
   setActiveDomainId: (id: string | null) => void;
   activeDomain: TaskDomain | null;
   isLoading: boolean;
@@ -21,38 +21,26 @@ const TaskDomainContext = createContext<TaskDomainContextValue>({
 });
 
 export function TaskDomainProvider({ children }: { children: ReactNode }) {
-  const { currentWorkspace } = useWorkspace();
-  const wsId = currentWorkspace?.id;
+  const { workspaceId } = useWorkspace();
 
   const [activeDomainId, setActiveDomainIdState] = useState<string | null>(() => {
-    try {
-      return localStorage.getItem("task_active_domain") || null;
-    } catch {
-      return null;
-    }
+    try { return localStorage.getItem("task_active_domain") || null; } catch { return null; }
   });
 
   const setActiveDomainId = (id: string | null) => {
     setActiveDomainIdState(id);
-    try {
-      if (id) localStorage.setItem("task_active_domain", id);
-      else localStorage.removeItem("task_active_domain");
-    } catch {}
+    try { if (id) localStorage.setItem("task_active_domain", id); else localStorage.removeItem("task_active_domain"); } catch {}
   };
 
   const { data: domains = [], isLoading } = useQuery({
-    queryKey: ["task-domains", wsId],
+    queryKey: ["task-domains", workspaceId],
     queryFn: async () => {
-      if (!wsId) return [];
-      const { data, error } = await (supabase as any)
-        .from("task_domains")
-        .select("*")
-        .eq("workspace_id", wsId)
-        .order("sort_order");
+      if (!workspaceId) return [];
+      const { data, error } = await (supabase as any).from("task_domains").select("*").eq("workspace_id", workspaceId).order("sort_order");
       if (error) throw error;
       return data as TaskDomain[];
     },
-    enabled: !!wsId,
+    enabled: !!workspaceId,
   });
 
   const activeDomain = domains.find((d) => d.id === activeDomainId) ?? null;
