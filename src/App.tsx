@@ -198,6 +198,7 @@ const App = () => (
               <Route path="/memory/review" element={<LazyPage section="Memory Review"><MemoryReviewPage /></LazyPage>} />
               <Route path="/memory/extract" element={<LazyPage section="Memory Extract"><ConversationMemoryExtractPage /></LazyPage>} />
               <Route path="/memory/scoping" element={<LazyPage section="Memory Scoping"><MemoryScopingPage /></LazyPage>} />
+              <Route path="/memory/consolidation" element={<LazyPage section="Memory Consolidation"><MemoryConsolidationPage /></LazyPage>} />
 
               {/* Task detail/create routes */}
               <Route path="/tasks/:id" element={<LazyPage section="Tasks"><Tasks /></LazyPage>} />
