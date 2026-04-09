@@ -6533,22 +6533,253 @@ export type Database = {
           },
         ]
       }
+      task_comments: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string
+          id: string
+          task_id: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string
+          id?: string
+          task_id: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          task_id?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_comments_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_comments_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_domains: {
+        Row: {
+          color: string | null
+          created_at: string
+          icon: string | null
+          id: string
+          name: string
+          slug: string
+          sort_order: number | null
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          icon?: string | null
+          id?: string
+          name: string
+          slug: string
+          sort_order?: number | null
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          icon?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          sort_order?: number | null
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_domains_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_label_assignments: {
+        Row: {
+          created_at: string
+          id: string
+          label_id: string
+          task_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          label_id: string
+          task_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          label_id?: string
+          task_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_label_assignments_label_id_fkey"
+            columns: ["label_id"]
+            isOneToOne: false
+            referencedRelation: "task_labels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_label_assignments_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_labels: {
+        Row: {
+          color: string | null
+          created_at: string
+          id: string
+          name: string
+          workspace_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          workspace_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_labels_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_projects: {
+        Row: {
+          color: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          domain_id: string | null
+          end_date: string | null
+          icon: string | null
+          id: string
+          name: string
+          sort_order: number | null
+          start_date: string | null
+          status: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          domain_id?: string | null
+          end_date?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          sort_order?: number | null
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          domain_id?: string | null
+          end_date?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          sort_order?: number | null
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_projects_domain_id_fkey"
+            columns: ["domain_id"]
+            isOneToOne: false
+            referencedRelation: "task_domains"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_projects_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tasks: {
         Row: {
           assigned_to: string | null
           category: string | null
+          completed_at: string | null
           created_at: string
           created_by: string | null
           description: string | null
+          domain_id: string | null
           due_date: string | null
           entity_id: string | null
           entity_type: string | null
+          estimated_minutes: number | null
           id: string
+          is_inbox: boolean | null
           metadata: Json | null
+          parent_task_id: string | null
           priority: string
+          project_id: string | null
           recurrence_rule: string | null
+          sort_order: number | null
           source: string | null
           source_proposal_id: string | null
+          start_date: string | null
           status: string
           title: string
           updated_at: string
@@ -6557,18 +6788,26 @@ export type Database = {
         Insert: {
           assigned_to?: string | null
           category?: string | null
+          completed_at?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
+          domain_id?: string | null
           due_date?: string | null
           entity_id?: string | null
           entity_type?: string | null
+          estimated_minutes?: number | null
           id?: string
+          is_inbox?: boolean | null
           metadata?: Json | null
+          parent_task_id?: string | null
           priority?: string
+          project_id?: string | null
           recurrence_rule?: string | null
+          sort_order?: number | null
           source?: string | null
           source_proposal_id?: string | null
+          start_date?: string | null
           status?: string
           title: string
           updated_at?: string
@@ -6577,24 +6816,53 @@ export type Database = {
         Update: {
           assigned_to?: string | null
           category?: string | null
+          completed_at?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
+          domain_id?: string | null
           due_date?: string | null
           entity_id?: string | null
           entity_type?: string | null
+          estimated_minutes?: number | null
           id?: string
+          is_inbox?: boolean | null
           metadata?: Json | null
+          parent_task_id?: string | null
           priority?: string
+          project_id?: string | null
           recurrence_rule?: string | null
+          sort_order?: number | null
           source?: string | null
           source_proposal_id?: string | null
+          start_date?: string | null
           status?: string
           title?: string
           updated_at?: string
           workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "tasks_domain_id_fkey"
+            columns: ["domain_id"]
+            isOneToOne: false
+            referencedRelation: "task_domains"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_parent_task_id_fkey"
+            columns: ["parent_task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "task_projects"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "tasks_source_proposal_id_fkey"
             columns: ["source_proposal_id"]
