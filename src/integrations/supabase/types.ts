@@ -4369,6 +4369,77 @@ export type Database = {
           },
         ]
       }
+      memory_conflicts: {
+        Row: {
+          conflict_type: Database["public"]["Enums"]["conflict_type"]
+          created_at: string
+          detected_at: string
+          id: string
+          memory_a_id: string
+          memory_b_id: string
+          resolution_type: string | null
+          resolved_at: string | null
+          resolved_by_memory_id: string | null
+          status: Database["public"]["Enums"]["conflict_status"]
+          workspace_id: string
+        }
+        Insert: {
+          conflict_type?: Database["public"]["Enums"]["conflict_type"]
+          created_at?: string
+          detected_at?: string
+          id?: string
+          memory_a_id: string
+          memory_b_id: string
+          resolution_type?: string | null
+          resolved_at?: string | null
+          resolved_by_memory_id?: string | null
+          status?: Database["public"]["Enums"]["conflict_status"]
+          workspace_id: string
+        }
+        Update: {
+          conflict_type?: Database["public"]["Enums"]["conflict_type"]
+          created_at?: string
+          detected_at?: string
+          id?: string
+          memory_a_id?: string
+          memory_b_id?: string
+          resolution_type?: string | null
+          resolved_at?: string | null
+          resolved_by_memory_id?: string | null
+          status?: Database["public"]["Enums"]["conflict_status"]
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memory_conflicts_memory_a_id_fkey"
+            columns: ["memory_a_id"]
+            isOneToOne: false
+            referencedRelation: "assistant_memory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "memory_conflicts_memory_b_id_fkey"
+            columns: ["memory_b_id"]
+            isOneToOne: false
+            referencedRelation: "assistant_memory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "memory_conflicts_resolved_by_memory_id_fkey"
+            columns: ["resolved_by_memory_id"]
+            isOneToOne: false
+            referencedRelation: "assistant_memory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "memory_conflicts_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       muted_conversations: {
         Row: {
           conversation_id: string | null
@@ -9447,7 +9518,8 @@ export type Database = {
       trigger_memory_decay_processor: { Args: never; Returns: undefined }
     }
     Enums: {
-      [_ in never]: never
+      conflict_status: "pending" | "resolved"
+      conflict_type: "factual" | "temporal" | "preference" | "scope"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -9574,6 +9646,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      conflict_status: ["pending", "resolved"],
+      conflict_type: ["factual", "temporal", "preference", "scope"],
+    },
   },
 } as const
