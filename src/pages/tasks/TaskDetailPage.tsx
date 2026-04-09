@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { SubtaskList } from "@/components/tasks/SubtaskList";
 import { TaskComments } from "@/components/tasks/TaskComments";
 import { LabelPicker } from "@/components/tasks/LabelPicker";
+import { RecurrencePicker } from "@/components/tasks/RecurrencePicker";
 import { useTasks } from "@/hooks/use-tasks";
 import { useTaskDomain, TaskDomainProvider } from "@/hooks/use-task-domain";
 import { useTaskProjects } from "@/hooks/use-task-projects";
@@ -177,6 +178,11 @@ function TaskDetailContent() {
               placeholder="0"
             />
           </div>
+
+          <RecurrencePicker
+            value={task.recurrence_rule}
+            onChange={(v) => saveField("recurrence_rule", v === "none" ? null : v)}
+          />
 
           <LabelPicker taskId={task.id} />
 

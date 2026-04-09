@@ -12,7 +12,8 @@ import { TaskListView } from "@/components/tasks/TaskListView";
 import { TaskKanbanView } from "@/components/tasks/TaskKanbanView";
 import { TaskCalendarView } from "@/components/tasks/TaskCalendarView";
 import { TaskInboxView } from "@/components/tasks/TaskInboxView";
-import type { TaskFilters } from "@/types/tasks";
+import { TaskFiltersBar } from "@/components/tasks/TaskFiltersBar";
+import type { TaskFilters, TaskStatus, TaskPriority } from "@/types/tasks";
 
 type ViewType = "list" | "board" | "calendar" | "inbox";
 
@@ -20,14 +21,18 @@ function TasksPageContent({ defaultView = "list" }: { defaultView?: ViewType }) 
   const navigate = useNavigate();
   const [view, setView] = useState<ViewType>(defaultView);
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<TaskStatus[]>([]);
+  const [priorityFilter, setPriorityFilter] = useState<TaskPriority[]>([]);
   const { activeDomainId } = useTaskDomain();
 
   const filters: TaskFilters = useMemo(() => ({
     domain_id: activeDomainId || undefined,
     search: search || undefined,
-    parent_task_id: null, // top-level only
+    parent_task_id: null,
+    status: statusFilter.length ? statusFilter : undefined,
+    priority: priorityFilter.length ? priorityFilter : undefined,
     ...(view === "inbox" ? { is_inbox: true } : {}),
-  }), [activeDomainId, search, view]);
+  }), [activeDomainId, search, view, statusFilter, priorityFilter]);
 
   const { tasks, isLoading } = useTasks(filters);
 
@@ -39,14 +44,14 @@ function TasksPageContent({ defaultView = "list" }: { defaultView?: ViewType }) 
   ];
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-4 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 flex-wrap">
           <h1 className="text-2xl font-bold">Tasks</h1>
           <DomainSwitcher />
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           {views.map((v) => (
             <Button
               key={v.id}
@@ -80,6 +85,16 @@ function TasksPageContent({ defaultView = "list" }: { defaultView?: ViewType }) 
           />
         </div>
       </div>
+
+      {/* Filters */}
+      {view !== "inbox" && (
+        <TaskFiltersBar
+          statusFilter={statusFilter}
+          onStatusChange={setStatusFilter}
+          priorityFilter={priorityFilter}
+          onPriorityChange={setPriorityFilter}
+        />
+      )}
 
       {/* Content */}
       {isLoading ? (
