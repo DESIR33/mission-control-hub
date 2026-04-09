@@ -63,6 +63,7 @@ const MemoryDashboardPage = lazy(() => import("./pages/MemoryDashboardPage"));
 const MemoryReviewPage = lazy(() => import("./pages/MemoryReviewPage"));
 const ConversationMemoryExtractPage = lazy(() => import("./pages/ConversationMemoryExtractPage"));
 const MemoryScopingPage = lazy(() => import("./pages/MemoryScopingPage"));
+const MemoryConsolidationPage = lazy(() => import("./pages/MemoryConsolidationPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
