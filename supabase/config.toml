@@ -152,3 +152,9 @@ verify_jwt = false
 
 [functions.extract-memories]
 verify_jwt = false
+
+[functions.cluster-memories]
+verify_jwt = false
+
+[functions.merge-memories]
+verify_jwt = false
