@@ -69,6 +69,7 @@ const MemoryKnowledgeGraphPage = lazy(() => import("./pages/MemoryKnowledgeGraph
 const MemorySearchPage = lazy(() => import("./pages/MemorySearchPage"));
 const MemoryAnalyticsPage = lazy(() => import("./pages/MemoryAnalyticsPage"));
 const SemanticMemoryBrowserPage = lazy(() => import("./pages/SemanticMemoryBrowserPage"));
+const MemoryDigestPage = lazy(() => import("./pages/MemoryDigestPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -209,6 +210,7 @@ const App = () => (
               <Route path="/memory/search" element={<LazyPage section="Memory Search"><MemorySearchPage /></LazyPage>} />
               <Route path="/memory/analytics" element={<LazyPage section="Memory Analytics"><MemoryAnalyticsPage /></LazyPage>} />
               <Route path="/memory/semantic" element={<LazyPage section="Semantic Browser"><SemanticMemoryBrowserPage /></LazyPage>} />
+              <Route path="/memory/digest" element={<LazyPage section="Memory Digest"><MemoryDigestPage /></LazyPage>} />
 
               {/* Task detail/create routes */}
               <Route path="/tasks/:id" element={<LazyPage section="Tasks"><Tasks /></LazyPage>} />
