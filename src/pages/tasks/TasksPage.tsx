@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useTasks } from "@/hooks/use-tasks";
 import { useTaskDomain, TaskDomainProvider } from "@/hooks/use-task-domain";
+import { useTaskKeyboardShortcuts } from "@/hooks/useTaskKeyboardShortcuts";
 import { DomainSwitcher } from "@/components/tasks/DomainSwitcher";
 import { QuickAddTask } from "@/components/tasks/QuickAddTask";
 import { TaskListView } from "@/components/tasks/TaskListView";
@@ -24,6 +25,7 @@ function TasksPageContent({ defaultView = "list" }: { defaultView?: ViewType }) 
   const [statusFilter, setStatusFilter] = useState<TaskStatus[]>([]);
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority[]>([]);
   const { activeDomainId } = useTaskDomain();
+  useTaskKeyboardShortcuts();
 
   const filters: TaskFilters = useMemo(() => ({
     domain_id: activeDomainId || undefined,
