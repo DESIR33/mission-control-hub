@@ -11,6 +11,7 @@ import { TaskComments } from "@/components/tasks/TaskComments";
 import { TaskActivityLog } from "@/components/tasks/TaskActivityLog";
 import { LabelPicker } from "@/components/tasks/LabelPicker";
 import { RecurrencePicker } from "@/components/tasks/RecurrencePicker";
+import { TaskDependencies } from "@/components/tasks/TaskDependencies";
 import { useTasks } from "@/hooks/use-tasks";
 import { useTaskDomain, TaskDomainProvider } from "@/hooks/use-task-domain";
 import { useTaskProjects } from "@/hooks/use-task-projects";
@@ -189,6 +190,8 @@ function TaskDetailContent() {
           />
 
           <LabelPicker taskId={task.id} />
+
+          <TaskDependencies taskId={task.id} />
 
           <div className="border-t pt-4">
             <p className="text-xs text-muted-foreground">
