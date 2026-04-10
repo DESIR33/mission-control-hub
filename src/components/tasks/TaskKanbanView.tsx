@@ -34,6 +34,13 @@ export function TaskKanbanView({ tasks, onTaskClick }: TaskKanbanViewProps) {
       if (map[t.status]) map[t.status].push(t);
       else map.todo.push(t);
     });
+    for (const key of Object.keys(map)) {
+      map[key].sort((a, b) => {
+        if (!a.due_date) return 1;
+        if (!b.due_date) return -1;
+        return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
+      });
+    }
     return map;
   }, [tasks]);
 

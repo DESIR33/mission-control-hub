@@ -26,7 +26,7 @@ export function TaskListView({ tasks, onTaskClick }: TaskListViewProps) {
   const { toast } = useToast();
   const blockedIds = useBlockedTaskIds(tasks.map((t) => t.id));
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [sortBy, setSortBy] = useState<"default" | "priority" | "due_date">("default");
+  const [sortBy, setSortBy] = useState<"default" | "priority" | "due_date">("due_date");
 
   const toggleSelect = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
