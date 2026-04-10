@@ -6,6 +6,7 @@ const corsHeaders = {
 };
 
 const GRAPH_BASE = "https://graph.microsoft.com/v1.0";
+const MAX_BATCH = 10; // Cap to avoid WORKER_LIMIT
 
 interface TokenResponse {
   access_token: string;
@@ -48,17 +49,23 @@ async function getOutlookCredentials(supabase: any, workspaceId: string) {
     .select("config")
     .eq("workspace_id", workspaceId)
     .eq("integration_key", "ms_outlook")
-    .single();
+    .eq("enabled", true)
+    .maybeSingle();
 
-  if (error || !integration?.config) {
-    throw new Error("Outlook integration not configured.");
+  if (error) {
+    console.error("DB error fetching outlook config:", error.message);
+    throw new Error("Failed to fetch Outlook configuration.");
+  }
+
+  if (!integration?.config) {
+    throw new Error("Outlook integration not configured. Please connect Outlook in Settings > Integrations.");
   }
 
   const config = integration.config as Record<string, string>;
   const { tenant_id, client_id, client_secret, refresh_token } = config;
 
   if (!tenant_id || !client_id || !client_secret || !refresh_token) {
-    throw new Error("Outlook integration missing required credentials.");
+    throw new Error("Outlook integration missing required credentials (tenant_id, client_id, client_secret, refresh_token).");
   }
 
   const tokenResult = await refreshAccessToken(tenant_id, client_id, client_secret, refresh_token);
@@ -73,6 +80,49 @@ async function getOutlookCredentials(supabase: any, workspaceId: string) {
   }
 
   return tokenResult.access_token;
+}
+
+async function processMessages(
+  accessToken: string,
+  action: string,
+  messageIds: string[],
+): Promise<{ message_id: string; success: boolean; error?: string }[]> {
+  const results: { message_id: string; success: boolean; error?: string }[] = [];
+
+  for (const messageId of messageIds) {
+    try {
+      let destinationId: string;
+      if (action === "delete") {
+        destinationId = "deleteditems";
+      } else if (action === "junk") {
+        destinationId = "junkemail";
+      } else {
+        results.push({ message_id: messageId, success: false, error: `Unknown action: ${action}` });
+        continue;
+      }
+
+      const res = await fetch(`${GRAPH_BASE}/me/messages/${messageId}/move`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ destinationId }),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        results.push({ message_id: messageId, success: false, error: errText });
+      } else {
+        await res.json(); // consume body
+        results.push({ message_id: messageId, success: true });
+      }
+    } catch (err) {
+      results.push({ message_id: messageId, success: false, error: err.message });
+    }
+  }
+
+  return results;
 }
 
 Deno.serve(async (req) => {
@@ -97,60 +147,19 @@ Deno.serve(async (req) => {
 
     const accessToken = await getOutlookCredentials(supabase, workspace_id);
 
-    const results: { message_id: string; success: boolean; error?: string }[] = [];
+    // Cap batch size to prevent WORKER_LIMIT
+    const capped = (message_ids as string[]).slice(0, MAX_BATCH);
+    const skipped = (message_ids as string[]).length - capped.length;
 
-    for (const messageId of message_ids) {
-      try {
-        if (action === "delete") {
-          // Move to Deleted Items on Outlook
-          const res = await fetch(`${GRAPH_BASE}/me/messages/${messageId}/move`, {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ destinationId: "deleteditems" }),
-          });
-
-          if (!res.ok) {
-            const errText = await res.text();
-            results.push({ message_id: messageId, success: false, error: errText });
-            continue;
-          }
-          await res.json(); // consume body
-        } else if (action === "junk") {
-          // Report as junk (moves to junk and reports to Microsoft)
-          // Graph API: POST /me/messages/{id}/move to junkemail
-          // Note: For full junk reporting, we use the move + mark approach
-          const res = await fetch(`${GRAPH_BASE}/me/messages/${messageId}/move`, {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ destinationId: "junkemail" }),
-          });
-
-          if (!res.ok) {
-            const errText = await res.text();
-            results.push({ message_id: messageId, success: false, error: errText });
-            continue;
-          }
-          await res.json(); // consume body
-        } else {
-          results.push({ message_id: messageId, success: false, error: `Unknown action: ${action}` });
-          continue;
-        }
-
-        results.push({ message_id: messageId, success: true });
-      } catch (err) {
-        results.push({ message_id: messageId, success: false, error: err.message });
-      }
-    }
-
+    const results = await processMessages(accessToken, action, capped);
     const allSuccess = results.every((r) => r.success);
+
     return new Response(
-      JSON.stringify({ success: allSuccess, results }),
+      JSON.stringify({
+        success: allSuccess,
+        results,
+        ...(skipped > 0 ? { warning: `${skipped} message(s) skipped (max ${MAX_BATCH} per request)` } : {}),
+      }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (err) {
