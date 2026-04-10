@@ -167,3 +167,9 @@ verify_jwt = false
 
 [functions.auto-memory-extractor]
 verify_jwt = false
+
+[functions.memory-linker]
+verify_jwt = false
+
+[functions.memory-graph-query]
+verify_jwt = false
