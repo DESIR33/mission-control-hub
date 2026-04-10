@@ -124,7 +124,7 @@ export default function SpaceDetailPage() {
 
         {activeTab !== "summary" && (
           <div className="mt-3">
-            <QuickAddTask defaultDomainId={spaceId} />
+            <QuickAddTask />
           </div>
         )}
 
