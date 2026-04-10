@@ -147,8 +147,8 @@ export function TaskEditDialog({ task, open, onOpenChange }: Props) {
                   {dueDate ? format(dueDate, "PPP") : "No due date"}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar mode="single" selected={dueDate} onSelect={setDueDate} initialFocus />
+              <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+                <Calendar mode="single" selected={dueDate} onSelect={setDueDate} initialFocus className="pointer-events-auto" />
               </PopoverContent>
             </Popover>
           </div>
