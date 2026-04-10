@@ -173,3 +173,6 @@ verify_jwt = false
 
 [functions.memory-graph-query]
 verify_jwt = false
+
+[functions.memory-conflict-detector]
+verify_jwt = false
