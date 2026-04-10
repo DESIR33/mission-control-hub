@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { History, RotateCcw, ChevronRight } from "lucide-react";
+import { MemoryGraphView } from "./MemoryGraphView";
 
 interface HistoryEntry {
   content: string;
@@ -146,6 +147,11 @@ export function MemoryVersionDrawer({
                 <span className="text-xs font-mono text-foreground">{((confidence ?? 0) * 100).toFixed(0)}%</span>
               </div>
             </div>
+
+            {/* Knowledge Graph */}
+            {memoryId && (
+              <MemoryGraphView memoryId={memoryId} />
+            )}
 
             {/* Timeline */}
             {sortedHistory.length > 0 && (
