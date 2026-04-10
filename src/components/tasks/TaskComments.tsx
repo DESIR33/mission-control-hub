@@ -1,19 +1,60 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
-import { Send, Trash2 } from "lucide-react";
+import { Send, Trash2, AtSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { useTaskComments } from "@/hooks/use-task-comments";
+import { Badge } from "@/components/ui/badge";
+import { useTaskComments, useUnreadMentionCount, useMarkMentionsRead, extractMentions } from "@/hooks/use-task-comments";
+import { MentionInput } from "@/components/tasks/MentionInput";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { cn } from "@/lib/utils";
 
 interface TaskCommentsProps {
   taskId: string;
 }
 
+/** Renders comment text with styled mention badges */
+function CommentContent({ content }: { content: string }) {
+  const MENTION_REGEX = /@\[([a-f0-9-]+):([^\]]+)\]/g;
+  const parts: (string | { userId: string; name: string })[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  const regex = new RegExp(MENTION_REGEX.source, "g");
+  while ((match = regex.exec(content)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(content.slice(lastIndex, match.index));
+    }
+    parts.push({ userId: match[1], name: match[2] });
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastIndex < content.length) {
+    parts.push(content.slice(lastIndex));
+  }
+
+  return (
+    <p className="text-sm mt-0.5 whitespace-pre-wrap">
+      {parts.map((part, i) =>
+        typeof part === "string" ? (
+          <span key={i}>{part}</span>
+        ) : (
+          <span
+            key={i}
+            className="inline-flex items-center rounded px-1 py-0.5 text-xs font-semibold bg-primary/15 text-primary"
+          >
+            @{part.name}
+          </span>
+        )
+      )}
+    </p>
+  );
+}
+
 export function TaskComments({ taskId }: TaskCommentsProps) {
   const [content, setContent] = useState("");
   const { comments, addComment, deleteComment } = useTaskComments(taskId);
+  const { data: unreadCount = 0 } = useUnreadMentionCount(taskId);
+  const markRead = useMarkMentionsRead(taskId);
 
   const { data: user } = useQuery({
     queryKey: ["current-user"],
@@ -23,6 +64,13 @@ export function TaskComments({ taskId }: TaskCommentsProps) {
     },
   });
 
+  // Mark mentions as read when viewing comments
+  useEffect(() => {
+    if (unreadCount > 0) {
+      markRead.mutate();
+    }
+  }, [unreadCount]);
+
   const handleSubmit = async () => {
     if (!content.trim() || !user?.id) return;
     await addComment.mutateAsync({ content: content.trim(), authorId: user.id });
@@ -31,7 +79,15 @@ export function TaskComments({ taskId }: TaskCommentsProps) {
 
   return (
     <div className="space-y-4">
-      <h4 className="text-sm font-semibold">Comments</h4>
+      <div className="flex items-center gap-2">
+        <h4 className="text-sm font-semibold">Comments</h4>
+        {unreadCount > 0 && (
+          <Badge variant="destructive" className="h-5 text-[10px] px-1.5">
+            <AtSign className="h-3 w-3 mr-0.5" />
+            {unreadCount}
+          </Badge>
+        )}
+      </div>
 
       <div className="space-y-3">
         {comments.map((c) => (
@@ -53,19 +109,18 @@ export function TaskComments({ taskId }: TaskCommentsProps) {
                   <Trash2 className="h-3 w-3" />
                 </Button>
               </div>
-              <p className="text-sm mt-0.5">{c.content}</p>
+              <CommentContent content={c.content} />
             </div>
           </div>
         ))}
       </div>
 
       <div className="flex gap-2">
-        <Textarea
+        <MentionInput
           value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="Add a comment..."
-          className="min-h-[60px] text-sm"
-          onKeyDown={(e) => { if (e.key === "Enter" && e.metaKey) handleSubmit(); }}
+          onChange={setContent}
+          onSubmit={handleSubmit}
+          placeholder="Add a comment... Use @ to mention"
         />
         <Button size="icon" onClick={handleSubmit} disabled={!content.trim()}>
           <Send className="h-4 w-4" />
