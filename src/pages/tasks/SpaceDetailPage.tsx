@@ -138,7 +138,7 @@ export default function SpaceDetailPage() {
           {tasksLoading ? (
             <div className="space-y-2">{[1,2,3].map(i => <Skeleton key={i} className="h-12 w-full" />)}</div>
           ) : (
-            <TaskListView tasks={tasks} onTaskClick={handleTaskClick} />
+            <TaskListView tasks={tasks} onTaskClick={handleTaskClick} onTaskEdit={handleTaskEdit} />
           )}
         </TabsContent>
 
