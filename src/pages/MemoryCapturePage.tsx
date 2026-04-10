@@ -567,6 +567,8 @@ export default function MemoryCapturePage() {
             onCreated={invalidateAll}
           />
 
+          <ConflictResolutionPanel workspaceId={workspaceId} />
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             <PendingReviewQueue
               items={pending.data || []}
