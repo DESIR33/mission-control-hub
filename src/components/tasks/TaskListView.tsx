@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { format, isPast, isToday, startOfDay } from "date-fns";
-import { CheckCircle2, Circle, Clock, SquareCheck, Square, Trash2, ArrowUpDown, AlertTriangle, GripVertical, LockKeyhole } from "lucide-react";
+import { CheckCircle2, Circle, Clock, SquareCheck, Square, Trash2, ArrowUpDown, AlertTriangle, GripVertical, LockKeyhole, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTasks } from "@/hooks/use-tasks";
 import { useBlockedTaskIds } from "@/hooks/use-task-dependencies";
@@ -292,6 +292,14 @@ export function TaskListView({ tasks, onTaskClick }: TaskListViewProps) {
                 </span>
               </div>
             </div>
+
+            <button
+              onClick={(e) => { e.stopPropagation(); onTaskClick(task.id); }}
+              className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-primary"
+              title="Edit task"
+            >
+              <Pencil className="h-3.5 w-3.5" />
+            </button>
 
             {task.due_date && (() => {
               const due = new Date(task.due_date);
