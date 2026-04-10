@@ -7,8 +7,9 @@ import { format } from "date-fns";
 import { motion } from "framer-motion";
 import {
   Brain, Pin, PinOff, Trash2, Pencil, Check, X, ChevronDown, ChevronUp,
-  Loader2, Sparkles, Search, Filter, ArrowLeft
+  Loader2, Sparkles, Search, Filter, ArrowLeft, AlertTriangle
 } from "lucide-react";
+import ConflictResolutionPanel from "@/components/memory/ConflictResolutionPanel";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -565,6 +566,8 @@ export default function MemoryCapturePage() {
             existingTags={existingTags.data || []}
             onCreated={invalidateAll}
           />
+
+          <ConflictResolutionPanel workspaceId={workspaceId} />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             <PendingReviewQueue
