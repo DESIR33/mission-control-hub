@@ -61,9 +61,6 @@ export function TaskActivityLog({ taskId }: TaskActivityLogProps) {
 
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-semibold flex items-center gap-2">
-        <Activity className="h-4 w-4" /> Activity
-      </h3>
       <div className="space-y-2">
         {activities.map((a) => {
           const Icon = activityIcons[a.activity_type] || Activity;
