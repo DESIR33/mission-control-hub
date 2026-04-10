@@ -148,6 +148,32 @@ Deno.serve(async (req) => {
           status: "created",
           content_preview: content.slice(0, 80),
         });
+
+        // Trigger conflict detection asynchronously
+        if (embedding) {
+          try {
+            fetch(
+              `${Deno.env.get("SUPABASE_URL")}/functions/v1/memory-conflict-detector`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+                },
+                body: JSON.stringify({
+                  memory_id: data.id,
+                  workspace_id: auth.workspaceId,
+                  content,
+                  embedding: `[${embedding.join(",")}]`,
+                  origin: item.origin || item.source_agent || "external",
+                  confidence_score: item.confidence ?? 0.7,
+                }),
+              },
+            ).catch((e) => console.error("Conflict detection fire-and-forget error:", e));
+          } catch (e) {
+            console.error("Failed to trigger conflict detection:", e);
+          }
+        }
       }
     }
 
