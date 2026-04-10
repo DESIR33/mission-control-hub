@@ -257,7 +257,7 @@ export function TaskCalendarView({ tasks, onTaskClick }: TaskCalendarViewProps) 
     } else if (task.start_date) {
       updates.start_date = targetDate.toISOString();
     }
-    updateTask.mutate(updates);
+    updateTask.mutate(updates as any);
   };
 
   const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];

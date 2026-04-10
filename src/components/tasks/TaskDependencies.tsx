@@ -47,7 +47,7 @@ function DepItem({
   const isDone = dep.related_task.status === "done";
   const badge = statusBadgeClass[dep.related_task.status] || statusBadgeClass.todo;
   const label = statusLabel[dep.related_task.status] || "TO DO";
-  const pIcon = priorityIcon[dep.related_task.priority] || priorityIcon.medium;
+  const pIcon = priorityIcon[(dep.related_task as any).priority] || priorityIcon.medium;
 
   return (
     <div className="flex items-center gap-3 py-1.5 group">
