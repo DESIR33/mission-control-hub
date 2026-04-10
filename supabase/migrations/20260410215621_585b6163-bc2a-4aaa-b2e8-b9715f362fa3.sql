@@ -1,0 +1,1 @@
+UPDATE public.tasks SET domain_id = '7be3aff1-1895-471b-8e39-8b2fc6b001f2' WHERE domain_id IS NULL AND workspace_id = 'ea11b24d-27bd-4488-9760-2663bc788e04';
