@@ -10,6 +10,7 @@ import {
   Loader2, Sparkles, Search, Filter, ArrowLeft, AlertTriangle
 } from "lucide-react";
 import ConflictResolutionPanel from "@/components/memory/ConflictResolutionPanel";
+import MemoryHealthDashboard from "@/components/memory/MemoryHealthDashboard";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -561,6 +562,8 @@ export default function MemoryCapturePage() {
 
       {workspaceId && (
         <>
+          <MemoryHealthDashboard workspaceId={workspaceId} />
+
           <QuickCaptureForm
             workspaceId={workspaceId}
             existingTags={existingTags.data || []}

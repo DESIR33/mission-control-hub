@@ -176,3 +176,6 @@ verify_jwt = false
 
 [functions.memory-conflict-detector]
 verify_jwt = false
+
+[functions.memory-health-stats]
+verify_jwt = false
