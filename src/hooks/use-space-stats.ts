@@ -21,7 +21,7 @@ export interface SpaceStats {
   created_last_7: number;
   updated_last_7: number;
   projects: { id: string; name: string; status: string; task_count: number; completed_count: number }[];
-  recent_activity: { id: string; title: string; status: string; priority: string; updated_at: string }[];
+  upcoming_tasks: { id: string; title: string; status: string; priority: string; due_date: string }[];
 }
 
 export function useSpaceStats() {
@@ -89,10 +89,11 @@ export function useSpaceStats() {
           };
         });
 
-        const recentActivity = [...domainTasks]
-          .sort((a: any, b: any) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
+        const upcomingTasks = [...domainTasks]
+          .filter((t: any) => t.due_date && t.status !== "done" && t.status !== "cancelled")
+          .sort((a: any, b: any) => new Date(a.due_date).getTime() - new Date(b.due_date).getTime())
           .slice(0, 8)
-          .map((t: any) => ({ id: t.id, title: t.title, status: t.status, priority: t.priority, updated_at: t.updated_at }));
+          .map((t: any) => ({ id: t.id, title: t.title, status: t.status, priority: t.priority, due_date: t.due_date }));
 
         return {
           domain_id: domain.id,
@@ -113,7 +114,7 @@ export function useSpaceStats() {
           created_last_7: createdLast7,
           updated_last_7: updatedLast7,
           projects: projectStats,
-          recent_activity: recentActivity,
+          upcoming_tasks: upcomingTasks,
         };
       });
     },
