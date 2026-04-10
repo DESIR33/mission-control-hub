@@ -5331,60 +5331,6 @@ export type Database = {
           },
         ]
       }
-      notion_tasks: {
-        Row: {
-          category: string | null
-          created_at: string | null
-          day: number | null
-          due_date: string | null
-          id: string
-          notes: string | null
-          notion_created_at: string | null
-          notion_id: string
-          notion_url: string | null
-          phase: string | null
-          priority: string | null
-          source_database: string | null
-          status: string | null
-          task: string
-          updated_at: string | null
-        }
-        Insert: {
-          category?: string | null
-          created_at?: string | null
-          day?: number | null
-          due_date?: string | null
-          id?: string
-          notes?: string | null
-          notion_created_at?: string | null
-          notion_id: string
-          notion_url?: string | null
-          phase?: string | null
-          priority?: string | null
-          source_database?: string | null
-          status?: string | null
-          task: string
-          updated_at?: string | null
-        }
-        Update: {
-          category?: string | null
-          created_at?: string | null
-          day?: number | null
-          due_date?: string | null
-          id?: string
-          notes?: string | null
-          notion_created_at?: string | null
-          notion_id?: string
-          notion_url?: string | null
-          phase?: string | null
-          priority?: string | null
-          source_database?: string | null
-          status?: string | null
-          task?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       ops_completion_outcomes: {
         Row: {
           acted_at: string
