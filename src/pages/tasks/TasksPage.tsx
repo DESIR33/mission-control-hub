@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { List, Grid, Calendar, Inbox, Search } from "lucide-react";
 import { TemplateManager } from "@/components/tasks/TemplateComponents";
@@ -15,7 +15,9 @@ import { TaskKanbanView } from "@/components/tasks/TaskKanbanView";
 import { TaskCalendarView } from "@/components/tasks/TaskCalendarView";
 import { TaskInboxView } from "@/components/tasks/TaskInboxView";
 import { TaskFiltersBar } from "@/components/tasks/TaskFiltersBar";
+import { SavedViewsBar } from "@/components/tasks/SavedViewsBar";
 import type { TaskFilters, TaskStatus, TaskPriority } from "@/types/tasks";
+import type { TaskSavedView } from "@/hooks/use-task-saved-views";
 
 type ViewType = "list" | "board" | "calendar" | "inbox";
 
@@ -25,6 +27,7 @@ function TasksPageContent({ defaultView = "list" }: { defaultView?: ViewType }) 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<TaskStatus[]>([]);
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority[]>([]);
+  const [activeViewId, setActiveViewId] = useState<string | null>(null);
   const { activeDomainId } = useTaskDomain();
   useTaskKeyboardShortcuts();
 
@@ -38,6 +41,18 @@ function TasksPageContent({ defaultView = "list" }: { defaultView?: ViewType }) 
   }), [activeDomainId, search, view, statusFilter, priorityFilter]);
 
   const { tasks, isLoading } = useTasks(filters);
+
+  const handleApplyView = useCallback((sv: TaskSavedView) => {
+    setView(sv.view_type);
+    setStatusFilter(sv.filters?.status ?? []);
+    setPriorityFilter(sv.filters?.priority ?? []);
+    setSearch(sv.filters?.search ?? "");
+    setActiveViewId(sv.id);
+  }, []);
+
+  const handleClearView = useCallback(() => {
+    setActiveViewId(null);
+  }, []);
 
   const views: { id: ViewType; icon: any; label: string }[] = [
     { id: "inbox", icon: Inbox, label: "Inbox" },
@@ -61,7 +76,7 @@ function TasksPageContent({ defaultView = "list" }: { defaultView?: ViewType }) 
               key={v.id}
               variant="ghost"
               size="sm"
-              onClick={() => setView(v.id)}
+              onClick={() => { setView(v.id); setActiveViewId(null); }}
               className={cn(
                 "gap-1.5",
                 view === v.id && "bg-primary text-primary-foreground"
@@ -74,6 +89,18 @@ function TasksPageContent({ defaultView = "list" }: { defaultView?: ViewType }) 
         </div>
       </div>
 
+      {/* Saved Views */}
+      <SavedViewsBar
+        currentView={view}
+        statusFilter={statusFilter}
+        priorityFilter={priorityFilter}
+        search={search}
+        activeDomainId={activeDomainId}
+        activeViewId={activeViewId}
+        onApplyView={handleApplyView}
+        onClearView={handleClearView}
+      />
+
       {/* Quick Add + Search */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex-1">
@@ -83,7 +110,7 @@ function TasksPageContent({ defaultView = "list" }: { defaultView?: ViewType }) 
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => { setSearch(e.target.value); setActiveViewId(null); }}
             placeholder="Search tasks..."
             className="pl-9"
           />
@@ -94,9 +121,9 @@ function TasksPageContent({ defaultView = "list" }: { defaultView?: ViewType }) 
       {view !== "inbox" && (
         <TaskFiltersBar
           statusFilter={statusFilter}
-          onStatusChange={setStatusFilter}
+          onStatusChange={(s) => { setStatusFilter(s); setActiveViewId(null); }}
           priorityFilter={priorityFilter}
-          onPriorityChange={setPriorityFilter}
+          onPriorityChange={(p) => { setPriorityFilter(p); setActiveViewId(null); }}
         />
       )}
 
