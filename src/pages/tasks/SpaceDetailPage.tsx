@@ -40,11 +40,13 @@ export default function SpaceDetailPage() {
   const { tasks, isLoading: tasksLoading } = useTasks(filters);
 
   const handleTaskClick = (taskId: string) => {
+    navigate(`/tasks/${taskId}`);
+  };
+
+  const handleTaskEdit = (taskId: string) => {
     const task = tasks.find((t) => t.id === taskId);
     if (task) {
       setEditingTask(task);
-    } else {
-      navigate(`/tasks/${taskId}`);
     }
   };
 
