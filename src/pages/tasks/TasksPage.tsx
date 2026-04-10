@@ -16,6 +16,8 @@ import { TaskCalendarView } from "@/components/tasks/TaskCalendarView";
 import { TaskInboxView } from "@/components/tasks/TaskInboxView";
 import { TaskTableView } from "@/components/tasks/TaskTableView";
 import { TaskFiltersBar } from "@/components/tasks/TaskFiltersBar";
+import { TemplateManager } from "@/components/tasks/TemplateComponents";
+import { SavedViewsBar } from "@/components/tasks/SavedViewsBar";
 import type { Task, TaskFilters, TaskStatus, TaskPriority } from "@/types/tasks";
 
 type ViewType = "list" | "board" | "calendar" | "inbox" | "table";
