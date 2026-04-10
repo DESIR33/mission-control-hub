@@ -1,7 +1,8 @@
 import { useMemo } from "react";
-import { CheckCircle2, Circle, Clock } from "lucide-react";
+import { CheckCircle2, Circle, Clock, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTasks } from "@/hooks/use-tasks";
+import { useBlockedTaskIds } from "@/hooks/use-task-dependencies";
 import { format } from "date-fns";
 import type { Task, TaskStatus } from "@/types/tasks";
 
@@ -25,6 +26,7 @@ interface TaskKanbanViewProps {
 
 export function TaskKanbanView({ tasks, onTaskClick }: TaskKanbanViewProps) {
   const { updateTask } = useTasks();
+  const blockedIds = useBlockedTaskIds(tasks.map((t) => t.id));
 
   const grouped = useMemo(() => {
     const map: Record<string, Task[]> = { todo: [], in_progress: [], done: [] };
@@ -66,9 +68,14 @@ export function TaskKanbanView({ tasks, onTaskClick }: TaskKanbanViewProps) {
                 <div className="flex items-start gap-2">
                   <div className={cn("w-2 h-2 rounded-full mt-1.5 shrink-0", priorityDot[task.priority])} />
                   <div className="flex-1 min-w-0">
-                    <p className={cn("text-sm font-medium truncate", task.status === "done" && "line-through opacity-60")}>
-                      {task.title}
-                    </p>
+                    <div className="flex items-center gap-1.5">
+                      {blockedIds.has(task.id) && (
+                        <Lock className="h-3 w-3 text-destructive shrink-0" />
+                      )}
+                      <p className={cn("text-sm font-medium truncate", task.status === "done" && "line-through opacity-60")}>
+                        {task.title}
+                      </p>
+                    </div>
                     {task.due_date && (
                       <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
                         <Clock className="h-3 w-3" />
