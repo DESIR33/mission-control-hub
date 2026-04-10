@@ -258,7 +258,12 @@ Deno.serve(async (req) => {
         memory_type: "learned",
         embedding: embedding ? JSON.stringify(embedding) : null,
         entity_type: event_type === "deal_stage_change" ? "deal" : event_type === "video_performance" ? "video" : null,
-        entity_id: (event_data.deal_id || event_data.video_id || null) as string | null,
+        entity_id: (() => {
+          const raw = (event_data.deal_id || event_data.video_id || null) as string | null;
+          if (!raw) return null;
+          // Only use if valid UUID
+          return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(raw) ? raw : null;
+        })(),
       });
 
       if (error) {
