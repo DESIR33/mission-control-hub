@@ -69,6 +69,7 @@ export const mainNavItems: NavItem[] = [
     icon: CheckSquare,
     label: "Tasks",
     children: [
+      { to: "/tasks/spaces", label: "Spaces", icon: Grid },
       { to: "/tasks/inbox", label: "Inbox", icon: Inbox },
       { to: "/tasks/all", label: "All Tasks", icon: List },
       { to: "/tasks/board", label: "Board", icon: Grid },
