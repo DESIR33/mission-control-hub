@@ -154,7 +154,7 @@ export function TaskEditDialog({ task, open, onOpenChange }: Props) {
           </div>
         </div>
 
-        <DialogFooter className="flex justify-between sm:justify-between">
+        <div className="flex items-center justify-between gap-2 pt-4 border-t shrink-0">
           <Button variant="destructive" size="sm" onClick={handleDelete}>
             Delete
           </Button>
@@ -164,7 +164,7 @@ export function TaskEditDialog({ task, open, onOpenChange }: Props) {
               {saving ? "Saving..." : "Save"}
             </Button>
           </div>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );
