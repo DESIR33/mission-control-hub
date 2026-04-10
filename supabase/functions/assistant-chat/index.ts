@@ -306,15 +306,29 @@ async function handleToolCall(
       try {
         const embedding = await getEmbedding(toolInput.query);
         const embeddingStr = embedding ? `[${embedding.join(",")}]` : "";
+        const matchCount = Math.min(toolInput.limit || 10, 50);
         const { data, error } = await supabase.rpc("hybrid_memory_search", {
           query_embedding: embeddingStr,
           query_text: toolInput.query,
           ws_id: workspaceId,
           origin_filter: toolInput.origin_filter || "any",
-          match_count: 5,
+          match_count: matchCount,
+          search_offset: toolInput.offset || 0,
         });
         if (error) return { error: error.message };
-        return { results: data || [] };
+        const results = data || [];
+        // Track access
+        for (const mem of results) {
+          try {
+            await supabase.rpc("record_memory_access", {
+              p_memory_id: mem.id,
+              p_workspace_id: workspaceId,
+              p_accessed_by: "assistant",
+              p_query_context: toolInput.query?.substring(0, 200),
+            });
+          } catch { /* non-critical */ }
+        }
+        return { results };
       } catch (e: unknown) {
         return { results: [], error: (e as Error).message };
       }
@@ -511,9 +525,21 @@ async function buildSystemPrompt(
           query_text: userMessage,
           ws_id: workspaceId,
           origin_filter: "any",
-          match_count: 5,
+          match_count: 10,
         });
-        return data || [];
+        const results = data || [];
+        // Track access for auto-fetched memories
+        for (const mem of results) {
+          try {
+            await supabase.rpc("record_memory_access", {
+              p_memory_id: mem.id,
+              p_workspace_id: workspaceId,
+              p_accessed_by: "assistant-auto",
+              p_query_context: userMessage?.substring(0, 200),
+            });
+          } catch { /* non-critical */ }
+        }
+        return results;
       } catch { return []; }
     })(),
     // Today + yesterday logs

@@ -10125,22 +10125,40 @@ export type Database = {
         }[]
       }
       get_workspace_role: { Args: { ws_id: string }; Returns: string }
-      hybrid_memory_search: {
-        Args: {
-          match_count?: number
-          origin_filter?: string
-          query_embedding: string
-          query_text: string
-          ws_id: string
-        }
-        Returns: {
-          content: string
-          id: string
-          origin: string
-          rrf_score: number
-          tags: string[]
-        }[]
-      }
+      hybrid_memory_search:
+        | {
+            Args: {
+              match_count?: number
+              origin_filter?: string
+              query_embedding: string
+              query_text: string
+              search_offset?: number
+              ws_id: string
+            }
+            Returns: {
+              content: string
+              id: string
+              origin: string
+              rrf_score: number
+              tags: string[]
+            }[]
+          }
+        | {
+            Args: {
+              match_count?: number
+              origin_filter?: string
+              query_embedding: string
+              query_text: string
+              ws_id: string
+            }
+            Returns: {
+              content: string
+              id: string
+              origin: string
+              rrf_score: number
+              tags: string[]
+            }[]
+          }
       is_workspace_member: { Args: { ws_id: string }; Returns: boolean }
       memory_vector_search: {
         Args: {
