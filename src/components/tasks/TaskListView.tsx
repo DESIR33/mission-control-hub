@@ -26,9 +26,10 @@ interface SortRule {
 interface TaskListViewProps {
   tasks: Task[];
   onTaskClick: (taskId: string) => void;
+  onTaskEdit?: (taskId: string) => void;
 }
 
-export function TaskListView({ tasks, onTaskClick }: TaskListViewProps) {
+export function TaskListView({ tasks, onTaskClick, onTaskEdit }: TaskListViewProps) {
   const { updateTask, deleteTask } = useTasks();
   const { toast } = useToast();
   const blockedIds = useBlockedTaskIds(tasks.map((t) => t.id));
@@ -293,13 +294,15 @@ export function TaskListView({ tasks, onTaskClick }: TaskListViewProps) {
               </div>
             </div>
 
-            <button
-              onClick={(e) => { e.stopPropagation(); onTaskClick(task.id); }}
-              className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-primary"
-              title="Edit task"
-            >
-              <Pencil className="h-3.5 w-3.5" />
-            </button>
+            {onTaskEdit && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onTaskEdit(task.id); }}
+                className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-primary"
+                title="Edit task"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+              </button>
+            )}
 
             {task.due_date && (() => {
               const due = new Date(task.due_date);
