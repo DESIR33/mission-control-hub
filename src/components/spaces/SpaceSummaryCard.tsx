@@ -4,7 +4,7 @@ import { Shield, Briefcase, CheckCircle2, FileEdit, Calendar, Layers, ChevronRig
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { formatDistanceToNow } from "date-fns";
+import { format, isPast, isToday, startOfDay } from "date-fns";
 import type { SpaceStats } from "@/hooks/use-space-stats";
 import { SpaceStatusDonut } from "./SpaceStatusDonut";
 import { SpacePriorityChart } from "./SpacePriorityChart";
@@ -113,41 +113,51 @@ export function SpaceSummaryCard({ space }: Props) {
             </CardContent>
           </Card>
 
-          {/* Recent activity */}
+          {/* Upcoming tasks */}
           <Card className="border bg-background/50">
             <CardHeader className="pb-2 pt-4 px-4">
-              <CardTitle className="text-sm font-medium">Recent activity</CardTitle>
-              <p className="text-xs text-muted-foreground">Latest task updates</p>
+              <CardTitle className="text-sm font-medium">Upcoming tasks</CardTitle>
+              <p className="text-xs text-muted-foreground">Tasks due soon</p>
             </CardHeader>
             <CardContent className="px-4 pb-4">
-              {space.recent_activity.length > 0 ? (
+              {space.upcoming_tasks.length > 0 ? (
                 <div className="space-y-2 max-h-[220px] overflow-y-auto">
-                  {space.recent_activity.map((item) => (
-                    <button
-                      key={item.id}
-                      className="w-full flex items-start gap-2 text-left rounded-md p-2 hover:bg-muted/50 transition-colors"
-                      onClick={() => navigate(`/tasks/${item.id}`)}
-                    >
-                      <div className={cn("mt-0.5 w-2 h-2 rounded-full shrink-0", {
-                        "bg-emerald-500": item.status === "done",
-                        "bg-primary": item.status === "in_progress",
-                        "bg-muted-foreground": item.status === "todo",
-                        "bg-destructive": item.status === "cancelled",
-                      })} />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium truncate text-card-foreground">{item.title}</p>
-                        <p className="text-[10px] text-muted-foreground">
-                          {formatDistanceToNow(new Date(item.updated_at), { addSuffix: true })}
-                        </p>
-                      </div>
-                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 shrink-0">
-                        {item.status.replace("_", " ")}
-                      </Badge>
-                    </button>
-                  ))}
+                  {space.upcoming_tasks.map((item) => {
+                    const due = new Date(item.due_date);
+                    const overdue = isPast(startOfDay(due)) && !isToday(due);
+                    const dueToday = isToday(due);
+                    return (
+                      <button
+                        key={item.id}
+                        className="w-full flex items-start gap-2 text-left rounded-md p-2 hover:bg-muted/50 transition-colors"
+                        onClick={() => navigate(`/tasks/${item.id}`)}
+                      >
+                        <div className={cn("mt-0.5 w-2 h-2 rounded-full shrink-0", {
+                          "bg-primary": item.status === "in_progress",
+                          "bg-muted-foreground": item.status === "todo",
+                        })} />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-medium truncate text-card-foreground">{item.title}</p>
+                          <div className={cn("flex items-center gap-1 text-[10px]", {
+                            "text-destructive": overdue,
+                            "text-warning": dueToday,
+                            "text-muted-foreground": !overdue && !dueToday,
+                          })}>
+                            {overdue ? <AlertTriangle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
+                            {overdue ? "Overdue" : dueToday ? "Due today" : format(due, "MMM d")}
+                          </div>
+                        </div>
+                        <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 h-4 shrink-0", {
+                          "border-destructive text-destructive": overdue,
+                        })}>
+                          {item.priority}
+                        </Badge>
+                      </button>
+                    );
+                  })}
                 </div>
               ) : (
-                <p className="text-xs text-muted-foreground text-center py-8">No recent activity</p>
+                <p className="text-xs text-muted-foreground text-center py-8">No upcoming tasks</p>
               )}
             </CardContent>
           </Card>
