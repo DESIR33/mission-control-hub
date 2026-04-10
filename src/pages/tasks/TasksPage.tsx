@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { List, Grid, Calendar, Inbox, Search, Table, ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -189,6 +189,7 @@ function TasksPageContent({ defaultView = "list" }: { defaultView?: ViewType }) 
         <div className="flex items-center gap-4 flex-wrap">
           <h1 className="text-2xl font-bold">Tasks</h1>
           <DomainSwitcher />
+          <TemplateManager />
         </div>
         <div className="flex items-center gap-1">
           {views.map((v) => (
@@ -196,7 +197,7 @@ function TasksPageContent({ defaultView = "list" }: { defaultView?: ViewType }) 
               key={v.id}
               variant="ghost"
               size="sm"
-              onClick={() => setView(v.id)}
+              onClick={() => { setView(v.id); setActiveViewId(null); }}
               className={cn(
                 "gap-1.5",
                 view === v.id && "bg-primary text-primary-foreground"
@@ -209,6 +210,18 @@ function TasksPageContent({ defaultView = "list" }: { defaultView?: ViewType }) 
         </div>
       </div>
 
+      {/* Saved Views */}
+      <SavedViewsBar
+        currentView={view}
+        statusFilter={statusFilter}
+        priorityFilter={priorityFilter}
+        search={search}
+        activeDomainId={activeDomainId}
+        activeViewId={activeViewId}
+        onApplyView={handleApplyView}
+        onClearView={handleClearView}
+      />
+
       {/* Quick Add + Search */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex-1">
@@ -218,7 +231,7 @@ function TasksPageContent({ defaultView = "list" }: { defaultView?: ViewType }) 
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => { setSearch(e.target.value); setActiveViewId(null); }}
             placeholder="Search tasks..."
             className="pl-9"
           />

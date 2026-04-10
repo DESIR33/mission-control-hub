@@ -158,15 +158,31 @@ export async function memorySearch(supabase: any, workspaceId: string, input: an
   try {
     const embedding = await getEmbedding(input.query);
     const embeddingStr = embedding ? `[${embedding.join(",")}]` : "";
+    const matchCount = Math.min(input.limit || 10, 50);
     const { data, error } = await supabase.rpc("hybrid_memory_search", {
       query_embedding: embeddingStr,
       query_text: input.query,
       ws_id: workspaceId,
       origin_filter: input.origin_filter || "any",
-      match_count: 5,
+      match_count: matchCount,
+      search_offset: input.offset || 0,
     });
     if (error) return { error: error.message };
-    return { results: data || [] };
+
+    // Track access for returned memories
+    const results = data || [];
+    for (const mem of results) {
+      try {
+        await supabase.rpc("record_memory_access", {
+          p_memory_id: mem.id,
+          p_workspace_id: workspaceId,
+          p_accessed_by: "agent",
+          p_query_context: input.query?.substring(0, 200),
+        });
+      } catch { /* non-critical */ }
+    }
+
+    return { results };
   } catch (e: any) {
     return { results: [], error: e.message };
   }

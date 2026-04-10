@@ -66,6 +66,8 @@ export interface Task {
   subtask_count?: number;
   subtask_done_count?: number;
   labels?: TaskLabel[];
+  dependency_count?: number;
+  blocking_count?: number;
 }
 
 export interface TaskComment {

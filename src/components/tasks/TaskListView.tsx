@@ -3,6 +3,7 @@ import { format, isPast, isToday, startOfDay } from "date-fns";
 import { CheckCircle2, Circle, Clock, SquareCheck, Square, Trash2, ArrowUpDown, AlertTriangle, GripVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTasks } from "@/hooks/use-tasks";
+import { useBlockedTaskIds } from "@/hooks/use-task-dependencies";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
@@ -30,6 +31,7 @@ interface TaskListViewProps {
 export function TaskListView({ tasks, onTaskClick }: TaskListViewProps) {
   const { updateTask, deleteTask } = useTasks();
   const { toast } = useToast();
+  const blockedIds = useBlockedTaskIds(tasks.map((t) => t.id));
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [sortRules, setSortRules] = useState<SortRule[]>([{ field: "default", direction: "asc" }]);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
@@ -279,6 +281,9 @@ export function TaskListView({ tasks, onTaskClick }: TaskListViewProps) {
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
+                {blockedIds.has(task.id) && (
+                  <Lock className="h-3.5 w-3.5 text-destructive shrink-0" />
+                )}
                 <span className={cn("text-sm font-medium truncate", task.status === "done" && "line-through")}>
                   {task.title}
                 </span>

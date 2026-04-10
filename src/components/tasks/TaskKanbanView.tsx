@@ -32,6 +32,7 @@ interface TaskKanbanViewProps {
 
 export function TaskKanbanView({ tasks, onTaskClick }: TaskKanbanViewProps) {
   const { updateTask } = useTasks();
+  const blockedIds = useBlockedTaskIds(tasks.map((t) => t.id));
 
   const grouped = useMemo(() => {
     const map: Record<string, Task[]> = { todo: [], in_progress: [], done: [] };
@@ -39,6 +40,13 @@ export function TaskKanbanView({ tasks, onTaskClick }: TaskKanbanViewProps) {
       if (map[t.status]) map[t.status].push(t);
       else map.todo.push(t);
     });
+    for (const key of Object.keys(map)) {
+      map[key].sort((a, b) => {
+        if (!a.due_date) return 1;
+        if (!b.due_date) return -1;
+        return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
+      });
+    }
     return map;
   }, [tasks]);
 

@@ -6748,6 +6748,58 @@ export type Database = {
           },
         ]
       }
+      task_comment_mentions: {
+        Row: {
+          comment_id: string
+          created_at: string
+          id: string
+          mentioned_user_id: string
+          read: boolean
+          task_id: string
+          workspace_id: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string
+          id?: string
+          mentioned_user_id: string
+          read?: boolean
+          task_id: string
+          workspace_id: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string
+          id?: string
+          mentioned_user_id?: string
+          read?: boolean
+          task_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_comment_mentions_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "task_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_comment_mentions_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_comment_mentions_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       task_comments: {
         Row: {
           author_id: string
@@ -6786,6 +6838,52 @@ export type Database = {
           },
           {
             foreignKeyName: "task_comments_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_dependencies: {
+        Row: {
+          created_at: string
+          depends_on_task_id: string
+          id: string
+          task_id: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          depends_on_task_id: string
+          id?: string
+          task_id: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          depends_on_task_id?: string
+          id?: string
+          task_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_dependencies_depends_on_task_id_fkey"
+            columns: ["depends_on_task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_dependencies_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_dependencies_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -6964,6 +7062,135 @@ export type Database = {
           },
           {
             foreignKeyName: "task_projects_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_saved_views: {
+        Row: {
+          created_at: string
+          filters: Json | null
+          group_by: string | null
+          icon: string | null
+          id: string
+          is_pinned: boolean
+          name: string
+          sort_config: Json | null
+          sort_order: number
+          updated_at: string
+          user_id: string
+          view_type: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          filters?: Json | null
+          group_by?: string | null
+          icon?: string | null
+          id?: string
+          is_pinned?: boolean
+          name: string
+          sort_config?: Json | null
+          sort_order?: number
+          updated_at?: string
+          user_id: string
+          view_type: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          filters?: Json | null
+          group_by?: string | null
+          icon?: string | null
+          id?: string
+          is_pinned?: boolean
+          name?: string
+          sort_config?: Json | null
+          sort_order?: number
+          updated_at?: string
+          user_id?: string
+          view_type?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_saved_views_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_templates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          default_domain_id: string | null
+          default_estimated_minutes: number | null
+          default_labels: string[] | null
+          default_priority: string | null
+          default_project_id: string | null
+          default_status: string
+          description: string | null
+          id: string
+          name: string
+          subtask_templates: Json | null
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          default_domain_id?: string | null
+          default_estimated_minutes?: number | null
+          default_labels?: string[] | null
+          default_priority?: string | null
+          default_project_id?: string | null
+          default_status?: string
+          description?: string | null
+          id?: string
+          name: string
+          subtask_templates?: Json | null
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          default_domain_id?: string | null
+          default_estimated_minutes?: number | null
+          default_labels?: string[] | null
+          default_priority?: string | null
+          default_project_id?: string | null
+          default_status?: string
+          description?: string | null
+          id?: string
+          name?: string
+          subtask_templates?: Json | null
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_templates_default_domain_id_fkey"
+            columns: ["default_domain_id"]
+            isOneToOne: false
+            referencedRelation: "task_domains"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_templates_default_project_id_fkey"
+            columns: ["default_project_id"]
+            isOneToOne: false
+            referencedRelation: "task_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_templates_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -10125,22 +10352,40 @@ export type Database = {
         }[]
       }
       get_workspace_role: { Args: { ws_id: string }; Returns: string }
-      hybrid_memory_search: {
-        Args: {
-          match_count?: number
-          origin_filter?: string
-          query_embedding: string
-          query_text: string
-          ws_id: string
-        }
-        Returns: {
-          content: string
-          id: string
-          origin: string
-          rrf_score: number
-          tags: string[]
-        }[]
-      }
+      hybrid_memory_search:
+        | {
+            Args: {
+              match_count?: number
+              origin_filter?: string
+              query_embedding: string
+              query_text: string
+              search_offset?: number
+              ws_id: string
+            }
+            Returns: {
+              content: string
+              id: string
+              origin: string
+              rrf_score: number
+              tags: string[]
+            }[]
+          }
+        | {
+            Args: {
+              match_count?: number
+              origin_filter?: string
+              query_embedding: string
+              query_text: string
+              ws_id: string
+            }
+            Returns: {
+              content: string
+              id: string
+              origin: string
+              rrf_score: number
+              tags: string[]
+            }[]
+          }
       is_workspace_member: { Args: { ws_id: string }; Returns: boolean }
       memory_vector_search: {
         Args: {
