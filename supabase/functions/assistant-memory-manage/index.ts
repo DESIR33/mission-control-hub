@@ -105,12 +105,14 @@ Deno.serve(async (req) => {
       }
       case "search": {
         const embedding = await getEmbedding(body.query);
+        const embeddingStr = embedding ? `[${embedding.join(",")}]` : "";
         const { data, error } = await supabase.rpc("hybrid_memory_search", {
-          query_embedding: `[${embedding.join(",")}]`,
+          query_embedding: embeddingStr,
           query_text: body.query,
           ws_id: workspace_id,
           origin_filter: body.origin_filter || "any",
           match_count: body.limit || 10,
+          search_offset: body.offset || 0,
         });
         if (error) throw error;
         return new Response(JSON.stringify(data || []), {

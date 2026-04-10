@@ -375,9 +375,20 @@ Deno.serve(async (req) => {
               query_text: userMessage,
               ws_id: workspace_id,
               origin_filter: "any",
-              match_count: 5,
+              match_count: 10,
             });
-            return data || [];
+            const results = data || [];
+            for (const mem of results) {
+              try {
+                await supabase.rpc("record_memory_access", {
+                  p_memory_id: mem.id,
+                  p_workspace_id: workspace_id,
+                  p_accessed_by: "orchestrator-auto",
+                  p_query_context: userMessage?.substring(0, 200),
+                });
+              } catch { /* non-critical */ }
+            }
+            return results;
           } catch { return []; }
         })(),
         supabase.from("growth_goals").select("target_value, current_value, target_date")
