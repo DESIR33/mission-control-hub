@@ -282,7 +282,7 @@ export function TaskListView({ tasks, onTaskClick }: TaskListViewProps) {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 {blockedIds.has(task.id) && (
-                  <Lock className="h-3.5 w-3.5 text-destructive shrink-0" />
+                  <LockKeyhole className="h-3.5 w-3.5 text-destructive shrink-0" />
                 )}
                 <span className={cn("text-sm font-medium truncate", task.status === "done" && "line-through")}>
                   {task.title}
