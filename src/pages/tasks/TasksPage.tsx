@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { List, Grid, Calendar, Inbox, Search, Table, ChevronDown, ChevronRight } from "lucide-react";
+import { Grid, Calendar, Inbox, Search, Table, ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -10,7 +10,7 @@ import { useTaskDomain, TaskDomainProvider } from "@/hooks/use-task-domain";
 import { useTaskKeyboardShortcuts } from "@/hooks/useTaskKeyboardShortcuts";
 import { DomainSwitcher } from "@/components/tasks/DomainSwitcher";
 import { QuickAddTask } from "@/components/tasks/QuickAddTask";
-import { TaskListView } from "@/components/tasks/TaskListView";
+
 import { TaskKanbanView } from "@/components/tasks/TaskKanbanView";
 import { TaskCalendarView } from "@/components/tasks/TaskCalendarView";
 import { TaskInboxView } from "@/components/tasks/TaskInboxView";
@@ -20,7 +20,7 @@ import { TemplateManager } from "@/components/tasks/TemplateComponents";
 import { SavedViewsBar } from "@/components/tasks/SavedViewsBar";
 import type { Task, TaskFilters, TaskStatus, TaskPriority } from "@/types/tasks";
 
-type ViewType = "list" | "board" | "calendar" | "inbox" | "table";
+type ViewType = "board" | "calendar" | "inbox" | "table";
 type GroupBy = "none" | "status" | "priority" | "domain" | "project";
 
 const groupByLabels: Record<GroupBy, string> = {
@@ -127,7 +127,6 @@ function GroupedView({
 }
 
 function ViewRenderer({ view, tasks, onTaskClick }: { view: ViewType; tasks: Task[]; onTaskClick: (id: string) => void }) {
-  if (view === "list") return <TaskListView tasks={tasks} onTaskClick={onTaskClick} />;
   if (view === "board") return <TaskKanbanView tasks={tasks} onTaskClick={onTaskClick} />;
   if (view === "calendar") return <TaskCalendarView tasks={tasks} onTaskClick={onTaskClick} />;
   if (view === "inbox") return <TaskInboxView tasks={tasks} onTaskClick={onTaskClick} />;
@@ -135,7 +134,7 @@ function ViewRenderer({ view, tasks, onTaskClick }: { view: ViewType; tasks: Tas
   return null;
 }
 
-function TasksPageContent({ defaultView = "list" }: { defaultView?: ViewType }) {
+function TasksPageContent({ defaultView = "board" }: { defaultView?: ViewType }) {
   const navigate = useNavigate();
   const [view, setView] = useState<ViewType>(defaultView);
   const [search, setSearch] = useState("");
@@ -189,7 +188,6 @@ function TasksPageContent({ defaultView = "list" }: { defaultView?: ViewType }) 
 
   const views: { id: ViewType; icon: any; label: string }[] = [
     { id: "inbox", icon: Inbox, label: "Inbox" },
-    { id: "list", icon: List, label: "List" },
     { id: "board", icon: Grid, label: "Board" },
     { id: "table", icon: Table, label: "Table" },
     { id: "calendar", icon: Calendar, label: "Calendar" },
