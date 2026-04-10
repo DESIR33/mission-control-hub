@@ -12,7 +12,8 @@ import { TaskActivityLog } from "@/components/tasks/TaskActivityLog";
 import { LabelPicker } from "@/components/tasks/LabelPicker";
 import { RecurrencePicker } from "@/components/tasks/RecurrencePicker";
 import { TaskDependencies } from "@/components/tasks/TaskDependencies";
-import { useTasks } from "@/hooks/use-tasks";
+import { SaveAsTemplate } from "@/components/tasks/SaveAsTemplate";
+import { useTasks, useSubtasks } from "@/hooks/use-tasks";
 import { useTaskDomain, TaskDomainProvider } from "@/hooks/use-task-domain";
 import { useTaskProjects } from "@/hooks/use-task-projects";
 import { useToast } from "@/hooks/use-toast";
@@ -30,6 +31,7 @@ function TaskDetailContent() {
   const navigate = useNavigate();
   const { workspaceId } = useWorkspace();
   const { updateTask, deleteTask } = useTasks();
+  const { tasks: subtasks } = useSubtasks(taskId);
   const { domains } = useTaskDomain();
   const { projects } = useTaskProjects();
   const { toast } = useToast();
@@ -207,6 +209,8 @@ function TaskDetailContent() {
           <Button variant="destructive" size="sm" onClick={handleDelete} className="w-full">
             <Trash2 className="h-4 w-4 mr-1" /> Delete Task
           </Button>
+
+          <SaveAsTemplate task={task} subtasks={subtasks} />
         </div>
       </div>
     </div>

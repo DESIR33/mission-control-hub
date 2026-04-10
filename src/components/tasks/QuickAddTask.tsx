@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { useTasks } from "@/hooks/use-tasks";
 import { useTaskDomain } from "@/hooks/use-task-domain";
 import { useToast } from "@/hooks/use-toast";
+import { TemplatePicker } from "@/components/tasks/TemplateComponents";
 import type { TaskPriority } from "@/types/tasks";
 
 export function QuickAddTask({ projectId }: { projectId?: string }) {
@@ -45,16 +46,19 @@ export function QuickAddTask({ projectId }: { projectId?: string }) {
   };
 
   return (
-    <div className="relative">
-      <Plus className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-      <Input
-        data-quick-add="true"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        placeholder="Add a task... (⌘K to focus, Enter to create, !high for priority)"
-        className="pl-9 bg-muted/50 border-dashed"
-      />
+    <div className="flex gap-2">
+      <div className="relative flex-1">
+        <Plus className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          data-quick-add="true"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Add a task... (⌘K to focus, Enter to create, !high for priority)"
+          className="pl-9 bg-muted/50 border-dashed"
+        />
+      </div>
+      <TemplatePicker domainId={activeDomainId} projectId={projectId} />
     </div>
   );
 }
