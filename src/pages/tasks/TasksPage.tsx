@@ -16,6 +16,8 @@ import { TaskCalendarView } from "@/components/tasks/TaskCalendarView";
 import { TaskInboxView } from "@/components/tasks/TaskInboxView";
 import { TaskTableView } from "@/components/tasks/TaskTableView";
 import { TaskFiltersBar } from "@/components/tasks/TaskFiltersBar";
+import { TemplateManager } from "@/components/tasks/TemplateComponents";
+import { SavedViewsBar } from "@/components/tasks/SavedViewsBar";
 import type { Task, TaskFilters, TaskStatus, TaskPriority } from "@/types/tasks";
 
 type ViewType = "list" | "board" | "calendar" | "inbox" | "table";
@@ -142,7 +144,20 @@ function TasksPageContent({ defaultView = "list" }: { defaultView?: ViewType }) 
   const [labelFilter, setLabelFilter] = useState<string[]>([]);
   const [groupBy, setGroupBy] = useState<GroupBy>("none");
   const { activeDomainId, domains } = useTaskDomain();
+  const [activeViewId, setActiveViewId] = useState<string | null>(null);
   useTaskKeyboardShortcuts();
+
+  const handleApplyView = useCallback((savedView: any) => {
+    if (savedView.config?.view) setView(savedView.config.view);
+    if (savedView.config?.status) setStatusFilter(savedView.config.status);
+    if (savedView.config?.priority) setPriorityFilter(savedView.config.priority);
+    if (savedView.config?.search) setSearch(savedView.config.search);
+    setActiveViewId(savedView.id);
+  }, []);
+
+  const handleClearView = useCallback(() => {
+    setActiveViewId(null);
+  }, []);
 
   // Get projects for grouping labels
   const { tasks: allProjects } = useTasks({ parent_task_id: null });
@@ -212,7 +227,7 @@ function TasksPageContent({ defaultView = "list" }: { defaultView?: ViewType }) 
 
       {/* Saved Views */}
       <SavedViewsBar
-        currentView={view}
+        currentView={view as any}
         statusFilter={statusFilter}
         priorityFilter={priorityFilter}
         search={search}

@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { format, isPast, isToday, startOfDay } from "date-fns";
-import { CheckCircle2, Circle, Clock, SquareCheck, Square, Trash2, ArrowUpDown, AlertTriangle, GripVertical } from "lucide-react";
+import { CheckCircle2, Circle, Clock, SquareCheck, Square, Trash2, ArrowUpDown, AlertTriangle, GripVertical, LockKeyhole } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTasks } from "@/hooks/use-tasks";
 import { useBlockedTaskIds } from "@/hooks/use-task-dependencies";
@@ -282,7 +282,7 @@ export function TaskListView({ tasks, onTaskClick }: TaskListViewProps) {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 {blockedIds.has(task.id) && (
-                  <Lock className="h-3.5 w-3.5 text-destructive shrink-0" />
+                  <LockKeyhole className="h-3.5 w-3.5 text-destructive shrink-0" />
                 )}
                 <span className={cn("text-sm font-medium truncate", task.status === "done" && "line-through")}>
                   {task.title}

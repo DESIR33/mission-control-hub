@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { Clock, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTasks } from "@/hooks/use-tasks";
+import { useBlockedTaskIds } from "@/hooks/use-task-dependencies";
 import { format, isPast, isToday, startOfDay } from "date-fns";
 import type { Task, TaskStatus } from "@/types/tasks";
 
