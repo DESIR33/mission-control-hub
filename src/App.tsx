@@ -222,7 +222,7 @@ const App = () => (
               <Route path="/tasks/spaces" element={<LazyPage section="Spaces"><SpacesPage /></LazyPage>} />
               <Route path="/tasks/spaces/:spaceId" element={<LazyPage section="Space Detail"><SpaceDetailPage /></LazyPage>} />
               <Route path="/tasks/inbox" element={<LazyPage section="Tasks"><TasksPage defaultView="inbox" /></LazyPage>} />
-              <Route path="/tasks/all" element={<LazyPage section="Tasks"><TasksPage defaultView="list" /></LazyPage>} />
+              <Route path="/tasks/all" element={<LazyPage section="Tasks"><TasksPage defaultView="board" /></LazyPage>} />
               <Route path="/tasks/board" element={<LazyPage section="Tasks"><TasksPage defaultView="board" /></LazyPage>} />
               <Route path="/tasks/calendar" element={<LazyPage section="Tasks"><TasksPage defaultView="calendar" /></LazyPage>} />
               <Route path="/tasks/projects" element={<LazyPage section="Tasks"><TaskProjectsPage /></LazyPage>} />
