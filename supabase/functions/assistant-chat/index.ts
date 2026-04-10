@@ -765,6 +765,12 @@ Deno.serve(async (req) => {
       },
     });
 
+    // Post-session auto-extraction: check message count and trigger if 4+ messages
+    // Fire-and-forget — don't block the response
+    triggerAutoExtraction(session_id, workspace_id, supabase, selectedModel).catch(
+      (e) => console.error("Auto-extraction trigger failed:", e)
+    );
+
     return jsonResponse({
       response: finalResponse,
       memories_used: memoriesUsed,
