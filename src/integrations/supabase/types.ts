@@ -4674,6 +4674,44 @@ export type Database = {
           },
         ]
       }
+      memory_pipeline_config: {
+        Row: {
+          config: Json
+          created_at: string
+          enabled: boolean
+          id: string
+          pipeline_key: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          pipeline_key: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          pipeline_key?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memory_pipeline_config_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       memory_ratings: {
         Row: {
           created_at: string
@@ -10057,6 +10095,14 @@ export type Database = {
       }
       soft_delete_company: {
         Args: { company_id: string; ws_id: string }
+        Returns: undefined
+      }
+      trigger_auto_memory_extractor: {
+        Args: {
+          p_event_data: Json
+          p_event_type: string
+          p_workspace_id: string
+        }
         Returns: undefined
       }
       trigger_beehiiv_post_sync: { Args: never; Returns: undefined }
