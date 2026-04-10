@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { List, Grid, Calendar, Inbox, Search } from "lucide-react";
+import { TemplateManager } from "@/components/tasks/TemplateComponents";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -52,6 +53,7 @@ function TasksPageContent({ defaultView = "list" }: { defaultView?: ViewType }) 
         <div className="flex items-center gap-4 flex-wrap">
           <h1 className="text-2xl font-bold">Tasks</h1>
           <DomainSwitcher />
+          <TemplateManager />
         </div>
         <div className="flex items-center gap-1">
           {views.map((v) => (

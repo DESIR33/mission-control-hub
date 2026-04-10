@@ -7069,6 +7069,79 @@ export type Database = {
           },
         ]
       }
+      task_templates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          default_domain_id: string | null
+          default_estimated_minutes: number | null
+          default_labels: string[] | null
+          default_priority: string | null
+          default_project_id: string | null
+          default_status: string
+          description: string | null
+          id: string
+          name: string
+          subtask_templates: Json | null
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          default_domain_id?: string | null
+          default_estimated_minutes?: number | null
+          default_labels?: string[] | null
+          default_priority?: string | null
+          default_project_id?: string | null
+          default_status?: string
+          description?: string | null
+          id?: string
+          name: string
+          subtask_templates?: Json | null
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          default_domain_id?: string | null
+          default_estimated_minutes?: number | null
+          default_labels?: string[] | null
+          default_priority?: string | null
+          default_project_id?: string | null
+          default_status?: string
+          description?: string | null
+          id?: string
+          name?: string
+          subtask_templates?: Json | null
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_templates_default_domain_id_fkey"
+            columns: ["default_domain_id"]
+            isOneToOne: false
+            referencedRelation: "task_domains"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_templates_default_project_id_fkey"
+            columns: ["default_project_id"]
+            isOneToOne: false
+            referencedRelation: "task_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_templates_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tasks: {
         Row: {
           assigned_to: string | null
