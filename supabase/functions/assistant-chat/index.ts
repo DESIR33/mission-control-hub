@@ -735,7 +735,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { session_id, message, workspace_id, model } = await req.json();
+    const { session_id, message, workspace_id, model, skip_tools } = await req.json();
     if (!session_id || !message || !workspace_id) {
       return jsonResponse({ error: "Missing required fields" }, 400);
     }
@@ -751,6 +751,7 @@ Deno.serve(async (req) => {
 
     const selectedModel = model || DEFAULT_MODEL;
     const supabase = getSupabaseAdmin();
+    const isLightweightMode = Boolean(skip_tools);
 
     // Save user message
     await supabase.from("assistant_conversations").insert({
@@ -760,21 +761,23 @@ Deno.serve(async (req) => {
       content: message,
     });
 
-    // Build system prompt with full context
-    const { prompt: systemPrompt, memoriesUsed } = await buildSystemPrompt(
-      workspace_id,
-      message,
-      supabase
-    );
+    const memoriesUsed: any[] = [];
+    const systemPrompt = isLightweightMode
+      ? [
+          "You are a concise assistant for inbox productivity tasks.",
+          "Answer directly using only the message provided in this conversation.",
+          "Do not call tools, do not assume external context, and keep formatting exactly as requested.",
+        ].join(" ")
+      : (await buildSystemPrompt(workspace_id, message, supabase)).prompt;
 
-    // Load conversation history (last 20 messages)
+    // Load conversation history (lighter in skip_tools mode)
     const { data: history } = await supabase
       .from("assistant_conversations")
       .select("role, content")
       .eq("session_id", session_id)
       .in("role", ["user", "assistant"])
       .order("created_at", { ascending: true })
-      .limit(20);
+      .limit(isLightweightMode ? 8 : 20);
 
     const historyMessages = (history || []).map((msg: any) => ({
       role: msg.role,
@@ -782,7 +785,7 @@ Deno.serve(async (req) => {
     }));
 
     // Pre-compaction flush: if history is getting long, inject flush prompt
-    const flushPrompt = historyMessages.length > 16
+    const flushPrompt = !isLightweightMode && historyMessages.length > 16
       ? "\n\n[SYSTEM: Context window approaching limit. Before responding, save any important unsaved context, decisions, or insights from this conversation to long-term memory using save_memory. Then respond normally.]"
       : "";
 
@@ -796,7 +799,7 @@ Deno.serve(async (req) => {
     let finalResponse = "";
     let toolCallsMade: string[] = [];
     let iterations = 0;
-    const MAX_ITERATIONS = 12;
+    const MAX_ITERATIONS = isLightweightMode ? 1 : 12;
 
     while (iterations < MAX_ITERATIONS) {
       iterations++;
@@ -811,9 +814,9 @@ Deno.serve(async (req) => {
         },
         body: JSON.stringify({
           model: selectedModel,
-          max_tokens: 4096,
+          max_tokens: isLightweightMode ? 400 : 4096,
           messages,
-          tools: toolDefinitions,
+          ...(isLightweightMode ? {} : { tools: toolDefinitions }),
         }),
       });
 
@@ -834,7 +837,7 @@ Deno.serve(async (req) => {
       }
 
       const toolCalls = assistantMessage.tool_calls;
-      if (choice.finish_reason !== "tool_calls" || !toolCalls?.length) {
+      if (isLightweightMode || choice.finish_reason !== "tool_calls" || !toolCalls?.length) {
         break;
       }
 
@@ -867,14 +870,17 @@ Deno.serve(async (req) => {
         tools_called: toolCallsMade,
         model: selectedModel,
         agent_delegated: agentDelegated,
+        lightweight_mode: isLightweightMode,
       },
     });
 
-    // Post-session auto-extraction: check message count and trigger if 4+ messages
-    // Fire-and-forget — don't block the response
-    triggerAutoExtraction(session_id, workspace_id, supabase, selectedModel).catch(
-      (e) => console.error("Auto-extraction trigger failed:", e)
-    );
+    if (!isLightweightMode) {
+      // Post-session auto-extraction: check message count and trigger if 4+ messages
+      // Fire-and-forget — don't block the response
+      triggerAutoExtraction(session_id, workspace_id, supabase, selectedModel).catch(
+        (e) => console.error("Auto-extraction trigger failed:", e)
+      );
+    }
 
     return jsonResponse({
       response: finalResponse,
