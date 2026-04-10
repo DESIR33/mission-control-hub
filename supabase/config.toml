@@ -161,3 +161,6 @@ verify_jwt = false
 
 [functions.memory-ingest]
 verify_jwt = false
+
+[functions.mcp-memory-server]
+verify_jwt = false

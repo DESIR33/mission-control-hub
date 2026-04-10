@@ -217,14 +217,49 @@ export function ApiKeysSection() {
 
           <Separator className="my-6" />
 
-          {/* Usage documentation */}
+          {/* MCP Server Setup */}
           <div className="space-y-3">
-            <h4 className="text-sm font-semibold">Quick Start</h4>
+            <h4 className="text-sm font-semibold">🔌 MCP Server (Claude Code, Cursor)</h4>
+            <p className="text-xs text-muted-foreground">
+              Connect your AI coding tools directly to your memory system via MCP. Add this to your MCP config:
+            </p>
+            <div className="bg-muted rounded-lg p-4 space-y-2">
+              <p className="text-xs text-muted-foreground font-medium">Claude Code (~/.claude/claude_desktop_config.json):</p>
+              <pre className="text-xs overflow-x-auto whitespace-pre-wrap font-mono text-foreground/80">
+{`{
+  "mcpServers": {
+    "mch-memory": {
+      "type": "streamable-http",
+      "url": "https://xoucztvrwwixujgwmbzm.supabase.co/functions/v1/mcp-memory-server/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY"
+      }
+    }
+  }
+}`}
+              </pre>
+            </div>
+            <div className="bg-muted rounded-lg p-4 space-y-2">
+              <p className="text-xs text-muted-foreground font-medium">Available tools:</p>
+              <ul className="text-xs text-foreground/80 space-y-1 list-disc list-inside">
+                <li><code className="bg-background/50 px-1 rounded">search_memory</code> — Hybrid vector + full-text search</li>
+                <li><code className="bg-background/50 px-1 rounded">save_memory</code> — Save with auto-embedding &amp; dedup</li>
+                <li><code className="bg-background/50 px-1 rounded">get_recent_memories</code> — Latest memories by date</li>
+                <li><code className="bg-background/50 px-1 rounded">save_daily_log</code> — Add to today's daily log</li>
+              </ul>
+            </div>
+          </div>
+
+          <Separator className="my-4" />
+
+          {/* REST API */}
+          <div className="space-y-3">
+            <h4 className="text-sm font-semibold">📡 REST API (ChatGPT, Webhooks)</h4>
             <div className="bg-muted rounded-lg p-4 space-y-2">
               <p className="text-xs text-muted-foreground font-medium">Send memories from any tool:</p>
               <pre className="text-xs overflow-x-auto whitespace-pre-wrap font-mono text-foreground/80">
 {`curl -X POST \\
-  ${window.location.origin.includes('localhost') ? 'https://xoucztvrwwixujgwmbzm.supabase.co' : 'https://xoucztvrwwixujgwmbzm.supabase.co'}/functions/v1/memory-ingest \\
+  https://xoucztvrwwixujgwmbzm.supabase.co/functions/v1/memory-ingest \\
   -H "Authorization: Bearer YOUR_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
