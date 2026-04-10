@@ -622,6 +622,85 @@ ${snapshotSection}
   return { prompt, memoriesUsed: memories };
 }
 
+// ── Post-session auto-extraction ─────────────────────────────
+
+const SESSION_EXTRACTION_THRESHOLD = 4; // min messages before extraction
+const SESSION_IDLE_MS = 10 * 60 * 1000; // 10 minutes = session idle
+
+async function triggerAutoExtraction(
+  sessionId: string,
+  workspaceId: string,
+  supabase: any,
+  model: string
+) {
+  // Check if already extracted
+  const { data: existing } = await supabase
+    .from("conversation_extraction_log")
+    .select("id")
+    .eq("session_id", sessionId)
+    .maybeSingle();
+
+  if (existing) return; // already processed
+
+  // Count messages in session
+  const { count } = await supabase
+    .from("assistant_conversations")
+    .select("id", { count: "exact", head: true })
+    .eq("session_id", sessionId);
+
+  if ((count || 0) < SESSION_EXTRACTION_THRESHOLD) return;
+
+  // Check if session is idle (last message > 10 min ago)
+  const { data: lastMsg } = await supabase
+    .from("assistant_conversations")
+    .select("created_at")
+    .eq("session_id", sessionId)
+    .order("created_at", { ascending: false })
+    .limit(2);
+
+  if (lastMsg && lastMsg.length >= 2) {
+    const lastTime = new Date(lastMsg[0].created_at).getTime();
+    const prevTime = new Date(lastMsg[1].created_at).getTime();
+    const gap = lastTime - prevTime;
+
+    // Only trigger if there was a gap of 10+ min (session resumed after idle)
+    // OR if we have 8+ messages (rich enough session)
+    if (gap < SESSION_IDLE_MS && (count || 0) < 8) return;
+  }
+
+  // Build transcript
+  const { data: messages } = await supabase
+    .from("assistant_conversations")
+    .select("role, content")
+    .eq("session_id", sessionId)
+    .in("role", ["user", "assistant"])
+    .order("created_at", { ascending: true })
+    .limit(50);
+
+  if (!messages?.length) return;
+
+  const transcript = messages
+    .map((m: any) => `${m.role === "user" ? "User" : "Assistant"}: ${m.content}`)
+    .join("\n\n");
+
+  // Call extract-memories asynchronously
+  const extractUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/extract-memories`;
+  await fetch(extractUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+    },
+    body: JSON.stringify({
+      conversation_text: transcript,
+      workspace_id: workspaceId,
+      session_id: sessionId,
+      model: model || undefined,
+      auto_triggered: true,
+    }),
+  });
+}
+
 // ── Main handler ─────────────────────────────────────────────
 
 Deno.serve(async (req) => {
@@ -764,6 +843,12 @@ Deno.serve(async (req) => {
         agent_delegated: agentDelegated,
       },
     });
+
+    // Post-session auto-extraction: check message count and trigger if 4+ messages
+    // Fire-and-forget — don't block the response
+    triggerAutoExtraction(session_id, workspace_id, supabase, selectedModel).catch(
+      (e) => console.error("Auto-extraction trigger failed:", e)
+    );
 
     return jsonResponse({
       response: finalResponse,

@@ -3036,6 +3036,47 @@ export type Database = {
           },
         ]
       }
+      conversation_extraction_log: {
+        Row: {
+          created_at: string
+          id: string
+          memories_extracted: number
+          message_count: number
+          model_used: string | null
+          session_id: string
+          skipped_reason: string | null
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          memories_extracted?: number
+          message_count?: number
+          model_used?: string | null
+          session_id: string
+          skipped_reason?: string | null
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          memories_extracted?: number
+          message_count?: number
+          model_used?: string | null
+          session_id?: string
+          skipped_reason?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_extraction_log_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dataset_sync_status: {
         Row: {
           created_at: string
