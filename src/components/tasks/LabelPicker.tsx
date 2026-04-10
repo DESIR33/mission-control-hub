@@ -27,30 +27,31 @@ export function LabelPicker({ taskId }: LabelPickerProps) {
   };
 
   return (
-    <div className="space-y-2">
-      <h4 className="text-sm font-semibold">Labels</h4>
-      <div className="flex flex-wrap gap-1.5">
-        {assignments.map((a: any) => (
-          <span
-            key={a.id}
-            className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border font-medium"
-            style={{ borderColor: a.label?.color, color: a.label?.color }}
-          >
-            {a.label?.name}
-            <button onClick={() => toggleLabel.mutate({ taskId, labelId: a.label_id, assigned: true })}>
-              <X className="h-3 w-3" />
-            </button>
-          </span>
-        ))}
-      </div>
+    <div className="flex flex-wrap items-center gap-1.5">
+      {assignments.map((a: any) => (
+        <span
+          key={a.id}
+          className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full border font-medium"
+          style={{ borderColor: a.label?.color, color: a.label?.color }}
+        >
+          {a.label?.name}
+          <button onClick={() => toggleLabel.mutate({ taskId, labelId: a.label_id, assigned: true })}>
+            <X className="h-2.5 w-2.5" />
+          </button>
+        </span>
+      ))}
+
+      {assignments.length === 0 && (
+        <span className="text-sm text-muted-foreground">None</span>
+      )}
 
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="outline" size="sm" className="text-xs">
-            <Plus className="h-3 w-3 mr-1" /> Add label
+          <Button variant="ghost" size="icon" className="h-5 w-5">
+            <Plus className="h-3 w-3" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-56 p-3 space-y-3" align="start">
+        <PopoverContent className="w-56 p-3 space-y-3" align="end">
           <div className="space-y-1">
             {labels
               .filter((l) => !assignedIds.has(l.id))

@@ -79,20 +79,17 @@ export function TaskComments({ taskId }: TaskCommentsProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <h4 className="text-sm font-semibold">Comments</h4>
-        {unreadCount > 0 && (
-          <Badge variant="destructive" className="h-5 text-[10px] px-1.5">
-            <AtSign className="h-3 w-3 mr-0.5" />
-            {unreadCount}
-          </Badge>
-        )}
-      </div>
+      {unreadCount > 0 && (
+        <Badge variant="destructive" className="h-5 text-[10px] px-1.5">
+          <AtSign className="h-3 w-3 mr-0.5" />
+          {unreadCount} unread
+        </Badge>
+      )}
 
       <div className="space-y-3">
         {comments.map((c) => (
           <div key={c.id} className="flex gap-3 group">
-            <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-xs font-medium shrink-0">
+            <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold shrink-0">
               {c.author_id.slice(0, 2).toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">

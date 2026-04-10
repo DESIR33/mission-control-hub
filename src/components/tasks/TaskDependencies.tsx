@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Lock, X, Plus, CheckCircle2, Circle, Loader2 } from "lucide-react";
+import { Lock, X, Plus, CheckCircle2, Circle, Loader2, Link2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { useTaskDependencies, type TaskDependency } from "@/hooks/use-task-dependencies";
@@ -11,6 +12,27 @@ import { useTasks } from "@/hooks/use-tasks";
 interface TaskDependenciesProps {
   taskId: string;
 }
+
+const statusBadgeClass: Record<string, string> = {
+  todo: "bg-blue-100 text-blue-700 border-blue-200",
+  in_progress: "bg-amber-100 text-amber-700 border-amber-200",
+  done: "bg-green-100 text-green-700 border-green-200",
+  cancelled: "bg-gray-100 text-gray-600 border-gray-200",
+};
+
+const statusLabel: Record<string, string> = {
+  todo: "TO DO",
+  in_progress: "IN PROGRESS",
+  done: "DONE",
+  cancelled: "CANCELLED",
+};
+
+const priorityIcon: Record<string, { arrow: string; class: string }> = {
+  urgent: { arrow: "\u2191\u2191", class: "text-red-500" },
+  high: { arrow: "\u2191", class: "text-orange-500" },
+  medium: { arrow: "\u2192", class: "text-yellow-600" },
+  low: { arrow: "\u2193", class: "text-blue-500" },
+};
 
 function DepItem({
   dep,
@@ -23,27 +45,35 @@ function DepItem({
 }) {
   const navigate = useNavigate();
   const isDone = dep.related_task.status === "done";
+  const badge = statusBadgeClass[dep.related_task.status] || statusBadgeClass.todo;
+  const label = statusLabel[dep.related_task.status] || "TO DO";
+  const pIcon = priorityIcon[dep.related_task.priority] || priorityIcon.medium;
 
   return (
-    <div className="flex items-center gap-2 group">
-      {isDone ? (
-        <CheckCircle2 className="h-3.5 w-3.5 text-green-500 shrink-0" />
-      ) : (
-        <Circle className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-      )}
+    <div className="flex items-center gap-3 py-1.5 group">
+      <Link2 className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
       <button
         onClick={() => navigate(`/tasks/${dep.related_task.id}`)}
         className={cn(
-          "text-sm truncate text-left hover:underline",
+          "text-sm truncate text-left hover:underline flex-1",
           isDone && "line-through text-muted-foreground"
         )}
       >
         {dep.related_task.title}
       </button>
+      <Badge
+        variant="outline"
+        className={cn("text-[10px] font-semibold px-1.5 py-0 h-5 rounded-sm shrink-0", badge)}
+      >
+        {label}
+      </Badge>
+      <span className={cn("text-xs font-bold shrink-0", pIcon.class)}>
+        {pIcon.arrow}
+      </span>
       <button
         onClick={() => onRemove(dep.id)}
         disabled={removing}
-        className="ml-auto opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-opacity shrink-0"
+        className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-opacity shrink-0"
       >
         <X className="h-3.5 w-3.5" />
       </button>
@@ -80,30 +110,26 @@ export function TaskDependencies({ taskId }: TaskDependenciesProps) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground py-3">
         <Loader2 className="h-3 w-3 animate-spin" /> Loading dependencies...
       </div>
     );
   }
 
+  const hasItems = blockedBy.length > 0 || blocking.length > 0;
+
   return (
     <div className="space-y-3">
-      <div className="flex items-center gap-2">
-        <Lock className="h-3.5 w-3.5 text-muted-foreground" />
-        <label className="text-xs font-medium text-muted-foreground">Dependencies</label>
-        {isBlocked && (
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-destructive/15 text-destructive font-medium">
-            Blocked
-          </span>
-        )}
-      </div>
+      {isBlocked && (
+        <Badge variant="destructive" className="text-[10px] px-1.5 py-0.5">
+          Blocked
+        </Badge>
+      )}
 
       {/* Blocked by */}
       {blockedBy.length > 0 && (
-        <div className="space-y-1.5">
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-            Blocked by
-          </p>
+        <div className="space-y-0.5">
+          <p className="text-xs text-muted-foreground font-medium mb-1">blocked by</p>
           {blockedBy.map((dep) => (
             <DepItem
               key={dep.id}
@@ -117,10 +143,8 @@ export function TaskDependencies({ taskId }: TaskDependenciesProps) {
 
       {/* Blocking */}
       {blocking.length > 0 && (
-        <div className="space-y-1.5">
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-            Blocking
-          </p>
+        <div className="space-y-0.5">
+          <p className="text-xs text-muted-foreground font-medium mb-1">blocking</p>
           {blocking.map((dep) => (
             <DepItem
               key={dep.id}
@@ -132,11 +156,15 @@ export function TaskDependencies({ taskId }: TaskDependenciesProps) {
         </div>
       )}
 
+      {!hasItems && (
+        <p className="text-xs text-muted-foreground py-2">No linked items</p>
+      )}
+
       {/* Add dependency */}
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" size="sm" className="w-full text-xs h-7">
-            <Plus className="h-3 w-3 mr-1" /> Add dependency
+          <Button variant="outline" size="sm" className="text-xs h-7 gap-1">
+            <Plus className="h-3 w-3" /> Link issue
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-64 p-2" align="start">

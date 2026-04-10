@@ -1,5 +1,4 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RefreshCw } from "lucide-react";
 
 interface RecurrencePickerProps {
   value: string | null;
@@ -18,20 +17,15 @@ const rules = [
 
 export function RecurrencePicker({ value, onChange }: RecurrencePickerProps) {
   return (
-    <div>
-      <label className="text-xs font-medium text-muted-foreground mb-1 flex items-center gap-1">
-        <RefreshCw className="h-3 w-3" /> Recurrence
-      </label>
-      <Select value={value || ""} onValueChange={(v) => onChange(v || null)}>
-        <SelectTrigger>
-          <SelectValue placeholder="No recurrence" />
-        </SelectTrigger>
-        <SelectContent>
-          {rules.map((r) => (
-            <SelectItem key={r.value} value={r.value || "none"}>{r.label}</SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
+    <Select value={value || ""} onValueChange={(v) => onChange(v || null)}>
+      <SelectTrigger className="w-auto h-7 text-xs border-none shadow-none px-2 gap-1">
+        <SelectValue placeholder="None" />
+      </SelectTrigger>
+      <SelectContent>
+        {rules.map((r) => (
+          <SelectItem key={r.value} value={r.value || "none"}>{r.label}</SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
