@@ -23,6 +23,7 @@ const TaskDetailPage = lazy(() => import("./pages/tasks/TaskDetailPage"));
 const TaskProjectsPage = lazy(() => import("./pages/tasks/TaskProjectsPage"));
 const TaskProjectDetailPage = lazy(() => import("./pages/tasks/TaskProjectDetailPage"));
 const SpacesPage = lazy(() => import("./pages/tasks/SpacesPage"));
+const SpaceDetailPage = lazy(() => import("./pages/tasks/SpaceDetailPage"));
 const MonetizationPage = lazy(() => import("./pages/MonetizationPage"));
 const ContentProjectsPage = lazy(() => import("./pages/ContentProjectsPage"));
 const VideoQueueFormPage = lazy(() => import("./pages/VideoQueueFormPage"));
