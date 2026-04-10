@@ -23,6 +23,7 @@ const TaskDetailPage = lazy(() => import("./pages/tasks/TaskDetailPage"));
 const TaskProjectsPage = lazy(() => import("./pages/tasks/TaskProjectsPage"));
 const TaskProjectDetailPage = lazy(() => import("./pages/tasks/TaskProjectDetailPage"));
 const SpacesPage = lazy(() => import("./pages/tasks/SpacesPage"));
+const SpaceDetailPage = lazy(() => import("./pages/tasks/SpaceDetailPage"));
 const MonetizationPage = lazy(() => import("./pages/MonetizationPage"));
 const ContentProjectsPage = lazy(() => import("./pages/ContentProjectsPage"));
 const VideoQueueFormPage = lazy(() => import("./pages/VideoQueueFormPage"));
@@ -219,6 +220,7 @@ const App = () => (
 
               {/* Task routes */}
               <Route path="/tasks/spaces" element={<LazyPage section="Spaces"><SpacesPage /></LazyPage>} />
+              <Route path="/tasks/spaces/:spaceId" element={<LazyPage section="Space Detail"><SpaceDetailPage /></LazyPage>} />
               <Route path="/tasks/inbox" element={<LazyPage section="Tasks"><TasksPage defaultView="inbox" /></LazyPage>} />
               <Route path="/tasks/all" element={<LazyPage section="Tasks"><TasksPage defaultView="list" /></LazyPage>} />
               <Route path="/tasks/board" element={<LazyPage section="Tasks"><TasksPage defaultView="board" /></LazyPage>} />
