@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { format, isPast, isToday, startOfDay } from "date-fns";
-import { CheckCircle2, Circle, Clock, SquareCheck, Square, Trash2, ArrowUpDown, AlertTriangle, GripVertical } from "lucide-react";
+import { CheckCircle2, Circle, Clock, SquareCheck, Square, Trash2, ArrowUpDown, AlertTriangle, GripVertical, LockKeyhole } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTasks } from "@/hooks/use-tasks";
 import { useBlockedTaskIds } from "@/hooks/use-task-dependencies";

@@ -227,7 +227,7 @@ function TasksPageContent({ defaultView = "list" }: { defaultView?: ViewType }) 
 
       {/* Saved Views */}
       <SavedViewsBar
-        currentView={view}
+        currentView={view as any}
         statusFilter={statusFilter}
         priorityFilter={priorityFilter}
         search={search}
