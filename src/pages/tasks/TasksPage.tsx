@@ -144,7 +144,20 @@ function TasksPageContent({ defaultView = "list" }: { defaultView?: ViewType }) 
   const [labelFilter, setLabelFilter] = useState<string[]>([]);
   const [groupBy, setGroupBy] = useState<GroupBy>("none");
   const { activeDomainId, domains } = useTaskDomain();
+  const [activeViewId, setActiveViewId] = useState<string | null>(null);
   useTaskKeyboardShortcuts();
+
+  const handleApplyView = useCallback((savedView: any) => {
+    if (savedView.config?.view) setView(savedView.config.view);
+    if (savedView.config?.status) setStatusFilter(savedView.config.status);
+    if (savedView.config?.priority) setPriorityFilter(savedView.config.priority);
+    if (savedView.config?.search) setSearch(savedView.config.search);
+    setActiveViewId(savedView.id);
+  }, []);
+
+  const handleClearView = useCallback(() => {
+    setActiveViewId(null);
+  }, []);
 
   // Get projects for grouping labels
   const { tasks: allProjects } = useTasks({ parent_task_id: null });
