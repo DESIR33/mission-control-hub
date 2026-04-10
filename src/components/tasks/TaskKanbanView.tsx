@@ -1,9 +1,8 @@
 import { useMemo } from "react";
-import { CheckCircle2, Circle, Clock, Lock } from "lucide-react";
+import { Clock, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTasks } from "@/hooks/use-tasks";
-import { useBlockedTaskIds } from "@/hooks/use-task-dependencies";
-import { format } from "date-fns";
+import { format, isPast, isToday, startOfDay } from "date-fns";
 import type { Task, TaskStatus } from "@/types/tasks";
 
 const columns: { id: TaskStatus; label: string; color: string }[] = [
@@ -17,6 +16,13 @@ const priorityDot: Record<string, string> = {
   high: "bg-orange-500",
   medium: "bg-yellow-500",
   low: "bg-green-500",
+};
+
+const priorityBadge: Record<string, string> = {
+  urgent: "bg-red-500/20 text-red-400 border-red-500/30",
+  high: "bg-orange-500/20 text-orange-400 border-orange-500/30",
+  medium: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
+  low: "bg-green-500/20 text-green-400 border-green-500/30",
 };
 
 interface TaskKanbanViewProps {
@@ -75,18 +81,40 @@ export function TaskKanbanView({ tasks, onTaskClick }: TaskKanbanViewProps) {
                 <div className="flex items-start gap-2">
                   <div className={cn("w-2 h-2 rounded-full mt-1.5 shrink-0", priorityDot[task.priority])} />
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      {blockedIds.has(task.id) && (
-                        <Lock className="h-3 w-3 text-destructive shrink-0" />
-                      )}
-                      <p className={cn("text-sm font-medium truncate", task.status === "done" && "line-through opacity-60")}>
-                        {task.title}
-                      </p>
+                    <p className={cn("text-sm font-medium truncate", task.status === "done" && "line-through opacity-60")}>
+                      {task.title}
+                    </p>
+                    <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                      <span className={cn("text-[10px] px-1.5 py-0.5 rounded border font-medium", priorityBadge[task.priority])}>
+                        {task.priority}
+                      </span>
+                      {task.due_date && (() => {
+                        const due = new Date(task.due_date);
+                        const overdue = task.status !== "done" && task.status !== "cancelled" && isPast(startOfDay(due)) && !isToday(due);
+                        const dueToday = task.status !== "done" && task.status !== "cancelled" && isToday(due);
+                        return (
+                          <div className={cn(
+                            "flex items-center gap-1 text-xs",
+                            overdue ? "text-red-500 font-medium" : dueToday ? "text-amber-500 font-medium" : "text-muted-foreground"
+                          )}>
+                            {overdue ? <AlertTriangle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
+                            {overdue ? "Overdue" : dueToday ? "Today" : format(due, "MMM d")}
+                          </div>
+                        );
+                      })()}
                     </div>
-                    {task.due_date && (
-                      <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
-                        <Clock className="h-3 w-3" />
-                        {format(new Date(task.due_date), "MMM d")}
+                    {task.subtask_count != null && task.subtask_count > 0 && (
+                      <div className="mt-2">
+                        <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-0.5">
+                          <span>Subtasks</span>
+                          <span>{task.subtask_done_count || 0}/{task.subtask_count}</span>
+                        </div>
+                        <div className="w-full bg-muted rounded-full h-1">
+                          <div
+                            className="bg-green-500 h-1 rounded-full transition-all"
+                            style={{ width: `${((task.subtask_done_count || 0) / task.subtask_count) * 100}%` }}
+                          />
+                        </div>
                       </div>
                     )}
                   </div>

@@ -88,6 +88,11 @@ export interface TaskLabel {
   created_at: string;
 }
 
+export interface TaskLabelAssignment {
+  task_id: string;
+  label_id: string;
+}
+
 export interface TaskFilters {
   domain_id?: string | null;
   project_id?: string | null;
@@ -98,4 +103,5 @@ export interface TaskFilters {
   parent_task_id?: string | null;
   due_before?: string;
   due_after?: string;
+  label_ids?: string[];
 }
