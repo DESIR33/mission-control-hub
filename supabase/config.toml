@@ -158,3 +158,6 @@ verify_jwt = false
 
 [functions.merge-memories]
 verify_jwt = false
+
+[functions.memory-ingest]
+verify_jwt = false

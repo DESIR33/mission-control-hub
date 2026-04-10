@@ -8,6 +8,7 @@ import { MembersSection } from "@/components/settings/MembersSection";
 import { BillingSection } from "@/components/settings/BillingSection";
 import { AutomationSection } from "@/components/settings/AutomationSection";
 import { IntegrationsContent } from "@/pages/IntegrationsPage";
+import { ApiKeysSection } from "@/components/settings/ApiKeysSection";
 
 export default function SettingsPage() {
   const [searchParams] = useSearchParams();
@@ -45,6 +46,7 @@ export default function SettingsPage() {
           <TabsTrigger value="billing" className="shrink-0">Billing</TabsTrigger>
           <TabsTrigger value="automation" className="shrink-0">Automation</TabsTrigger>
           <TabsTrigger value="integrations" className="shrink-0">Integrations</TabsTrigger>
+          <TabsTrigger value="api-keys" className="shrink-0">API Keys</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile">
@@ -69,6 +71,10 @@ export default function SettingsPage() {
 
         <TabsContent value="integrations">
           <IntegrationsContent />
+        </TabsContent>
+
+        <TabsContent value="api-keys">
+          <ApiKeysSection />
         </TabsContent>
       </Tabs>
     </div>
