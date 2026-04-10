@@ -7069,6 +7069,62 @@ export type Database = {
           },
         ]
       }
+      task_saved_views: {
+        Row: {
+          created_at: string
+          filters: Json | null
+          group_by: string | null
+          icon: string | null
+          id: string
+          is_pinned: boolean
+          name: string
+          sort_config: Json | null
+          sort_order: number
+          updated_at: string
+          user_id: string
+          view_type: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          filters?: Json | null
+          group_by?: string | null
+          icon?: string | null
+          id?: string
+          is_pinned?: boolean
+          name: string
+          sort_config?: Json | null
+          sort_order?: number
+          updated_at?: string
+          user_id: string
+          view_type: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          filters?: Json | null
+          group_by?: string | null
+          icon?: string | null
+          id?: string
+          is_pinned?: boolean
+          name?: string
+          sort_config?: Json | null
+          sort_order?: number
+          updated_at?: string
+          user_id?: string
+          view_type?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_saved_views_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       task_templates: {
         Row: {
           created_at: string
