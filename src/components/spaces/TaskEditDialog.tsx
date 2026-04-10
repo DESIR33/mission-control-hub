@@ -93,13 +93,13 @@ export function TaskEditDialog({ task, open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Edit Task</DialogTitle>
           <DialogDescription>Update the task details below.</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-2">
+        <div className="space-y-4 py-2 overflow-y-auto flex-1">
           <div className="space-y-1.5">
             <Label htmlFor="task-title">Title</Label>
             <Input id="task-title" value={title} onChange={(e) => setTitle(e.target.value)} />
