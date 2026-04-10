@@ -1,12 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import type { TaskStatus, TaskPriority } from "@/types/tasks";
+import { useTaskLabels } from "@/hooks/use-task-labels";
+import type { TaskStatus, TaskPriority, TaskLabel } from "@/types/tasks";
 
 interface TaskFiltersBarProps {
   statusFilter: TaskStatus[];
   onStatusChange: (statuses: TaskStatus[]) => void;
   priorityFilter: TaskPriority[];
   onPriorityChange: (priorities: TaskPriority[]) => void;
+  labelFilter?: string[];
+  onLabelChange?: (labels: string[]) => void;
 }
 
 const statuses: { value: TaskStatus; label: string }[] = [
@@ -27,7 +30,17 @@ function toggle<T>(arr: T[], val: T): T[] {
   return arr.includes(val) ? arr.filter((v) => v !== val) : [...arr, val];
 }
 
-export function TaskFiltersBar({ statusFilter, onStatusChange, priorityFilter, onPriorityChange }: TaskFiltersBarProps) {
+export function TaskFiltersBar({
+  statusFilter,
+  onStatusChange,
+  priorityFilter,
+  onPriorityChange,
+  labelFilter = [],
+  onLabelChange,
+}: TaskFiltersBarProps) {
+  const { labels } = useTaskLabels();
+  const hasAnyFilter = statusFilter.length > 0 || priorityFilter.length > 0 || labelFilter.length > 0;
+
   return (
     <div className="flex flex-wrap items-center gap-2">
       <span className="text-xs text-muted-foreground font-medium">Status:</span>
@@ -61,12 +74,34 @@ export function TaskFiltersBar({ statusFilter, onStatusChange, priorityFilter, o
           {p.label}
         </Button>
       ))}
-      {(statusFilter.length > 0 || priorityFilter.length > 0) && (
+      {onLabelChange && labels.length > 0 && (
+        <>
+          <div className="w-px h-4 bg-border mx-1" />
+          <span className="text-xs text-muted-foreground font-medium">Label:</span>
+          {labels.map((l: TaskLabel) => (
+            <Button
+              key={l.id}
+              variant="outline"
+              size="sm"
+              className={cn("h-6 text-[10px] px-2")}
+              style={labelFilter.includes(l.id) ? { borderColor: l.color, color: l.color, backgroundColor: `${l.color}15` } : {}}
+              onClick={() => onLabelChange(toggle(labelFilter, l.id))}
+            >
+              {l.name}
+            </Button>
+          ))}
+        </>
+      )}
+      {hasAnyFilter && (
         <Button
           variant="ghost"
           size="sm"
           className="h-6 text-[10px] px-2 text-muted-foreground"
-          onClick={() => { onStatusChange([]); onPriorityChange([]); }}
+          onClick={() => {
+            onStatusChange([]);
+            onPriorityChange([]);
+            if (onLabelChange) onLabelChange([]);
+          }}
         >
           Clear
         </Button>

@@ -26,7 +26,20 @@ export function useTasks(filters?: TaskFilters) {
       if (filters?.due_before) q = q.lte("due_date", filters.due_before);
       if (filters?.due_after) q = q.gte("due_date", filters.due_after);
 
-      const { data, error } = await q;
+      let { data, error } = await q;
+
+      // Client-side label filter (requires join which is complex in Supabase query builder)
+      if (!error && data && filters?.label_ids?.length) {
+        const labelIds = filters.label_ids;
+        const { data: assignments } = await (supabase as any)
+          .from("task_label_assignments")
+          .select("task_id")
+          .in("label_id", labelIds);
+        if (assignments) {
+          const taskIdsWithLabels = new Set(assignments.map((a: any) => a.task_id));
+          data = data.filter((t: Task) => taskIdsWithLabels.has(t.id));
+        }
+      }
       if (error) throw error;
       return data as Task[];
     },
