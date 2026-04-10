@@ -4757,6 +4757,51 @@ export type Database = {
           },
         ]
       }
+      memory_relationships: {
+        Row: {
+          created_at: string
+          id: string
+          metadata: Json | null
+          relationship_type: string
+          source_memory_id: string
+          strength: number
+          target_memory_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          relationship_type?: string
+          source_memory_id: string
+          strength?: number
+          target_memory_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          relationship_type?: string
+          source_memory_id?: string
+          strength?: number
+          target_memory_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memory_relationships_source_memory_id_fkey"
+            columns: ["source_memory_id"]
+            isOneToOne: false
+            referencedRelation: "assistant_memory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "memory_relationships_target_memory_id_fkey"
+            columns: ["target_memory_id"]
+            isOneToOne: false
+            referencedRelation: "assistant_memory"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       muted_conversations: {
         Row: {
           conversation_id: string | null
@@ -10022,6 +10067,21 @@ export type Database = {
       get_dashboard_polling_counts: {
         Args: { p_workspace_id: string }
         Returns: Json
+      }
+      get_memory_graph: {
+        Args: { p_depth?: number; p_memory_id: string; p_workspace_id?: string }
+        Returns: {
+          connected_from: string
+          content: string
+          depth: number
+          entity_id: string
+          entity_type: string
+          memory_id: string
+          origin: string
+          rel_strength: number
+          rel_type: string
+          tags: string[]
+        }[]
       }
       get_workspace_role: { Args: { ws_id: string }; Returns: string }
       hybrid_memory_search: {
