@@ -56,7 +56,15 @@ interface PipelineHealthProps {
   deals?: PipelineStage[];
 }
 
-export function PipelineHealth({ contacts = [], content = [], deals = [] }: PipelineHealthProps) {
+export function PipelineHealth({ contacts, content, deals }: PipelineHealthProps) {
+  const sections = [
+    contacts && { stages: contacts, title: "Contacts" },
+    content && { stages: content, title: "Content" },
+    deals && { stages: deals, title: "Deals" },
+  ].filter(Boolean) as { stages: PipelineStage[]; title: string }[];
+
+  if (sections.length === 0) return null;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -65,9 +73,9 @@ export function PipelineHealth({ contacts = [], content = [], deals = [] }: Pipe
       className="rounded-lg border border-border bg-card p-5 space-y-5"
     >
       <h3 className="text-sm font-semibold text-card-foreground">Pipeline Health</h3>
-      <PipelineBar stages={contacts} title="Contacts" />
-      <PipelineBar stages={content} title="Content" />
-      <PipelineBar stages={deals} title="Deals" />
+      {sections.map((s) => (
+        <PipelineBar key={s.title} stages={s.stages} title={s.title} />
+      ))}
     </motion.div>
   );
 }
