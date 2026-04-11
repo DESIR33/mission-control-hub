@@ -4612,6 +4612,51 @@ export type Database = {
           },
         ]
       }
+      memory_comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          memory_id: string
+          updated_at: string
+          user_id: string
+          workspace_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          memory_id: string
+          updated_at?: string
+          user_id: string
+          workspace_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          memory_id?: string
+          updated_at?: string
+          user_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memory_comments_memory_id_fkey"
+            columns: ["memory_id"]
+            isOneToOne: false
+            referencedRelation: "assistant_memory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "memory_comments_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       memory_conflicts: {
         Row: {
           conflict_type: Database["public"]["Enums"]["conflict_type"]
