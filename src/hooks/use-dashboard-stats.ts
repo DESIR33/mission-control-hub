@@ -413,17 +413,25 @@ export function useAiBriefing() {
         .limit(1);
 
       if (storedBriefing && storedBriefing.length > 0) {
-        const lines = storedBriefing[0].content.split("\n").filter((l: string) => l.trim());
-        for (const line of lines) {
-          const trimmed = line.replace(/^[-•]\s*/, "").trim();
-          if (!trimmed) continue;
-          const isAction = trimmed.startsWith("🔴") || trimmed.startsWith("🟡");
-          items.push({
-            type: isAction ? "action" : "insight",
-            text: trimmed,
-          });
+        const content = storedBriefing[0].content;
+        // Skip raw stats dumps (they start with "Channel Overview" or similar headers)
+        const isRawStats = content.startsWith("Channel Overview") || content.startsWith("Pipeline:");
+        if (!isRawStats) {
+          const lines = content.split("\n").filter((l: string) => l.trim());
+          for (const line of lines) {
+            const trimmed = line.replace(/^[-•]\s*/, "").trim();
+            if (!trimmed) continue;
+            // Skip section headers
+            if (trimmed.startsWith("##") || trimmed.endsWith(":")) continue;
+            const isAction = trimmed.startsWith("🔴") || trimmed.startsWith("🟡");
+            items.push({
+              type: isAction ? "action" : "insight",
+              text: trimmed,
+            });
+          }
+          if (items.length > 0) return items.slice(0, 8);
         }
-        return items.slice(0, 8);
+        // If stored briefing was raw stats, fall through to client-side generation
       }
 
       // Fallback: generate client-side briefing from live data
