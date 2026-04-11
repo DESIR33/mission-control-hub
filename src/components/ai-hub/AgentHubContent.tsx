@@ -50,6 +50,8 @@ export function AgentHubContent() {
   const runAll = useRunAllAgents();
   const runVideoOptimizer = useRunVideoOptimizer();
   const toggleAgent = useToggleAgent();
+  const createAgent = useCreateAgent();
+  const deleteAgent = useDeleteAgent();
   const createSkill = useCreateSkill();
   const deleteSkill = useDeleteSkill();
 
@@ -57,6 +59,7 @@ export function AgentHubContent() {
   const [detailAgent, setDetailAgent] = useState<AgentDefinition | null>(null);
   const [showCreateSkill, setShowCreateSkill] = useState(false);
   const [showImportSkill, setShowImportSkill] = useState(false);
+  const [showCreateAgent, setShowCreateAgent] = useState(false);
   const [viewSkill, setViewSkill] = useState<AgentSkill | null>(null);
   const [runningAgentSlug, setRunningAgentSlug] = useState<string | null>(null);
 
