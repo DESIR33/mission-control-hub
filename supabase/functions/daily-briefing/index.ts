@@ -33,7 +33,7 @@ Deno.serve(async (req) => {
       const [
         contactsRes, dealsRes, videosRes, proposalsRes,
         adRevenueRes, recentVideosRes, tasksRes, emailsRes,
-        expensesRes,
+        expensesRes, dealEmailContextRes, dealEmailTasksRes,
       ] = await Promise.all([
         sb.from("contacts").select("id, first_name, last_name, status, last_contact_date, company_id")
           .eq("workspace_id", wsId).is("deleted_at", null),
@@ -61,6 +61,17 @@ Deno.serve(async (req) => {
         sb.from("expenses").select("id, title, amount, date")
           .eq("workspace_id", wsId)
           .gte("date", new Date(Date.now() - 30 * 86400000).toISOString().split("T")[0]),
+        sb.from("deal_email_context")
+          .select("deal_id, ai_summary, deal_stage_signal, sentiment, action_items, key_points")
+          .eq("workspace_id", wsId)
+          .gte("created_at", new Date(Date.now() - 24 * 3600000).toISOString())
+          .order("created_at", { ascending: false })
+          .limit(20),
+        sb.from("deal_email_tasks")
+          .select("deal_id, task_title, suggested_priority, status")
+          .eq("workspace_id", wsId)
+          .eq("status", "pending")
+          .limit(15),
       ]);
 
       const contacts = contactsRes.data ?? [];
