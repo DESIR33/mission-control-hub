@@ -163,6 +163,18 @@ ${proposals.slice(0, 5).map(p => `  - "${p.title}" (${p.proposal_type}, confiden
 
 Monthly expenses: $${monthlyExpenses.toFixed(2)} across ${expenses.length} records
 
+Deal Email Intelligence (last 24h):
+- New email-deal connections: ${dealEmailContext.length}
+${dealEmailContext.slice(0, 8).map((ctx: any) => {
+  const dealTitle = deals.find(d => d.id === ctx.deal_id)?.title || "Unknown deal";
+  return `  - "${dealTitle}": ${ctx.ai_summary || "No summary"} [${ctx.sentiment || "neutral"}]${ctx.deal_stage_signal ? ` → stage signal: ${ctx.deal_stage_signal}` : ""}`;
+}).join("\n")}
+- Pending deal-related tasks: ${pendingDealTasks.length}
+${pendingDealTasks.slice(0, 5).map((t: any) => {
+  const dealTitle = deals.find(d => d.id === t.deal_id)?.title || "Unknown deal";
+  return `  - "${t.task_title}" for "${dealTitle}" (${t.suggested_priority})`;
+}).join("\n")}
+
 Top recent videos (14 days):
 ${recentVideos.slice(0, 5).map((v: any) => `- "${v.title}": ${v.views} views, ${(Number(v.impressions_ctr) * 100).toFixed(1)}% CTR, $${Number(v.estimated_revenue || 0).toFixed(2)} revenue`).join("\n")}
 `.trim();
