@@ -5,7 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Clock, Check, Mail, User, Handshake, AlertTriangle } from "lucide-react";
 import { useEmailFollowUps, useCompleteFollowUp } from "@/hooks/use-email-follow-ups";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
-import { DistanceToNow, isPast, isToday } from "date-fns";
+import { formatDistanceToNow, isPast, isToday } from "date-fns";
 
 const priorityColors: Record<string, string> = {
   high: "bg-destructive/15 text-destructive border-destructive/30",

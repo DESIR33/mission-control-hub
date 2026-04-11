@@ -19,7 +19,7 @@ function CustomCaption(props: CaptionProps) {
   const currentMonth = props.displayMonth;
 
   const months = Array.from({ length: 12 }, (_, i) =>
-    safeFormat(2024, i, "MMMM")
+    format(new Date(2024, i, 1), "MMMM")
   );
 
   const currentYear = new Date().getFullYear();

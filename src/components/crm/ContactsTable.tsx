@@ -8,7 +8,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Filter, Mail, Phone, Star, ChevronRight, Calendar, Target, Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Contact, ContactStatus, VipTier } from "@/types/crm";
-import { DistanceToNow, isPast, isToday, differenceInDays, addDays } from "date-fns";
+import { formatDistanceToNow, isPast, isToday, differenceInDays, addDays } from "date-fns";
 import { BulkActionsBar } from "./BulkActionsBar";
 import { EngagementBadge } from "./EngagementBadge";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
