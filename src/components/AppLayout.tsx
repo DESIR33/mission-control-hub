@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { WorkspaceSwitcher } from "@/components/WorkspaceSwitcher";
 import { useWebhookCacheInvalidation } from "@/hooks/use-webhook-cache-invalidation";
 import { Outlet, NavLink as RouterNavLink, useLocation, useNavigate } from "react-router-dom";
 import { AppSidebar } from "./AppSidebar";
@@ -43,14 +44,18 @@ function MobileNav({
 
   return (
     <div className="flex flex-col h-full bg-sidebar">
-      <div className="flex items-center gap-3 px-4 h-14 border-b border-sidebar-border shrink-0">
-        <img src="/logo.png" alt="Logo" className="w-7 h-7 rounded-lg object-contain shrink-0" />
-        <div>
-          <h1 className="text-sm font-semibold text-sidebar-accent-foreground">Desmily</h1>
-          <p className="text-xs text-sidebar-foreground">Mission Control</p>
+      <div className="border-b border-sidebar-border shrink-0">
+        <div className="flex items-center gap-3 px-4 h-14">
+          <img src="/logo.png" alt="Logo" className="w-7 h-7 rounded-lg object-contain shrink-0" />
+          <div>
+            <h1 className="text-sm font-semibold text-sidebar-accent-foreground">Desmily</h1>
+            <p className="text-xs text-sidebar-foreground">Mission Control</p>
+          </div>
+        </div>
+        <div className="px-2 pb-2">
+          <WorkspaceSwitcher />
         </div>
       </div>
-
       <nav className="flex-1 py-2 px-2 overflow-y-auto space-y-0.5">
         {mainNavItems.map((item) => {
           if (!item.children) {
