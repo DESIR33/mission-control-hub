@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { format, parse } from "date-fns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -9,10 +9,10 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useCreateExpense, type ExpenseCategory } from "@/hooks/use-expenses";
+import { useCreateExpense, useExpenses, type ExpenseCategory } from "@/hooks/use-expenses";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
-import { Upload, CalendarIcon } from "lucide-react";
+import { Upload, CalendarIcon, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -21,10 +21,69 @@ interface Props {
   categories: ExpenseCategory[];
 }
 
+interface ExpenseSignature {
+  title: string;
+  amount: number;
+  category_id: string | null;
+  vendor: string | null;
+  is_tax_deductible: boolean;
+  notes: string | null;
+  count: number;
+}
+
+function useExpenseSignatures() {
+  const { data: expenses = [] } = useExpenses();
+
+  // Group by title (case-insensitive), pick the most recent values and most common amount
+  const signatures: ExpenseSignature[] = [];
+  const grouped = new Map<string, typeof expenses>();
+
+  for (const e of expenses) {
+    const key = (e.title || "").toLowerCase().trim();
+    if (!key) continue;
+    if (!grouped.has(key)) grouped.set(key, []);
+    grouped.get(key)!.push(e);
+  }
+
+  for (const [, items] of grouped) {
+    if (items.length === 0) continue;
+    // Most recent entry for metadata
+    const latest = items[0]; // already sorted desc by date
+    // Most common amount
+    const amountCounts = new Map<number, number>();
+    for (const item of items) {
+      amountCounts.set(item.amount, (amountCounts.get(item.amount) || 0) + 1);
+    }
+    let bestAmount = latest.amount;
+    let bestCount = 0;
+    for (const [amt, cnt] of amountCounts) {
+      if (cnt > bestCount) { bestAmount = amt; bestCount = cnt; }
+    }
+
+    signatures.push({
+      title: latest.title,
+      amount: bestAmount,
+      category_id: latest.category_id,
+      vendor: latest.vendor,
+      is_tax_deductible: latest.is_tax_deductible,
+      notes: latest.notes,
+      count: items.length,
+    });
+  }
+
+  return signatures;
+}
+
 export function AddExpenseDialog({ open, onOpenChange, categories }: Props) {
   const { workspaceId } = useWorkspace();
   const createExpense = useCreateExpense();
+  const signatures = useExpenseSignatures();
   const [uploading, setUploading] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [appliedSuggestion, setAppliedSuggestion] = useState<string | null>(null);
+  const titleRef = useRef<HTMLInputElement>(null);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+
   const [form, setForm] = useState({
     title: "",
     amount: "",
@@ -35,6 +94,45 @@ export function AddExpenseDialog({ open, onOpenChange, categories }: Props) {
     is_tax_deductible: false,
     receipt_url: null as string | null,
   });
+
+  // Filter suggestions based on current title input
+  const query = form.title.toLowerCase().trim();
+  const suggestions = query.length >= 2
+    ? signatures
+        .filter((s) => s.title.toLowerCase().includes(query))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5)
+    : [];
+
+  // Close suggestions on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (
+        suggestionsRef.current && !suggestionsRef.current.contains(e.target as Node) &&
+        titleRef.current && !titleRef.current.contains(e.target as Node)
+      ) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const applySuggestion = useCallback((sig: ExpenseSignature) => {
+    setForm((f) => ({
+      ...f,
+      title: sig.title,
+      amount: sig.amount.toFixed(2),
+      category_id: sig.category_id || "",
+      vendor: sig.vendor || "",
+      is_tax_deductible: sig.is_tax_deductible,
+      notes: sig.notes || "",
+      // Keep existing date and receipt
+    }));
+    setAppliedSuggestion(sig.title);
+    setShowSuggestions(false);
+    setTimeout(() => setAppliedSuggestion(null), 3000);
+  }, []);
 
   const handleFileUpload = async (file: File) => {
     if (!workspaceId) return;
@@ -69,6 +167,7 @@ export function AddExpenseDialog({ open, onOpenChange, categories }: Props) {
       title: "", amount: "", expense_date: new Date().toISOString().split("T")[0],
       category_id: "", vendor: "", notes: "", is_tax_deductible: false, receipt_url: null,
     });
+    setAppliedSuggestion(null);
     onOpenChange(false);
   };
 
@@ -80,9 +179,56 @@ export function AddExpenseDialog({ open, onOpenChange, categories }: Props) {
         </DialogHeader>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
+            {/* Title with smart suggestions */}
+            <div className="space-y-1.5 relative">
               <Label>Title *</Label>
-              <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="e.g. Adobe subscription" />
+              <Input
+                ref={titleRef}
+                value={form.title}
+                onChange={(e) => {
+                  setForm({ ...form, title: e.target.value });
+                  setShowSuggestions(true);
+                  setAppliedSuggestion(null);
+                }}
+                onFocus={() => setShowSuggestions(true)}
+                placeholder="e.g. Adobe subscription"
+                autoComplete="off"
+              />
+              {showSuggestions && suggestions.length > 0 && (
+                <div
+                  ref={suggestionsRef}
+                  className="absolute top-full left-0 right-0 z-50 mt-1 rounded-md border bg-popover shadow-md overflow-hidden"
+                >
+                  <div className="px-2.5 py-1.5 border-b bg-muted/30">
+                    <p className="text-[10px] font-medium text-muted-foreground flex items-center gap-1">
+                      <Zap className="h-3 w-3" /> Similar expenses found
+                    </p>
+                  </div>
+                  {suggestions.map((sig) => (
+                    <button
+                      key={sig.title}
+                      onClick={() => applySuggestion(sig)}
+                      className="w-full px-2.5 py-2 text-left hover:bg-muted/50 transition-colors flex items-center justify-between gap-2"
+                    >
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium truncate">{sig.title}</p>
+                        <p className="text-[11px] text-muted-foreground truncate">
+                          {sig.vendor && `${sig.vendor} · `}
+                          {sig.count} previous{sig.count !== 1 ? " records" : " record"}
+                        </p>
+                      </div>
+                      <span className="text-sm font-mono font-semibold text-foreground shrink-0">
+                        ${sig.amount.toFixed(2)}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {appliedSuggestion && (
+                <p className="text-[10px] text-primary flex items-center gap-1 mt-0.5">
+                  <Zap className="h-3 w-3" /> Pre-filled from history
+                </p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label>Amount ($) *</Label>
