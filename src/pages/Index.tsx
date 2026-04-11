@@ -14,13 +14,22 @@ import {
   useNeedsAttention,
   useAiBriefing,
 } from "@/hooks/use-dashboard-stats";
+import { useWorkspaceFeatures } from "@/hooks/use-workspace-features";
 
 function Index() {
+  const { isFeatureEnabled } = useWorkspaceFeatures();
   const { data: stats } = useDashboardStats();
   const { data: pipeline } = usePipelineHealth();
   const { data: revenue } = useRevenueData();
   const { data: attentionItems } = useNeedsAttention();
   const { data: briefingItems } = useAiBriefing();
+
+  const showFinance = isFeatureEnabled("finance");
+  const showNetwork = isFeatureEnabled("network");
+  const showContent = isFeatureEnabled("content_pipeline") || isFeatureEnabled("content_management");
+  const showTasks = isFeatureEnabled("tasks");
+  const showAi = isFeatureEnabled("ai_hub");
+  const showGrowth = isFeatureEnabled("growth");
 
   const pipelineValue = stats?.pipelineValue ?? 0;
   const pipelineDisplay =
