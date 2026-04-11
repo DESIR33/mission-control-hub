@@ -232,7 +232,8 @@ export function AgentHubContent() {
       </div>
 
       <RunAgentDialog agent={runDialogAgent} open={!!runDialogAgent} onOpenChange={(open) => { if (!open) setRunDialogAgent(null); }} onRun={handleRunAgent} isRunning={runAgent.isPending} />
-      <AgentDetailSheet agent={detailAgent} open={!!detailAgent} onOpenChange={(open) => { if (!open) setDetailAgent(null); }} executions={executions.filter((e) => e.agent_slug === detailAgent?.slug)} skills={skills} />
+      <AgentDetailSheet agent={detailAgent} open={!!detailAgent} onOpenChange={(open) => { if (!open) setDetailAgent(null); }} executions={executions.filter((e) => e.agent_slug === detailAgent?.slug)} skills={skills} onDelete={handleDeleteAgent} />
+      <CreateAgentDialog open={showCreateAgent} onOpenChange={setShowCreateAgent} onSave={handleCreateAgent} isLoading={createAgent.isPending} />
       <CreateSkillDialog open={showCreateSkill} onOpenChange={setShowCreateSkill} onSave={handleCreateSkill} isLoading={createSkill.isPending} />
       <ImportSkillDialog
         open={showImportSkill}
