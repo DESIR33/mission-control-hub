@@ -3121,6 +3121,55 @@ export type Database = {
           },
         ]
       }
+      deal_contacts: {
+        Row: {
+          contact_id: string
+          created_at: string
+          deal_id: string
+          id: string
+          role: string | null
+          workspace_id: string
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string
+          deal_id: string
+          id?: string
+          role?: string | null
+          workspace_id: string
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string
+          deal_id?: string
+          id?: string
+          role?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_contacts_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_contacts_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_contacts_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deal_email_context: {
         Row: {
           action_items: Json | null
