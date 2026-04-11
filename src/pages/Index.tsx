@@ -1,15 +1,12 @@
 import { DollarSign, Users, Film, CheckSquare, TrendingUp, AlertTriangle } from "lucide-react";
 import { KpiCard } from "@/components/dashboard/KpiCard";
-import { AiBriefing } from "@/components/dashboard/AiBriefing";
+import { MissionBriefingPanel } from "@/components/dashboard/MissionBriefingPanel";
+import { UpcomingTasksPanel } from "@/components/dashboard/UpcomingTasksPanel";
+import { DealsPipelinePanel } from "@/components/dashboard/DealsPipelinePanel";
 import { PipelineHealth } from "@/components/dashboard/PipelineHealth";
-import { RevenueChart } from "@/components/dashboard/RevenueChart";
 import { TopContentRevenue } from "@/components/dashboard/TopContentRevenue";
-import { UnifiedAlertHub } from "@/components/dashboard/UnifiedAlertHub";
-import { SprintWidget } from "@/components/dashboard/SprintWidget";
-import { GoalPaceWidget } from "@/components/dashboard/GoalPaceWidget";
-import { GrowthCommandWidget } from "@/components/dashboard/GrowthCommandWidget";
-import { WeeklyActionPlanCard } from "@/components/dashboard/WeeklyActionPlanCard";
-import { DailyOpsView } from "@/components/daily-ops/DailyOpsView";
+import { NeedsAttentionPanel } from "@/components/dashboard/NeedsAttentionPanel";
+import { FloatingAgentChat } from "@/components/dashboard/FloatingAgentChat";
 import {
   useDashboardStats,
   usePipelineHealth,
@@ -17,7 +14,6 @@ import {
   useNeedsAttention,
   useAiBriefing,
 } from "@/hooks/use-dashboard-stats";
-import { NewsletterWidget } from "@/components/dashboard/NewsletterWidget";
 
 function Index() {
   const { data: stats } = useDashboardStats();
@@ -33,22 +29,7 @@ function Index() {
       : `$${pipelineValue}`;
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen overflow-hidden min-w-0">
-      {/* Daily Operations — primary view */}
-      <DailyOpsView />
-
-      {/* Growth Command Widget */}
-      <GrowthCommandWidget />
-
-      {/* Unified Alerts Hub */}
-      <UnifiedAlertHub />
-
-      {/* Sprint + Goal Pace Widgets */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <SprintWidget />
-        <GoalPaceWidget />
-      </div>
-
+    <div className="p-4 sm:p-6 lg:p-8 space-y-4 min-h-screen overflow-hidden min-w-0">
       {/* KPI Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-3">
         <KpiCard
@@ -114,31 +95,33 @@ function Index() {
         />
       </div>
 
-      {/* Main Grid */}
-      <div className="grid lg:grid-cols-3 gap-4">
-        {/* Left column */}
-        <div className="lg:col-span-2 space-y-4">
-          <AiBriefing items={briefingItems} attentionItems={attentionItems} />
-          <WeeklyActionPlanCard />
+      {/* Main Grid — Bloomberg-style dense layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        {/* Left — Briefing (takes 5 cols) */}
+        <div className="lg:col-span-5 space-y-4">
+          <MissionBriefingPanel items={briefingItems} />
+          <NeedsAttentionPanel items={attentionItems} />
+        </div>
+
+        {/* Center — Tasks + Deals (takes 4 cols) */}
+        <div className="lg:col-span-4 space-y-4">
+          <UpcomingTasksPanel />
+          <DealsPipelinePanel />
+        </div>
+
+        {/* Right — Content + Pipeline Health (takes 3 cols) */}
+        <div className="lg:col-span-3 space-y-4">
+          <TopContentRevenue />
           <PipelineHealth
             contacts={pipeline?.contacts}
             content={pipeline?.content}
             deals={pipeline?.deals}
           />
         </div>
-
-        {/* Right column */}
-        <div className="space-y-4">
-          <TopContentRevenue />
-          <RevenueChart
-            monthly={revenue?.monthly}
-            sponsors={revenue?.sponsors}
-            affiliates={revenue?.affiliates}
-            ads={revenue?.ads}
-          />
-          <NewsletterWidget />
-        </div>
       </div>
+
+      {/* Floating Agent Chat */}
+      <FloatingAgentChat />
     </div>
   );
 }
