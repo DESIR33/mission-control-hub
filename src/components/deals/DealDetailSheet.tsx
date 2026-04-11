@@ -185,7 +185,7 @@ export function DealDetailSheet({ deal, open, onOpenChange, onDeleted }: DealDet
                 )}
               </div>
               <div className="flex items-center gap-1 shrink-0">
-                {deal.contact?.email && (
+                {(dealContacts.some(dc => dc.contact?.email) || deal.contact?.email) && (
                   <Button variant="ghost" size="icon" onClick={() => setEmailOpen(true)} title="Send email">
                     <Mail className="w-4 h-4" />
                   </Button>
