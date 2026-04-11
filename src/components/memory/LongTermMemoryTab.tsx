@@ -125,7 +125,7 @@ export function LongTermMemoryTab({
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {display.map((m) => (
-          <Card key={m.id} className="p-3 group hover:border-primary/30 transition-colors">
+          <Card key={m.id} className="p-3 group hover:border-primary/30 transition-colors cursor-pointer" onClick={() => openEdit(m)}>
             <div className="flex items-start justify-between mb-2">
               <div className="flex items-center gap-1.5">
                 <span className="text-sm">{originIcons[m.origin]}</span>
