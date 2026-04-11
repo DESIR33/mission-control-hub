@@ -58,7 +58,7 @@ function MobileNav({
         </div>
       </div>
       <nav className="flex-1 py-2 px-2 overflow-y-auto space-y-0.5">
-        {mainNavItems.map((item) => {
+        {mainNavItems.filter((item) => isNavItemVisible(item.to)).map((item) => {
           if (!item.children) {
             const isInbox = item.to === "/inbox";
             const showBadge = isInbox && unreadCount > 0;
