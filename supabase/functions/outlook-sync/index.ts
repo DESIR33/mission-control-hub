@@ -326,7 +326,7 @@ Deno.serve(async (req) => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
           },
-          body: JSON.stringify({ workspace_id: workspaceId, mode: "sync" }),
+          body: JSON.stringify({ workspace_id, mode: "sync" }),
         }).catch(err => console.error("Deal email analyzer trigger failed:", err));
       } catch (triggerErr) {
         console.error("Failed to trigger deal-email-analyzer:", triggerErr);
