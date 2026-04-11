@@ -222,7 +222,7 @@ ${recentVideos.slice(0, 5).map((v: any) => `- "${v.title}": ${v.views} views, ${
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              model: "anthropic/claude-sonnet-4",
+              model: "deepseek/deepseek-v3.2",
               max_tokens: 1200,
               messages: [
                 {
