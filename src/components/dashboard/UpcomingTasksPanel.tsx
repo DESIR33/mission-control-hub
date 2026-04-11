@@ -1,10 +1,11 @@
 import { memo } from "react";
 import { CalendarClock, ArrowRight, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { format, isToday, isTomorrow, isPast } from "date-fns";
+import { isToday, isTomorrow, isPast } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { useUpcomingTasks } from "@/hooks/use-upcoming-tasks";
+import { safeDate, safeFormat } from "@/lib/date-utils";
 
 const priorityDot: Record<string, string> = {
   urgent: "bg-destructive",
@@ -13,12 +14,24 @@ const priorityDot: Record<string, string> = {
   low: "bg-muted-foreground",
 };
 
-function dueDateLabel(dateStr: string) {
-  const d = new Date(dateStr + "T12:00:00");
+function getTaskDueDate(dateStr: string | null | undefined) {
+  if (!dateStr) return null;
+
+  const normalized = /^\d{4}-\d{2}-\d{2}$/.test(dateStr)
+    ? `${dateStr}T12:00:00`
+    : dateStr;
+
+  return safeDate(normalized);
+}
+
+function dueDateLabel(dateStr: string | null | undefined) {
+  const d = getTaskDueDate(dateStr);
+
+  if (!d) return { label: "Date unavailable", className: "text-muted-foreground" };
   if (isPast(d) && !isToday(d)) return { label: "Overdue", className: "text-destructive" };
   if (isToday(d)) return { label: "Today", className: "text-warning" };
   if (isTomorrow(d)) return { label: "Tomorrow", className: "text-primary" };
-  return { label: format(d, "EEE, MMM d"), className: "text-muted-foreground" };
+  return { label: safeFormat(d, "EEE, MMM d"), className: "text-muted-foreground" };
 }
 
 export const UpcomingTasksPanel = memo(function UpcomingTasksPanel() {
@@ -44,8 +57,9 @@ export const UpcomingTasksPanel = memo(function UpcomingTasksPanel() {
       ) : (
         <div className="space-y-1 max-h-[320px] overflow-y-auto">
           {tasks.map((task) => {
+            const taskDueDate = getTaskDueDate(task.due_date);
             const due = dueDateLabel(task.due_date);
-            const overdue = isPast(new Date(task.due_date + "T12:00:00")) && !isToday(new Date(task.due_date + "T12:00:00"));
+            const overdue = !!taskDueDate && isPast(taskDueDate) && !isToday(taskDueDate);
             return (
               <button
                 key={task.id}
