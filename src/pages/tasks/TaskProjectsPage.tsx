@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { FolderKanban } from "lucide-react";
+import { FolderKanban, Trash2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useTaskProjects } from "@/hooks/use-task-projects";
@@ -8,12 +8,14 @@ import { useWorkspace } from "@/hooks/use-workspace";
 import { DomainSwitcher } from "@/components/tasks/DomainSwitcher";
 import { CreateProjectDialog } from "@/components/tasks/CreateProjectDialog";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 function TaskProjectsContent() {
   const navigate = useNavigate();
   const { activeDomainId, domains } = useTaskDomain();
-  const { projects, isLoading } = useTaskProjects(activeDomainId || undefined);
+  const { projects, isLoading, deleteProject } = useTaskProjects(activeDomainId || undefined);
   const { workspaceId } = useWorkspace();
 
   // Fetch task counts per project
@@ -77,14 +79,32 @@ function TaskProjectsContent() {
                     <div className="w-3 h-3 rounded-full" style={{ backgroundColor: project.color || "#6366f1" }} />
                     <h3 className="font-semibold text-sm">{project.name}</h3>
                   </div>
-                  <span className={cn(
-                    "text-[10px] px-2 py-0.5 rounded-full font-medium border",
-                    project.status === "active" ? "border-green-500/30 text-green-400" :
-                    project.status === "completed" ? "border-blue-500/30 text-blue-400" :
-                    "border-muted-foreground/30 text-muted-foreground"
-                  )}>
-                    {project.status}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className={cn(
+                      "text-[10px] px-2 py-0.5 rounded-full font-medium border",
+                      project.status === "active" ? "border-green-500/30 text-green-400" :
+                      project.status === "completed" ? "border-blue-500/30 text-blue-400" :
+                      "border-muted-foreground/30 text-muted-foreground"
+                    )}>
+                      {project.status}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-opacity"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (confirm(`Delete "${project.name}"? This cannot be undone.`)) {
+                          deleteProject.mutate(project.id, {
+                            onSuccess: () => toast.success("Project deleted"),
+                            onError: (err: Error) => toast.error(err.message),
+                          });
+                        }
+                      }}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
                 </div>
                 {project.description && (
                   <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{project.description}</p>
