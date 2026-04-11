@@ -83,6 +83,8 @@ Deno.serve(async (req) => {
       const openTasks = (tasksRes.data ?? []) as any[];
       const urgentEmails = (emailsRes.data ?? []) as any[];
       const expenses = (expensesRes.data ?? []) as any[];
+      const dealEmailContext = (dealEmailContextRes.data ?? []) as any[];
+      const pendingDealTasks = (dealEmailTasksRes.data ?? []) as any[];
 
       const now = new Date();
       const sevenDaysAgo = new Date(now.getTime() - 7 * 86400000);
