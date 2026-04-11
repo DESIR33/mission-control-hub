@@ -31,10 +31,12 @@ import { useActivities } from "@/hooks/use-contacts";
 import { useContacts } from "@/hooks/use-contacts";
 import { useCompanies } from "@/hooks/use-companies";
 import { useVideoQueue } from "@/hooks/use-video-queue";
+import { useDealContacts, useLinkDealContact, useUnlinkDealContact } from "@/hooks/use-deal-contacts";
+import { LinkContactDialog } from "@/components/projects/LinkContactDialog";
 import { useToast } from "@/hooks/use-toast";
 import {
   DollarSign, Calendar, Building2, User2, ArrowRightLeft,
-  Pencil, Trash2, Loader2, Mail, Film,
+  Pencil, Trash2, Loader2, Mail, Film, UserPlus, X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -81,9 +83,9 @@ export function DealDetailSheet({ deal, open, onOpenChange, onDeleted }: DealDet
   const [editing, setEditing] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [emailOpen, setEmailOpen] = useState(false);
+  const [linkContactOpen, setLinkContactOpen] = useState(false);
   const [stage, setStage] = useState("prospecting");
   const [forecastCategory, setForecastCategory] = useState("");
-  const [contactId, setContactId] = useState("");
   const [companyId, setCompanyId] = useState("");
 
   const updateDeal = useUpdateDeal();
@@ -92,13 +94,15 @@ export function DealDetailSheet({ deal, open, onOpenChange, onDeleted }: DealDet
   const { data: companies = [] } = useCompanies();
   const { data: activities = [] } = useActivities(deal?.id ?? null, "deal");
   const { data: videos = [] } = useVideoQueue();
+  const { data: dealContacts = [] } = useDealContacts(deal?.id ?? null);
+  const linkContact = useLinkDealContact();
+  const unlinkContact = useUnlinkDealContact();
   const { toast } = useToast();
 
   useEffect(() => {
     if (deal) {
       setStage(deal.stage);
       setForecastCategory(deal.forecast_category ?? "");
-      setContactId(deal.contact_id ?? "");
       setCompanyId(deal.company_id ?? "");
     }
   }, [deal]);
