@@ -76,7 +76,7 @@ function importanceStars(v: number) {
 export default function MemoryDashboardPage() {
   const { workspaceId } = useWorkspace();
   const qc = useQueryClient();
-
+  const navigate = useNavigate();
   // Filters
   const [searchText, setSearchText] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
