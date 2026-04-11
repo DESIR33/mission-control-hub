@@ -8577,6 +8577,50 @@ export type Database = {
           },
         ]
       }
+      workspace_invites: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string | null
+          role: string
+          token: string
+          workspace_id: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          invited_by?: string | null
+          role?: string
+          token?: string
+          workspace_id: string
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string | null
+          role?: string
+          token?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_invites_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workspace_members: {
         Row: {
           created_at: string
@@ -10274,6 +10318,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_workspace_invite: {
+        Args: { invite_token: string }
+        Returns: string
+      }
       aggregate_channel_analytics_weekly: {
         Args: { p_days?: number; p_workspace_id: string }
         Returns: {
@@ -10331,6 +10379,10 @@ export type Database = {
       can_manual_refresh: {
         Args: { p_dataset_key: string; p_workspace_id: string }
         Returns: boolean
+      }
+      create_workspace: {
+        Args: { ws_name: string; ws_slug: string }
+        Returns: string
       }
       get_dashboard_polling_counts: {
         Args: { p_workspace_id: string }
