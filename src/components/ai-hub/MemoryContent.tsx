@@ -1,8 +1,9 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, Brain, Camera } from "lucide-react";
+import { BookOpen, Brain, Camera, FolderOpen } from "lucide-react";
 import { LongTermMemoryTab } from "@/components/memory/LongTermMemoryTab";
 import { DailyLogsTab } from "@/components/memory/DailyLogsTab";
 import { ServiceSnapshotsTab } from "@/components/memory/ServiceSnapshotsTab";
+import { MemoryFoldersTab } from "@/components/memory/MemoryFoldersTab";
 import { useAssistantMemory } from "@/hooks/use-assistant-memory";
 
 export function MemoryContent() {
@@ -13,6 +14,9 @@ export function MemoryContent() {
       <TabsList className="w-full sm:w-auto overflow-x-auto flex-nowrap">
         <TabsTrigger value="memory" className="gap-1.5 flex-1 sm:flex-none">
           <BookOpen className="h-3.5 w-3.5" /> Long-Term Memory
+        </TabsTrigger>
+        <TabsTrigger value="folders" className="gap-1.5 flex-1 sm:flex-none">
+          <FolderOpen className="h-3.5 w-3.5" /> Folders & Files
         </TabsTrigger>
         <TabsTrigger value="logs" className="gap-1.5 flex-1 sm:flex-none">
           <Brain className="h-3.5 w-3.5" /> Daily Logs
@@ -34,6 +38,10 @@ export function MemoryContent() {
           onUpdate={memory.updateMemory}
           onDelete={memory.deleteMemory}
         />
+      </TabsContent>
+
+      <TabsContent value="folders">
+        <MemoryFoldersTab />
       </TabsContent>
 
       <TabsContent value="logs">
