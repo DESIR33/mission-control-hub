@@ -5,9 +5,10 @@ import { Bell, TrendingDown, Mail, Users, Youtube, AlertTriangle } from "lucide-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
-import { formatDistanceToNow } from "date-fns";
+import { DistanceToNow } from "date-fns";
 import { getGatedFreshness } from "@/config/data-freshness";
 import { useEngagementGate } from "@/hooks/use-engagement-gate";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 interface AlertItem {
   id: string;
@@ -146,7 +147,7 @@ export function ProactiveAlertDigest() {
                     <div className="flex items-center gap-2 mt-1">
                       <Badge variant="outline" className="text-[10px] px-1 py-0">{alert.source}</Badge>
                       <span className="text-[10px] text-muted-foreground">
-                        {formatDistanceToNow(new Date(alert.created_at), { addSuffix: true })}
+                        {safeFormatDistanceToNow(alert.created_at, { addSuffix: true })}
                       </span>
                     </div>
                   </div>

@@ -5,8 +5,9 @@ import { MessageSquare, Handshake, User, Clock, FileText } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
-import { formatDistanceToNow, format } from "date-fns";
+import { DistanceToNow } from "date-fns";
 import type { SmartEmail } from "@/hooks/use-smart-inbox";
+import { safeFormat } from "@/lib/date-utils";
 
 interface ThreadTimelineCRMProps {
   email: SmartEmail | null;
@@ -131,7 +132,7 @@ export function ThreadTimelineCRM({ email }: ThreadTimelineCRMProps) {
                     </div>
                     <p className="text-[10px] text-muted-foreground truncate">{event.description}</p>
                     <p className="text-[10px] text-muted-foreground">
-                      {format(new Date(event.date), "MMM d, yyyy")}
+                      {safeFormat(event.date, "MMM d, yyyy")}
                     </p>
                   </div>
                 </div>

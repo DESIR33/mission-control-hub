@@ -1,4 +1,4 @@
-import { formatDistanceToNow } from "date-fns";
+import { DistanceToNow } from "date-fns";
 import {
   Bell,
   UserPlus,
@@ -18,6 +18,7 @@ import {
   type NotificationType,
 } from "@/hooks/use-notifications";
 import { useGrowthAlerts } from "@/hooks/use-growth-alerts";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 const TYPE_CONFIG: Record<
   NotificationType,
@@ -108,7 +109,7 @@ function PanelNotificationItem({
           </p>
         )}
         <span className="text-xs text-muted-foreground/60 mt-1 block">
-          {formatDistanceToNow(new Date(notification.created_at), {
+          {safeFormatDistanceToNow(notification.created_at, {
             addSuffix: true,
           })}
         </span>

@@ -25,7 +25,8 @@ import {
   type CompetitorChannel,
 } from "@/hooks/use-competitor-benchmarking";
 import { toast } from "sonner";
-import { formatDistanceToNow } from "date-fns";
+import { DistanceToNow } from "date-fns";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 const emptyForm = {
   channel_name: "",
@@ -113,7 +114,7 @@ function CompetitorCard({
       {/* Footer */}
       {comp.last_synced_at && (
         <p className="text-[10px] text-muted-foreground">
-          Synced {formatDistanceToNow(new Date(comp.last_synced_at), { addSuffix: true })}
+          Synced {safeFormatDistanceToNow(comp.last_synced_at, { addSuffix: true })}
         </p>
       )}
     </div>
@@ -242,7 +243,7 @@ function ManageCompetitorsTab() {
           {competitors.length} competitor{competitors.length !== 1 ? "s" : ""} tracked
           {competitors[0]?.last_synced_at && (
             <span className="ml-2">
-              · Last synced {formatDistanceToNow(new Date(competitors[0].last_synced_at), { addSuffix: true })}
+              · Last synced {safeFormatDistanceToNow(competitors[0].last_synced_at, { addSuffix: true })}
             </span>
           )}
         </div>

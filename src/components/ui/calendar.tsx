@@ -6,6 +6,7 @@ import { format, setMonth, setYear } from "date-fns";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import {
+import { safeFormat } from "@/lib/date-utils";
   Select,
   SelectContent,
   SelectItem,
@@ -18,7 +19,7 @@ function CustomCaption(props: CaptionProps) {
   const currentMonth = props.displayMonth;
 
   const months = Array.from({ length: 12 }, (_, i) =>
-    format(new Date(2024, i), "MMMM")
+    safeFormat(2024, i, "MMMM")
   );
 
   const currentYear = new Date().getFullYear();

@@ -8,6 +8,7 @@ import {
   useYouTubeChannelStats,
 } from "@/hooks/use-youtube-analytics";
 import { differenceInDays, format, addMonths } from "date-fns";
+import { safeFormat } from "@/lib/date-utils";
 
 export interface GrowthAlert {
   id: string;
@@ -78,7 +79,7 @@ export function useGrowthAlerts() {
         items.push({
           id: "pace-behind",
           alertType: "pace_update",
-          message: `Growing ${actualDailyRate.toFixed(0)} subs/day — need ${requiredDailyRate.toFixed(0)}/day to hit ${(targetValue / 1000).toFixed(0)}K by ${format(new Date(targetDate), "MMM yyyy")}.`,
+          message: `Growing ${actualDailyRate.toFixed(0)} subs/day — need ${requiredDailyRate.toFixed(0)}/day to hit ${(targetValue / 1000).toFixed(0)}K by ${safeFormat(targetDate, "MMM yyyy")}.`,
           severity: "warning",
           createdAt: new Date().toISOString(),
         });

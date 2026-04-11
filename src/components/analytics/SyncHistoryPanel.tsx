@@ -2,8 +2,9 @@ import { Clock, CheckCircle, AlertCircle, Database, Timer } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
-import { formatDistanceToNow, format } from "date-fns";
+import { DistanceToNow } from "date-fns";
 import { Badge } from "@/components/ui/badge";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 interface SyncLogEntry {
   id: string;
@@ -82,7 +83,7 @@ export function SyncHistoryPanel() {
                   {log.sync_type}
                 </Badge>
                 <span className="text-muted-foreground truncate">
-                  {formatDistanceToNow(new Date(log.started_at), { addSuffix: true })}
+                  {safeFormatDistanceToNow(log.started_at, { addSuffix: true })}
                 </span>
               </div>
               {log.error_message && (

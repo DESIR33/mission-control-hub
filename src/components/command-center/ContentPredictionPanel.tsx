@@ -12,7 +12,8 @@ import { useWorkspace } from "@/hooks/use-workspace";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { formatDistanceToNow } from "date-fns";
+import { DistanceToNow } from "date-fns";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 interface TitleScore {
   title: string;
@@ -343,7 +344,7 @@ export function ContentPredictionPanel() {
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {pred.titles.length} options compared{" "}
-                      {formatDistanceToNow(new Date(pred.created_at), {
+                      {safeFormatDistanceToNow(pred.created_at, {
                         addSuffix: true,
                       })}
                     </p>

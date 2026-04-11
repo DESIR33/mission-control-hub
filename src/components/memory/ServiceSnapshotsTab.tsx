@@ -1,7 +1,8 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { differenceInHours, differenceInDays, format } from "date-fns";
+import { differenceInHours, differenceInDays } from "date-fns";
 import type { ServiceSnapshot } from "@/types/assistant";
+import { safeFormat } from "@/lib/date-utils";
 
 const serviceInfo: Record<string, { icon: string; label: string }> = {
   youtube: { icon: "🎥", label: "YouTube" },
@@ -48,7 +49,7 @@ export function ServiceSnapshotsTab({ snapshots }: Props) {
               <>
                 <p className="text-sm text-foreground">{snapshot.summary}</p>
                 <p className="text-xs text-muted-foreground mt-3">
-                  Last updated: {format(new Date(snapshot.snapshot_date), "MMM d, yyyy")}
+                  Last updated: {safeFormat(snapshot.snapshot_date, "MMM d, yyyy")}
                 </p>
               </>
             ) : (

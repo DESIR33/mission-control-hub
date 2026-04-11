@@ -5,8 +5,9 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useYouTubeAlerts, useMarkAlertRead, useMarkAllAlertsRead } from "@/hooks/use-youtube-alerts";
-import { formatDistanceToNow } from "date-fns";
+import { DistanceToNow } from "date-fns";
 import { motion } from "framer-motion";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 const alertIcon: Record<string, any> = {
   views_spike: TrendingUp,
@@ -95,7 +96,7 @@ export function AlertsPanel() {
                     <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{alert.description}</p>
                   )}
                   <p className="text-xs text-muted-foreground/60 mt-1">
-                    {formatDistanceToNow(new Date(alert.created_at), { addSuffix: true })}
+                    {safeFormatDistanceToNow(alert.created_at, { addSuffix: true })}
                   </p>
                 </div>
                 {!alert.is_read && (

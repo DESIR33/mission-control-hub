@@ -26,6 +26,7 @@ import { useContentCalendarEntries } from "@/hooks/use-content-calendar";
 import { useGrowthForecast } from "@/hooks/use-growth-forecast";
 import { useUnifiedRevenue } from "@/hooks/use-unified-revenue";
 import { differenceInDays, format, startOfWeek, subWeeks } from "date-fns";
+import { safeFormat } from "@/lib/date-utils";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -235,7 +236,7 @@ export function MissionBriefing() {
 
   // ── Derived: Quick Stats ──────────────────────────────────────────────────
   const quickStats = useMemo(() => {
-    const currentMonth = format(new Date(), "yyyy-MM");
+    const currentMonth = safeFormat(, "yyyy-MM");
     const monthlyRevenue = revenue?.monthly?.find((m) => m.month === currentMonth);
 
     const activeDeals = deals.filter(
@@ -341,10 +342,10 @@ export function MissionBriefing() {
         <Rocket className="w-5 h-5 text-blue-500 shrink-0" />
         <h2 className="text-base sm:text-lg font-semibold text-foreground truncate">Mission Briefing</h2>
         <Badge variant="outline" className="ml-auto text-xs border-blue-400/40 text-blue-400 shrink-0 hidden sm:inline-flex">
-          {format(new Date(), "EEEE, MMM d")}
+          {safeFormat(, "EEEE, MMM d")}
         </Badge>
         <Badge variant="outline" className="ml-auto text-xs border-blue-400/40 text-blue-400 shrink-0 sm:hidden">
-          {format(new Date(), "MMM d")}
+          {safeFormat(, "MMM d")}
         </Badge>
       </div>
 

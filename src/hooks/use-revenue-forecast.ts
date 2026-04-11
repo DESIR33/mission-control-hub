@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useChannelAnalytics, type ChannelAnalytics } from "@/hooks/use-youtube-analytics-api";
 import { subDays, addDays, format, differenceInDays } from "date-fns";
+import { safeFormat } from "@/lib/date-utils";
 
 export interface RevenueForecastPoint {
   date: string;
@@ -90,7 +91,7 @@ export function useRevenueForecast() {
     last90.forEach((d) => {
       cumulative += Number(d.estimated_revenue) || 0;
       forecastPoints.push({
-        date: format(new Date(d.date), "MMM dd"),
+        date: safeFormat(d.date, "MMM dd"),
         actual: Math.round(cumulative * 100) / 100,
       });
     });

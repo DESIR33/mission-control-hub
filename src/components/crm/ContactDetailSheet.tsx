@@ -27,9 +27,9 @@ import { useWorkspace } from "@/hooks/use-workspace";
 import { supabase } from "@/integrations/supabase/client";
 import { ComposeEmailDialog } from "@/components/inbox/ComposeEmailDialog";
 import type { Contact, Activity } from "@/types/crm";
-import { format } from "date-fns";
 import { useSponsorAttribution } from "@/hooks/use-sponsor-attribution";
 import { ContactImpactReport } from "./ContactImpactReport";
+import { safeFormat } from "@/lib/date-utils";
 
 const statusColors: Record<string, string> = {
   active: "bg-success/15 text-success border-success/30",
@@ -480,8 +480,8 @@ export function ContactDetailSheet({ contact, activities, open, onOpenChange, on
                   {/* Meta */}
                   <Separator className="bg-border" />
                   <div className="text-xs text-muted-foreground space-y-1">
-                    <p>Created: {format(new Date(contact.created_at), "MMM d, yyyy")}</p>
-                    <p>Updated: {format(new Date(contact.updated_at), "MMM d, yyyy")}</p>
+                    <p>Created: {safeFormat(contact.created_at, "MMM d, yyyy")}</p>
+                    <p>Updated: {safeFormat(contact.updated_at, "MMM d, yyyy")}</p>
                     {contact.source && <p>Source: {contact.source}</p>}
                   </div>
                 </>

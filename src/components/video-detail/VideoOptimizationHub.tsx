@@ -23,6 +23,7 @@ import { useVideoOptimizationExperiments, useSaveExperimentLesson, computeDelta 
 import { useRollbackExperiment } from "@/hooks/use-video-strategist";
 import { EXPERIMENT_STATUS_CONFIG } from "@/types/strategist";
 import { fmtCount } from "@/lib/chart-theme";
+import { safeFormat } from "@/lib/date-utils";
 
 // ── Types & Constants ──
 
@@ -524,7 +525,7 @@ function ExperimentCard({ experiment }: { experiment: any }) {
             )}
           </div>
           <p className="text-xs text-muted-foreground mt-0.5">
-            {format(new Date(experiment.started_at), "MMM d, yyyy")} · {daysRunning}d
+            {safeFormat(experiment.started_at, "MMM d, yyyy")} · {daysRunning}d
           </p>
         </div>
         {experiment.status === "active" && (

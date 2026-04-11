@@ -3,7 +3,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCompanyIntel, useMarkIntelRead } from "@/hooks/use-company-intel";
 import { Radar, ExternalLink, Eye, EyeOff, Globe, MessageSquare, Rocket, Newspaper } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { DistanceToNow } from "date-fns";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 const typeIcons = {
   social_post: MessageSquare,
@@ -81,7 +82,7 @@ export function CompanyIntelFeed({ companyId }: { companyId?: string }) {
                   <Badge variant="outline" className="text-[10px] capitalize">{item.source}</Badge>
                   <Badge variant="outline" className="text-[10px] capitalize">{item.intel_type.replace(/_/g, " ")}</Badge>
                   <span className="text-[10px] text-muted-foreground">
-                    {formatDistanceToNow(new Date(item.detected_at), { addSuffix: true })}
+                    {safeFormatDistanceToNow(item.detected_at, { addSuffix: true })}
                   </span>
                 </div>
                 {item.source_url && (

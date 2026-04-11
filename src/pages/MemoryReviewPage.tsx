@@ -3,7 +3,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { format } from "date-fns";
 import { motion } from "framer-motion";
 import {
   Brain, Check, Pencil, Trash2, Clock, ArrowLeft, ChevronDown, ChevronUp,
@@ -21,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
+import { safeFormat } from "@/lib/date-utils";
 
 const q = (table: string) => (supabase as any).from(table);
 
@@ -321,7 +321,7 @@ export default function MemoryReviewPage() {
                               <span className="text-[10px] text-muted-foreground">{((m.confidence_score || 0) * 100).toFixed(0)}%</span>
                               <Progress value={(m.confidence_score || 0) * 100} className="h-1.5 w-16" />
                             </div>
-                            <span className="text-[10px] text-muted-foreground">{format(new Date(m.created_at), "MMM d")}</span>
+                            <span className="text-[10px] text-muted-foreground">{safeFormat(m.created_at, "MMM d")}</span>
                           </div>
                         </>
                       )}
@@ -352,7 +352,7 @@ export default function MemoryReviewPage() {
 
       {lastProcessed && (
         <p className="text-xs text-muted-foreground text-center">
-          Last decay run: {format(new Date(lastProcessed), "MMM d, yyyy 'at' HH:mm")}
+          Last decay run: {safeFormat(lastProcessed, "MMM d, yyyy 'at' HH:mm")}
         </p>
       )}
     </div>

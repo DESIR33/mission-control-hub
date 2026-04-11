@@ -1,6 +1,6 @@
-import { format } from "date-fns";
 import { Building2, Calendar, User2 } from "lucide-react";
 import type { Deal } from "@/hooks/use-deals";
+import { safeFormat } from "@/lib/date-utils";
 
 interface DealCardProps {
   deal: Deal;
@@ -44,7 +44,7 @@ export function DealCard({ deal, onClick }: DealCardProps) {
       {deal.expected_close_date && (
         <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
           <Calendar className="h-3 w-3" />
-          <span>{format(new Date(deal.expected_close_date), "MMM d, yyyy")}</span>
+          <span>{safeFormat(deal.expected_close_date, "MMM d, yyyy")}</span>
         </div>
       )}
     </div>

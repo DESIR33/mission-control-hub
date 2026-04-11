@@ -27,7 +27,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { X, Loader2 } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { DistanceToNow } from "date-fns";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 const WORKSPACE_ID = "ea11b24d-27bd-4488-9760-2663bc788e04";
 
@@ -371,7 +372,7 @@ export default function MemoryKnowledgeGraphPage() {
                 />
               </div>
               <p className="text-xs text-muted-foreground">
-                Created {formatDistanceToNow(new Date(selectedNode.created_at), { addSuffix: true })}
+                Created {safeFormatDistanceToNow(selectedNode.created_at, { addSuffix: true })}
               </p>
             </div>
 

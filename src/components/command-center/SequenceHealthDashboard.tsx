@@ -14,8 +14,9 @@ import { useEmailSequences, useSequenceEnrollments } from "@/hooks/use-email-seq
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
-import { formatDistanceToNow } from "date-fns";
+import { DistanceToNow } from "date-fns";
 import {
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
   chartTooltipStyle,
   cartesianGridDefaults,
   xAxisDefaults,
@@ -246,7 +247,7 @@ export function SequenceHealthDashboard() {
             {health.recentFailures.map((log) => (
               <div key={log.id} className="flex items-center gap-2 text-xs">
                 <span className="text-muted-foreground">
-                  {formatDistanceToNow(new Date(log.sent_at), { addSuffix: true })}
+                  {safeFormatDistanceToNow(log.sent_at, { addSuffix: true })}
                 </span>
                 <span className="text-foreground truncate">{log.to_email}</span>
                 {log.error_message && (

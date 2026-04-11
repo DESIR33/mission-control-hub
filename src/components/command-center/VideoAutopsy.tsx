@@ -17,10 +17,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
-import { differenceInHours, differenceInDays, format } from "date-fns";
+import { differenceInHours, differenceInDays } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { safeFormat } from "@/lib/date-utils";
 
 const getGrade = (
   views: number,
@@ -166,7 +167,7 @@ function VideoRow({
         <div className="flex items-center gap-3 shrink-0">
           <span className="text-xs text-muted-foreground">
             {video.published_at
-              ? format(new Date(video.published_at), "MMM d, yyyy")
+              ? safeFormat(video.published_at, "MMM d, yyyy")
               : "—"}
           </span>
           <Badge variant="outline" className={`text-xs font-bold ${color}`}>

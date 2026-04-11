@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { Plus, Search, Pencil, Trash2 } from "lucide-react";
 import type { Memory, MemoryOrigin } from "@/types/assistant";
-import { format } from "date-fns";
+import { safeFormat } from "@/lib/date-utils";
 
 const ORIGINS: MemoryOrigin[] = [
   "youtube", "crm", "email", "strategy", "preference", "manual",
@@ -157,7 +157,7 @@ export function LongTermMemoryTab({
               </div>
             )}
             <p className="text-xs text-muted-foreground mt-2">
-              {format(new Date(m.updated_at), "MMM d, yyyy")}
+              {safeFormat(m.updated_at, "MMM d, yyyy")}
             </p>
           </Card>
         ))}

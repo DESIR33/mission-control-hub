@@ -34,7 +34,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { toast } from "sonner";
-import { formatDistanceToNow } from "date-fns";
+import { DistanceToNow } from "date-fns";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 const statusIcon: Record<string, typeof TrendingUp> = {
   ahead: TrendingUp,
@@ -371,7 +372,7 @@ export function CompetitorIntelligence() {
                     {comp.last_synced_at && (
                       <span className="flex items-center gap-0.5">
                         <RefreshCw className="w-2.5 h-2.5" />
-                        {formatDistanceToNow(new Date(comp.last_synced_at), {
+                        {safeFormatDistanceToNow(comp.last_synced_at, {
                           addSuffix: true,
                         })}
                       </span>

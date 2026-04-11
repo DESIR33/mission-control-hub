@@ -3,13 +3,14 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { motion } from "framer-motion";
-import { format, formatDistanceToNow } from "date-fns";
+import { format, } from "date-fns";
 import { ArrowLeft, Brain, Sparkles, ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { safeFormat, safeFormatDistanceToNow } from "@/lib/date-utils";
 
 const q = (table: string) => (supabase as any).from(table);
 
@@ -39,7 +40,7 @@ export default function BriefingDetailPage() {
   const navigate = useNavigate();
   const { workspaceId } = useWorkspace();
 
-  const targetDate = briefingDate || format(new Date(), "yyyy-MM-dd");
+  const targetDate = briefingDate || safeFormat(, "yyyy-MM-dd");
 
   const { data: briefing, isLoading } = useQuery({
     queryKey: ["briefing-detail", workspaceId, targetDate],
@@ -129,7 +130,7 @@ export default function BriefingDetailPage() {
           <div className="flex-1 min-w-0">
             <p className="text-xs text-muted-foreground">Daily Briefing</p>
             <h1 className="text-xl font-bold text-foreground">
-              {format(new Date(targetDate + "T12:00:00"), "EEEE, MMMM d, yyyy")}
+              {safeFormat(targetDate + "T12:00:00", "EEEE, MMMM d, yyyy")}
             </h1>
           </div>
           <div className="flex items-center gap-1 text-xs text-primary font-mono">
@@ -160,7 +161,7 @@ export default function BriefingDetailPage() {
           </Button>
           {briefing && (
             <span className="text-[10px] text-muted-foreground ml-2">
-              Generated {formatDistanceToNow(new Date(briefing.created_at), { addSuffix: true })}
+              Generated {safeFormatDistanceToNow(briefing.created_at, { addSuffix: true })}
             </span>
           )}
         </div>
@@ -287,7 +288,7 @@ export default function BriefingDetailPage() {
                   className="h-7 text-xs"
                   onClick={() => navigate(`/briefing/${date}`)}
                 >
-                  {format(new Date(date + "T12:00:00"), "MMM d")}
+                  {safeFormat(date + "T12:00:00", "MMM d")}
                 </Button>
               ))}
             </div>

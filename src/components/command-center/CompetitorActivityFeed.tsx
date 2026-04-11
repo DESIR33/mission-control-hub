@@ -7,7 +7,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { formatDistanceToNow } from "date-fns";
+import { DistanceToNow } from "date-fns";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 interface CompetitorActivity {
   id: string;
@@ -146,7 +147,7 @@ export function CompetitorActivityFeed() {
                       </p>
                     )}
                     <p className="text-xs text-muted-foreground mt-1">
-                      {formatDistanceToNow(new Date(activity.detected_at), {
+                      {safeFormatDistanceToNow(activity.detected_at, {
                         addSuffix: true,
                       })}
                     </p>

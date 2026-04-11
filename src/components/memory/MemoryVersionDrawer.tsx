@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { formatDistanceToNow } from "date-fns";
+import { DistanceToNow } from "date-fns";
 import { History, RotateCcw, ChevronRight } from "lucide-react";
 import { MemoryGraphView } from "./MemoryGraphView";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 interface HistoryEntry {
   content: string;
@@ -169,7 +170,7 @@ export function MemoryVersionDrawer({
                       <div className="rounded-lg border border-border/50 bg-card p-3 space-y-2">
                         <div className="flex items-center justify-between gap-2">
                           <span className="text-[10px] text-muted-foreground">
-                            {formatDistanceToNow(new Date(entry.edited_at), { addSuffix: true })}
+                            {safeFormatDistanceToNow(entry.edited_at, { addSuffix: true })}
                           </span>
                           <div className="flex items-center gap-1.5">
                             {confDelta !== 0 && (

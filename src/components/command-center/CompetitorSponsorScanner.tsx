@@ -13,7 +13,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { formatDistanceToNow } from "date-fns";
+import { DistanceToNow } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   useCompetitorSponsors, useScanCompetitorSponsors,
@@ -22,6 +22,7 @@ import {
   type CompetitorSponsor,
 } from "@/hooks/use-competitor-sponsors";
 import { SponsorOutreachDialog } from "./SponsorOutreachDialog";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   not_contacted: { label: "Not Contacted", className: "bg-muted text-muted-foreground" },
   contacted: { label: "Contacted", className: "bg-blue-500/20 text-blue-400" },
@@ -187,9 +188,9 @@ function SponsorCard({
 
         {/* Timestamp */}
         <p className="text-[10px] text-muted-foreground">
-          First seen {formatDistanceToNow(new Date(sponsor.first_detected_at), { addSuffix: true })}
+          First seen {safeFormatDistanceToNow(sponsor.first_detected_at, { addSuffix: true })}
           {sponsor.last_detected_at !== sponsor.first_detected_at && (
-            <> · Last seen {formatDistanceToNow(new Date(sponsor.last_detected_at), { addSuffix: true })}</>
+            <> · Last seen {safeFormatDistanceToNow(sponsor.last_detected_at, { addSuffix: true })}</>
           )}
         </p>
       </CardContent>

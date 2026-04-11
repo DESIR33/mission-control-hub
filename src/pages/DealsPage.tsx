@@ -32,6 +32,7 @@ import { SponsorOutreachGenerator } from "@/components/deals/SponsorOutreachGene
 import { useSponsorMatchScore } from "@/hooks/use-sponsor-match-score";
 import { useToast } from "@/hooks/use-toast";
 import { ExportDealsDialog } from "@/components/deals/ExportDealsDialog";
+import { safeFormat } from "@/lib/date-utils";
 
 const STAGES: { id: DealStage; label: string; color: string; weight: number }[] = [
   { id: "prospecting", label: "Prospecting", color: "#3B82F6", weight: 0.1 },
@@ -331,7 +332,7 @@ export default function DealsPage() {
                         {deal.expected_close_date && (
                           <div className="flex items-center gap-1 text-xs text-muted-foreground ml-auto">
                             <Calendar className="w-2.5 h-2.5" />
-                            <span>{format(new Date(deal.expected_close_date), "MMM d")}</span>
+                            <span>{safeFormat(deal.expected_close_date, "MMM d")}</span>
                           </div>
                         )}
                       </div>
@@ -395,10 +396,10 @@ export default function DealsPage() {
                       {deal.company?.name ?? "--"}
                     </TableCell>
                     <TableCell className="hidden lg:table-cell text-muted-foreground">
-                      {deal.expected_close_date ? format(new Date(deal.expected_close_date), "MMM d, yyyy") : "--"}
+                      {deal.expected_close_date ? safeFormat(deal.expected_close_date, "MMM d, yyyy") : "--"}
                     </TableCell>
                     <TableCell className="hidden lg:table-cell text-muted-foreground text-xs">
-                      {format(new Date(deal.updated_at), "MMM d")}
+                      {safeFormat(deal.updated_at, "MMM d")}
                     </TableCell>
                   </TableRow>
                 ))

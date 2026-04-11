@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useYouTubeComments, useCommentStats, useUpdateCommentStatus } from "@/hooks/use-youtube-comments";
 import { toast } from "sonner";
-import { formatDistanceToNow } from "date-fns";
+import { DistanceToNow } from "date-fns";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 const sentimentConfig: Record<string, { icon: any; color: string; label: string }> = {
   positive: { icon: Smile, color: "text-green-400", label: "Positive" },
@@ -124,7 +125,7 @@ export function CommentInbox() {
                         {comment.is_replied ? "Replied" : "Unreplied"}
                       </Badge>
                       <span className="text-xs text-muted-foreground ml-auto">
-                        {formatDistanceToNow(new Date(comment.published_at), { addSuffix: true })}
+                        {safeFormatDistanceToNow(comment.published_at, { addSuffix: true })}
                       </span>
                     </div>
 

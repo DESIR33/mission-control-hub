@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
-import { format, formatDistanceToNow } from "date-fns";
+import { format, } from "date-fns";
 import {
   Bot, CheckCircle2, AlertTriangle, Mail, Calendar,
   TrendingUp, FileText, Zap, Clock, ListTodo, MessageSquareText, Sparkles
@@ -8,6 +8,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useAssistantActions, useTasks } from "@/hooks/use-assistant-actions";
 import { cn } from "@/lib/utils";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 const ACTION_ICONS: Record<string, typeof Bot> = {
   stale_deal_detected: AlertTriangle,
@@ -147,7 +148,7 @@ export function AssistantActivityFeed() {
                     )}
                   </div>
                   <span className="text-xs text-muted-foreground shrink-0">
-                    {formatDistanceToNow(new Date(action.created_at), { addSuffix: true })}
+                    {safeFormatDistanceToNow(action.created_at, { addSuffix: true })}
                   </span>
                 </motion.div>
               );

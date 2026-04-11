@@ -22,7 +22,8 @@ import {
   Flame, CheckCircle2, FileText, MessageSquare, Share2, Mail,
   Eye, Users, DollarSign, TrendingUp, Clock, ExternalLink,
 } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { DistanceToNow } from "date-fns";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 const statusStyles: Record<string, string> = {
   active: "bg-success/15 text-success border-success/30",
@@ -112,7 +113,7 @@ export function ViralPlaybookPanel() {
                         </span>
                         <span className="flex items-center gap-1">
                           <Clock className="w-3 h-3" />
-                          {formatDistanceToNow(new Date(run.started_at), { addSuffix: true })}
+                          {safeFormatDistanceToNow(run.started_at, { addSuffix: true })}
                         </span>
                       </div>
                     </div>

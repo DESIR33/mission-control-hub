@@ -13,7 +13,8 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { Plus, Trash2, Loader2, CalendarClock, X } from "lucide-react";
-import { formatDistanceToNow, isPast, isToday, isTomorrow } from "date-fns";
+import { DistanceToNow, isPast, isToday, isTomorrow } from "date-fns";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 interface FollowUpRemindersProps {
   entityId: string;
@@ -203,7 +204,7 @@ export function FollowUpReminders({ entityId, entityType }: FollowUpRemindersPro
                     </p>
                   )}
                   <p className="text-xs text-muted-foreground mt-1">
-                    Due {formatDistanceToNow(new Date(reminder.due_date), { addSuffix: true })}
+                    Due {safeFormatDistanceToNow(reminder.due_date, { addSuffix: true })}
                   </p>
                 </div>
                 <Button

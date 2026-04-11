@@ -15,9 +15,10 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { formatDistanceToNow } from "date-fns";
+import { DistanceToNow } from "date-fns";
 import { CheckCircle2, Shield, Merge, X, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 const WORKSPACE_ID = "ea11b24d-27bd-4488-9760-2663bc788e04";
 
@@ -69,7 +70,7 @@ function MemoryPanel({ label, memory }: { label: string; memory: ConflictRow["me
         <ConfidenceBadge score={memory.confidence_score} />
         <Badge variant="outline" className="text-xs">{memory.agent_id || "global"}</Badge>
         <span className="text-xs text-muted-foreground">
-          {formatDistanceToNow(new Date(memory.created_at), { addSuffix: true })}
+          {safeFormatDistanceToNow(memory.created_at, { addSuffix: true })}
         </span>
       </div>
     </div>
@@ -234,7 +235,7 @@ export default function MemoryConflictsPage() {
                   {conflict.conflict_type}
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  Detected {formatDistanceToNow(new Date(conflict.detected_at), { addSuffix: true })}
+                  Detected {safeFormatDistanceToNow(conflict.detected_at, { addSuffix: true })}
                 </span>
               </div>
 

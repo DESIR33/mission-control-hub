@@ -1,6 +1,5 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { format } from "date-fns";
 import { Plus, Trash2, Receipt, Search, Filter, Tag, CheckCircle2, Pencil, Download, Eye, Loader2, FileArchive, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +10,7 @@ import { useExpenses, useDeleteExpense, useCreateExpense, type ExpenseCategory }
 import { ReceiptViewerDialog } from "./ReceiptViewerDialog";
 import { useToast } from "@/hooks/use-toast";
 import JSZip from "jszip";
+import { safeFormat } from "@/lib/date-utils";
 
 interface Props {
   categories: ExpenseCategory[];
@@ -87,7 +87,7 @@ export function ExpenseList({ categories }: Props) {
             const blob = await res.blob();
             const ext = expense.receipt_url!.split(".").pop()?.split("?")[0] || "file";
             const safeName = expense.title.replace(/[^a-zA-Z0-9]/g, "_");
-            const dateStr = format(new Date(expense.expense_date), "yyyy-MM-dd");
+            const dateStr = safeFormat(expense.expense_date, "yyyy-MM-dd");
             folder.file(`${dateStr}_${safeName}_${i + 1}.${ext}`, blob);
           } catch {
             // skip failed downloads
@@ -99,7 +99,7 @@ export function ExpenseList({ categories }: Props) {
       const url = URL.createObjectURL(content);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `receipts_${format(new Date(), "yyyy-MM-dd")}.zip`;
+      a.download = `receipts_${safeFormat(, "yyyy-MM-dd")}.zip`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -205,7 +205,7 @@ export function ExpenseList({ categories }: Props) {
                     onClick={() => navigate(`/finance/expenses/${expense.id}/edit`)}
                   >
                     <TableCell className="text-sm tabular-nums">
-                      {format(new Date(expense.expense_date), "MMM d, yyyy")}
+                      {safeFormat(expense.expense_date, "MMM d, yyyy")}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">

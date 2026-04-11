@@ -6,7 +6,7 @@ import { useWorkspace } from "@/hooks/use-workspace";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { format, formatDistanceToNow } from "date-fns";
+import { format, } from "date-fns";
 import {
   ArrowLeft, Brain, Pin, PinOff, Pencil, Trash2, Star, Eye, Clock,
   MessageSquare, Send, X, Shield, Tag, Link2, Activity
@@ -22,6 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { safeFormat, safeFormatDistanceToNow } from "@/lib/date-utils";
 
 const q = (table: string) => (supabase as any).from(table);
 
@@ -273,15 +274,15 @@ export default function MemoryDetailPage() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Last Accessed</span>
-                  <span>{memory.last_accessed_at ? formatDistanceToNow(new Date(memory.last_accessed_at), { addSuffix: true }) : "Never"}</span>
+                  <span>{memory.last_accessed_at ? safeFormatDistanceToNow(memory.last_accessed_at, { addSuffix: true }) : "Never"}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Created</span>
-                  <span>{format(new Date(memory.created_at), "PPp")}</span>
+                  <span>{safeFormat(memory.created_at, "PPp")}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Valid Until</span>
-                  <span>{memory.valid_until ? format(new Date(memory.valid_until), "PPp") : "Indefinite"}</span>
+                  <span>{memory.valid_until ? safeFormat(memory.valid_until, "PPp") : "Indefinite"}</span>
                 </div>
               </div>
             </CardContent>
@@ -339,7 +340,7 @@ export default function MemoryDetailPage() {
             <div className="space-y-1.5">
               {accessLog.map((log: any) => (
                 <div key={log.id} className="text-xs bg-muted/30 rounded p-2.5">
-                  <span className="text-muted-foreground">{formatDistanceToNow(new Date(log.accessed_at), { addSuffix: true })}</span>
+                  <span className="text-muted-foreground">{safeFormatDistanceToNow(log.accessed_at, { addSuffix: true })}</span>
                   <span className="mx-1.5">·</span>
                   <span>{log.accessed_by}</span>
                   {log.query_context && <p className="text-muted-foreground mt-0.5 truncate">{log.query_context}</p>}
@@ -357,7 +358,7 @@ export default function MemoryDetailPage() {
               {editHistory.map((entry: any, i: number) => (
                 <div key={i} className="text-xs bg-muted/30 rounded p-2.5">
                   <span className="text-muted-foreground">
-                    {entry.edited_at ? format(new Date(entry.edited_at), "PPp") : `v${i + 1}`}
+                    {entry.edited_at ? safeFormat(entry.edited_at, "PPp") : `v${i + 1}`}
                   </span>
                   {entry.changed_fields && (
                     <span className="ml-1.5">Changed: {entry.changed_fields.join(", ")}</span>
@@ -396,7 +397,7 @@ export default function MemoryDetailPage() {
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-medium">{authorName}</span>
                         <span className="text-[10px] text-muted-foreground">
-                          {formatDistanceToNow(new Date(c.created_at), { addSuffix: true })}
+                          {safeFormatDistanceToNow(c.created_at, { addSuffix: true })}
                         </span>
                         {c.user_id === user?.id && (
                           <Button

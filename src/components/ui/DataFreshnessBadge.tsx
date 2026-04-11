@@ -1,10 +1,11 @@
-import { formatDistanceToNow } from "date-fns";
+import { DistanceToNow } from "date-fns";
 import { RefreshCw, Clock, AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import type { DatasetSyncRow } from "@/hooks/use-dataset-sync-status";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 interface DataFreshnessBadgeProps {
   status: DatasetSyncRow | undefined;
@@ -27,7 +28,7 @@ export function DataFreshnessBadge({
   const hasError = !!status?.last_error;
 
   const timeAgo = lastSync
-    ? formatDistanceToNow(new Date(lastSync), { addSuffix: true })
+    ? safeFormatDistanceToNow(lastSync, { addSuffix: true })
     : null;
 
   return (

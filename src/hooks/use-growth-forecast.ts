@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useYouTubeChannelStats } from "@/hooks/use-youtube-analytics";
 import { useGrowthGoal } from "@/hooks/use-youtube-analytics";
 import { differenceInDays, addDays, format } from "date-fns";
+import { safeFormat } from "@/lib/date-utils";
 
 export interface ForecastPoint {
   date: string;
@@ -89,7 +90,7 @@ export function useGrowthForecast() {
     // Historical data
     sorted.forEach((s) => {
       forecastPoints.push({
-        date: format(new Date(s.fetched_at), "MMM dd"),
+        date: safeFormat(s.fetched_at, "MMM dd"),
         actual: s.subscriber_count,
       });
     });

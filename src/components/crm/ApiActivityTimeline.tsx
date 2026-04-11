@@ -4,7 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { formatDistanceToNow } from "date-fns";
+import { DistanceToNow } from "date-fns";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 export type TimelineType =
   | "email_sent"
@@ -114,7 +115,7 @@ export function ActivityTimeline({ entityType, entityId }: { entityType: "contac
               <div key={`${event.sourceRef.sourceType}-${event.sourceRef.sourceId}-${event.occurredAt}`} className="rounded-md border p-3">
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-sm font-medium">{LABELS[event.type]}</p>
-                  <p className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(event.occurredAt), { addSuffix: true })}</p>
+                  <p className="text-xs text-muted-foreground">{safeFormatDistanceToNow(event.occurredAt, { addSuffix: true })}</p>
                 </div>
                 <p className="mt-1 text-sm">{event.summary}</p>
                 <p className="mt-1 text-xs text-muted-foreground">By {event.actor.name}</p>

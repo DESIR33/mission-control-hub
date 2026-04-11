@@ -2,8 +2,8 @@
  * PDF Export utility for YouTube Analytics reports.
  * Generates beautifully styled HTML and opens it in a new window for print-to-PDF.
  */
-import { format } from "date-fns";
 import type { ChannelAnalytics, VideoAnalytics } from "@/hooks/use-youtube-analytics-api";
+import { safeFormat } from "@/lib/date-utils";
 
 function escapeHtml(str: string): string {
   return str
@@ -102,7 +102,7 @@ function openPrintWindow(title: string, bodyHtml: string) {
 </head>
 <body>
   ${bodyHtml}
-  <div class="footer">Generated on ${format(new Date(), "MMMM d, yyyy 'at' h:mm a")} · YouTube Analytics Report</div>
+  <div class="footer">Generated on ${safeFormat(, "MMMM d, yyyy 'at' h:mm a")} · YouTube Analytics Report</div>
 </body>
 </html>`);
   win.document.close();
@@ -142,7 +142,7 @@ export function exportChannelReport(data: ChannelAnalytics[], daysRange: number)
     : 0;
 
   const dateRange = sorted.length > 0
-    ? `${format(new Date(sorted[0].date), "MMM d, yyyy")} – ${format(new Date(sorted[sorted.length - 1].date), "MMM d, yyyy")}`
+    ? `${safeFormat(sorted[0].date, "MMM d, yyyy")} – ${safeFormat(sorted[sorted.length - 1].date, "MMM d, yyyy")}`
     : "";
 
   const html = `
@@ -190,7 +190,7 @@ export function exportChannelReport(data: ChannelAnalytics[], daysRange: number)
         <tbody>
           ${sorted.map((d) => `
             <tr>
-              <td>${format(new Date(d.date), "MMM d, yyyy")}</td>
+              <td>${safeFormat(d.date, "MMM d, yyyy")}</td>
               <td class="text-right mono">${d.views.toLocaleString()}</td>
               <td class="text-right mono">${Math.round(d.estimated_minutes_watched)}m</td>
               <td class="text-right mono ${d.net_subscribers >= 0 ? 'kpi-positive' : 'kpi-negative'}">${d.net_subscribers >= 0 ? '+' : ''}${d.net_subscribers}</td>
@@ -333,7 +333,7 @@ export function exportVideoReport(data: VideoAnalytics[], publishedAtMap?: Map<s
                 ${(v.subsGained - v.subsLost) >= 0 ? '+' : ''}${v.subsGained - v.subsLost}
               </td>
               ${totals.revenue > 0 ? `<td class="text-right mono text-green">${fmtMoney(v.revenue)}</td>` : ''}
-              <td class="text-right text-muted">${v.publishedAt ? format(new Date(v.publishedAt), "MMM d, yy") : '—'}</td>
+              <td class="text-right text-muted">${v.publishedAt ? safeFormat(v.publishedAt, "MMM d, yy") : '—'}</td>
             </tr>
           `).join('')}
         </tbody>
@@ -392,7 +392,7 @@ export function exportSingleVideoReport(video: VideoAnalytics & { engagementRate
         <tbody>
           ${dailyRows.sort((a, b) => a.date.localeCompare(b.date)).map((d) => `
             <tr>
-              <td>${format(new Date(d.date), "MMM d, yyyy")}</td>
+              <td>${safeFormat(d.date, "MMM d, yyyy")}</td>
               <td class="text-right mono">${d.views.toLocaleString()}</td>
               <td class="text-right mono">${d.likes.toLocaleString()}</td>
               <td class="text-right mono">${d.comments.toLocaleString()}</td>

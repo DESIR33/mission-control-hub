@@ -6,7 +6,7 @@ import { useSubscriberGuides } from "@/hooks/use-subscriber-guides";
 import { useSubscriberGuideAssignments, useAssignGuide, useUnassignGuide } from "@/hooks/use-subscriber-guide-assignments";
 import { useToast } from "@/hooks/use-toast";
 import { BookOpen, Plus, X, Loader2 } from "lucide-react";
-import { format } from "date-fns";
+import { safeFormat } from "@/lib/date-utils";
 
 interface SubscriberGuidePickerProps {
   subscriberId: string;
@@ -66,7 +66,7 @@ export function SubscriberGuidePicker({ subscriberId }: SubscriberGuidePickerPro
               </div>
               {a.downloaded_at && (
                 <Badge variant="outline" className="text-xs shrink-0">
-                  Downloaded {format(new Date(a.downloaded_at), "MMM d")}
+                  Downloaded {safeFormat(a.downloaded_at, "MMM d")}
                 </Badge>
               )}
               <Button

@@ -11,7 +11,8 @@ import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Cell,
 } from "recharts";
-import { format, subDays, formatDistanceToNow } from "date-fns";
+import { format, subDays, } from "date-fns";
+import { safeFormat } from "@/lib/date-utils";
 
 const query = (table: string) => (supabase as any).from(table);
 
@@ -115,7 +116,7 @@ export default function MemoryAnalyticsPage() {
       if (!data?.length) return [];
       const buckets: Record<string, { sum: number; count: number }> = {};
       data.forEach((m: any) => {
-        const day = format(new Date(m.created_at), "MMM d");
+        const day = safeFormat(m.created_at, "MMM d");
         if (!buckets[day]) buckets[day] = { sum: 0, count: 0 };
         buckets[day].sum += m.confidence_score ?? 0;
         buckets[day].count += 1;
@@ -166,7 +167,7 @@ export default function MemoryAnalyticsPage() {
       if (!data?.length) return [];
       const buckets: Record<string, number> = {};
       data.forEach((c: any) => {
-        const day = format(new Date(c.detected_at), "MMM d");
+        const day = safeFormat(c.detected_at, "MMM d");
         buckets[day] = (buckets[day] || 0) + 1;
       });
       return Object.entries(buckets).map(([day, count]) => ({ day, count }));

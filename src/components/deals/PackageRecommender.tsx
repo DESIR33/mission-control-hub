@@ -26,6 +26,7 @@ import {
   Loader2, AlertTriangle,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 const packageStyles: Record<string, string> = {
   premium: "bg-primary/15 text-primary border-primary/30",
@@ -254,7 +255,7 @@ export function PackageRecommenderPanel() {
                   )}
                   {exp.accepted_value && <span>at {formatCurrency(exp.accepted_value)}</span>}
                   {exp.rejection_reason && <span className="text-destructive">Reason: {exp.rejection_reason}</span>}
-                  <span className="ml-auto">{formatDistanceToNow(new Date(exp.created_at), { addSuffix: true })}</span>
+                  <span className="ml-auto">{safeFormatDistanceToNow(exp.created_at, { addSuffix: true })}</span>
                 </div>
               </div>
             ))}

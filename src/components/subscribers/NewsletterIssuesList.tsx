@@ -10,7 +10,8 @@ import { useNewsletterIssues, useCreateNewsletterIssue } from "@/hooks/use-newsl
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { Plus, Mail, Send, Eye, MousePointer, MessageSquare, Loader2, Calendar, ExternalLink } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { DistanceToNow } from "date-fns";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 const statusStyles: Record<string, string> = {
   draft: "bg-muted text-muted-foreground",
@@ -145,10 +146,10 @@ export function NewsletterIssuesList() {
                     </div>
                     <p className="text-[10px] text-muted-foreground shrink-0">
                       {issue.publish_date
-                        ? formatDistanceToNow(new Date(issue.publish_date), { addSuffix: true })
+                        ? safeFormatDistanceToNow(issue.publish_date, { addSuffix: true })
                         : issue.sent_at
-                        ? formatDistanceToNow(new Date(issue.sent_at), { addSuffix: true })
-                        : formatDistanceToNow(new Date(issue.created_at), { addSuffix: true })}
+                        ? safeFormatDistanceToNow(issue.sent_at, { addSuffix: true })
+                        : safeFormatDistanceToNow(issue.created_at, { addSuffix: true })}
                     </p>
                   </div>
                 </CardContent>

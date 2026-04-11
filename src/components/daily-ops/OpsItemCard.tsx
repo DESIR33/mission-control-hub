@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { OpsItem } from "@/hooks/use-daily-ops";
 import { SOURCE_ICONS } from "@/hooks/use-daily-ops";
-import { formatDistanceToNow } from "date-fns";
+import { DistanceToNow } from "date-fns";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 const urgencyColor = (score: number) => {
   if (score >= 70) return "text-destructive bg-destructive/10 border-destructive/30";
@@ -72,7 +73,7 @@ export const OpsItemCard = memo(function OpsItemCard({ item, onAction, isActing 
           {item.due_at && (
             <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1">
               <AlertTriangle className="w-3 h-3" />
-              Due {formatDistanceToNow(new Date(item.due_at), { addSuffix: true })}
+              Due {safeFormatDistanceToNow(item.due_at, { addSuffix: true })}
             </p>
           )}
 

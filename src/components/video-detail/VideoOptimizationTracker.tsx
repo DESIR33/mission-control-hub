@@ -12,6 +12,7 @@ import { useVideoOptimizationExperiments, useSaveExperimentLesson, computeDelta 
 import { useRollbackExperiment } from "@/hooks/use-video-strategist";
 import { EXPERIMENT_STATUS_CONFIG } from "@/types/strategist";
 import { fmtCount } from "@/lib/chart-theme";
+import { safeFormat } from "@/lib/date-utils";
 
 interface Props {
   youtubeVideoId?: string;
@@ -82,7 +83,7 @@ function ExperimentCard({ experiment }: { experiment: any }) {
           <div className="min-w-0">
             <h4 className="text-sm font-semibold text-foreground truncate capitalize">{typeLabel} Experiment</h4>
             <p className="text-xs text-muted-foreground">
-              Started {format(new Date(experiment.started_at), "MMM d, yyyy")} · {daysRunning}d running
+              Started {safeFormat(experiment.started_at, "MMM d, yyyy")} · {daysRunning}d running
             </p>
           </div>
         </div>

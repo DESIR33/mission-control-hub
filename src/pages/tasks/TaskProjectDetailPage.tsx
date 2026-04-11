@@ -23,7 +23,7 @@ import { useProjectExpenses, useProjectRevenue, useProjectDeals, useProjectConta
 import { LinkContactDialog } from "@/components/projects/LinkContactDialog";
 import { LinkCompanyDialog } from "@/components/projects/LinkCompanyDialog";
 import type { TaskProject, Task, TaskFilters } from "@/types/tasks";
-import { format } from "date-fns";
+import { safeFormat } from "@/lib/date-utils";
 
 function ProjectDetailContent() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -246,7 +246,7 @@ function ProjectDetailContent() {
                   <CardContent className="py-3 flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium">{e.title || e.vendor || "Expense"}</p>
-                      <p className="text-xs text-muted-foreground">{e.expense_date ? format(new Date(e.expense_date), "MMM d, yyyy") : "No date"}</p>
+                      <p className="text-xs text-muted-foreground">{e.expense_date ? safeFormat(e.expense_date, "MMM d, yyyy") : "No date"}</p>
                     </div>
                     <p className="text-sm font-semibold font-mono text-red-400">-${(e.amount || 0).toLocaleString()}</p>
                   </CardContent>
@@ -270,7 +270,7 @@ function ProjectDetailContent() {
                   <CardContent className="py-3 flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium">{r.description || r.source || "Revenue"}</p>
-                      <p className="text-xs text-muted-foreground">{r.transaction_date ? format(new Date(r.transaction_date), "MMM d, yyyy") : "No date"}</p>
+                      <p className="text-xs text-muted-foreground">{r.transaction_date ? safeFormat(r.transaction_date, "MMM d, yyyy") : "No date"}</p>
                     </div>
                     <p className="text-sm font-semibold font-mono text-emerald-500">+${(r.amount || 0).toLocaleString()}</p>
                   </CardContent>

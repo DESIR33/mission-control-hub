@@ -3,7 +3,8 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Activity, Bot, CheckCircle, XCircle, Loader2, Clock } from "lucide-react";
 import { useExecutions } from "@/hooks/use-agents";
-import { formatDistanceToNow } from "date-fns";
+import { DistanceToNow } from "date-fns";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 const statusIcon = {
   pending: <Clock className="h-3 w-3 text-muted-foreground" />,
@@ -75,7 +76,7 @@ export function AgentActivityFeed() {
                     )}
                   </div>
                   <span className="text-[10px] text-muted-foreground whitespace-nowrap">
-                    {formatDistanceToNow(new Date(exec.created_at), { addSuffix: true })}
+                    {safeFormatDistanceToNow(exec.created_at, { addSuffix: true })}
                   </span>
                 </div>
               ))}

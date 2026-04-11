@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { formatDistanceToNow } from "date-fns";
+import { DistanceToNow } from "date-fns";
 import {
   Phone,
   Calendar,
@@ -26,6 +26,7 @@ import { cn } from "@/lib/utils";
 import { useUnifiedTimeline, type TimelineEvent } from "@/hooks/use-unified-timeline";
 import { useCreateActivity } from "@/hooks/use-contacts";
 import { toast } from "sonner";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 type EventFilter = "all" | "activity" | "email" | "deal_change" | "youtube_lead" | "proposal";
 
@@ -282,7 +283,7 @@ function TimelineEventItem({ event }: { event: TimelineEvent }) {
 
   const relativeTime = useMemo(() => {
     try {
-      return formatDistanceToNow(new Date(event.timestamp), { addSuffix: true });
+      return safeFormatDistanceToNow(event.timestamp, { addSuffix: true });
     } catch {
       return event.timestamp;
     }

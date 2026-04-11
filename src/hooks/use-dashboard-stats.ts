@@ -5,6 +5,7 @@ import { getGatedFreshness, getFreshness } from "@/config/data-freshness";
 import { useEngagementGate } from "@/hooks/use-engagement-gate";
 import { subDays, subMonths, startOfMonth, format } from "date-fns";
 import { getDealAttributionDate } from "@/lib/deal-date-utils";
+import { safeFormat } from "@/lib/date-utils";
 
 export interface DashboardStats {
   contactCount: number;
@@ -377,7 +378,7 @@ export function useNeedsAttention() {
       for (const d of urgentDeals ?? []) {
         items.push({
           title: d.title,
-          subtitle: `Close date: ${format(new Date(d.expected_close_date!), "MMM d")}`,
+          subtitle: `Close date: ${safeFormat(d.expected_close_date!, "MMM d")}`,
           type: "deadline",
           urgency: "high",
         });
@@ -400,7 +401,7 @@ export function useAiBriefing() {
       if (!workspaceId) return [];
 
       const items: BriefingItem[] = [];
-      const today = format(new Date(), "yyyy-MM-dd");
+      const today = safeFormat(, "yyyy-MM-dd");
 
       // First, check for a stored AI-generated daily briefing
       const { data: storedBriefing } = await supabase
