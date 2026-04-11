@@ -353,16 +353,39 @@ export function DealDetailSheet({ deal, open, onOpenChange, onDeleted }: DealDet
 
                   <Separator className="bg-border" />
 
-                  {deal.contact && (
+                  {dealContacts.length > 0 && (
                     <>
                       <div>
-                        <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Contact</h4>
-                        <div className="space-y-0.5">
-                          <DetailRow icon={User2} label="Name" value={`${deal.contact.first_name} ${deal.contact.last_name ?? ""}`.trim()} />
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Contacts ({dealContacts.length})</h4>
+                          <Button variant="ghost" size="sm" className="h-6 gap-1 text-xs" onClick={() => setLinkContactOpen(true)}>
+                            <UserPlus className="w-3 h-3" /> Add
+                          </Button>
+                        </div>
+                        <div className="space-y-1">
+                          {dealContacts.map((dc) => (
+                            <div key={dc.id} className="flex items-center gap-2 py-1">
+                              <div className="w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-[10px] font-bold shrink-0">
+                                {(dc.contact?.first_name?.[0] || "?").toUpperCase()}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm truncate">{dc.contact?.first_name} {dc.contact?.last_name ?? ""}</p>
+                                {dc.contact?.email && <p className="text-xs text-muted-foreground truncate">{dc.contact.email}</p>}
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
                       <Separator className="bg-border" />
                     </>
+                  )}
+                  {dealContacts.length === 0 && (
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-muted-foreground">No contacts linked</p>
+                      <Button variant="ghost" size="sm" className="h-6 gap-1 text-xs" onClick={() => setLinkContactOpen(true)}>
+                        <UserPlus className="w-3 h-3" /> Add Contact
+                      </Button>
+                    </div>
                   )}
 
                   {deal.company && (
@@ -481,10 +504,17 @@ export function DealDetailSheet({ deal, open, onOpenChange, onDeleted }: DealDet
       <ComposeEmailDialog
         open={emailOpen}
         onOpenChange={setEmailOpen}
-        prefillTo={deal.contact?.email ?? ""}
+        prefillTo={dealContacts[0]?.contact?.email ?? deal.contact?.email ?? ""}
         prefillSubject={`Re: ${deal.title}`}
-        contactId={deal.contact_id ?? undefined}
+        contactId={dealContacts[0]?.contact_id ?? deal.contact_id ?? undefined}
         dealId={deal.id}
+      />
+
+      <LinkContactDialog
+        open={linkContactOpen}
+        onOpenChange={setLinkContactOpen}
+        onLink={(contactId) => linkContact.mutate({ dealId: deal.id, contactId })}
+        linkedContactIds={dealContacts.map((dc) => dc.contact_id)}
       />
     </>
   );
