@@ -33,6 +33,7 @@ import { useWorkspace } from "@/hooks/use-workspace";
 import { supabase } from "@/integrations/supabase/client";
 import type { Company, Activity, Contact } from "@/types/crm";
 import { format, differenceInDays } from "date-fns";
+import { safeFormat } from "@/lib/date-utils";
 
 const tierLabels: Record<string, { label: string; color: string }> = {
   none: { label: "\u2014", color: "" },
@@ -480,8 +481,8 @@ export function CompanyDetailSheet({ company, activities, companyContacts, open,
 
               {/* Meta */}
               <div className="text-xs text-muted-foreground space-y-1">
-                <p>Created: {format(new Date(company.created_at), "MMM d, yyyy")}</p>
-                <p>Updated: {format(new Date(company.updated_at), "MMM d, yyyy")}</p>
+                <p>Created: {safeFormat(company.created_at, "MMM d, yyyy")}</p>
+                <p>Updated: {safeFormat(company.updated_at, "MMM d, yyyy")}</p>
               </div>
             </TabsContent>
 
@@ -552,7 +553,7 @@ export function CompanyDetailSheet({ company, activities, companyContacts, open,
                           <div className="flex items-center gap-2 mt-0.5">
                             {video.targetPublishDate && (
                               <p className="text-xs text-muted-foreground">
-                                {format(new Date(video.targetPublishDate), "MMM d, yyyy")}
+                                {safeFormat(video.targetPublishDate, "MMM d, yyyy")}
                               </p>
                             )}
                             {video.sponsoringCompany?.id === company.id && (

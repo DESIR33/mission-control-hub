@@ -27,6 +27,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { WeeklyRevenueSection } from "@/components/weekly-report/WeeklyRevenueSection";
 import { useGrowthAlerts } from "@/hooks/use-growth-alerts";
+import { safeFormat } from "@/lib/date-utils";
 
 const fmtCurrency = (value: number) =>
   new Intl.NumberFormat("en-US", {
@@ -51,7 +52,7 @@ function ReportCard({
         <div className="flex items-center gap-3 min-w-0">
           <Calendar className="w-4 h-4 text-primary shrink-0" />
           <span className="text-sm font-semibold text-foreground">
-            Week of {format(new Date(report.report_date), "MMM d, yyyy")}
+            Week of {safeFormat(report.report_date, "MMM d, yyyy")}
           </span>
         </div>
         <div className="flex items-center gap-4 shrink-0">

@@ -4,7 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { AlertTriangle, TrendingDown, Eye, ArrowDownRight, X, Wrench } from "lucide-react";
 import { useContentDecayAlerts, useDismissDecayAlert } from "@/hooks/use-video-performance-alerts";
-import { formatDistanceToNow } from "date-fns";
+import { DistanceToNow } from "date-fns";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 const decayTypeConfig: Record<string, { icon: typeof TrendingDown; label: string; color: string }> = {
   traffic_drop: { icon: TrendingDown, label: "Traffic Drop", color: "text-destructive" },
@@ -77,7 +78,7 @@ export function ContentDecayDetector() {
                       </div>
                     </div>
                     <p className="text-[10px] text-muted-foreground mt-1">
-                      {formatDistanceToNow(new Date(alert.created_at), { addSuffix: true })}
+                      {safeFormatDistanceToNow(alert.created_at, { addSuffix: true })}
                     </p>
                   </div>
                 );

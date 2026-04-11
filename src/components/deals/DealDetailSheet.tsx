@@ -40,6 +40,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { safeFormat } from "@/lib/date-utils";
 
 const stageConfig: Record<string, { label: string; color: string }> = {
   prospecting: { label: "Prospecting", color: "bg-blue-500/15 text-blue-600 border-blue-500/30" },
@@ -342,9 +343,9 @@ export function DealDetailSheet({ deal, open, onOpenChange, onDeleted }: DealDet
                     <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Deal Info</h4>
                     <div className="space-y-0.5">
                       <DetailRow icon={DollarSign} label="Value" value={formattedValue} />
-                      <DetailRow icon={Calendar} label="Expected Close" value={deal.expected_close_date ? format(new Date(deal.expected_close_date), "MMM d, yyyy") : null} />
+                      <DetailRow icon={Calendar} label="Expected Close" value={deal.expected_close_date ? safeFormat(deal.expected_close_date, "MMM d, yyyy") : null} />
                       {deal.closed_at && (
-                        <DetailRow icon={Calendar} label="Closed At" value={format(new Date(deal.closed_at), "MMM d, yyyy")} />
+                        <DetailRow icon={Calendar} label="Closed At" value={safeFormat(deal.closed_at, "MMM d, yyyy")} />
                       )}
                       <DetailRow icon={ArrowRightLeft} label="Forecast" value={deal.forecast_category ? (forecastLabels[deal.forecast_category] ?? deal.forecast_category) : null} />
                     </div>
@@ -411,8 +412,8 @@ export function DealDetailSheet({ deal, open, onOpenChange, onDeleted }: DealDet
                   )}
 
                   <div className="text-xs text-muted-foreground space-y-1">
-                    <p>Created: {format(new Date(deal.created_at), "MMM d, yyyy")}</p>
-                    <p>Updated: {format(new Date(deal.updated_at), "MMM d, yyyy")}</p>
+                    <p>Created: {safeFormat(deal.created_at, "MMM d, yyyy")}</p>
+                    <p>Updated: {safeFormat(deal.updated_at, "MMM d, yyyy")}</p>
                   </div>
                 </>
               )}
@@ -435,7 +436,7 @@ export function DealDetailSheet({ deal, open, onOpenChange, onDeleted }: DealDet
                           <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-primary border-2 border-background" />
                           <p className="text-sm text-foreground">{a.description || "Stage changed"}</p>
                           <p className="text-xs text-muted-foreground">
-                            {format(new Date(a.created_at), "MMM d, yyyy 'at' h:mm a")}
+                            {safeFormat(a.created_at, "MMM d, yyyy 'at' h:mm a")}
                           </p>
                         </div>
                       ))}

@@ -7,7 +7,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
-import { format } from "date-fns";
 import { fmtCount, fmtMoney, fmtDuration, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, lineDefaults } from "@/lib/chart-theme";
 import { useVideoDetail, useVideoAnalyticsTrend } from "@/hooks/use-video-detail";
 import { useVideoNotes } from "@/hooks/use-video-notes";
@@ -29,6 +28,7 @@ import { VideoCompaniesPanel } from "@/components/video-detail/VideoCompaniesPan
 import { VideoOptimizationHub } from "@/components/video-detail/VideoOptimizationHub";
 import { SponsorSegmentTracker } from "@/components/video-detail/SponsorSegmentTracker";
 import { SubtitleUploader } from "@/components/video-detail/SubtitleUploader";
+import { safeFormat } from "@/lib/date-utils";
 
 export default function VideoDetailPage() {
   const { youtubeVideoId } = useParams<{ youtubeVideoId: string }>();
@@ -73,7 +73,7 @@ export default function VideoDetailPage() {
 
   const trendChart = useMemo(() => {
     return trend.map((d: any) => ({
-      date: format(new Date(d.date), "MMM d"),
+      date: safeFormat(d.date, "MMM d"),
       views: d.views,
       ctr: d.impressions_ctr,
       revenue: d.estimated_revenue ?? 0,

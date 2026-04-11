@@ -56,6 +56,7 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine,
 } from "recharts";
 import {
+import { safeFormat } from "@/lib/date-utils";
   chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, lineDefaults,
 } from "@/lib/chart-theme";
 
@@ -349,7 +350,7 @@ export function VideoQueueDetails({ video, onClose, onUpdate }: VideoQueueDetail
             {video.targetPublishDate && (
               <div className="rounded-xl border border-border bg-muted/30 p-3">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground"><Calendar className="h-3.5 w-3.5" />Target Publish Date</div>
-                <p className="mt-1 text-sm font-medium text-foreground">{format(new Date(video.targetPublishDate), "MMM d, yyyy")}</p>
+                <p className="mt-1 text-sm font-medium text-foreground">{safeFormat(video.targetPublishDate, "MMM d, yyyy")}</p>
               </div>
             )}
             {video.isSponsored && video.sponsoringCompany && (

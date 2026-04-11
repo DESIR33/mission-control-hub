@@ -4,6 +4,7 @@ import { useWorkspace } from "@/hooks/use-workspace";
 import { useMemo } from "react";
 import { subDays, format, startOfDay } from "date-fns";
 import { getDealAttributionDate } from "@/lib/deal-date-utils";
+import { safeFormat } from "@/lib/date-utils";
 
 export interface WeeklyRevenueSummary {
   thisWeekAdRevenue: number;
@@ -128,7 +129,7 @@ export function useWeeklyRevenue() {
     }
 
     const dailyRevenue = Array.from(dailyMap.entries()).map(([date, vals]) => ({
-      date: format(new Date(date), "EEE"),
+      date: safeFormat(date, "EEE"),
       ad: vals.ad,
       deal: vals.deal,
       affiliate: vals.affiliate,

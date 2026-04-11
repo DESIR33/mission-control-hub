@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { format } from "date-fns";
 import { RefreshCw, Zap, CalendarClock, Clock, LayoutList } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +8,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OpsItemCard } from "./OpsItemCard";
 import { useDailyOpsItems, useRefreshOpsScoring, useOpsAction } from "@/hooks/use-daily-ops";
 import type { OpsItem } from "@/hooks/use-daily-ops";
+import { safeFormat } from "@/lib/date-utils";
 
 type TimeBlock = "all" | "morning" | "afternoon" | "evening";
 type SourceFilter = "all" | "task" | "proposal" | "deal" | "content" | "inbox";
@@ -71,7 +71,7 @@ export function DailyOpsView() {
         <div>
           <h1 className="text-2xl font-bold text-foreground">Daily Operations</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
-            {format(new Date(), "EEEE, MMM d")} · {greeting}
+            {safeFormat(, "EEEE, MMM d")} · {greeting}
           </p>
         </div>
         <Button

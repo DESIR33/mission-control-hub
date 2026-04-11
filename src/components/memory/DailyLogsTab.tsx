@@ -10,6 +10,7 @@ import {
 import { ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react";
 import { format, addDays, subDays } from "date-fns";
 import type { DailyLog, LogSource } from "@/types/assistant";
+import { safeFormat } from "@/lib/date-utils";
 
 const sourceColors: Record<string, string> = {
   youtube: "bg-red-500/20 text-red-400",
@@ -112,7 +113,7 @@ export function DailyLogsTab({ logs, logDate, onDateChange, onCreate, onDelete }
                     <div className="flex-1 text-sm text-foreground bg-muted/30 rounded p-2 border border-border">
                       {entry.content}
                       <span className="text-xs text-muted-foreground ml-2">
-                        {format(new Date(entry.created_at), "HH:mm")}
+                        {safeFormat(entry.created_at, "HH:mm")}
                       </span>
                     </div>
                     <Button

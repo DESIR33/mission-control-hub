@@ -1,7 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
 import {
   Plus,
   Search,
@@ -38,6 +37,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { safeFormat } from "@/lib/date-utils";
 
 interface Project {
   id: number;
@@ -375,13 +375,13 @@ export default function ProjectsPage() {
                     {project.startDate && (
                       <span className="inline-flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
-                        {format(new Date(project.startDate), "MMM d, yyyy")}
+                        {safeFormat(project.startDate, "MMM d, yyyy")}
                       </span>
                     )}
                     {project.endDate && (
                       <span className="inline-flex items-center gap-1">
                         <Clock className="h-3 w-3" />
-                        Due {format(new Date(project.endDate), "MMM d, yyyy")}
+                        Due {safeFormat(project.endDate, "MMM d, yyyy")}
                       </span>
                     )}
                   </div>
@@ -431,7 +431,7 @@ export default function ProjectsPage() {
                     {project.endDate && (
                       <div className="hidden md:flex items-center gap-1.5 text-xs text-muted-foreground">
                         <Clock className="h-3 w-3" />
-                        <span>{format(new Date(project.endDate), "MMM d")}</span>
+                        <span>{safeFormat(project.endDate, "MMM d")}</span>
                       </div>
                     )}
                   </div>

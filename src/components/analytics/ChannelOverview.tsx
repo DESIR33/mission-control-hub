@@ -11,6 +11,7 @@ import {
 import { format, subDays } from "date-fns";
 import type { ChannelAnalytics } from "@/hooks/use-youtube-analytics-api";
 import {
+import { safeFormat } from "@/lib/date-utils";
   fmtCount, fmtDuration, fmtMoney, pctChange,
   chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults,
   SEMANTIC_COLORS, lineDefaults, barDefaults,
@@ -113,7 +114,7 @@ export function ChannelOverview({ data, daysRange, currentSubscribers }: Props) 
   const chartData = useMemo(
     () =>
       filtered.map((d) => ({
-        date: format(new Date(d.date), "MMM d"),
+        date: safeFormat(d.date, "MMM d"),
         views: d.views,
         watchTime: Math.round(d.estimated_minutes_watched / 60),
         subs: d.net_subscribers,

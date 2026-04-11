@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { format } from "date-fns";
 import { Send, Trash2, AtSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +7,7 @@ import { MentionInput } from "@/components/tasks/MentionInput";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
+import { safeFormat } from "@/lib/date-utils";
 
 interface TaskCommentsProps {
   taskId: string;
@@ -95,7 +95,7 @@ export function TaskComments({ taskId }: TaskCommentsProps) {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground">
-                  {format(new Date(c.created_at), "MMM d, h:mm a")}
+                  {safeFormat(c.created_at, "MMM d, h:mm a")}
                 </span>
                 <Button
                   variant="ghost"

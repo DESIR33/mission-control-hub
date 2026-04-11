@@ -6,8 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { RefreshCw, Flame, Eye, ArrowRight, Clock, Zap, TrendingUp, Sparkles, ChevronLeft, ExternalLink, Heart, MessageCircle } from "lucide-react";
-import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { safeFormat } from "@/lib/date-utils";
 
 const typeColors: Record<string, string> = {
   "New Tool": "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
@@ -152,7 +152,7 @@ function ReportSelector({
               )}
             >
               <div className="flex items-center justify-between">
-                <span className="font-medium truncate">{format(new Date(r.created_at), "MMM d, yyyy")}</span>
+                <span className="font-medium truncate">{safeFormat(r.created_at, "MMM d, yyyy")}</span>
                 <Badge variant="secondary" className="text-[10px] ml-2 shrink-0">{ideasCount} ideas</Badge>
               </div>
               <div className="text-xs text-muted-foreground mt-0.5">
@@ -238,7 +238,7 @@ export default function TrendScannerPage() {
                 <div className="flex items-center gap-4 mb-6 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5" />
-                    {format(new Date(selectedReport.created_at), "MMM d, yyyy 'at' h:mm a")}
+                    {safeFormat(selectedReport.created_at, "MMM d, yyyy 'at' h:mm a")}
                   </span>
                   <span className="flex items-center gap-1.5">
                     <MessageCircle className="w-3.5 h-3.5" />

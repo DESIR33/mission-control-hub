@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, getDay, addMonths, subMonths } from "date-fns";
+import { safeFormat } from "@/lib/date-utils";
 
 export function PublishCalendarOverlay() {
   const { workspaceId } = useWorkspace();
@@ -30,7 +31,7 @@ export function PublishCalendarOverlay() {
 
       const map = new Map<string, any[]>();
       for (const v of data || []) {
-        const dateKey = format(new Date(v.published_at), "yyyy-MM-dd");
+        const dateKey = safeFormat(v.published_at, "yyyy-MM-dd");
         const arr = map.get(dateKey) || [];
         arr.push(v);
         map.set(dateKey, arr);

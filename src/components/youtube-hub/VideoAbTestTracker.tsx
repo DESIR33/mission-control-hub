@@ -4,7 +4,7 @@ import { ArrowUpDown, TrendingUp, TrendingDown, Clock } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
-import { format } from "date-fns";
+import { safeFormat } from "@/lib/date-utils";
 
 interface ABTestEvent {
   id: string;
@@ -81,7 +81,7 @@ export function VideoAbTestTracker() {
                 <div className="flex items-center gap-4 text-xs text-muted-foreground">
                   <span>Changed: <span className="capitalize">{test.changeType}</span></span>
                   <span>{test.metricName}: {test.beforeMetric.toLocaleString()} → {test.afterMetric.toLocaleString()}</span>
-                  <span className="ml-auto">{format(new Date(test.changedAt), "MMM d")}</span>
+                  <span className="ml-auto">{safeFormat(test.changedAt, "MMM d")}</span>
                 </div>
               </div>
             ))}

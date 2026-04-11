@@ -35,6 +35,7 @@ import {
   CHART_COLORS, SEMANTIC_COLORS,
 } from "@/lib/chart-theme";
 import { ExportAnalyticsDialog } from "@/components/analytics/ExportAnalyticsDialog";
+import { safeFormat } from "@/lib/date-utils";
 
 type TimeRange = "7d" | "30d" | "90d";
 type AnalyticsTab = "overview" | "channel" | "videos" | "audience" | "traffic" | "geography" | "devices" | "revenue" | "growth_funnel";
@@ -94,7 +95,7 @@ export default function AnalyticsPage() {
   const subscriberTrend = useMemo(
     () =>
       filteredSnapshots.map((s) => ({
-        date: format(new Date(s.fetched_at), "MMM d"),
+        date: safeFormat(s.fetched_at, "MMM d"),
         subscribers: s.subscriber_count,
         views: s.total_view_count,
         videos: s.video_count,
@@ -268,7 +269,7 @@ export default function AnalyticsPage() {
   // Views trend
   const viewsTrend = useMemo(() => {
     return filteredSnapshots.map((s) => ({
-      date: format(new Date(s.fetched_at), "MMM d"),
+      date: safeFormat(s.fetched_at, "MMM d"),
       views: s.total_view_count,
     }));
   }, [filteredSnapshots]);
@@ -1081,7 +1082,7 @@ function OverviewTab({
                         : "—"}
                     </td>
                     <td className="py-2 px-2 text-right text-muted-foreground">
-                      {v.published_at ? format(new Date(v.published_at), "MMM d") : "--"}
+                      {v.published_at ? safeFormat(v.published_at, "MMM d") : "--"}
                     </td>
                   </tr>
                 ))}

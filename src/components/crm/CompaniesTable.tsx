@@ -16,7 +16,7 @@ import {
 import { Search, Filter, Building2, MapPin, Users, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, Video, Trash2, Sparkles, ExternalLink, Pencil, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Company, VipTier } from "@/types/crm";
-import { formatDistanceToNow } from "date-fns";
+import { DistanceToNow } from "date-fns";
 import { useCompanyRevenue } from "@/hooks/use-company-revenue";
 import { useAllVideoCompanies } from "@/hooks/use-all-video-companies";
 import { useDeleteCompany } from "@/hooks/use-companies";
@@ -24,6 +24,7 @@ import { useWorkspace } from "@/hooks/use-workspace";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { BulkActionsBar } from "./BulkActionsBar";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 const tierIcons: Record<VipTier, string> = {
   none: "",
@@ -444,7 +445,7 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
                     <TableCell>
                       <span className="text-xs text-muted-foreground">
                         {company.last_contact_date
-                          ? formatDistanceToNow(new Date(company.last_contact_date), { addSuffix: true })
+                          ? safeFormatDistanceToNow(company.last_contact_date, { addSuffix: true })
                           : "Never"}
                       </span>
                     </TableCell>

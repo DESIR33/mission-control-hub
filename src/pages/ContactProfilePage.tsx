@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { format, differenceInDays, formatDistanceToNow, isPast, isToday, isBefore, addDays } from "date-fns";
+import { format, differenceInDays, , isPast, isToday, isBefore, addDays } from "date-fns";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,7 @@ import {
   Plus, X, ArrowUpRight, ArrowDownLeft, Tag, Flame, Target, Github,
 } from "lucide-react";
 import type { Contact } from "@/types/crm";
+import { safeFormat, safeFormatDistanceToNow } from "@/lib/date-utils";
 
 const warmthConfig: Record<string, { label: string; color: string; icon: typeof Flame }> = {
   cold: { label: "Cold", color: "bg-blue-500/15 text-blue-500 border-blue-500/30", icon: Star },
@@ -374,20 +375,20 @@ export default function ContactProfilePage() {
               {contact.last_outreach_date && (
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Last Outreach</span>
-                  <span className="text-foreground">{formatDistanceToNow(new Date(contact.last_outreach_date), { addSuffix: true })}</span>
+                  <span className="text-foreground">{safeFormatDistanceToNow(contact.last_outreach_date, { addSuffix: true })}</span>
                 </div>
               )}
               {contact.last_response_date && (
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Last Response</span>
-                  <span className="text-foreground">{formatDistanceToNow(new Date(contact.last_response_date), { addSuffix: true })}</span>
+                  <span className="text-foreground">{safeFormatDistanceToNow(contact.last_response_date, { addSuffix: true })}</span>
                 </div>
               )}
               {contact.next_follow_up_date && (
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Follow-up</span>
                   <span className={cn("font-medium", followUpColors[followUpUrgency ?? "later"])}>
-                    {followUpUrgency === "overdue" ? "Overdue" : followUpUrgency === "today" ? "Due Today" : format(new Date(contact.next_follow_up_date), "MMM d")}
+                    {followUpUrgency === "overdue" ? "Overdue" : followUpUrgency === "today" ? "Due Today" : safeFormat(contact.next_follow_up_date, "MMM d")}
                   </span>
                 </div>
               )}
@@ -484,8 +485,8 @@ export default function ContactProfilePage() {
           )}
 
           <div className="text-xs text-muted-foreground space-y-1 px-1">
-            <p>Created: {format(new Date(contact.created_at), "MMM d, yyyy")}</p>
-            <p>Updated: {format(new Date(contact.updated_at), "MMM d, yyyy")}</p>
+            <p>Created: {safeFormat(contact.created_at, "MMM d, yyyy")}</p>
+            <p>Updated: {safeFormat(contact.updated_at, "MMM d, yyyy")}</p>
           </div>
         </div>
 
@@ -519,7 +520,7 @@ export default function ContactProfilePage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <Badge variant="outline" className="text-xs capitalize">{i.interaction_type.replace(/_/g, " ")}</Badge>
-                        <span className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(i.interaction_date), { addSuffix: true })}</span>
+                        <span className="text-xs text-muted-foreground">{safeFormatDistanceToNow(i.interaction_date, { addSuffix: true })}</span>
                       </div>
                       {i.subject && <p className="text-sm text-foreground mt-1">{i.subject}</p>}
                       {i.notes && <p className="text-xs text-muted-foreground mt-0.5">{i.notes}</p>}
@@ -544,7 +545,7 @@ export default function ContactProfilePage() {
                       <p className="text-sm font-medium text-foreground truncate">{email.subject || "(No subject)"}</p>
                       <p className="text-xs text-muted-foreground truncate mt-0.5">{email.preview}</p>
                     </div>
-                    <span className="text-xs text-muted-foreground shrink-0">{formatDistanceToNow(new Date(email.received_at), { addSuffix: true })}</span>
+                    <span className="text-xs text-muted-foreground shrink-0">{safeFormatDistanceToNow(email.received_at, { addSuffix: true })}</span>
                   </div>
                 ))
               )}
@@ -564,7 +565,7 @@ export default function ContactProfilePage() {
                       <DollarSign className="h-4 w-4 text-muted-foreground shrink-0" />
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium text-foreground truncate">{deal.title}</p>
-                        {deal.expected_close_date && <p className="text-xs text-muted-foreground">Expected: {format(new Date(deal.expected_close_date), "MMM d, yyyy")}</p>}
+                        {deal.expected_close_date && <p className="text-xs text-muted-foreground">Expected: {safeFormat(deal.expected_close_date, "MMM d, yyyy")}</p>}
                       </div>
                       <span className={cn("text-xs font-mono font-medium", deal.stage === "closed_won" ? "text-success" : "text-muted-foreground")}>
                         {deal.value != null ? new Intl.NumberFormat("en-US", { style: "currency", currency: deal.currency ?? "USD" }).format(deal.value) : "$0"}

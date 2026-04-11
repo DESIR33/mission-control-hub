@@ -6,6 +6,7 @@ import { useTasks } from "@/hooks/use-tasks";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Task, TaskStatus, TaskPriority } from "@/types/tasks";
+import { safeFormat } from "@/lib/date-utils";
 
 const priorityColors: Record<string, string> = {
   urgent: "bg-red-500/20 text-red-400 border-red-500/30",
@@ -211,7 +212,7 @@ export function TaskTableView({ tasks, onTaskClick }: TaskTableViewProps) {
                   {task.due_date ? (
                     <span className="flex items-center gap-1">
                       {overdue && <AlertTriangle className="h-3 w-3" />}
-                      {overdue ? "Overdue" : dueToday ? "Today" : format(new Date(task.due_date), "MMM d, yyyy")}
+                      {overdue ? "Overdue" : dueToday ? "Today" : safeFormat(task.due_date, "MMM d, yyyy")}
                     </span>
                   ) : (
                     <span className="text-muted-foreground/50">--</span>

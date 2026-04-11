@@ -50,11 +50,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
 import { useState, useEffect } from "react";
 import type { Task, TaskStatus, TaskPriority } from "@/types/tasks";
+import { safeFormat } from "@/lib/date-utils";
 
 const statusConfig: Record<TaskStatus, { label: string; class: string }> = {
   todo: { label: "TO DO", class: "bg-blue-100 text-blue-700 border-blue-200" },
@@ -432,7 +432,7 @@ function TaskDetailContent() {
                     >
                       <CalendarIcon className="mr-1.5 h-3 w-3" />
                       {task.due_date
-                        ? format(new Date(task.due_date), "MMM dd, yyyy")
+                        ? safeFormat(task.due_date, "MMM dd, yyyy")
                         : "None"}
                     </Button>
                   </PopoverTrigger>
@@ -486,7 +486,7 @@ function TaskDetailContent() {
                     >
                       <CalendarIcon className="mr-1.5 h-3 w-3" />
                       {task.start_date
-                        ? format(new Date(task.start_date), "MMM dd, yyyy")
+                        ? safeFormat(task.start_date, "MMM dd, yyyy")
                         : "None"}
                     </Button>
                   </PopoverTrigger>
@@ -602,11 +602,11 @@ function TaskDetailContent() {
           {/* Metadata */}
           <div className="space-y-1 py-2">
             <p className="text-xs text-muted-foreground">
-              Created {format(new Date(task.created_at), "MMM d, yyyy")}
+              Created {safeFormat(task.created_at, "MMM d, yyyy")}
             </p>
             {task.completed_at && (
               <p className="text-xs text-muted-foreground">
-                Completed {format(new Date(task.completed_at), "MMM d, yyyy")}
+                Completed {safeFormat(task.completed_at, "MMM d, yyyy")}
               </p>
             )}
           </div>

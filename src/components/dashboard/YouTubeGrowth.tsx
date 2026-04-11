@@ -11,6 +11,7 @@ import {
 import { useDatasetSyncStatus, useManualDatasetRefresh } from "@/hooks/use-dataset-sync-status";
 import { DataFreshnessBadge } from "@/components/ui/DataFreshnessBadge";
 import { differenceInDays, format, addMonths } from "date-fns";
+import { safeFormat } from "@/lib/date-utils";
 
 const SUBSCRIBER_GOAL = 50_000;
 
@@ -34,7 +35,7 @@ export function YouTubeGrowth() {
   const currentValue = goal?.current_value ?? channelStats?.subscriber_count ?? 21000;
   const targetValue = goal?.target_value ?? SUBSCRIBER_GOAL;
   const targetDate = goal?.target_date ?? format(addMonths(new Date(), 10), "yyyy-MM-dd");
-  const startDate = goal?.start_date ?? format(new Date(), "yyyy-MM-dd");
+  const startDate = goal?.start_date ?? safeFormat(, "yyyy-MM-dd");
 
   const progress = Math.min((currentValue / targetValue) * 100, 100);
   const remaining = targetValue - currentValue;
@@ -191,7 +192,7 @@ export function YouTubeGrowth() {
                 Target Date
               </div>
               <p className="text-sm font-mono font-semibold text-card-foreground">
-                {format(new Date(targetDate), "MMM yyyy")}
+                {safeFormat(targetDate, "MMM yyyy")}
               </p>
             </div>
           </div>

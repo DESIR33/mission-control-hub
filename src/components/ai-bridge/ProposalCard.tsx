@@ -20,8 +20,9 @@ import {
   Video,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { formatDistanceToNow } from "date-fns";
+import { DistanceToNow } from "date-fns";
 import type { AiProposal } from "@/types/proposals";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 const statusConfig: Record<
   AiProposal["status"],
@@ -209,7 +210,7 @@ export function ProposalCard({
             {status.label}
           </Badge>
           <span className="text-xs text-muted-foreground whitespace-nowrap">
-            {formatDistanceToNow(new Date(proposal.created_at), {
+            {safeFormatDistanceToNow(proposal.created_at, {
               addSuffix: true,
             })}
           </span>
@@ -283,7 +284,7 @@ export function ProposalCard({
         <div className="mt-3 pt-3 border-t border-border/50 flex items-center justify-between">
           <p className="text-xs text-muted-foreground">
             {proposal.status === "approved" ? "Approved" : "Rejected"}{" "}
-            {formatDistanceToNow(new Date(proposal.reviewed_at), {
+            {safeFormatDistanceToNow(proposal.reviewed_at, {
               addSuffix: true,
             })}
           </p>

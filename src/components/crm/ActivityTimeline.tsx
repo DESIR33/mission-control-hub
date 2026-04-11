@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCreateActivity } from "@/hooks/use-contacts";
 import { toast } from "sonner";
+import { safeFormat } from "@/lib/date-utils";
 
 const LOGGABLE_TYPES = [
   { value: "call", label: "Call", icon: Phone },
@@ -278,7 +279,7 @@ export function ActivityTimeline({ activities, contactId, entityType = "contact"
                       </p>
                     )}
                     <p className="text-xs text-muted-foreground mt-1">
-                      {format(new Date(activity.performed_at), "MMM d, yyyy · h:mm a")}
+                      {safeFormat(activity.performed_at, "MMM d, yyyy · h:mm a")}
                     </p>
                   </div>
                 </div>

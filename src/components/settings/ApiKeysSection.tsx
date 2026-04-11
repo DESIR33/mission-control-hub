@@ -29,7 +29,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useApiKeys, useCreateApiKey, useRevokeApiKey, useDeleteApiKey } from "@/hooks/use-api-keys";
-import { format } from "date-fns";
+import { safeFormat } from "@/lib/date-utils";
 
 export function ApiKeysSection() {
   const { data: keys = [], isLoading } = useApiKeys();
@@ -165,9 +165,9 @@ export function ApiKeysSection() {
                     </div>
                     <div className="flex items-center gap-3 text-xs text-muted-foreground">
                       <code>{k.key_prefix}</code>
-                      <span>Created {format(new Date(k.created_at), "MMM d, yyyy")}</span>
+                      <span>Created {safeFormat(k.created_at, "MMM d, yyyy")}</span>
                       {k.last_used_at && (
-                        <span>Last used {format(new Date(k.last_used_at), "MMM d")}</span>
+                        <span>Last used {safeFormat(k.last_used_at, "MMM d")}</span>
                       )}
                     </div>
                   </div>

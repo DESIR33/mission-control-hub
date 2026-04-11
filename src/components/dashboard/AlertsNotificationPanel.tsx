@@ -10,7 +10,8 @@ import {
   useMarkAllAlertFeedRead,
   type AlertFeedItem,
 } from "@/hooks/use-youtube-alert-feed";
-import { formatDistanceToNow } from "date-fns";
+import { DistanceToNow } from "date-fns";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 const alertTypeConfig: Record<
   AlertFeedItem["alert_type"],
@@ -121,7 +122,7 @@ export function AlertsNotificationPanel() {
                   </p>
                 )}
                 <p className="text-[10px] text-muted-foreground/60 mt-1">
-                  {formatDistanceToNow(new Date(alert.created_at), { addSuffix: true })}
+                  {safeFormatDistanceToNow(alert.created_at, { addSuffix: true })}
                 </p>
               </div>
 

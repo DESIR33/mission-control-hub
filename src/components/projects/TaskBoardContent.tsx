@@ -5,7 +5,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Grid, List, Clock, Building2, User2 } from "lucide-react";
 import CompanyChip from "@/components/company/CompanyChip";
@@ -15,6 +14,7 @@ import { KanbanBoard } from "@/components/ui/kanban-board";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { safeFormat } from "@/lib/date-utils";
 
 interface TaskWithRelations {
   id: number;
@@ -229,7 +229,7 @@ export function TaskBoardContent() {
                 <div className="flex items-center gap-2">
                   <Clock className="h-3.5 w-3.5 text-muted-foreground" />
                   <span className="text-xs text-muted-foreground">
-                    {format(new Date(task.dueDate), "MMM dd, yyyy")}
+                    {safeFormat(task.dueDate, "MMM dd, yyyy")}
                   </span>
                 </div>
 

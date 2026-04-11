@@ -10,6 +10,7 @@ import { format, subDays } from "date-fns";
 import { fmtCount, fmtMoney, pctChange, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, SEMANTIC_COLORS, lineDefaults, barDefaults, horizontalBarDefaults, CHART_COLORS } from "@/lib/chart-theme";
 import type { ChannelAnalytics } from "@/hooks/use-youtube-analytics-api";
 import type { VideoAnalytics } from "@/hooks/use-youtube-analytics-api";
+import { safeFormat } from "@/lib/date-utils";
 
 interface Props {
   channelData: ChannelAnalytics[];
@@ -117,7 +118,7 @@ export function RevenueAnalytics({ channelData, videoData, daysRange }: Props) {
   const dailyChartData = useMemo(
     () =>
       filtered.map((d) => ({
-        date: format(new Date(d.date), "MMM d"),
+        date: safeFormat(d.date, "MMM d"),
         revenue: +d.estimated_revenue.toFixed(2),
         adRevenue: +d.estimated_ad_revenue.toFixed(2),
         premiumRevenue: +d.estimated_red_partner_revenue.toFixed(2),

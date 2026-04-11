@@ -2,7 +2,8 @@ import { RefreshCw, CheckCircle, AlertCircle, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSyncStatus, useTriggerSync } from "@/hooks/use-youtube-sync-status";
 import type { SyncStatus } from "@/hooks/use-youtube-sync-status";
-import { formatDistanceToNow } from "date-fns";
+import { DistanceToNow } from "date-fns";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 function getAggregatedStatus(statuses: SyncStatus[]): {
   overall: SyncStatus["status"];
@@ -88,7 +89,7 @@ export function SyncStatusBar() {
           <span className="text-muted-foreground">
             Last synced{" "}
             <span className="font-medium text-foreground">
-              {formatDistanceToNow(new Date(lastSynced), { addSuffix: true })}
+              {safeFormatDistanceToNow(lastSynced, { addSuffix: true })}
             </span>
           </span>
         ) : (

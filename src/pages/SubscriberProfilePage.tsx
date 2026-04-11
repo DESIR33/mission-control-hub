@@ -17,9 +17,9 @@ import { SubscriberTagPicker } from "@/components/subscribers/SubscriberTagPicke
 import { PromoteSubscriberDialog } from "@/components/subscribers/PromoteSubscriberDialog";
 import { ArrowLeft, Mail, MapPin, BookOpen, Video, Calendar, Pencil, Trash2, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import type { SubscriberStatus } from "@/types/subscriber";
+import { safeFormat } from "@/lib/date-utils";
 
 const statusColors: Record<string, string> = {
   active: "bg-success/15 text-success border-success/30",
@@ -242,7 +242,7 @@ export default function SubscriberProfilePage() {
                     <div className="flex items-center gap-2">
                       <Calendar className="w-4 h-4 text-muted-foreground" />
                       <span className="text-muted-foreground">Delivered:</span>
-                      <span className="text-foreground">{format(new Date(subscriber.guide_delivered_at), "MMM d, yyyy")}</span>
+                      <span className="text-foreground">{safeFormat(subscriber.guide_delivered_at, "MMM d, yyyy")}</span>
                     </div>
                   )}
                   {location && (
@@ -306,8 +306,8 @@ export default function SubscriberProfilePage() {
 
             {/* Meta */}
             <div className="mt-6 text-xs text-muted-foreground space-y-1">
-              <p>Subscribed: {format(new Date(subscriber.created_at), "MMM d, yyyy 'at' h:mm a")}</p>
-              <p>Last updated: {format(new Date(subscriber.updated_at), "MMM d, yyyy 'at' h:mm a")}</p>
+              <p>Subscribed: {safeFormat(subscriber.created_at, "MMM d, yyyy 'at' h:mm a")}</p>
+              <p>Last updated: {safeFormat(subscriber.updated_at, "MMM d, yyyy 'at' h:mm a")}</p>
             </div>
           </>
         )}

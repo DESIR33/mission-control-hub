@@ -22,8 +22,8 @@ import { SubscriberEngagementBadge } from "./SubscriberEngagementBadge";
 import { SubscriberTagPicker } from "./SubscriberTagPicker";
 import { PromoteSubscriberDialog } from "./PromoteSubscriberDialog";
 import { SubscriberGuidePicker } from "./SubscriberGuidePicker";
-import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
+import { safeFormat } from "@/lib/date-utils";
 
 const statusColors: Record<string, string> = {
   active: "bg-success/15 text-success border-success/30",
@@ -274,7 +274,7 @@ export function SubscriberDetailSheet({ subscriber, open, onOpenChange, onDelete
                       <DetailRow icon={Video} label="Source Video" value={subscriber.source_video_title ?? subscriber.source_video_id} />
                       <DetailRow icon={BookOpen} label="Guide Requested" value={subscriber.guide_requested} />
                       {subscriber.guide_delivered_at && (
-                        <DetailRow icon={Calendar} label="Guide Delivered" value={format(new Date(subscriber.guide_delivered_at), "MMM d, yyyy")} />
+                        <DetailRow icon={Calendar} label="Guide Delivered" value={safeFormat(subscriber.guide_delivered_at, "MMM d, yyyy")} />
                       )}
                     </div>
                   </div>
@@ -300,10 +300,10 @@ export function SubscriberDetailSheet({ subscriber, open, onOpenChange, onDelete
                   )}
                   <Separator className="bg-border" />
                   <div className="text-xs text-muted-foreground space-y-1">
-                    <p>Subscribed: {format(new Date(subscriber.created_at), "MMM d, yyyy")}</p>
-                    <p>Updated: {format(new Date(subscriber.updated_at), "MMM d, yyyy")}</p>
+                    <p>Subscribed: {safeFormat(subscriber.created_at, "MMM d, yyyy")}</p>
+                    <p>Updated: {safeFormat(subscriber.updated_at, "MMM d, yyyy")}</p>
                     {subscriber.opt_in_confirmed_at && (
-                      <p>Opt-in confirmed: {format(new Date(subscriber.opt_in_confirmed_at), "MMM d, yyyy")}</p>
+                      <p>Opt-in confirmed: {safeFormat(subscriber.opt_in_confirmed_at, "MMM d, yyyy")}</p>
                     )}
                   </div>
                 </>
@@ -372,12 +372,12 @@ export function SubscriberDetailSheet({ subscriber, open, onOpenChange, onDelete
               </div>
               {subscriber.engagement_data.last_email_opened_at && (
                 <p className="text-xs text-muted-foreground">
-                  Last email opened: {format(new Date(subscriber.engagement_data.last_email_opened_at), "MMM d, yyyy")}
+                  Last email opened: {safeFormat(subscriber.engagement_data.last_email_opened_at, "MMM d, yyyy")}
                 </p>
               )}
               {subscriber.engagement_data.last_clicked_at && (
                 <p className="text-xs text-muted-foreground">
-                  Last link clicked: {format(new Date(subscriber.engagement_data.last_clicked_at), "MMM d, yyyy")}
+                  Last link clicked: {safeFormat(subscriber.engagement_data.last_clicked_at, "MMM d, yyyy")}
                 </p>
               )}
             </TabsContent>

@@ -2,7 +2,8 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
-import { differenceInDays, addDays, format } from "date-fns";
+import { differenceInDays, addDays } from "date-fns";
+import { safeFormat } from "@/lib/date-utils";
 
 export interface GrowthCountdownData {
   currentSubs: number;
@@ -144,7 +145,7 @@ export function useGrowthCountdown() {
 
     // Sparkline data: daily gains for last 30 days
     const sparklineData = last30.map((entry) => ({
-      date: format(new Date(entry.date), "MMM d"),
+      date: safeFormat(entry.date, "MMM d"),
       gained: entry.subscribers_gained ?? 0,
     }));
 

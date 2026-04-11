@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useChannelStats, useGrowthGoal, useYouTubeChannelStats } from "@/hooks/use-youtube-analytics";
 import { differenceInDays, addDays, format } from "date-fns";
+import { safeFormat } from "@/lib/date-utils";
 
 export interface Milestone {
   label: string;
@@ -68,7 +69,7 @@ export function useMilestoneCountdown() {
     for (let i = 1; i < sorted.length; i++) {
       const gained = sorted[i].subscriber_count - sorted[i - 1].subscriber_count;
       if (!bestDay || gained > bestDay.gained) {
-        bestDay = { date: format(new Date(sorted[i].fetched_at), "MMM dd"), gained };
+        bestDay = { date: safeFormat(sorted[i].fetched_at, "MMM dd"), gained };
       }
     }
 

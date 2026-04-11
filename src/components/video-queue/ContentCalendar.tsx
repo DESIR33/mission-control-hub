@@ -8,6 +8,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useUpdateVideo, type VideoQueueItem } from "@/hooks/use-video-queue";
 import { useToast } from "@/hooks/use-toast";
+import { safeFormat } from "@/lib/date-utils";
 
 const statusColors: Record<VideoQueueItem["status"], string> = {
   idea: "bg-slate-500",
@@ -49,7 +50,7 @@ export function ContentCalendar({ videos, onSelectVideo }: ContentCalendarProps)
     const map: Record<string, VideoQueueItem[]> = {};
     for (const video of videos) {
       if (video.targetPublishDate) {
-        const key = format(new Date(video.targetPublishDate), "yyyy-MM-dd");
+        const key = safeFormat(video.targetPublishDate, "yyyy-MM-dd");
         if (!map[key]) map[key] = [];
         map[key].push(video);
       }

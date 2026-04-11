@@ -5,9 +5,10 @@ import {
   AreaChart, Area, Legend,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
-import { subDays, format } from "date-fns";
+import { subDays } from "date-fns";
 import type { TrafficSource } from "@/hooks/use-youtube-analytics-api";
 import { fmtCount, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, CHART_COLORS, horizontalBarDefaults } from "@/lib/chart-theme";
+import { safeFormat } from "@/lib/date-utils";
 
 const SOURCE_LABELS: Record<string, string> = {
   ADVERTISING: "Ads",
@@ -174,7 +175,7 @@ export function TrafficSources({ data, daysRange }: Props) {
     // Group currentRaw by date, then by source
     const dateMap = new Map<string, Record<string, number>>();
     for (const row of currentRaw) {
-      const dateKey = format(new Date(row.date), "yyyy-MM-dd");
+      const dateKey = safeFormat(row.date, "yyyy-MM-dd");
       if (!dateMap.has(dateKey)) {
         dateMap.set(dateKey, {});
       }
@@ -189,7 +190,7 @@ export function TrafficSources({ data, daysRange }: Props) {
     const sortedDates = Array.from(dateMap.entries())
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([date, sources]) => ({
-        date: format(new Date(date), "MMM d"),
+        date: safeFormat(date, "MMM d"),
         ...sources,
       }));
 

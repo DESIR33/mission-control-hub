@@ -1,5 +1,4 @@
 import { useState, useMemo } from "react";
-import { format } from "date-fns";
 import {
   FlaskConical, ArrowUpRight, ArrowDownRight, Minus, Filter,
   TrendingUp, TrendingDown, BookOpen, Eye, MousePointerClick,
@@ -15,6 +14,7 @@ import { useAllOptimizationExperiments, computeDelta } from "@/hooks/use-optimiz
 import { EXPERIMENT_STATUS_CONFIG } from "@/types/strategist";
 import { fmtCount } from "@/lib/chart-theme";
 import { useNavigate } from "react-router-dom";
+import { safeFormat } from "@/lib/date-utils";
 
 function DeltaIndicator({ baseline, result }: { baseline: number; result: number | null }) {
   const delta = computeDelta(baseline, result);
@@ -215,7 +215,7 @@ export function ExperimentsComparisonContent() {
                         <DeltaIndicator baseline={exp.baseline_impressions} result={exp.result_impressions} />
                       </td>
                       <td className="p-3 text-xs text-muted-foreground whitespace-nowrap">
-                        {format(new Date(exp.started_at), "MMM d")}
+                        {safeFormat(exp.started_at, "MMM d")}
                       </td>
                       <td className="p-3 text-xs text-muted-foreground max-w-[150px] truncate">
                         {exp.lesson_learned ? (

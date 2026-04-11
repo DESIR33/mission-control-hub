@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { format } from "date-fns";
 import {
   Plus,
   Mail,
@@ -48,6 +47,7 @@ import {
 import { useSequenceTracking, useLogSequenceEvent } from "@/hooks/use-sequence-tracking";
 import { BarChart3, Send, FlaskConical } from "lucide-react";
 import { SequenceABPanel } from "@/components/crm/SequenceABPanel";
+import { safeFormat } from "@/lib/date-utils";
 
 const statusColors: Record<string, string> = {
   active: "bg-emerald-500/15 text-emerald-600 border-emerald-500/30",
@@ -306,11 +306,11 @@ function SequenceDetail({
                       </Badge>
                     </td>
                     <td className="px-3 py-2 text-muted-foreground hidden sm:table-cell">
-                      {format(new Date(enrollment.enrolled_at), "MMM d, yyyy")}
+                      {safeFormat(enrollment.enrolled_at, "MMM d, yyyy")}
                     </td>
                     <td className="px-3 py-2 text-muted-foreground hidden md:table-cell">
                       {enrollment.next_send_at
-                        ? format(new Date(enrollment.next_send_at), "MMM d, h:mm a")
+                        ? safeFormat(enrollment.next_send_at, "MMM d, h:mm a")
                         : "--"}
                     </td>
                   </tr>
@@ -720,7 +720,7 @@ function EmailSequencesInner({ embedded = false }: { embedded?: boolean }) {
                       <SequenceEnrollmentCount sequenceId={sequence.id} />
                       <span className="hidden sm:inline-flex items-center gap-1">
                         <Clock className="h-3 w-3" />
-                        Created {format(new Date(sequence.created_at), "MMM d, yyyy")}
+                        Created {safeFormat(sequence.created_at, "MMM d, yyyy")}
                       </span>
                     </div>
                   </div>

@@ -14,7 +14,7 @@ import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
-import { format } from "date-fns";
+import { safeFormat } from "@/lib/date-utils";
 
 interface ClusterMember {
   id: string;
@@ -296,7 +296,7 @@ export default function MemoryConsolidationPage() {
                             {m.agent_id}
                           </Badge>
                           <span className="text-xs text-muted-foreground">
-                            {format(new Date(m.created_at), "MMM d")}
+                            {safeFormat(m.created_at, "MMM d")}
                           </span>
                         </div>
                       </div>

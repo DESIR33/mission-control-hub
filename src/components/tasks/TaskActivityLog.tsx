@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
-import { format } from "date-fns";
 import { Activity, CheckCircle2, ArrowRight, MessageSquare, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { safeFormat } from "@/lib/date-utils";
 
 interface TaskActivityLogProps {
   taskId: string;
@@ -75,7 +75,7 @@ export function TaskActivityLog({ taskId }: TaskActivityLogProps) {
                 )}
               </div>
               <span className="text-muted-foreground shrink-0">
-                {format(new Date(a.performed_at), "MMM d, h:mm a")}
+                {safeFormat(a.performed_at, "MMM d, h:mm a")}
               </span>
             </div>
           );

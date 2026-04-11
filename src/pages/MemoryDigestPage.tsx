@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { formatDistanceToNow, format } from "date-fns";
+import { DistanceToNow } from "date-fns";
 import {
   Mail, Save, Eye, Clock, Brain, AlertTriangle, Archive,
   HeartPulse, CheckCircle2, Loader2,
@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { safeFormat, safeFormatDistanceToNow } from "@/lib/date-utils";
 
 const query = (table: string) => (supabase as any).from(table);
 
@@ -273,7 +274,7 @@ export default function MemoryDigestPage() {
                     {viewingHistory ? "Historical Digest" : "Digest Preview"}
                   </CardTitle>
                   <Badge variant="outline" className="text-[10px]">
-                    {format(new Date(displayDigest.generated_at), "MMM d, yyyy h:mm a")}
+                    {safeFormat(displayDigest.generated_at, "MMM d, yyyy h:mm a")}
                   </Badge>
                 </div>
               </CardHeader>
@@ -325,7 +326,7 @@ export default function MemoryDigestPage() {
                               {c.status}
                             </Badge>
                             <span className="text-[10px] text-muted-foreground ml-auto">
-                              {formatDistanceToNow(new Date(c.detected_at), { addSuffix: true })}
+                              {safeFormatDistanceToNow(c.detected_at, { addSuffix: true })}
                             </span>
                           </div>
                         ))}
@@ -345,7 +346,7 @@ export default function MemoryDigestPage() {
                           <div key={i} className="rounded bg-muted/30 px-3 py-2">
                             <p className="text-xs font-mono text-muted-foreground line-clamp-1">{m.content}</p>
                             <span className="text-[10px] text-red-400">
-                              Last retrieved: {m.last_accessed_at ? formatDistanceToNow(new Date(m.last_accessed_at), { addSuffix: true }) : "never"}
+                              Last retrieved: {m.last_accessed_at ? safeFormatDistanceToNow(m.last_accessed_at, { addSuffix: true }) : "never"}
                             </span>
                           </div>
                         ))}
@@ -401,10 +402,10 @@ export default function MemoryDigestPage() {
                 <div key={h.id} className="flex items-center justify-between rounded bg-muted/30 px-3 py-2">
                   <div>
                     <span className="text-xs text-foreground">
-                      {format(new Date(h.generated_at), "MMM d, yyyy h:mm a")}
+                      {safeFormat(h.generated_at, "MMM d, yyyy h:mm a")}
                     </span>
                     <p className="text-[10px] text-muted-foreground">
-                      {formatDistanceToNow(new Date(h.generated_at), { addSuffix: true })}
+                      {safeFormatDistanceToNow(h.generated_at, { addSuffix: true })}
                     </p>
                   </div>
                   <Button

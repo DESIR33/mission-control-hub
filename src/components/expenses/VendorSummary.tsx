@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { format } from "date-fns";
 import { Building2, ChevronDown, ChevronRight, ExternalLink } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useExpenses, type ExpenseCategory } from "@/hooks/use-expenses";
+import { safeFormat } from "@/lib/date-utils";
 
 interface Props {
   categories: ExpenseCategory[];
@@ -197,7 +197,7 @@ export function VendorSummary({ categories }: Props) {
                               onClick={() => navigate(`/finance/expenses/edit/${e.id}`)}
                             >
                               <td className="px-4 py-2 text-muted-foreground whitespace-nowrap">
-                                {format(new Date(e.expense_date), "MMM d, yyyy")}
+                                {safeFormat(e.expense_date, "MMM d, yyyy")}
                               </td>
                               <td className="px-4 py-2 truncate max-w-[200px]">{e.title}</td>
                               <td className="px-4 py-2">

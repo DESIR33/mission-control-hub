@@ -29,6 +29,7 @@ import {
 import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
 import { Link } from "react-router-dom";
+import { safeFormat } from "@/lib/date-utils";
 
 const MEMORY_TYPES = ["semantic", "episodic", "preference", "procedural", "contextual"] as const;
 const IMPORTANCE_LABELS = ["Low", "Medium", "High", "Critical"];
@@ -407,7 +408,7 @@ function PendingReviewQueue({ items, isLoading, onAction }: {
                         <Badge className={cn("text-[10px] border", typeColors[m.memory_type] || "bg-muted text-muted-foreground")}>{m.memory_type}</Badge>
                         <span className="text-[10px] text-muted-foreground">{m.source_type}</span>
                         <span className="text-[10px] text-muted-foreground">conf: {(m.confidence_score * 100).toFixed(0)}%</span>
-                        <span className="text-[10px] text-muted-foreground">{format(new Date(m.created_at), "MMM d, HH:mm")}</span>
+                        <span className="text-[10px] text-muted-foreground">{safeFormat(m.created_at, "MMM d, HH:mm")}</span>
                       </div>
                     </>
                   )}
@@ -490,7 +491,7 @@ function RecentMemoriesFeed({ items, isLoading, onAction }: {
                         {(m.tags || []).slice(0, 3).map((t: string) => (
                           <Badge key={t} variant="secondary" className="text-[10px]">{t}</Badge>
                         ))}
-                        <span className="text-[10px] text-muted-foreground ml-auto">{format(new Date(m.created_at), "MMM d")}</span>
+                        <span className="text-[10px] text-muted-foreground ml-auto">{safeFormat(m.created_at, "MMM d")}</span>
                       </div>
                     </div>
                     {expanded ? <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" /> : <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />}
@@ -514,7 +515,7 @@ function RecentMemoriesFeed({ items, isLoading, onAction }: {
                           </div>
                         </div>
                         {m.entity_type && <div><span className="text-muted-foreground">Entity</span><p className="capitalize mt-0.5">{m.entity_type}</p></div>}
-                        {m.valid_until && <div><span className="text-muted-foreground">Expires</span><p className="mt-0.5">{format(new Date(m.valid_until), "MMM d, yyyy")}</p></div>}
+                        {m.valid_until && <div><span className="text-muted-foreground">Expires</span><p className="mt-0.5">{safeFormat(m.valid_until, "MMM d, yyyy")}</p></div>}
                       </div>
                       <div className="flex gap-2 pt-1">
                         <Button size="sm" variant="ghost" className="h-7 text-xs gap-1" onClick={e => { e.stopPropagation(); handlePin(m.id, m.is_pinned); }} disabled={processing === m.id}>

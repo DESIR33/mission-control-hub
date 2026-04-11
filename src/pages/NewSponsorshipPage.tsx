@@ -21,6 +21,7 @@ import { useContacts } from "@/hooks/use-contacts";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { format } from "date-fns";
+import { safeFormat } from "@/lib/date-utils";
 
 interface YouTubeVideo {
   id: string;
@@ -557,7 +558,7 @@ export default function NewSponsorshipPage() {
                                 <div className="flex-1 min-w-0">
                                   <p className="font-medium truncate text-foreground">{video.title}</p>
                                   <p className="text-xs text-muted-foreground">
-                                    {video.publishedAt ? format(new Date(video.publishedAt), "MMM d, yyyy") : "No date"}
+                                    {video.publishedAt ? safeFormat(video.publishedAt, "MMM d, yyyy") : "No date"}
                                   </p>
                                 </div>
                                 <Button
@@ -611,7 +612,7 @@ export default function NewSponsorshipPage() {
                               {video.title}
                             </a>
                             <p className="text-xs text-muted-foreground mt-1">
-                              {video.publishedAt ? format(new Date(video.publishedAt), "MMM d, yyyy") : "No date"}
+                              {video.publishedAt ? safeFormat(video.publishedAt, "MMM d, yyyy") : "No date"}
                             </p>
                           </div>
                           <div className="flex justify-between items-center mt-2">

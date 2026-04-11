@@ -14,8 +14,9 @@ import { TopicRetentionCard } from "@/components/subscribers/TopicRetentionCard"
 import { TopicImpactHeatmap } from "@/components/subscribers/TopicImpactHeatmap";
 import { Users, UserPlus, UserMinus, Mail, BookOpen, Video, TrendingUp, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { formatDistanceToNow } from "date-fns";
+import { DistanceToNow } from "date-fns";
 import { useNavigate } from "react-router-dom";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 function StatCard({ icon: Icon, label, value, className }: { icon: typeof Users; label: string; value: string | number; className?: string }) {
   return (
@@ -244,7 +245,7 @@ export default function SubscriberDashboardPage() {
                         <div className="flex items-center gap-2 shrink-0">
                           <SubscriberEngagementBadge score={sub.engagement_score} />
                           <span className="text-xs text-muted-foreground">
-                            {formatDistanceToNow(new Date(sub.created_at), { addSuffix: true })}
+                            {safeFormatDistanceToNow(sub.created_at, { addSuffix: true })}
                           </span>
                         </div>
                       </button>

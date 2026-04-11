@@ -13,7 +13,8 @@ import {
   useCurrentSprint, useSprintHistory, useCreateSprint, useUpdateSprint,
   type GrowthSprint, type SprintTask,
 } from "@/hooks/use-growth-sprints";
-import { differenceInDays, format } from "date-fns";
+import { differenceInDays } from "date-fns";
+import { safeFormat } from "@/lib/date-utils";
 
 const categoryColors: Record<string, string> = {
   content: "bg-blue-500/15 text-blue-400 border-blue-500/30",
@@ -132,7 +133,7 @@ export default function WeeklySprintPage() {
             Growth Sprint
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Week of {format(new Date(sprint.week_start), "MMM d")} – {format(new Date(sprint.week_end), "MMM d, yyyy")}
+            Week of {safeFormat(sprint.week_start, "MMM d")} – {safeFormat(sprint.week_end, "MMM d, yyyy")}
           </p>
         </div>
         <Badge variant="outline" className="text-xs capitalize">
@@ -280,7 +281,7 @@ export default function WeeklySprintPage() {
                 <div key={s.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/20">
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-medium text-foreground">
-                      Week of {format(new Date(s.week_start), "MMM d")}
+                      Week of {safeFormat(s.week_start, "MMM d")}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {done}/{s.tasks.length} tasks · +{s.sub_target} sub target

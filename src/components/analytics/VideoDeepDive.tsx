@@ -6,7 +6,6 @@ import {
   ChevronDown, ChevronUp, ArrowUpRight, FileText, Search,
   Handshake, CalendarDays, Building2, Unlink,
 } from "lucide-react";
-import { format } from "date-fns";
 import {
   BarChart, Bar, ScatterChart, Scatter,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
@@ -19,6 +18,7 @@ import { useAllVideoCompanies } from "@/hooks/use-all-video-companies";
 import { useSponsoredVideos } from "@/hooks/use-sponsored-videos";
 import { VideoCompanyLogos } from "@/components/VideoCompanyLogos";
 import { fmtCount, fmtDuration, fmtMoney, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, horizontalBarDefaults, SEMANTIC_COLORS } from "@/lib/chart-theme";
+import { safeFormat } from "@/lib/date-utils";
 
 type SortField = "views" | "impressions" | "ctr" | "avgDuration" | "subsGained" | "revenue" | "engagement" | "uploadDate";
 
@@ -467,7 +467,7 @@ export function VideoDeepDive({ data, daysRange }: Props) {
                         const pubDate = publishedAtMap.get(v.youtube_video_id);
                         return pubDate ? (
                           <span className="text-xs text-muted-foreground flex items-center gap-0.5">
-                            <CalendarDays className="w-2.5 h-2.5" /> {format(new Date(pubDate), "MMM d, yyyy")}
+                            <CalendarDays className="w-2.5 h-2.5" /> {safeFormat(pubDate, "MMM d, yyyy")}
                           </span>
                         ) : null;
                       })()}

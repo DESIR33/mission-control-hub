@@ -35,6 +35,7 @@ import { useCompanies } from "@/hooks/use-companies";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { useAffiliateTransactions } from "@/hooks/use-affiliate-transactions";
 import { useProducts } from "@/hooks/use-products";
+import { safeFormat } from "@/lib/date-utils";
 
 function TopEarningVideos() {
   const { data: revSummary } = useContentRevenue();
@@ -858,7 +859,7 @@ export default function MonetizationPage() {
                             <TableCell className="text-sm text-muted-foreground">{program.payout_frequency}</TableCell>
                             <TableCell className="text-sm text-muted-foreground">
                               {program.next_payout_date ?
-                            format(new Date(program.next_payout_date), "MMM d, yyyy") :
+                            safeFormat(program.next_payout_date, "MMM d, yyyy") :
                             "Not set"}
                             </TableCell>
                             <TableCell className="text-sm font-mono text-card-foreground">
@@ -951,8 +952,8 @@ export default function MonetizationPage() {
                         <TableRow key={sponsorship.id} className="cursor-pointer hover:bg-secondary transition-colors">
                             <TableCell className="text-sm text-card-foreground">{companyName || "Unknown Company"}</TableCell>
                             <TableCell className="text-sm font-mono text-card-foreground">${parseFloat(String(sponsorship.value)).toLocaleString()}</TableCell>
-                            <TableCell className="text-sm text-muted-foreground">{format(new Date(sponsorship.startDate), "MMM d, yyyy")}</TableCell>
-                            <TableCell className="text-sm text-muted-foreground">{format(new Date(sponsorship.endDate), "MMM d, yyyy")}</TableCell>
+                            <TableCell className="text-sm text-muted-foreground">{safeFormat(sponsorship.startDate, "MMM d, yyyy")}</TableCell>
+                            <TableCell className="text-sm text-muted-foreground">{safeFormat(sponsorship.endDate, "MMM d, yyyy")}</TableCell>
                             <TableCell>
                               <span className={`text-xs font-mono capitalize ${
                                 sponsorship.status === "closed_won" || sponsorship.status === "completed"
@@ -1256,7 +1257,7 @@ export default function MonetizationPage() {
                         className="hover:bg-secondary transition-colors cursor-pointer"
                         onClick={() => setEditingTransaction(transaction)}>
                         
-                              <TableCell className="text-sm text-muted-foreground">{format(new Date(transaction.transactionDate), "MMM d, yyyy")}</TableCell>
+                              <TableCell className="text-sm text-muted-foreground">{safeFormat(transaction.transactionDate, "MMM d, yyyy")}</TableCell>
                               <TableCell className="text-sm text-card-foreground">{transaction.productName}</TableCell>
                               <TableCell className="text-sm text-muted-foreground">{transaction.platform}</TableCell>
                               <TableCell className="text-sm font-mono text-card-foreground">{transaction.quantity}</TableCell>

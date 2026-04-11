@@ -4,7 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Clock, Check, Mail, User, Handshake, AlertTriangle } from "lucide-react";
 import { useEmailFollowUps, useCompleteFollowUp } from "@/hooks/use-email-follow-ups";
-import { formatDistanceToNow, isPast, isToday } from "date-fns";
+import { DistanceToNow, isPast, isToday } from "date-fns";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 const priorityColors: Record<string, string> = {
   high: "bg-destructive/15 text-destructive border-destructive/30",
@@ -110,7 +111,7 @@ function FollowUpItem({ item, onComplete }: { item: any; onComplete: () => void 
           </Badge>
           {item.due_date && (
             <span className="text-[10px] text-muted-foreground">
-              {isPast(new Date(item.due_date)) ? "Overdue" : formatDistanceToNow(new Date(item.due_date), { addSuffix: true })}
+              {isPast(new Date(item.due_date)) ? "Overdue" : safeFormatDistanceToNow(item.due_date, { addSuffix: true })}
             </span>
           )}
         </div>

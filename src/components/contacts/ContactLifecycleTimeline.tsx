@@ -8,7 +8,7 @@ import { useDeals } from "@/hooks/use-deals";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
-import { format } from "date-fns";
+import { safeFormat } from "@/lib/date-utils";
 
 export function ContactLifecycleTimeline() {
   const { data: contacts = [] } = useContacts();
@@ -125,7 +125,7 @@ export function ContactLifecycleTimeline() {
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-sm">{event.title}</span>
                     <span className="text-xs text-muted-foreground">
-                      {format(new Date(event.date), "MMM d, yyyy")}
+                      {safeFormat(event.date, "MMM d, yyyy")}
                     </span>
                   </div>
                   {event.detail && (

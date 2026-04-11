@@ -13,9 +13,10 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { formatDistanceToNow } from "date-fns";
+import { DistanceToNow } from "date-fns";
 import { AlertTriangle, CheckCircle2, Merge, X, Loader2 } from "lucide-react";
 import { useState, useCallback } from "react";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 const CONFLICT_COLORS: Record<string, string> = {
   factual: "bg-red-500/20 text-red-400 border-red-500/30",
@@ -153,7 +154,7 @@ export default function ConflictResolutionPanel({ workspaceId }: { workspaceId: 
                   {c.conflict_type}
                 </span>
                 <span className="text-[10px] text-muted-foreground">
-                  {formatDistanceToNow(new Date(c.detected_at), { addSuffix: true })}
+                  {safeFormatDistanceToNow(c.detected_at, { addSuffix: true })}
                 </span>
               </div>
               <div className="grid grid-cols-1 gap-1.5">

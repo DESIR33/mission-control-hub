@@ -8,10 +8,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Search, Filter, Mail, ChevronRight, BookOpen, Video, Trash2, Download, Loader2, ArrowUpDown, Eye, MousePointer, ArrowUp, ArrowDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Subscriber, SubscriberStatus } from "@/types/subscriber";
-import { formatDistanceToNow } from "date-fns";
+import { DistanceToNow } from "date-fns";
 import { SubscriberEngagementBadge } from "./SubscriberEngagementBadge";
 import { useBulkDeleteSubscribers } from "@/hooks/use-subscribers";
 import { useToast } from "@/hooks/use-toast";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 const statusColors: Record<SubscriberStatus, string> = {
   active: "bg-success/15 text-success border-success/30",
@@ -447,7 +448,7 @@ export function SubscribersTable({ subscribers, onSelectSubscriber, selectedId, 
                     </TableCell>
                     <TableCell>
                       <span className="text-xs text-muted-foreground">
-                        {formatDistanceToNow(new Date(sub.created_at), { addSuffix: true })}
+                        {safeFormatDistanceToNow(sub.created_at, { addSuffix: true })}
                       </span>
                     </TableCell>
                   </TableRow>

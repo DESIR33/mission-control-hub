@@ -12,6 +12,7 @@ import {
 } from "@/hooks/use-expenses";
 import { AddSubscriptionDialog } from "./AddSubscriptionDialog";
 import { DetectedSubscriptions } from "./DetectedSubscriptions";
+import { safeFormat } from "@/lib/date-utils";
 
 interface Props {
   categories: ExpenseCategory[];
@@ -122,7 +123,7 @@ export function SubscriptionsList({ categories }: Props) {
                         <div className="flex items-center gap-1.5">
                           {dueSoon && <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />}
                           <span className={`text-sm ${dueSoon ? "text-amber-600 font-medium" : ""}`}>
-                            {format(new Date(sub.next_billing_date), "MMM d, yyyy")}
+                            {safeFormat(sub.next_billing_date, "MMM d, yyyy")}
                           </span>
                         </div>
                       ) : "—"}

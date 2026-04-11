@@ -8,10 +8,11 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Filter, Mail, Phone, Star, ChevronRight, Calendar, Target, Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Contact, ContactStatus, VipTier } from "@/types/crm";
-import { formatDistanceToNow, isPast, isToday, differenceInDays, addDays } from "date-fns";
+import { DistanceToNow, isPast, isToday, differenceInDays, addDays } from "date-fns";
 import { BulkActionsBar } from "./BulkActionsBar";
 import { EngagementBadge } from "./EngagementBadge";
 import { WarmthBadge, LeadScoreIndicator } from "./WarmthBadge";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 const statusColors: Record<ContactStatus, string> = {
   active: "bg-success/15 text-success border-success/30",
@@ -393,7 +394,7 @@ export function ContactsTable({ contacts, onSelectContact, selectedId, addButton
                         <TableCell>
                           <span className="text-xs text-muted-foreground">
                             {contact.last_response_date
-                              ? formatDistanceToNow(new Date(contact.last_response_date), { addSuffix: true })
+                              ? safeFormatDistanceToNow(contact.last_response_date, { addSuffix: true })
                               : "Never"}
                           </span>
                         </TableCell>
@@ -409,7 +410,7 @@ export function ContactsTable({ contacts, onSelectContact, selectedId, addButton
                         <TableCell>
                           <span className="text-xs text-muted-foreground">
                             {contact.last_response_date
-                              ? formatDistanceToNow(new Date(contact.last_response_date), { addSuffix: true })
+                              ? safeFormatDistanceToNow(contact.last_response_date, { addSuffix: true })
                               : "Never"}
                           </span>
                         </TableCell>
@@ -425,7 +426,7 @@ export function ContactsTable({ contacts, onSelectContact, selectedId, addButton
                         <TableCell>
                           <span className="text-xs text-muted-foreground">
                             {contact.last_contact_date
-                              ? formatDistanceToNow(new Date(contact.last_contact_date), { addSuffix: true })
+                              ? safeFormatDistanceToNow(contact.last_contact_date, { addSuffix: true })
                               : "Never"}
                           </span>
                         </TableCell>

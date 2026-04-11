@@ -23,7 +23,6 @@ import {
   Cell,
   Legend,
 } from "recharts";
-import { format } from "date-fns";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -36,6 +35,7 @@ import {
 import { fmtCount, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, lineDefaults, horizontalBarDefaults } from "@/lib/chart-theme";
 import { useAllVideoCompanies } from "@/hooks/use-all-video-companies";
 import { VideoCompanyLogos } from "@/components/VideoCompanyLogos";
+import { safeFormat } from "@/lib/date-utils";
 
 const FUNNEL_COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-4))", "hsl(var(--chart-3))", "hsl(var(--chart-2))"];
 
@@ -294,7 +294,7 @@ function DailyGrowthChart({
   dailyGrowth: SubscriberFunnelData["dailyGrowth"];
 }) {
   const chartData = dailyGrowth.map((d) => ({
-    date: format(new Date(d.date), "MMM d"),
+    date: safeFormat(d.date, "MMM d"),
     gained: d.gained,
     lost: -Math.abs(d.lost),
     net: d.net,

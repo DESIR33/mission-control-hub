@@ -15,7 +15,7 @@ import { chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults,
 import { useProducts } from "@/hooks/use-products";
 import { useCompanies } from "@/hooks/use-companies";
 import { useToast } from "@/hooks/use-toast";
-import { format } from "date-fns";
+import { safeFormat } from "@/lib/date-utils";
 
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -42,8 +42,8 @@ export default function ProductDetailPage() {
 
     const monthlyMap: Record<string, { month: string; revenue: number; net: number; units: number }> = {};
     for (const t of productTransactions) {
-      const key = format(new Date(t.transactionDate), "yyyy-MM");
-      const label = format(new Date(t.transactionDate), "MMM yyyy");
+      const key = safeFormat(t.transactionDate, "yyyy-MM");
+      const label = safeFormat(t.transactionDate, "MMM yyyy");
       if (!monthlyMap[key]) monthlyMap[key] = { month: label, revenue: 0, net: 0, units: 0 };
       monthlyMap[key].revenue += Number(t.totalAmount);
       monthlyMap[key].net += Number(t.netAmount);
@@ -172,7 +172,7 @@ export default function ProductDetailPage() {
               <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Created</p>
               <div className="flex items-center gap-1.5 text-muted-foreground">
                 <Calendar className="w-3.5 h-3.5" />
-                <span>{format(new Date(product.createdAt), "MMM d, yyyy")}</span>
+                <span>{safeFormat(product.createdAt, "MMM d, yyyy")}</span>
               </div>
             </div>
           </div>
@@ -251,7 +251,7 @@ export default function ProductDetailPage() {
               <TableBody>
                 {productTransactions.map((tx) => (
                   <TableRow key={tx.id} className="hover:bg-secondary transition-colors">
-                    <TableCell className="text-sm text-muted-foreground">{format(new Date(tx.transactionDate), "MMM d, yyyy")}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{safeFormat(tx.transactionDate, "MMM d, yyyy")}</TableCell>
                     <TableCell className="text-sm text-card-foreground">{tx.platform}</TableCell>
                     <TableCell className="text-sm font-mono text-card-foreground">{tx.quantity}</TableCell>
                     <TableCell className="text-sm font-mono text-card-foreground">${Number(tx.totalAmount).toLocaleString()}</TableCell>

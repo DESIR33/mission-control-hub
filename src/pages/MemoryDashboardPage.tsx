@@ -21,7 +21,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { format, formatDistanceToNow } from "date-fns";
+import { format, } from "date-fns";
+import { safeFormat, safeFormatDistanceToNow } from "@/lib/date-utils";
 
 const query = (table: string) => (supabase as any).from(table);
 
@@ -392,10 +393,10 @@ export default function MemoryDashboardPage() {
                 <MetaRow label="Entity" value={selectedMemory.entity_type ? `${selectedMemory.entity_type}${selectedMemory.entity_id ? ` (${selectedMemory.entity_id.slice(0, 8)}...)` : ""}` : "Global"} />
                 <MetaRow label="Tags" value={selectedMemory.tags?.length ? <div className="flex flex-wrap gap-1">{selectedMemory.tags.map(t => <Badge key={t} variant="secondary" className="text-xs">{t}</Badge>)}</div> : "None"} />
                 <MetaRow label="Access Count" value={selectedMemory.access_count ?? 0} />
-                <MetaRow label="Last Accessed" value={selectedMemory.last_accessed_at ? formatDistanceToNow(new Date(selectedMemory.last_accessed_at), { addSuffix: true }) : "Never"} />
-                <MetaRow label="Valid Until" value={selectedMemory.valid_until ? format(new Date(selectedMemory.valid_until), "PPp") : "Indefinite"} />
+                <MetaRow label="Last Accessed" value={selectedMemory.last_accessed_at ? safeFormatDistanceToNow(selectedMemory.last_accessed_at, { addSuffix: true }) : "Never"} />
+                <MetaRow label="Valid Until" value={selectedMemory.valid_until ? safeFormat(selectedMemory.valid_until, "PPp") : "Indefinite"} />
                 <MetaRow label="Decay Rate" value={selectedMemory.decay_rate ?? 0} />
-                <MetaRow label="Created" value={format(new Date(selectedMemory.created_at), "PPp")} />
+                <MetaRow label="Created" value={safeFormat(selectedMemory.created_at, "PPp")} />
               </div>
 
               <div className="flex gap-2">
@@ -414,7 +415,7 @@ export default function MemoryDashboardPage() {
                   <div className="space-y-1.5">
                     {accessLog.map((log: any) => (
                       <div key={log.id} className="text-xs bg-muted/30 rounded p-2">
-                        <span className="text-muted-foreground">{formatDistanceToNow(new Date(log.accessed_at), { addSuffix: true })}</span>
+                        <span className="text-muted-foreground">{safeFormatDistanceToNow(log.accessed_at, { addSuffix: true })}</span>
                         <span className="mx-1">·</span>
                         <span>{log.accessed_by}</span>
                         {log.query_context && <p className="text-muted-foreground mt-0.5 truncate">{log.query_context}</p>}
@@ -513,7 +514,7 @@ function MemoryCard({ memory: m, onClick, onPin, onDelete, onEdit }: { memory: M
       )}
       <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span className="flex items-center gap-1"><Eye className="h-3 w-3" />{m.access_count ?? 0}</span>
-        <span>{formatDistanceToNow(new Date(m.created_at), { addSuffix: true })}</span>
+        <span>{safeFormatDistanceToNow(m.created_at, { addSuffix: true })}</span>
       </div>
       <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 flex gap-1 transition-opacity" onClick={e => e.stopPropagation()}>
         <Button size="icon" variant="ghost" className="h-6 w-6" onClick={onEdit}><Pencil className="h-3 w-3" /></Button>
@@ -548,7 +549,7 @@ function MemoryTable({ memories, onSelect, onPin, onDelete }: { memories: Memory
             <TableCell><Badge variant="outline" className="text-xs">{m.review_status}</Badge></TableCell>
             <TableCell><span className="text-xs">{((m.confidence_score ?? 1) * 100).toFixed(0)}%</span></TableCell>
             <TableCell><span className="text-xs">{m.access_count ?? 0}</span></TableCell>
-            <TableCell><span className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(m.created_at), { addSuffix: true })}</span></TableCell>
+            <TableCell><span className="text-xs text-muted-foreground">{safeFormatDistanceToNow(m.created_at, { addSuffix: true })}</span></TableCell>
             <TableCell onClick={e => e.stopPropagation()}>
               <div className="flex gap-1">
                 <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => onPin(m)}>{m.is_pinned ? <PinOff className="h-3 w-3" /> : <Pin className="h-3 w-3" />}</Button>

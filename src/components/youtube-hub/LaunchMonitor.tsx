@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { getGatedFreshness } from "@/config/data-freshness";
 import { useEngagementGate } from "@/hooks/use-engagement-gate";
-import { differenceInHours, format } from "date-fns";
+import { differenceInHours } from "date-fns";
 import {
   Rocket, Eye, MousePointerClick, TrendingUp, TrendingDown,
   AlertTriangle, Clock, ArrowUpRight, ArrowDownRight,
@@ -11,6 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { fmtCount } from "@/lib/chart-theme";
+import { safeFormat } from "@/lib/date-utils";
 
 export function LaunchMonitor() {
   const { workspaceId } = useWorkspace();
@@ -129,7 +130,7 @@ export function LaunchMonitor() {
                       <p className="text-xs font-medium text-foreground truncate">{v.title}</p>
                       <p className="text-[10px] text-muted-foreground flex items-center gap-1 mt-0.5">
                         <Clock className="w-2.5 h-2.5" />
-                        {v.hoursLive}h live · Published {format(new Date(v.published_at), "MMM d, h:mm a")}
+                        {v.hoursLive}h live · Published {safeFormat(v.published_at, "MMM d, h:mm a")}
                       </p>
                     </div>
                     <Badge variant="outline" className={`text-[9px] shrink-0 ${sc.color}`}>

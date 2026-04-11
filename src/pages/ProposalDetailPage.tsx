@@ -29,12 +29,13 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { format, formatDistanceToNow } from "date-fns";
+import { format, } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { EditProposalDialog } from "@/components/ai-bridge/EditProposalDialog";
 import { useVideoStats } from "@/hooks/use-video-stats";
 import type { AiProposal } from "@/types/proposals";
+import { safeFormat, safeFormatDistanceToNow } from "@/lib/date-utils";
 
 const statusConfig: Record<string, { label: string; className: string; icon: typeof Clock }> = {
   pending: { label: "Pending Review", className: "bg-warning/15 text-warning border-warning/30", icon: Clock },
@@ -183,7 +184,7 @@ function VideoDataCard({ videoId }: { videoId: string }) {
             <h3 className="text-sm font-semibold text-foreground leading-tight line-clamp-2">{stats.title}</h3>
             {stats.published_at && (
               <p className="text-xs text-muted-foreground mt-1">
-                Uploaded {format(new Date(stats.published_at), "MMM d, yyyy")} · {formatDistanceToNow(new Date(stats.published_at), { addSuffix: true })}
+                Uploaded {safeFormat(stats.published_at, "MMM d, yyyy")} · {safeFormatDistanceToNow(stats.published_at, { addSuffix: true })}
               </p>
             )}
           </div>
@@ -390,14 +391,14 @@ export default function ProposalDetailPage() {
         )}
         <Card className="p-4 text-center">
           <Calendar className="w-5 h-5 mx-auto mb-1 text-muted-foreground" />
-          <p className="text-sm font-semibold text-foreground">{format(new Date(proposal.created_at), "MMM d, yyyy")}</p>
-          <p className="text-xs text-muted-foreground">Created {formatDistanceToNow(new Date(proposal.created_at), { addSuffix: true })}</p>
+          <p className="text-sm font-semibold text-foreground">{safeFormat(proposal.created_at, "MMM d, yyyy")}</p>
+          <p className="text-xs text-muted-foreground">Created {safeFormatDistanceToNow(proposal.created_at, { addSuffix: true })}</p>
         </Card>
         {proposal.reviewed_at && (
           <Card className="p-4 text-center">
             <Check className="w-5 h-5 mx-auto mb-1 text-muted-foreground" />
-            <p className="text-sm font-semibold text-foreground">{format(new Date(proposal.reviewed_at), "MMM d, yyyy")}</p>
-            <p className="text-xs text-muted-foreground">Reviewed {formatDistanceToNow(new Date(proposal.reviewed_at), { addSuffix: true })}</p>
+            <p className="text-sm font-semibold text-foreground">{safeFormat(proposal.reviewed_at, "MMM d, yyyy")}</p>
+            <p className="text-xs text-muted-foreground">Reviewed {safeFormatDistanceToNow(proposal.reviewed_at, { addSuffix: true })}</p>
           </Card>
         )}
         <Card className="p-4 text-center">

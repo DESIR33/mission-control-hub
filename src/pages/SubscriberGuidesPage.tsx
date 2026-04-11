@@ -15,12 +15,12 @@ import { useCompanies } from "@/hooks/use-companies";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, BookOpen, Trash2, Loader2, Video, Building2, Pencil, ChevronsUpDown, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { getFreshness } from "@/config/data-freshness";
 import type { SubscriberGuide } from "@/types/subscriber";
+import { safeFormat } from "@/lib/date-utils";
 
 function useVideoQueueList() {
   const { workspaceId } = useWorkspace();
@@ -386,7 +386,7 @@ export default function SubscriberGuidesPage() {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <span className="text-xs text-muted-foreground">{format(new Date(guide.created_at), "MMM d, yyyy")}</span>
+                    <span className="text-xs text-muted-foreground">{safeFormat(guide.created_at, "MMM d, yyyy")}</span>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-0.5">

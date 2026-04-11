@@ -16,7 +16,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useABTestingDashboard, type ABTest } from "@/hooks/use-ab-testing-dashboard";
 import { fmtCount } from "@/lib/chart-theme";
-import { formatDistanceToNow } from "date-fns";
+import { DistanceToNow } from "date-fns";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 function NewTestDialog({ onCreated }: { onCreated: () => void }) {
   const { createTest } = useABTestingDashboard();
@@ -107,7 +108,7 @@ function TestCard({ test, onEnd }: { test: ABTest; onEnd: (testId: string, winne
   const aWins = test.winner === "a";
   const bWins = test.winner === "b";
   const runningTime = isActive
-    ? formatDistanceToNow(new Date(test.started_at), { addSuffix: false })
+    ? safeFormatDistanceToNow(test.started_at, { addSuffix: false })
     : null;
 
   return (

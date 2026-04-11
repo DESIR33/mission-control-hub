@@ -6,6 +6,7 @@ import { fmtCount, chartTooltipStyle, SEMANTIC_COLORS } from "@/lib/chart-theme"
 import { format } from "date-fns";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { safeFormat } from "@/lib/date-utils";
 
 const paceConfig = {
   ahead: {
@@ -143,7 +144,7 @@ export function GrowthCountdownTracker() {
           </span>
           {data.targetDate && (
             <span className="text-xs text-muted-foreground">
-              Target: {format(new Date(data.targetDate), "MMM d, yyyy")}
+              Target: {safeFormat(data.targetDate, "MMM d, yyyy")}
             </span>
           )}
         </div>

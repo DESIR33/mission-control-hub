@@ -20,7 +20,8 @@ import {
   CheckCircle2, XCircle, AlertTriangle, Shield, Zap,
   Loader2, ChevronDown, ChevronUp,
 } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { DistanceToNow } from "date-fns";
+import { safeFormatDistanceToNow } from "@/lib/date-utils";
 
 const actionTypeConfig: Record<string, { icon: typeof UserPlus; label: string; color: string }> = {
   create_contact: { icon: UserPlus, label: "Create Contact", color: "text-primary" },
@@ -270,7 +271,7 @@ function RouteActionCard({
 
           <div className="flex items-center gap-2 mt-1">
             <span className="text-[10px] text-muted-foreground">
-              {formatDistanceToNow(new Date(action.created_at), { addSuffix: true })}
+              {safeFormatDistanceToNow(action.created_at, { addSuffix: true })}
             </span>
             <button onClick={onToggleExpand} className="text-[10px] text-primary hover:underline flex items-center gap-0.5">
               {isExpanded ? <ChevronUp className="w-2.5 h-2.5" /> : <ChevronDown className="w-2.5 h-2.5" />}

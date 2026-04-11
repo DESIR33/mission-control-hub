@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { format, differenceInDays, formatDistanceToNow } from "date-fns";
+import { format, differenceInDays, } from "date-fns";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -65,6 +65,7 @@ import {
 } from "lucide-react";
 import type { Company, Contact } from "@/types/crm";
 import { EmailActions } from "@/components/company/EmailActions";
+import { safeFormat, safeFormatDistanceToNow } from "@/lib/date-utils";
 
 const tierConfig: Record<string, { label: string; color: string }> = {
   none: { label: "", color: "" },
@@ -573,10 +574,10 @@ export default function CompanyProfilePage() {
           )}
 
           <div className="text-xs text-muted-foreground space-y-1 px-1">
-            <p>Created: {format(new Date(company.created_at), "MMM d, yyyy")}</p>
-            <p>Updated: {format(new Date(company.updated_at), "MMM d, yyyy")}</p>
+            <p>Created: {safeFormat(company.created_at, "MMM d, yyyy")}</p>
+            <p>Updated: {safeFormat(company.updated_at, "MMM d, yyyy")}</p>
             {company.last_contact_date && (
-              <p>Last Contact: {formatDistanceToNow(new Date(company.last_contact_date), { addSuffix: true })}</p>
+              <p>Last Contact: {safeFormatDistanceToNow(company.last_contact_date, { addSuffix: true })}</p>
             )}
           </div>
         </div>
@@ -662,7 +663,7 @@ export default function CompanyProfilePage() {
                           {email.from_name || email.from_email}
                         </p>
                         <span className="text-xs text-muted-foreground shrink-0">
-                          {format(new Date(email.received_at), "MMM d")}
+                          {safeFormat(email.received_at, "MMM d")}
                         </span>
                       </div>
                       <p className={cn("text-sm truncate", !email.is_read ? "text-foreground" : "text-muted-foreground")}>
@@ -781,7 +782,7 @@ export default function CompanyProfilePage() {
                         <Film className="h-4 w-4 text-success shrink-0" />
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-medium text-foreground truncate">{video.title}</p>
-                          {video.targetPublishDate && <p className="text-xs text-muted-foreground">{format(new Date(video.targetPublishDate), "MMM d, yyyy")}</p>}
+                          {video.targetPublishDate && <p className="text-xs text-muted-foreground">{safeFormat(video.targetPublishDate, "MMM d, yyyy")}</p>}
                         </div>
                         <Badge className={cn("text-xs capitalize", videoStatusTone[video.status])}>{video.status}</Badge>
                       </div>

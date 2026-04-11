@@ -39,7 +39,8 @@ import {
   Clock, TrendingUp, ShieldAlert, ShieldCheck,
   Play, Pause, Trash2,
 } from "lucide-react";
-import { formatDistanceToNow, format } from "date-fns";
+import { DistanceToNow } from "date-fns";
+import { safeFormat, safeFormatDistanceToNow } from "@/lib/date-utils";
 
 // ─── Constants ─────────────────────────
 
@@ -293,11 +294,11 @@ function OperationCard({ op, isExpanded, onToggleExpand, onApprove, onReject, on
 
           <div className="flex items-center gap-2 mt-1.5">
             <span className="text-[10px] text-muted-foreground">
-              {formatDistanceToNow(new Date(op.created_at), { addSuffix: true })}
+              {safeFormatDistanceToNow(op.created_at, { addSuffix: true })}
             </span>
             {op.executed_at && (
               <span className="text-[10px] text-muted-foreground">
-                · Executed {format(new Date(op.executed_at), "MMM d HH:mm")}
+                · Executed {safeFormat(op.executed_at, "MMM d HH:mm")}
               </span>
             )}
             <button onClick={onToggleExpand} className="text-[10px] text-primary hover:underline flex items-center gap-0.5">

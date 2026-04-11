@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
-import { format } from "date-fns";
 import {
   Brain, BookOpen, ThumbsUp, ThumbsDown, Lightbulb, FlaskConical,
   MessageSquare, Clock,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { safeFormat } from "@/lib/date-utils";
 
 type TimelineEvent = {
   id: string;
@@ -106,7 +106,7 @@ export function AgentMemoryTimeline() {
                     <p className="text-[11px] text-muted-foreground truncate mt-0.5">{ev.description}</p>
                     <p className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1">
                       <Clock className="w-2.5 h-2.5" />
-                      {format(new Date(ev.date), "MMM d, h:mm a")}
+                      {safeFormat(ev.date, "MMM d, h:mm a")}
                     </p>
                   </div>
                 </div>

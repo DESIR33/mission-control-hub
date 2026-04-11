@@ -2,8 +2,8 @@ import { useMemo } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
 import { Clock, Building2, User2 } from "lucide-react";
+import { safeFormat } from "@/lib/date-utils";
 
 interface TaskWithRelations {
   id: number;
@@ -164,7 +164,7 @@ export function KanbanBoard({ tasks, projectId, onTaskClick }: KanbanBoardProps)
                   <div className="flex items-center gap-1.5">
                     <Clock className="h-3 w-3 text-muted-foreground" />
                     <span className="text-[10px] text-muted-foreground">
-                      {format(new Date(task.dueDate), "MMM dd")}
+                      {safeFormat(task.dueDate, "MMM dd")}
                     </span>
                   </div>
 
