@@ -39,8 +39,8 @@ import {
   Pencil, Trash2, Loader2, Mail, Film, UserPlus, X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
 import { safeFormat } from "@/lib/date-utils";
+import { format } from "date-fns";
 
 const stageConfig: Record<string, { label: string; color: string }> = {
   prospecting: { label: "Prospecting", color: "bg-blue-500/15 text-blue-600 border-blue-500/30" },

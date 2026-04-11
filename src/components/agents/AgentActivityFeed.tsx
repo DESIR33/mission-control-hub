@@ -3,8 +3,8 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Activity, Bot, CheckCircle, XCircle, Loader2, Clock } from "lucide-react";
 import { useExecutions } from "@/hooks/use-agents";
-import { DistanceToNow } from "date-fns";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
+import { DistanceToNow } from "date-fns";
 
 const statusIcon = {
   pending: <Clock className="h-3 w-3 text-muted-foreground" />,

@@ -7,8 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { DistanceToNow } from "date-fns";
 import { getGatedFreshness } from "@/config/data-freshness";
-import { useEngagementGate } from "@/hooks/use-engagement-gate";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
+import { useEngagementGate } from "@/hooks/use-engagement-gate";
 
 interface AlertItem {
   id: string;

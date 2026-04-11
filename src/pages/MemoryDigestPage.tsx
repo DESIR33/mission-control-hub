@@ -15,8 +15,8 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { safeFormat, safeFormatDistanceToNow } from "@/lib/date-utils";
+import { Separator } from "@/components/ui/separator";
 
 const query = (table: string) => (supabase as any).from(table);
 

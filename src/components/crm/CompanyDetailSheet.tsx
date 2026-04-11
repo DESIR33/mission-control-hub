@@ -32,8 +32,8 @@ import { cn } from "@/lib/utils";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { supabase } from "@/integrations/supabase/client";
 import type { Company, Activity, Contact } from "@/types/crm";
-import { format, differenceInDays } from "date-fns";
 import { safeFormat } from "@/lib/date-utils";
+import { format, differenceInDays } from "date-fns";
 
 const tierLabels: Record<string, { label: string; color: string }> = {
   none: { label: "\u2014", color: "" },

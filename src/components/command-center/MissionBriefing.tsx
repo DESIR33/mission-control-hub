@@ -25,8 +25,8 @@ import { useDeals } from "@/hooks/use-deals";
 import { useContentCalendarEntries } from "@/hooks/use-content-calendar";
 import { useGrowthForecast } from "@/hooks/use-growth-forecast";
 import { useUnifiedRevenue } from "@/hooks/use-unified-revenue";
-import { differenceInDays, format, startOfWeek, subWeeks } from "date-fns";
 import { safeFormat } from "@/lib/date-utils";
+import { differenceInDays, format, startOfWeek, subWeeks } from "date-fns";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 

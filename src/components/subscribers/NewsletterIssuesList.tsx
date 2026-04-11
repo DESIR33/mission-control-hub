@@ -10,8 +10,8 @@ import { useNewsletterIssues, useCreateNewsletterIssue } from "@/hooks/use-newsl
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { Plus, Mail, Send, Eye, MousePointer, MessageSquare, Loader2, Calendar, ExternalLink } from "lucide-react";
-import { DistanceToNow } from "date-fns";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
+import { DistanceToNow } from "date-fns";
 
 const statusStyles: Record<string, string> = {
   draft: "bg-muted text-muted-foreground",

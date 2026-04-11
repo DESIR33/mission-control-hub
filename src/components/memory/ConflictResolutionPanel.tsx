@@ -15,8 +15,8 @@ import {
 import { toast } from "sonner";
 import { DistanceToNow } from "date-fns";
 import { AlertTriangle, CheckCircle2, Merge, X, Loader2 } from "lucide-react";
-import { useState, useCallback } from "react";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
+import { useState, useCallback } from "react";
 
 const CONFLICT_COLORS: Record<string, string> = {
   factual: "bg-red-500/20 text-red-400 border-red-500/30",

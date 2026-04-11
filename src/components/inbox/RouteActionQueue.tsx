@@ -20,8 +20,8 @@ import {
   CheckCircle2, XCircle, AlertTriangle, Shield, Zap,
   Loader2, ChevronDown, ChevronUp,
 } from "lucide-react";
-import { DistanceToNow } from "date-fns";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
+import { DistanceToNow } from "date-fns";
 
 const actionTypeConfig: Record<string, { icon: typeof UserPlus; label: string; color: string }> = {
   create_contact: { icon: UserPlus, label: "Create Contact", color: "text-primary" },

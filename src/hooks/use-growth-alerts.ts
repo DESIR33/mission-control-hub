@@ -7,8 +7,8 @@ import {
   useChannelStats,
   useYouTubeChannelStats,
 } from "@/hooks/use-youtube-analytics";
-import { differenceInDays, format, addMonths } from "date-fns";
 import { safeFormat } from "@/lib/date-utils";
+import { differenceInDays, format, addMonths } from "date-fns";
 
 export interface GrowthAlert {
   id: string;

@@ -31,8 +31,8 @@ import { SponsorPipelineView } from "@/components/deals/SponsorPipelineView";
 import { SponsorOutreachGenerator } from "@/components/deals/SponsorOutreachGenerator";
 import { SponsorOpportunityBoard } from "@/components/deals/SponsorOpportunityBoard";
 import { useSponsorMatchScore } from "@/hooks/use-sponsor-match-score";
-import { useToast } from "@/hooks/use-toast";
 import { safeFormat } from "@/lib/date-utils";
+import { useToast } from "@/hooks/use-toast";
 
 const STAGES: { id: DealStage; label: string; color: string; weight: number }[] = [
   { id: "prospecting", label: "Prospecting", color: "#3B82F6", weight: 0.1 },

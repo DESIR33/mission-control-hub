@@ -13,8 +13,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { Link } from "react-router-dom";
 import { safeFormat } from "@/lib/date-utils";
+import { Link } from "react-router-dom";
 
 interface ClusterMember {
   id: string;

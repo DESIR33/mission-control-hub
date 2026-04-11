@@ -3,8 +3,8 @@ import { Users, Eye, DollarSign, Handshake, Video, Clock, TrendingUp, TrendingDo
 import { useChannelStats, useYouTubeChannelStats } from "@/hooks/use-youtube-analytics";
 import { useDeals } from "@/hooks/use-deals";
 import { useVideoQueue } from "@/hooks/use-video-queue";
-import { useUnifiedRevenue } from "@/hooks/use-unified-revenue";
 import { safeFormat } from "@/lib/date-utils";
+import { useUnifiedRevenue } from "@/hooks/use-unified-revenue";
 
 function MicroSparkline({ data }: { data: number[] }) {
   if (data.length < 2) return null;

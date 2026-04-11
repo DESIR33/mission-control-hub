@@ -23,8 +23,8 @@ import { useDeleteCompany } from "@/hooks/use-companies";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { BulkActionsBar } from "./BulkActionsBar";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
+import { BulkActionsBar } from "./BulkActionsBar";
 
 const tierIcons: Record<VipTier, string> = {
   none: "",

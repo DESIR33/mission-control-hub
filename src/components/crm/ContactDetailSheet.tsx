@@ -28,8 +28,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { ComposeEmailDialog } from "@/components/inbox/ComposeEmailDialog";
 import type { Contact, Activity } from "@/types/crm";
 import { useSponsorAttribution } from "@/hooks/use-sponsor-attribution";
-import { ContactImpactReport } from "./ContactImpactReport";
 import { safeFormat } from "@/lib/date-utils";
+import { ContactImpactReport } from "./ContactImpactReport";
 
 const statusColors: Record<string, string> = {
   active: "bg-success/15 text-success border-success/30",

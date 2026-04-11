@@ -20,8 +20,8 @@ import { useCompanies } from "@/hooks/use-companies";
 import { useContacts } from "@/hooks/use-contacts";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
-import { format } from "date-fns";
 import { safeFormat } from "@/lib/date-utils";
+import { format } from "date-fns";
 
 interface YouTubeVideo {
   id: string;

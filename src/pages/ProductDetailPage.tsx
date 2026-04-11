@@ -14,8 +14,8 @@ import { Area, AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, lineDefaults } from "@/lib/chart-theme";
 import { useProducts } from "@/hooks/use-products";
 import { useCompanies } from "@/hooks/use-companies";
-import { useToast } from "@/hooks/use-toast";
 import { safeFormat } from "@/lib/date-utils";
+import { useToast } from "@/hooks/use-toast";
 
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();

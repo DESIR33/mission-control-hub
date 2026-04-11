@@ -13,8 +13,8 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { Plus, Trash2, Loader2, CalendarClock, X } from "lucide-react";
-import { DistanceToNow, isPast, isToday, isTomorrow } from "date-fns";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
+import { DistanceToNow, isPast, isToday, isTomorrow } from "date-fns";
 
 interface FollowUpRemindersProps {
   entityId: string;

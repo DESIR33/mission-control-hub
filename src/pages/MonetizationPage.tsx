@@ -34,8 +34,8 @@ import { InvoiceGenerator } from "@/components/monetization/InvoiceGenerator";
 import { useCompanies } from "@/hooks/use-companies";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { useAffiliateTransactions } from "@/hooks/use-affiliate-transactions";
-import { useProducts } from "@/hooks/use-products";
 import { safeFormat } from "@/lib/date-utils";
+import { useProducts } from "@/hooks/use-products";
 
 function TopEarningVideos() {
   const { data: revSummary } = useContentRevenue();

@@ -5,8 +5,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useSubscriberGuides } from "@/hooks/use-subscriber-guides";
 import { useSubscriberGuideAssignments, useAssignGuide, useUnassignGuide } from "@/hooks/use-subscriber-guide-assignments";
 import { useToast } from "@/hooks/use-toast";
-import { BookOpen, Plus, X, Loader2 } from "lucide-react";
 import { safeFormat } from "@/lib/date-utils";
+import { BookOpen, Plus, X, Loader2 } from "lucide-react";
 
 interface SubscriberGuidePickerProps {
   subscriberId: string;

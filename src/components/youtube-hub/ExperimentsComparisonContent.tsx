@@ -13,8 +13,8 @@ import {
 import { useAllOptimizationExperiments, computeDelta } from "@/hooks/use-optimization-experiments";
 import { EXPERIMENT_STATUS_CONFIG } from "@/types/strategist";
 import { fmtCount } from "@/lib/chart-theme";
-import { useNavigate } from "react-router-dom";
 import { safeFormat } from "@/lib/date-utils";
+import { useNavigate } from "react-router-dom";
 
 function DeltaIndicator({ baseline, result }: { baseline: number; result: number | null }) {
   const delta = computeDelta(baseline, result);

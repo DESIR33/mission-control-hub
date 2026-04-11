@@ -64,8 +64,8 @@ import {
   Facebook,
 } from "lucide-react";
 import type { Company, Contact } from "@/types/crm";
-import { EmailActions } from "@/components/company/EmailActions";
 import { safeFormat, safeFormatDistanceToNow } from "@/lib/date-utils";
+import { EmailActions } from "@/components/company/EmailActions";
 
 const tierConfig: Record<string, { label: string; color: string }> = {
   none: { label: "", color: "" },

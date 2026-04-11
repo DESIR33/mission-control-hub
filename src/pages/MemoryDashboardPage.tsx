@@ -21,8 +21,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { format, } from "date-fns";
 import { safeFormat, safeFormatDistanceToNow } from "@/lib/date-utils";
+import { format, } from "date-fns";
 
 const query = (table: string) => (supabase as any).from(table);
 

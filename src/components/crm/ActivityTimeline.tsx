@@ -8,8 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCreateActivity } from "@/hooks/use-contacts";
-import { toast } from "sonner";
 import { safeFormat } from "@/lib/date-utils";
+import { toast } from "sonner";
 
 const LOGGABLE_TYPES = [
   { value: "call", label: "Call", icon: Phone },

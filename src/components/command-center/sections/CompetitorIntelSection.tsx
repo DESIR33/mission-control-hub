@@ -25,8 +25,8 @@ import {
   type CompetitorChannel,
 } from "@/hooks/use-competitor-benchmarking";
 import { toast } from "sonner";
-import { DistanceToNow } from "date-fns";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
+import { DistanceToNow } from "date-fns";
 
 const emptyForm = {
   channel_name: "",

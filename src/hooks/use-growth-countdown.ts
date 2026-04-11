@@ -2,8 +2,8 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
-import { differenceInDays, addDays } from "date-fns";
 import { safeFormat } from "@/lib/date-utils";
+import { differenceInDays, addDays } from "date-fns";
 
 export interface GrowthCountdownData {
   currentSubs: number;

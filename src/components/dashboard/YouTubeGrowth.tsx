@@ -10,8 +10,8 @@ import {
 } from "@/hooks/use-youtube-analytics";
 import { useDatasetSyncStatus, useManualDatasetRefresh } from "@/hooks/use-dataset-sync-status";
 import { DataFreshnessBadge } from "@/components/ui/DataFreshnessBadge";
-import { differenceInDays, format, addMonths } from "date-fns";
 import { safeFormat } from "@/lib/date-utils";
+import { differenceInDays, format, addMonths } from "date-fns";
 
 const SUBSCRIBER_GOAL = 50_000;
 

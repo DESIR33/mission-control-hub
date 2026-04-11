@@ -7,8 +7,8 @@ import {
 } from "recharts";
 import { subDays } from "date-fns";
 import type { TrafficSource } from "@/hooks/use-youtube-analytics-api";
-import { fmtCount, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, CHART_COLORS, horizontalBarDefaults } from "@/lib/chart-theme";
 import { safeFormat } from "@/lib/date-utils";
+import { fmtCount, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, CHART_COLORS, horizontalBarDefaults } from "@/lib/chart-theme";
 
 const SOURCE_LABELS: Record<string, string> = {
   ADVERTISING: "Ads",

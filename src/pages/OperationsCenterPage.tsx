@@ -39,8 +39,8 @@ import {
   Clock, TrendingUp, ShieldAlert, ShieldCheck,
   Play, Pause, Trash2,
 } from "lucide-react";
-import { DistanceToNow } from "date-fns";
 import { safeFormat, safeFormatDistanceToNow } from "@/lib/date-utils";
+import { DistanceToNow } from "date-fns";
 
 // ─── Constants ─────────────────────────
 

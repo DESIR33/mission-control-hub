@@ -9,8 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
 import { safeFormat, safeFormatDistanceToNow } from "@/lib/date-utils";
+import { cn } from "@/lib/utils";
 
 const q = (table: string) => (supabase as any).from(table);
 

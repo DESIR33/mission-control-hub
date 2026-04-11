@@ -5,8 +5,8 @@ import { useGrowthCountdown } from "@/hooks/use-growth-countdown";
 import { fmtCount, chartTooltipStyle, SEMANTIC_COLORS } from "@/lib/chart-theme";
 import { format } from "date-fns";
 import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
 import { safeFormat } from "@/lib/date-utils";
+import { Badge } from "@/components/ui/badge";
 
 const paceConfig = {
   ahead: {

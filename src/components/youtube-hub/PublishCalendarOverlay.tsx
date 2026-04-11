@@ -6,8 +6,8 @@ import { Calendar, ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Minus } 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, getDay, addMonths, subMonths } from "date-fns";
 import { safeFormat } from "@/lib/date-utils";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, getDay, addMonths, subMonths } from "date-fns";
 
 export function PublishCalendarOverlay() {
   const { workspaceId } = useWorkspace();

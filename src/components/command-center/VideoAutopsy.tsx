@@ -20,8 +20,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { differenceInHours, differenceInDays } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useWorkspace } from "@/hooks/use-workspace";
 import { safeFormat } from "@/lib/date-utils";
+import { useWorkspace } from "@/hooks/use-workspace";
 
 const getGrade = (
   views: number,

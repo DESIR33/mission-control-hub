@@ -3,8 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { useMemo } from "react";
 import { subDays, format, startOfDay } from "date-fns";
-import { getDealAttributionDate } from "@/lib/deal-date-utils";
 import { safeFormat } from "@/lib/date-utils";
+import { getDealAttributionDate } from "@/lib/deal-date-utils";
 
 export interface WeeklyRevenueSummary {
   thisWeekAdRevenue: number;

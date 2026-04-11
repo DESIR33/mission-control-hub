@@ -28,8 +28,8 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
-import { Link } from "react-router-dom";
 import { safeFormat } from "@/lib/date-utils";
+import { Link } from "react-router-dom";
 
 const MEMORY_TYPES = ["semantic", "episodic", "preference", "procedural", "contextual"] as const;
 const IMPORTANCE_LABELS = ["Low", "Medium", "High", "Critical"];

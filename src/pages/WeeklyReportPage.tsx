@@ -22,8 +22,8 @@ import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { WeeklyRevenueSection } from "@/components/weekly-report/WeeklyRevenueSection";
-import { useGrowthAlerts, type GrowthAlert } from "@/hooks/use-growth-alerts";
 import { safeFormat } from "@/lib/date-utils";
+import { useGrowthAlerts, type GrowthAlert } from "@/hooks/use-growth-alerts";
 
 const fmtCurrency = (value: number) =>
   new Intl.NumberFormat("en-US", {

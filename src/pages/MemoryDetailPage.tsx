@@ -21,8 +21,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { safeFormat, safeFormatDistanceToNow } from "@/lib/date-utils";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const q = (table: string) => (supabase as any).from(table);
 

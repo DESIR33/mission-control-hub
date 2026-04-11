@@ -1,8 +1,8 @@
 import { useMemo } from "react";
 import { useYouTubeChannelStats } from "@/hooks/use-youtube-analytics";
 import { useGrowthGoal } from "@/hooks/use-youtube-analytics";
-import { differenceInDays, addDays, format } from "date-fns";
 import { safeFormat } from "@/lib/date-utils";
+import { differenceInDays, addDays, format } from "date-fns";
 
 export interface ForecastPoint {
   date: string;

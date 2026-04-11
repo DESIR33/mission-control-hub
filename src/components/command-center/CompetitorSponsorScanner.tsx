@@ -21,8 +21,8 @@ import {
   useBulkUpdateSponsorStatus, useBulkCreateDealsFromSponsors, useBulkDismissSponsors,
   type CompetitorSponsor,
 } from "@/hooks/use-competitor-sponsors";
-import { SponsorOutreachDialog } from "./SponsorOutreachDialog";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
+import { SponsorOutreachDialog } from "./SponsorOutreachDialog";
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   not_contacted: { label: "Not Contacted", className: "bg-muted text-muted-foreground" },
   contacted: { label: "Contacted", className: "bg-blue-500/20 text-blue-400" },

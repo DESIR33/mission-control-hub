@@ -13,8 +13,8 @@ import {
   useCurrentSprint, useSprintHistory, useCreateSprint, useUpdateSprint,
   type GrowthSprint, type SprintTask,
 } from "@/hooks/use-growth-sprints";
-import { differenceInDays } from "date-fns";
 import { safeFormat } from "@/lib/date-utils";
+import { differenceInDays } from "date-fns";
 
 const categoryColors: Record<string, string> = {
   content: "bg-blue-500/15 text-blue-400 border-blue-500/30",

@@ -2,8 +2,8 @@ import { useMemo } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import { Clock, Building2, User2 } from "lucide-react";
 import { safeFormat } from "@/lib/date-utils";
+import { Clock, Building2, User2 } from "lucide-react";
 
 interface TaskWithRelations {
   id: number;
