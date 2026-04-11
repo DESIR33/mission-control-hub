@@ -96,6 +96,24 @@ export function AgentHubContent() {
 
   const handleToggle = (agent: AgentDefinition, enabled: boolean) => { toggleAgent.mutate({ id: agent.id, enabled }); };
 
+  const handleCreateAgent = (agent: { name: string; slug: string; description: string; system_prompt: string }) => {
+    createAgent.mutate(agent, {
+      onSuccess: () => { setShowCreateAgent(false); toast({ title: "Agent created", description: `${agent.name} is now available.` }); },
+      onError: (err) => { toast({ title: "Failed to create agent", description: err.message, variant: "destructive" }); },
+    });
+  };
+
+  const handleDeleteAgent = (agent: AgentDefinition) => {
+    if (agent.is_system) {
+      toast({ title: "Cannot delete system agent", description: "System agents can only be toggled off.", variant: "destructive" });
+      return;
+    }
+    deleteAgent.mutate(agent.id, {
+      onSuccess: () => { setDetailAgent(null); toast({ title: "Agent deleted", description: `${agent.name} has been removed.` }); },
+      onError: (err) => { toast({ title: "Failed to delete agent", description: err.message, variant: "destructive" }); },
+    });
+  };
+
   const handleCreateSkill = (skill: { name: string; slug: string; description: string; category: AgentSkill["category"] }) => {
     createSkill.mutate(skill, {
       onSuccess: () => { setShowCreateSkill(false); toast({ title: "Skill created", description: `${skill.name} is now available.` }); },
