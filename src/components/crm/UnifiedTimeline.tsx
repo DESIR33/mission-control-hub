@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { DistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import {
   Phone,
   Calendar,

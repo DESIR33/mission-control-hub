@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { DistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import { History, RotateCcw, ChevronRight } from "lucide-react";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
 import { MemoryGraphView } from "./MemoryGraphView";

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
-import { DistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 
 export type TimelineType =
   | "email_sent"

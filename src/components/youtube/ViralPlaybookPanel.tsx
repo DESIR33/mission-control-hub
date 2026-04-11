@@ -23,7 +23,7 @@ import {
   Eye, Users, DollarSign, TrendingUp, Clock, ExternalLink,
 } from "lucide-react";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
-import { DistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 
 const statusStyles: Record<string, string> = {
   active: "bg-success/15 text-success border-success/30",

@@ -17,7 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useABTestingDashboard, type ABTest } from "@/hooks/use-ab-testing-dashboard";
 import { fmtCount } from "@/lib/chart-theme";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
-import { DistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 
 function NewTestDialog({ onCreated }: { onCreated: () => void }) {
   const { createTest } = useABTestingDashboard();

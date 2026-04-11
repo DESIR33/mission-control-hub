@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useCompanyIntel, useMarkIntelRead } from "@/hooks/use-company-intel";
 import { Radar, ExternalLink, Eye, EyeOff, Globe, MessageSquare, Rocket, Newspaper } from "lucide-react";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
-import { DistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 
 const typeIcons = {
   social_post: MessageSquare,

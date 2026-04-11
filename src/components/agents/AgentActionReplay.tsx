@@ -6,7 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { History, ChevronDown, ChevronRight, Brain, Zap, CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
 import { useExecutions } from "@/hooks/use-agents";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
-import { DistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 
 interface ReplayStep {
   type: "thought" | "tool_call" | "decision" | "output" | "error";

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Bell, TrendingUp, TrendingDown, Trophy, Eye } from "lucide-react";
 import { useVideoPerformanceAlerts, useMarkAlertRead } from "@/hooks/use-video-performance-alerts";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
-import { DistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 
 const alertConfig: Record<string, { icon: typeof TrendingUp; color: string; bg: string }> = {
   trending: { icon: TrendingUp, color: "text-green-500", bg: "bg-green-500/10" },

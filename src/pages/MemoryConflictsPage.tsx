@@ -15,7 +15,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { DistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import { CheckCircle2, Shield, Merge, X, Loader2 } from "lucide-react";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
 import { motion, AnimatePresence } from "framer-motion";

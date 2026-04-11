@@ -28,7 +28,7 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { X, Loader2 } from "lucide-react";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
-import { DistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 
 const WORKSPACE_ID = "ea11b24d-27bd-4488-9760-2663bc788e04";
 

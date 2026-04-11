@@ -16,7 +16,7 @@ import {
 import { Search, Filter, Building2, MapPin, Users, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, Video, Trash2, Sparkles, ExternalLink, Pencil, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Company, VipTier } from "@/types/crm";
-import { DistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import { useCompanyRevenue } from "@/hooks/use-company-revenue";
 import { useAllVideoCompanies } from "@/hooks/use-all-video-companies";
 import { useDeleteCompany } from "@/hooks/use-companies";

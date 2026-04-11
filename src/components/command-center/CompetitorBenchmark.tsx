@@ -14,7 +14,7 @@ import {
 } from "@/hooks/use-competitor-benchmarking";
 import { useSyncCompetitors } from "@/hooks/use-competitor-benchmarking";
 import { toast } from "sonner";
-import { DistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
 import { fmtCount, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, barDefaults } from "@/lib/chart-theme";
 

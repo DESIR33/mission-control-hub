@@ -1,4 +1,4 @@
-import { DistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import {
   Bell,
   UserPlus,

@@ -40,7 +40,7 @@ import {
   Play, Pause, Trash2,
 } from "lucide-react";
 import { safeFormat, safeFormatDistanceToNow } from "@/lib/date-utils";
-import { DistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 
 // ─── Constants ─────────────────────────
 
