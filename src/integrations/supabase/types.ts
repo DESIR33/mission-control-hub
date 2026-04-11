@@ -1274,6 +1274,7 @@ export type Database = {
           embedding: string | null
           entity_id: string | null
           entity_type: string | null
+          folder_id: string | null
           id: string
           importance_score: number | null
           is_pinned: boolean | null
@@ -1305,6 +1306,7 @@ export type Database = {
           embedding?: string | null
           entity_id?: string | null
           entity_type?: string | null
+          folder_id?: string | null
           id?: string
           importance_score?: number | null
           is_pinned?: boolean | null
@@ -1336,6 +1338,7 @@ export type Database = {
           embedding?: string | null
           entity_id?: string | null
           entity_type?: string | null
+          folder_id?: string | null
           id?: string
           importance_score?: number | null
           is_pinned?: boolean | null
@@ -1357,6 +1360,13 @@ export type Database = {
           workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "assistant_memory_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "memory_folders"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "assistant_memory_workspace_id_fkey"
             columns: ["workspace_id"]
@@ -4802,6 +4812,67 @@ export type Database = {
           },
         ]
       }
+      memory_attachments: {
+        Row: {
+          created_at: string
+          description: string | null
+          file_name: string
+          file_path: string
+          file_size: number | null
+          folder_id: string | null
+          id: string
+          memory_id: string | null
+          mime_type: string | null
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          folder_id?: string | null
+          id?: string
+          memory_id?: string | null
+          mime_type?: string | null
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          folder_id?: string | null
+          id?: string
+          memory_id?: string | null
+          mime_type?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memory_attachments_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "memory_folders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "memory_attachments_memory_id_fkey"
+            columns: ["memory_id"]
+            isOneToOne: false
+            referencedRelation: "assistant_memory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "memory_attachments_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       memory_comments: {
         Row: {
           content: string
@@ -4963,6 +5034,57 @@ export type Database = {
           },
           {
             foreignKeyName: "memory_edges_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      memory_folders: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+          parent_id: string | null
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          parent_id?: string | null
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          parent_id?: string | null
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memory_folders_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "memory_folders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "memory_folders_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
