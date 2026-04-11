@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import {
   format,
   startOfMonth,
@@ -11,14 +11,23 @@ import {
   isToday,
   differenceInCalendarDays,
   addDays,
+  addWeeks,
+  subWeeks,
+  addMonths,
+  subMonths,
   max as dateMax,
   min as dateMin,
+  getDay,
+  isWeekend,
 } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useTasks } from "@/hooks/use-tasks";
+import { useNavigate } from "react-router-dom";
 import type { Task } from "@/types/tasks";
+
+type CalendarMode = "month" | "week" | "workweek";
 
 interface TaskCalendarViewProps {
   tasks: Task[];
@@ -72,8 +81,9 @@ function getBarClasses(task: Task): string {
 function buildWeekRows(
   weeks: Date[][],
   tasks: Task[],
-  gridStart: Date,
-  gridEnd: Date
+  _gridStart: Date,
+  _gridEnd: Date,
+  colCount: number
 ): WeekRow[] {
   const taskRanges = tasks
     .map((task) => {
@@ -85,7 +95,7 @@ function buildWeekRows(
 
   return weeks.map((days) => {
     const weekStart = days[0];
-    const weekEnd = days[6];
+    const weekEnd = days[days.length - 1];
 
     const segments: TaskSegment[] = [];
     for (const { task, start, end } of taskRanges) {
@@ -95,11 +105,14 @@ function buildWeekRows(
 
       const startCol = differenceInCalendarDays(segStart, weekStart);
       const endCol = differenceInCalendarDays(segEnd, weekStart);
+      if (startCol >= colCount || endCol < 0) continue;
+      const clampedStart = Math.max(0, startCol);
+      const clampedEnd = Math.min(colCount - 1, endCol);
       segments.push({
         taskId: task.id,
         task,
-        startCol,
-        span: endCol - startCol + 1,
+        startCol: clampedStart,
+        span: clampedEnd - clampedStart + 1,
         isStart: isSameDay(segStart, start),
         isEnd: isSameDay(segEnd, end),
       });
@@ -130,7 +143,7 @@ function buildWeekRows(
         }
       }
       if (!assigned && lanes.length < MAX_LANES) {
-        const newLane: (TaskSegment | null)[] = Array(7).fill(null);
+        const newLane: (TaskSegment | null)[] = Array(colCount).fill(null);
         for (let c = seg.startCol; c < seg.startCol + seg.span; c++) {
           newLane[c] = seg;
         }
@@ -139,7 +152,7 @@ function buildWeekRows(
       }
     }
 
-    const overflowByDay = Array(7).fill(0);
+    const overflowByDay = Array(colCount).fill(0);
     for (const seg of segments) {
       if (!placed.has(seg.taskId)) {
         for (let c = seg.startCol; c < seg.startCol + seg.span; c++) {
@@ -154,11 +167,12 @@ function buildWeekRows(
 
 function renderLane(
   lane: (TaskSegment | null)[],
+  colCount: number,
   onTaskClick: (id: string) => void
 ): React.ReactNode[] {
   const elements: React.ReactNode[] = [];
   let col = 0;
-  while (col < 7) {
+  while (col < colCount) {
     const seg = lane[col];
     if (seg) {
       elements.push(
@@ -189,7 +203,7 @@ function renderLane(
       col += seg.span;
     } else {
       let emptyStart = col;
-      while (col < 7 && !lane[col]) col++;
+      while (col < colCount && !lane[col]) col++;
       elements.push(
         <div
           key={`empty-${emptyStart}`}
@@ -202,40 +216,89 @@ function renderLane(
 }
 
 export function TaskCalendarView({ tasks, onTaskClick }: TaskCalendarViewProps) {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const { updateTask } = useTasks();
+  const [mode, setMode] = useState<CalendarMode>("month");
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const { updateTask, createTask } = useTasks();
+  const navigate = useNavigate();
 
-  const prevMonth = () =>
-    setCurrentMonth((m) => new Date(m.getFullYear(), m.getMonth() - 1, 1));
-  const nextMonth = () =>
-    setCurrentMonth((m) => new Date(m.getFullYear(), m.getMonth() + 1, 1));
-  const goToToday = () => setCurrentMonth(new Date());
+  const goForward = () => {
+    if (mode === "month") setCurrentDate((d) => addMonths(d, 1));
+    else setCurrentDate((d) => addWeeks(d, 1));
+  };
+  const goBack = () => {
+    if (mode === "month") setCurrentDate((d) => subMonths(d, 1));
+    else setCurrentDate((d) => subWeeks(d, 1));
+  };
+  const goToday = () => setCurrentDate(new Date());
 
-  const { weeks, gridStart, gridEnd } = useMemo(() => {
-    const monthStart = startOfMonth(currentMonth);
-    const monthEnd = endOfMonth(currentMonth);
-    const gStart = startOfWeek(monthStart, { weekStartsOn: 0 });
-    let gEnd = endOfWeek(monthEnd, { weekStartsOn: 0 });
-    const allDays = eachDayOfInterval({ start: gStart, end: gEnd });
-    // Pad to 6 rows (42 days) for consistent height
-    if (allDays.length < 42) {
-      gEnd = addDays(gEnd, 42 - allDays.length);
-      const extraDays = eachDayOfInterval({
-        start: addDays(allDays[allDays.length - 1], 1),
-        end: gEnd,
-      });
-      allDays.push(...extraDays);
+  const handleDoubleClickDay = useCallback(
+    (day: Date) => {
+      createTask.mutate(
+        {
+          title: "New task",
+          due_date: day.toISOString(),
+          status: "todo",
+          priority: "medium",
+        } as any,
+        {
+          onSuccess: (data: any) => {
+            if (data?.id) navigate(`/tasks/${data.id}`);
+          },
+        }
+      );
+    },
+    [createTask, navigate]
+  );
+
+  const { weeks, dayNames, colCount, headerText } = useMemo(() => {
+    if (mode === "month") {
+      const monthStart = startOfMonth(currentDate);
+      const monthEnd = endOfMonth(currentDate);
+      const gStart = startOfWeek(monthStart, { weekStartsOn: 0 });
+      let gEnd = endOfWeek(monthEnd, { weekStartsOn: 0 });
+      const allDays = eachDayOfInterval({ start: gStart, end: gEnd });
+      if (allDays.length < 42) {
+        gEnd = addDays(gEnd, 42 - allDays.length);
+        const extra = eachDayOfInterval({ start: addDays(allDays[allDays.length - 1], 1), end: gEnd });
+        allDays.push(...extra);
+      }
+      const wks: Date[][] = [];
+      for (let i = 0; i < allDays.length; i += 7) wks.push(allDays.slice(i, i + 7));
+      return {
+        weeks: wks,
+        dayNames: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+        colCount: 7,
+        headerText: format(currentDate, "MMMM yyyy"),
+      };
     }
-    const wks: Date[][] = [];
-    for (let i = 0; i < allDays.length; i += 7) {
-      wks.push(allDays.slice(i, i + 7));
+
+    // Week or workweek
+    const weekStart = startOfWeek(currentDate, { weekStartsOn: 0 });
+    if (mode === "week") {
+      const days = eachDayOfInterval({ start: weekStart, end: addDays(weekStart, 6) });
+      return {
+        weeks: [days],
+        dayNames: days.map((d) => format(d, "EEE dd")),
+        colCount: 7,
+        headerText: `${format(days[0], "MMM dd")} – ${format(days[6], "MMM dd, yyyy")}`,
+      };
     }
-    return { weeks: wks, gridStart: gStart, gridEnd: gEnd };
-  }, [currentMonth]);
+
+    // Workweek: Mon–Fri
+    const monday = addDays(weekStart, 1);
+    const friday = addDays(weekStart, 5);
+    const days = eachDayOfInterval({ start: monday, end: friday });
+    return {
+      weeks: [days],
+      dayNames: days.map((d) => format(d, "EEE dd")),
+      colCount: 5,
+      headerText: `${format(days[0], "MMM dd")} – ${format(days[4], "MMM dd, yyyy")}`,
+    };
+  }, [currentDate, mode]);
 
   const weekRows = useMemo(
-    () => buildWeekRows(weeks, tasks, gridStart, gridEnd),
-    [weeks, tasks, gridStart, gridEnd]
+    () => buildWeekRows(weeks, tasks, weeks[0]?.[0] ?? new Date(), weeks[weeks.length - 1]?.[weeks[weeks.length - 1].length - 1] ?? new Date(), colCount),
+    [weeks, tasks, colCount]
   );
 
   const handleDrop = (e: React.DragEvent, targetDate: Date) => {
@@ -260,36 +323,56 @@ export function TaskCalendarView({ tasks, onTaskClick }: TaskCalendarViewProps) 
     updateTask.mutate(updates as any);
   };
 
-  const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const isMonthMode = mode === "month";
+  const gridColsClass = colCount === 5 ? "grid-cols-5" : "grid-cols-7";
 
   return (
     <div className="flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={goToToday}>
+          <Button variant="outline" size="sm" onClick={goToday}>
             Today
           </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={prevMonth}>
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={goBack}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={nextMonth}>
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={goForward}>
             <ChevronRight className="h-4 w-4" />
           </Button>
-          <h3 className="text-lg font-semibold">
-            {format(currentMonth, "MMM yyyy")}
-          </h3>
+          <h3 className="text-lg font-semibold">{headerText}</h3>
         </div>
-        <span className="text-sm text-muted-foreground font-medium">Month</span>
+
+        {/* View mode switcher */}
+        <div className="flex items-center bg-muted rounded-md p-0.5 gap-0.5">
+          {([
+            { id: "month" as CalendarMode, label: "Month" },
+            { id: "week" as CalendarMode, label: "Week" },
+            { id: "workweek" as CalendarMode, label: "Work Week" },
+          ]).map((v) => (
+            <button
+              key={v.id}
+              onClick={() => setMode(v.id)}
+              className={cn(
+                "px-3 py-1 text-xs font-medium rounded transition-colors",
+                mode === v.id
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {v.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Calendar grid */}
       <div className="border border-border rounded-md overflow-hidden">
         {/* Day-of-week header */}
-        <div className="grid grid-cols-7 bg-muted/40">
-          {dayNames.map((d) => (
+        <div className={cn("grid bg-muted/40", gridColsClass)}>
+          {dayNames.map((d, i) => (
             <div
-              key={d}
+              key={i}
               className="px-2 py-1.5 text-xs font-medium text-muted-foreground border-r border-border last:border-r-0"
             >
               {d}
@@ -301,33 +384,35 @@ export function TaskCalendarView({ tasks, onTaskClick }: TaskCalendarViewProps) 
         {weekRows.map((week, wi) => (
           <div key={wi} className="border-t border-border">
             {/* Day numbers */}
-            <div className="grid grid-cols-7">
+            <div className={cn("grid", gridColsClass)}>
               {week.days.map((day, di) => {
-                const inMonth = isSameMonth(day, currentMonth);
+                const inMonth = isMonthMode ? isSameMonth(day, currentDate) : true;
                 const today = isToday(day);
                 return (
                   <div
                     key={di}
                     className={cn(
-                      "px-2 pt-1.5 pb-1 border-r border-border last:border-r-0 relative",
-                      !inMonth && "bg-muted/30"
+                      "px-2 pt-1.5 pb-1 border-r border-border last:border-r-0 relative cursor-default",
+                      !inMonth && "bg-muted/30",
+                      !isMonthMode && isWeekend(day) && "bg-muted/20"
                     )}
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={(e) => handleDrop(e, day)}
+                    onDoubleClick={() => handleDoubleClickDay(day)}
                   >
                     <span
                       className={cn(
                         "text-xs leading-none",
                         !inMonth && "text-muted-foreground/40",
                         today &&
-                          "bg-blue-600 text-white rounded-full w-6 h-6 inline-flex items-center justify-center font-semibold",
+                          "bg-primary text-primary-foreground rounded-full w-6 h-6 inline-flex items-center justify-center font-semibold",
                         !today && inMonth && "font-medium"
                       )}
                     >
-                      {day.getDate()}
+                      {isMonthMode ? day.getDate() : format(day, "d")}
                     </span>
                     {today && (
-                      <div className="absolute top-0 left-0 w-0.5 h-full bg-blue-500" />
+                      <div className="absolute top-0 left-0 w-0.5 h-full bg-primary" />
                     )}
                   </div>
                 );
@@ -336,14 +421,14 @@ export function TaskCalendarView({ tasks, onTaskClick }: TaskCalendarViewProps) 
 
             {/* Lane rows (task bars) */}
             {week.lanes.map((lane, li) => (
-              <div key={li} className="grid grid-cols-7 min-h-[26px] items-center">
-                {renderLane(lane, onTaskClick)}
+              <div key={li} className={cn("grid min-h-[26px] items-center", gridColsClass)}>
+                {renderLane(lane, colCount, onTaskClick)}
               </div>
             ))}
 
             {/* Overflow indicators */}
             {week.overflowByDay.some((n) => n > 0) && (
-              <div className="grid grid-cols-7 min-h-[18px]">
+              <div className={cn("grid min-h-[18px]", gridColsClass)}>
                 {week.overflowByDay.map((count, di) => (
                   <div
                     key={di}
@@ -361,16 +446,17 @@ export function TaskCalendarView({ tasks, onTaskClick }: TaskCalendarViewProps) 
 
             {/* Minimum height filler for empty weeks */}
             {week.lanes.length === 0 && (
-              <div className="grid grid-cols-7 min-h-[52px]">
+              <div className={cn("grid", gridColsClass, isMonthMode ? "min-h-[52px]" : "min-h-[120px]")}>
                 {week.days.map((day, di) => (
                   <div
                     key={di}
                     className={cn(
                       "border-r border-border last:border-r-0",
-                      !isSameMonth(day, currentMonth) && "bg-muted/30"
+                      isMonthMode && !isSameMonth(day, currentDate) && "bg-muted/30"
                     )}
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={(e) => handleDrop(e, day)}
+                    onDoubleClick={() => handleDoubleClickDay(day)}
                   />
                 ))}
               </div>
