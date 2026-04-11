@@ -316,6 +316,23 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Trigger deal-email analyzer after sync (fire-and-forget)
+    if (totalUpserted > 0) {
+      try {
+        const analyzerUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/deal-email-analyzer`;
+        fetch(analyzerUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+          },
+          body: JSON.stringify({ workspace_id, mode: "sync" }),
+        }).catch(err => console.error("Deal email analyzer trigger failed:", err));
+      } catch (triggerErr) {
+        console.error("Failed to trigger deal-email-analyzer:", triggerErr);
+      }
+    }
+
     return new Response(
       JSON.stringify({
         success: true,

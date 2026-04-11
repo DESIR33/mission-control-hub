@@ -33,7 +33,7 @@ Deno.serve(async (req) => {
       const [
         contactsRes, dealsRes, videosRes, proposalsRes,
         adRevenueRes, recentVideosRes, tasksRes, emailsRes,
-        expensesRes,
+        expensesRes, dealEmailContextRes, dealEmailTasksRes,
       ] = await Promise.all([
         sb.from("contacts").select("id, first_name, last_name, status, last_contact_date, company_id")
           .eq("workspace_id", wsId).is("deleted_at", null),
@@ -61,6 +61,17 @@ Deno.serve(async (req) => {
         sb.from("expenses").select("id, title, amount, date")
           .eq("workspace_id", wsId)
           .gte("date", new Date(Date.now() - 30 * 86400000).toISOString().split("T")[0]),
+        sb.from("deal_email_context")
+          .select("deal_id, ai_summary, deal_stage_signal, sentiment, action_items, key_points")
+          .eq("workspace_id", wsId)
+          .gte("created_at", new Date(Date.now() - 24 * 3600000).toISOString())
+          .order("created_at", { ascending: false })
+          .limit(20),
+        sb.from("deal_email_tasks")
+          .select("deal_id, task_title, suggested_priority, status")
+          .eq("workspace_id", wsId)
+          .eq("status", "pending")
+          .limit(15),
       ]);
 
       const contacts = contactsRes.data ?? [];
@@ -72,6 +83,8 @@ Deno.serve(async (req) => {
       const openTasks = (tasksRes.data ?? []) as any[];
       const urgentEmails = (emailsRes.data ?? []) as any[];
       const expenses = (expensesRes.data ?? []) as any[];
+      const dealEmailContext = (dealEmailContextRes.data ?? []) as any[];
+      const pendingDealTasks = (dealEmailTasksRes.data ?? []) as any[];
 
       const now = new Date();
       const sevenDaysAgo = new Date(now.getTime() - 7 * 86400000);
@@ -150,6 +163,18 @@ ${proposals.slice(0, 5).map(p => `  - "${p.title}" (${p.proposal_type}, confiden
 
 Monthly expenses: $${monthlyExpenses.toFixed(2)} across ${expenses.length} records
 
+Deal Email Intelligence (last 24h):
+- New email-deal connections: ${dealEmailContext.length}
+${dealEmailContext.slice(0, 8).map((ctx: any) => {
+  const dealTitle = deals.find(d => d.id === ctx.deal_id)?.title || "Unknown deal";
+  return `  - "${dealTitle}": ${ctx.ai_summary || "No summary"} [${ctx.sentiment || "neutral"}]${ctx.deal_stage_signal ? ` → stage signal: ${ctx.deal_stage_signal}` : ""}`;
+}).join("\n")}
+- Pending deal-related tasks: ${pendingDealTasks.length}
+${pendingDealTasks.slice(0, 5).map((t: any) => {
+  const dealTitle = deals.find(d => d.id === t.deal_id)?.title || "Unknown deal";
+  return `  - "${t.task_title}" for "${dealTitle}" (${t.suggested_priority})`;
+}).join("\n")}
+
 Top recent videos (14 days):
 ${recentVideos.slice(0, 5).map((v: any) => `- "${v.title}": ${v.views} views, ${(Number(v.impressions_ctr) * 100).toFixed(1)}% CTR, $${Number(v.estimated_revenue || 0).toFixed(2)} revenue`).join("\n")}
 `.trim();
@@ -190,6 +215,21 @@ ${recentVideos.slice(0, 5).map((v: any) => `- "${v.title}": ${v.views} views, ${
 
       // Monthly expenses
       if (monthlyExpenses > 0) fallbackLines.push(`📊 $${monthlyExpenses.toFixed(0)} in expenses this month.`);
+
+      // Deal email intelligence
+      if (dealEmailContext.length > 0) {
+        const negativeDeals = dealEmailContext.filter((c: any) => c.sentiment === "negative");
+        if (negativeDeals.length > 0) {
+          fallbackLines.push(`🔴 ${negativeDeals.length} deal conversation${negativeDeals.length > 1 ? 's' : ''} showing negative sentiment — review immediately.`);
+        }
+        const stageSignals = dealEmailContext.filter((c: any) => c.deal_stage_signal);
+        if (stageSignals.length > 0) {
+          fallbackLines.push(`📊 ${stageSignals.length} deal${stageSignals.length > 1 ? 's' : ''} showing stage progression signals from email conversations.`);
+        }
+      }
+      if (pendingDealTasks.length > 0) {
+        fallbackLines.push(`🟡 ${pendingDealTasks.length} AI-suggested deal task${pendingDealTasks.length > 1 ? 's' : ''} awaiting your review.`);
+      }
 
       // If nothing noteworthy, add a positive note
       if (fallbackLines.length === 0) {
@@ -315,6 +355,19 @@ Return ONLY the bullet points, one per line. No headers, no sections, no markdow
         description: briefingText.substring(0, 500),
         metadata: { tasks_proposed: tasksCreated },
       });
+
+      // Trigger daily batch deal-email analysis (fire-and-forget)
+      try {
+        const analyzerUrl = `${supabaseUrl}/functions/v1/deal-email-analyzer`;
+        fetch(analyzerUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${serviceKey}`,
+          },
+          body: JSON.stringify({ workspace_id: wsId, mode: "daily" }),
+        }).catch(err => console.error("Daily deal-email analyzer trigger failed:", err));
+      } catch {}
 
       results.push({ workspace_id: wsId, status: "ok", tasks_proposed: tasksCreated });
     }
