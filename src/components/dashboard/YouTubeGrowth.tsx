@@ -159,7 +159,7 @@ export function YouTubeGrowth() {
                     }}
                     transition={{ duration: 0.5, delay: 0.1 + i * 0.02 }}
                     className="flex-1 rounded-t-sm bg-red-500/80 hover:bg-red-500 transition-colors min-h-[3px]"
-                    title={`${fmtCount(s.subscriber_count)} subs — ${new Date(s.fetched_at).toLocaleDateString()}`}
+                    title={`${fmtCount(s.subscriber_count)} subs — ${safeFormat(s.fetched_at, "P")}`}
                   />
                 ))}
               </div>

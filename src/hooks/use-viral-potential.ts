@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useVideoAnalytics, type VideoAnalytics } from "@/hooks/use-youtube-analytics-api";
 import { useYouTubeVideoStats } from "@/hooks/use-youtube-analytics";
+import { safeGetTime } from "@/lib/date-utils";
 
 export interface ViralScore {
   videoId: string;
@@ -68,7 +69,7 @@ export function useViralPotential(daysRange = 90) {
       const viewToSubRate = views > 0 ? (subsGained / views) * 100 : 0;
 
       // Velocity: views per day since first data point
-      const dates = rows.map((r) => new Date(r.date).getTime()).sort();
+      const dates = rows.map((r) => safeGetTime(r.date)).sort();
       const daySpan = dates.length > 1 ? (dates[dates.length - 1] - dates[0]) / 86400000 : 1;
       const velocity = views / Math.max(daySpan, 1);
 

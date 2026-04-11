@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { getGatedFreshness } from "@/config/data-freshness";
 import { useEngagementGate } from "@/hooks/use-engagement-gate";
+import { safeGetTime } from "@/lib/date-utils";
 
 interface OpenEvent {
   id: string;
@@ -84,7 +85,7 @@ function useEngagementStats() {
 }
 
 function formatTimeAgo(dateStr: string) {
-  const diff = Date.now() - new Date(dateStr).getTime();
+  const diff = Date.now() - safeGetTime(dateStr);
   const mins = Math.floor(diff / 60000);
   if (mins < 1) return "just now";
   if (mins < 60) return `${mins}m ago`;

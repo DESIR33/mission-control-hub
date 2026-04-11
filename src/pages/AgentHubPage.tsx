@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
+import { safeFormat } from "@/lib/date-utils";
 import {
   Bot,
   Zap,
@@ -119,7 +120,7 @@ export default function AgentHubPage() {
 
   // Stats
   const todayExecutions = executions.filter(
-    (e) => new Date(e.created_at).toDateString() === new Date().toDateString()
+    (e) => safeFormat(e.created_at, "yyyy-MM-dd") === safeFormat(new Date(), "yyyy-MM-dd")
   );
   const totalProposalsToday = todayExecutions.reduce(
     (sum, e) => sum + e.proposals_created,

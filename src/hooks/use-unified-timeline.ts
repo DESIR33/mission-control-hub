@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { safeGetTime } from "@/lib/date-utils";
 
 export interface TimelineEvent {
   id: string;
@@ -142,7 +143,7 @@ export function useUnifiedTimeline(contactId: string | null) {
       // Sort all events by timestamp descending
       events.sort(
         (a, b) =>
-          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+          safeGetTime(b.timestamp) - safeGetTime(a.timestamp)
       );
       return events;
     },

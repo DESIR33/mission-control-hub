@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
+import { safeFormat } from "@/lib/date-utils";
 import { Bot, Zap, Activity, FileText, Rocket, Loader2, Video } from "lucide-react";
 import {
   useAgents, useSkills, useExecutions, useRunAgent,
@@ -98,7 +99,7 @@ export function AgentHubContent() {
 
   const handleDeleteSkill = (id: string) => { deleteSkill.mutate(id, { onSuccess: () => toast({ title: "Skill deleted" }) }); };
 
-  const todayExecutions = executions.filter((e) => new Date(e.created_at).toDateString() === new Date().toDateString());
+  const todayExecutions = executions.filter((e) => safeFormat(e.created_at, "yyyy-MM-dd") === safeFormat(new Date(), "yyyy-MM-dd"));
   const totalProposalsToday = todayExecutions.reduce((sum, e) => sum + e.proposals_created, 0);
   const isLoading = agentsLoading || skillsLoading;
 

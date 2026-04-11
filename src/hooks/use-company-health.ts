@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { safeGetTime } from "@/lib/date-utils";
 
 const query = (table: string) => (supabase as any).from(table);
 
@@ -79,7 +80,7 @@ export function useRecalculateHealthScore() {
         .single();
 
       const daysSinceContact = company?.last_contact_date
-        ? Math.floor((Date.now() - new Date(company.last_contact_date).getTime()) / 86400000)
+        ? Math.floor((Date.now() - safeGetTime(company.last_contact_date)) / 86400000)
         : 999;
 
       // Recency score

@@ -13,7 +13,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { Plus, Trash2, Loader2, CalendarClock, X } from "lucide-react";
-import { safeFormatDistanceToNow } from "@/lib/date-utils";
+import { safeFormatDistanceToNow, safeToISOString } from "@/lib/date-utils";
 import { formatDistanceToNow, isPast, isToday, isTomorrow } from "date-fns";
 
 interface FollowUpRemindersProps {
@@ -59,7 +59,7 @@ export function FollowUpReminders({ entityId, entityType }: FollowUpRemindersPro
         entity_type: entityType,
         title: title.trim(),
         description: description.trim() || undefined,
-        due_date: new Date(dueDate).toISOString(),
+        due_date: safeToISOString(dueDate) ?? new Date().toISOString(),
       });
       setTitle("");
       setDueDate("");

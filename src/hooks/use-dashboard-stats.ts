@@ -4,7 +4,7 @@ import { useWorkspace } from "@/hooks/use-workspace";
 import { getGatedFreshness, getFreshness } from "@/config/data-freshness";
 import { useEngagementGate } from "@/hooks/use-engagement-gate";
 import { subDays, subMonths, startOfMonth, format } from "date-fns";
-import { safeFormat } from "@/lib/date-utils";
+import { safeFormat, safeGetTime } from "@/lib/date-utils";
 import { getDealAttributionDate } from "@/lib/deal-date-utils";
 
 export interface DashboardStats {
@@ -355,7 +355,7 @@ export function useNeedsAttention() {
 
       for (const c of staleContacts ?? []) {
         const daysSince = c.last_contact_date
-          ? Math.floor((Date.now() - new Date(c.last_contact_date).getTime()) / (1000 * 60 * 60 * 24))
+          ? Math.floor((Date.now() - safeGetTime(c.last_contact_date)) / (1000 * 60 * 60 * 24))
           : 0;
         items.push({
           title: `${c.first_name} ${c.last_name ?? ""}`.trim(),
@@ -561,7 +561,7 @@ export function useAiBriefing() {
       }
 
       for (const d of staleDeals ?? []) {
-        const daysSince = Math.floor((Date.now() - new Date(d.updated_at).getTime()) / (1000 * 60 * 60 * 24));
+        const daysSince = Math.floor((Date.now() - safeGetTime(d.updated_at)) / (1000 * 60 * 60 * 24));
         items.push({
           type: "action",
           text: `Deal "${d.title}" hasn't been updated in ${daysSince} days — follow up before it goes cold.`,

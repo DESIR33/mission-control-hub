@@ -25,7 +25,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useUnifiedTimeline, type TimelineEvent } from "@/hooks/use-unified-timeline";
 import { useCreateActivity } from "@/hooks/use-contacts";
-import { safeFormatDistanceToNow } from "@/lib/date-utils";
+import { safeFormatDistanceToNow, safeGetTime } from "@/lib/date-utils";
 import { toast } from "sonner";
 
 type EventFilter = "all" | "activity" | "email" | "deal_change" | "youtube_lead" | "proposal";
@@ -75,7 +75,7 @@ function RelationshipHealth({ events }: { events: TimelineEvent[] }) {
 
     const latest = events[0];
     const daysSince = Math.floor(
-      (Date.now() - new Date(latest.timestamp).getTime()) / (1000 * 60 * 60 * 24)
+      (Date.now() - safeGetTime(latest.timestamp)) / (1000 * 60 * 60 * 24)
     );
 
     // Count by type

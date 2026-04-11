@@ -11,7 +11,7 @@ import type { Subscriber, SubscriberStatus } from "@/types/subscriber";
 import { formatDistanceToNow } from "date-fns";
 import { SubscriberEngagementBadge } from "./SubscriberEngagementBadge";
 import { useBulkDeleteSubscribers } from "@/hooks/use-subscribers";
-import { safeFormatDistanceToNow } from "@/lib/date-utils";
+import { safeFormatDistanceToNow, safeGetTime } from "@/lib/date-utils";
 import { useToast } from "@/hooks/use-toast";
 
 const statusColors: Record<SubscriberStatus, string> = {
@@ -116,7 +116,7 @@ export function SubscribersTable({ subscribers, onSelectSubscriber, selectedId, 
           break;
         case "subscribed":
         default:
-          cmp = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+          cmp = safeGetTime(a.created_at) - safeGetTime(b.created_at);
           break;
       }
       return cmp * dir;

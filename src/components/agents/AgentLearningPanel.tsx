@@ -9,6 +9,7 @@ import { useAgentAlertThresholds, useToggleAlertThreshold, useDeleteAlertThresho
 import { useAgentFeedbackHistory } from "@/hooks/use-agent-feedback";
 import { Brain, Bell, Trash2, TrendingUp, TrendingDown, ThumbsUp, ThumbsDown, Edit2 } from "lucide-react";
 import { CreateAlertThresholdDialog } from "./CreateAlertThresholdDialog";
+import { safeFormat } from "@/lib/date-utils";
 
 export function AgentLearningPanel({ agentSlug }: { agentSlug?: string }) {
   const { data: preferences = [] } = useAgentLearningPreferences(agentSlug);
@@ -165,7 +166,7 @@ export function AgentLearningPanel({ agentSlug }: { agentSlug?: string }) {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground capitalize">{f.action}</p>
                   <p className="text-xs text-muted-foreground truncate">
-                    {f.user_notes || f.agent_slug} · {new Date(f.created_at).toLocaleDateString()}
+                    {f.user_notes || f.agent_slug} · {safeFormat(f.created_at, "P")}
                   </p>
                 </div>
               </CardContent>

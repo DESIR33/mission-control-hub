@@ -18,6 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { chartTooltipStyle, xAxisDefaults } from "@/lib/chart-theme";
 import { differenceInDays, format, parseISO } from "date-fns";
+import { safeGetTime } from "@/lib/date-utils";
 import {
   useCurrentSprint,
   useSprintHistory,
@@ -334,7 +335,7 @@ function SprintHistorySection({ sprints }: { sprints: GrowthSprint[] }) {
       .filter((s) => s.status === "completed" || s.status === "active")
       .sort(
         (a, b) =>
-          new Date(a.week_start).getTime() - new Date(b.week_start).getTime()
+          safeGetTime(a.week_start) - safeGetTime(b.week_start)
       );
 
     const chartData = completed.map((s) => {

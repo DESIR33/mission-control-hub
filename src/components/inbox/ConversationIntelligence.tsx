@@ -16,6 +16,7 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { toast } from "sonner";
+import { safeGetTime } from "@/lib/date-utils";
 
 interface ContactSentiment {
   email: string;
@@ -64,15 +65,15 @@ export function ConversationIntelligence() {
             categories[cat] = (categories[cat] || 0) + 1;
           });
 
-          const sorted = contactEmails.sort((a: any, b: any) => new Date(b.received_at).getTime() - new Date(a.received_at).getTime());
-          const daysSinceLastReply = Math.floor((now.getTime() - new Date(sorted[0].received_at).getTime()) / (1000 * 60 * 60 * 24));
+          const sorted = contactEmails.sort((a: any, b: any) => safeGetTime(b.received_at) - safeGetTime(a.received_at));
+          const daysSinceLastReply = Math.floor((now.getTime() - safeGetTime(sorted[0].received_at)) / (1000 * 60 * 60 * 24));
 
           const recentCount = sorted.filter((e: any) => {
-            const d = Math.floor((now.getTime() - new Date(e.received_at).getTime()) / (1000 * 60 * 60 * 24));
+            const d = Math.floor((now.getTime() - safeGetTime(e.received_at)) / (1000 * 60 * 60 * 24));
             return d <= 14;
           }).length;
           const olderCount = sorted.filter((e: any) => {
-            const d = Math.floor((now.getTime() - new Date(e.received_at).getTime()) / (1000 * 60 * 60 * 24));
+            const d = Math.floor((now.getTime() - safeGetTime(e.received_at)) / (1000 * 60 * 60 * 24));
             return d > 14 && d <= 28;
           }).length;
 

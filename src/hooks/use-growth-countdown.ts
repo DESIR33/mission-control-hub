@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
-import { safeFormat } from "@/lib/date-utils";
+import { safeFormat, safeGetTime } from "@/lib/date-utils";
 import { differenceInDays, addDays } from "date-fns";
 
 export interface GrowthCountdownData {
@@ -75,7 +75,7 @@ export function useGrowthCountdown() {
   const data = useMemo((): GrowthCountdownData | null => {
     const goal = growthGoals[0];
     const sorted = [...channelAnalytics].sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      (a, b) => safeGetTime(a.date) - safeGetTime(b.date)
     );
 
     // Determine current subscribers

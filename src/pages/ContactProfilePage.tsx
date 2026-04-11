@@ -31,7 +31,7 @@ import {
   Plus, X, ArrowUpRight, ArrowDownLeft, Tag, Flame, Target, Github,
 } from "lucide-react";
 import type { Contact } from "@/types/crm";
-import { safeFormat, safeFormatDistanceToNow } from "@/lib/date-utils";
+import { safeFormat, safeFormatDistanceToNow, safeGetTime } from "@/lib/date-utils";
 
 const warmthConfig: Record<string, { label: string; color: string; icon: typeof Flame }> = {
   cold: { label: "Cold", color: "bg-blue-500/15 text-blue-500 border-blue-500/30", icon: Star },
@@ -135,7 +135,7 @@ export default function ContactProfilePage() {
     // Merge linked emails with email-matched ones, deduplicate by id
     const ids = new Set(contactLinkedEmails.map((e: any) => e.id));
     const fromMatch = emails.filter((e) => e.from_email?.toLowerCase() === contact.email?.toLowerCase() && !ids.has(e.id));
-    return [...contactLinkedEmails, ...fromMatch].sort((a: any, b: any) => new Date(b.received_at).getTime() - new Date(a.received_at).getTime());
+    return [...contactLinkedEmails, ...fromMatch].sort((a: any, b: any) => safeGetTime(b.received_at) - safeGetTime(a.received_at));
   }, [emails, contact, contactLinkedEmails]);
 
   const contactDeals = useMemo(() => {

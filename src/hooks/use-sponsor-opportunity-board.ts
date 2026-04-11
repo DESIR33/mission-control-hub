@@ -6,6 +6,7 @@ import { useDeals, type Deal } from "@/hooks/use-deals";
 import { useCompanies } from "@/hooks/use-companies";
 import { useSponsorMatchScore } from "@/hooks/use-sponsor-match-score";
 import { startOfMonth, format, addMonths } from "date-fns";
+import { safeGetTime } from "@/lib/date-utils";
 
 const q = (table: string) => (supabase as any).from(table);
 
@@ -74,8 +75,8 @@ function suggestOutreachWeek(pastDeals: Deal[], monthStart: Date): number {
 
   // Average days from outreach to close
   const avgCycleDays = closedDeals.reduce((sum, d) => {
-    const created = new Date(d.created_at).getTime();
-    const closed = new Date(d.closed_at!).getTime();
+    const created = safeGetTime(d.created_at);
+    const closed = safeGetTime(d.closed_at);
     return sum + (closed - created) / (1000 * 60 * 60 * 24);
   }, 0) / closedDeals.length;
 

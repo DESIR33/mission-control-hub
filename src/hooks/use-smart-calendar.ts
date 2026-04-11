@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { startOfMonth, endOfMonth, format, differenceInWeeks, subWeeks } from "date-fns";
+import { safeGetTime } from "@/lib/date-utils";
 
 export interface SuggestedSlot {
   dayOfWeek: number; // 0=Sun, 6=Sat
@@ -151,7 +152,7 @@ export function useSmartCalendar() {
     let streakWeeks = 0;
     const sortedPublished = videoQueue
       .filter((v: any) => v.published_date)
-      .sort((a: any, b: any) => new Date(b.published_date).getTime() - new Date(a.published_date).getTime());
+      .sort((a: any, b: any) => safeGetTime(b.published_date) - safeGetTime(a.published_date));
 
     if (sortedPublished.length > 0) {
       let checkDate = new Date();

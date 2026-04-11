@@ -1,4 +1,5 @@
 import { useDealVelocity, useDealStageHistory } from "@/hooks/use-deal-velocity";
+import { safeGetTime, safeFormat } from "@/lib/date-utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Clock, AlertTriangle, TrendingUp, ArrowRight } from "lucide-react";
 
@@ -112,15 +113,15 @@ export function DealStageTimeline({ dealId }: { dealId: string }) {
       </p>
       <div className="space-y-0.5">
         {history.map((h, i) => {
-          const nextTime = i < history.length - 1 ? new Date(history[i + 1].changed_at).getTime() : Date.now();
-          const days = Math.round((nextTime - new Date(h.changed_at).getTime()) / (1000 * 60 * 60 * 24) * 10) / 10;
+          const nextTime = i < history.length - 1 ? safeGetTime(history[i + 1].changed_at, Date.now()) : Date.now();
+          const days = Math.round((nextTime - safeGetTime(h.changed_at, Date.now())) / (1000 * 60 * 60 * 24) * 10) / 10;
           return (
             <div key={h.id} className="flex items-center gap-2 text-xs">
               <span className={`h-2 w-2 rounded-full ${STAGE_COLORS[h.to_stage] ?? "bg-muted"}`} />
               <span className="text-foreground capitalize">{STAGE_LABELS[h.to_stage] ?? h.to_stage}</span>
               <span className="text-muted-foreground font-mono">{days}d</span>
               <span className="text-muted-foreground">
-                {new Date(h.changed_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                {safeFormat(h.changed_at, "MMM d")}
               </span>
             </div>
           );

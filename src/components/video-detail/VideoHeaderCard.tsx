@@ -1,4 +1,5 @@
 import { Eye, Clock, ThumbsUp, MessageSquare, Users, MousePointerClick, Share2, DollarSign } from "lucide-react";
+import { safeFormat } from "@/lib/date-utils";
 
 interface Props {
   title: string;
@@ -60,7 +61,7 @@ export function VideoHeaderCard({
           <h1 className="text-lg font-bold text-foreground leading-tight">{title}</h1>
           {publishedAt && (
             <p className="text-xs text-muted-foreground mt-1">
-              Published {new Date(publishedAt).toLocaleDateString()}
+              Published {safeFormat(publishedAt, "P")}
             </p>
           )}
           {!hasAnalyticsData && (

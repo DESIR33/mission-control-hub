@@ -11,7 +11,7 @@ import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Cell,
 } from "recharts";
-import { safeFormat } from "@/lib/date-utils";
+import { safeFormat, safeGetTime } from "@/lib/date-utils";
 import { format, subDays, } from "date-fns";
 
 const query = (table: string) => (supabase as any).from(table);
@@ -146,7 +146,7 @@ export default function MemoryAnalyticsPage() {
       const now = Date.now();
       (data || []).forEach((m: any) => {
         const daysSince = m.last_accessed_at
-          ? (now - new Date(m.last_accessed_at).getTime()) / 86400000
+          ? (now - safeGetTime(m.last_accessed_at)) / 86400000
           : 999;
         const bin = bins.find((b) => daysSince >= b.min && daysSince < b.max);
         if (bin) bin.count++;

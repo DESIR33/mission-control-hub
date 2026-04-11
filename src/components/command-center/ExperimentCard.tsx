@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import type { VideoOptimizationExperiment } from "@/types/strategist";
 import { EXPERIMENT_STATUS_CONFIG } from "@/types/strategist";
+import { safeGetTime } from "@/lib/date-utils";
 
 function DeltaBadge({ value, suffix = "%" }: { value: number | null; suffix?: string }) {
   if (value === null || value === undefined) return <span className="text-xs text-muted-foreground">--</span>;
@@ -57,7 +58,7 @@ export function ExperimentCard({
 }) {
   const statusConfig = EXPERIMENT_STATUS_CONFIG[experiment.status] || EXPERIMENT_STATUS_CONFIG.active;
   const daysSinceStart = Math.floor(
-    (Date.now() - new Date(experiment.started_at).getTime()) / (1000 * 60 * 60 * 24)
+    (Date.now() - safeGetTime(experiment.started_at)) / (1000 * 60 * 60 * 24)
   );
   const progress = Math.min(100, (daysSinceStart / experiment.measurement_period_days) * 100);
   const delta = experiment.performance_delta;

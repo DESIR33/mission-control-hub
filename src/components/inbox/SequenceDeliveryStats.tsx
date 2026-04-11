@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { safeFormat } from "@/lib/date-utils";
 import { Progress } from "@/components/ui/progress";
 import {
   Table,
@@ -38,12 +39,7 @@ const statusColors: Record<string, string> = {
 
 function formatDate(dateStr: string | null) {
   if (!dateStr) return "-";
-  return new Date(dateStr).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  return safeFormat(dateStr, "MMM d, hh:mm a", "-");
 }
 
 export function SequenceDeliveryStats({

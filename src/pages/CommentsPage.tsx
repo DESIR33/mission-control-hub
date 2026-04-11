@@ -31,6 +31,7 @@ import {
   YouTubeComment,
 } from "@/hooks/use-youtube-comments";
 import { toast } from "sonner";
+import { safeFormat } from "@/lib/date-utils";
 
 const sentimentConfig: Record<
   YouTubeComment["sentiment"],
@@ -116,7 +117,7 @@ function CommentCard({
               <span className="flex items-center gap-1">
                 <MessageSquare className="w-3 h-3" /> {comment.reply_count} replies
               </span>
-              <span>{new Date(comment.published_at).toLocaleDateString()}</span>
+              <span>{safeFormat(comment.published_at, "P")}</span>
             </div>
 
             {/* Suggested reply section */}

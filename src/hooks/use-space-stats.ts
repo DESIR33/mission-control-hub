@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { safeGetTime } from "@/lib/date-utils";
 
 export interface SpaceStats {
   domain_id: string;
@@ -91,7 +92,7 @@ export function useSpaceStats() {
 
         const upcomingTasks = [...domainTasks]
           .filter((t: any) => t.due_date && t.status !== "done" && t.status !== "cancelled")
-          .sort((a: any, b: any) => new Date(a.due_date).getTime() - new Date(b.due_date).getTime())
+          .sort((a: any, b: any) => safeGetTime(a.due_date) - safeGetTime(b.due_date))
           .slice(0, 8)
           .map((t: any) => ({ id: t.id, title: t.title, status: t.status, priority: t.priority, due_date: t.due_date }));
 

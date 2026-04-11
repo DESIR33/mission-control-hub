@@ -16,6 +16,7 @@ import { ArchiveIcon, Loader2Icon } from "lucide-react";
 import { useMoveEmail } from "@/hooks/use-smart-inbox";
 import type { SmartEmail } from "@/hooks/use-smart-inbox";
 import { toast } from "sonner";
+import { safeGetTime } from "@/lib/date-utils";
 
 interface MassArchiveDialogProps {
   emails: SmartEmail[];
@@ -30,11 +31,11 @@ export function MassArchiveDialog({ emails }: MassArchiveDialogProps) {
     const now = Date.now();
     switch (criteria) {
       case "older-3":
-        return emails.filter((e) => e.is_read && now - new Date(e.received_at).getTime() > 3 * 24 * 60 * 60 * 1000);
+        return emails.filter((e) => e.is_read && now - safeGetTime(e.received_at) > 3 * 24 * 60 * 60 * 1000);
       case "older-7":
-        return emails.filter((e) => e.is_read && now - new Date(e.received_at).getTime() > 7 * 24 * 60 * 60 * 1000);
+        return emails.filter((e) => e.is_read && now - safeGetTime(e.received_at) > 7 * 24 * 60 * 60 * 1000);
       case "older-30":
-        return emails.filter((e) => e.is_read && now - new Date(e.received_at).getTime() > 30 * 24 * 60 * 60 * 1000);
+        return emails.filter((e) => e.is_read && now - safeGetTime(e.received_at) > 30 * 24 * 60 * 60 * 1000);
       case "p4-read":
         return emails.filter((e) => e.is_read && e.priority === "P4");
       case "all-read":

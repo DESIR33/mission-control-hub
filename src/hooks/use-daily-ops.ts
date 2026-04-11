@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { useToast } from "@/hooks/use-toast";
+import { safeGetTime } from "@/lib/date-utils";
 
 export interface OpsItem {
   id: string;
@@ -102,7 +103,7 @@ export function useOpsAction() {
 
       // Log outcome for learning
       const timeToAction = Math.round(
-        (Date.now() - new Date(item.scored_at).getTime()) / 60000
+        (Date.now() - safeGetTime(item.scored_at)) / 60000
       );
       const { error: logErr } = await supabase
         .from("ops_completion_outcomes" as any)

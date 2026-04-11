@@ -30,6 +30,7 @@ import {
 } from "@/hooks/use-repurposes";
 import { useAutoGenerateRepurposes } from "@/hooks/use-repurposing-workflow";
 import { toast } from "sonner";
+import { safeFormat } from "@/lib/date-utils";
 
 interface RepurposeTabProps {
   sourceVideoId: number | string;
@@ -283,7 +284,7 @@ export default function RepurposeTab({
                   {item.published_at && (
                     <span className="text-xs text-muted-foreground">
                       Published{" "}
-                      {new Date(item.published_at).toLocaleDateString()}
+                      {safeFormat(item.published_at, "P")}
                     </span>
                   )}
                 </div>

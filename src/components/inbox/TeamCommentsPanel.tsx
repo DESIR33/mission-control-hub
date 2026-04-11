@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { MessageSquareIcon, SendIcon, Loader2Icon } from "lucide-react";
 import { useEmailComments, useAddEmailComment } from "@/hooks/use-email-comments";
+import { safeFormat } from "@/lib/date-utils";
 
 interface TeamCommentsPanelProps {
   emailId: string;
@@ -38,7 +39,7 @@ export function TeamCommentsPanel({ emailId }: TeamCommentsPanelProps) {
                 {comment.profile?.full_name || comment.profile?.email || "Team member"}
               </span>
               <span className="text-[10px] text-muted-foreground">
-                {new Date(comment.created_at).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                {safeFormat(comment.created_at, "MMM d, hh:mm a")}
               </span>
             </div>
             <p className="text-xs text-muted-foreground">{comment.content}</p>

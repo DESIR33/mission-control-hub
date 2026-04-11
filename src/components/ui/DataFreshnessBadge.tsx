@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import type { DatasetSyncRow } from "@/hooks/use-dataset-sync-status";
-import { safeFormatDistanceToNow } from "@/lib/date-utils";
+import { safeFormatDistanceToNow, safeFormat } from "@/lib/date-utils";
 
 interface DataFreshnessBadgeProps {
   status: DatasetSyncRow | undefined;
@@ -52,7 +52,7 @@ export function DataFreshnessBadge({
         </TooltipTrigger>
         <TooltipContent side="bottom" className="max-w-xs">
           <p className="font-medium">{cadenceLabel}</p>
-          {lastSync && <p className="text-muted-foreground">Last sync: {new Date(lastSync).toLocaleString()}</p>}
+          {lastSync && <p className="text-muted-foreground">Last sync: {safeFormat(lastSync, "Pp")}</p>}
           {hasError && <p className="text-destructive mt-1">Error: {status.last_error}</p>}
           {status?.last_sync_triggered_by && (
             <p className="text-muted-foreground">Via: {status.last_sync_triggered_by}</p>

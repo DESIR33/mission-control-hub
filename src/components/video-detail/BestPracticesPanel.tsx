@@ -7,6 +7,7 @@ import { BookOpen, Plus, Trash2, Loader2, Brain } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { toast } from "sonner";
+import { safeFormat } from "@/lib/date-utils";
 
 interface BestPractice {
   id: string;
@@ -127,7 +128,7 @@ export function BestPracticesPanel() {
                     <Badge key={t} variant="outline" className="text-[10px] px-1.5 py-0">{t}</Badge>
                   ))}
                   <span className="text-[10px] text-muted-foreground ml-auto">
-                    {new Date(p.updated_at).toLocaleDateString()}
+                    {safeFormat(p.updated_at, "P")}
                   </span>
                 </div>
               </div>

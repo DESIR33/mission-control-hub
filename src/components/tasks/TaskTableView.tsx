@@ -6,7 +6,7 @@ import { useTasks } from "@/hooks/use-tasks";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Task, TaskStatus, TaskPriority } from "@/types/tasks";
-import { safeFormat } from "@/lib/date-utils";
+import { safeFormat, safeGetTime } from "@/lib/date-utils";
 
 const priorityColors: Record<string, string> = {
   urgent: "bg-red-500/20 text-red-400 border-red-500/30",
@@ -63,7 +63,7 @@ export function TaskTableView({ tasks, onTaskClick }: TaskTableViewProps) {
       if (!a.due_date && !b.due_date) return 0;
       if (!a.due_date) return 1 * dir;
       if (!b.due_date) return -1 * dir;
-      return (new Date(a.due_date).getTime() - new Date(b.due_date).getTime()) * dir;
+      return (safeGetTime(a.due_date) - safeGetTime(b.due_date)) * dir;
     }
     return 0;
   });

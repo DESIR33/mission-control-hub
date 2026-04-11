@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { safeGetTime } from "@/lib/date-utils";
 
 export interface EngagementDistribution {
   range: string;
@@ -78,7 +79,7 @@ export function useEngagementScores() {
         const score = c.engagement_score || 0;
         if (score < 20) return true;
         if (!c.last_contact_date) return true;
-        const daysSince = Math.floor((Date.now() - new Date(c.last_contact_date).getTime()) / (1000 * 60 * 60 * 24));
+        const daysSince = Math.floor((Date.now() - safeGetTime(c.last_contact_date)) / (1000 * 60 * 60 * 24));
         return daysSince > 30 && score < 50;
       })
       .slice(0, 10)

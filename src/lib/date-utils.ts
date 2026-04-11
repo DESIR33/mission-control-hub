@@ -49,3 +49,39 @@ export function safeDate(dateInput: string | number | Date | null | undefined): 
     return null;
   }
 }
+
+/**
+ * Safely get a numeric timestamp from a date input.
+ * Returns `fallback` (default 0) for invalid/null inputs.
+ * Designed for sorting comparisons and age/staleness calculations.
+ */
+export function safeGetTime(
+  dateInput: string | number | Date | null | undefined,
+  fallback: number = 0
+): number {
+  if (dateInput == null || dateInput === "") return fallback;
+  try {
+    const d = dateInput instanceof Date ? dateInput : new Date(dateInput);
+    const t = d.getTime();
+    return isNaN(t) ? fallback : t;
+  } catch {
+    return fallback;
+  }
+}
+
+/**
+ * Safely convert a date input to ISO string.
+ * Returns `fallback` (default null) for invalid/null inputs.
+ */
+export function safeToISOString(
+  dateInput: string | number | Date | null | undefined,
+  fallback: string | null = null
+): string | null {
+  if (dateInput == null || dateInput === "") return fallback;
+  try {
+    const d = dateInput instanceof Date ? dateInput : new Date(dateInput);
+    return isNaN(d.getTime()) ? fallback : d.toISOString();
+  } catch {
+    return fallback;
+  }
+}
