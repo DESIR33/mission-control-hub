@@ -35,7 +35,7 @@ export function YouTubeGrowth() {
   const currentValue = goal?.current_value ?? channelStats?.subscriber_count ?? 21000;
   const targetValue = goal?.target_value ?? SUBSCRIBER_GOAL;
   const targetDate = goal?.target_date ?? format(addMonths(new Date(), 10), "yyyy-MM-dd");
-  const startDate = goal?.start_date ?? safeFormat(, "yyyy-MM-dd");
+  const startDate = goal?.start_date ?? safeFormat(new Date(), "yyyy-MM-dd");
 
   const progress = Math.min((currentValue / targetValue) * 100, 100);
   const remaining = targetValue - currentValue;

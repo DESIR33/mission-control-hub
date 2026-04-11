@@ -401,7 +401,7 @@ export function useAiBriefing() {
       if (!workspaceId) return [];
 
       const items: BriefingItem[] = [];
-      const today = safeFormat(, "yyyy-MM-dd");
+      const today = safeFormat(new Date(), "yyyy-MM-dd");
 
       // First, check for a stored AI-generated daily briefing
       const { data: storedBriefing } = await supabase

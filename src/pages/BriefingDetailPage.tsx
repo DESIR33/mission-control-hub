@@ -40,7 +40,7 @@ export default function BriefingDetailPage() {
   const navigate = useNavigate();
   const { workspaceId } = useWorkspace();
 
-  const targetDate = briefingDate || safeFormat(, "yyyy-MM-dd");
+  const targetDate = briefingDate || safeFormat(new Date(), "yyyy-MM-dd");
 
   const { data: briefing, isLoading } = useQuery({
     queryKey: ["briefing-detail", workspaceId, targetDate],

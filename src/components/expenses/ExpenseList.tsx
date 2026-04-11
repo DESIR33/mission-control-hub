@@ -99,7 +99,7 @@ export function ExpenseList({ categories }: Props) {
       const url = URL.createObjectURL(content);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `receipts_${safeFormat(, "yyyy-MM-dd")}.zip`;
+      a.download = `receipts_${safeFormat(new Date(), "yyyy-MM-dd")}.zip`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

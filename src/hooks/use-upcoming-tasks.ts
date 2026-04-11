@@ -18,7 +18,7 @@ export interface UpcomingTask {
 
 export function useUpcomingTasks() {
   const { workspaceId } = useWorkspace();
-  const today = safeFormat(, "yyyy-MM-dd");
+  const today = safeFormat(new Date(), "yyyy-MM-dd");
   const nextWeek = format(addDays(new Date(), 7), "yyyy-MM-dd");
 
   return useQuery<UpcomingTask[]>({

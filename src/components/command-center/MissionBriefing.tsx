@@ -236,7 +236,7 @@ export function MissionBriefing() {
 
   // ── Derived: Quick Stats ──────────────────────────────────────────────────
   const quickStats = useMemo(() => {
-    const currentMonth = safeFormat(, "yyyy-MM");
+    const currentMonth = safeFormat(new Date(), "yyyy-MM");
     const monthlyRevenue = revenue?.monthly?.find((m) => m.month === currentMonth);
 
     const activeDeals = deals.filter(
@@ -342,10 +342,10 @@ export function MissionBriefing() {
         <Rocket className="w-5 h-5 text-blue-500 shrink-0" />
         <h2 className="text-base sm:text-lg font-semibold text-foreground truncate">Mission Briefing</h2>
         <Badge variant="outline" className="ml-auto text-xs border-blue-400/40 text-blue-400 shrink-0 hidden sm:inline-flex">
-          {safeFormat(, "EEEE, MMM d")}
+          {safeFormat(new Date(), "EEEE, MMM d")}
         </Badge>
         <Badge variant="outline" className="ml-auto text-xs border-blue-400/40 text-blue-400 shrink-0 sm:hidden">
-          {safeFormat(, "MMM d")}
+          {safeFormat(new Date(), "MMM d")}
         </Badge>
       </div>
 
