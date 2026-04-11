@@ -9,7 +9,7 @@ import { Bell, LogOut, Menu, ChevronDown, Search } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useNotifications } from "@/hooks/use-notifications";
 import { WorkspaceProvider } from "@/hooks/use-workspace";
-import { WorkspaceFeaturesProvider } from "@/hooks/use-workspace-features";
+import { WorkspaceFeaturesProvider, useWorkspaceFeatures } from "@/hooks/use-workspace-features";
 import { mainNavItems, bottomItems } from "@/config/navigation";
 import { NotificationsPanel } from "@/components/NotificationsPanel";
 
@@ -21,6 +21,7 @@ function MobileNav({
   unreadCount: number;
 }) {
   const { signOut } = useAuth();
+  const { isNavItemVisible } = useWorkspaceFeatures();
   const location = useLocation();
 
   const initialOpen = mainNavItems.reduce<Record<string, boolean>>(
