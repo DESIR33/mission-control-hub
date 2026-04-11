@@ -38,6 +38,7 @@ export function AgentDetailSheet({
   onOpenChange,
   executions,
   skills,
+  onDelete,
 }: AgentDetailSheetProps) {
   if (!agent) return null;
 
