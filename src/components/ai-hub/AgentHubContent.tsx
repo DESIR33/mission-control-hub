@@ -38,6 +38,7 @@ import { NaturalLanguageAgentBuilder } from "@/components/agents/NaturalLanguage
 import { AgentImpactAttribution } from "@/components/agents/AgentImpactAttribution";
 import { AgentLearningPanel } from "@/components/agents/AgentLearningPanel";
 import { AgentChainWorkflows } from "@/components/agents/AgentChainWorkflows";
+import { CreateAgentDialog } from "@/components/agents/CreateAgentDialog";
 import type { AgentDefinition, AgentSkill } from "@/types/agents";
 
 export function AgentHubContent() {
