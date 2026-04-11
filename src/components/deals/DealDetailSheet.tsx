@@ -275,24 +275,7 @@ export function DealDetailSheet({ deal, open, onOpenChange, onDeleted }: DealDet
                     <Input id="edit_close_date" name="expected_close_date" type="date" defaultValue={deal.expected_close_date ?? ""} className="bg-secondary border-border" />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1.5">
-                      <Label>Contact</Label>
-                      <Select value={contactId || "none"} onValueChange={setContactId}>
-                        <SelectTrigger className="bg-secondary border-border">
-                          <SelectValue placeholder="Select contact" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">No Contact</SelectItem>
-                          {contacts.map((c) => (
-                            <SelectItem key={c.id} value={c.id}>
-                              {c.first_name} {c.last_name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-1.5">
+                  <div className="space-y-1.5">
                       <Label>Company</Label>
                       <Select value={companyId || "none"} onValueChange={setCompanyId}>
                         <SelectTrigger className="bg-secondary border-border">
@@ -307,6 +290,36 @@ export function DealDetailSheet({ deal, open, onOpenChange, onDeleted }: DealDet
                           ))}
                         </SelectContent>
                       </Select>
+                    </div>
+
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <Label>Contacts</Label>
+                      <Button type="button" variant="ghost" size="sm" className="h-6 gap-1 text-xs" onClick={() => setLinkContactOpen(true)}>
+                        <UserPlus className="w-3 h-3" /> Add
+                      </Button>
+                    </div>
+                    {dealContacts.length === 0 && (
+                      <p className="text-xs text-muted-foreground">No contacts linked</p>
+                    )}
+                    <div className="space-y-1">
+                      {dealContacts.map((dc) => (
+                        <div key={dc.id} className="flex items-center gap-2 px-2 py-1 rounded-md bg-secondary text-sm">
+                          <User2 className="w-3 h-3 text-muted-foreground shrink-0" />
+                          <span className="flex-1 truncate">
+                            {dc.contact?.first_name} {dc.contact?.last_name ?? ""}
+                          </span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-5 w-5 text-muted-foreground hover:text-destructive"
+                            onClick={() => unlinkContact.mutate({ id: dc.id, dealId: deal.id })}
+                          >
+                            <X className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      ))}
                     </div>
                   </div>
 
