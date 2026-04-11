@@ -11,8 +11,8 @@ import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Cell,
 } from "recharts";
-import { format, subDays, } from "date-fns";
 import { safeFormat } from "@/lib/date-utils";
+import { format, subDays, } from "date-fns";
 
 const query = (table: string) => (supabase as any).from(table);
 

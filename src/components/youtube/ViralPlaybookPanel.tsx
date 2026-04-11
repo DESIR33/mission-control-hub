@@ -22,8 +22,8 @@ import {
   Flame, CheckCircle2, FileText, MessageSquare, Share2, Mail,
   Eye, Users, DollarSign, TrendingUp, Clock, ExternalLink,
 } from "lucide-react";
-import { DistanceToNow } from "date-fns";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
+import { DistanceToNow } from "date-fns";
 
 const statusStyles: Record<string, string> = {
   active: "bg-success/15 text-success border-success/30",

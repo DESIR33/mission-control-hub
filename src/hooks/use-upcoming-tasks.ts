@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
-import { addDays, format } from "date-fns";
 import { safeFormat } from "@/lib/date-utils";
+import { addDays, format } from "date-fns";
 
 const q = (table: string) => (supabase as any).from(table);
 
@@ -18,7 +18,7 @@ export interface UpcomingTask {
 
 export function useUpcomingTasks() {
   const { workspaceId } = useWorkspace();
-  const today = safeFormat(, "yyyy-MM-dd");
+  const today = safeFormat(new Date(), "yyyy-MM-dd");
   const nextWeek = format(addDays(new Date(), 7), "yyyy-MM-dd");
 
   return useQuery<UpcomingTask[]>({

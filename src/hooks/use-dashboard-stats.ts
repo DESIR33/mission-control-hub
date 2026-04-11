@@ -4,8 +4,8 @@ import { useWorkspace } from "@/hooks/use-workspace";
 import { getGatedFreshness, getFreshness } from "@/config/data-freshness";
 import { useEngagementGate } from "@/hooks/use-engagement-gate";
 import { subDays, subMonths, startOfMonth, format } from "date-fns";
-import { getDealAttributionDate } from "@/lib/deal-date-utils";
 import { safeFormat } from "@/lib/date-utils";
+import { getDealAttributionDate } from "@/lib/deal-date-utils";
 
 export interface DashboardStats {
   contactCount: number;
@@ -401,7 +401,7 @@ export function useAiBriefing() {
       if (!workspaceId) return [];
 
       const items: BriefingItem[] = [];
-      const today = safeFormat(, "yyyy-MM-dd");
+      const today = safeFormat(new Date(), "yyyy-MM-dd");
 
       // First, check for a stored AI-generated daily briefing
       const { data: storedBriefing } = await supabase

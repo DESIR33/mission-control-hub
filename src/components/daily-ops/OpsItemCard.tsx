@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { OpsItem } from "@/hooks/use-daily-ops";
 import { SOURCE_ICONS } from "@/hooks/use-daily-ops";
-import { DistanceToNow } from "date-fns";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
+import { DistanceToNow } from "date-fns";
 
 const urgencyColor = (score: number) => {
   if (score >= 70) return "text-destructive bg-destructive/10 border-destructive/30";

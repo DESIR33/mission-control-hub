@@ -7,8 +7,8 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useAssistantActions, useTasks } from "@/hooks/use-assistant-actions";
-import { cn } from "@/lib/utils";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
+import { cn } from "@/lib/utils";
 
 const ACTION_ICONS: Record<string, typeof Bot> = {
   stale_deal_detected: AlertTriangle,

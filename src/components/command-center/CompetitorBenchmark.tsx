@@ -15,8 +15,8 @@ import {
 import { useSyncCompetitors } from "@/hooks/use-competitor-benchmarking";
 import { toast } from "sonner";
 import { DistanceToNow } from "date-fns";
-import { fmtCount, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, barDefaults } from "@/lib/chart-theme";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
+import { fmtCount, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, barDefaults } from "@/lib/chart-theme";
 
 const statusIcon: Record<string, any> = {
   ahead: TrendingUp,

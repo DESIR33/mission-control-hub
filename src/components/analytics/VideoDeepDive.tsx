@@ -17,8 +17,8 @@ import { useYouTubeVideoStats } from "@/hooks/use-youtube-analytics";
 import { useAllVideoCompanies } from "@/hooks/use-all-video-companies";
 import { useSponsoredVideos } from "@/hooks/use-sponsored-videos";
 import { VideoCompanyLogos } from "@/components/VideoCompanyLogos";
-import { fmtCount, fmtDuration, fmtMoney, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, horizontalBarDefaults, SEMANTIC_COLORS } from "@/lib/chart-theme";
 import { safeFormat } from "@/lib/date-utils";
+import { fmtCount, fmtDuration, fmtMoney, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, horizontalBarDefaults, SEMANTIC_COLORS } from "@/lib/chart-theme";
 
 type SortField = "views" | "impressions" | "ctr" | "avgDuration" | "subsGained" | "revenue" | "engagement" | "uploadDate";
 

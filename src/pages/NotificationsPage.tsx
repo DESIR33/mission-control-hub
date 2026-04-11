@@ -17,8 +17,8 @@ import {
   type Notification,
   type NotificationType,
 } from "@/hooks/use-notifications";
-import { useGrowthAlerts } from "@/hooks/use-growth-alerts";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
+import { useGrowthAlerts } from "@/hooks/use-growth-alerts";
 
 const TYPE_CONFIG: Record<
   NotificationType,

@@ -15,8 +15,8 @@ import { TopicImpactHeatmap } from "@/components/subscribers/TopicImpactHeatmap"
 import { Users, UserPlus, UserMinus, Mail, BookOpen, Video, TrendingUp, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DistanceToNow } from "date-fns";
-import { useNavigate } from "react-router-dom";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
+import { useNavigate } from "react-router-dom";
 
 function StatCard({ icon: Icon, label, value, className }: { icon: typeof Users; label: string; value: string | number; className?: string }) {
   return (

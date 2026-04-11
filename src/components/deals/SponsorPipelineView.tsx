@@ -12,8 +12,8 @@ import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { useSponsorPipeline, type SponsorDeal, type SponsorPipelineStage } from "@/hooks/use-sponsor-pipeline";
 import { useSponsorMatchScore } from "@/hooks/use-sponsor-match-score";
-import { Skeleton } from "@/components/ui/skeleton";
 import { safeFormat } from "@/lib/date-utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const SPONSOR_STAGES: { id: SponsorPipelineStage; label: string; color: string }[] = [
   { id: "discovered", label: "Discovered", color: "#3B82F6" },

@@ -25,8 +25,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useUnifiedTimeline, type TimelineEvent } from "@/hooks/use-unified-timeline";
 import { useCreateActivity } from "@/hooks/use-contacts";
-import { toast } from "sonner";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
+import { toast } from "sonner";
 
 type EventFilter = "all" | "activity" | "email" | "deal_change" | "youtube_lead" | "proposal";
 

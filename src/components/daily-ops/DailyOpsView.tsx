@@ -71,7 +71,7 @@ export function DailyOpsView() {
         <div>
           <h1 className="text-2xl font-bold text-foreground">Daily Operations</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
-            {safeFormat(, "EEEE, MMM d")} · {greeting}
+            {safeFormat(new Date(), "EEEE, MMM d")} · {greeting}
           </p>
         </div>
         <Button

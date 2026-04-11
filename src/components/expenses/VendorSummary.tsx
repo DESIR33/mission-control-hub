@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Building2, ChevronDown, ChevronRight, ExternalLink } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { useExpenses, type ExpenseCategory } from "@/hooks/use-expenses";
 import { safeFormat } from "@/lib/date-utils";
+import { useExpenses, type ExpenseCategory } from "@/hooks/use-expenses";
 
 interface Props {
   categories: ExpenseCategory[];

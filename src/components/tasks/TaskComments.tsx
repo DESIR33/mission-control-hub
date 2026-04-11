@@ -6,8 +6,8 @@ import { useTaskComments, useUnreadMentionCount, useMarkMentionsRead, extractMen
 import { MentionInput } from "@/components/tasks/MentionInput";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { cn } from "@/lib/utils";
 import { safeFormat } from "@/lib/date-utils";
+import { cn } from "@/lib/utils";
 
 interface TaskCommentsProps {
   taskId: string;

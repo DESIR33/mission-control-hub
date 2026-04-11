@@ -17,8 +17,8 @@ import {
 import { toast } from "sonner";
 import { DistanceToNow } from "date-fns";
 import { CheckCircle2, Shield, Merge, X, Loader2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
+import { motion, AnimatePresence } from "framer-motion";
 
 const WORKSPACE_ID = "ea11b24d-27bd-4488-9760-2663bc788e04";
 

@@ -22,8 +22,8 @@ import { useWorkspace } from "@/hooks/use-workspace";
 import { useVideoOptimizationExperiments, useSaveExperimentLesson, computeDelta } from "@/hooks/use-optimization-experiments";
 import { useRollbackExperiment } from "@/hooks/use-video-strategist";
 import { EXPERIMENT_STATUS_CONFIG } from "@/types/strategist";
-import { fmtCount } from "@/lib/chart-theme";
 import { safeFormat } from "@/lib/date-utils";
+import { fmtCount } from "@/lib/chart-theme";
 
 // ── Types & Constants ──
 

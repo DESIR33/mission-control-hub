@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useChannelAnalytics, type ChannelAnalytics } from "@/hooks/use-youtube-analytics-api";
-import { subDays, addDays, format, differenceInDays } from "date-fns";
 import { safeFormat } from "@/lib/date-utils";
+import { subDays, addDays, format, differenceInDays } from "date-fns";
 
 export interface RevenueForecastPoint {
   date: string;

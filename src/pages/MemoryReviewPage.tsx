@@ -19,8 +19,8 @@ import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
-import { Link } from "react-router-dom";
 import { safeFormat } from "@/lib/date-utils";
+import { Link } from "react-router-dom";
 
 const q = (table: string) => (supabase as any).from(table);
 

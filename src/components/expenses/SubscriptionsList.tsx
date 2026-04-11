@@ -11,8 +11,8 @@ import {
   type ExpenseCategory,
 } from "@/hooks/use-expenses";
 import { AddSubscriptionDialog } from "./AddSubscriptionDialog";
-import { DetectedSubscriptions } from "./DetectedSubscriptions";
 import { safeFormat } from "@/lib/date-utils";
+import { DetectedSubscriptions } from "./DetectedSubscriptions";
 
 interface Props {
   categories: ExpenseCategory[];

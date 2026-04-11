@@ -22,8 +22,8 @@ import { SubscriberEngagementBadge } from "./SubscriberEngagementBadge";
 import { SubscriberTagPicker } from "./SubscriberTagPicker";
 import { PromoteSubscriberDialog } from "./PromoteSubscriberDialog";
 import { SubscriberGuidePicker } from "./SubscriberGuidePicker";
-import { useNavigate } from "react-router-dom";
 import { safeFormat } from "@/lib/date-utils";
+import { useNavigate } from "react-router-dom";
 
 const statusColors: Record<string, string> = {
   active: "bg-success/15 text-success border-success/30",

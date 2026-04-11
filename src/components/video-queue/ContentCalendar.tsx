@@ -7,8 +7,8 @@ import {
 } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useUpdateVideo, type VideoQueueItem } from "@/hooks/use-video-queue";
-import { useToast } from "@/hooks/use-toast";
 import { safeFormat } from "@/lib/date-utils";
+import { useToast } from "@/hooks/use-toast";
 
 const statusColors: Record<VideoQueueItem["status"], string> = {
   idea: "bg-slate-500",

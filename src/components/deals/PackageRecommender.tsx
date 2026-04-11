@@ -25,8 +25,8 @@ import {
   TrendingUp, TrendingDown, BarChart3, DollarSign,
   Loader2, AlertTriangle,
 } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
+import { formatDistanceToNow } from "date-fns";
 
 const packageStyles: Record<string, string> = {
   premium: "bg-primary/15 text-primary border-primary/30",

@@ -2,8 +2,8 @@ import { RefreshCw, CheckCircle, AlertCircle, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSyncStatus, useTriggerSync } from "@/hooks/use-youtube-sync-status";
 import type { SyncStatus } from "@/hooks/use-youtube-sync-status";
-import { DistanceToNow } from "date-fns";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
+import { DistanceToNow } from "date-fns";
 
 function getAggregatedStatus(statuses: SyncStatus[]): {
   overall: SyncStatus["status"];

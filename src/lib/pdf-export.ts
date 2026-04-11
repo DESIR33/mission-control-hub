@@ -102,7 +102,7 @@ function openPrintWindow(title: string, bodyHtml: string) {
 </head>
 <body>
   ${bodyHtml}
-  <div class="footer">Generated on ${safeFormat(, "MMMM d, yyyy 'at' h:mm a")} · YouTube Analytics Report</div>
+  <div class="footer">Generated on ${safeFormat(new Date(), "MMMM d, yyyy 'at' h:mm a")} · YouTube Analytics Report</div>
 </body>
 </html>`);
   win.document.close();

@@ -9,8 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
 import { safeFormat, safeFormatDistanceToNow } from "@/lib/date-utils";
+import { cn } from "@/lib/utils";
 
 const q = (table: string) => (supabase as any).from(table);
 
@@ -40,7 +40,7 @@ export default function BriefingDetailPage() {
   const navigate = useNavigate();
   const { workspaceId } = useWorkspace();
 
-  const targetDate = briefingDate || safeFormat(, "yyyy-MM-dd");
+  const targetDate = briefingDate || safeFormat(new Date(), "yyyy-MM-dd");
 
   const { data: briefing, isLoading } = useQuery({
     queryKey: ["briefing-detail", workspaceId, targetDate],

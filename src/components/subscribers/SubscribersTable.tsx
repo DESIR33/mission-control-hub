@@ -11,8 +11,8 @@ import type { Subscriber, SubscriberStatus } from "@/types/subscriber";
 import { DistanceToNow } from "date-fns";
 import { SubscriberEngagementBadge } from "./SubscriberEngagementBadge";
 import { useBulkDeleteSubscribers } from "@/hooks/use-subscribers";
-import { useToast } from "@/hooks/use-toast";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
+import { useToast } from "@/hooks/use-toast";
 
 const statusColors: Record<SubscriberStatus, string> = {
   active: "bg-success/15 text-success border-success/30",

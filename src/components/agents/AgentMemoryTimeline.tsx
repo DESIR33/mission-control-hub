@@ -6,8 +6,8 @@ import {
   MessageSquare, Clock,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { safeFormat } from "@/lib/date-utils";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 type TimelineEvent = {
   id: string;

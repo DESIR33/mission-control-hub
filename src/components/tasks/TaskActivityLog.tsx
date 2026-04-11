@@ -2,8 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { Activity, CheckCircle2, ArrowRight, MessageSquare, Plus } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { safeFormat } from "@/lib/date-utils";
+import { cn } from "@/lib/utils";
 
 interface TaskActivityLogProps {
   taskId: string;

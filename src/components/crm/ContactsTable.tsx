@@ -11,8 +11,8 @@ import type { Contact, ContactStatus, VipTier } from "@/types/crm";
 import { DistanceToNow, isPast, isToday, differenceInDays, addDays } from "date-fns";
 import { BulkActionsBar } from "./BulkActionsBar";
 import { EngagementBadge } from "./EngagementBadge";
-import { WarmthBadge, LeadScoreIndicator } from "./WarmthBadge";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
+import { WarmthBadge, LeadScoreIndicator } from "./WarmthBadge";
 
 const statusColors: Record<ContactStatus, string> = {
   active: "bg-success/15 text-success border-success/30",

@@ -46,8 +46,8 @@ import {
 } from "@/hooks/use-email-sequences";
 import { useSequenceTracking, useLogSequenceEvent } from "@/hooks/use-sequence-tracking";
 import { BarChart3, Send, FlaskConical } from "lucide-react";
-import { SequenceABPanel } from "@/components/crm/SequenceABPanel";
 import { safeFormat } from "@/lib/date-utils";
+import { SequenceABPanel } from "@/components/crm/SequenceABPanel";
 
 const statusColors: Record<string, string> = {
   active: "bg-emerald-500/15 text-emerald-600 border-emerald-500/30",
