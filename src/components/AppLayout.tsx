@@ -49,9 +49,12 @@ function MobileNav({
           <div>
             <h1 className="text-sm font-semibold text-sidebar-accent-foreground">Desmily</h1>
             <p className="text-xs text-sidebar-foreground">Mission Control</p>
+          </div>
+        </div>
+        <div className="px-2 pb-2">
+          <WorkspaceSwitcher />
         </div>
       </div>
-
       <nav className="flex-1 py-2 px-2 overflow-y-auto space-y-0.5">
         {mainNavItems.map((item) => {
           if (!item.children) {
