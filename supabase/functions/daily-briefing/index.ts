@@ -216,6 +216,21 @@ ${recentVideos.slice(0, 5).map((v: any) => `- "${v.title}": ${v.views} views, ${
       // Monthly expenses
       if (monthlyExpenses > 0) fallbackLines.push(`📊 $${monthlyExpenses.toFixed(0)} in expenses this month.`);
 
+      // Deal email intelligence
+      if (dealEmailContext.length > 0) {
+        const negativeDeals = dealEmailContext.filter((c: any) => c.sentiment === "negative");
+        if (negativeDeals.length > 0) {
+          fallbackLines.push(`🔴 ${negativeDeals.length} deal conversation${negativeDeals.length > 1 ? 's' : ''} showing negative sentiment — review immediately.`);
+        }
+        const stageSignals = dealEmailContext.filter((c: any) => c.deal_stage_signal);
+        if (stageSignals.length > 0) {
+          fallbackLines.push(`📊 ${stageSignals.length} deal${stageSignals.length > 1 ? 's' : ''} showing stage progression signals from email conversations.`);
+        }
+      }
+      if (pendingDealTasks.length > 0) {
+        fallbackLines.push(`🟡 ${pendingDealTasks.length} AI-suggested deal task${pendingDealTasks.length > 1 ? 's' : ''} awaiting your review.`);
+      }
+
       // If nothing noteworthy, add a positive note
       if (fallbackLines.length === 0) {
         fallbackLines.push(`🟢 All systems running smoothly — no urgent items today.`);
