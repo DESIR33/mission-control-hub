@@ -8861,6 +8861,56 @@ export type Database = {
           },
         ]
       }
+      workspace_features: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          enabled: boolean
+          feature_key: string
+          icon: string | null
+          id: string
+          label: string
+          sort_order: number
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          feature_key: string
+          icon?: string | null
+          id?: string
+          label: string
+          sort_order?: number
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          feature_key?: string
+          icon?: string | null
+          id?: string
+          label?: string
+          sort_order?: number
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_features_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workspace_identity: {
         Row: {
           content: string
@@ -10854,6 +10904,7 @@ export type Database = {
         Args: { ws_id: string }
         Returns: undefined
       }
+      seed_workspace_features: { Args: { ws_id: string }; Returns: undefined }
       soft_delete_company: {
         Args: { company_id: string; ws_id: string }
         Returns: undefined
