@@ -3121,6 +3121,147 @@ export type Database = {
           },
         ]
       }
+      deal_email_context: {
+        Row: {
+          action_items: Json | null
+          ai_summary: string | null
+          created_at: string
+          deal_id: string
+          deal_stage_signal: string | null
+          email_id: string
+          id: string
+          key_points: Json | null
+          linked_by: string
+          sentiment: string | null
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          action_items?: Json | null
+          ai_summary?: string | null
+          created_at?: string
+          deal_id: string
+          deal_stage_signal?: string | null
+          email_id: string
+          id?: string
+          key_points?: Json | null
+          linked_by?: string
+          sentiment?: string | null
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          action_items?: Json | null
+          ai_summary?: string | null
+          created_at?: string
+          deal_id?: string
+          deal_stage_signal?: string | null
+          email_id?: string
+          id?: string
+          key_points?: Json | null
+          linked_by?: string
+          sentiment?: string | null
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_email_context_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_email_context_email_id_fkey"
+            columns: ["email_id"]
+            isOneToOne: false
+            referencedRelation: "inbox_emails"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_email_context_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_email_tasks: {
+        Row: {
+          created_at: string
+          deal_id: string
+          email_id: string | null
+          id: string
+          status: string
+          suggested_due_date: string | null
+          suggested_priority: string | null
+          task_description: string | null
+          task_id: string | null
+          task_title: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          deal_id: string
+          email_id?: string | null
+          id?: string
+          status?: string
+          suggested_due_date?: string | null
+          suggested_priority?: string | null
+          task_description?: string | null
+          task_id?: string | null
+          task_title: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          deal_id?: string
+          email_id?: string | null
+          id?: string
+          status?: string
+          suggested_due_date?: string | null
+          suggested_priority?: string | null
+          task_description?: string | null
+          task_id?: string | null
+          task_title?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_email_tasks_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_email_tasks_email_id_fkey"
+            columns: ["email_id"]
+            isOneToOne: false
+            referencedRelation: "inbox_emails"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_email_tasks_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_email_tasks_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deal_videos: {
         Row: {
           created_at: string
