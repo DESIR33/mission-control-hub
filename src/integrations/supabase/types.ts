@@ -3174,6 +3174,7 @@ export type Database = {
           id: string
           notes: string | null
           owner_id: string | null
+          project_id: string | null
           stage: string
           title: string
           updated_at: string
@@ -3193,6 +3194,7 @@ export type Database = {
           id?: string
           notes?: string | null
           owner_id?: string | null
+          project_id?: string | null
           stage?: string
           title: string
           updated_at?: string
@@ -3212,6 +3214,7 @@ export type Database = {
           id?: string
           notes?: string | null
           owner_id?: string | null
+          project_id?: string | null
           stage?: string
           title?: string
           updated_at?: string
@@ -3231,6 +3234,13 @@ export type Database = {
             columns: ["contact_id"]
             isOneToOne: false
             referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deals_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "task_projects"
             referencedColumns: ["id"]
           },
           {
@@ -3681,6 +3691,7 @@ export type Database = {
           is_recurring: boolean
           is_tax_deductible: boolean
           notes: string | null
+          project_id: string | null
           receipt_url: string | null
           recurring_end_date: string | null
           recurring_interval: string | null
@@ -3703,6 +3714,7 @@ export type Database = {
           is_recurring?: boolean
           is_tax_deductible?: boolean
           notes?: string | null
+          project_id?: string | null
           receipt_url?: string | null
           recurring_end_date?: string | null
           recurring_interval?: string | null
@@ -3725,6 +3737,7 @@ export type Database = {
           is_recurring?: boolean
           is_tax_deductible?: boolean
           notes?: string | null
+          project_id?: string | null
           receipt_url?: string | null
           recurring_end_date?: string | null
           recurring_interval?: string | null
@@ -3748,6 +3761,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "task_projects"
             referencedColumns: ["id"]
           },
           {
@@ -5624,6 +5644,104 @@ export type Database = {
         }
         Relationships: []
       }
+      project_companies: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          project_id: string
+          role: string | null
+          workspace_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          project_id: string
+          role?: string | null
+          workspace_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          project_id?: string
+          role?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_companies_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_companies_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "task_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_companies_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_contacts: {
+        Row: {
+          contact_id: string
+          created_at: string
+          id: string
+          project_id: string
+          role: string | null
+          workspace_id: string
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string
+          id?: string
+          project_id: string
+          role?: string | null
+          workspace_id: string
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string
+          id?: string
+          project_id?: string
+          role?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_contacts_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_contacts_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "task_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_contacts_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rate_card_items: {
         Row: {
           category: string
@@ -5868,6 +5986,7 @@ export type Database = {
           metadata: Json | null
           price_id: string | null
           product_name: string | null
+          project_id: string | null
           source: string
           status: string
           subscription_id: string | null
@@ -5890,6 +6009,7 @@ export type Database = {
           metadata?: Json | null
           price_id?: string | null
           product_name?: string | null
+          project_id?: string | null
           source?: string
           status?: string
           subscription_id?: string | null
@@ -5912,6 +6032,7 @@ export type Database = {
           metadata?: Json | null
           price_id?: string | null
           product_name?: string | null
+          project_id?: string | null
           source?: string
           status?: string
           subscription_id?: string | null
@@ -5920,6 +6041,13 @@ export type Database = {
           workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "revenue_transactions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "task_projects"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "revenue_transactions_workspace_id_fkey"
             columns: ["workspace_id"]
