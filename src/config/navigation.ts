@@ -75,6 +75,7 @@ export const mainNavItems: NavItem[] = [
       { to: "/tasks/projects", label: "Projects", icon: FolderKanban },
     ],
   },
+  { to: "/inbox", icon: Mail, label: "Inbox" },
   { to: "/content", icon: Film, label: "Content Pipeline" },
   { to: "/trends", icon: Crosshair, label: "Trend Scanner" },
   {
