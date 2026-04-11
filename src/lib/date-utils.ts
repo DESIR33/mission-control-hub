@@ -1,20 +1,51 @@
-import { format } from "date-fns";
+import { format as dateFnsFormat, formatDistanceToNow as dateFnsFormatDistanceToNow } from "date-fns";
 
 /**
- * Safely format a date string, returning a fallback if the value is
- * null, undefined, or produces an invalid Date.
+ * Safe wrapper around date-fns `format` that never throws on invalid dates.
+ * Returns the fallback string instead.
  */
 export function safeFormat(
-  dateStr: string | null | undefined,
+  dateInput: string | number | Date | null | undefined,
   formatStr: string,
   fallback: string = "--"
 ): string {
-  if (!dateStr) return fallback;
+  if (dateInput == null || dateInput === "") return fallback;
   try {
-    const d = new Date(dateStr);
+    const d = dateInput instanceof Date ? dateInput : new Date(dateInput);
     if (isNaN(d.getTime())) return fallback;
-    return format(d, formatStr);
+    return dateFnsFormat(d, formatStr);
   } catch {
     return fallback;
+  }
+}
+
+/**
+ * Safe wrapper around date-fns `formatDistanceToNow`.
+ */
+export function safeFormatDistanceToNow(
+  dateInput: string | number | Date | null | undefined,
+  options?: Parameters<typeof dateFnsFormatDistanceToNow>[1],
+  fallback: string = "--"
+): string {
+  if (dateInput == null || dateInput === "") return fallback;
+  try {
+    const d = dateInput instanceof Date ? dateInput : new Date(dateInput);
+    if (isNaN(d.getTime())) return fallback;
+    return dateFnsFormatDistanceToNow(d, options);
+  } catch {
+    return fallback;
+  }
+}
+
+/**
+ * Safely create a Date, returning null for invalid values.
+ */
+export function safeDate(dateInput: string | number | Date | null | undefined): Date | null {
+  if (dateInput == null || dateInput === "") return null;
+  try {
+    const d = dateInput instanceof Date ? dateInput : new Date(dateInput);
+    return isNaN(d.getTime()) ? null : d;
+  } catch {
+    return null;
   }
 }
