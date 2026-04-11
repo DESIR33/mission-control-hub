@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { WorkspaceSwitcher } from "@/components/WorkspaceSwitcher";
 import { useWebhookCacheInvalidation } from "@/hooks/use-webhook-cache-invalidation";
 import { Outlet, NavLink as RouterNavLink, useLocation, useNavigate } from "react-router-dom";
 import { AppSidebar } from "./AppSidebar";
