@@ -356,6 +356,19 @@ Return ONLY the bullet points, one per line. No headers, no sections, no markdow
         metadata: { tasks_proposed: tasksCreated },
       });
 
+      // Trigger daily batch deal-email analysis (fire-and-forget)
+      try {
+        const analyzerUrl = `${supabaseUrl}/functions/v1/deal-email-analyzer`;
+        fetch(analyzerUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${serviceKey}`,
+          },
+          body: JSON.stringify({ workspace_id: wsId, mode: "daily" }),
+        }).catch(err => console.error("Daily deal-email analyzer trigger failed:", err));
+      } catch {}
+
       results.push({ workspace_id: wsId, status: "ok", tasks_proposed: tasksCreated });
     }
 
