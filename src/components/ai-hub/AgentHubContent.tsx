@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { safeFormat } from "@/lib/date-utils";
-import { Bot, Zap, Activity, FileText, Rocket, Loader2, Video } from "lucide-react";
+import { Bot, Zap, Activity, FileText, Rocket, Loader2, Video, Plus } from "lucide-react";
 import {
   useAgents, useSkills, useExecutions, useRunAgent,
-  useRunAllAgents, useRunVideoOptimizer, useToggleAgent, useCreateSkill, useDeleteSkill,
+  useRunAllAgents, useRunVideoOptimizer, useToggleAgent,
+  useCreateAgent, useDeleteAgent,
+  useCreateSkill, useDeleteSkill,
 } from "@/hooks/use-agents";
 import { AgentCard } from "@/components/agents/AgentCard";
 import { AgentDetailSheet } from "@/components/agents/AgentDetailSheet";
@@ -36,6 +38,7 @@ import { NaturalLanguageAgentBuilder } from "@/components/agents/NaturalLanguage
 import { AgentImpactAttribution } from "@/components/agents/AgentImpactAttribution";
 import { AgentLearningPanel } from "@/components/agents/AgentLearningPanel";
 import { AgentChainWorkflows } from "@/components/agents/AgentChainWorkflows";
+import { CreateAgentDialog } from "@/components/agents/CreateAgentDialog";
 import type { AgentDefinition, AgentSkill } from "@/types/agents";
 
 export function AgentHubContent() {
@@ -47,6 +50,8 @@ export function AgentHubContent() {
   const runAll = useRunAllAgents();
   const runVideoOptimizer = useRunVideoOptimizer();
   const toggleAgent = useToggleAgent();
+  const createAgent = useCreateAgent();
+  const deleteAgent = useDeleteAgent();
   const createSkill = useCreateSkill();
   const deleteSkill = useDeleteSkill();
 
@@ -54,6 +59,7 @@ export function AgentHubContent() {
   const [detailAgent, setDetailAgent] = useState<AgentDefinition | null>(null);
   const [showCreateSkill, setShowCreateSkill] = useState(false);
   const [showImportSkill, setShowImportSkill] = useState(false);
+  const [showCreateAgent, setShowCreateAgent] = useState(false);
   const [viewSkill, setViewSkill] = useState<AgentSkill | null>(null);
   const [runningAgentSlug, setRunningAgentSlug] = useState<string | null>(null);
 
@@ -90,6 +96,24 @@ export function AgentHubContent() {
 
   const handleToggle = (agent: AgentDefinition, enabled: boolean) => { toggleAgent.mutate({ id: agent.id, enabled }); };
 
+  const handleCreateAgent = (agent: { name: string; slug: string; description: string; system_prompt: string }) => {
+    createAgent.mutate(agent, {
+      onSuccess: () => { setShowCreateAgent(false); toast({ title: "Agent created", description: `${agent.name} is now available.` }); },
+      onError: (err) => { toast({ title: "Failed to create agent", description: err.message, variant: "destructive" }); },
+    });
+  };
+
+  const handleDeleteAgent = (agent: AgentDefinition) => {
+    if (agent.is_system) {
+      toast({ title: "Cannot delete system agent", description: "System agents can only be toggled off.", variant: "destructive" });
+      return;
+    }
+    deleteAgent.mutate(agent.id, {
+      onSuccess: () => { setDetailAgent(null); toast({ title: "Agent deleted", description: `${agent.name} has been removed.` }); },
+      onError: (err) => { toast({ title: "Failed to delete agent", description: err.message, variant: "destructive" }); },
+    });
+  };
+
   const handleCreateSkill = (skill: { name: string; slug: string; description: string; category: AgentSkill["category"] }) => {
     createSkill.mutate(skill, {
       onSuccess: () => { setShowCreateSkill(false); toast({ title: "Skill created", description: `${skill.name} is now available.` }); },
@@ -119,6 +143,10 @@ export function AgentHubContent() {
   return (
     <div className="space-y-6">
       <div className="flex justify-end gap-2">
+        <Button onClick={() => setShowCreateAgent(true)} size="sm" variant="outline">
+          <Plus className="h-4 w-4 mr-2" />
+          New Agent
+        </Button>
         <Button onClick={handleOptimizeVideos} disabled={runVideoOptimizer.isPending} size="sm" variant="outline">
           {runVideoOptimizer.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Video className="h-4 w-4 mr-2" />}
           Optimize Videos
@@ -204,7 +232,8 @@ export function AgentHubContent() {
       </div>
 
       <RunAgentDialog agent={runDialogAgent} open={!!runDialogAgent} onOpenChange={(open) => { if (!open) setRunDialogAgent(null); }} onRun={handleRunAgent} isRunning={runAgent.isPending} />
-      <AgentDetailSheet agent={detailAgent} open={!!detailAgent} onOpenChange={(open) => { if (!open) setDetailAgent(null); }} executions={executions.filter((e) => e.agent_slug === detailAgent?.slug)} skills={skills} />
+      <AgentDetailSheet agent={detailAgent} open={!!detailAgent} onOpenChange={(open) => { if (!open) setDetailAgent(null); }} executions={executions.filter((e) => e.agent_slug === detailAgent?.slug)} skills={skills} onDelete={handleDeleteAgent} />
+      <CreateAgentDialog open={showCreateAgent} onOpenChange={setShowCreateAgent} onSave={handleCreateAgent} isLoading={createAgent.isPending} />
       <CreateSkillDialog open={showCreateSkill} onOpenChange={setShowCreateSkill} onSave={handleCreateSkill} isLoading={createSkill.isPending} />
       <ImportSkillDialog
         open={showImportSkill}

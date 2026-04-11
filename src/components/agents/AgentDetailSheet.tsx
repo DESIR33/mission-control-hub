@@ -6,6 +6,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -16,6 +17,7 @@ import {
   Cpu,
   Zap,
   FileText,
+  Trash2,
 } from "lucide-react";
 import type { AgentDefinition, AgentExecution, AgentSkill } from "@/types/agents";
 import { AGENT_COLORS } from "@/types/agents";
@@ -27,6 +29,7 @@ interface AgentDetailSheetProps {
   onOpenChange: (open: boolean) => void;
   executions: AgentExecution[];
   skills: AgentSkill[];
+  onDelete?: (agent: AgentDefinition) => void;
 }
 
 export function AgentDetailSheet({
@@ -35,6 +38,7 @@ export function AgentDetailSheet({
   onOpenChange,
   executions,
   skills,
+  onDelete,
 }: AgentDetailSheetProps) {
   if (!agent) return null;
 
@@ -58,8 +62,22 @@ export function AgentDetailSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-lg">
         <SheetHeader>
-          <SheetTitle className={colorClass}>{agent.name}</SheetTitle>
-          <SheetDescription>{agent.description}</SheetDescription>
+          <div className="flex items-start justify-between">
+            <div>
+              <SheetTitle className={colorClass}>{agent.name}</SheetTitle>
+              <SheetDescription>{agent.description}</SheetDescription>
+            </div>
+            {onDelete && !agent.is_system && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
+                onClick={() => onDelete(agent)}
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            )}
+          </div>
         </SheetHeader>
 
         <ScrollArea className="h-[calc(100vh-10rem)] mt-4">
