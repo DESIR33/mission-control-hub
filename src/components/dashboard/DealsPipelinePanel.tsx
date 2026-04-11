@@ -63,7 +63,7 @@ export const DealsPipelinePanel = memo(function DealsPipelinePanel() {
             <button
               key={deal.id}
               className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-left transition-colors hover:bg-secondary"
-              onClick={() => navigate(`/deals?dealId=${deal.id}`)}
+              onClick={() => navigate(`/network/deals?dealId=${deal.id}`)}
             >
               <div className="flex-1 min-w-0">
                 <p className="text-xs text-card-foreground truncate">{deal.title}</p>
