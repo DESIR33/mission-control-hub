@@ -354,11 +354,11 @@ export default function MemoryDashboardPage() {
           ) : viewMode === "grid" ? (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
               {memories.map(m => (
-                <MemoryCard key={m.id} memory={m} onClick={() => setSelectedMemory(m)} onPin={() => pinMutation.mutate({ id: m.id, pinned: !m.is_pinned })} onDelete={() => deleteMutation.mutate(m.id)} onEdit={() => { setSelectedMemory(m); setEditingMemory(m); }} />
+                <MemoryCard key={m.id} memory={m} onClick={() => navigate(`/memory/${m.id}`)} onPin={() => pinMutation.mutate({ id: m.id, pinned: !m.is_pinned })} onDelete={() => deleteMutation.mutate(m.id)} onEdit={() => navigate(`/memory/${m.id}`)} />
               ))}
             </div>
           ) : (
-            <MemoryTable memories={memories} onSelect={setSelectedMemory} onPin={(m) => pinMutation.mutate({ id: m.id, pinned: !m.is_pinned })} onDelete={(m) => deleteMutation.mutate(m.id)} />
+            <MemoryTable memories={memories} onSelect={(m) => navigate(`/memory/${m.id}`)} onPin={(m) => pinMutation.mutate({ id: m.id, pinned: !m.is_pinned })} onDelete={(m) => deleteMutation.mutate(m.id)} />
           )}
         </main>
       </div>
