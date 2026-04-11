@@ -3,14 +3,15 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { motion } from "framer-motion";
-import { format, } from "date-fns";
-import { ArrowLeft, Brain, Sparkles, ChevronLeft, ChevronRight, Calendar } from "lucide-react";
+import { ArrowLeft, Brain, Sparkles, ChevronLeft, ChevronRight, Calendar, ListTodo, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { safeFormat, safeFormatDistanceToNow } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
+import { useState, useCallback } from "react";
 
 const q = (table: string) => (supabase as any).from(table);
 
@@ -35,10 +36,45 @@ const typeBadge = {
   insight: { label: "Insight", className: "bg-primary/10 text-primary border-primary/30" },
 };
 
+/** Infer a navigation route from the briefing text content */
+function inferRoute(text: string): string | null {
+  const lower = text.toLowerCase();
+  if (lower.includes("deal") || lower.includes("sponsor") || lower.includes("stale deal"))
+    return "/network/deals";
+  if (lower.includes("task") || lower.includes("high-priority"))
+    return "/tasks/all";
+  if (lower.includes("proposal") || lower.includes("ai video"))
+    return "/ai/proposals";
+  if (lower.includes("content calendar") || lower.includes("content creation"))
+    return "/content";
+  if (lower.includes("youtube") || lower.includes("video") || lower.includes("views"))
+    return "/youtube/dashboard";
+  if (lower.includes("revenue") || lower.includes("ad revenue") || lower.includes("monetization"))
+    return "/revenue/overview";
+  if (lower.includes("subscriber") || lower.includes("newsletter"))
+    return "/subscribers/dashboard";
+  if (lower.includes("contact") || lower.includes("follow up") || lower.includes("communication"))
+    return "/network/contacts";
+  if (lower.includes("inbox") || lower.includes("email"))
+    return "/inbox";
+  if (lower.includes("supabase") || lower.includes("storage") || lower.includes("quota"))
+    return "/integrations";
+  if (lower.includes("expense") || lower.includes("tax"))
+    return "/finance/hub/overview";
+  return null;
+}
+
+function canConvertToTask(type: string): boolean {
+  return type === "urgent" || type === "action";
+}
+
 export default function BriefingDetailPage() {
   const { briefingDate } = useParams<{ briefingDate: string }>();
   const navigate = useNavigate();
   const { workspaceId } = useWorkspace();
+  const { toast } = useToast();
+  const [dismissedItems, setDismissedItems] = useState<Set<number>>(new Set());
+  const [creatingTask, setCreatingTask] = useState<number | null>(null);
 
   const targetDate = briefingDate || safeFormat(new Date(), "yyyy-MM-dd");
 
@@ -58,7 +94,6 @@ export default function BriefingDetailPage() {
     enabled: !!workspaceId,
   });
 
-  // Fetch adjacent dates for navigation
   const { data: allDates = [] } = useQuery({
     queryKey: ["briefing-dates", workspaceId],
     queryFn: async () => {
@@ -74,7 +109,6 @@ export default function BriefingDetailPage() {
     enabled: !!workspaceId,
   });
 
-  // Fetch action items created from this briefing
   const { data: proposedTasks = [] } = useQuery({
     queryKey: ["briefing-tasks", workspaceId, targetDate],
     queryFn: async () => {
@@ -92,6 +126,43 @@ export default function BriefingDetailPage() {
     enabled: !!workspaceId,
   });
 
+  const handleDismiss = useCallback((index: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setDismissedItems((prev) => new Set(prev).add(index));
+    toast({ title: "Item dismissed", description: "This item has been hidden from this briefing." });
+  }, [toast]);
+
+  const handleConvertToTask = useCallback(async (text: string, index: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!workspaceId) return;
+    setCreatingTask(index);
+    try {
+      // Strip emoji prefix for clean task title
+      const cleanText = text.replace(/^[🔴🟡🟢📊]\s*/, "").trim();
+      const title = cleanText.length > 100 ? cleanText.slice(0, 100) + "…" : cleanText;
+
+      const { error } = await q("tasks").insert({
+        workspace_id: workspaceId,
+        title,
+        description: `Created from Daily Briefing (${targetDate}):\n\n${text}`,
+        status: "todo",
+        priority: classifyLine(text) === "urgent" ? "high" : "medium",
+        space_id: "7be3aff1-1895-471b-8e39-8b2fc6b001f2",
+      });
+      if (error) throw error;
+      toast({ title: "Task created", description: `"${title}" added to your tasks.` });
+    } catch (err: any) {
+      toast({ title: "Failed to create task", description: err.message, variant: "destructive" });
+    } finally {
+      setCreatingTask(null);
+    }
+  }, [workspaceId, targetDate, toast]);
+
+  const handleCardClick = useCallback((text: string) => {
+    const route = inferRoute(text);
+    if (route) navigate(route);
+  }, [navigate]);
+
   const currentIdx = allDates.indexOf(targetDate);
   const prevDate = currentIdx >= 0 && currentIdx < allDates.length - 1 ? allDates[currentIdx + 1] : null;
   const nextDate = currentIdx > 0 ? allDates[currentIdx - 1] : null;
@@ -103,9 +174,11 @@ export default function BriefingDetailPage() {
         .filter((l: string) => l.length > 0 && !l.startsWith("##") && !l.endsWith(":"))
     : [];
 
-  const urgentCount = parsedLines.filter((l: string) => l.startsWith("🔴")).length;
-  const actionCount = parsedLines.filter((l: string) => l.startsWith("🟡")).length;
-  const winCount = parsedLines.filter((l: string) => l.startsWith("🟢")).length;
+  const visibleLines = parsedLines.filter((_: string, i: number) => !dismissedItems.has(i));
+
+  const urgentCount = visibleLines.filter((l: string) => l.startsWith("🔴")).length;
+  const actionCount = visibleLines.filter((l: string) => l.startsWith("🟡")).length;
+  const winCount = visibleLines.filter((l: string) => l.startsWith("🟢")).length;
 
   if (isLoading) {
     return (
@@ -168,7 +241,7 @@ export default function BriefingDetailPage() {
       </motion.div>
 
       {/* Summary badges */}
-      {parsedLines.length > 0 && (
+      {visibleLines.length > 0 && (
         <div className="flex items-center gap-2 flex-wrap">
           {urgentCount > 0 && (
             <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/30 text-xs">
@@ -186,8 +259,18 @@ export default function BriefingDetailPage() {
             </Badge>
           )}
           <Badge variant="outline" className="text-xs">
-            {parsedLines.length} items total
+            {visibleLines.length} items total
           </Badge>
+          {dismissedItems.size > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 text-[10px] text-muted-foreground"
+              onClick={() => setDismissedItems(new Set())}
+            >
+              Show {dismissedItems.size} dismissed
+            </Button>
+          )}
         </div>
       )}
 
@@ -205,8 +288,12 @@ export default function BriefingDetailPage() {
       ) : (
         <div className="space-y-3">
           {parsedLines.map((line: string, i: number) => {
+            if (dismissedItems.has(i)) return null;
             const type = classifyLine(line);
             const badge = typeBadge[type];
+            const route = inferRoute(line);
+            const showTaskBtn = canConvertToTask(type);
+
             return (
               <motion.div
                 key={i}
@@ -214,12 +301,50 @@ export default function BriefingDetailPage() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.05 }}
               >
-                <Card className={cn("border-l-4 transition-colors", typeStyles[type])}>
-                  <CardContent className="py-3 px-4 flex items-start gap-3">
-                    <Badge variant="outline" className={cn("text-[10px] shrink-0 mt-0.5", badge.className)}>
-                      {badge.label}
-                    </Badge>
-                    <p className="text-sm text-foreground leading-relaxed flex-1">{line}</p>
+                <Card
+                  className={cn(
+                    "border-l-4 transition-colors group",
+                    typeStyles[type],
+                    route && "cursor-pointer hover:bg-muted/30"
+                  )}
+                  onClick={() => route && handleCardClick(line)}
+                >
+                  <CardContent className="py-3 px-4">
+                    <div className="flex items-start gap-3">
+                      <Badge variant="outline" className={cn("text-[10px] shrink-0 mt-0.5", badge.className)}>
+                        {badge.label}
+                      </Badge>
+                      <p className="text-sm text-foreground leading-relaxed flex-1">{line}</p>
+                    </div>
+                    {/* Action buttons */}
+                    <div className="flex items-center gap-2 mt-2 ml-[52px] opacity-0 group-hover:opacity-100 transition-opacity">
+                      {showTaskBtn && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-6 text-[10px] gap-1"
+                          disabled={creatingTask === i}
+                          onClick={(e) => handleConvertToTask(line, i, e)}
+                        >
+                          <ListTodo className="w-3 h-3" />
+                          {creatingTask === i ? "Creating…" : "Convert to Task"}
+                        </Button>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 text-[10px] gap-1 text-muted-foreground hover:text-destructive"
+                        onClick={(e) => handleDismiss(i, e)}
+                      >
+                        <X className="w-3 h-3" />
+                        Dismiss
+                      </Button>
+                      {route && (
+                        <span className="text-[10px] text-muted-foreground ml-auto">
+                          Click to view →
+                        </span>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
               </motion.div>
