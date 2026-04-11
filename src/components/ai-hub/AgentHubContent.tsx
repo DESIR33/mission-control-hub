@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { safeFormat } from "@/lib/date-utils";
-import { Bot, Zap, Activity, FileText, Rocket, Loader2, Video } from "lucide-react";
+import { Bot, Zap, Activity, FileText, Rocket, Loader2, Video, Plus } from "lucide-react";
 import {
   useAgents, useSkills, useExecutions, useRunAgent,
-  useRunAllAgents, useRunVideoOptimizer, useToggleAgent, useCreateSkill, useDeleteSkill,
+  useRunAllAgents, useRunVideoOptimizer, useToggleAgent,
+  useCreateAgent, useDeleteAgent,
+  useCreateSkill, useDeleteSkill,
 } from "@/hooks/use-agents";
 import { AgentCard } from "@/components/agents/AgentCard";
 import { AgentDetailSheet } from "@/components/agents/AgentDetailSheet";
