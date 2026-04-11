@@ -125,7 +125,7 @@ export function LongTermMemoryTab({
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {display.map((m) => (
-          <Card key={m.id} className="p-3 group hover:border-primary/30 transition-colors">
+          <Card key={m.id} className="p-3 group hover:border-primary/30 transition-colors cursor-pointer" onClick={() => openEdit(m)}>
             <div className="flex items-start justify-between mb-2">
               <div className="flex items-center gap-1.5">
                 <span className="text-sm">{originIcons[m.origin]}</span>
@@ -134,13 +134,13 @@ export function LongTermMemoryTab({
                 </Badge>
               </div>
               <div className="opacity-0 group-hover:opacity-100 flex gap-1 transition-opacity">
-                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => openEdit(m)}>
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); openEdit(m); }}>
                   <Pencil className="h-3 w-3" />
                 </Button>
                 <Button
                   variant="ghost" size="icon"
                   className="h-6 w-6 text-destructive"
-                  onClick={() => onDelete(m.id)}
+                  onClick={(e) => { e.stopPropagation(); onDelete(m.id); }}
                 >
                   <Trash2 className="h-3 w-3" />
                 </Button>
