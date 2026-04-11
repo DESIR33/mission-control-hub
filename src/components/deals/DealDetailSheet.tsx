@@ -127,7 +127,6 @@ export function DealDetailSheet({ deal, open, onOpenChange, onDeleted }: DealDet
         currency: (form.get("currency") as string) || "USD",
         stage,
         forecast_category: forecastCategory && forecastCategory !== "none" ? forecastCategory : null,
-        contact_id: contactId && contactId !== "none" ? contactId : null,
         company_id: companyId && companyId !== "none" ? companyId : null,
         expected_close_date: (form.get("expected_close_date") as string) || null,
         notes: (form.get("notes") as string) || null,
