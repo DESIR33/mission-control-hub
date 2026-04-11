@@ -28,12 +28,12 @@ export const AiBriefing = memo(function AiBriefing({ items = [], attentionItems 
 
   return (
     <div className="rounded-lg border border-border bg-card p-3 sm:p-5 overflow-hidden min-w-0 animate-fade-in">
-      {/* Header */}
-      <div className="flex items-center gap-2 mb-4">
+      {/* Header — clickable to open full briefing */}
+      <Link to="/briefing" className="flex items-center gap-2 mb-4 group cursor-pointer">
         <div className="p-1.5 rounded-md bg-primary/10">
           <Brain className="w-4 h-4 text-primary" />
         </div>
-        <h3 className="text-sm font-semibold text-card-foreground">
+        <h3 className="text-sm font-semibold text-card-foreground group-hover:text-primary transition-colors">
           Daily Briefing
         </h3>
         <div className="ml-auto flex items-center gap-2">
@@ -46,8 +46,9 @@ export const AiBriefing = memo(function AiBriefing({ items = [], attentionItems 
             <Sparkles className="w-3 h-3" />
             LIVE
           </div>
+          <ArrowRight className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
-      </div>
+      </Link>
 
       {/* Briefing insights */}
       {items.length === 0 && attentionItems.length === 0 ? (
