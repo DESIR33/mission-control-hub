@@ -134,13 +134,13 @@ export function LongTermMemoryTab({
                 </Badge>
               </div>
               <div className="opacity-0 group-hover:opacity-100 flex gap-1 transition-opacity">
-                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => openEdit(m)}>
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); openEdit(m); }}>
                   <Pencil className="h-3 w-3" />
                 </Button>
                 <Button
                   variant="ghost" size="icon"
                   className="h-6 w-6 text-destructive"
-                  onClick={() => onDelete(m.id)}
+                  onClick={(e) => { e.stopPropagation(); onDelete(m.id); }}
                 >
                   <Trash2 className="h-3 w-3" />
                 </Button>
