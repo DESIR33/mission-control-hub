@@ -4,6 +4,7 @@ import { ChevronDown, LogOut } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useNotifications } from "@/hooks/use-notifications";
+import { useWorkspaceFeatures } from "@/hooks/use-workspace-features";
 import { mainNavItems, bottomItems } from "@/config/navigation";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
 import { WorkspaceSwitcher } from "@/components/WorkspaceSwitcher";
@@ -15,6 +16,7 @@ interface AppSidebarProps {
 export function AppSidebar({ headerless }: AppSidebarProps) {
   const { signOut } = useAuth();
   const { unreadCount } = useNotifications();
+  const { isNavItemVisible } = useWorkspaceFeatures();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -70,7 +72,7 @@ export function AppSidebar({ headerless }: AppSidebarProps) {
       </div>
 
       <nav className="flex-1 py-3 px-2 overflow-y-auto space-y-0.5">
-        {mainNavItems.map((item) => {
+        {mainNavItems.filter((item) => isNavItemVisible(item.to)).map((item) => {
           if (!item.children) {
             const isInbox = item.to === "/inbox";
             const showBadge = isInbox && unreadCount > 0;

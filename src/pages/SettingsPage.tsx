@@ -9,6 +9,7 @@ import { BillingSection } from "@/components/settings/BillingSection";
 import { AutomationSection } from "@/components/settings/AutomationSection";
 import { IntegrationsContent } from "@/pages/IntegrationsPage";
 import { ApiKeysSection } from "@/components/settings/ApiKeysSection";
+import { FeaturesSection } from "@/components/settings/FeaturesSection";
 
 export default function SettingsPage() {
   const [searchParams] = useSearchParams();
@@ -42,6 +43,7 @@ export default function SettingsPage() {
         <TabsList className="w-full sm:w-auto overflow-x-auto flex-nowrap scrollbar-hide">
           <TabsTrigger value="profile" className="shrink-0">Profile</TabsTrigger>
           <TabsTrigger value="workspace" className="shrink-0">Workspace</TabsTrigger>
+          <TabsTrigger value="features" className="shrink-0">Features</TabsTrigger>
           <TabsTrigger value="members" className="shrink-0">Members</TabsTrigger>
           <TabsTrigger value="billing" className="shrink-0">Billing</TabsTrigger>
           <TabsTrigger value="automation" className="shrink-0">Automation</TabsTrigger>
@@ -55,6 +57,10 @@ export default function SettingsPage() {
 
         <TabsContent value="workspace">
           <WorkspaceSection />
+        </TabsContent>
+
+        <TabsContent value="features">
+          <FeaturesSection />
         </TabsContent>
 
         <TabsContent value="members">

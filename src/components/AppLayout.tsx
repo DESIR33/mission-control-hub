@@ -9,6 +9,7 @@ import { Bell, LogOut, Menu, ChevronDown, Search } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useNotifications } from "@/hooks/use-notifications";
 import { WorkspaceProvider } from "@/hooks/use-workspace";
+import { WorkspaceFeaturesProvider } from "@/hooks/use-workspace-features";
 import { mainNavItems, bottomItems } from "@/config/navigation";
 import { NotificationsPanel } from "@/components/NotificationsPanel";
 
@@ -247,6 +248,7 @@ export function AppLayout() {
 
   return (
     <WorkspaceProvider>
+    <WorkspaceFeaturesProvider>
       <div className="flex flex-col h-screen overflow-hidden bg-background">
         <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:outline-none">
           Skip to content
@@ -277,6 +279,7 @@ export function AppLayout() {
           </SheetContent>
         </Sheet>
       </div>
+    </WorkspaceFeaturesProvider>
     </WorkspaceProvider>
   );
 }
