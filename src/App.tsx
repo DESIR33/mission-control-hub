@@ -77,6 +77,7 @@ const MemoryAnalyticsPage = lazy(() => import("./pages/MemoryAnalyticsPage"));
 const SemanticMemoryBrowserPage = lazy(() => import("./pages/SemanticMemoryBrowserPage"));
 const MemoryDigestPage = lazy(() => import("./pages/MemoryDigestPage"));
 const MemoryDetailPage = lazy(() => import("./pages/MemoryDetailPage"));
+const BriefingDetailPage = lazy(() => import("./pages/BriefingDetailPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -219,6 +220,8 @@ const App = () => (
               <Route path="/memory/semantic" element={<LazyPage section="Semantic Browser"><SemanticMemoryBrowserPage /></LazyPage>} />
               <Route path="/memory/digest" element={<LazyPage section="Memory Digest"><MemoryDigestPage /></LazyPage>} />
               <Route path="/memory/:memoryId" element={<LazyPage section="Memory Detail"><MemoryDetailPage /></LazyPage>} />
+              <Route path="/briefing/:briefingDate" element={<LazyPage section="Daily Briefing"><BriefingDetailPage /></LazyPage>} />
+              <Route path="/briefing" element={<LazyPage section="Daily Briefing"><BriefingDetailPage /></LazyPage>} />
 
               {/* Task routes */}
               <Route path="/tasks/spaces" element={<LazyPage section="Spaces"><SpacesPage /></LazyPage>} />
