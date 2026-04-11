@@ -139,6 +139,8 @@ Tasks:
 ${overdueTasks.slice(0, 5).map((t: any) => `  - "${t.title}" (${t.priority}) due ${t.due_date}`).join("\n")}
 - High priority tasks: ${highPriorityTasks.length}
 ${highPriorityTasks.slice(0, 5).map((t: any) => `  - "${t.title}" (${t.priority})`).join("\n")}
+- Tasks due in the next 7 days: ${openTasks.filter((t: any) => t.due_date && new Date(t.due_date) >= now && new Date(t.due_date) <= sevenDaysAhead).length}
+${openTasks.filter((t: any) => t.due_date && new Date(t.due_date) >= now && new Date(t.due_date) <= sevenDaysAhead).slice(0, 8).map((t: any) => `  - "${t.title}" (${t.priority}) due ${t.due_date}`).join("\n")}
 
 Urgent emails: ${urgentEmails.length} P1 emails awaiting response
 ${urgentEmails.slice(0, 3).map((e: any) => `  - "${e.subject}" from ${e.sender_email}`).join("\n")}
