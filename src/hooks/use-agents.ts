@@ -25,7 +25,6 @@ export function useAgents() {
       const { data, error } = await query("agent_definitions")
         .select("id,slug,name,description,model,system_prompt,skills,config,enabled,is_system,workspace_id,created_at,updated_at")
         .or(`workspace_id.eq.${workspaceId},workspace_id.is.null`)
-        .eq("enabled", true)
         .order("name");
       if (error) throw error;
       return (data as AgentDefinition[]) || [];
@@ -42,6 +41,52 @@ export function useToggleAgent() {
       const { error } = await query("agent_definitions")
         .update({ enabled })
         .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["agents"] });
+    },
+  });
+}
+
+export function useCreateAgent() {
+  const { workspaceId } = useWorkspace();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (agent: {
+      name: string;
+      slug: string;
+      description: string;
+      model?: string;
+      system_prompt?: string;
+      skills?: string[];
+    }) => {
+      if (!workspaceId) throw new Error("No workspace");
+      const { error } = await query("agent_definitions").insert({
+        workspace_id: workspaceId,
+        name: agent.name,
+        slug: agent.slug,
+        description: agent.description,
+        model: agent.model || "deepseek/deepseek-chat",
+        system_prompt: agent.system_prompt || "You are a helpful AI agent.",
+        skills: agent.skills || [],
+        config: {},
+        enabled: true,
+        is_system: false,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["agents"] });
+    },
+  });
+}
+
+export function useDeleteAgent() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await query("agent_definitions").delete().eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
