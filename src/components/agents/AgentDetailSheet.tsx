@@ -6,6 +6,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -16,6 +17,7 @@ import {
   Cpu,
   Zap,
   FileText,
+  Trash2,
 } from "lucide-react";
 import type { AgentDefinition, AgentExecution, AgentSkill } from "@/types/agents";
 import { AGENT_COLORS } from "@/types/agents";
@@ -27,6 +29,7 @@ interface AgentDetailSheetProps {
   onOpenChange: (open: boolean) => void;
   executions: AgentExecution[];
   skills: AgentSkill[];
+  onDelete?: (agent: AgentDefinition) => void;
 }
 
 export function AgentDetailSheet({
