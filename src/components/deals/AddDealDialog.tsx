@@ -18,41 +18,59 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCreateDeal } from "@/hooks/use-deals";
+import { useLinkDealContact } from "@/hooks/use-deal-contacts";
 import { useContacts } from "@/hooks/use-contacts";
 import { useCompanies } from "@/hooks/use-companies";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, X, UserPlus } from "lucide-react";
 
 export function AddDealDialog() {
   const [open, setOpen] = useState(false);
-  const [contactId, setContactId] = useState<string>("");
+  const [selectedContactIds, setSelectedContactIds] = useState<string[]>([]);
   const [companyId, setCompanyId] = useState<string>("");
   const [stage, setStage] = useState("prospecting");
   const [forecastCategory, setForecastCategory] = useState<string>("");
 
   const createDeal = useCreateDeal();
+  const linkContact = useLinkDealContact();
   const { data: contacts = [] } = useContacts();
   const { data: companies = [] } = useCompanies();
   const { toast } = useToast();
+
+  const addContact = (contactId: string) => {
+    if (contactId && contactId !== "none" && !selectedContactIds.includes(contactId)) {
+      setSelectedContactIds([...selectedContactIds, contactId]);
+    }
+  };
+
+  const removeContact = (contactId: string) => {
+    setSelectedContactIds(selectedContactIds.filter((id) => id !== contactId));
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
 
     try {
-      await createDeal.mutateAsync({
+      const deal = await createDeal.mutateAsync({
         title: form.get("title") as string,
         value: form.get("value") ? Number(form.get("value")) : undefined,
         currency: (form.get("currency") as string) || "USD",
         stage,
         forecast_category: forecastCategory && forecastCategory !== "none" ? forecastCategory : undefined,
-        contact_id: contactId && contactId !== "none" ? contactId : undefined,
+        contact_id: selectedContactIds[0] || undefined,
         company_id: companyId && companyId !== "none" ? companyId : undefined,
         expected_close_date: (form.get("expected_close_date") as string) || undefined,
         notes: (form.get("notes") as string) || undefined,
       });
+
+      // Link all selected contacts via junction table
+      for (const contactId of selectedContactIds) {
+        await linkContact.mutateAsync({ dealId: deal.id, contactId });
+      }
+
       toast({ title: "Deal created" });
-      setContactId("");
+      setSelectedContactIds([]);
       setCompanyId("");
       setStage("prospecting");
       setForecastCategory("");
@@ -61,6 +79,8 @@ export function AddDealDialog() {
       toast({ title: "Error", description: err.message, variant: "destructive" });
     }
   };
+
+  const availableContacts = contacts.filter((c) => !selectedContactIds.includes(c.id));
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -125,45 +145,61 @@ export function AddDealDialog() {
             </div>
           </div>
 
-
           <div className="space-y-1.5">
             <Label htmlFor="expected_close_date">Expected Close Date</Label>
             <Input id="expected_close_date" name="expected_close_date" type="date" className="bg-secondary border-border" />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label>Contact</Label>
-              <Select value={contactId} onValueChange={setContactId}>
-                <SelectTrigger className="bg-secondary border-border">
-                  <SelectValue placeholder="Select contact" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">No Contact</SelectItem>
-                  {contacts.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      {c.first_name} {c.last_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label>Company</Label>
-              <Select value={companyId} onValueChange={setCompanyId}>
-                <SelectTrigger className="bg-secondary border-border">
-                  <SelectValue placeholder="Select company" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">No Company</SelectItem>
-                  {companies.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      {c.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="space-y-1.5">
+            <Label>Contacts</Label>
+            {selectedContactIds.length > 0 && (
+              <div className="space-y-1 mb-2">
+                {selectedContactIds.map((cId) => {
+                  const c = contacts.find((ct) => ct.id === cId);
+                  if (!c) return null;
+                  return (
+                    <div key={cId} className="flex items-center gap-2 px-2 py-1 rounded-md bg-secondary text-sm">
+                      <span className="flex-1 truncate">{c.first_name} {c.last_name}</span>
+                      <Button type="button" variant="ghost" size="icon" className="h-5 w-5 text-muted-foreground hover:text-destructive" onClick={() => removeContact(cId)}>
+                        <X className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            <Select value="" onValueChange={addContact}>
+              <SelectTrigger className="bg-secondary border-border">
+                <SelectValue placeholder="Add a contact..." />
+              </SelectTrigger>
+              <SelectContent>
+                {availableContacts.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.first_name} {c.last_name}
+                  </SelectItem>
+                ))}
+                {availableContacts.length === 0 && (
+                  <SelectItem value="none" disabled>No more contacts</SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>Company</Label>
+            <Select value={companyId} onValueChange={setCompanyId}>
+              <SelectTrigger className="bg-secondary border-border">
+                <SelectValue placeholder="Select company" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No Company</SelectItem>
+                {companies.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-1.5">
