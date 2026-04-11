@@ -143,6 +143,10 @@ export function AgentHubContent() {
   return (
     <div className="space-y-6">
       <div className="flex justify-end gap-2">
+        <Button onClick={() => setShowCreateAgent(true)} size="sm" variant="outline">
+          <Plus className="h-4 w-4 mr-2" />
+          New Agent
+        </Button>
         <Button onClick={handleOptimizeVideos} disabled={runVideoOptimizer.isPending} size="sm" variant="outline">
           {runVideoOptimizer.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Video className="h-4 w-4 mr-2" />}
           Optimize Videos
