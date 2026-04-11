@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,6 +46,7 @@ export function LongTermMemoryTab({
   memories, searchResults, isLoading, originFilter,
   onFilterChange, onSearch, onCreate, onUpdate, onDelete,
 }: Props) {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Memory | null>(null);
@@ -125,7 +127,11 @@ export function LongTermMemoryTab({
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {display.map((m) => (
-          <Card key={m.id} className="p-3 group hover:border-primary/30 transition-colors cursor-pointer" onClick={() => openEdit(m)}>
+          <Card
+            key={m.id}
+            className="p-3 group hover:border-primary/30 transition-colors cursor-pointer"
+            onClick={() => navigate(`/memory/${m.id}`)}
+          >
             <div className="flex items-start justify-between mb-2">
               <div className="flex items-center gap-1.5">
                 <span className="text-sm">{originIcons[m.origin]}</span>
