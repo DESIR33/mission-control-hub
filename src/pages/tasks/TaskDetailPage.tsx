@@ -436,7 +436,7 @@ function TaskDetailContent() {
                         : "None"}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="end">
+                  <PopoverContent className="w-auto p-0 pointer-events-auto" align="end">
                     <Calendar
                       mode="single"
                       selected={
@@ -490,7 +490,7 @@ function TaskDetailContent() {
                         : "None"}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="end">
+                  <PopoverContent className="w-auto p-0 pointer-events-auto" align="end">
                     <Calendar
                       mode="single"
                       selected={
