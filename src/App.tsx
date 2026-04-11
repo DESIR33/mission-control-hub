@@ -76,6 +76,7 @@ const MemorySearchPage = lazy(() => import("./pages/MemorySearchPage"));
 const MemoryAnalyticsPage = lazy(() => import("./pages/MemoryAnalyticsPage"));
 const SemanticMemoryBrowserPage = lazy(() => import("./pages/SemanticMemoryBrowserPage"));
 const MemoryDigestPage = lazy(() => import("./pages/MemoryDigestPage"));
+const MemoryDetailPage = lazy(() => import("./pages/MemoryDetailPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
