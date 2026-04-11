@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNewsletter, type PublishedVideo } from "@/hooks/use-newsletter";
 import { fmtCount } from "@/lib/chart-theme";
+import { safeFormat } from "@/lib/date-utils";
 
 function VideoNewsletterCard({
   video,
@@ -33,7 +34,7 @@ function VideoNewsletterCard({
           </Badge>
           {video.published_at && (
             <span className="text-[10px] text-muted-foreground">
-              Published {new Date(video.published_at).toLocaleDateString()}
+              Published {safeFormat(video.published_at, "P")}
             </span>
           )}
         </div>

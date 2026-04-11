@@ -9,6 +9,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEngagementScores } from "@/hooks/use-engagement-scores";
+import { safeFormat } from "@/lib/date-utils";
 import { chartTooltipStyle, cartesianGridDefaults, xAxisDefaults, yAxisDefaults } from "@/lib/chart-theme";
 
 function getScoreBadge(score: number): { label: string; className: string } {
@@ -241,7 +242,7 @@ export function EngagementScorePanel() {
                     {contact.lastContact && (
                       <span className="text-xs text-muted-foreground">
                         Last:{" "}
-                        {new Date(contact.lastContact).toLocaleDateString()}
+                        {safeFormat(contact.lastContact, "P")}
                       </span>
                     )}
                     <Badge

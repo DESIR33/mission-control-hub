@@ -11,7 +11,7 @@ import type { Contact, ContactStatus, VipTier } from "@/types/crm";
 import { formatDistanceToNow, isPast, isToday, differenceInDays, addDays } from "date-fns";
 import { BulkActionsBar } from "./BulkActionsBar";
 import { EngagementBadge } from "./EngagementBadge";
-import { safeFormatDistanceToNow } from "@/lib/date-utils";
+import { safeFormatDistanceToNow, safeFormat, safeGetTime } from "@/lib/date-utils";
 import { WarmthBadge, LeadScoreIndicator } from "./WarmthBadge";
 
 const statusColors: Record<ContactStatus, string> = {
@@ -95,7 +95,7 @@ export function ContactsTable({ contacts, onSelectContact, selectedId, addButton
 
     // Apply sorting
     if (viewMode === "follow_up" && !sortField) {
-      result.sort((a, b) => new Date(a.next_follow_up_date!).getTime() - new Date(b.next_follow_up_date!).getTime());
+      result.sort((a, b) => safeGetTime(a.next_follow_up_date) - safeGetTime(b.next_follow_up_date));
     } else if (viewMode === "sponsor_pipeline" && !sortField) {
       result.sort((a, b) => (b.lead_score ?? 0) - (a.lead_score ?? 0));
     } else if (sortField) {
@@ -387,7 +387,7 @@ export function ContactsTable({ contacts, onSelectContact, selectedId, addButton
                         <TableCell>
                           {contact.next_follow_up_date ? (
                             <span className={cn("text-xs font-medium", urgency?.className)}>
-                              {urgency?.label} · {new Date(contact.next_follow_up_date).toLocaleDateString()}
+                              {urgency?.label} · {safeFormat(contact.next_follow_up_date, "P")}
                             </span>
                           ) : <span className="text-xs text-muted-foreground">—</span>}
                         </TableCell>

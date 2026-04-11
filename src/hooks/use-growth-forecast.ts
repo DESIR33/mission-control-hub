@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useYouTubeChannelStats } from "@/hooks/use-youtube-analytics";
 import { useGrowthGoal } from "@/hooks/use-youtube-analytics";
-import { safeFormat } from "@/lib/date-utils";
+import { safeFormat, safeGetTime } from "@/lib/date-utils";
 import { differenceInDays, addDays, format } from "date-fns";
 
 export interface ForecastPoint {
@@ -36,7 +36,7 @@ export function useGrowthForecast() {
     if (!snapshots.length) return null;
 
     const sorted = [...snapshots]
-      .sort((a, b) => new Date(a.fetched_at).getTime() - new Date(b.fetched_at).getTime());
+      .sort((a, b) => safeGetTime(a.fetched_at) - safeGetTime(b.fetched_at));
 
     const currentSubs = sorted[sorted.length - 1].subscriber_count;
     const targetSubs = goal?.target_value ?? 50000;

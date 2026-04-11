@@ -10,7 +10,7 @@ import {
 } from "recharts";
 import { format, subDays } from "date-fns";
 import type { ChannelAnalytics } from "@/hooks/use-youtube-analytics-api";
-import { safeFormat } from "@/lib/date-utils";
+import { safeFormat, safeGetTime } from "@/lib/date-utils";
 import {
   fmtCount, fmtDuration, fmtMoney, pctChange,
   chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults,
@@ -28,7 +28,7 @@ export function ChannelOverview({ data, daysRange, currentSubscribers }: Props) 
     const cutoff = subDays(new Date(), daysRange);
     return data
       .filter((d) => new Date(d.date) >= cutoff)
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      .sort((a, b) => safeGetTime(a.date) - safeGetTime(b.date));
   }, [data, daysRange]);
 
   const prevFiltered = useMemo(() => {
@@ -39,7 +39,7 @@ export function ChannelOverview({ data, daysRange, currentSubscribers }: Props) 
         const dt = new Date(d.date);
         return dt >= prevCutoff && dt < currentCutoff;
       })
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      .sort((a, b) => safeGetTime(a.date) - safeGetTime(b.date));
   }, [data, daysRange]);
 
   const sumPeriod = (items: ChannelAnalytics[]) =>

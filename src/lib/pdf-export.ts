@@ -3,7 +3,7 @@
  * Generates beautifully styled HTML and opens it in a new window for print-to-PDF.
  */
 import type { ChannelAnalytics, VideoAnalytics } from "@/hooks/use-youtube-analytics-api";
-import { safeFormat } from "@/lib/date-utils";
+import { safeFormat, safeGetTime } from "@/lib/date-utils";
 
 function escapeHtml(str: string): string {
   return str
@@ -114,7 +114,7 @@ function openPrintWindow(title: string, bodyHtml: string) {
 export function exportChannelReport(data: ChannelAnalytics[], daysRange: number) {
   if (data.length === 0) return;
 
-  const sorted = [...data].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const sorted = [...data].sort((a, b) => safeGetTime(a.date) - safeGetTime(b.date));
   const totals = sorted.reduce(
     (acc, d) => ({
       views: acc.views + d.views,

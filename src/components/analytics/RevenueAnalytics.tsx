@@ -10,7 +10,7 @@ import { format, subDays } from "date-fns";
 import { fmtCount, fmtMoney, pctChange, chartTooltipStyle, xAxisDefaults, yAxisDefaults, cartesianGridDefaults, SEMANTIC_COLORS, lineDefaults, barDefaults, horizontalBarDefaults, CHART_COLORS } from "@/lib/chart-theme";
 import type { ChannelAnalytics } from "@/hooks/use-youtube-analytics-api";
 import type { VideoAnalytics } from "@/hooks/use-youtube-analytics-api";
-import { safeFormat } from "@/lib/date-utils";
+import { safeFormat, safeGetTime } from "@/lib/date-utils";
 
 interface Props {
   channelData: ChannelAnalytics[];
@@ -32,14 +32,14 @@ export function RevenueAnalytics({ channelData, videoData, daysRange }: Props) {
         const dt = new Date(d.date);
         return dt >= currentCutoff;
       })
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      .sort((a, b) => safeGetTime(a.date) - safeGetTime(b.date));
 
     const previous = channelData
       .filter((d) => {
         const dt = new Date(d.date);
         return dt >= previousCutoff && dt < currentCutoff;
       })
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      .sort((a, b) => safeGetTime(a.date) - safeGetTime(b.date));
 
     return { currentPeriod: current, previousPeriod: previous };
   }, [channelData, daysRange]);

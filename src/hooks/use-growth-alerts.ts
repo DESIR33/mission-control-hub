@@ -7,7 +7,7 @@ import {
   useChannelStats,
   useYouTubeChannelStats,
 } from "@/hooks/use-youtube-analytics";
-import { safeFormat } from "@/lib/date-utils";
+import { safeFormat, safeGetTime } from "@/lib/date-utils";
 import { differenceInDays, format, addMonths } from "date-fns";
 
 export interface GrowthAlert {
@@ -56,7 +56,7 @@ export function useGrowthAlerts() {
 
     // Calculate actual daily rate from snapshots
     const sorted = [...snapshots].sort((a, b) =>
-      new Date(a.fetched_at).getTime() - new Date(b.fetched_at).getTime()
+      safeGetTime(a.fetched_at) - safeGetTime(b.fetched_at)
     );
     if (sorted.length >= 2) {
       const oldest = sorted[0];

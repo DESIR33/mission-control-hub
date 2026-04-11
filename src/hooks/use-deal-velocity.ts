@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { safeGetTime } from "@/lib/date-utils";
 
 export interface StageHistoryEntry {
   id: string;
@@ -73,7 +74,7 @@ export function useDealVelocity() {
       let totalCycleTimes: number[] = [];
 
       for (const [, entries] of Object.entries(byDeal)) {
-        const sorted = entries.sort((a, b) => new Date(a.changed_at).getTime() - new Date(b.changed_at).getTime());
+        const sorted = entries.sort((a, b) => safeGetTime(a.changed_at) - safeGetTime(b.changed_at));
 
         for (let i = 0; i < sorted.length; i++) {
           const from = sorted[i].from_stage;
@@ -84,8 +85,8 @@ export function useDealVelocity() {
           }
 
           if (from && i > 0) {
-            const prevTime = new Date(sorted[i - 1].changed_at).getTime();
-            const curTime = new Date(sorted[i].changed_at).getTime();
+            const prevTime = safeGetTime(sorted[i - 1].changed_at);
+            const curTime = safeGetTime(sorted[i].changed_at);
             const days = (curTime - prevTime) / (1000 * 60 * 60 * 24);
             if (!stageDurations[from]) stageDurations[from] = [];
             stageDurations[from].push(days);
@@ -95,8 +96,8 @@ export function useDealVelocity() {
         // Total cycle time for closed deals
         const lastEntry = sorted[sorted.length - 1];
         if (lastEntry.to_stage === "closed_won" || lastEntry.to_stage === "closed_lost") {
-          const first = new Date(sorted[0].changed_at).getTime();
-          const last = new Date(lastEntry.changed_at).getTime();
+          const first = safeGetTime(sorted[0].changed_at);
+          const last = safeGetTime(lastEntry.changed_at);
           totalCycleTimes.push((last - first) / (1000 * 60 * 60 * 24));
         }
       }

@@ -16,6 +16,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
+import { safeFormat } from "@/lib/date-utils";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
@@ -285,7 +286,7 @@ export default function AffiliateProgramPage() {
                   <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Next Payout</span>
                   <p className="text-sm font-semibold text-foreground">
                     {program.next_payout_date
-                      ? new Date(program.next_payout_date).toLocaleDateString()
+                      ? safeFormat(program.next_payout_date, "P")
                       : "Not set"}
                   </p>
                 </div>
@@ -395,7 +396,7 @@ export default function AffiliateProgramPage() {
                       <TableRow key={tx.id}>
                         <TableCell className="text-sm">
                           {tx.transaction_date
-                            ? new Date(tx.transaction_date).toLocaleDateString()
+                            ? safeFormat(tx.transaction_date, "P")
                             : "—"}
                         </TableCell>
                         <TableCell className="text-sm font-mono text-muted-foreground">
@@ -406,7 +407,7 @@ export default function AffiliateProgramPage() {
                         </TableCell>
                         <TableCell className="text-sm text-muted-foreground">
                           {meta.approximate_payout_date
-                            ? new Date(meta.approximate_payout_date).toLocaleDateString()
+                            ? safeFormat(meta.approximate_payout_date, "P")
                             : "—"}
                         </TableCell>
                         <TableCell className="text-sm text-muted-foreground">

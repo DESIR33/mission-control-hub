@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { type Expense } from "@/hooks/use-expenses";
+import { safeGetTime } from "@/lib/date-utils";
 
 export interface DetectedSubscription {
   vendor: string;
@@ -144,7 +145,7 @@ export function useSubscriptionDetection(
         score >= 5 ? "high" : score >= 3 ? "medium" : "low";
 
       const latestExpense = vendorExps.sort(
-        (a, b) => new Date(b.expense_date).getTime() - new Date(a.expense_date).getTime()
+        (a, b) => safeGetTime(b.expense_date) - safeGetTime(a.expense_date)
       )[0];
 
       detected.push({

@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import type { AgentDefinition, AgentExecution, AgentSkill } from "@/types/agents";
 import { AGENT_COLORS } from "@/types/agents";
+import { safeFormat } from "@/lib/date-utils";
 
 interface AgentDetailSheetProps {
   agent: AgentDefinition | null;
@@ -137,7 +138,7 @@ export function AgentDetailSheet({
                           </Badge>
                         </div>
                         <span className="text-xs text-muted-foreground">
-                          {new Date(exec.created_at).toLocaleString()}
+                          {safeFormat(exec.created_at, "Pp")}
                         </span>
                       </div>
                       {exec.proposals_created > 0 && (

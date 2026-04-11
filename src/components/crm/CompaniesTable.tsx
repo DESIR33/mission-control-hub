@@ -23,7 +23,7 @@ import { useDeleteCompany } from "@/hooks/use-companies";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { safeFormatDistanceToNow } from "@/lib/date-utils";
+import { safeFormatDistanceToNow, safeGetTime } from "@/lib/date-utils";
 import { BulkActionsBar } from "./BulkActionsBar";
 
 const tierIcons: Record<VipTier, string> = {
@@ -130,8 +130,8 @@ export function CompaniesTable({ companies, onSelectCompany, selectedId, addButt
           case "revenue": cmp = (revenueMap[a.id]?.total ?? 0) - (revenueMap[b.id]?.total ?? 0); break;
           case "contacts": cmp = (a.contacts?.length ?? 0) - (b.contacts?.length ?? 0); break;
           case "lastContact": {
-            const da = a.last_contact_date ? new Date(a.last_contact_date).getTime() : 0;
-            const db = b.last_contact_date ? new Date(b.last_contact_date).getTime() : 0;
+            const da = safeGetTime(a.last_contact_date);
+            const db = safeGetTime(b.last_contact_date);
             cmp = da - db;
             break;
           }

@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useCompanies } from "@/hooks/use-companies";
 import { useDeals } from "@/hooks/use-deals";
+import { safeGetTime } from "@/lib/date-utils";
 
 export interface ScoredCompany {
   companyId: string;
@@ -72,7 +73,7 @@ export function useSponsorMatchScore() {
       const recentDeals = companyDeals.filter((d: any) => {
         const date = d.updated_at || d.created_at;
         if (!date) return false;
-        const daysSince = (Date.now() - new Date(date).getTime()) / (1000 * 60 * 60 * 24);
+        const daysSince = (Date.now() - safeGetTime(date)) / (1000 * 60 * 60 * 24);
         return daysSince < 90;
       });
       if (recentDeals.length > 0) recency = 10;

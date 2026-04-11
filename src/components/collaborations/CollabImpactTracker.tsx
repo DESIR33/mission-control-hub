@@ -17,6 +17,7 @@ import {
 } from "recharts";
 import { useCollabImpact, type CollabImpact } from "@/hooks/use-collab-impact";
 import type { Collaboration } from "@/hooks/use-collaborations";
+import { safeFormat } from "@/lib/date-utils";
 
 const chartTooltipStyle: React.CSSProperties = {
   backgroundColor: "hsl(var(--card))",
@@ -134,7 +135,7 @@ function CollabImpactRow({ impact }: { impact: CollabImpact }) {
           </Badge>
         </div>
         <span className="text-xs text-muted-foreground">
-          Published: {new Date(impact.publishDate).toLocaleDateString()}
+          Published: {safeFormat(impact.publishDate, "P")}
         </span>
       </div>
 
@@ -170,7 +171,7 @@ function CollabImpactRow({ impact }: { impact: CollabImpact }) {
               <Tooltip
                 contentStyle={chartTooltipStyle}
                 formatter={(v: number) => [formatSubCount(v), "Subscribers"]}
-                labelFormatter={(label) => new Date(label).toLocaleDateString()}
+                labelFormatter={(label) => safeFormat(label, "P")}
               />
               <Line
                 type="monotone"

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { safeGetTime } from "@/lib/date-utils";
 import type { ChatMessage, ChatSession } from "@/types/assistant";
 
 const query = (table: string) => (supabase as any).from(table);
@@ -40,7 +41,7 @@ export function useChat() {
     setSessions(
       Array.from(map.values()).sort(
         (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          safeGetTime(b.created_at) - safeGetTime(a.created_at)
       )
     );
   }, [workspaceId]);

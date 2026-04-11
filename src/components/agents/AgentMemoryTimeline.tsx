@@ -6,7 +6,7 @@ import {
   MessageSquare, Clock,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { safeFormat } from "@/lib/date-utils";
+import { safeFormat, safeGetTime } from "@/lib/date-utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 type TimelineEvent = {
@@ -63,7 +63,7 @@ export function AgentMemoryTimeline() {
         date: ex.created_at, positive: ex.status === "completed",
       }));
 
-      return items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 50);
+      return items.sort((a, b) => safeGetTime(b.date) - safeGetTime(a.date)).slice(0, 50);
     },
     enabled: !!workspaceId,
   });

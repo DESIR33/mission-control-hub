@@ -25,6 +25,7 @@ import { AutoReminderBanner } from "@/components/inbox/AutoReminderBanner";
 import { ReplyComposer } from "@/components/inbox/ReplyComposer";
 import { useOutlookSend } from "@/hooks/use-smart-inbox";
 import type { SmartEmail } from "@/hooks/use-smart-inbox";
+import { safeFormat } from "@/lib/date-utils";
 
 interface EmailPreviewProps {
   email: SmartEmail | null;
@@ -173,14 +174,7 @@ export default function EmailPreview({
             <div className="flex items-center gap-2 mt-1">
               <CalendarIcon className="h-3 w-3 text-muted-foreground" />
               <span className="text-xs text-muted-foreground">
-                {new Date(email.received_at).toLocaleString([], {
-                  weekday: "short",
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+                {safeFormat(email.received_at, "EEE, MMM d, yyyy hh:mm a")}
               </span>
             </div>
             {email.matched_contact && (

@@ -21,6 +21,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { safeGetTime, safeFormat } from "@/lib/date-utils";
 
 interface ClusterMember {
   memory_id: string;
@@ -112,7 +113,7 @@ export default function SemanticMemoryBrowserPage() {
     if (!drawerCluster) return [];
     const ms = [...drawerCluster.members];
     if (sortBy === "confidence") ms.sort((a, b) => b.confidence - a.confidence);
-    else if (sortBy === "date") ms.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    else if (sortBy === "date") ms.sort((a, b) => safeGetTime(b.created_at) - safeGetTime(a.created_at));
     else ms.sort((a, b) => a.agent_id.localeCompare(b.agent_id));
     return ms;
   }, [drawerCluster, sortBy]);
@@ -286,7 +287,7 @@ export default function SemanticMemoryBrowserPage() {
                         </div>
                         <Badge variant="outline" className={`text-[10px] ${agentBadgeClass(m.agent_id)}`}>{m.agent_id}</Badge>
                         <span className="text-[10px] text-muted-foreground">
-                          {new Date(m.created_at).toLocaleDateString()}
+                          {safeFormat(m.created_at, "P")}
                         </span>
                       </div>
                     </div>

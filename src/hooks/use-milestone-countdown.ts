@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useChannelStats, useGrowthGoal, useYouTubeChannelStats } from "@/hooks/use-youtube-analytics";
-import { safeFormat } from "@/lib/date-utils";
+import { safeFormat, safeGetTime } from "@/lib/date-utils";
 import { differenceInDays, addDays, format } from "date-fns";
 
 export interface Milestone {
@@ -42,7 +42,7 @@ export function useMilestoneCountdown() {
 
     const currentSubs = stats.subscriber_count;
     const sorted = [...snapshots].sort(
-      (a, b) => new Date(a.fetched_at).getTime() - new Date(b.fetched_at).getTime()
+      (a, b) => safeGetTime(a.fetched_at) - safeGetTime(b.fetched_at)
     );
 
     // Calculate daily rate

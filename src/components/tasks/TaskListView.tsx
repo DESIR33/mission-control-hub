@@ -2,6 +2,7 @@ import { useState, useRef, useCallback } from "react";
 import { format, isPast, isToday, startOfDay } from "date-fns";
 import { CheckCircle2, Circle, Clock, SquareCheck, Square, Trash2, ArrowUpDown, AlertTriangle, GripVertical, LockKeyhole, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { safeGetTime } from "@/lib/date-utils";
 import { useTasks } from "@/hooks/use-tasks";
 import { useBlockedTaskIds } from "@/hooks/use-task-dependencies";
 import { Button } from "@/components/ui/button";
@@ -88,7 +89,7 @@ export function TaskListView({ tasks, onTaskClick, onTaskEdit }: TaskListViewPro
         if (!a.due_date && !b.due_date) cmp = 0;
         else if (!a.due_date) cmp = 1;
         else if (!b.due_date) cmp = -1;
-        else cmp = new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
+        else cmp = safeGetTime(a.due_date) - safeGetTime(b.due_date);
       } else if (rule.field === "title") {
         cmp = a.title.localeCompare(b.title);
       } else if (rule.field === "status") {

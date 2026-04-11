@@ -25,7 +25,7 @@ import { useDeals } from "@/hooks/use-deals";
 import { useContentCalendarEntries } from "@/hooks/use-content-calendar";
 import { useGrowthForecast } from "@/hooks/use-growth-forecast";
 import { useUnifiedRevenue } from "@/hooks/use-unified-revenue";
-import { safeFormat } from "@/lib/date-utils";
+import { safeFormat, safeGetTime } from "@/lib/date-utils";
 import { differenceInDays, format, startOfWeek, subWeeks } from "date-fns";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -225,7 +225,7 @@ export function MissionBriefing() {
     return videos
       .filter((v) => v.status !== "published" && v.targetPublishDate)
       .sort((a, b) =>
-        new Date(a.targetPublishDate!).getTime() - new Date(b.targetPublishDate!).getTime()
+        safeGetTime(a.targetPublishDate!) - safeGetTime(b.targetPublishDate!)
       )
       .slice(0, 3)
       .map((v) => ({

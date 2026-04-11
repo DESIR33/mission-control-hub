@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useTestIntegration, type IntegrationKey, type WorkspaceIntegration } from "@/hooks/use-integrations";
 import { useStripeSync } from "@/hooks/use-stripe-sync";
+import { safeFormat } from "@/lib/date-utils";
 import { useSlackNotify } from "@/hooks/use-slack-notify";
 import { useBeehiivSync } from "@/hooks/use-beehiiv-sync";
 import { useWorkspace } from "@/hooks/use-workspace";
@@ -136,11 +137,7 @@ export function IntegrationCard({
           {isConnected && record?.connected_at && (
             <p className="text-xs text-muted-foreground">
               Connected{" "}
-              {new Date(record.connected_at).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              })}
+              {safeFormat(record.connected_at, "MMM d, yyyy")}
             </p>
           )}
 

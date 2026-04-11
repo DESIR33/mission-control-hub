@@ -7,7 +7,7 @@ import { useContacts, useActivities } from "@/hooks/use-contacts";
 import { useDeals } from "@/hooks/use-deals";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { safeFormat } from "@/lib/date-utils";
+import { safeFormat, safeGetTime } from "@/lib/date-utils";
 import { useWorkspace } from "@/hooks/use-workspace";
 
 export function ContactLifecycleTimeline() {
@@ -87,7 +87,7 @@ export function ContactLifecycleTimeline() {
     });
   });
 
-  events.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  events.sort((a, b) => safeGetTime(b.date) - safeGetTime(a.date));
 
   return (
     <Card>

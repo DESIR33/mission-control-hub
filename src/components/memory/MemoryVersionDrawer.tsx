@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { History, RotateCcw, ChevronRight } from "lucide-react";
-import { safeFormatDistanceToNow } from "@/lib/date-utils";
+import { safeFormat, safeFormatDistanceToNow } from "@/lib/date-utils";
 import { MemoryGraphView } from "./MemoryGraphView";
 
 interface HistoryEntry {
@@ -83,7 +83,7 @@ export function MemoryVersionDrawer({
           confidence,
           edited_at: new Date().toISOString(),
           edited_by: agentId,
-          change_note: `Restored from ${new Date(entry.edited_at).toLocaleDateString()}`,
+          change_note: `Restored from ${safeFormat(entry.edited_at, "P")}`,
         },
       ];
 

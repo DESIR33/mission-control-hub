@@ -34,7 +34,7 @@ import {
   cartesianGridDefaults, lineDefaults, barDefaults, chartAnimationDefaults,
   CHART_COLORS, SEMANTIC_COLORS,
 } from "@/lib/chart-theme";
-import { safeFormat } from "@/lib/date-utils";
+import { safeFormat, safeGetTime } from "@/lib/date-utils";
 import { ExportAnalyticsDialog } from "@/components/analytics/ExportAnalyticsDialog";
 
 type TimeRange = "7d" | "30d" | "90d";
@@ -88,7 +88,7 @@ export default function AnalyticsPage() {
     return channelSnapshots
       .filter((s) => new Date(s.fetched_at) >= cutoff)
       .slice()
-      .sort((a, b) => new Date(a.fetched_at).getTime() - new Date(b.fetched_at).getTime());
+      .sort((a, b) => safeGetTime(a.fetched_at) - safeGetTime(b.fetched_at));
   }, [channelSnapshots, daysForRange]);
 
   // Subscriber trend data for chart
@@ -526,7 +526,7 @@ function OverviewTab({
         case "watchTime":
           return dir * ((a.watch_time_minutes ?? 0) - (b.watch_time_minutes ?? 0));
         case "published":
-          return dir * (new Date(a.published_at ?? 0).getTime() - new Date(b.published_at ?? 0).getTime());
+          return dir * (safeGetTime(a.published_at) - safeGetTime(b.published_at));
         default:
           return dir * ((b.views ?? 0) - (a.views ?? 0));
       }
@@ -599,7 +599,7 @@ function OverviewTab({
   const publishFrequency = useMemo(() => {
     const published = videoStats
       .filter((v: any) => v.published_at)
-      .sort((a: any, b: any) => new Date(a.published_at!).getTime() - new Date(b.published_at!).getTime());
+      .sort((a: any, b: any) => safeGetTime(a.published_at) - safeGetTime(b.published_at));
 
     if (published.length < 2) return null;
 

@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { formatDistanceToNow } from "date-fns";
 import type { SmartEmail } from "@/hooks/use-smart-inbox";
-import { safeFormat } from "@/lib/date-utils";
+import { safeFormat, safeGetTime } from "@/lib/date-utils";
 
 interface ThreadTimelineCRMProps {
   email: SmartEmail | null;
@@ -91,7 +91,7 @@ export function ThreadTimelineCRM({ email }: ThreadTimelineCRMProps) {
         });
       }
 
-      return items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      return items.sort((a, b) => safeGetTime(b.date) - safeGetTime(a.date));
     },
     enabled: !!workspaceId && !!contactId,
   });

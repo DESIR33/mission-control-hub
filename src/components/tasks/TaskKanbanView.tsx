@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Clock, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { safeGetTime } from "@/lib/date-utils";
 import { useTasks } from "@/hooks/use-tasks";
 import { useBlockedTaskIds } from "@/hooks/use-task-dependencies";
 import { format, isPast, isToday, startOfDay } from "date-fns";
@@ -45,7 +46,7 @@ export function TaskKanbanView({ tasks, onTaskClick }: TaskKanbanViewProps) {
       map[key].sort((a, b) => {
         if (!a.due_date) return 1;
         if (!b.due_date) return -1;
-        return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
+        return safeGetTime(a.due_date) - safeGetTime(b.due_date);
       });
     }
     return map;

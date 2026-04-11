@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { safeGetTime } from "@/lib/date-utils";
 import type { Collaboration } from "@/hooks/use-collaborations";
 
 export interface CollabImpact {
@@ -55,11 +56,11 @@ export function useCollabImpact(collaborations: Collaboration[]) {
 
     return publishedCollabs.map((collab) => {
       const publishDate = collab.scheduled_date!;
-      const pubTime = new Date(publishDate).getTime();
+      const pubTime = safeGetTime(publishDate);
 
       // Filter analytics within +/- 14 days
       const relevantData = analyticsData.filter((d) => {
-        const dayTime = new Date(d.date).getTime();
+        const dayTime = safeGetTime(d.date);
         const diffDays = (dayTime - pubTime) / (1000 * 60 * 60 * 24);
         return diffDays >= -14 && diffDays <= 14;
       });
@@ -70,7 +71,7 @@ export function useCollabImpact(collaborations: Collaboration[]) {
         let closest = relevantData[0];
         let minDiff = Infinity;
         for (const d of relevantData) {
-          const diff = Math.abs(new Date(d.date).getTime() - targetTime);
+          const diff = Math.abs(safeGetTime(d.date) - targetTime);
           if (diff < minDiff) {
             minDiff = diff;
             closest = d;
@@ -89,7 +90,7 @@ export function useCollabImpact(collaborations: Collaboration[]) {
 
       const dailyData = relevantData
         .filter((d) => {
-          const dayTime = new Date(d.date).getTime();
+          const dayTime = safeGetTime(d.date);
           const diffDays = (dayTime - pubTime) / (1000 * 60 * 60 * 24);
           return diffDays >= -14 && diffDays <= 14;
         })

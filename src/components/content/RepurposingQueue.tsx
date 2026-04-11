@@ -27,6 +27,7 @@ import {
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { safeFormat } from "@/lib/date-utils";
 import { REPURPOSE_PLATFORMS, REPURPOSE_STATUSES } from "@/hooks/use-repurposing-workflow";
 import type { VideoRepurpose } from "@/hooks/use-video-repurposes";
 
@@ -359,7 +360,7 @@ export function RepurposingQueue() {
                   <td className="p-2.5 hidden md:table-cell">
                     <span className="text-xs text-muted-foreground">
                       {item.published_at
-                        ? new Date(item.published_at).toLocaleDateString()
+                        ? safeFormat(item.published_at, "P")
                         : "--"}
                     </span>
                   </td>
