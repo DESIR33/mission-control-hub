@@ -63,7 +63,7 @@ export interface NavItem {
 // Main navigation items (top section)
 export const mainNavItems: NavItem[] = [
   { to: "/", icon: LayoutDashboard, label: "Mission Control" },
-  { to: "/inbox", icon: Mail, label: "Inbox" },
+  
   {
     to: "/tasks",
     icon: CheckSquare,
@@ -72,8 +72,6 @@ export const mainNavItems: NavItem[] = [
       { to: "/tasks/spaces", label: "Spaces", icon: Grid },
       { to: "/tasks/inbox", label: "Inbox", icon: Inbox },
       { to: "/tasks/all", label: "All Tasks", icon: List },
-      { to: "/tasks/board", label: "Board", icon: Grid },
-      { to: "/tasks/calendar", label: "Calendar", icon: Calendar },
       { to: "/tasks/projects", label: "Projects", icon: FolderKanban },
     ],
   },
