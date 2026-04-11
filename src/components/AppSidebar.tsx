@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useNotifications } from "@/hooks/use-notifications";
 import { mainNavItems, bottomItems } from "@/config/navigation";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
+import { WorkspaceSwitcher } from "@/components/WorkspaceSwitcher";
 
 interface AppSidebarProps {
   headerless?: boolean;
@@ -54,11 +55,16 @@ export function AppSidebar({ headerless }: AppSidebarProps) {
   return (
     <aside className="flex flex-col h-full bg-sidebar border-r border-sidebar-border w-60 shrink-0">
       {!headerless && (
-        <div className="flex items-center gap-3 px-4 h-14 border-b border-sidebar-border shrink-0">
-          <img src="/logo.png" alt="Logo" className="w-7 h-7 rounded-lg object-contain shrink-0" />
-          <div className="overflow-hidden">
-            <h1 className="text-sm font-semibold text-sidebar-accent-foreground truncate">Desmily</h1>
-            <p className="text-xs text-sidebar-foreground truncate">Mission Control</p>
+        <div className="border-b border-sidebar-border shrink-0">
+          <div className="flex items-center gap-3 px-4 h-14">
+            <img src="/logo.png" alt="Logo" className="w-7 h-7 rounded-lg object-contain shrink-0" />
+            <div className="overflow-hidden">
+              <h1 className="text-sm font-semibold text-sidebar-accent-foreground truncate">Desmily</h1>
+              <p className="text-xs text-sidebar-foreground truncate">Mission Control</p>
+            </div>
+          </div>
+          <div className="px-2 pb-2">
+            <WorkspaceSwitcher />
           </div>
         </div>
       )}
