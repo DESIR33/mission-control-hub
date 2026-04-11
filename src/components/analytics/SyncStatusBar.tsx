@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useSyncStatus, useTriggerSync } from "@/hooks/use-youtube-sync-status";
 import type { SyncStatus } from "@/hooks/use-youtube-sync-status";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
-import { DistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 
 function getAggregatedStatus(statuses: SyncStatus[]): {
   overall: SyncStatus["status"];

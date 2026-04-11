@@ -5,7 +5,7 @@ import { MessageSquare, Handshake, User, Clock, FileText } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
-import { DistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import type { SmartEmail } from "@/hooks/use-smart-inbox";
 import { safeFormat } from "@/lib/date-utils";
 

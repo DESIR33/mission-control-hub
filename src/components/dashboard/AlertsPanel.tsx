@@ -5,7 +5,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useYouTubeAlerts, useMarkAlertRead, useMarkAllAlertsRead } from "@/hooks/use-youtube-alerts";
-import { DistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
 import { motion } from "framer-motion";
 

@@ -13,7 +13,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { DistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import { AlertTriangle, CheckCircle2, Merge, X, Loader2 } from "lucide-react";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
 import { useState, useCallback } from "react";

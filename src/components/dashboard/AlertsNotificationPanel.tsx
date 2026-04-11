@@ -11,7 +11,7 @@ import {
   type AlertFeedItem,
 } from "@/hooks/use-youtube-alert-feed";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
-import { DistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 
 const alertTypeConfig: Record<
   AlertFeedItem["alert_type"],

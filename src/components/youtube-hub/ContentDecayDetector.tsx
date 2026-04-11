@@ -5,7 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { AlertTriangle, TrendingDown, Eye, ArrowDownRight, X, Wrench } from "lucide-react";
 import { useContentDecayAlerts, useDismissDecayAlert } from "@/hooks/use-video-performance-alerts";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
-import { DistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 
 const decayTypeConfig: Record<string, { icon: typeof TrendingDown; label: string; color: string }> = {
   traffic_drop: { icon: TrendingDown, label: "Traffic Drop", color: "text-destructive" },

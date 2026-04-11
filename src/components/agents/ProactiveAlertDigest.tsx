@@ -5,7 +5,7 @@ import { Bell, TrendingDown, Mail, Users, Youtube, AlertTriangle } from "lucide-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
-import { DistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import { getGatedFreshness } from "@/config/data-freshness";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
 import { useEngagementGate } from "@/hooks/use-engagement-gate";

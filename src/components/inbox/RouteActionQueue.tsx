@@ -21,7 +21,7 @@ import {
   Loader2, ChevronDown, ChevronUp,
 } from "lucide-react";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
-import { DistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 
 const actionTypeConfig: Record<string, { icon: typeof UserPlus; label: string; color: string }> = {
   create_contact: { icon: UserPlus, label: "Create Contact", color: "text-primary" },

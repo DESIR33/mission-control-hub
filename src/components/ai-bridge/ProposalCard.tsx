@@ -20,7 +20,7 @@ import {
   Video,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { DistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import type { AiProposal } from "@/types/proposals";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
 

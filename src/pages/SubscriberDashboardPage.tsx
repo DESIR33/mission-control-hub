@@ -14,7 +14,7 @@ import { TopicRetentionCard } from "@/components/subscribers/TopicRetentionCard"
 import { TopicImpactHeatmap } from "@/components/subscribers/TopicImpactHeatmap";
 import { Users, UserPlus, UserMinus, Mail, BookOpen, Video, TrendingUp, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { DistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
 import { useNavigate } from "react-router-dom";
 

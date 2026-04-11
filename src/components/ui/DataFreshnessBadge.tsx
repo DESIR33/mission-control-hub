@@ -1,4 +1,4 @@
-import { DistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import { RefreshCw, Clock, AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

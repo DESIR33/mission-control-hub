@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { DistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import {
   Mail, Save, Eye, Clock, Brain, AlertTriangle, Archive,
   HeartPulse, CheckCircle2, Loader2,

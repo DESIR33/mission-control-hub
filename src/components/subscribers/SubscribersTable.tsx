@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Search, Filter, Mail, ChevronRight, BookOpen, Video, Trash2, Download, Loader2, ArrowUpDown, Eye, MousePointer, ArrowUp, ArrowDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Subscriber, SubscriberStatus } from "@/types/subscriber";
-import { DistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import { SubscriberEngagementBadge } from "./SubscriberEngagementBadge";
 import { useBulkDeleteSubscribers } from "@/hooks/use-subscribers";
 import { safeFormatDistanceToNow } from "@/lib/date-utils";
