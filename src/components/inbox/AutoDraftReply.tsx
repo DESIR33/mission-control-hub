@@ -7,6 +7,7 @@ import { useWorkspace } from "@/hooks/use-workspace";
 import { useOutlookSend } from "@/hooks/use-smart-inbox";
 import type { SmartEmail } from "@/hooks/use-smart-inbox";
 import { toast } from "sonner";
+import { cleanAiReply } from "@/utils/clean-ai-reply";
 
 interface AutoDraftReplyProps {
   email: SmartEmail;
@@ -45,8 +46,9 @@ export function AutoDraftReply({ email }: AutoDraftReplyProps) {
           },
         });
         if (!cancelled && !error && data?.response) {
-          setDraft(data.response);
-          setEditedDraft(data.response);
+          const cleaned = cleanAiReply(data.response);
+          setDraft(cleaned);
+          setEditedDraft(cleaned);
         }
       } catch {
         // Silent fail

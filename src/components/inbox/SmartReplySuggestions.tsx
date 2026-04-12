@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sparkles, Loader2, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { parseAiReplies } from "@/utils/clean-ai-reply";
 import type { SmartEmail } from "@/hooks/use-smart-inbox";
 
 interface SmartReplySuggestionsProps {
@@ -30,12 +31,7 @@ export function SmartReplySuggestions({ email, onSendReply, isSending }: SmartRe
         },
       });
       if (error) throw error;
-      try {
-        const parsed = JSON.parse(data?.response || "[]");
-        setReplies(Array.isArray(parsed) ? parsed : [data?.response || "No suggestions"]);
-      } catch {
-        setReplies([data?.response || "No suggestions"]);
-      }
+      setReplies(parseAiReplies(data?.response || ""));
     } catch {
       setReplies(["Failed to generate suggestions."]);
     } finally {
