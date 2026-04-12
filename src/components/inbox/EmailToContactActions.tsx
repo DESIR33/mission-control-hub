@@ -22,9 +22,11 @@ import { useCreateContactFromEmail, useCreateCompanyFromEmail } from "@/hooks/us
 interface EmailToContactActionsProps {
   fromName: string;
   fromEmail: string;
+  subject?: string;
+  bodyHtml?: string;
 }
 
-export function EmailToContactActions({ fromName, fromEmail }: EmailToContactActionsProps) {
+export function EmailToContactActions({ fromName, fromEmail, subject, bodyHtml }: EmailToContactActionsProps) {
   const createContact = useCreateContactFromEmail();
   const createCompany = useCreateCompanyFromEmail();
   const isPending = createContact.isPending || createCompany.isPending;
@@ -33,6 +35,13 @@ export function EmailToContactActions({ fromName, fromEmail }: EmailToContactAct
     type: "contact" | "company";
     existingName: string;
   } | null>(null);
+
+  const getBodyText = () => {
+    if (!bodyHtml) return "";
+    const div = document.createElement("div");
+    div.innerHTML = bodyHtml;
+    return (div.textContent || div.innerText || "").substring(0, 2000);
+  };
 
   const handleCreateContact = () => {
     createContact.mutate(
@@ -49,7 +58,7 @@ export function EmailToContactActions({ fromName, fromEmail }: EmailToContactAct
 
   const handleCreateCompany = () => {
     createCompany.mutate(
-      { from_email: fromEmail, from_name: fromName },
+      { from_email: fromEmail, from_name: fromName, subject: subject || "", body_text: getBodyText() },
       {
         onError: (e: any) => {
           if (e.duplicate) {
@@ -65,7 +74,7 @@ export function EmailToContactActions({ fromName, fromEmail }: EmailToContactAct
     if (dupDialog.type === "contact") {
       createContact.mutate({ from_name: fromName, from_email: fromEmail, force: true });
     } else {
-      createCompany.mutate({ from_email: fromEmail, from_name: fromName, force: true });
+      createCompany.mutate({ from_email: fromEmail, from_name: fromName, subject: subject || "", body_text: getBodyText(), force: true });
     }
     setDupDialog(null);
   };
@@ -85,7 +94,7 @@ export function EmailToContactActions({ fromName, fromEmail }: EmailToContactAct
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleCreateCompany}>
             <Building2 className="h-4 w-4 mr-2" />
-            Create Company
+            Create Company (AI)
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
