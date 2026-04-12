@@ -101,6 +101,7 @@ export default function InboxPage() {
   );
   const [mobileShowPreview, setMobileShowPreview] = useState(false);
   const [viewMode, setViewMode] = useState<"list" | "kanban">("list");
+  const [rightSidebarOpen, setRightSidebarOpen] = useState(true);
 
   const searchInputRef = useRef<HTMLInputElement>(null);
 
