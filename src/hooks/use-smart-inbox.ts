@@ -68,9 +68,21 @@ export function useInboxEmails(folder: string = "inbox", searchQuery: string = "
         .from("inbox_emails" as any)
         .select("id, workspace_id, message_id, conversation_id, from_email, from_name, to_recipients, subject, preview, body_html, received_at, is_read, is_pinned, importance, has_attachments, folder, labels, metadata, ai_category, ai_summary, created_at, updated_at")
         .eq("workspace_id", workspaceId)
-        .eq("folder", folder)
         .order("received_at", { ascending: false })
         .limit(200);
+
+      // Category-based virtual folders (cat:opportunity, cat:newsletter, etc.)
+      if (folder.startsWith("cat:")) {
+        const category = folder.replace("cat:", "");
+        query = query.eq("folder", "inbox");
+        if (category === "unclassified") {
+          query = query.is("ai_category" as any, null);
+        } else {
+          query = query.eq("ai_category", category);
+        }
+      } else {
+        query = query.eq("folder", folder);
+      }
 
       if (searchQuery) {
         query = query.or(`subject.ilike.%${searchQuery}%,from_name.ilike.%${searchQuery}%,from_email.ilike.%${searchQuery}%,preview.ilike.%${searchQuery}%`);
@@ -206,7 +218,6 @@ export function useFolderCounts() {
     queryFn: async () => {
       if (!workspaceId) return {};
 
-      // Use server-side count queries per folder instead of fetching all rows
       const folders = ["inbox", "sent", "junk", "trash", "archive", "drafts"];
       const results = await Promise.all(
         folders.map((f) =>
@@ -223,6 +234,47 @@ export function useFolderCounts() {
         const c = results[i].count ?? 0;
         if (c > 0) counts[f] = c;
       });
+      return counts;
+    },
+    enabled: !!workspaceId,
+    ...getFreshness("inbox"),
+  });
+}
+
+export function useCategoryCounts() {
+  const { workspaceId } = useWorkspace();
+
+  return useQuery({
+    queryKey: ["inbox-category-counts", workspaceId],
+    queryFn: async () => {
+      if (!workspaceId) return {};
+
+      const categories = ["opportunity", "newsletter", "marketing"];
+      const results = await Promise.all([
+        ...categories.map((cat) =>
+          supabase
+            .from("inbox_emails" as any)
+            .select("id", { count: "exact", head: true })
+            .eq("workspace_id", workspaceId)
+            .eq("folder", "inbox")
+            .eq("ai_category", cat)
+        ),
+        // Unclassified = ai_category is null
+        supabase
+          .from("inbox_emails" as any)
+          .select("id", { count: "exact", head: true })
+          .eq("workspace_id", workspaceId)
+          .eq("folder", "inbox")
+          .is("ai_category" as any, null),
+      ]);
+
+      const counts: Record<string, number> = {};
+      categories.forEach((cat, i) => {
+        const c = results[i].count ?? 0;
+        if (c > 0) counts[cat] = c;
+      });
+      const unclassifiedCount = results[categories.length].count ?? 0;
+      if (unclassifiedCount > 0) counts["unclassified"] = unclassifiedCount;
       return counts;
     },
     enabled: !!workspaceId,

@@ -111,12 +111,15 @@ No other text.`,
           ? c.category
           : "marketing";
 
+        // Only store summary for opportunities — marketing/newsletter/spam don't need it
+        const shouldSummarize = category === "opportunity";
+
         // Update this specific email
         const { error } = await supabase
           .from("inbox_emails")
           .update({
             ai_category: category,
-            ai_summary: c.summary || null,
+            ai_summary: shouldSummarize ? (c.summary || null) : null,
           })
           .eq("id", email.id);
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { useFolderCounts } from "@/hooks/use-smart-inbox";
+import { useFolderCounts, useCategoryCounts } from "@/hooks/use-smart-inbox";
 import {
   InboxIcon,
   SendIcon,
@@ -15,6 +15,10 @@ import {
   CopyIcon,
   SettingsIcon,
   TrendingUpIcon,
+  SparklesIcon,
+  NewspaperIcon,
+  MegaphoneIcon,
+  HelpCircleIcon,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -37,8 +41,16 @@ const systemFolders = [
   { key: "trash", label: "Trash", icon: Trash2Icon },
 ];
 
+const categoryFolders = [
+  { key: "cat:opportunity", label: "Opportunities", icon: SparklesIcon },
+  { key: "cat:newsletter", label: "Newsletters", icon: NewspaperIcon },
+  { key: "cat:marketing", label: "Marketing", icon: MegaphoneIcon },
+  { key: "cat:unclassified", label: "Unclassified", icon: HelpCircleIcon },
+];
+
 export default function FolderSidebar({ selectedFolder, onSelectFolder }: FolderSidebarProps) {
   const { data: folderCounts = {} } = useFolderCounts();
+  const { data: categoryCounts = {} } = useCategoryCounts();
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
@@ -50,6 +62,36 @@ export default function FolderSidebar({ selectedFolder, onSelectFolder }: Folder
       <div className="space-y-0.5">
         {systemFolders.map((folder) => {
           const count = folderCounts[folder.key] ?? 0;
+          const isSelected = selectedFolder === folder.key;
+          return (
+            <button
+              key={folder.key}
+              onClick={() => onSelectFolder(folder.key)}
+              className={cn(
+                "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all",
+                isSelected
+                  ? "bg-primary/10 text-primary font-medium"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
+              )}
+            >
+              <folder.icon className="h-4 w-4 shrink-0" />
+              <span className="flex-1 text-left truncate">{folder.label}</span>
+              {count > 0 && (
+                <span className="text-xs tabular-nums text-muted-foreground">{count}</span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Category Folders */}
+      <div className="mt-4 mb-2 px-2">
+        <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Categories</p>
+      </div>
+      <div className="space-y-0.5">
+        {categoryFolders.map((folder) => {
+          const catKey = folder.key.replace("cat:", "");
+          const count = categoryCounts[catKey] ?? 0;
           const isSelected = selectedFolder === folder.key;
           return (
             <button
