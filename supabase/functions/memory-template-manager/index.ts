@@ -24,7 +24,7 @@ interface TemplateManifest {
   name: string;
   description?: string;
   folders: Array<{ name: string; description?: string; color?: string; children?: any[] }>;
-  pipeline_configs: Array<{ event_type: string; is_enabled: boolean; default_retain_strategy?: string }>;
+  pipeline_configs: Array<{ pipeline_key?: string; event_type?: string; enabled?: boolean; is_enabled?: boolean; default_retain_strategy?: string }>;
   mental_model_schemas: Array<{ name: string; model_type: string; description?: string; trigger_config?: Record<string, unknown> }>;
   webhook_configs: Array<{ name: string; event_types: string[] }>;
 }
