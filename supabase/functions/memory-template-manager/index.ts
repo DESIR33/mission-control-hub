@@ -63,7 +63,7 @@ Deno.serve(async (req) => {
           .is("parent_id", null),
         supabase
           .from("memory_pipeline_config")
-          .select("event_type, is_enabled, default_retain_strategy")
+          .select("pipeline_key, enabled, default_retain_strategy")
           .eq("workspace_id", auth.workspaceId),
         supabase
           .from("mental_models")
