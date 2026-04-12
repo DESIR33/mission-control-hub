@@ -179,3 +179,18 @@ verify_jwt = false
 
 [functions.memory-health-stats]
 verify_jwt = false
+
+[functions.memory-webhook-dispatcher]
+verify_jwt = false
+
+[functions.document-ingest]
+verify_jwt = false
+
+[functions.memory-context-router]
+verify_jwt = false
+
+[functions.memory-template-manager]
+verify_jwt = false
+
+[functions.memory-audit-query]
+verify_jwt = false
