@@ -231,7 +231,7 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
               size="sm"
               className="w-full overflow-hidden"
               disabled={createCompany.isPending}
-              onClick={() => createCompany.mutate({ from_email: email.from_email, from_name: email.from_name || "" }, dupErrorHandler)}
+              onClick={() => createCompany.mutate(companyPayload(), dupErrorHandler)}
             >
               {createCompany.isPending ? <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin shrink-0" /> : <Building2 className="w-3.5 h-3.5 mr-2 shrink-0" />}
               <span className="truncate">Create Company</span>
@@ -290,7 +290,7 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
                 size="sm"
                 className="w-full justify-start overflow-hidden"
                 disabled={createCompany.isPending}
-                onClick={() => createCompany.mutate({ from_email: email.from_email, from_name: email.from_name || "" }, dupErrorHandler)}
+                onClick={() => createCompany.mutate(companyPayload(), dupErrorHandler)}
               >
                 {createCompany.isPending ? <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin shrink-0" /> : <Building2 className="w-3.5 h-3.5 mr-2 shrink-0" />}
                 <span className="truncate">Create Company</span>
