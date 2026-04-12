@@ -48,6 +48,8 @@ export function TaskEditDialog({ task, open, onOpenChange }: Props) {
   const [priority, setPriority] = useState<TaskPriority>("medium");
   const [dueDate, setDueDate] = useState<Date | undefined>();
   const [saving, setSaving] = useState(false);
+  const [dueDateOpen, setDueDateOpen] = useState(false);
+  const [dueDateJustChanged, setDueDateJustChanged] = useState(false);
 
   useEffect(() => {
     if (task) {
