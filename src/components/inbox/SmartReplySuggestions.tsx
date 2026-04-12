@@ -5,6 +5,7 @@ import { Sparkles, Loader2, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { parseAiReplies } from "@/utils/clean-ai-reply";
+import { EMAIL_VOICE_PROFILE } from "@/constants/email-voice-profile";
 import type { SmartEmail } from "@/hooks/use-smart-inbox";
 
 interface SmartReplySuggestionsProps {
@@ -26,7 +27,7 @@ export function SmartReplySuggestions({ email, onSendReply, isSending }: SmartRe
         body: {
           workspace_id: workspaceId,
           session_id: crypto.randomUUID(),
-          message: `Generate exactly 3 reply options for this email. Format as JSON array of strings. Keep each under 100 words. Options should be: 1) Accept/positive, 2) Negotiate/ask questions, 3) Politely decline.\n\nFrom: ${email.from_name}\nSubject: ${email.subject}\nBody: ${email.body_html?.replace(/<[^>]*>/g, "").slice(0, 500) || email.preview}`,
+          message: `${EMAIL_VOICE_PROFILE}\n\nGenerate exactly 3 reply options for this email. Return ONLY a JSON array of 3 strings, no markdown or code fences. Keep each under 100 words. Options should be: 1) Accept/positive, 2) Negotiate/ask questions, 3) Politely decline.\n\nFrom: ${email.from_name}\nSubject: ${email.subject}\nBody: ${email.body_html?.replace(/<[^>]*>/g, "").slice(0, 500) || email.preview}`,
           skip_tools: true,
         },
       });

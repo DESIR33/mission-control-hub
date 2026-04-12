@@ -8,6 +8,7 @@ import { useOutlookSend } from "@/hooks/use-smart-inbox";
 import type { SmartEmail } from "@/hooks/use-smart-inbox";
 import { toast } from "sonner";
 import { cleanAiReply } from "@/utils/clean-ai-reply";
+import { EMAIL_VOICE_PROFILE } from "@/constants/email-voice-profile";
 
 interface AutoDraftReplyProps {
   email: SmartEmail;
@@ -41,7 +42,7 @@ export function AutoDraftReply({ email }: AutoDraftReplyProps) {
           body: {
             workspace_id: workspaceId,
             session_id: crypto.randomUUID(),
-            message: `Draft a professional reply to this email. Be concise (under 100 words), warm, and action-oriented. Use context from the CRM data if available.${contactContext}${dealContext}\n\nFrom: ${email.from_name}\nSubject: ${email.subject}\nBody: ${email.body_html?.replace(/<[^>]*>/g, "").slice(0, 1000) || email.preview}\n\nReturn ONLY the reply text, no greeting prefix like "Here's a draft". Start directly with the reply content.`,
+            message: `${EMAIL_VOICE_PROFILE}\n\nDraft a reply to this email. Be concise (under 100 words) and action-oriented. Use context from the CRM data if available.${contactContext}${dealContext}\n\nFrom: ${email.from_name}\nSubject: ${email.subject}\nBody: ${email.body_html?.replace(/<[^>]*>/g, "").slice(0, 1000) || email.preview}\n\nReturn ONLY the reply text. Start directly with the greeting (e.g. "Hi [Name],"). No preamble, no markdown, no JSON.`,
             skip_tools: true,
           },
         });

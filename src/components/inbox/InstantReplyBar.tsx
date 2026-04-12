@@ -7,6 +7,7 @@ import { useOutlookSend } from "@/hooks/use-smart-inbox";
 import type { SmartEmail } from "@/hooks/use-smart-inbox";
 import { toast } from "sonner";
 import { parseAiReplies } from "@/utils/clean-ai-reply";
+import { EMAIL_VOICE_PROFILE } from "@/constants/email-voice-profile";
 
 interface InstantReplyBarProps {
   email: SmartEmail;
@@ -43,7 +44,7 @@ export function InstantReplyBar({ email }: InstantReplyBarProps) {
         body: {
           workspace_id: workspaceId,
           session_id: crypto.randomUUID(),
-          message: `Generate 3 short reply options (each under 30 words) for this email. Return ONLY a JSON array of 3 strings, nothing else.\n\nFrom: ${email.from_name}\nSubject: ${email.subject}\nBody: ${email.body_html?.replace(/<[^>]*>/g, "").slice(0, 800) || email.preview}`,
+          message: `${EMAIL_VOICE_PROFILE}\n\nGenerate 3 short reply options (each under 30 words) for this email. Return ONLY a JSON array of 3 strings, no markdown or code fences.\n\nFrom: ${email.from_name}\nSubject: ${email.subject}\nBody: ${email.body_html?.replace(/<[^>]*>/g, "").slice(0, 800) || email.preview}`,
           skip_tools: true,
         },
       });
