@@ -206,7 +206,6 @@ export function useFolderCounts() {
     queryFn: async () => {
       if (!workspaceId) return {};
 
-      // Use server-side count queries per folder instead of fetching all rows
       const folders = ["inbox", "sent", "junk", "trash", "archive", "drafts"];
       const results = await Promise.all(
         folders.map((f) =>
@@ -223,6 +222,47 @@ export function useFolderCounts() {
         const c = results[i].count ?? 0;
         if (c > 0) counts[f] = c;
       });
+      return counts;
+    },
+    enabled: !!workspaceId,
+    ...getFreshness("inbox"),
+  });
+}
+
+export function useCategoryCounts() {
+  const { workspaceId } = useWorkspace();
+
+  return useQuery({
+    queryKey: ["inbox-category-counts", workspaceId],
+    queryFn: async () => {
+      if (!workspaceId) return {};
+
+      const categories = ["opportunity", "newsletter", "marketing"];
+      const results = await Promise.all([
+        ...categories.map((cat) =>
+          supabase
+            .from("inbox_emails" as any)
+            .select("id", { count: "exact", head: true })
+            .eq("workspace_id", workspaceId)
+            .eq("folder", "inbox")
+            .eq("ai_category", cat)
+        ),
+        // Unclassified = ai_category is null
+        supabase
+          .from("inbox_emails" as any)
+          .select("id", { count: "exact", head: true })
+          .eq("workspace_id", workspaceId)
+          .eq("folder", "inbox")
+          .is("ai_category" as any, null),
+      ]);
+
+      const counts: Record<string, number> = {};
+      categories.forEach((cat, i) => {
+        const c = results[i].count ?? 0;
+        if (c > 0) counts[cat] = c;
+      });
+      const unclassifiedCount = results[categories.length].count ?? 0;
+      if (unclassifiedCount > 0) counts["unclassified"] = unclassifiedCount;
       return counts;
     },
     enabled: !!workspaceId,

@@ -84,6 +84,36 @@ export default function FolderSidebar({ selectedFolder, onSelectFolder }: Folder
         })}
       </div>
 
+      {/* Category Folders */}
+      <div className="mt-4 mb-2 px-2">
+        <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Categories</p>
+      </div>
+      <div className="space-y-0.5">
+        {categoryFolders.map((folder) => {
+          const catKey = folder.key.replace("cat:", "");
+          const count = categoryCounts[catKey] ?? 0;
+          const isSelected = selectedFolder === folder.key;
+          return (
+            <button
+              key={folder.key}
+              onClick={() => onSelectFolder(folder.key)}
+              className={cn(
+                "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all",
+                isSelected
+                  ? "bg-primary/10 text-primary font-medium"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
+              )}
+            >
+              <folder.icon className="h-4 w-4 shrink-0" />
+              <span className="flex-1 text-left truncate">{folder.label}</span>
+              {count > 0 && (
+                <span className="text-xs tabular-nums text-muted-foreground">{count}</span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
       {/* Keyboard shortcuts hint */}
       <div className="mt-4 mb-2 px-2">
         <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Shortcuts</p>
