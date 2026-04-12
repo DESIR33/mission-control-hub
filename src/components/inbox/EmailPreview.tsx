@@ -104,7 +104,7 @@ export default function EmailPreview({
           <InstantIntroDialog email={email} />
           {email && (
             <>
-              <EmailToContactActions fromName={email.from_name} fromEmail={email.from_email} />
+              <EmailToContactActions fromName={email.from_name} fromEmail={email.from_email} subject={email.subject} bodyHtml={email.body_html || undefined} />
               <AiEmailDrafter
                 email={email}
                 onSendDraft={(body) => {
