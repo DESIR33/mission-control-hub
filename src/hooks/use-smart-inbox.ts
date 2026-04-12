@@ -68,9 +68,21 @@ export function useInboxEmails(folder: string = "inbox", searchQuery: string = "
         .from("inbox_emails" as any)
         .select("id, workspace_id, message_id, conversation_id, from_email, from_name, to_recipients, subject, preview, body_html, received_at, is_read, is_pinned, importance, has_attachments, folder, labels, metadata, ai_category, ai_summary, created_at, updated_at")
         .eq("workspace_id", workspaceId)
-        .eq("folder", folder)
         .order("received_at", { ascending: false })
         .limit(200);
+
+      // Category-based virtual folders (cat:opportunity, cat:newsletter, etc.)
+      if (folder.startsWith("cat:")) {
+        const category = folder.replace("cat:", "");
+        query = query.eq("folder", "inbox");
+        if (category === "unclassified") {
+          query = query.is("ai_category" as any, null);
+        } else {
+          query = query.eq("ai_category", category);
+        }
+      } else {
+        query = query.eq("folder", folder);
+      }
 
       if (searchQuery) {
         query = query.or(`subject.ilike.%${searchQuery}%,from_name.ilike.%${searchQuery}%,from_email.ilike.%${searchQuery}%,preview.ilike.%${searchQuery}%`);
