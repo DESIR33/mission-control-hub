@@ -35,6 +35,7 @@ export interface InboxEmail {
 
 export interface SmartEmail extends InboxEmail {
   priority: EmailPriority;
+  has_replied: boolean;
   matched_contact: {
     id: string;
     first_name: string;
