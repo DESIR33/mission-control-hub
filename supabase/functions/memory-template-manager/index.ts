@@ -86,8 +86,8 @@ Deno.serve(async (req) => {
           color: f.color,
         })),
         pipeline_configs: (pipelinesRes.data || []).map((p: any) => ({
-          event_type: p.event_type,
-          is_enabled: p.is_enabled,
+          pipeline_key: p.pipeline_key,
+          enabled: p.enabled,
           default_retain_strategy: p.default_retain_strategy,
         })),
         mental_model_schemas: (modelsRes.data || []).map((m: any) => ({
@@ -145,12 +145,13 @@ Deno.serve(async (req) => {
 
       // Create pipeline configs
       for (const pipeline of manifest.pipeline_configs || []) {
+        const pipelineKey = (pipeline as any).pipeline_key || (pipeline as any).event_type;
         const { error } = await supabase.from("memory_pipeline_config").upsert({
           workspace_id: auth.workspaceId,
-          event_type: pipeline.event_type,
-          is_enabled: pipeline.is_enabled,
-          default_retain_strategy: pipeline.default_retain_strategy || "atomic_facts",
-        }, { onConflict: "workspace_id,event_type" });
+          pipeline_key: pipelineKey,
+          enabled: (pipeline as any).enabled ?? (pipeline as any).is_enabled ?? true,
+          config: { default_retain_strategy: pipeline.default_retain_strategy || "atomic_facts" },
+        }, { onConflict: "workspace_id,pipeline_key" });
         if (!error) results.pipelines++;
       }
 
