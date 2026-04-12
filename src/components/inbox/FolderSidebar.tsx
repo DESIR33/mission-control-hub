@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { useFolderCounts } from "@/hooks/use-smart-inbox";
+import { useFolderCounts, useCategoryCounts } from "@/hooks/use-smart-inbox";
 import {
   InboxIcon,
   SendIcon,
@@ -15,6 +15,10 @@ import {
   CopyIcon,
   SettingsIcon,
   TrendingUpIcon,
+  SparklesIcon,
+  NewspaperIcon,
+  MegaphoneIcon,
+  HelpCircleIcon,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -37,8 +41,16 @@ const systemFolders = [
   { key: "trash", label: "Trash", icon: Trash2Icon },
 ];
 
+const categoryFolders = [
+  { key: "cat:opportunity", label: "Opportunities", icon: SparklesIcon },
+  { key: "cat:newsletter", label: "Newsletters", icon: NewspaperIcon },
+  { key: "cat:marketing", label: "Marketing", icon: MegaphoneIcon },
+  { key: "cat:unclassified", label: "Unclassified", icon: HelpCircleIcon },
+];
+
 export default function FolderSidebar({ selectedFolder, onSelectFolder }: FolderSidebarProps) {
   const { data: folderCounts = {} } = useFolderCounts();
+  const { data: categoryCounts = {} } = useCategoryCounts();
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
