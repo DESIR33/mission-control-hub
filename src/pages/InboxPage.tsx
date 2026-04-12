@@ -167,11 +167,12 @@ export default function InboxPage() {
   const handleDelete = useCallback(() => {
     if (!selectedEmail) return;
     const emailToDeleteId = selectedEmail.id;
+    // Select next email immediately before mutation removes it from the list
+    selectNextEmail(emailToDeleteId);
     if (selectedFolder === "trash") {
       deleteEmailMut.mutate([emailToDeleteId], {
         onSuccess: () => {
           toast({ title: "Email permanently deleted" });
-          selectNextEmail(emailToDeleteId);
           setDeleteDialogOpen(false);
         },
       });
@@ -179,7 +180,6 @@ export default function InboxPage() {
       moveEmail.mutate({ ids: [emailToDeleteId], folder: "trash" }, {
         onSuccess: () => {
           toast({ title: "Email moved to trash" });
-          selectNextEmail(emailToDeleteId);
           setDeleteDialogOpen(false);
         },
       });
