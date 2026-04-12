@@ -113,78 +113,92 @@ export function useCreateCompanyFromEmail() {
   const { workspaceId } = useWorkspace();
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (data: { from_email: string; from_name?: string; force?: boolean }) => {
+    mutationFn: async (data: {
+      from_email: string;
+      from_name?: string;
+      subject?: string;
+      body_text?: string;
+      force?: boolean;
+    }) => {
       if (!workspaceId) throw new Error("No workspace");
       const domain = data.from_email.split("@")[1];
       if (!domain) throw new Error("Invalid email");
-      const companyName = domain.split(".")[0].charAt(0).toUpperCase() + domain.split(".")[0].slice(1);
 
-      // Check duplicate by website
-      const { data: existingByWebsite } = await supabase
-        .from("companies")
-        .select("id, name")
-        .eq("workspace_id", workspaceId)
-        .eq("website", `https://${domain}`)
-        .maybeSingle();
-
-      // Also check by primary_email domain
-      let existingByEmail: { id: string; name: string } | null = null;
-      if (!existingByWebsite) {
-        const { data: companies } = await supabase
+      // Check for existing company by domain (pre-check for quick duplicate detection)
+      if (!data.force) {
+        const { data: existingByWebsite } = await supabase
           .from("companies")
-          .select("id, name, primary_email")
+          .select("id, name")
           .eq("workspace_id", workspaceId)
-          .not("primary_email", "is", null);
+          .eq("website", `https://${domain}`)
+          .maybeSingle();
 
-        if (companies) {
-          const match = companies.find(
-            (c) => c.primary_email && c.primary_email.split("@")[1] === domain
-          );
-          if (match) existingByEmail = { id: match.id, name: match.name };
+        if (existingByWebsite) {
+          const dupInfo: DuplicateInfo = {
+            type: "company",
+            existingId: existingByWebsite.id,
+            existingName: existingByWebsite.name,
+          };
+          throw Object.assign(new Error("DUPLICATE"), { duplicate: dupInfo });
         }
       }
 
-      const existing = existingByWebsite || existingByEmail;
+      // Call AI extraction edge function
+      const { data: result, error: fnError } = await supabase.functions.invoke(
+        "extract-company-from-email",
+        {
+          body: {
+            workspace_id: workspaceId,
+            from_email: data.from_email,
+            from_name: data.from_name || "",
+            subject: data.subject || "",
+            body_text: data.body_text || "",
+          },
+        }
+      );
 
-      if (existing && !data.force) {
-        const dupInfo: DuplicateInfo = {
-          type: "company",
-          existingId: existing.id,
-          existingName: existing.name,
-        };
-        throw Object.assign(new Error("DUPLICATE"), { duplicate: dupInfo });
-      }
+      if (fnError) throw fnError;
+      if (result?.error) throw new Error(result.error);
 
-      if (existing && data.force) {
-        const { error } = await supabase
-          .from("companies")
-          .update({
-            primary_email: data.from_email,
-          })
-          .eq("id", existing.id);
-        if (error) throw error;
-        return { action: "updated" as const };
-      }
-
-      const { error } = await supabase.from("companies").insert({
-        workspace_id: workspaceId,
-        name: companyName,
-        website: `https://${domain}`,
-        primary_email: data.from_email,
-      });
-      if (error) throw error;
-      return { action: "created" as const };
+      return result as {
+        extraction: Record<string, unknown>;
+        created: string[];
+        company_id?: string;
+        company_action?: string;
+        client_company_id?: string;
+        agency_company_id?: string;
+        client_action?: string;
+        agency_action?: string;
+        link_action?: string;
+      };
     },
     onSuccess: (result) => {
-      if (result?.action === "updated") {
-        toast.success("Existing company updated");
+      const isAgency = result.extraction?.is_agency === true;
+      const created = result.created || [];
+
+      if (isAgency) {
+        const agencyName = result.extraction?.agency_name as string;
+        const clientName = result.extraction?.client_company_name as string;
+        const parts: string[] = [];
+        if (result.agency_action === "created") parts.push(`Agency "${agencyName}" created`);
+        else parts.push(`Agency "${agencyName}" found`);
+        if (result.client_action === "created") parts.push(`client "${clientName}" created`);
+        else parts.push(`client "${clientName}" found`);
+        if (result.link_action === "created") parts.push("linked together");
+        toast.success(parts.join(", "));
+      } else if (result.company_action === "updated") {
+        toast.success("Existing company updated with AI-extracted info");
+      } else if (created.length > 0) {
+        toast.success(`Company "${created[0]}" created with AI-extracted details`);
       } else {
-        toast.success("Company created from email");
+        toast.success("Company processed");
       }
+
       qc.invalidateQueries({ queryKey: ["companies"] });
+      qc.invalidateQueries({ queryKey: ["agency-links"] });
     },
     onError: (e: any) => {
-      if (e.duplicate) return; // handled by UI
+      if (e.duplicate) return;
       toast.error(e.message);
     },
   });

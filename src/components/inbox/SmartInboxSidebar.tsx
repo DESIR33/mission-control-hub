@@ -81,6 +81,21 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
   const createCompany = useCreateCompanyFromEmail();
   const [dupDialog, setDupDialog] = useState<{ type: "contact" | "company"; existingName: string } | null>(null);
 
+  // Helper to strip HTML for body_text extraction
+  const getBodyText = () => {
+    if (!email?.body_html) return email?.preview || "";
+    const div = document.createElement("div");
+    div.innerHTML = email.body_html;
+    return (div.textContent || div.innerText || "").substring(0, 2000);
+  };
+
+  const companyPayload = () => ({
+    from_email: email?.from_email || "",
+    from_name: email?.from_name || "",
+    subject: email?.subject || "",
+    body_text: getBodyText(),
+  });
+
   const dupErrorHandler = {
     onError: (e: any) => {
       if (e.duplicate) setDupDialog({ type: e.duplicate.type, existingName: e.duplicate.existingName });
@@ -92,7 +107,7 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
     if (dupDialog.type === "contact") {
       createContact.mutate({ from_name: email.from_name || "", from_email: email.from_email, force: true });
     } else {
-      createCompany.mutate({ from_email: email.from_email, from_name: email.from_name || "", force: true });
+      createCompany.mutate({ ...companyPayload(), force: true });
     }
     setDupDialog(null);
   };
@@ -216,7 +231,7 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
               size="sm"
               className="w-full overflow-hidden"
               disabled={createCompany.isPending}
-              onClick={() => createCompany.mutate({ from_email: email.from_email, from_name: email.from_name || "" }, dupErrorHandler)}
+              onClick={() => createCompany.mutate(companyPayload(), dupErrorHandler)}
             >
               {createCompany.isPending ? <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin shrink-0" /> : <Building2 className="w-3.5 h-3.5 mr-2 shrink-0" />}
               <span className="truncate">Create Company</span>
@@ -275,7 +290,7 @@ export function SmartInboxSidebar({ email }: SmartInboxSidebarProps) {
                 size="sm"
                 className="w-full justify-start overflow-hidden"
                 disabled={createCompany.isPending}
-                onClick={() => createCompany.mutate({ from_email: email.from_email, from_name: email.from_name || "" }, dupErrorHandler)}
+                onClick={() => createCompany.mutate(companyPayload(), dupErrorHandler)}
               >
                 {createCompany.isPending ? <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin shrink-0" /> : <Building2 className="w-3.5 h-3.5 mr-2 shrink-0" />}
                 <span className="truncate">Create Company</span>
