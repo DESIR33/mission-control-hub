@@ -48,6 +48,8 @@ export function TaskEditDialog({ task, open, onOpenChange }: Props) {
   const [priority, setPriority] = useState<TaskPriority>("medium");
   const [dueDate, setDueDate] = useState<Date | undefined>();
   const [saving, setSaving] = useState(false);
+  const [dueDateOpen, setDueDateOpen] = useState(false);
+  const [dueDateJustChanged, setDueDateJustChanged] = useState(false);
 
   useEffect(() => {
     if (task) {
@@ -137,18 +139,33 @@ export function TaskEditDialog({ task, open, onOpenChange }: Props) {
 
           <div className="space-y-1.5">
             <Label>Due Date</Label>
-            <Popover>
+            <Popover open={dueDateOpen} onOpenChange={setDueDateOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
-                  className={cn("w-full justify-start text-left font-normal", !dueDate && "text-muted-foreground")}
+                  className={cn(
+                    "w-full justify-start text-left font-normal transition-colors",
+                    !dueDate && "text-muted-foreground",
+                    dueDateJustChanged && "ring-2 ring-primary/50 bg-primary/5"
+                  )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {dueDate ? format(dueDate, "PPP") : "No due date"}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
-                <Calendar mode="single" selected={dueDate} onSelect={setDueDate} initialFocus className="pointer-events-auto" />
+                <Calendar
+                  mode="single"
+                  selected={dueDate}
+                  onSelect={(date) => {
+                    setDueDate(date);
+                    setDueDateOpen(false);
+                    setDueDateJustChanged(true);
+                    setTimeout(() => setDueDateJustChanged(false), 1500);
+                  }}
+                  initialFocus
+                  className="pointer-events-auto"
+                />
               </PopoverContent>
             </Popover>
           </div>
