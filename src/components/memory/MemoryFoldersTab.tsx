@@ -346,6 +346,8 @@ export function MemoryFoldersTab() {
             })}
           </div>
         )}
+
+        <DocumentIngestionStatus />
       </div>
 
       {/* New Folder Dialog */}
