@@ -1,6 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { validateApiKey } from "../_shared/api-key-auth.ts";
-import { applyRetainStrategy, getSummaryPrompt, getAtomicFactsPrompt, getDeltaPrompt, type RetainStrategy } from "../_shared/retain-strategies.ts";
+import { applyRetainStrategy, type RetainStrategy } from "../_shared/retain-strategies.ts";
 import { recordAudit } from "../_shared/audit.ts";
 
 const corsHeaders = {
