@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { Sparkles, Send, Loader2, Copy, Check } from "lucide-react";
 import { toast } from "sonner";
+import { cleanAiReply } from "@/utils/clean-ai-reply";
 
 interface Props {
   emailSubject?: string;
@@ -44,7 +45,7 @@ Write a concise, professional reply that addresses the email. Be friendly but di
         },
       });
       if (error) throw error;
-      setDraft(data?.response || data?.content || "");
+      setDraft(cleanAiReply(data?.response || data?.content || ""));
     } catch (err: any) {
       toast.error("Failed to generate reply: " + err.message);
     } finally {

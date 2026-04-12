@@ -6,6 +6,7 @@ import { useWorkspace } from "@/hooks/use-workspace";
 import { useOutlookSend } from "@/hooks/use-smart-inbox";
 import type { SmartEmail } from "@/hooks/use-smart-inbox";
 import { toast } from "sonner";
+import { parseAiReplies } from "@/utils/clean-ai-reply";
 
 interface InstantReplyBarProps {
   email: SmartEmail;
@@ -47,12 +48,7 @@ export function InstantReplyBar({ email }: InstantReplyBarProps) {
         },
       });
       if (error) throw error;
-      try {
-        const parsed = JSON.parse(data?.response || "[]");
-        setCustomReplies(Array.isArray(parsed) ? parsed : [data?.response]);
-      } catch {
-        setCustomReplies([data?.response || "Couldn't generate"]);
-      }
+      setCustomReplies(parseAiReplies(data?.response || ""));
     } catch {
       toast.error("Failed to generate replies");
     } finally {
