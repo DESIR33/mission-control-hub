@@ -49,6 +49,8 @@ import {
   LayoutGridIcon,
   ListIcon,
   CommandIcon,
+  PanelRightCloseIcon,
+  PanelRightOpenIcon,
 } from "lucide-react";
 import FolderSidebar from "@/components/inbox/FolderSidebar";
 import EmailList from "@/components/inbox/EmailList";
@@ -570,7 +572,7 @@ export default function InboxPage() {
           </div>
         ) : (
           <ResizablePanelGroup direction="horizontal" className="flex-1">
-            <ResizablePanel defaultSize={35} minSize={25}>
+            <ResizablePanel defaultSize={rightSidebarOpen ? 35 : 45} minSize={25}>
               <EmailList
                 emails={filteredEmails}
                 isLoading={isLoading}
@@ -580,18 +582,37 @@ export default function InboxPage() {
               />
             </ResizablePanel>
             <ResizableHandle withHandle />
-            <ResizablePanel defaultSize={45} minSize={30}>
-              <EmailPreview
-                email={selectedEmail}
-                onDelete={() => setDeleteDialogOpen(true)}
-                onArchive={handleArchive}
-                onTogglePinned={handleTogglePinned}
-              />
+            <ResizablePanel defaultSize={rightSidebarOpen ? 45 : 55} minSize={30}>
+              <div className="h-full flex flex-col">
+                <div className="flex items-center justify-end px-2 py-1 border-b border-border bg-card">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setRightSidebarOpen(!rightSidebarOpen)}
+                    title={rightSidebarOpen ? "Hide sidebar" : "Show sidebar"}
+                    className="h-7 w-7 p-0"
+                  >
+                    {rightSidebarOpen ? <PanelRightCloseIcon className="h-4 w-4" /> : <PanelRightOpenIcon className="h-4 w-4" />}
+                  </Button>
+                </div>
+                <div className="flex-1 overflow-hidden">
+                  <EmailPreview
+                    email={selectedEmail}
+                    onDelete={() => setDeleteDialogOpen(true)}
+                    onArchive={handleArchive}
+                    onTogglePinned={handleTogglePinned}
+                  />
+                </div>
+              </div>
             </ResizablePanel>
-            <ResizableHandle withHandle />
-            <ResizablePanel defaultSize={20} minSize={15}>
-              <SmartInboxSidebar email={selectedEmail} />
-            </ResizablePanel>
+            {rightSidebarOpen && (
+              <>
+                <ResizableHandle withHandle />
+                <ResizablePanel defaultSize={20} minSize={15}>
+                  <SmartInboxSidebar email={selectedEmail} />
+                </ResizablePanel>
+              </>
+            )}
           </ResizablePanelGroup>
         )}
       </div>
