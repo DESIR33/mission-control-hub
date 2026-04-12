@@ -35,6 +35,7 @@ export interface InboxEmail {
 
 export interface SmartEmail extends InboxEmail {
   priority: EmailPriority;
+  has_replied: boolean;
   matched_contact: {
     id: string;
     first_name: string;
@@ -125,6 +126,29 @@ export function useSmartInbox(folder: string = "inbox", searchQuery: string = ""
   const { data: rawEmails = [], isLoading, error } = useInboxEmails(folder, searchQuery);
   const { data: contacts = [] } = useContacts();
   const { data: deals = [] } = useDeals();
+  const { workspaceId } = useWorkspace();
+
+  // Fetch conversation_ids that have sent replies
+  const { data: repliedConversationIds = new Set<string>() } = useQuery({
+    queryKey: ["replied-conversations", workspaceId],
+    queryFn: async (): Promise<Set<string>> => {
+      if (!workspaceId) return new Set();
+      const { data, error } = await supabase
+        .from("inbox_emails" as any)
+        .select("conversation_id")
+        .eq("workspace_id", workspaceId)
+        .eq("folder", "sent")
+        .not("conversation_id", "is", null);
+      if (error) throw error;
+      return new Set(
+        ((data as any[]) ?? [])
+          .map((r: any) => r.conversation_id as string)
+          .filter(Boolean)
+      );
+    },
+    enabled: !!workspaceId,
+    ...getFreshness("inbox"),
+  });
 
   const smartEmails = useMemo((): SmartEmail[] => {
     const contactByEmail = new Map<
@@ -162,6 +186,7 @@ export function useSmartInbox(folder: string = "inbox", searchQuery: string = ""
       const matchedDeal = matchedContact
         ? activeDealByContactId.get(matchedContact.id) ?? null
         : null;
+      const has_replied = !!email.conversation_id && repliedConversationIds.has(email.conversation_id);
 
       let priority: EmailPriority;
       if (matchedDeal) {
@@ -174,9 +199,9 @@ export function useSmartInbox(folder: string = "inbox", searchQuery: string = ""
         priority = "P4";
       }
 
-      return { ...email, priority, matched_contact: matchedContact, matched_deal: matchedDeal };
+      return { ...email, priority, has_replied, matched_contact: matchedContact, matched_deal: matchedDeal };
     });
-  }, [rawEmails, contacts, deals]);
+  }, [rawEmails, contacts, deals, repliedConversationIds]);
 
   return { data: smartEmails, isLoading, error };
 }

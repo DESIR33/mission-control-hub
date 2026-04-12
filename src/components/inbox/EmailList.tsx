@@ -13,6 +13,7 @@ import {
   CheckSquareIcon,
   XIcon,
   ClockIcon,
+  Reply,
 } from "lucide-react";
 import type { SmartEmail, EmailPriority } from "@/hooks/use-smart-inbox";
 import { useDeleteEmail, useMarkRead, useTogglePin, useMoveEmail } from "@/hooks/use-smart-inbox";
@@ -308,11 +309,17 @@ export default function EmailList({
                       {email.subject || "(No subject)"}
                     </p>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5">
                       <p className="text-xs text-muted-foreground truncate flex-1">
                         {email.preview}
                       </p>
                       <div className="flex items-center gap-1 shrink-0">
+                        {email.has_replied && (
+                          <span className="inline-flex items-center gap-0.5 rounded px-1 py-0.5 text-[10px] font-medium bg-green-500/10 text-green-700">
+                            <Reply className="h-2.5 w-2.5" />
+                            Replied
+                          </span>
+                        )}
                         {email.has_attachments && (
                           <PaperclipIcon className="h-3 w-3 text-muted-foreground" />
                         )}
@@ -326,8 +333,12 @@ export default function EmailList({
                           </span>
                         )}
                         {email.matched_deal && (
-                          <span className="rounded px-1 py-0.5 text-[10px] font-medium bg-emerald-500/10 text-emerald-700">
-                            Deal
+                          <span className="rounded px-1 py-0.5 text-[10px] font-medium bg-emerald-500/10 text-emerald-700" title={`${email.matched_deal.title} — ${email.matched_deal.stage}${email.matched_deal.value ? ` ($${email.matched_deal.value.toLocaleString()})` : ""}`}>
+                            {email.matched_deal.stage === "prospecting" && "Prospecting"}
+                            {email.matched_deal.stage === "qualification" && "Qualifying"}
+                            {email.matched_deal.stage === "proposal" && "Proposal"}
+                            {email.matched_deal.stage === "negotiation" && "Negotiating"}
+                            {!["prospecting", "qualification", "proposal", "negotiation"].includes(email.matched_deal.stage) && "Deal"}
                           </span>
                         )}
                       </div>
