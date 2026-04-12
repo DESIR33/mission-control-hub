@@ -8,6 +8,7 @@ import { useWorkspace } from "@/hooks/use-workspace";
 import { Sparkles, Send, Loader2, Copy, Check } from "lucide-react";
 import { toast } from "sonner";
 import { cleanAiReply } from "@/utils/clean-ai-reply";
+import { EMAIL_VOICE_PROFILE } from "@/constants/email-voice-profile";
 
 interface Props {
   emailSubject?: string;
@@ -33,12 +34,7 @@ export function SmartReplyComposer({ emailSubject, emailBody, senderName, sender
           messages: [
             {
               role: "user",
-              content: `Generate a professional email reply. Context:
-- Subject: ${emailSubject || "N/A"}
-- From: ${senderName || "Unknown"} (${senderEmail || ""})
-- Original email snippet: ${emailBody?.slice(0, 500) || "N/A"}
-
-Write a concise, professional reply that addresses the email. Be friendly but direct. Use the contact's first name if available.`,
+              content: `${EMAIL_VOICE_PROFILE}\n\nGenerate a reply to this email. Return ONLY the reply text, no preamble, no markdown, no JSON. Start directly with the greeting.\n\nContext:\n- Subject: ${emailSubject || "N/A"}\n- From: ${senderName || "Unknown"} (${senderEmail || ""})\n- Original email snippet: ${emailBody?.slice(0, 500) || "N/A"}`,
             },
           ],
           model: "minimax/minimax-m2.5",
