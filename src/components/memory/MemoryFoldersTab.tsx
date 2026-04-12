@@ -4,6 +4,7 @@ import {
   Folder, FolderPlus, ChevronRight, ChevronDown, File, Upload,
   MoreHorizontal, Pencil, Trash2, Plus, FileText, Image, FileArchive,
 } from "lucide-react";
+import { DocumentIngestionStatus } from "@/components/memory/DocumentIngestionStatus";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -345,6 +346,8 @@ export function MemoryFoldersTab() {
             })}
           </div>
         )}
+
+        <DocumentIngestionStatus />
       </div>
 
       {/* New Folder Dialog */}

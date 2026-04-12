@@ -1,8 +1,10 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Brain, BookOpen, Camera } from "lucide-react";
+import { Brain, BookOpen, Camera, Lightbulb, ScrollText } from "lucide-react";
 import { LongTermMemoryTab } from "@/components/memory/LongTermMemoryTab";
 import { DailyLogsTab } from "@/components/memory/DailyLogsTab";
 import { ServiceSnapshotsTab } from "@/components/memory/ServiceSnapshotsTab";
+import { MentalModelsTab } from "@/components/memory/MentalModelsTab";
+import { AuditLogTab } from "@/components/memory/AuditLogTab";
 import { useAssistantMemory } from "@/hooks/use-assistant-memory";
 import { motion } from "framer-motion";
 
@@ -26,11 +28,17 @@ export default function MemoryPage() {
           <TabsTrigger value="memory" className="gap-1.5 flex-1 sm:flex-none">
             <BookOpen className="h-3.5 w-3.5" /> Long-Term Memory
           </TabsTrigger>
+          <TabsTrigger value="models" className="gap-1.5 flex-1 sm:flex-none">
+            <Lightbulb className="h-3.5 w-3.5" /> Mental Models
+          </TabsTrigger>
           <TabsTrigger value="logs" className="gap-1.5 flex-1 sm:flex-none">
             <Brain className="h-3.5 w-3.5" /> Daily Logs
           </TabsTrigger>
           <TabsTrigger value="snapshots" className="gap-1.5 flex-1 sm:flex-none">
             <Camera className="h-3.5 w-3.5" /> Snapshots
+          </TabsTrigger>
+          <TabsTrigger value="audit" className="gap-1.5 flex-1 sm:flex-none">
+            <ScrollText className="h-3.5 w-3.5" /> Audit Log
           </TabsTrigger>
         </TabsList>
 
@@ -48,6 +56,10 @@ export default function MemoryPage() {
           />
         </TabsContent>
 
+        <TabsContent value="models">
+          <MentalModelsTab />
+        </TabsContent>
+
         <TabsContent value="logs">
           <DailyLogsTab
             logs={memory.logs}
@@ -61,8 +73,11 @@ export default function MemoryPage() {
         <TabsContent value="snapshots">
           <ServiceSnapshotsTab snapshots={memory.snapshots} />
         </TabsContent>
+
+        <TabsContent value="audit">
+          <AuditLogTab />
+        </TabsContent>
       </Tabs>
     </div>
   );
 }
-

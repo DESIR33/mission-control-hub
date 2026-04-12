@@ -1,9 +1,12 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, Brain, Camera, FolderOpen } from "lucide-react";
+import { BookOpen, Brain, Camera, FolderOpen, Lightbulb, Webhook, ScrollText } from "lucide-react";
 import { LongTermMemoryTab } from "@/components/memory/LongTermMemoryTab";
 import { DailyLogsTab } from "@/components/memory/DailyLogsTab";
 import { ServiceSnapshotsTab } from "@/components/memory/ServiceSnapshotsTab";
 import { MemoryFoldersTab } from "@/components/memory/MemoryFoldersTab";
+import { MentalModelsTab } from "@/components/memory/MentalModelsTab";
+import { WebhookConfigTab } from "@/components/memory/WebhookConfigTab";
+import { AuditLogTab } from "@/components/memory/AuditLogTab";
 import { useAssistantMemory } from "@/hooks/use-assistant-memory";
 
 export function MemoryContent() {
@@ -15,6 +18,9 @@ export function MemoryContent() {
         <TabsTrigger value="memory" className="gap-1.5 flex-1 sm:flex-none">
           <BookOpen className="h-3.5 w-3.5" /> Long-Term Memory
         </TabsTrigger>
+        <TabsTrigger value="models" className="gap-1.5 flex-1 sm:flex-none">
+          <Lightbulb className="h-3.5 w-3.5" /> Mental Models
+        </TabsTrigger>
         <TabsTrigger value="folders" className="gap-1.5 flex-1 sm:flex-none">
           <FolderOpen className="h-3.5 w-3.5" /> Folders & Files
         </TabsTrigger>
@@ -23,6 +29,12 @@ export function MemoryContent() {
         </TabsTrigger>
         <TabsTrigger value="snapshots" className="gap-1.5 flex-1 sm:flex-none">
           <Camera className="h-3.5 w-3.5" /> Snapshots
+        </TabsTrigger>
+        <TabsTrigger value="webhooks" className="gap-1.5 flex-1 sm:flex-none">
+          <Webhook className="h-3.5 w-3.5" /> Webhooks
+        </TabsTrigger>
+        <TabsTrigger value="audit" className="gap-1.5 flex-1 sm:flex-none">
+          <ScrollText className="h-3.5 w-3.5" /> Audit Log
         </TabsTrigger>
       </TabsList>
 
@@ -38,6 +50,10 @@ export function MemoryContent() {
           onUpdate={memory.updateMemory}
           onDelete={memory.deleteMemory}
         />
+      </TabsContent>
+
+      <TabsContent value="models">
+        <MentalModelsTab />
       </TabsContent>
 
       <TabsContent value="folders">
@@ -56,6 +72,14 @@ export function MemoryContent() {
 
       <TabsContent value="snapshots">
         <ServiceSnapshotsTab snapshots={memory.snapshots} />
+      </TabsContent>
+
+      <TabsContent value="webhooks">
+        <WebhookConfigTab />
+      </TabsContent>
+
+      <TabsContent value="audit">
+        <AuditLogTab />
       </TabsContent>
     </Tabs>
   );
