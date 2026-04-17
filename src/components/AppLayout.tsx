@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { WorkspaceSwitcher } from "@/components/WorkspaceSwitcher";
 import { useWebhookCacheInvalidation } from "@/hooks/use-webhook-cache-invalidation";
 import { Outlet, NavLink as RouterNavLink, useLocation, useNavigate } from "react-router-dom";
@@ -159,7 +159,7 @@ function MobileNav({
   );
 }
 
-function GlobalHeader({
+const GlobalHeader = memo(function GlobalHeader({
   onMenuClick,
   unreadCount,
 }: {
@@ -170,14 +170,18 @@ function GlobalHeader({
   const { user } = useAuth();
   const [notifOpen, setNotifOpen] = useState(false);
 
-  const initials = user?.user_metadata?.full_name
-    ? user.user_metadata.full_name
+  const initials = useMemo(() => {
+    const fullName = user?.user_metadata?.full_name as string | undefined;
+    if (fullName) {
+      return fullName
         .split(" ")
-        .map((n: string) => n[0])
+        .map((n) => n[0])
         .join("")
         .toUpperCase()
-        .slice(0, 2)
-    : user?.email?.[0]?.toUpperCase() ?? "U";
+        .slice(0, 2);
+    }
+    return user?.email?.[0]?.toUpperCase() ?? "U";
+  }, [user?.user_metadata?.full_name, user?.email]);
 
   return (
     <header className="flex items-center h-12 px-4 border-b border-border bg-sidebar shrink-0 gap-3">
@@ -231,7 +235,7 @@ function GlobalHeader({
       </button>
     </header>
   );
-}
+});
 
 export function AppLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -239,13 +243,13 @@ export function AppLayout() {
   const { unreadCount } = useNotifications();
   useWebhookCacheInvalidation();
 
-  const toggleSidebar = () => {
+  const toggleSidebar = useCallback(() => {
     if (window.innerWidth < 768) {
       setMobileOpen(true);
     } else {
       setSidebarVisible((v) => !v);
     }
-  };
+  }, []);
 
   return (
     <WorkspaceProvider>

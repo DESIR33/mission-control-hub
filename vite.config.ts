@@ -2,6 +2,25 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
+import { visualizer } from "rollup-plugin-visualizer";
+
+// Radix primitives that appear on almost every page (shell, menus, tooltips, dialogs).
+// Kept in a small "core" chunk so they load with the app shell instead of per-route.
+const RADIX_CORE = [
+  "react-slot",
+  "react-label",
+  "react-tooltip",
+  "react-dropdown-menu",
+  "react-dialog",
+  "react-popover",
+  "react-separator",
+  "react-avatar",
+  "react-toast",
+];
+
+function isRadixCore(id: string) {
+  return RADIX_CORE.some((pkg) => id.includes(`@radix-ui/${pkg}/`));
+}
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -12,7 +31,17 @@ export default defineConfig(({ mode }) => ({
       overlay: false,
     },
   },
-  plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
+  plugins: [
+    react(),
+    mode === "development" && componentTagger(),
+    mode === "production" &&
+      visualizer({
+        filename: "dist/stats.html",
+        gzipSize: true,
+        brotliSize: true,
+        template: "treemap",
+      }),
+  ].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -29,6 +58,7 @@ export default defineConfig(({ mode }) => ({
           }
           // Data layer
           if (id.includes("@tanstack/react-query")) return "vendor-query";
+          if (id.includes("@tanstack/react-virtual")) return "vendor-virtual";
           if (id.includes("@supabase/")) return "vendor-supabase";
           // NOTE: recharts and its transitive deps (d3-*, victory-vendor, etc.) are intentionally
           // NOT manually chunked here. They have circular imports that cause TDZ crashes
@@ -41,6 +71,10 @@ export default defineConfig(({ mode }) => ({
           // PDF / export — must stay lazy, never in core bundle
           if (id.includes("node_modules/jspdf")) return "vendor-pdf";
           if (id.includes("node_modules/jszip")) return "vendor-zip";
+          // Flow graph — only used by memory knowledge graph page
+          if (id.includes("node_modules/@xyflow/react") || id.includes("node_modules/dagre")) {
+            return "vendor-flow";
+          }
           // Markdown rendering — lazy-loaded
           if (id.includes("node_modules/react-markdown") || id.includes("node_modules/remark-") || id.includes("node_modules/rehype-") || id.includes("node_modules/unified") || id.includes("node_modules/mdast") || id.includes("node_modules/micromark")) {
             return "vendor-markdown";
@@ -49,8 +83,10 @@ export default defineConfig(({ mode }) => ({
           if (id.includes("node_modules/react-icons")) return "vendor-icons";
           // DOMPurify — inbox only
           if (id.includes("node_modules/dompurify")) return "vendor-sanitize";
-          // Radix UI primitives
-          if (id.includes("node_modules/@radix-ui/")) return "vendor-ui";
+          // Radix UI primitives — split core (shell) from extras (occasional pages)
+          if (id.includes("node_modules/@radix-ui/")) {
+            return isRadixCore(id) ? "vendor-ui-core" : "vendor-ui-extras";
+          }
           // Forms
           if (id.includes("node_modules/react-hook-form") || id.includes("node_modules/@hookform/") || id.includes("node_modules/zod")) {
             return "vendor-forms";
