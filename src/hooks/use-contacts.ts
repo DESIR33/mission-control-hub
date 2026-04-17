@@ -2,7 +2,22 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { getFreshness } from "@/config/data-freshness";
+import { ACTIVITY_FIELDS, COMPANY_EMBED_FIELDS } from "@/integrations/supabase/selects";
 import type { Contact, Activity } from "@/types/crm";
+
+const CONTACT_FIELDS = [
+  "id, workspace_id, first_name, last_name, email, phone, status, role, source, company_id",
+  "vip_tier, website, avatar_url, preferred_channel, last_contact_date, notes",
+  "created_at, updated_at, deleted_at, custom_fields, owner_id, escalation_owner_id",
+  "response_sla_minutes, created_by",
+  "social_twitter, social_linkedin, social_youtube, social_instagram, social_facebook",
+  "social_telegram, social_whatsapp, social_discord, social_github",
+  "contact_type, job_title, department, is_decision_maker, reports_to",
+  "last_outreach_date, last_response_date, next_follow_up_date, outreach_count",
+  "typical_budget_range, preferred_deal_type, payment_terms",
+  "lead_score, warmth, secondary_email, timezone, referral_source, source_detail",
+  `companies(${COMPANY_EMBED_FIELDS})`,
+].join(", ");
 
 export function useContacts() {
   const { workspaceId } = useWorkspace();
@@ -14,7 +29,7 @@ export function useContacts() {
 
       const { data, error } = await supabase
         .from("contacts")
-        .select("id, workspace_id, first_name, last_name, email, phone, status, role, source, company_id, vip_tier, website, avatar_url, preferred_channel, last_contact_date, notes, created_at, updated_at, deleted_at, custom_fields, owner_id, escalation_owner_id, response_sla_minutes, created_by, social_twitter, social_linkedin, social_youtube, social_instagram, social_facebook, social_telegram, social_whatsapp, social_discord, social_github, contact_type, job_title, department, is_decision_maker, reports_to, last_outreach_date, last_response_date, next_follow_up_date, outreach_count, typical_budget_range, preferred_deal_type, payment_terms, lead_score, warmth, secondary_email, timezone, referral_source, source_detail, companies(id, name, logo_url, industry)")
+        .select(CONTACT_FIELDS)
         .eq("workspace_id", workspaceId)
         .is("deleted_at", null)
         .order("updated_at", { ascending: false })
@@ -194,7 +209,7 @@ export function useActivities(entityId: string | null, entityType: string = "con
 
       const { data, error } = await supabase
         .from("activities")
-        .select("id, workspace_id, entity_id, entity_type, activity_type, title, description, performed_at, performed_by, metadata, created_at")
+        .select(ACTIVITY_FIELDS)
         .eq("workspace_id", workspaceId)
         .eq("entity_id", entityId)
         .eq("entity_type", entityType)

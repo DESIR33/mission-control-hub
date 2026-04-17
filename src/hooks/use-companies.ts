@@ -2,7 +2,20 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { getFreshness } from "@/config/data-freshness";
+import { CONTACT_ID_ONLY } from "@/integrations/supabase/selects";
 import type { Company, Contact } from "@/types/crm";
+
+// CompaniesTable only reads `company.contacts?.length` — fetch ids only to cut payload.
+const COMPANY_FIELDS = [
+  "id, workspace_id, name, logo_url, industry, website, description, size, revenue, location",
+  "country, state, city, phone, primary_email, secondary_email, vip_tier, notes, last_contact_date, is_agency",
+  "social_twitter, social_linkedin, social_youtube, social_instagram, social_facebook, social_tiktok",
+  "social_producthunt, social_crunchbase, social_whatsapp, social_github, social_discord",
+  "funding_stage, total_funding, last_funding_date, founded_year, founder_names, pricing_model, tech_stack",
+  "outreach_status, sponsor_fit_score, competitor_group",
+  "created_at, updated_at, deleted_at, created_by, response_sla_minutes",
+  `contacts(${CONTACT_ID_ONLY})`,
+].join(", ");
 
 export function useCompanies() {
   const { workspaceId } = useWorkspace();
@@ -14,7 +27,7 @@ export function useCompanies() {
 
       const { data, error } = await supabase
         .from("companies")
-        .select("id, workspace_id, name, logo_url, industry, website, description, size, revenue, location, country, state, city, phone, primary_email, secondary_email, vip_tier, notes, last_contact_date, is_agency, social_twitter, social_linkedin, social_youtube, social_instagram, social_facebook, social_tiktok, social_producthunt, social_crunchbase, social_whatsapp, social_github, social_discord, funding_stage, total_funding, last_funding_date, founded_year, founder_names, pricing_model, tech_stack, outreach_status, sponsor_fit_score, competitor_group, created_at, updated_at, deleted_at, created_by, response_sla_minutes, contacts(id, first_name, last_name, email, role, status)")
+        .select(COMPANY_FIELDS)
         .eq("workspace_id", workspaceId)
         .is("deleted_at", null)
         .order("updated_at", { ascending: false })
